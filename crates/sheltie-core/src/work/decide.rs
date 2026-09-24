@@ -203,17 +203,15 @@ fn decide_begin(
     };
     let attempt_id = AttemptId::new(node.clone(), occ_n, retry);
 
-    let bound = bind_inputs(state, graph, node, &attempt_id, observed_inputs)?;
+    let (bound, stats) = bind_inputs(state, graph, node, &attempt_id, observed_inputs)?;
 
     let mut effects = Vec::new();
-    for decl in &def.inputs {
-        if matches!(decl.from, InputSource::EngineStats) {
-            let (artifact, content) = engine_stats_artifact(state, graph, &attempt_id);
-            effects.push(Effect::WriteFile {
-                path: artifact.path,
-                content,
-            });
-        }
+    // 一次 begin 只写一个 stats.json（多个 engine.stats 输入共享同一份内容）。
+    if let Some((artifact, content)) = stats {
+        effects.push(Effect::WriteFile {
+            path: artifact.path,
+            content,
+        });
     }
 
     let attempt = Attempt {
@@ -271,21 +269,27 @@ fn decide_begin(
 /// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
 /// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
 /// - `EngineStats`：不看观察。用 `render::render_stats_json(state, graph)` 生成内容，路径 `attempt_dir(attempt_id)/stats.json`，
-///   摘要 `Sha256Hex::of_bytes(内容)`，并由 `decide_begin` 追加 `Effect::WriteFile`。
+///   摘要 `Sha256Hex::of_bytes(内容)`；一次 begin 只算一份，返回值把它带回去给 `decide_begin` 追加一个 `Effect::WriteFile`。
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
 ///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
+///
+/// 返回逐条绑定；有 `engine.stats` 输入时一并带回那份 stats.json 产物（内容与摘要同源）。
+type BoundInputs = BTreeMap<String, Option<ArtifactRef>>;
+type StatsArtifact = (ArtifactRef, String);
+
 fn bind_inputs(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
     attempt_id: &AttemptId,
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
-) -> Result<BTreeMap<String, Option<ArtifactRef>>> {
+) -> Result<(BoundInputs, Option<StatsArtifact>)> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
         reason: format!("节点 {node} 不在图里"),
     })?;
     let mut bound = BTreeMap::new();
+    let mut stats: Option<StatsArtifact> = None;
     for decl in &def.inputs {
         let observed = observed_inputs.get(&decl.name).and_then(|o| o.as_ref());
         let artifact = match &decl.from {
@@ -318,7 +322,13 @@ fn bind_inputs(
                     bytes: obs.bytes,
                 })
             }
-            InputSource::EngineStats => Some(engine_stats_artifact(state, graph, attempt_id).0),
+            InputSource::EngineStats => {
+                // 一次 begin 只算一份 stats.json，多个 engine.stats 输入共享它。
+                if stats.is_none() {
+                    stats = Some(engine_stats_artifact(state, graph, attempt_id)?);
+                }
+                stats.as_ref().map(|(artifact, _)| artifact.clone())
+            }
             InputSource::Node { node: src, output } => match state
                 .latest_succeeded_of(src)
                 .and_then(|a| a.outputs.get(output))
@@ -349,7 +359,7 @@ fn bind_inputs(
         };
         bound.insert(decl.name.clone(), artifact);
     }
-    Ok(bound)
+    Ok((bound, stats))
 }
 
 /// `attempt submit` 第 1 到 6 步。
@@ -603,20 +613,23 @@ pub fn input_paths_for(
 }
 
 /// `engine.stats` 绑定：`render_stats_json` 序列化成 JSON，写到 `attempt_dir/stats.json`。
+/// 序列化失败就报错，不造一份假 stats（core 没有存储类错误码，先落 `InvalidRequest`）。
 fn engine_stats_artifact(
     state: &WorkState,
     graph: &Graph,
     attempt_id: &AttemptId,
-) -> (ArtifactRef, String) {
+) -> Result<(ArtifactRef, String)> {
     let stats = render_stats_json(state, graph);
-    let content = serde_json::to_string(&stats).unwrap_or_else(|_| "{\"nodes\":[]}".to_string());
+    let content = serde_json::to_string(&stats).map_err(|e| Error::InvalidRequest {
+        reason: format!("engine.stats 序列化失败：{e}"),
+    })?;
     let path = state.attempt_dir(attempt_id).join_segment("stats.json");
     let artifact = ArtifactRef {
         sha256: Sha256Hex::of_bytes(content.as_bytes()),
         bytes: content.len() as u64,
         path,
     };
-    (artifact, content)
+    Ok((artifact, content))
 }
 
 /// runtime 在 `attempt submit` 前调用：本 Attempt 每个声明输出的目标路径 `attempt_dir/<path>`。
@@ -650,6 +663,29 @@ mod tests {
 
     fn node(s: &str) -> NodeId {
         NodeId::new(s).unwrap()
+    }
+
+    /// 用给定 manifest 与 flow 文本编图并起一个 Work（无起始输入），返回图与 start 的决策。
+    fn start_texts(manifest_text: &str, flow_text: &str) -> (Graph, Decision) {
+        let manifest = crate::workbook::parse_manifest(manifest_text).unwrap();
+        let def = crate::flow::parse_flow(flow_text).unwrap();
+        let graph =
+            crate::flow::compile(&def, &manifest, &crate::flow::ResourceIndex::default()).unwrap();
+        let cmd = Command::Start {
+            work_id: crate::ids::WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap())
+                .unwrap(),
+            name: WorkName::normalize("t").unwrap(),
+            workbook: crate::work::WorkbookRef {
+                id: manifest.id.clone(),
+                version: manifest.version.clone(),
+                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
+            },
+            flow: crate::ids::FlowId::new("default").unwrap(),
+            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
+            inputs: BTreeMap::new(),
+        };
+        let d = decide(None, &graph, &cmd, &testkit::ctx()).unwrap();
+        (graph, d)
     }
 
     // ── T06 Start ─────────────────────────────────────────────
@@ -711,30 +747,10 @@ mod tests {
 
     #[test]
     fn t06_start_requires_is_full_manifest_list_in_declaration_order() {
-        let manifest = crate::workbook::parse_manifest(
+        let (_graph, d) = start_texts(
             "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"beta\"\n[[requires]]\nkind = \"mcp\"\nname = \"alpha\"\n",
-        )
-        .unwrap();
-        let def = crate::flow::parse_flow(
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:alpha\"]\n",
-        )
-        .unwrap();
-        let graph =
-            crate::flow::compile(&def, &manifest, &crate::flow::ResourceIndex::default()).unwrap();
-        let cmd = Command::Start {
-            work_id: crate::ids::WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap())
-                .unwrap(),
-            name: WorkName::normalize("t").unwrap(),
-            workbook: crate::work::WorkbookRef {
-                id: manifest.id.clone(),
-                version: manifest.version.clone(),
-                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
-            },
-            flow: crate::ids::FlowId::new("default").unwrap(),
-            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
-            inputs: BTreeMap::new(),
-        };
-        let d = decide(None, &graph, &cmd, &testkit::ctx()).unwrap();
+        );
         let Reply::Started { requires, .. } = d.reply else {
             panic!("应当是 Reply::Started");
         };
@@ -950,6 +966,38 @@ mod tests {
         );
         assert_eq!(stats.bytes, content.len() as u64);
         assert!(content.contains("\"nodes\""));
+    }
+
+    // ── M1 复核 O6：多个 engine.stats 输入共享一份 stats.json，只算一次、只写一次 ─────
+
+    #[test]
+    fn t07_begin_with_two_engine_stats_inputs_writes_one_stats_json() {
+        let (graph, d0) = start_texts(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\ninputs = [{ name = \"s1\", from = \"engine.stats\" }, { name = \"s2\", from = \"engine.stats\" }]\noutputs = [{ name = \"out\", path = \"out.md\" }]\n",
+        );
+        let d = decide(
+            Some(&d0.state),
+            &graph,
+            &Command::BeginAttempt {
+                node: node("only"),
+                observed_inputs: BTreeMap::new(),
+                instruction_text: "做这一件事。".to_string(),
+            },
+            &testkit::ctx(),
+        )
+        .unwrap();
+        let a = d.state.latest_attempt_of_current().unwrap();
+        let s1 = a.inputs["s1"].as_ref().unwrap();
+        let s2 = a.inputs["s2"].as_ref().unwrap();
+        assert_eq!(s1, s2);
+        assert_eq!(
+            d.effects
+                .iter()
+                .filter(|e| matches!(e, Effect::WriteFile { .. }))
+                .count(),
+            1
+        );
     }
 
     #[test]
