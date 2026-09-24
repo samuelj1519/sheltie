@@ -1,7 +1,7 @@
 # 机器可读的任务表，与 specs/plan.md §2 同源。改计划必改这里。
 # files：本任务允许修改的源码文件（白名单）。
 # tests：测试函数名前缀。
-# test_files：允许删禁用标记的测试所在文件（除删 `#[ignore` 行外不得有其他改动）。
+# test_files：测试所在文件，改动只许删 #[ignore 行；与 files 重叠的是混合源文件，改查 #[cfg(test)] 起的测试模块。
 # allow_test_changes：为 true 时放开 test_files 的改动限制（只用于场景任务修 bug）。
 
 [T02]

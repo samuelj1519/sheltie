@@ -26,8 +26,8 @@
 3. **只填 `todo!()`。** 把「文件」里函数体的 `todo!()` 换成实现。不改函数签名，不改类型定义，不加 `pub`，不加依赖，不新建文件。文档注释就是这个函数要做的事。
 4. **不改测试，不改快照。** 测试是合同。测试红了改实现，不改断言。快照不一致改渲染代码，不 `cargo insta accept`。
 5. **一次一个测试。** 挑一个红的，让它绿，再挑下一个。不要一次改很多再跑。
-6. **绿了跑门禁。** `scripts/task.sh Tnn` 全绿后，跑 [engineering.md §2.3](engineering.md) 四条命令，再跑 `scripts/check-task.sh Tnn`。
-7. **一次提交。** 提交信息按 [engineering.md §4](engineering.md) 的格式，第一行用任务卡「提交」那一行，末尾 `Task: Tnn` 与 `Agent: <名字>`。改状态列为 `done` 放进同一提交。
+6. **绿了跑门禁。** `scripts/task.sh Tnn` 全绿后，把状态列改为 `done`，跑 [engineering.md §2.3](engineering.md) 四条命令与 `scripts/check-task.sh Tnn`。
+7. **一次提交。** 提交信息按 [engineering.md §4](engineering.md) 的格式，第一行用任务卡「提交」那一行，末尾 `Task: Tnn` 与 `Agent: <名字>`。改状态列为 `done` 放进同一提交。提交后再跑 `scripts/check-task.sh Tnn`，这时补查提交信息。
 8. **不顺手改。** 看到别的 `todo!()`、别的任务的测试、觉得能优化的地方，都不碰。
 9. **卡住就停。** 下面任何一种情况，停手、不提交、把状态列改成 `blocked`、在提交信息或聊天里写清原因：两个测试互相矛盾；不改签名或测试就做不到；需要新依赖；同一个测试改了五次还红；任务卡和合同说的不一样。
 10. **不猜。** 文档注释、测试、合同都没说的行为，不自己发明。按第 9 条卡住。
@@ -41,7 +41,7 @@
 | 命令 | 作用 |
 | --- | --- |
 | `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。零个测试匹配视为失败 |
-| `scripts/check-task.sh Tnn` | 核对：改动文件都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里；`files` 里没有 `todo!()`；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对 git tag `t01-skeleton` 的 diff 只有删除 `#[ignore` 行，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行 |
+| `scripts/check-task.sh Tnn [base] [--staged]` | 核对：未提交的改动文件都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里（`plan.md`、`tasks.toml` 始终允许），工作树干净时再核对最近一次提交的文件范围；`files` 里没有 `todo!("Tnn")` 与不带标签的 `todo!()`，`#[allow(unused_variables)]` 只准留在还有 `todo!()` 的函数上；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对基准（默认 git tag `t01-skeleton`）的测试代码零改动，只允许删 `#[ignore` 行，与 `files` 重叠的混合源文件比对 `#[cfg(test)]` 起的测试模块，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才查，`--staged` 跳过） |
 | `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`tests = "t05_"`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
 | `cargo mutants -p <crate>` | 里程碑用。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
 
@@ -209,7 +209,7 @@
 
 **结果。** `render_brief`、`render_status_card`、`NextOp::to_command_line`、`StatusCardJson` 与骨架预写的快照逐字节一致。
 
-**文件。** `crates/sheltie-core/src/work/render.rs`。
+**文件。** `crates/sheltie-core/src/work/{render,next}.rs` 中的 `render_brief`、`render_status_card`、`NextOp::to_command_line`。
 
 **测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`、`status_card_active_mid_flow`、`status_card_blocked_on_gate`、`status_card_succeeded`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`。
 
@@ -221,7 +221,7 @@
 
 **执行者。** 强模型，未参与 T02 到 T10。
 
-**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `cargo mutants -p sheltie-core --timeout 120`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。
+**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `cargo mutants -p sheltie-core --timeout 120`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`、零 `#[ignore`，有就退回对应任务。
 
 **产出。** 一份 `M1` 报告放进 `decisions.md` 末节之前的「里程碑记录」，列检查表结果、幸存突变数与处置、修复提交。有阻断项时对应任务状态改回 `doing`，由实现者修，M1 再复核。
 
