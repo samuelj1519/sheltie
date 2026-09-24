@@ -51,7 +51,18 @@ fn is_day_shape(day: &str) -> bool {
         && b[8..].iter().all(u8::is_ascii_digit)
 }
 
-/// `\p{Han}` 的常用区段。名字规则允许汉字，std 没有 Unicode 脚本分类，按区段判断。
+/// 规范十进制：`0`，或 `1-9` 后跟任意位。拒绝前导 `+`、前导零、空串与溢出。
+fn parse_u32_canonical(s: &str) -> Option<u32> {
+    if s.is_empty() || !s.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    if s.len() > 1 && s.starts_with('0') {
+        return None;
+    }
+    s.parse().ok()
+}
+
+/// 协议 `work start` 第 3 步列出的十二个汉字区间。std 没有 Unicode 脚本分类，按区段判断。
 fn is_han(c: char) -> bool {
     matches!(
         c,
@@ -62,7 +73,11 @@ fn is_han(c: char) -> bool {
         | '\u{2A700}'..='\u{2B73F}'  // 扩展 C
         | '\u{2B740}'..='\u{2B81F}'  // 扩展 D
         | '\u{2B820}'..='\u{2CEAF}'  // 扩展 E
+        | '\u{2CEB0}'..='\u{2EBEF}'  // 扩展 F
+        | '\u{2EBF0}'..='\u{2EE5F}'  // 扩展 I
+        | '\u{2F800}'..='\u{2FA1F}'  // 兼容补充
         | '\u{30000}'..='\u{3134F}'  // 扩展 G
+        | '\u{31350}'..='\u{323AF}'  // 扩展 H
     )
 }
 
@@ -232,6 +247,9 @@ impl WorkId {
         if !is_day_shape(day) {
             return Err(reject("日期必须是 YYYY-MM-DD"));
         }
+        if !seq_str.bytes().all(|b| b.is_ascii_digit()) {
+            return Err(reject("序号必须是三位数字"));
+        }
         let seq: u32 = seq_str.parse().map_err(|_| reject("序号必须是三位数字"))?;
         let name = WorkName::normalize(name_str)?;
         if name.as_str() != name_str {
@@ -294,9 +312,14 @@ impl AttemptId {
         let (occ_str, retry_str) = rest
             .split_once('.')
             .ok_or_else(|| reject("形状不是 节点#n.retry"))?;
-        let node = NodeId::new(node_str)?;
-        let occurrence: u32 = occ_str.parse().map_err(|_| reject("到达次数不是数字"))?;
-        let retry: u32 = retry_str.parse().map_err(|_| reject("重试序号不是数字"))?;
+        let node = NodeId::new(node_str).map_err(|e| match e {
+            Error::InvalidId { reason, .. } => reject(reason),
+            e => e,
+        })?;
+        let occurrence: u32 =
+            parse_u32_canonical(occ_str).ok_or_else(|| reject("到达次数不是数字"))?;
+        let retry: u32 =
+            parse_u32_canonical(retry_str).ok_or_else(|| reject("重试序号不是数字"))?;
         Ok(Self::new(node, occurrence, retry))
     }
 }
@@ -367,7 +390,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_id_parse_rejects_plus_sign_in_seq() {
         // str::parse::<u32> 接受前导 +，解析层必须自己拒绝，否则解析再拼出会得到不同的串。
         assert!(WorkId::parse("2026-09-24-+12-x").is_err());
@@ -375,7 +397,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_attempt_id_parse_rejects_plus_sign() {
         assert!(AttemptId::parse("draft#+1.0").is_err());
         assert!(AttemptId::parse("draft#1.+0").is_err());
@@ -383,7 +404,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_parse_rejects_leading_zero_in_numeric_segments() {
         // "01".parse::<u32>() 放行，会让 draft#01.0 重排成 draft#1.0；序号段必须是规范十进制。
         assert!(AttemptId::parse("draft#01.0").is_err());
@@ -399,7 +419,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_name_accepts_han_extension_f_h_i_and_compat_supplement() {
         // 协议 work start 第 3 步列出的全部区段各取一个码点。
         for c in [
@@ -433,7 +452,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_attempt_id_parse_error_field_is_attempt_id() {
         match AttemptId::parse("Bad#1.0") {
             Err(Error::InvalidId { field, .. }) => assert_eq!(field, "attempt_id"),
