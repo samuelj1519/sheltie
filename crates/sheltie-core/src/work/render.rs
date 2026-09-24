@@ -109,10 +109,18 @@ pub fn render_brief(
         out.push_str("| 类型 | 名称 | 版本 | 说明 |\n");
         out.push_str("| --- | --- | --- | --- |\n");
         for (kind, name) in &node.requires {
+            // 版本从 Workbook 的 requires 声明里查（合同 §4 模板）；没声明版本就写 `-`。
+            let version = graph
+                .requires()
+                .iter()
+                .find(|r| r.kind == *kind && r.name == *name)
+                .and_then(|r| r.version.as_deref())
+                .unwrap_or("-");
             out.push_str(&format!(
-                "| {} | {} | - | 请确认你的宿主已装此资源；未装请停下并告知用户 |\n",
+                "| {} | {} | {} | 请确认你的宿主已装此资源；未装请停下并告知用户 |\n",
                 kind.as_str(),
-                name
+                name,
+                version
             ));
         }
     }
@@ -594,6 +602,59 @@ mod tests {
         let a = fx.state().latest_attempt_of_current().unwrap();
         let text = render_brief(fx.state(), &fx.graph, a, "写初稿。");
         assert!(!text.contains("需要的宿主资源"));
+    }
+
+    // ── M1 复核 O3：版本列来自 Workbook 的 requires 声明，没声明版本写 `-` ─────
+
+    #[test]
+    fn t10_brief_require_version_column_comes_from_manifest() {
+        use crate::digest::Sha256Hex;
+        use crate::flow::{ResourceIndex, compile, parse_flow};
+        use crate::ids::{FlowId, NodeId, WorkId, WorkName};
+        use crate::path::AbsPath;
+        use crate::work::WorkbookRef;
+        use crate::work::command::Command;
+        use crate::work::decide::decide;
+        use crate::workbook::parse_manifest;
+
+        let manifest = parse_manifest(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n",
+        )
+        .unwrap();
+        let def = parse_flow(
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"用公司 API 做点事。\" }\nrequires = [\"skill:company-api\"]\n",
+        )
+        .unwrap();
+        let graph = compile(&def, &manifest, &ResourceIndex::default()).unwrap();
+        let start = Command::Start {
+            work_id: WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap()).unwrap(),
+            name: WorkName::normalize("t").unwrap(),
+            workbook: WorkbookRef {
+                id: manifest.id.clone(),
+                version: manifest.version.clone(),
+                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
+            },
+            flow: FlowId::new("default").unwrap(),
+            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
+            inputs: BTreeMap::new(),
+        };
+        let d0 = decide(None, &graph, &start, &crate::testkit::ctx()).unwrap();
+        let d1 = decide(
+            Some(&d0.state),
+            &graph,
+            &Command::BeginAttempt {
+                node: NodeId::new("only").unwrap(),
+                observed_inputs: BTreeMap::new(),
+                instruction_text: "用公司 API 做点事。".to_string(),
+            },
+            &crate::testkit::ctx(),
+        )
+        .unwrap();
+        let a = d1.state.latest_attempt_of_current().unwrap();
+        let text = render_brief(&d1.state, &graph, a, "用公司 API 做点事。");
+        assert!(text.contains(
+            "| skill | company-api | ^1 | 请确认你的宿主已装此资源；未装请停下并告知用户 |"
+        ));
     }
 
     #[test]
