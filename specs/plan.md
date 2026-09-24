@@ -23,7 +23,7 @@
 
 1. **只读三样东西。** 本任务的任务卡（下面 §2 对应一节）、任务卡「文件」列出的源码文件、任务卡「测试」对应的测试代码。不读整个仓库。合同只在任务卡指名「按某合同某节」时去读那一节。
 2. **先解开测试。** 删掉本任务测试上的 `#[ignore = "Tnn"]`，运行 `scripts/task.sh Tnn`，看到它们全红。编译错误不算红，先让它编译。
-3. **只填 `todo!()`。** 把「文件」里函数体的 `todo!()` 换成实现。不改函数签名，不改类型定义，不加 `pub`，不加依赖，不新建文件。文档注释就是这个函数要做的事。
+3. **只填 `todo!()`。** 把「文件」里函数体的 `todo!()` 换成实现。不改函数签名，不改类型定义，不加 `pub`，不加依赖，不新建文件。文档注释就是这个函数要做的事。同文件内新增私有辅助函数是实现细节，允许；它们不得改变任何公开项的行为边界。
 4. **不改测试，不改快照。** 测试是合同。测试红了改实现，不改断言。快照不一致改渲染代码，不 `cargo insta accept`。
 5. **一次一个测试。** 挑一个红的，让它绿，再挑下一个。不要一次改很多再跑。
 6. **绿了跑门禁。** `scripts/task.sh Tnn` 全绿后，把状态列改为 `done`，跑 [engineering.md §2.3](engineering.md) 四条命令与 `scripts/check-task.sh Tnn`。
@@ -137,7 +137,13 @@
 
 **提交。** `feat(core): 强类型 ID、相对路径、有界文本与摘要`
 
-**复核（2026-09-24）。** 通过，两项待修：B1 `WorkId::parse` 与 `AttemptId::parse` 接受前导 `+`；B3 `AttemptId::parse` 节点不合规时错误 `field` 不是 `attempt_id`。复核者补了三条测试：`work_id_parse_rejects_plus_sign_in_seq`、`attempt_id_parse_rejects_plus_sign`、`attempt_id_parse_error_field_is_attempt_id`。B2（`\p{Han}` 只覆盖常用区段）改合同措辞接受实现；B4（日期不做日历校验）接受。修复提交 `fix(core): 序号拒绝前导加号，AttemptId 错误字段归位`，`Task: T02`。
+**复核（2026-09-24，两轮）。** 通过。第一轮列出 B1 到 B4；实现者复核了这份复核，指出两处事实不实（`text.rs` 换了一行 `use`；新增了两个私有函数）与三处漏检（`check-task.sh` 第 124 行全角冒号让 `set -u` 中止，负例其实在崩溃；`manifest.rs:114` 有 T01 残留的 `#[allow]` 会让 T03 必然过不了检查 2；检查 1 的两条路径互斥）。全部核实成立，见 [decisions.md D-25](decisions.md)。
+
+归属与状态：
+
+- 复核者（骨架）已改：`manifest.rs:114` 残留删除；`kebab_id!` 的错误 `field` 改为 `workbook_id / flow_id / node_id`（B3 根因）；协议第 3 步改为列出十二个码点区间（B2）；`tasks.toml` 加 `[T01]` 白名单，工具提交不再免检；规则 3 明确允许私有辅助函数。补测试五条并禁用：`work_id_parse_rejects_plus_sign_in_seq`、`attempt_id_parse_rejects_plus_sign`、`parse_rejects_leading_zero_in_numeric_segments`、`work_name_accepts_han_extension_f_h_i_and_compat_supplement`、`attempt_id_parse_error_field_is_attempt_id`。
+- 实现者待修（`Task: T02`）：B1 扩到 `AttemptId::parse` 的到达次数与重试段，数字段必须是规范十进制（无前导 `+`、无前导零，`0` 本身除外）；B2 `is_han` 补扩展 F、H、I 与兼容补充区，与协议列表逐区间一致；B3 `AttemptId::parse` 的 `field` 归位。修复提交 `fix(core): 数字段拒绝前导加号与前导零，Han 区段补齐，错误字段归位`。
+- 实现者待修（`Task: T01`，工具）：`check-task.sh` 第 124 行 `$residue：` 改 `${residue}：`；检查 1 改为「基准以来提交说明含 `Task: Tnn` 的提交的改动 ∪ 未提交改动」，两条路径不再互斥。
 
 ### T03 core 解析 `workbook.toml`
 

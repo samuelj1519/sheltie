@@ -76,7 +76,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 1. 找到 Workbook 与 Flow，编译图。
 2. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。
-3. 规范化名字：`--name` 省略时取 `flow` id；去首尾空白，连续空白替换为一个 `-`，转小写。规范化后必须只含小写字母、数字、汉字与单个 `-`（不以 `-` 开头或结尾，无连续 `-`）且 ≤ 48 字节，否则 `INVALID_REQUEST`。「汉字」按 Unicode 汉字区段判断：基本区、扩展 A 到 G、兼容区；其余 `Han` 脚本字符不保证接受。
+3. 规范化名字：`--name` 省略时取 `flow` id；去首尾空白，连续空白替换为一个 `-`，转小写。规范化后必须只含小写字母、数字、汉字与单个 `-`（不以 `-` 开头或结尾，无连续 `-`）且 ≤ 48 字节，否则 `INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇` 等 `Han` 脚本的其他码点不接受。
 4. 分配 `work_id = <UTC 日期 YYYY-MM-DD>-<当日序号 001..999>-<名字>`。序号按 UTC 日期在 SQLite 事务内递增（[存储合同 §7](storage.md)），同一天第 1000 个 Work 报 `INVALID_REQUEST`。
 5. 建目录 `works/<work_id>/`。把整个 Workbook 目录复制到 `works/<work_id>/workbook/` 并置只读，这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
 6. 建 `inputs/`，把每个输入值写成文件 `inputs/<key>`，记 `ArtifactRef`。
