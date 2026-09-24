@@ -1,0 +1,31 @@
+---
+source: crates/sheltie-core/src/work/render.rs
+expression: "render_brief(fx.state(), &fx.graph, a, \"确认可以发布。\")"
+---
+# 任务书：定稿
+
+Work: 2026-09-24-001-t（t）
+节点: publish#1，第 0 次尝试
+来自: review#1（main 边）
+执行者: human
+
+## 输入
+
+| 名称 | 路径 | sha256 |
+| --- | --- | --- |
+| article | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/1/0/article.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
+| review | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/1/0/review.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
+
+## 说明
+
+确认可以发布。
+
+## 输出要求
+
+| 名称 | 写到 | 必需 | 上限 |
+| --- | --- | --- | --- |
+| final | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/publish/1/0/final.md | 是 | 1 MiB |
+
+写完输出文件后，在终端运行：
+
+    sheltie attempt submit 2026-09-24-001-t --attempt publish#1.0 --summary "<一句话结论>"

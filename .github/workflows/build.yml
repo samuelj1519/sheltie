@@ -52,6 +52,8 @@ jobs:
         run: cargo deny check
       - name: Execute rust tests
         run: cargo nextest run --all-features --no-tests=pass
+      - name: Check engine vocabulary
+        run: scripts/check-core-vocab.sh
 
   release:
     if: startsWith(github.ref, 'refs/tags/')

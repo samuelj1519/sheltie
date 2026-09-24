@@ -26,6 +26,12 @@ repos:
         language: script
         files: \.md$
         pass_filenames: false
+      - id: check-core-vocab
+        name: check engine vocabulary
+        entry: scripts/check-core-vocab.sh
+        language: script
+        files: \.rs$
+        pass_filenames: false
       - id: cargo-fmt
         name: cargo fmt
         entry: bash -c 'cargo fmt --all -- --check'

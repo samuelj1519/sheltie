@@ -1,0 +1,29 @@
+---
+source: crates/sheltie-core/src/work/render.rs
+expression: "render_brief(fx.state(), &fx.graph, a, \"审查这篇文章。\")"
+---
+# 任务书：审查初稿
+
+Work: 2026-09-24-001-t（t）
+节点: review#1，第 0 次尝试
+来自: draft#1（main 边）
+执行者: agent（standard）
+
+## 输入
+
+| 名称 | 路径 | sha256 |
+| --- | --- | --- |
+| article | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/1/0/article.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
+| checklist | /tmp/sheltie-test/works/2026-09-24-001-t/workbook/resources/review-checklist.md | 887d65108d23a71b86f691183d2f9de26b8e45f864fc44e24c5e76ffbe96ed6a |
+
+## 说明
+
+审查这篇文章。
+
+## 输出要求
+
+| 名称 | 写到 | 必需 | 上限 |
+| --- | --- | --- | --- |
+| verdict | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/1/0/review.md | 是 | 64 KiB |
+
+完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。

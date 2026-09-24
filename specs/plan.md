@@ -40,7 +40,7 @@
 
 | 命令 | 作用 |
 | --- | --- |
-| `scripts/task.sh Tnn` | 只跑本任务的测试：`cargo nextest run --all-features -E 'test(/^tnn_/)'`，零个测试视为失败 |
+| `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。零个测试匹配视为失败 |
 | `scripts/check-task.sh Tnn` | 核对：改动文件都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里；`files` 里没有 `todo!()`；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对 git tag `t01-skeleton` 的 diff 只有删除 `#[ignore` 行，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行 |
 | `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`tests = "t05_"`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
 | `cargo mutants -p <crate>` | 里程碑用。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
@@ -53,7 +53,7 @@
 
 | ID | 状态 | 执行者 | 标题 | 结果 |
 | --- | --- | --- | --- | --- |
-| T01 | todo | 强模型 | 骨架、全部测试与脚本 | 三个 crate 可编译，全部测试存在且禁用，`scripts/task.sh T02` 能跑出红 |
+| T01 | done | 强模型 | 骨架、全部测试与脚本 | 三个 crate 可编译，全部测试存在且禁用，`scripts/task.sh T02` 能跑出红 |
 | T02 | todo | 初级 | core 基础类型 | ID、路径、有界文本、摘要 newtype 与错误枚举 |
 | T03 | todo | 初级 | core 解析 `workbook.toml` | 合法 manifest 解析；未知字段与错 schema 拒绝 |
 | T04 | todo | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
@@ -325,7 +325,7 @@
 
 **测试。** `install_copies_current_exe_and_is_idempotent`、`install_prints_path_hint_and_does_not_touch_rc_by_default`、`update_replaces_binary_and_keeps_prev`、`update_rejects_checksum_mismatch_and_leaves_binary_intact`、`update_reports_unavailable_when_no_asset_for_platform`、`rollback_swaps_prev_back`、`rollback_recovers_when_current_missing`、`uninstall_keeps_store_and_works`、`uninstall_purge_requires_yes`、`self_version_works_without_home`。
 
-**实现要点。** 测试通过 `SHELTIE_RELEASE_BASE` 指向 `tests/fixtures/release/` 的本地清单，不联网。替换顺序按 [存储合同 §9](contracts/storage.md) 五步。目标平台 `aarch64-apple-darwin`、`x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`、`aarch64-unknown-linux-gnu`。
+**实现要点。** 本任务加 `axoupdater` 依赖，并同步 `deny.toml` 的许可白名单。测试通过 `SHELTIE_RELEASE_BASE` 指向测试自己生成的本地发布目录，不联网；本地清单格式是 `dist-manifest.json` `{ version, assets: [{ platform, name, sha256 }] }`（`tests/selfmgmt.rs` 的 `make_release`），若 `axoupdater` 读的真实清单形状不同，在 `selfmgmt.rs` 里做一层解析适配，测试清单格式不变。替换顺序按 [存储合同 §9](contracts/storage.md) 五步。目标平台 `aarch64-apple-darwin`、`x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`、`aarch64-unknown-linux-gnu`。
 
 **提交。** `feat(cli): self 命令组与 cargo-dist 发布链`
 

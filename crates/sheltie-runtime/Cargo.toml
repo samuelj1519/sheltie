@@ -1,0 +1,29 @@
+[package]
+name = "sheltie-runtime"
+description = "Sheltie 引擎的 I/O 层：管理根、SQLite、Workbook 仓库、Work 服务、自更新。不做业务判断。"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+# 崩溃测试用的失败点：设置 SHELTIE_FAILPOINT=<名字> 时在该点退出进程。
+failpoint = []
+
+[dependencies]
+camino = { workspace = true }
+rusqlite = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+sheltie-core = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+sheltie-core = { workspace = true, features = ["testkit"] }
+tempfile = { workspace = true }
+
+[lints]
+workspace = true
