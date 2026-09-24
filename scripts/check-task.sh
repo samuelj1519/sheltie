@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# 提交前核对一个填空任务没有越界。用法：scripts/check-task.sh Tnn [基准提交，默认 t01-skeleton] [--staged]
+# 提交前核对一个填空任务没有越界。用法：scripts/check-task.sh Tnn [基准提交] [--staged]
+# 基准默认取最近一个 tNN-* tag：t01-skeleton 是骨架；复核者补测试后打 tNN-review，成为新基准。
 #
 # 检查：
 #   1. 未提交的改动文件都在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
@@ -14,7 +15,8 @@
 set -euo pipefail
 
 task=""
-base="t01-skeleton"
+# 默认基准：最近一个 tNN-* tag（t01-skeleton，或复核者补测试后打的 tNN-review）。
+base="$(git describe --tags --abbrev=0 --match 't[0-9]*' 2>/dev/null || echo t01-skeleton)"
 staged=0
 for arg in "$@"; do
 	case "$arg" in

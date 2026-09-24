@@ -366,6 +366,31 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "T02"]
+    fn t02_work_id_parse_rejects_plus_sign_in_seq() {
+        // str::parse::<u32> 接受前导 +，解析层必须自己拒绝，否则解析再拼出会得到不同的串。
+        assert!(WorkId::parse("2026-09-24-+12-x").is_err());
+        assert!(WorkId::parse("2026-09-24-0x1-x").is_err());
+    }
+
+    #[test]
+    #[ignore = "T02"]
+    fn t02_attempt_id_parse_rejects_plus_sign() {
+        assert!(AttemptId::parse("draft#+1.0").is_err());
+        assert!(AttemptId::parse("draft#1.+0").is_err());
+        assert!(AttemptId::parse("draft# 1.0").is_err());
+    }
+
+    #[test]
+    #[ignore = "T02"]
+    fn t02_attempt_id_parse_error_field_is_attempt_id() {
+        match AttemptId::parse("Bad#1.0") {
+            Err(Error::InvalidId { field, .. }) => assert_eq!(field, "attempt_id"),
+            other => panic!("应是 InvalidId{{ field: attempt_id }}，实际 {other:?}"),
+        }
+    }
+
+    #[test]
     fn t02_work_id_rejects_seq_zero_or_over_999() {
         assert!(WorkId::new("2026-09-24", 0, &name("x")).is_err());
         assert!(WorkId::new("2026-09-24", 1000, &name("x")).is_err());
