@@ -1,17 +1,41 @@
 #!/usr/bin/env bash
-# 提交前核对一个填空任务没有越界。用法：scripts/check-task.sh T05 [基准提交，默认 t01-skeleton]
+# 提交前核对一个填空任务没有越界。用法：scripts/check-task.sh Tnn [基准提交，默认 t01-skeleton] [--staged]
 #
 # 检查：
-#   1. 相对基准的改动文件都在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
-#   2. files 里没有残留 todo!()、#[allow(unused_variables)]。
+#   1. 未提交的改动文件都在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
+#      工作树干净时（已提交）再核对最近一次提交的文件范围。
+#   2. files 里没有本任务的 todo!("Tnn") 与不带标签的 todo!()。#[allow(unused_variables)]
+#      只准留在还有 todo!() 的函数上；别的任务的占位按 plan.md 规则 8 原样保留。
 #   3. 仓库里没有残留 #[ignore = "Tnn"]。
-#   4. test_files 相对基准的 diff 只有删除 #[ignore 行（allow_test_changes = true 的任务除外）；快照零改动。
+#   4. test_files 相对基准的测试代码零改动，只允许删 #[ignore 行（allow_test_changes = true 的任务除外）。
+#      与 files 重叠的是混合源文件：实现填充必须动文件，改查 #[cfg(test)] 起的测试模块。快照零改动。
 #   5. plan.md 该任务状态为 done。
-#   6. 最近一次提交信息含 `Task: Tnn` 与 `Agent:` 两行（只在 HEAD 已提交时检查，用 --staged 跳过）。
+#   6. 最近一次提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
 set -euo pipefail
 
-task="${1:?用法: scripts/check-task.sh Tnn [base]}"
-base="${2:-t01-skeleton}"
+task=""
+base="t01-skeleton"
+staged=0
+for arg in "$@"; do
+	case "$arg" in
+		--staged) staged=1 ;;
+		-*)
+			echo "check-task: 未知参数 $arg" >&2
+			exit 2
+			;;
+		*)
+			if [ -z "$task" ]; then
+				task="$arg"
+			else
+				base="$arg"
+			fi
+			;;
+	esac
+done
+if [ -z "$task" ]; then
+	echo "用法: scripts/check-task.sh Tnn [base] [--staged]" >&2
+	exit 2
+fi
 cd "$(dirname "$0")/.."
 
 status=0
@@ -55,20 +79,48 @@ in_list() {
 	return 1
 }
 
+# 本次提交的范围：未提交改动；工作树干净时是最近一次提交。
+changed_paths() {
+	git diff --name-only --cached
+	git diff --name-only
+	if [ -z "$(git status --porcelain)" ]; then
+		git diff --name-only HEAD~1 HEAD
+	fi
+}
+
 # 1. 改动文件白名单
 while IFS= read -r changed; do
 	[ -z "$changed" ] && continue
 	if ! in_list "$changed" "${files[@]}" "${test_files[@]}"; then
 		fail "越界改动：$changed"
 	fi
-done < <(git diff --name-only "$base" HEAD; git diff --name-only --cached; git diff --name-only)
+done < <(changed_paths)
 
-# 2. 残留占位
+# 2. 本任务占位清零；填完的函数不许留 #[allow(unused_variables)]
 for f in "${files[@]}"; do
 	[ -e "$f" ] || continue
-	if grep -rnE 'todo!\(|#\[allow\(unused_variables\)\]' "$f" >/dev/null; then
-		grep -rnE 'todo!\(|#\[allow\(unused_variables\)\]' "$f" | head -5
-		fail "$f 里还有占位"
+	if grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" >/dev/null; then
+		grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" | head -5
+		fail "$f 里还有本任务的占位"
+	fi
+	# 每个 allow 管到下一个 allow 或测试模块为止；这段里已无 todo!() 说明函数填完了，allow 必须删掉。
+	residue="$(awk '
+		/#\[allow\(unused_variables\)\]/ {
+			if (seen && !has_todo) print start
+			seen = 1; start = NR; has_todo = 0
+			next
+		}
+		/#\[cfg\(test\)\]/ {
+			if (seen && !has_todo) print start
+			seen = 0
+			next
+		}
+		seen && /todo!\(/ { has_todo = 1 }
+		END { if (seen && !has_todo) print start }
+	' "$f")"
+	if [ -n "$residue" ]; then
+		echo "$f 行 $residue：函数已填完却留着 #[allow(unused_variables)]"
+		fail "$f 里有填完未删的 #[allow(unused_variables)]"
 	fi
 done
 
@@ -78,15 +130,26 @@ if grep -rn "#\[ignore = \"$task\"\]" crates >/dev/null; then
 	fail "还有 $task 的测试没解开"
 fi
 
-# 4. 测试文件只删了禁用标记
+# 4. 测试代码只删了禁用标记；快照零改动
 if [ "$allow_test_changes" != "true" ]; then
 	for f in "${test_files[@]}"; do
 		[ -e "$f" ] || continue
-		if git diff "$base" -- "$f" | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' | grep -vE '^-\s*#\[ignore' | grep -q .; then
-			fail "$f 有除删禁用标记之外的改动"
+		mixed=0
+		for src in "${files[@]}"; do [ "$f" = "$src" ] && mixed=1; done
+		if [ "$mixed" -eq 1 ]; then
+			before="$(git show "$base:$f" 2>/dev/null | sed -n '/#\[cfg(test)\]/,$p' | grep -vE '^[[:space:]]*#\[ignore' || true)"
+			after="$(sed -n '/#\[cfg(test)\]/,$p' "$f" | grep -vE '^[[:space:]]*#\[ignore' || true)"
+			if [ "$before" != "$after" ]; then
+				fail "$f 的测试代码被改动（只允许删 #[ignore 行）"
+				diff -u <(printf '%s\n' "$before") <(printf '%s\n' "$after") | head -20 || true
+			fi
+		else
+			if git diff "$base" -- "$f" | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' | grep -vE '^-[[:space:]]*#\[ignore' | grep -q .; then
+				fail "$f 有除删禁用标记之外的改动"
+			fi
 		fi
 	done
-	if git diff --name-only "$base" HEAD -- '**/snapshots/*.snap' | grep -q .; then
+	if git diff --name-only "$base" -- '**/snapshots/*.snap' | grep -q .; then
 		fail "快照被改动"
 	fi
 fi
@@ -96,8 +159,8 @@ if ! grep -qE "^\| $task \| done \|" specs/plan.md; then
 	fail "specs/plan.md 里 $task 的状态不是 done"
 fi
 
-# 6. 提交信息
-if [ "${3:-}" != "--staged" ]; then
+# 6. 提交信息（提交前工作树不干净，跳过；--staged 也跳过）
+if [ "$staged" -eq 0 ] && [ -z "$(git status --porcelain)" ]; then
 	msg="$(git log -1 --format=%B)"
 	echo "$msg" | grep -q "^Task: $task$" || fail "提交信息缺 'Task: $task'"
 	echo "$msg" | grep -q "^Agent: " || fail "提交信息缺 'Agent:'"
