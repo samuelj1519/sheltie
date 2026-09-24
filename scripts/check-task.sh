@@ -3,10 +3,12 @@
 # 基准默认取最近一个 tNN-* tag：t01-skeleton 是骨架；复核者补测试后打 tNN-review，成为新基准。
 #
 # 检查：
-#   1. 未提交的改动文件都在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
-#      工作树干净时（已提交）再核对最近一次提交的文件范围。
+#   1. 改动范围是并集：基准以来提交说明含 `Task: Tnn` 的提交的改动 ∪ 未提交改动。
+#      每条都要在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
 #   2. files 里没有本任务的 todo!("Tnn") 与不带标签的 todo!()。#[allow(unused_variables)]
 #      只准留在还有 todo!() 的函数上；别的任务的占位按 plan.md 规则 8 原样保留。
+#      files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；目录只取其中的 .rs，
+#      文档会引用 todo!() 字样。
 #   3. 仓库里没有残留 #[ignore = "Tnn"]。
 #   4. test_files 相对基准的测试代码零改动，只允许删 #[ignore 行（allow_test_changes = true 的任务除外）。
 #      与 files 重叠的是混合源文件：实现填充必须动文件，改查 #[cfg(test)] 起的测试模块。快照零改动。
@@ -81,49 +83,66 @@ in_list() {
 	return 1
 }
 
-# 本次提交的范围：未提交改动；工作树干净时是最近一次提交。
+# 本次提交的范围：未提交改动 ∪ 基准以来提交说明含 `Task: Tnn` 的提交的改动。
+# 两条路径是并集：工作树有脏文件也不能掩盖已提交的越界改动。
 changed_paths() {
 	git diff --name-only --cached
 	git diff --name-only
-	if [ -z "$(git status --porcelain)" ]; then
-		git diff --name-only HEAD~1 HEAD
-	fi
+	while IFS= read -r c; do
+		[ -z "$c" ] && continue
+		# 不用 grep -q：提前关管道会让 git log 吃 SIGPIPE，pipefail 下误判为不匹配。
+		if git log -1 --format=%B "$c" | grep "^Task: $task$" >/dev/null; then
+			git diff-tree --no-commit-id --name-only -r "$c"
+		fi
+	done < <(git rev-list "$base"..HEAD 2>/dev/null || true)
 }
 
-# 1. 改动文件白名单
+# 1. 改动文件白名单（bash 3.2 + set -u 下空数组不能直接展开，用 ${arr[@]+"${arr[@]}"}）
 while IFS= read -r changed; do
 	[ -z "$changed" ] && continue
-	if ! in_list "$changed" "${files[@]}" "${test_files[@]}"; then
+	if ! in_list "$changed" ${files[@]+"${files[@]}"} ${test_files[@]+"${test_files[@]}"}; then
 		fail "越界改动：$changed"
 	fi
 done < <(changed_paths)
 
 # 2. 本任务占位清零；填完的函数不许留 #[allow(unused_variables)]
-for f in "${files[@]}"; do
-	[ -e "$f" ] || continue
-	if grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" >/dev/null; then
-		grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" | head -5
-		fail "$f 里还有本任务的占位"
+# files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；目录只取其中的 .rs，
+# 文档会引用 todo!() 字样，不是占位。普通文件照旧整文件检查。
+for entry in "${files[@]}"; do
+	[ -e "$entry" ] || continue
+	targets=()
+	if [ -d "$entry" ]; then
+		while IFS= read -r g; do
+			[ -n "$g" ] && targets+=("$g")
+		done < <(find "$entry" -type f -name '*.rs' | sort)
+	elif [ -f "$entry" ]; then
+		targets+=("$entry")
 	fi
-	# 每个 allow 管到下一个 allow 或测试模块为止；这段里已无 todo!() 说明函数填完了，allow 必须删掉。
-	residue="$(awk '
-		/#\[allow\(unused_variables\)\]/ {
-			if (seen && !has_todo) print start
-			seen = 1; start = NR; has_todo = 0
-			next
-		}
-		/#\[cfg\(test\)\]/ {
-			if (seen && !has_todo) print start
-			seen = 0
-			next
-		}
-		seen && /todo!\(/ { has_todo = 1 }
-		END { if (seen && !has_todo) print start }
-	' "$f")"
-	if [ -n "$residue" ]; then
-		echo "$f 行 $residue：函数已填完却留着 #[allow(unused_variables)]"
-		fail "$f 里有填完未删的 #[allow(unused_variables)]"
-	fi
+	for f in ${targets[@]+"${targets[@]}"}; do
+		if grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" >/dev/null; then
+			grep -nE "todo!\(\"$task\"\)|todo!\(\)" "$f" | head -5
+			fail "$f 里还有本任务的占位"
+		fi
+		# 每个 allow 管到下一个 allow 或测试模块为止；这段里已无 todo!() 说明函数填完了，allow 必须删掉。
+		residue="$(awk '
+			/#\[allow\(unused_variables\)\]/ {
+				if (seen && !has_todo) print start
+				seen = 1; start = NR; has_todo = 0
+				next
+			}
+			/#\[cfg\(test\)\]/ {
+				if (seen && !has_todo) print start
+				seen = 0
+				next
+			}
+			seen && /todo!\(/ { has_todo = 1 }
+			END { if (seen && !has_todo) print start }
+		' "$f")"
+		if [ -n "$residue" ]; then
+			echo "$f 行 ${residue}：函数已填完却留着 #[allow(unused_variables)]"
+			fail "$f 里有填完未删的 #[allow(unused_variables)]"
+		fi
+	done
 done
 
 # 3. 残留禁用
@@ -134,7 +153,7 @@ fi
 
 # 4. 测试代码只删了禁用标记；快照零改动
 if [ "$allow_test_changes" != "true" ]; then
-	for f in "${test_files[@]}"; do
+	for f in ${test_files[@]+"${test_files[@]}"}; do
 		[ -e "$f" ] || continue
 		mixed=0
 		for src in "${files[@]}"; do [ "$f" = "$src" ] && mixed=1; done
