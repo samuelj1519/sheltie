@@ -385,14 +385,12 @@ fn decide_submit(
     if prev.status != AttemptStatus::Running {
         return Err(not_running());
     }
-    if summary.len() > Summary::max_bytes() {
-        return Err(Error::SummaryTooLong {
-            max: Summary::max_bytes(),
-            actual: summary.len(),
-        });
-    }
+    // 协议 attempt submit 第 2 步：超限报 `SUMMARY_TOO_LONG`，不是通用的 `TEXT_TOO_LONG`。
+    let summary_text = Summary::new(summary, "summary").map_err(|_| Error::SummaryTooLong {
+        max: Summary::max_bytes(),
+        actual: summary.len(),
+    })?;
     let sealed = check_outputs(state, graph, attempt, observed_outputs)?;
-    let summary_text = Summary::new(summary, "summary")?;
 
     let mut new_state = state.clone();
     if let Some(a) = new_state.attempt_mut(attempt) {
@@ -500,13 +498,11 @@ fn decide_fail(
     if prev.status != AttemptStatus::Running {
         return Err(not_running());
     }
-    if reason.len() > Summary::max_bytes() {
-        return Err(Error::SummaryTooLong {
-            max: Summary::max_bytes(),
-            actual: reason.len(),
-        });
-    }
-    let reason_text = Summary::new(reason, "reason")?;
+    // 同 submit 第 2 步：超限报 `SUMMARY_TOO_LONG`。
+    let reason_text = Summary::new(reason, "reason").map_err(|_| Error::SummaryTooLong {
+        max: Summary::max_bytes(),
+        actual: reason.len(),
+    })?;
     let max_retries = graph
         .node(&attempt.node)
         .map(|d| d.max_retries)
