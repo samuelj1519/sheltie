@@ -193,9 +193,87 @@ fn human_size(bytes: u64) -> String {
 ///
 /// `blocked` 行的说明：`gate: <occ> 需要 gate approve`；`retries_exhausted: <occ>`；
 /// `no_legal_edge: <occ> 的全部出边目标已达 max_visits`。
-#[allow(unused_variables)]
 pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
-    todo!("T10")
+    let mut out = String::new();
+    out.push_str(&format!("# Work {}（{}）\n\n", state.work_id, state.name));
+    out.push_str(&format!(
+        "workbook: {}@{}   flow: {}   status: {}\n",
+        state.workbook.id, state.workbook.version, state.flow, state.status
+    ));
+    out.push_str(&format!("current: {}\n", state.current));
+
+    let done = done_occurrences(state);
+    out.push_str(&format!(
+        "done: {}\n",
+        if done.is_empty() {
+            "无".to_string()
+        } else {
+            done.join(", ")
+        }
+    ));
+    let pending = pending_nodes(state, graph);
+    out.push_str(&format!(
+        "pending: {}\n",
+        if pending.is_empty() {
+            "无".to_string()
+        } else {
+            pending.join(", ")
+        }
+    ));
+    let visits = visit_items(state, graph)
+        .into_iter()
+        .map(|(n, m)| format!("{n} {m}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    out.push_str(&format!("visits: {visits}\n"));
+    if let Some(line) = blocked_line(state) {
+        out.push_str(&line);
+        out.push('\n');
+    }
+
+    out.push_str("\n## 最近一次尝试\n\n");
+    match state.attempts.last() {
+        None => out.push_str("无\n"),
+        Some(a) => {
+            out.push_str(&format!("{} {}\n", a.id, a.status.as_str()));
+            match a.status {
+                AttemptStatus::Succeeded => {
+                    if let Some(s) = &a.summary {
+                        out.push_str(&format!("summary: {}\n", s.as_str()));
+                    }
+                    if !a.outputs.is_empty() {
+                        out.push_str("outputs:\n");
+                        for (name, r) in &a.outputs {
+                            out.push_str(&format!(
+                                "  {} → {} (sha256 {}, {})\n",
+                                name,
+                                r.path,
+                                r.sha256.as_str(),
+                                human_size(r.bytes)
+                            ));
+                        }
+                    }
+                }
+                AttemptStatus::Failed => {
+                    if let Some(s) = &a.fail_reason {
+                        out.push_str(&format!("reason: {}\n", s.as_str()));
+                    }
+                }
+                AttemptStatus::Running => {}
+            }
+        }
+    }
+
+    out.push_str("\n## 合法下一步\n\n");
+    let next = legal_next(state, graph);
+    if next.is_empty() {
+        out.push_str("- 无\n");
+    } else {
+        for op in &next {
+            out.push_str(&format!("- {}\n", op.to_command_line(&state.work_id)));
+        }
+    }
+    out
 }
 
 /// `--json` 用的状态卡。
@@ -223,10 +301,83 @@ pub struct LastAttemptJson {
 }
 
 /// 状态卡的结构化形式。字段与文本卡一致。
-#[allow(unused_variables)]
 pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
-    let _ = legal_next;
-    todo!("T10")
+    StatusCardJson {
+        work_id: state.work_id.clone(),
+        name: state.name.to_string(),
+        workbook: format!("{}@{}", state.workbook.id, state.workbook.version),
+        flow: state.flow.to_string(),
+        status: state.status,
+        current: state.current.to_string(),
+        done: done_occurrences(state),
+        pending: pending_nodes(state, graph),
+        visits: visit_items(state, graph).into_iter().collect(),
+        last_attempt: state.attempts.last().map(|a| LastAttemptJson {
+            attempt: a.id.to_string(),
+            status: a.status.as_str().to_string(),
+            summary: a.summary.as_ref().map(|s| s.as_str().to_string()),
+            outputs: a
+                .outputs
+                .iter()
+                .map(|(name, r)| (name.clone(), r.path.to_string()))
+                .collect(),
+        }),
+        next: legal_next(state, graph),
+    }
+}
+
+/// 全部 Succeeded 的 Occurrence，按提交先后。
+fn done_occurrences(state: &WorkState) -> Vec<String> {
+    let mut seen = BTreeSet::new();
+    let mut out = Vec::new();
+    for a in &state.attempts {
+        if a.status == AttemptStatus::Succeeded {
+            let occ = a.occurrence();
+            if seen.insert(occ.clone()) {
+                out.push(occ.to_string());
+            }
+        }
+    }
+    out
+}
+
+/// 从未到达的节点 id，按图声明顺序。
+fn pending_nodes(state: &WorkState, graph: &Graph) -> Vec<String> {
+    graph
+        .nodes()
+        .filter(|d| state.visits_of(&d.id) == 0)
+        .map(|d| d.id.as_str().to_string())
+        .collect()
+}
+
+/// `(node, "n/m")`，按图声明顺序。
+fn visit_items(state: &WorkState, graph: &Graph) -> Vec<(String, String)> {
+    graph
+        .nodes()
+        .map(|d| {
+            (
+                d.id.as_str().to_string(),
+                format!("{}/{}", state.visits_of(&d.id), d.max_visits),
+            )
+        })
+        .collect()
+}
+
+/// `blocked` 行；非 `Blocked` 为 `None`。
+fn blocked_line(state: &WorkState) -> Option<String> {
+    let occ = state.current.to_string();
+    match state.status {
+        WorkStatus::Blocked(BlockedReason::Gate) => {
+            Some(format!("blocked: gate: {occ} 需要 gate approve"))
+        }
+        WorkStatus::Blocked(BlockedReason::RetriesExhausted) => {
+            Some(format!("blocked: retries_exhausted: {occ}"))
+        }
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge) => Some(format!(
+            "blocked: no_legal_edge: {occ} 的全部出边目标已达 max_visits"
+        )),
+        _ => None,
+    }
 }
 
 /// 事实视图（协议 `work stats`）：每个节点被到达几次、尝试几次、失败几次、平均耗时、从哪些节点经哪种边进来。
@@ -382,9 +533,29 @@ fn rfc3339_secs(ts: &Timestamp) -> Option<i64> {
 /// | --- | --- | --- | --- | --- | --- |
 /// | draft | 2/3 | 2 | 0 | 0s | entry×1, review×1 |
 /// ```
-#[allow(unused_variables)]
 pub fn render_stats(state: &WorkState, graph: &Graph) -> String {
-    todo!("T10")
+    let s = render_stats_json(state, graph);
+    let mut out = String::new();
+    out.push_str(&format!("# Stats {}\n\n", s.work_id));
+    out.push_str(&format!(
+        "status: {}   total: {}s   blocked: {}   approvals: {}\n\n",
+        s.status, s.total_seconds, s.blocked_count, s.approvals
+    ));
+    out.push_str("| node | visits | attempts | failed | avg | entered_via |\n");
+    out.push_str("| --- | --- | --- | --- | --- | --- |\n");
+    for n in &s.nodes {
+        out.push_str(&format!(
+            "| {} | {}/{} | {} | {} | {}s | {} |\n",
+            n.node,
+            n.visits,
+            n.max_visits,
+            n.attempts,
+            n.failed,
+            n.avg_seconds,
+            n.entered_via.join(", ")
+        ));
+    }
+    out
 }
 
 #[cfg(test)]
@@ -394,7 +565,6 @@ mod tests {
     use crate::work::next::NextOp;
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_for_review_node() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -405,7 +575,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_for_node_with_requires() {
         let mut fx = Fixture::with_requires();
         fx.begin("only").unwrap();
@@ -419,7 +588,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_for_node_without_requires_omits_section() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -429,7 +597,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_marks_unbound_optional_input_as_absent() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         fx.begin("spec").unwrap();
@@ -439,7 +606,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_for_human_executor_ends_with_submit_command() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -452,7 +618,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_brief_shows_entered_from_line_or_entry() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -475,7 +640,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_status_card_active_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
@@ -484,7 +648,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_status_card_blocked_on_gate() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
@@ -493,7 +656,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_status_card_succeeded() {
         let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
         fx.begin("outline").unwrap();
@@ -504,7 +666,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_next_op_renders_begin_with_node_flag() {
         let fx = Fixture::article_review().started();
         let next = legal_next(fx.state(), &fx.graph);
@@ -519,7 +680,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_next_op_begin_carries_executor_and_tier() {
         let fx = Fixture::article_review().started();
         let json = serde_json::to_value(&legal_next(fx.state(), &fx.graph)[0]).unwrap();
@@ -529,7 +689,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_stats_table_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
@@ -538,7 +697,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_stats_json_counts_visits_failures_and_entered_via() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -566,7 +724,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T10"]
     fn t10_status_card_lists_done_occurrences_in_order() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
