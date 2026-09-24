@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::state::WorkState;
+use super::state::{AttemptStatus, WorkState, WorkStatus};
 use crate::flow::{EdgeKind, Executor, Graph, Tier};
 use crate::ids::{AttemptId, NodeId, WorkId};
 
@@ -58,5 +58,32 @@ impl NextOp {
 /// T06 填「终态」与「无 Attempt」；T07 填「Succeeded」与「Failed 可重试」；T08 填「Running」与「Blocked」。
 #[allow(unused_variables)]
 pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
-    todo!("T06")
+    if state.status.is_terminal() {
+        return Vec::new();
+    }
+    match state.status {
+        WorkStatus::Active => match state.latest_attempt_of_current() {
+            // 首次到达本 Occurrence：进入或重试都从 begin 当前节点开始，不带边。
+            None => {
+                let mut ops = Vec::with_capacity(2);
+                if let Some(def) = graph.node(&state.current.node) {
+                    ops.push(NextOp::BeginAttempt {
+                        node: state.current.node.clone(),
+                        edge: None,
+                        executor: def.executor,
+                        tier: def.tier,
+                    });
+                }
+                ops.push(NextOp::Cancel);
+                ops
+            }
+            Some(attempt) => match attempt.status {
+                AttemptStatus::Running => todo!("T08"),
+                AttemptStatus::Failed => todo!("T07"),
+                AttemptStatus::Succeeded => todo!("T07"),
+            },
+        },
+        WorkStatus::Blocked(_) => todo!("T08"),
+        WorkStatus::Succeeded | WorkStatus::Cancelled => Vec::new(),
+    }
 }

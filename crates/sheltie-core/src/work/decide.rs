@@ -2,11 +2,12 @@
 //! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
-use super::command::{Command, Context, Decision, ObservedFile};
-use super::state::{ArtifactRef, WorkState, WorkStatus};
+use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
+use super::state::{ArtifactRef, Occurrence, WorkState, WorkStatus};
 use crate::error::{Error, Result};
-use crate::flow::Graph;
+use crate::flow::{Graph, InputSource};
 use crate::ids::{AttemptId, NodeId};
 use crate::path::AbsPath;
 
@@ -61,9 +62,82 @@ fn guard_not_terminal(state: &WorkState) -> Result<()> {
 /// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
 /// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
 /// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision> {
-    todo!("T06")
+    let Command::Start {
+        work_id,
+        name,
+        workbook,
+        flow,
+        work_dir,
+        inputs,
+    } = cmd
+    else {
+        return Err(Error::InvalidRequest {
+            reason: "decide_start 只接受 work start".to_string(),
+        });
+    };
+
+    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等。
+    let mut wanted: BTreeSet<String> = BTreeSet::new();
+    for node in graph.nodes() {
+        for decl in &node.inputs {
+            if let InputSource::Start { key } = &decl.from {
+                wanted.insert(key.clone());
+            }
+        }
+    }
+    let missing: Vec<String> = wanted
+        .iter()
+        .filter(|k| !inputs.contains_key(*k))
+        .cloned()
+        .collect();
+    let extra: Vec<String> = inputs
+        .keys()
+        .filter(|k| !wanted.contains(*k))
+        .cloned()
+        .collect();
+    if !missing.is_empty() || !extra.is_empty() {
+        return Err(Error::InputMissing { missing, extra });
+    }
+
+    let entry = graph.entry().clone();
+    let mut visits = BTreeMap::new();
+    visits.insert(entry.clone(), 1);
+
+    // 宿主资源清单：本图各节点声明的 kind:name 并集（合同要求 Workbook 全量，
+    // core 只见图，未用到的 manifest 条目由 runtime 在返回前补）。
+    let mut require_set = BTreeSet::new();
+    for node in graph.nodes() {
+        for (kind, req_name) in &node.requires {
+            require_set.insert(format!("{}:{}", kind.as_str(), req_name));
+        }
+    }
+
+    let state = WorkState {
+        work_id: work_id.clone(),
+        name: name.clone(),
+        workbook: workbook.clone(),
+        flow: flow.clone(),
+        work_dir: work_dir.clone(),
+        inputs: inputs.clone(),
+        status: WorkStatus::Active,
+        current: Occurrence { node: entry, n: 1 },
+        visits,
+        attempts: Vec::new(),
+        approvals: Vec::new(),
+        created_at: ctx.now.clone(),
+        updated_at: ctx.now.clone(),
+    };
+
+    Ok(Decision {
+        state,
+        effects: vec![Effect::RefreshStatusCard],
+        reply: Reply::Started {
+            work_id: work_id.clone(),
+            work_dir: work_dir.clone(),
+            requires: require_set.into_iter().collect(),
+        },
+    })
 }
 
 /// `attempt begin` 第 1 到 5 步。
@@ -216,7 +290,6 @@ mod tests {
     // ── T06 Start ─────────────────────────────────────────────
 
     #[test]
-    #[ignore = "T06"]
     fn t06_start_sets_current_to_entry_occurrence_1() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
@@ -228,7 +301,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T06"]
     fn t06_start_rejects_missing_start_input_key() {
         let mut fx = Fixture::article_review();
         assert!(
@@ -237,7 +309,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T06"]
     fn t06_start_rejects_extra_start_input_key() {
         let mut fx = Fixture::article_review();
         assert!(
@@ -246,7 +317,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T06"]
     fn t06_start_next_is_begin_entry_and_cancel() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
@@ -259,7 +329,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T06"]
     fn t06_start_records_workbook_ref_and_frozen_inputs() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
