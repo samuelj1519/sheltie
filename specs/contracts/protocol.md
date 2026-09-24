@@ -16,7 +16,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 **主体。** 每次调用的操作者身份取当前操作系统用户名，记进审计与批准记录。MVP 是单用户本地工具，不做认证。
 
-**只读操作**（`list`、`show`、`status`）不改任何状态，不建目录，不刷状态卡。
+**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改任何状态，不建目录，不刷状态卡。
 
 ## 2. 操作一览
 
@@ -35,6 +35,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | 是 | 创建 Work，冻结一份 Workbook 副本 |
 | `work list` | 否 | 列出 Work 的 id、名称、状态、当前节点、更新时间 |
 | `work status <work>` | 否 | 打印状态卡（文本或 JSON） |
+| `work stats <work>` | 否 | 打印事实视图：每个节点被到达、尝试、失败几次，平均耗时，从哪进来 |
 | `work cancel <work>` | 是 | 取消 |
 | `attempt begin <work> --node <node>` | 是 | 进入节点并开始一次尝试；返回任务书 |
 | `attempt submit <work> --attempt <id> --summary <text\|@file>` | 是 | 提交尝试；引擎校验并封存输出 |
@@ -110,6 +111,26 @@ Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表
 ### `gate approve <work> --node <node>`
 
 Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`。记录 `{ node, occurrence, by, at }`。然后按 `attempt submit` 第 5 步除门槛之外的规则决定 Work 状态：无出边 → `succeeded`；无合法边 → `blocked(no_legal_edge)`；否则 `active`。返回 `next`。
+
+### `work stats <work>`
+
+只读。对 `WorkState` 做计数，不含任何判断：
+
+```text
+# Stats 2026-09-24-001-t
+
+status: active   total: 3120s   blocked: 1   approvals: 0
+
+| node | visits | attempts | failed | avg | entered_via |
+| --- | --- | --- | --- | --- | --- |
+| draft | 2/3 | 3 | 1 | 640s | entry×1, review×1 |
+| review | 1/3 | 1 | 0 | 150s | draft×1 |
+| publish | 0/1 | 0 | 0 | 0s |  |
+```
+
+行按图声明顺序。`total` 是 `created_at` 到 `updated_at`；`avg` 是该节点已结束 Attempt 的平均耗时；`entered_via` 按首次出现顺序列出 `来源节点×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / avg_seconds / entered_via`）。
+
+`engine.stats` 输入绑定的就是这份 JSON：`attempt begin` 时引擎把它写到 `attempts/<node>/<n>/<retry>/stats.json`，记 sha256，任务书输入表里像其他文件一样列出。
 
 ### `work cancel <work>`
 

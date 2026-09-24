@@ -277,6 +277,20 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **否决。** 把工具缺陷也算「卡住」让人来修（人要看的是方向，不是 shell 脚本）；允许实现者改测试来配合工具（测试是合同，一旦可改就没有锚点）。
 
+## D-24 反思放在 Workbook，引擎只给事实
+
+2026-09-24，用户提出，采纳。
+
+**背景。** T02 复核的价值大半来自审流程而不是审代码：发现工具缺陷、把它们变成规则、校准实现者档位。用户问要不要给引擎或 Workbook 加「反思与自我进化」。
+
+**选择。** 分三层。引擎加一个只读投影 `work stats`（每节点到达、尝试、失败次数、平均耗时、进入来源；受阻与批准次数）与第四种输入来源 `engine.stats`，开工时把这份 JSON 写成 `stats.json` 按字节冻结绑给节点。`spec-dev` 加终点节点 `retro`（`standard`，带 `gate`）：读 `stats` 与各报告第一行，按六个闭集类别写 `lessons.md`，每条建议必须有证据（哪个 Attempt 的哪份文件哪一行）与落点（Workbook 内哪个文件哪一段），否则进「不建议改的」。人在最后一次批准时同时看交付说明与反思，采纳的改进下一版并在 README 修订记录里写「采纳 L1、L3，否决 L2」；下一次 `retro` 核对上一版建议是否见效。`gate` 从 `deliver` 挪到 `retro`。
+
+**否决。** 引擎按统计自动调 `max_visits`、换 `tier`、跳节点（宪章 §7 否决的「更聪明的调度」，且同一版本行为不再一致，审计失效）；让 `retro` 直接改 Workbook（`INV-6`，权威来自人冻结）；给引擎加「反思」命令（引擎没有可反思的东西，只有事实）；`retro` 用 `strong`（它做的是归类与定位，判断留给看 `lessons.md` 的人）。
+
+**依据。** 宪章 `INV-1`、`INV-2`、`INV-6`、§7。「自我进化」去掉「自我」：Workbook 提出对自己的修改，人冻结，引擎装新版本。差的那一步是人，这一步是产品定位里不能省的。
+
+**后果。** `spec-dev` 十一节点二十四边。core 加 `render_stats`、`render_stats_json`、`Effect::WriteFile`、`InputSource::EngineStats`，保留字加 `engine`；协议加 `work stats`；plan 相关任务各加测试；M1 到 M3 加「流程教训」一节。`retro` 每次运行多一次 standard 调用，两三千 token。
+
 ## 里程碑记录
 
 待 M1、M2、M3 完成后填写。

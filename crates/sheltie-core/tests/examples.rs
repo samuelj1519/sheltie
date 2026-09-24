@@ -81,10 +81,24 @@ fn t11_no_example_declares_requires() {
 
 #[test]
 #[ignore = "T11"]
-fn t11_spec_dev_compiles_with_ten_nodes_twenty_three_edges() {
+fn t11_spec_dev_compiles_with_eleven_nodes_twenty_four_edges() {
     let g = compile_example("spec-dev");
-    assert_eq!(g.node_count(), 10);
-    assert_eq!(g.edge_count(), 23);
+    assert_eq!(g.node_count(), 11);
+    assert_eq!(g.edge_count(), 24);
+}
+
+#[test]
+#[ignore = "T11"]
+fn t11_spec_dev_retro_reads_engine_stats() {
+    let g = compile_example("spec-dev");
+    let retro = g.node(&id("retro")).unwrap();
+    assert!(
+        retro
+            .inputs
+            .iter()
+            .any(|i| i.from == sheltie_core::flow::InputSource::EngineStats)
+    );
+    assert!(g.is_terminal(&id("retro")));
 }
 
 #[test]
@@ -108,14 +122,14 @@ fn t11_spec_dev_optional_inputs_all_point_to_reachable_upstream() {
 
 #[test]
 #[ignore = "T11"]
-fn t11_spec_dev_only_deliver_is_gated_and_human_nodes_are_plan_review_and_escalate() {
+fn t11_spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate() {
     let g = compile_example("spec-dev");
     let gated: Vec<_> = g
         .nodes()
         .filter(|n| n.gate)
         .map(|n| n.id.as_str().to_string())
         .collect();
-    assert_eq!(gated, vec!["deliver"]);
+    assert_eq!(gated, vec!["retro"]);
     let humans: Vec<_> = g
         .nodes()
         .filter(|n| n.executor == Executor::Human)

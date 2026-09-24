@@ -140,15 +140,16 @@ kind = "back"
 | `max_visits` | integer | `1` | 1 到 32。本节点被到达的次数上限，含回环 |
 | `max_retries` | integer | `1` | 0 到 8。同一次到达内失败重试上限 |
 
-`inputs[].from` 三种写法：
+`inputs[].from` 四种写法：
 
 | 写法 | 含义 | 校验 |
 | --- | --- | --- |
 | `"start.<key>"` | 起始输入里的键 | `key` 是 ID 字符规则；运行时缺该键则 `work start` 拒绝 |
 | `"resource.<path>"` | Workbook 内的一个文件，随版本冻结 | `path` 是 Workbook 内相对路径，文件存在、是普通文件、≤ 32 MiB。运行时指向本 Work 的冻结副本 |
-| `"<node>.<output>"` | 某节点最近一次成功 Attempt 的某个输出 | `node` 存在且不是自己，且 `node` 不能叫 `start` 或 `resource`；`output` 是该节点声明的输出名；见 §4 第 5 条 |
+| `"engine.stats"` | 引擎在开工时生成的事实视图（[协议 `work stats`](protocol.md) 的 JSON），写成 Attempt 目录下的 `stats.json` 并按字节冻结 | 字面量，`engine.` 后只允许 `stats`。给反思类节点用；引擎只给数字，不给结论 |
+| `"<node>.<output>"` | 某节点最近一次成功 Attempt 的某个输出 | `node` 存在且不是自己，且 `node` 不能叫 `start`、`resource`、`engine`；`output` 是该节点声明的输出名；见 §4 第 5 条 |
 
-`inputs[].required = false` 只对 `<node>.<output>` 来源有意义：上游还没有成功的 Attempt 时，这个输入不绑定，任务书里标「尚无」，`attempt begin` 不报 `INPUT_UNAVAILABLE`。这是回环的标准写法：被打回的节点用可选输入接收审核意见，第一次到达时没有意见也能开工。`start.<key>` 与 `resource.<path>` 来源上 `required = false` 编译拒绝，它们永远存在。
+`inputs[].required = false` 只对 `<node>.<output>` 来源有意义：上游还没有成功的 Attempt 时，这个输入不绑定，任务书里标「尚无」，`attempt begin` 不报 `INPUT_UNAVAILABLE`。这是回环的标准写法：被打回的节点用可选输入接收审核意见，第一次到达时没有意见也能开工。`start.<key>`、`resource.<path>`、`engine.stats` 来源上 `required = false` 编译拒绝，它们永远存在。
 
 `outputs[]`：
 
@@ -172,7 +173,7 @@ kind = "back"
 
 装入时按顺序检查，任一失败则报 `FLOW_INVALID` 并附字段路径与原因：
 
-1. 所有 ID 合规、唯一；节点 id 不得是保留字 `start`、`resource`；`entry` 存在。
+1. 所有 ID 合规、唯一；节点 id 不得是保留字 `start`、`resource`、`engine`；`entry` 存在。
 2. 每条边两端存在、不自环、`(from, to)` 不重复。
 3. 从 `entry` 出发每个节点可达。不可达节点是错误，不是警告。
 4. 至少存在一个没有出边的节点（终点）。
@@ -204,6 +205,6 @@ kind = "back"
 | `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
 
-另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十个节点、二十三条边、可选输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
+另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十四条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
 
 样例文件的字节由测试固定。实现与样例不一致时，先改合同与样例再改实现，不能改期望迎合实现。

@@ -90,10 +90,11 @@ pub fn parse_flow(toml_text: &str) -> Result<FlowDef> {
     convert(dto)
 }
 
-/// 解析 `inputs[].from` 的三种写法。
+/// 解析 `inputs[].from` 的四种写法。
 ///
 /// - `start.<key>`：`key` 走 ID 字符规则。
 /// - `resource.<path>`：第一个 `.` 之后全部是路径，可含 `/`。
+/// - `engine.stats`：字面量，`engine.` 后只允许 `stats`。
 /// - `<node>.<output>`：恰好一个 `.`，两边都非空；`node` 走 ID 规则，`output` 走 ID 规则。
 ///
 /// 失败返回 `Error::FlowInvalid { rule: "parse", path, .. }`，`path` 由调用方传入。
@@ -184,6 +185,17 @@ instruction = {{ text = "做 A" }}
             parse_input_source("draft.article", "p").unwrap(),
             InputSource::Node { .. }
         ));
+    }
+
+    #[test]
+    #[ignore = "T04"]
+    fn t04_input_from_parses_engine_stats_only() {
+        assert_eq!(
+            parse_input_source("engine.stats", "p").unwrap(),
+            InputSource::EngineStats
+        );
+        assert!(parse_input_source("engine.clock", "p").is_err());
+        assert!(parse_input_source("engine", "p").is_err());
     }
 
     #[test]

@@ -91,6 +91,26 @@ fn t18_work_status_prints_status_card() {
 
 #[test]
 #[ignore = "T18"]
+fn t18_work_stats_prints_table_and_json() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let wid = env.start("two-step", &[("topic", "x")]);
+    env.begin(&wid, "outline");
+    env.cmd_text(&["work", "stats", &wid])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains(format!("# Stats {wid}"))
+                .and(predicate::str::contains("| outline | 1/1 | 1 | 0 |")),
+        );
+    let v = env.ok(&["work", "stats", &wid]);
+    assert_eq!(v["data"]["nodes"][0]["node"], "outline");
+    assert_eq!(v["data"]["nodes"][0]["attempts"], 1);
+    assert_eq!(v["data"]["nodes"][1]["attempts"], 0);
+}
+
+#[test]
+#[ignore = "T18"]
 fn t18_work_status_json_matches_schema() {
     let env = Env::new();
     env.add_example("two-step");

@@ -113,8 +113,18 @@ pub struct Context {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "effect")]
 pub enum Effect {
-    WriteBrief { path: AbsPath, content: String },
-    SealOutputs { paths: Vec<AbsPath> },
+    WriteBrief {
+        path: AbsPath,
+        content: String,
+    },
+    /// 引擎生成的输入文件（目前只有 `engine.stats` 的 `stats.json`）。内容在 core 里算好并已记摘要。
+    WriteFile {
+        path: AbsPath,
+        content: String,
+    },
+    SealOutputs {
+        paths: Vec<AbsPath>,
+    },
     RefreshStatusCard,
 }
 

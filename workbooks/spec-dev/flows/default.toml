@@ -150,7 +150,7 @@ inputs = [
 outputs = [{ name = "decision", path = "decision.md", max_bytes = 16384 }]
 max_visits = 6
 
-# ── 收尾阶段：整体审查，交付，人批准 ──────────────────────────
+# ── 收尾阶段：整体审查，交付，反思，人批准 ───────────────────
 
 [[nodes]]
 id = "review"
@@ -186,6 +186,25 @@ inputs = [
   { name = "escalation", from = "escalate.decision", required = false },
 ]
 outputs = [{ name = "delivery", path = "delivery.md", max_bytes = 32768 }]
+
+[[nodes]]
+id = "retro"
+title = "反思：这次流程哪里该改"
+executor = "agent"
+tier = "standard"
+instruction = { file = "instructions/retro.md" }
+inputs = [
+  { name = "stats",      from = "engine.stats" },
+  { name = "spec",       from = "spec.spec" },
+  { name = "plan",       from = "plan.plan" },
+  { name = "delivery",   from = "deliver.delivery" },
+  { name = "decision",   from = "plan-review.decision" },
+  { name = "escalation", from = "escalate.decision", required = false },
+  { name = "review",     from = "review.report",     required = false },
+  { name = "template",   from = "resource.resources/templates/lessons.md" },
+  { name = "rules",      from = "resource.resources/checklists/retro-rules.md" },
+]
+outputs = [{ name = "lessons", path = "lessons.md", max_bytes = 32768 }]
 gate = true
 
 # ── 边 ───────────────────────────────────────────────────────
@@ -251,6 +270,11 @@ kind = "re_review"
 [[edges]]
 from = "review"
 to = "deliver"
+kind = "main"
+
+[[edges]]
+from = "deliver"
+to = "retro"
 kind = "main"
 
 [[edges]]

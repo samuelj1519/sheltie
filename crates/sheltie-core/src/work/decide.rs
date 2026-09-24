@@ -91,6 +91,8 @@ fn decide_begin(
 ///
 /// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
 /// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
+/// - `EngineStats`：不看观察。用 `render::render_stats_json(state, graph)` 生成内容，路径 `attempt_dir/stats.json`，
+///   摘要 `Sha256Hex::of_bytes(内容)`，并由 `decide_begin` 追加 `Effect::WriteFile`。
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
 ///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
@@ -176,7 +178,7 @@ fn decide_cancel(state: &WorkState, ctx: &Context) -> Result<Decision> {
 }
 
 /// runtime 在 `attempt begin` 前调用：本节点每个输入当前应观察的路径。
-/// `None` 表示可选输入的上游尚无产出，不用观察。
+/// `None` 表示可选输入的上游尚无产出，或来源是 `engine.stats`（引擎自己生成，不观察）。
 /// 规则与 `bind_inputs` 相同，只是不比摘要。
 #[allow(unused_variables)]
 pub fn input_paths_for(
@@ -464,6 +466,32 @@ mod tests {
         assert!(
             matches!(d.reply, Reply::AttemptBegun { requires, .. } if requires == vec!["skill:company-api".to_string()])
         );
+    }
+
+    #[test]
+    #[ignore = "T07"]
+    fn t07_begin_binds_engine_stats_and_emits_write_file() {
+        let mut fx = Fixture::with_engine_stats_input();
+        let d = fx.begin("only").unwrap();
+        let a = d.state.latest_attempt_of_current().unwrap();
+        let stats = a.inputs["stats"].as_ref().unwrap();
+        assert!(
+            stats
+                .path
+                .as_str()
+                .ends_with("attempts/only/1/0/stats.json")
+        );
+        let written = d.effects.iter().find_map(|e| match e {
+            Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
+            _ => None,
+        });
+        let content = written.expect("应有 WriteFile 效果");
+        assert_eq!(
+            stats.sha256,
+            crate::digest::Sha256Hex::of_bytes(content.as_bytes())
+        );
+        assert_eq!(stats.bytes, content.len() as u64);
+        assert!(content.contains("\"nodes\""));
     }
 
     #[test]
