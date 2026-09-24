@@ -42,8 +42,8 @@ impl ResourceIndex {
     }
 }
 
-/// 校验通过的图。只能由 `compile` 构造。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// 校验通过的图。只能由 `compile` 构造——不给 `Deserialize`，读回绕不过校验。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Graph {
     entry: NodeId,
     /// 声明顺序。状态卡的 `pending` 与 `visits` 按它排。
