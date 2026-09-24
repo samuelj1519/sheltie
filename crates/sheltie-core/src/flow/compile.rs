@@ -255,8 +255,8 @@ mod tests {
     #[ignore = "T05"]
     fn t05_rejects_gate_node_with_empty_text() {
         let text = base().replace(
-            "instruction = { text = \"阅读审查通过的文章",
-            "gate = true\ninstruction = { text = \"   ",
+            "instruction = { text = \"阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。\" }",
+            "gate = true\ninstruction = { text = \"   \" }",
         );
         // 上面把 publish 的说明文本改成空白并加 gate；parse 已拒绝空白文本时也算规则 6 的前置。
         assert!(matches!(
