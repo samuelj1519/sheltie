@@ -117,6 +117,10 @@ pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
                 include_str!("../../../workbooks/spec-dev/instructions/deliver.md"),
             ),
             (
+                "instructions/retro.md",
+                include_str!("../../../workbooks/spec-dev/instructions/retro.md"),
+            ),
+            (
                 "resources/templates/spec.md",
                 include_str!("../../../workbooks/spec-dev/resources/templates/spec.md"),
             ),
@@ -135,6 +139,10 @@ pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
             (
                 "resources/templates/scaffold.md",
                 include_str!("../../../workbooks/spec-dev/resources/templates/scaffold.md"),
+            ),
+            (
+                "resources/templates/lessons.md",
+                include_str!("../../../workbooks/spec-dev/resources/templates/lessons.md"),
             ),
             (
                 "resources/checklists/spec-checklist.md",
@@ -159,6 +167,10 @@ pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
                 include_str!(
                     "../../../workbooks/spec-dev/resources/checklists/implementer-rules.md"
                 ),
+            ),
+            (
+                "resources/checklists/retro-rules.md",
+                include_str!("../../../workbooks/spec-dev/resources/checklists/retro-rules.md"),
             ),
         ],
         other => panic!("没有叫 {other} 的样例"),
@@ -554,14 +566,17 @@ kind = "main"
         self.files.insert(path, b"tampered".to_vec());
     }
 
-    /// article-review：从「current 是 draft 且无 Attempt」跑到 review 成功、结论不通过。
+    /// article-review：跑到 review 成功、结论不通过。
+    /// 当前是 draft 且无 Attempt 时先做完 draft；draft 已成功（上一轮回来了）则直接进 review。
     pub fn run_to_review_done_not_passing(&mut self) {
-        let draft_n = self
-            .state()
-            .visits_of(&NodeId::new("draft").unwrap_or_else(|e| panic!("{e}")));
-        self.begin("draft").unwrap_or_else(|e| panic!("{e}"));
-        self.submit_ok(&format!("draft#{draft_n}.0"), "初稿")
-            .unwrap_or_else(|e| panic!("{e}"));
+        if self.state().latest_attempt_of_current().is_none() {
+            let draft_n = self
+                .state()
+                .visits_of(&NodeId::new("draft").unwrap_or_else(|e| panic!("{e}")));
+            self.begin("draft").unwrap_or_else(|e| panic!("{e}"));
+            self.submit_ok(&format!("draft#{draft_n}.0"), "初稿")
+                .unwrap_or_else(|e| panic!("{e}"));
+        }
         self.begin("review").unwrap_or_else(|e| panic!("{e}"));
         let review_n = self.state().current.n;
         self.submit_ok(
