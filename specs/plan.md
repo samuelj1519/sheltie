@@ -49,7 +49,7 @@
 | 命令 | 作用 |
 | --- | --- |
 | `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。零个测试匹配视为失败 |
-| `scripts/check-task.sh Tnn [base] [--staged]` | 核对：未提交的改动文件都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里（`plan.md`、`tasks.toml` 始终允许），工作树干净时再核对最近一次提交的文件范围；`files` 里没有 `todo!("Tnn")` 与不带标签的 `todo!()`，`#[allow(unused_variables)]` 只准留在还有 `todo!()` 的函数上；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对基准（默认最近一个 `tNN-*` tag：`t01-skeleton` 或复核者打的 `tNN-review`）的测试代码零改动，只允许删 `#[ignore` 行，与 `files` 重叠的混合源文件比对 `#[cfg(test)]` 起的测试模块，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才查，`--staged` 跳过） |
+| `scripts/check-task.sh Tnn [base] [--staged]` | 核对：基准以来提交说明含 `Task: Tnn` 的提交的改动与未提交改动的并集，都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里（`plan.md`、`tasks.toml` 始终允许）；`files` 里没有 `todo!("Tnn")` 与不带标签的 `todo!()`（条目可为文件或目录，目录只取其中的 `.rs`，文档会引用 `todo!()` 字样），`#[allow(unused_variables)]` 只准留在还有 `todo!()` 的函数上；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对基准（默认最近一个 `tNN-*` tag：`t01-skeleton` 或复核者打的 `tNN-review`）的测试代码零改动，只允许删 `#[ignore` 行，与 `files` 重叠的混合源文件比对 `#[cfg(test)]` 起的测试模块，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才查，`--staged` 跳过） |
 | `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`tests = "t05_"`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
 | `cargo mutants -p <crate>` | 里程碑用。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
 
