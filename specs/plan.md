@@ -68,7 +68,7 @@
 | T01 | done | 强模型 | 骨架、全部测试与脚本 | 三个 crate 可编译，全部测试存在且禁用，`scripts/task.sh T02` 能跑出红 |
 | T02 | done | 初级 | core 基础类型 | ID、路径、有界文本、摘要 newtype 与错误枚举 |
 | T03 | done | 初级 | core 解析 `workbook.toml` | 合法 manifest 解析；未知字段与错 schema 拒绝 |
-| T04 | todo | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
+| T04 | done | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
 | T05 | todo | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
 | T06 | todo | 初级 | core `Start` | 新 Work 状态与首个 `next` |
 | T07 | todo | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
