@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
-use crate::ids::WorkbookId;
+use crate::ids::{WorkbookId, validate_id};
 use crate::path::RelPath;
 
 /// 宿主资源类型（合同 §2 `requires[].kind`）。
@@ -120,9 +120,142 @@ pub fn parse_manifest(toml_text: &str) -> Result<Manifest> {
 }
 
 /// DTO 到领域类型的逐字段转换。这是 T03 要填的函数。
-#[allow(unused_variables)]
+///
+/// 校验失败一律归到 `Error::WorkbookInvalid`，`field` 用 TOML 路径写法，
+/// 让协调者能直接指着 `workbook.toml` 的某一行改。
 fn convert(dto: ManifestDto) -> Result<Manifest> {
-    todo!("T03")
+    let invalid = |field: String, reason: String| Error::WorkbookInvalid { field, reason };
+
+    if dto.schema != "workbook/v1" {
+        return Err(invalid(
+            "schema".to_string(),
+            format!("必须是 workbook/v1，实际 {:?}", dto.schema),
+        ));
+    }
+
+    let id = WorkbookId::new(&dto.id).map_err(|e| invalid("id".to_string(), e.to_string()))?;
+
+    if dto.version.is_empty() {
+        return Err(invalid("version".to_string(), "不能为空".to_string()));
+    }
+    if dto.version.len() > VERSION_MAX_BYTES {
+        return Err(invalid(
+            "version".to_string(),
+            format!("超过 {VERSION_MAX_BYTES} 字节"),
+        ));
+    }
+    if !dto
+        .version
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'+' | b'-'))
+    {
+        return Err(invalid(
+            "version".to_string(),
+            "只能含 0-9、A-Z、a-z、.、+ 与 -".to_string(),
+        ));
+    }
+
+    if dto.name.is_empty() {
+        return Err(invalid("name".to_string(), "不能为空".to_string()));
+    }
+    if dto.name.len() > NAME_MAX_BYTES {
+        return Err(invalid(
+            "name".to_string(),
+            format!("超过 {NAME_MAX_BYTES} 字节"),
+        ));
+    }
+
+    if let Some(description) = &dto.description {
+        if description.len() > DESCRIPTION_MAX_BYTES {
+            return Err(invalid(
+                "description".to_string(),
+                format!("超过 {DESCRIPTION_MAX_BYTES} 字节"),
+            ));
+        }
+    }
+
+    if dto.flows.is_empty() {
+        return Err(invalid("flows".to_string(), "不能为空".to_string()));
+    }
+    let mut flows = Vec::with_capacity(dto.flows.len());
+    for (i, raw) in dto.flows.iter().enumerate() {
+        let path = RelPath::new(raw).map_err(|e| invalid(format!("flows[{i}]"), e.to_string()))?;
+        flows.push(path);
+    }
+
+    if dto.requires.len() > REQUIRES_MAX {
+        return Err(invalid(
+            "requires".to_string(),
+            format!("最多 {REQUIRES_MAX} 项"),
+        ));
+    }
+    let mut requires = Vec::with_capacity(dto.requires.len());
+    for (i, req) in dto.requires.into_iter().enumerate() {
+        // 字段级错误用 requires[i].<字段>；整项错误（重复）用 requires[i]。
+        let field = |suffix: &str| format!("requires[{i}].{suffix}");
+        let kind = RequireKind::parse(&req.kind).ok_or_else(|| {
+            invalid(
+                field("kind"),
+                format!("{:?} 不是 skill、agent 或 mcp", req.kind),
+            )
+        })?;
+        validate_id(&req.name, "name").map_err(|e| invalid(field("name"), e.to_string()))?;
+        if let Some(version) = &req.version {
+            if version.len() > VERSION_MAX_BYTES {
+                return Err(invalid(
+                    field("version"),
+                    format!("超过 {VERSION_MAX_BYTES} 字节"),
+                ));
+            }
+        }
+        let digest = match &req.digest {
+            None => None,
+            Some(raw) => {
+                let hex = raw
+                    .strip_prefix("sha256:")
+                    .ok_or_else(|| invalid(field("digest"), "必须以 sha256: 开头".to_string()))?;
+                Some(Sha256Hex::new(hex).map_err(|_| {
+                    invalid(
+                        field("digest"),
+                        "sha256: 之后必须是 64 位小写十六进制".to_string(),
+                    )
+                })?)
+            }
+        };
+        if let Some(source) = &req.source {
+            if source.len() > SOURCE_MAX_BYTES {
+                return Err(invalid(
+                    field("source"),
+                    format!("超过 {SOURCE_MAX_BYTES} 字节"),
+                ));
+            }
+        }
+        if requires
+            .iter()
+            .any(|r: &HostRequire| r.kind == kind && r.name == req.name)
+        {
+            return Err(invalid(
+                format!("requires[{i}]"),
+                "kind 与 name 的组合重复".to_string(),
+            ));
+        }
+        requires.push(HostRequire {
+            kind,
+            name: req.name,
+            version: req.version,
+            digest,
+            source: req.source,
+        });
+    }
+
+    Ok(Manifest {
+        id,
+        version: dto.version,
+        name: dto.name,
+        description: dto.description,
+        flows,
+        requires,
+    })
 }
 
 #[cfg(test)]
@@ -142,7 +275,6 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_parses_minimal_manifest() {
         let m = parse_manifest(MINIMAL).unwrap();
         assert_eq!(m.id.as_str(), "two-step");
@@ -153,14 +285,12 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_unknown_field() {
         let err = parse_manifest(&with("author = \"x\"")).unwrap_err();
         assert!(matches!(err, Error::WorkbookInvalid { .. }));
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_wrong_schema_string() {
         let text = MINIMAL.replace("workbook/v1", "workbook/v2");
         assert!(
@@ -169,7 +299,6 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_empty_flows() {
         let text = MINIMAL.replace("[\"flows/default.toml\"]", "[]");
         assert!(
@@ -178,7 +307,6 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_flow_path_with_dotdot() {
         let text = MINIMAL.replace("flows/default.toml", "../x.toml");
         assert!(
@@ -187,7 +315,6 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_description_over_2kib() {
         let text = with(&format!("description = \"{}\"", "x".repeat(2049)));
         assert!(
@@ -196,7 +323,6 @@ flows = ["flows/default.toml"]
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_parses_requires_with_optional_fields() {
         let text = with(
             r#"
@@ -222,7 +348,6 @@ name = "db"
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_duplicate_require_kind_name() {
         let text = with(
             "[[requires]]\nkind = \"skill\"\nname = \"a\"\n[[requires]]\nkind = \"skill\"\nname = \"a\"\n",
@@ -233,7 +358,6 @@ name = "db"
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_unknown_require_kind() {
         let text = with("[[requires]]\nkind = \"plugin\"\nname = \"a\"\n");
         assert!(
@@ -242,7 +366,6 @@ name = "db"
     }
 
     #[test]
-    #[ignore = "T03"]
     fn t03_rejects_require_digest_without_sha256_prefix() {
         let text = with(
             "[[requires]]\nkind = \"skill\"\nname = \"a\"\ndigest = \"5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03\"\n",
