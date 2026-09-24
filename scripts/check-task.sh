@@ -33,8 +33,11 @@ scalar() {
 	' tasks.toml | tr -d '"'
 }
 
-mapfile -t files < <(field files)
-mapfile -t test_files < <(field test_files)
+# macOS 自带 bash 3.2 没有 mapfile，用 while read 填数组。
+files=()
+while IFS= read -r line; do [ -n "$line" ] && files+=("$line"); done < <(field files)
+test_files=()
+while IFS= read -r line; do [ -n "$line" ] && test_files+=("$line"); done < <(field test_files)
 allow_test_changes="$(scalar allow_test_changes)"
 
 if [ "${#files[@]}" -eq 0 ]; then
