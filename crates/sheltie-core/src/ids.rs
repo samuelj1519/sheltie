@@ -465,4 +465,47 @@ mod tests {
         assert!(WorkId::new("2026-09-24", 1000, &name("x")).is_err());
         assert!(WorkId::new("20260924", 1, &name("x")).is_err());
     }
+
+    // ── M1 补测（边界与形状，杀幸存突变） ─────────────────────
+
+    #[test]
+    fn t02_id_accepts_exactly_64_bytes() {
+        let at = "a".repeat(64);
+        assert_eq!(WorkbookId::new(&at).unwrap().as_str(), at);
+    }
+
+    #[test]
+    fn t02_work_name_accepts_exactly_48_bytes() {
+        let at = "a".repeat(48);
+        assert_eq!(name(&at).as_str(), at);
+    }
+
+    #[test]
+    fn t02_work_name_rejects_leading_or_trailing_dash_alone() {
+        for bad in ["-abc", "abc-"] {
+            assert!(
+                matches!(WorkName::normalize(bad), Err(Error::InvalidId { .. })),
+                "{bad:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn t02_work_id_parse_rejects_each_misplaced_separator() {
+        for bad in [
+            "2026x09-24-001-a",
+            "2026-09x24-001-a",
+            "2026-09-24x001-a",
+            "2026-09-24-001xa",
+        ] {
+            assert!(WorkId::parse(bad).is_err(), "{bad:?}");
+        }
+    }
+
+    #[test]
+    fn t02_names_and_work_ids_convert_into_string() {
+        assert_eq!(String::from(name("文章-初稿")), "文章-初稿");
+        let id = WorkId::new("2026-09-24", 3, &name("a")).unwrap();
+        assert_eq!(String::from(id), "2026-09-24-003-a");
+    }
 }

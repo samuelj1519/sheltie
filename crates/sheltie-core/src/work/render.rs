@@ -734,4 +734,136 @@ mod tests {
         assert_eq!(card.pending, vec!["publish"]);
         assert_eq!(card.current, "draft#2");
     }
+
+    // ── M1 补测（阻断行、阻断计数、时间换算；夹具时钟固定，快照里全是 0s） ─────
+
+    fn exhausted_draft() -> Fixture {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "一").unwrap();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.1", "二").unwrap();
+        fx
+    }
+
+    fn no_legal_edge() -> Fixture {
+        let mut fx = Fixture::article_review_with_review_max_visits_1().started();
+        fx.begin("draft").unwrap();
+        fx.submit_ok("draft#1.0", "ok").unwrap();
+        fx.begin("review").unwrap();
+        fx.submit_ok("review#1.0", "不通过").unwrap();
+        fx.begin("draft").unwrap();
+        fx.submit_ok("draft#2.0", "改了").unwrap();
+        fx
+    }
+
+    #[test]
+    fn t10_status_card_names_retries_exhausted_occurrence() {
+        let fx = exhausted_draft();
+        let card = render_status_card(fx.state(), &fx.graph);
+        assert!(
+            card.contains("blocked: retries_exhausted: draft#1\n"),
+            "{card}"
+        );
+    }
+
+    #[test]
+    fn t10_status_card_explains_no_legal_edge() {
+        let fx = no_legal_edge();
+        let card = render_status_card(fx.state(), &fx.graph);
+        assert!(
+            card.contains("blocked: no_legal_edge: draft#2 的全部出边目标已达 max_visits"),
+            "{card}"
+        );
+    }
+
+    #[test]
+    fn t10_stats_blocked_count_by_reason() {
+        // 普通成功与可重试的失败都不算阻断。
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "一").unwrap();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 0);
+        fx.begin("draft").unwrap();
+        fx.submit_ok("draft#1.1", "ok").unwrap();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 0);
+
+        let fx = exhausted_draft();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
+
+        let fx = no_legal_edge();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
+
+        // 门槛成功算一次，批准之后仍算。
+        let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
+        fx.begin("notes").unwrap();
+        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
+        fx.approve("notes").unwrap();
+        assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
+    }
+
+    #[test]
+    fn t10_secs_between_matches_independent_calendar_math() {
+        // 期望值由 Python datetime 独立算出。
+        let cases = [
+            ("2026-02-28T23:59:30Z", "2026-03-01T00:00:30Z", 60),
+            ("2024-02-28T00:00:00Z", "2024-03-01T00:00:00Z", 172_800),
+            ("1999-12-31T23:59:59Z", "2000-03-01T00:00:00Z", 5_184_001),
+            (
+                "1970-01-01T00:00:00Z",
+                "2026-09-24T03:04:05.678Z",
+                1_790_219_045,
+            ),
+            ("1900-02-28T00:00:00Z", "1900-03-01T00:00:00Z", 86_400),
+            ("2025-12-31T23:59:59Z", "2026-01-01T00:00:09Z", 10),
+            (
+                "1600-01-01T00:00:00Z",
+                "2400-12-31T23:59:59Z",
+                25_277_183_999,
+            ),
+        ];
+        for (a, b, want) in cases {
+            let got = secs_between(&Timestamp(a.to_string()), &Timestamp(b.to_string()));
+            assert_eq!(got, want, "{a} → {b}");
+        }
+        // 倒序夹到 0；不是 `…Z` 的形状解析不了，当 0。
+        let ts = |s: &str| Timestamp(s.to_string());
+        assert_eq!(
+            secs_between(&ts("2026-01-01T00:00:09Z"), &ts("2026-01-01T00:00:00Z")),
+            0
+        );
+        assert_eq!(
+            secs_between(
+                &ts("2026-01-01T00:00:00+08:00"),
+                &ts("2026-01-01T00:00:09Z")
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn t10_stats_total_and_avg_use_timestamps() {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "一").unwrap();
+        fx.begin("draft").unwrap();
+        fx.submit_ok("draft#1.1", "ok").unwrap();
+        fx.begin("review").unwrap();
+        let mut state = fx.state().clone();
+        let ts = |s: &str| Timestamp(s.to_string());
+        state.created_at = ts("2026-09-24T03:00:00Z");
+        state.updated_at = ts("2026-09-24T04:00:00Z");
+        state.attempts[0].started_at = ts("2026-09-24T03:00:00Z");
+        state.attempts[0].ended_at = Some(ts("2026-09-24T03:00:10Z"));
+        state.attempts[1].started_at = ts("2026-09-24T03:01:00Z");
+        state.attempts[1].ended_at = Some(ts("2026-09-24T03:01:30Z"));
+        // review#1.0 仍在运行：不计入 avg。
+        state.attempts[2].started_at = ts("2026-09-24T03:02:00Z");
+        let stats = render_stats_json(&state, &fx.graph);
+        assert_eq!(stats.total_seconds, 3600);
+        assert_eq!(stats.nodes[0].avg_seconds, 20);
+        assert_eq!(stats.nodes[1].avg_seconds, 0);
+        assert!(render_stats(&state, &fx.graph).contains("total: 3600s"));
+    }
 }

@@ -172,7 +172,8 @@ fn check_rule_4(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
     Ok(())
 }
 
-/// 规则 5：`inputs[].from` 的 `Node` 来源存在、不是自己、输出名存在，且从被引用节点能到达本节点。
+/// 规则 5：`inputs[].from` 的 `Node` 来源存在、不是自己、输出名存在，且从被引用节点能到达本节点；
+/// 被引用的输出 `required = false` 时，本输入也必须 `required = false`（下游不得把可选输出当必需输入）。
 /// 另：`Start`、`Resource`、`EngineStats` 来源上 `required = false` 拒绝。
 fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
@@ -192,13 +193,6 @@ fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
                     }
                 }
                 InputSource::Node { node: src, output } => {
-                    if RESERVED_NODE_IDS.contains(&src.as_str()) {
-                        return Err(invalid(
-                            "5",
-                            path.clone(),
-                            format!("来源节点不得是保留字 {src}"),
-                        ));
-                    }
                     if src == &node.id {
                         return Err(invalid("5", path.clone(), "来源节点不得是自己"));
                     }
@@ -577,5 +571,138 @@ mod tests {
                 Err(other) => panic!("意外错误：{other:?}"),
             }
         }
+    }
+
+    // ── M1 补测（规则 1 与规则 7 的数量与大小上限；终点判定的反例） ─────
+
+    /// `n` 个节点的链 `n0 -> n1 -> …`，再补前向边（`i < j`，不成环、不重复）凑够 `edges` 条。
+    fn chain_with_edges(n: usize, edges: usize) -> Vec<(usize, usize)> {
+        let mut out: Vec<(usize, usize)> = (1..n).map(|i| (i - 1, i)).collect();
+        'fill: for i in 0..n {
+            for j in (i + 2)..n {
+                if out.len() >= edges {
+                    break 'fill;
+                }
+                out.push((i, j));
+            }
+        }
+        out
+    }
+
+    fn compile_def(def: &crate::flow::FlowDef) -> Result<Graph> {
+        compile(
+            def,
+            &testkit::article_review_manifest(),
+            &ResourceIndex::default(),
+        )
+    }
+
+    #[test]
+    fn t05_node_count_limit_is_64() {
+        assert_eq!(
+            compile_def(&testkit::random_flow(64, &chain_with_edges(64, 63)))
+                .unwrap()
+                .node_count(),
+            64
+        );
+        assert_eq!(
+            rule_of(compile_def(&testkit::random_flow(65, &chain_with_edges(65, 64))).unwrap_err()),
+            "1"
+        );
+    }
+
+    #[test]
+    fn t05_edge_count_limit_is_256() {
+        let at = chain_with_edges(64, 256);
+        assert_eq!(at.len(), 256);
+        assert_eq!(
+            compile_def(&testkit::random_flow(64, &at))
+                .unwrap()
+                .edge_count(),
+            256
+        );
+        let over = chain_with_edges(64, 257);
+        assert_eq!(
+            rule_of(compile_def(&testkit::random_flow(64, &over)).unwrap_err()),
+            "1"
+        );
+    }
+
+    fn resources_with(path: &str, bytes: u64) -> ResourceIndex {
+        use crate::flow::graph::ResourceMeta;
+        use crate::path::RelPath;
+
+        let mut res = testkit::article_review_resources();
+        res.files.insert(
+            RelPath::new(path).unwrap(),
+            ResourceMeta {
+                bytes,
+                is_utf8: true,
+            },
+        );
+        res
+    }
+
+    fn compile_with(res: &ResourceIndex) -> Result<Graph> {
+        compile(
+            &parse_flow(base()).unwrap(),
+            &testkit::article_review_manifest(),
+            res,
+        )
+    }
+
+    #[test]
+    fn t05_instruction_file_limit_is_64_kib() {
+        assert!(compile_with(&resources_with("instructions/draft.md", 65_536)).is_ok());
+        assert_eq!(
+            rule_of(compile_with(&resources_with("instructions/draft.md", 65_537)).unwrap_err()),
+            "7"
+        );
+    }
+
+    #[test]
+    fn t05_resource_input_limit_is_32_mib() {
+        let path = "resources/review-checklist.md";
+        assert!(compile_with(&resources_with(path, 33_554_432)).is_ok());
+        assert_eq!(
+            rule_of(compile_with(&resources_with(path, 33_554_433)).unwrap_err()),
+            "7"
+        );
+    }
+
+    #[test]
+    fn t05_node_with_out_edges_is_not_terminal() {
+        let g = compile_text(base()).unwrap();
+        assert!(!g.is_terminal(&NodeId::new("draft").unwrap()));
+        assert!(!g.is_terminal(&NodeId::new("review").unwrap()));
+    }
+
+    // ── M1 复核待修（合同 workbook.md §4 规则 5 新增一句，见 decisions.md M1 记录 B1） ─────
+
+    fn optional_article() -> String {
+        base().replace(
+            "{ name = \"article\", path = \"article.md\", max_bytes = 262144 }",
+            "{ name = \"article\", path = \"article.md\", max_bytes = 262144, required = false }",
+        )
+    }
+
+    #[test]
+    #[ignore = "T05"]
+    fn t05_rejects_required_input_on_optional_output() {
+        assert_eq!(rule_of(compile_text(&optional_article()).unwrap_err()), "5");
+    }
+
+    #[test]
+    fn t05_accepts_optional_input_on_optional_output() {
+        let text = optional_article()
+            .replace(
+                "{ name = \"article\",   from = \"draft.article\" }",
+                "{ name = \"article\",   from = \"draft.article\", required = false }",
+            )
+            .replace(
+                "{ name = \"article\", from = \"draft.article\" }",
+                "{ name = \"article\", from = \"draft.article\", required = false }",
+            );
+        assert!(compile_text(&text).is_ok());
     }
 }

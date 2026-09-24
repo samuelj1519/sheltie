@@ -31,7 +31,7 @@
 8. **不顺手改。** 看到别的 `todo!()`、别的任务的测试、觉得能优化的地方，都不碰。
 9. **卡住就停。** 下面任何一种情况，停手、不提交、把状态列改成 `blocked`、在提交信息或聊天里写清原因：两个测试互相矛盾；不改签名或测试就做不到；需要新依赖；同一个测试改了五次还红；任务卡和合同说的不一样。
    **唯一例外：工具本身有缺陷。** `scripts/` 下的脚本或 `tasks.toml` 让一个按规则做的任务无法通过时，可以修工具，但要单独一个提交、`Task: T01`、提交说明逐条写原来错在哪与改成什么；工具修复不得放松任何检查的意图，不动测试、签名与合同。M1 到 M3 复核每一次工具改动。
-10. **不猜。** 文档注释、测试、合同都没说的行为，不自己发明。按第 9 条卡住。
+10. **不猜。** 文档注释、测试、合同都没说的行为，不自己发明。按第 9 条卡住。在注释里写下「这部分由 runtime 补」「解析不了当 0」「出错就用默认内容」一类约定，同样是发明。
 
 ### 0.2.1 实现者是强模型时
 
@@ -51,7 +51,7 @@
 | `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。零个测试匹配视为失败 |
 | `scripts/check-task.sh Tnn [base] [--staged]` | 核对：基准以来提交说明含 `Task: Tnn` 的提交的改动与未提交改动的并集，都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里（`plan.md`、`tasks.toml` 始终允许）；`files` 里没有 `todo!("Tnn")` 与不带标签的 `todo!()`（条目可为文件或目录，目录只取其中的 `.rs`，文档会引用 `todo!()` 字样），`#[allow(unused_variables)]` 只准留在还有 `todo!()` 的函数上；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对基准（默认最近一个 `tNN-*` tag：`t01-skeleton` 或复核者打的 `tNN-review`）的测试代码零改动，只允许删 `#[ignore` 行，与 `files` 重叠的混合源文件比对 `#[cfg(test)]` 起的测试模块，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才查，`--staged` 跳过） |
 | `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`tests = "t05_"`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
-| `cargo mutants -p <crate>` | 里程碑用。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
+| `scripts/mutants.sh <crate>` | 里程碑用。包一层 `cargo mutants`：目标目录固定在仓库内（全局 `target-dir` 会让并行副本共用产物，结果作废），用 nextest，排除 `testkit.rs`。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
 
 ### 0.5 测试命名
 
@@ -69,20 +69,20 @@
 | T02 | done | 初级 | core 基础类型 | ID、路径、有界文本、摘要 newtype 与错误枚举 |
 | T03 | done | 初级 | core 解析 `workbook.toml` | 合法 manifest 解析；未知字段与错 schema 拒绝 |
 | T04 | done | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
-| T05 | done | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
+| T05 | doing | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
 | T06 | done | 初级 | core `Start` | 新 Work 状态与首个 `next` |
 | T07 | done | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
 | T08 | done | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
 | T09 | done | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
 | T10 | done | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行投影与预写快照一致 |
-| M1 | todo | 强模型 | 里程碑审查：core | diff T01..T10；`cargo mutants -p sheltie-core` 幸存突变逐条处置 |
+| M1 | doing | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 幸存突变逐条处置 |
 | T11 | todo | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | todo | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
 | T13 | todo | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
 | T14 | todo | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
 | T15 | todo | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
 | T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
-| M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`cargo mutants -p sheltie-runtime`；崩溃窗口人工走查 |
+| M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | todo | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
 | T18 | todo | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
 | T19 | todo | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
@@ -119,7 +119,7 @@
 
 **骨架的写法。** 类型按 [架构 §2](architecture.md)，逐字段核对合同。`Error` 枚举一次写全 [协议 §7](contracts/protocol.md) 的 23 个码，每个变体带定位字段。`Command`、`Effect`、`NextOp`、`WorkStatus`、`BlockedReason` 一次写全。`decide` 拆成每个 `Command` 一个私有函数，签名与文档注释写好，体为 `todo!()`。一个函数只做一件事，长度以初级实现者一次能填完为准；复杂的拆成多个私有函数，各自 `todo!()`，各自有注释。测试里用到的构造 helper（`fixture_graph()`、`ObservedFile::for_test()`、固定时钟）在骨架里写完实现，不留给填空。
 
-**验证。** 四条门禁绿；`cargo nextest run --all-features` 显示全部测试 ignored、零失败；`scripts/task.sh T02` 退出非零且列出 T02 的测试名；`scripts/check-docs.sh`、`check-core-vocab.sh` 绿；`cargo deny check` 绿。另做一次正例干跑：临时填满一个最小任务，跑 `check-task.sh` 必须通过，再把填充撤掉。只测负例会漏掉「按规则做也过不了」的脚本缺陷。
+**验证。** 四条门禁绿；`cargo nextest run --all-features` 显示全部测试 ignored、零失败；`scripts/task.sh T02` 退出非零且列出 T02 的测试名；`scripts/check-docs.sh`、`check-core-vocab.sh` 绿；`cargo deny check` 绿。另做一次正例干跑：临时填满一个最小任务，跑 `check-task.sh` 必须通过，再把填充撤掉。只测负例会漏掉「按规则做也过不了」的脚本缺陷。再对每个填空任务核对依赖顺序：只解开本任务的测试时，panic 的都是本任务的 `todo!("Tnn")`；碰到后面任务的 `todo!` 说明顺序或夹具有缺陷，调顺序或改夹具，不留给实现者跨任务填（M1 教训，T07 实测）。
 
 **教训（T02 复核）。** T01 只验证了 `check-task.sh` 的负例。实现者发现三个缺陷（测试与源码同文件时检查 4 必然失败；检查 2 与规则 8 在共享文件上冲突；检查 1 把历史提交都算进本次），自行修复并单独提交。规则 9 的例外与「正例干跑」由此加入。
 
@@ -180,6 +180,8 @@
 **实现要点。** 骨架里已把九条规则拆成九个私有函数 `check_rule_1` 到 `check_rule_9`，各自 `todo!()`，按顺序调用。可达性用 BFS，骨架里有 `reachable_from(&out_edges, start) -> BTreeSet<NodeId>` 的签名，先填它。错误的 `rule` 字段填 `"1"` 到 `"9"`。
 
 **提交。** `feat(core): 把 Flow 编译成校验过的图`
+
+**复核（M1，2026-09-25）。** 需修改。B1：合同 §3.2 说可选输出「下游不得把它当必需输入」，§4 规则 5 与骨架注释都漏了这一句，编译放行后 `next` 会给出一个必然 `INPUT_UNAVAILABLE` 的 `begin`，只能取消。合同与 `check_rule_5` 注释已补；复核者补测试 `rejects_required_input_on_optional_output`（禁用，待解开）与 `accepts_optional_input_on_optional_output`。缺口在上游文档，不算实现者违规。修完提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，`Task: T05`。见 [decisions.md 里程碑记录](decisions.md)。
 
 ### T06 core `Start`
 
@@ -243,7 +245,7 @@
 
 **执行者。** 强模型，未参与 T02 到 T10。
 
-**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `cargo mutants -p sheltie-core --timeout 120`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`、零 `#[ignore`，有就退回对应任务。复核 `git log t01-skeleton..HEAD -- scripts/ tasks.toml` 里每一次工具改动：意图没被放松、提交说明写清了原因。
+**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `scripts/mutants.sh sheltie-core`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`，`#[ignore` 只剩后续任务的标签（本里程碑覆盖的任务标签为零），有就退回对应任务。复核 `git log t01-skeleton..HEAD -- scripts/ tasks.toml` 里每一次工具改动：意图没被放松、提交说明写清了原因。
 
 **产出。** 一份 `M1` 报告放进 `decisions.md` 末节之前的「里程碑记录」，列检查表结果、幸存突变数与处置、修复提交。有阻断项时对应任务状态改回 `doing`，由实现者修，M1 再复核。另写一节「流程教训」，格式同 `spec-dev` 的 `lessons.md` 建议表：每条有证据（哪个任务的哪次提交或复核）、有落点（`plan.md`、`engineering.md`、`scripts/` 的哪一段）；采纳的直接改，否决的写原因。M2、M3 同。
 
@@ -309,11 +311,13 @@
 
 **提交。** `feat(runtime): Work 服务与每 Work 冻结副本`
 
+**M1 遗留（开工前由骨架作者补签名与测试）。** [decisions.md 里程碑记录](decisions.md) M1 的 O1 到 O4：`work start` 的 `requires` 取 manifest 全量；`resource.<path>` 输入的篡改检测；任务书宿主资源表的「版本」列；从库里反序列化的 `WorkState` 要重新校验有界文本。
+
 ### M2 里程碑审查：runtime
 
 **执行者。** 强模型。
 
-**做什么。** 同 M1，范围 `crates/sheltie-runtime`。另加一项人工走查：对 [存储合同 §3](contracts/storage.md) 的每个崩溃时刻，在 `service.rs` 里指出对应代码行，确认 `COMMIT` 之后才有文件写入。`cargo mutants -p sheltie-runtime --timeout 300`。
+**做什么。** 同 M1，范围 `crates/sheltie-runtime`。另加一项人工走查：对 [存储合同 §3](contracts/storage.md) 的每个崩溃时刻，在 `service.rs` 里指出对应代码行，确认 `COMMIT` 之后才有文件写入。`MUTANTS_TIMEOUT=300 scripts/mutants.sh sheltie-runtime`。
 
 ### T17 cli `workbook` 组
 

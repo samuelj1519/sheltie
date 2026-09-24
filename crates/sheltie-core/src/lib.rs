@@ -9,9 +9,6 @@
 //! - [`workbook`]：`workbook.toml` 的解析。
 //! - [`flow`]：Flow 的解析与编译成图。
 //! - [`work`]：Work 状态机、合法下一步、任务书与状态卡的渲染。
-//!
-//! 骨架阶段（T01 到 T10）允许 `dead_code`，M1 里程碑删除这一行。
-#![allow(dead_code)]
 // 测试代码允许 unwrap；库代码不允许（workspace lints）。
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 

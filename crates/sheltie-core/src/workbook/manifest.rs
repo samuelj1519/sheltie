@@ -374,4 +374,89 @@ name = "db"
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "requires[0].digest")
         );
     }
+
+    // ── M1 补测（长度与个数上限：恰好上限接受，多一个字节拒绝） ─────
+
+    fn require_toml(kind: &str, name: &str, extra: &str) -> String {
+        format!("[[requires]]\nkind = \"{kind}\"\nname = \"{name}\"\n{extra}\n")
+    }
+
+    fn field_of(text: &str) -> String {
+        match parse_manifest(text) {
+            Err(Error::WorkbookInvalid { field, .. }) => field,
+            other => panic!("应报 WorkbookInvalid：{other:?}"),
+        }
+    }
+
+    #[test]
+    fn t03_version_limit_is_32_bytes() {
+        let at = MINIMAL.replace("\"1.0.0\"", &format!("\"{}\"", "1".repeat(32)));
+        assert!(parse_manifest(&at).is_ok());
+        let over = MINIMAL.replace("\"1.0.0\"", &format!("\"{}\"", "1".repeat(33)));
+        assert_eq!(field_of(&over), "version");
+    }
+
+    #[test]
+    fn t03_name_limit_is_128_bytes() {
+        let at = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(128)));
+        assert!(parse_manifest(&at).is_ok());
+        let over = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(129)));
+        assert_eq!(field_of(&over), "name");
+    }
+
+    #[test]
+    fn t03_description_accepts_exactly_2048_bytes() {
+        let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
+        assert_eq!(
+            parse_manifest(&at).unwrap().description.unwrap().len(),
+            2048
+        );
+    }
+
+    #[test]
+    fn t03_requires_limit_is_32_items() {
+        let reqs = |n: usize| {
+            (0..n)
+                .map(|i| require_toml("skill", &format!("s{i}"), ""))
+                .collect::<String>()
+        };
+        assert_eq!(parse_manifest(&with(&reqs(32))).unwrap().requires.len(), 32);
+        assert_eq!(field_of(&with(&reqs(33))), "requires");
+    }
+
+    #[test]
+    fn t03_require_version_limit_is_32_bytes() {
+        let v = |n: usize| format!("version = \"{}\"", "1".repeat(n));
+        assert!(parse_manifest(&with(&require_toml("skill", "s", &v(32)))).is_ok());
+        assert_eq!(
+            field_of(&with(&require_toml("skill", "s", &v(33)))),
+            "requires[0].version"
+        );
+    }
+
+    #[test]
+    fn t03_require_source_limit_is_512_bytes() {
+        let s = |n: usize| format!("source = \"{}\"", "a".repeat(n));
+        assert!(parse_manifest(&with(&require_toml("skill", "s", &s(512)))).is_ok());
+        assert_eq!(
+            field_of(&with(&require_toml("skill", "s", &s(513)))),
+            "requires[0].source"
+        );
+    }
+
+    #[test]
+    fn t03_same_kind_different_names_are_not_duplicates() {
+        let text = with(&format!(
+            "{}{}{}",
+            require_toml("agent", "a", ""),
+            require_toml("agent", "b", ""),
+            require_toml("mcp", "a", "")
+        ));
+        let m = parse_manifest(&text).unwrap();
+        assert_eq!(m.requires.len(), 3);
+        assert_eq!(m.requires[0].kind, RequireKind::Agent);
+        assert!(m.find_require(RequireKind::Agent, "b").is_some());
+        assert!(m.find_require(RequireKind::Skill, "a").is_none());
+        assert!(m.find_require(RequireKind::Agent, "c").is_none());
+    }
 }

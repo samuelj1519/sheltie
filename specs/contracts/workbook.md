@@ -177,7 +177,7 @@ kind = "back"
 2. 每条边两端存在、不自环、`(from, to)` 不重复。
 3. 从 `entry` 出发每个节点可达。不可达节点是错误，不是警告。
 4. 至少存在一个没有出边的节点（终点）。
-5. `inputs[].from` 引用的节点与输出存在，且从被引用节点出发能沿边走到本节点。这是静态能做的全部检查；运行时若上游还没有成功的 Attempt，`attempt begin` 报 `INPUT_UNAVAILABLE`。
+5. `inputs[].from` 引用的节点与输出存在，且从被引用节点出发能沿边走到本节点；被引用的输出 `required = false` 时，本输入也必须 `required = false`（§3.2「下游不得把它当必需输入」）；`start.<key>`、`resource.<path>`、`engine.stats` 来源不得声明 `required = false`（§3.2）。这是静态能做的全部检查；运行时若上游还没有成功的 Attempt，`attempt begin` 报 `INPUT_UNAVAILABLE`。
 6. `gate = true` 的节点 `instruction` 不得为空文本。
 7. 文件引用存在、大小合规；`instruction.file` 另须 UTF-8，`resource.<path>` 不限编码。
 8. 节点 `requires[]` 的每项都能在 `workbook.toml` 的 `requires` 里找到；同一节点内不重复。
