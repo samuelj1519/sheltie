@@ -67,7 +67,7 @@ fn is_han(c: char) -> bool {
 }
 
 macro_rules! kebab_id {
-    ($name:ident, $doc:literal) => {
+    ($name:ident, $field:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[serde(try_from = "String", into = "String")]
@@ -77,7 +77,7 @@ macro_rules! kebab_id {
             /// 校验后构造。失败返回 `Error::InvalidId`。
             pub fn new(value: impl Into<String>) -> Result<Self> {
                 let value = value.into();
-                validate_id(&value, stringify!($name))?;
+                validate_id(&value, $field)?;
                 Ok(Self(value))
             }
 
@@ -107,17 +107,18 @@ macro_rules! kebab_id {
     };
 }
 
-kebab_id!(WorkbookId, "Workbook 的稳定身份，全局唯一。");
-kebab_id!(FlowId, "Workbook 内一张图的 ID。");
+kebab_id!(WorkbookId, "workbook_id", "Workbook 的稳定身份，全局唯一。");
+kebab_id!(FlowId, "flow_id", "Workbook 内一张图的 ID。");
 kebab_id!(
     NodeId,
+    "node_id",
     "Flow 内一个节点的 ID。`start` 与 `resource` 是保留字，编译规则 1 拒绝。"
 );
 
 /// Work 的名字，`work_id` 的后缀部分。
 ///
 /// 规范化规则（协议 `work start` 第 3 步）：去首尾空白，连续空白替换为一个 `-`，转小写；
-/// 之后必须匹配 `^[a-z0-9\p{Han}]+(-[a-z0-9\p{Han}]+)*$` 且 ≤ 48 字节。
+/// 之后只含小写字母、数字、汉字与单个 `-`（不首尾、不连续），≤ 48 字节。「汉字」是协议 `work start` 第 3 步列出的十二个码点区间。
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct WorkName(String);
@@ -379,6 +380,56 @@ mod tests {
         assert!(AttemptId::parse("draft#+1.0").is_err());
         assert!(AttemptId::parse("draft#1.+0").is_err());
         assert!(AttemptId::parse("draft# 1.0").is_err());
+    }
+
+    #[test]
+    #[ignore = "T02"]
+    fn t02_parse_rejects_leading_zero_in_numeric_segments() {
+        // "01".parse::<u32>() 放行，会让 draft#01.0 重排成 draft#1.0；序号段必须是规范十进制。
+        assert!(AttemptId::parse("draft#01.0").is_err());
+        assert!(AttemptId::parse("draft#1.00").is_err());
+        assert!(AttemptId::parse("draft#1.0").is_ok());
+        assert!(
+            AttemptId::parse("draft#0.0").is_ok(),
+            "到达次数与重试都允许 0 本身"
+        );
+        // work_id 的序号固定三位，恰好三位数字才合法。
+        assert!(WorkId::parse("2026-09-24-0001-x").is_err());
+        assert!(WorkId::parse("2026-09-24-01-x").is_err());
+    }
+
+    #[test]
+    #[ignore = "T02"]
+    fn t02_work_name_accepts_han_extension_f_h_i_and_compat_supplement() {
+        // 协议 work start 第 3 步列出的全部区段各取一个码点。
+        for c in [
+            '\u{2CEB0}',
+            '\u{31350}',
+            '\u{2EBF0}',
+            '\u{2F800}',
+            '\u{20000}',
+            '\u{FA0E}',
+        ] {
+            assert!(
+                WorkName::normalize(&c.to_string()).is_ok(),
+                "{c:?} 应被接受"
+            );
+        }
+        // 部首补充区不在允许列表里。
+        assert!(WorkName::normalize("\u{2E80}").is_err());
+    }
+
+    #[test]
+    fn t02_kebab_id_error_field_is_snake_case() {
+        assert!(
+            matches!(WorkbookId::new("Bad"), Err(Error::InvalidId { field, .. }) if field == "workbook_id")
+        );
+        assert!(
+            matches!(FlowId::new("Bad"), Err(Error::InvalidId { field, .. }) if field == "flow_id")
+        );
+        assert!(
+            matches!(NodeId::new("Bad"), Err(Error::InvalidId { field, .. }) if field == "node_id")
+        );
     }
 
     #[test]

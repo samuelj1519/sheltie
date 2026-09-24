@@ -3,6 +3,14 @@
 # tests：测试函数名前缀。
 # test_files：测试所在文件，改动只许删 #[ignore 行；与 files 重叠的是混合源文件，改查 #[cfg(test)] 起的测试模块。
 # allow_test_changes：为 true 时放开 test_files 的改动限制（只用于场景任务修 bug）。
+#
+# [T01] 是工具与骨架修复提交的白名单（plan.md 规则 9 的例外）：只准动脚本、计划、配置，不准动 crates/。
+
+[T01]
+files = ["scripts", "tasks.toml", "specs", ".config", ".github", ".pre-commit-config.yaml", "Cargo.toml", "Cargo.lock"]
+tests = "t01_"
+test_files = []
+allow_test_changes = false
 
 [T02]
 files = ["crates/sheltie-core/src/ids.rs", "crates/sheltie-core/src/path.rs", "crates/sheltie-core/src/text.rs", "crates/sheltie-core/src/digest.rs"]

@@ -111,7 +111,6 @@ struct RequireDto {
 /// 字段级错误的 `field` 用路径写法，如 `flows[1]`、`requires[0].digest`。
 /// 规则见合同 §2 两张表：`schema` 必须是 `workbook/v1`；`flows` 非空；
 /// `requires` 的 `(kind, name)` 唯一，`digest` 必须是 `sha256:` 加 64 位小写十六进制。
-#[allow(unused_variables)]
 pub fn parse_manifest(toml_text: &str) -> Result<Manifest> {
     let dto: ManifestDto = toml::from_str(toml_text).map_err(|e| Error::WorkbookInvalid {
         field: "toml".to_string(),
