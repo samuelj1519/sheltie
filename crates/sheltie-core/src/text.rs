@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 
 /// 最多 `N` 字节的字符串。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -11,9 +11,16 @@ pub struct BoundedText<const N: usize>(String);
 
 impl<const N: usize> BoundedText<N> {
     /// 超过 `N` 字节返回 `Error::TextTooLong`。`field` 只用于错误信息。
-    #[allow(unused_variables)]
     pub fn new(value: impl Into<String>, field: &'static str) -> Result<Self> {
-        todo!("T02")
+        let value = value.into();
+        if value.len() > N {
+            return Err(Error::TextTooLong {
+                field,
+                max: N,
+                actual: value.len(),
+            });
+        }
+        Ok(Self(value))
     }
 
     pub fn as_str(&self) -> &str {
@@ -34,7 +41,6 @@ mod tests {
     use crate::error::Error;
 
     #[test]
-    #[ignore = "T02"]
     fn t02_bounded_text_rejects_over_limit_bytes() {
         assert!(BoundedText::<4>::new("abcd", "x").is_ok());
         assert!(matches!(
