@@ -32,9 +32,9 @@ instruction = { file = "instructions/plan.md" }
 inputs = [
   { name = "spec",       from = "spec.spec" },
   { name = "project",    from = "start.project" },
-  { name = "plan_tpl",   from = "resource.resources/templates/plan.md" },
-  { name = "tasks_tpl",  from = "resource.resources/templates/tasks.md" },
-  { name = "task_rules", from = "resource.resources/checklists/task-rules.md" },
+  { name = "plan-tpl",   from = "resource.resources/templates/plan.md" },
+  { name = "tasks-tpl",  from = "resource.resources/templates/tasks.md" },
+  { name = "task-rules", from = "resource.resources/checklists/task-rules.md" },
   { name = "decision",   from = "plan-review.decision", required = false },
   { name = "escalation", from = "escalate.decision",    required = false },
 ]
@@ -107,7 +107,7 @@ inputs = [
   { name = "plan",       from = "plan.plan" },
   { name = "scaffold",   from = "scaffold.scaffold" },
   { name = "change",     from = "implement.change" },
-  { name = "fix_change", from = "fix.change", required = false },
+  { name = "fix-change", from = "fix.change", required = false },
   { name = "project",    from = "start.project" },
   { name = "template",   from = "resource.resources/templates/report.md" },
 ]
@@ -126,8 +126,8 @@ inputs = [
   { name = "scaffold",      from = "scaffold.scaffold" },
   { name = "project",       from = "start.project" },
   { name = "rules",         from = "resource.resources/checklists/implementer-rules.md" },
-  { name = "verify_report", from = "verify.report",    required = false },
-  { name = "review_report", from = "review.report",    required = false },
+  { name = "verify-report", from = "verify.report",    required = false },
+  { name = "review-report", from = "review.report",    required = false },
   { name = "escalation",    from = "escalate.decision", required = false },
 ]
 outputs = [{ name = "change", path = "change.md", max_bytes = 32768 }]
@@ -142,10 +142,10 @@ instruction = { file = "instructions/escalate.md" }
 inputs = [
   { name = "tasks",            from = "plan.tasks" },
   { name = "plan",             from = "plan.plan" },
-  { name = "scaffold_report",  from = "scaffold.scaffold",  required = false },
-  { name = "implement_change", from = "implement.change",   required = false },
-  { name = "fix_change",       from = "fix.change",         required = false },
-  { name = "verify_report",    from = "verify.report",      required = false },
+  { name = "scaffold-report",  from = "scaffold.scaffold",  required = false },
+  { name = "implement-change", from = "implement.change",   required = false },
+  { name = "fix-change",       from = "fix.change",         required = false },
+  { name = "verify-report",    from = "verify.report",      required = false },
 ]
 outputs = [{ name = "decision", path = "decision.md", max_bytes = 16384 }]
 max_visits = 6
@@ -164,7 +164,7 @@ inputs = [
   { name = "tasks",      from = "plan.tasks" },
   { name = "scaffold",   from = "scaffold.scaffold" },
   { name = "project",    from = "start.project" },
-  { name = "fix_change", from = "fix.change", required = false },
+  { name = "fix-change", from = "fix.change", required = false },
   { name = "checklist",  from = "resource.resources/checklists/review-checklist.md" },
   { name = "template",   from = "resource.resources/templates/report.md" },
 ]

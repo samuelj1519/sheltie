@@ -6,8 +6,8 @@
 
 | 来自 | 修什么 |
 | --- | --- |
-| `verify` | `verify_report` 里的发现 |
-| `review` | `review_report` 里的发现 |
+| `verify` | `verify-report` 里的发现 |
+| `review` | `review-report` 里的发现 |
 | `escalate` | 读 `escalation` 的意见与授权，再修它针对的那份报告里的发现（备注里会说是验证还是审查） |
 
 来自别处的那份报告可能过期，忽略。
