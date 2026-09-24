@@ -8,7 +8,7 @@ use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 use super::next::legal_next;
 use super::render::{render_brief, render_stats_json};
 use super::state::{
-    ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
+    Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
 };
 use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
@@ -525,20 +525,55 @@ fn decide_fail(
 
 /// `gate approve`：Work 必须 `Blocked(Gate)` 且 `node == current.node`，否则 `Error::IllegalNext`。
 /// 记 `Approval`，再用 `status_after_success(.., consider_gate = false)` 定状态。效果 `RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_approve(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
     ctx: &Context,
 ) -> Result<Decision> {
-    todo!("T09")
+    let next = legal_next(state, graph);
+    let illegal = || Error::IllegalNext {
+        requested: format!("gate approve {node}"),
+        next: next
+            .iter()
+            .map(|op| op.to_command_line(&state.work_id))
+            .collect(),
+    };
+    if state.status != WorkStatus::Blocked(BlockedReason::Gate) || node != &state.current.node {
+        return Err(illegal());
+    }
+
+    let mut new_state = state.clone();
+    new_state.approvals.push(Approval {
+        node: node.clone(),
+        occurrence: new_state.current.n,
+        by: ctx.principal.clone(),
+        at: ctx.now.clone(),
+    });
+    new_state.status = status_after_success(&new_state, graph, false);
+    new_state.updated_at = ctx.now.clone();
+
+    Ok(Decision {
+        state: new_state,
+        effects: vec![Effect::RefreshStatusCard],
+        reply: Reply::GateApproved {
+            node: node.clone(),
+            occurrence: state.current.n,
+        },
+    })
 }
 
 /// `work cancel`：`status = Cancelled`，`Running` 的 Attempt 保持原样。效果 `RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_cancel(state: &WorkState, ctx: &Context) -> Result<Decision> {
-    todo!("T09")
+    let mut new_state = state.clone();
+    new_state.status = WorkStatus::Cancelled;
+    new_state.updated_at = ctx.now.clone();
+
+    Ok(Decision {
+        state: new_state,
+        effects: vec![Effect::RefreshStatusCard],
+        reply: Reply::Cancelled,
+    })
 }
 
 /// runtime 在 `attempt begin` 前调用：本节点每个输入当前应观察的路径。
@@ -1097,7 +1132,6 @@ mod tests {
     // ── T09 Approve / Cancel ──────────────────────────────────
 
     #[test]
-    #[ignore = "T09"]
     fn t09_approve_unblocks_and_records_principal_and_time() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
@@ -1114,7 +1148,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T09"]
     fn t09_approve_rejects_when_not_blocked_on_gate() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         assert!(matches!(
@@ -1124,7 +1157,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T09"]
     fn t09_approve_rejects_wrong_node() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
@@ -1136,7 +1168,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T09"]
     fn t09_approve_on_terminal_node_succeeds_work() {
         let mut fx = Fixture::single_gated_terminal();
         fx.begin("only").unwrap();
@@ -1146,7 +1177,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T09"]
     fn t09_cancel_from_active_and_blocked() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -1165,7 +1195,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T09"]
     fn t09_terminal_work_rejects_every_command_with_work_terminal() {
         let mut fx = Fixture::article_review().started();
         fx.cancel().unwrap();
