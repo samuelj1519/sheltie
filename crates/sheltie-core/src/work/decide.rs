@@ -204,7 +204,7 @@ fn decide_begin(
     };
     let attempt_id = AttemptId::new(node.clone(), occ_n, retry);
 
-    let bound = bind_inputs(state, graph, node, observed_inputs)?;
+    let bound = bind_inputs(state, graph, node, &attempt_id, observed_inputs)?;
 
     let mut effects = Vec::new();
     for decl in &def.inputs {
@@ -271,7 +271,7 @@ fn decide_begin(
 ///
 /// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
 /// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
-/// - `EngineStats`：不看观察。用 `render::render_stats_json(state, graph)` 生成内容，路径 `attempt_dir/stats.json`，
+/// - `EngineStats`：不看观察。用 `render::render_stats_json(state, graph)` 生成内容，路径 `attempt_dir(attempt_id)/stats.json`，
 ///   摘要 `Sha256Hex::of_bytes(内容)`，并由 `decide_begin` 追加 `Effect::WriteFile`。
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
@@ -280,12 +280,12 @@ fn bind_inputs(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
+    attempt_id: &AttemptId,
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
 ) -> Result<BTreeMap<String, Option<ArtifactRef>>> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
         reason: format!("节点 {node} 不在图里"),
     })?;
-    let attempt_id = next_attempt_id(state, node);
     let mut bound = BTreeMap::new();
     for decl in &def.inputs {
         let observed = observed_inputs.get(&decl.name).and_then(|o| o.as_ref());
@@ -319,7 +319,7 @@ fn bind_inputs(
                     bytes: obs.bytes,
                 })
             }
-            InputSource::EngineStats => Some(engine_stats_artifact(state, graph, &attempt_id).0),
+            InputSource::EngineStats => Some(engine_stats_artifact(state, graph, attempt_id).0),
             InputSource::Node { node: src, output } => match state
                 .latest_succeeded_of(src)
                 .and_then(|a| a.outputs.get(output))
@@ -451,13 +451,13 @@ fn check_outputs(
 }
 
 /// 节点 Attempt 成功（或门槛刚批准）后 Work 的状态，按协议 `attempt submit` 第 5 步的顺序：
-/// `consider_gate && node.gate && !approved` → `Blocked(Gate)`；无出边 → `Succeeded`；
+/// `consider_gate && node.gate` → `Blocked(Gate)`；无出边 → `Succeeded`；
 /// 每条出边目标都 `visits >= max_visits` → `Blocked(NoLegalEdge)`；否则 `Active`。
 fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
     let Some(def) = graph.node(&state.current.node) else {
         return WorkStatus::Active;
     };
-    if consider_gate && def.gate && !state.current_approved() {
+    if consider_gate && def.gate {
         return WorkStatus::Blocked(BlockedReason::Gate);
     }
     let outs = graph.out_edges(&state.current.node);
@@ -601,19 +601,6 @@ pub fn input_paths_for(
         paths.insert(decl.name.clone(), path);
     }
     Ok(paths)
-}
-
-/// 即将创建的 Attempt 的 id。`bind_inputs` 在 Attempt 落库前就要算出 `engine.stats` 的路径。
-fn next_attempt_id(state: &WorkState, node: &NodeId) -> AttemptId {
-    if &state.current.node == node {
-        let retry = state
-            .latest_attempt_of_current()
-            .map(|a| a.id.retry + 1)
-            .unwrap_or(0);
-        AttemptId::new(node.clone(), state.current.n, retry)
-    } else {
-        AttemptId::new(node.clone(), state.visits_of(node) + 1, 0)
-    }
 }
 
 /// `engine.stats` 绑定：`render_stats_json` 序列化成 JSON，写到 `attempt_dir/stats.json`。
@@ -1205,5 +1192,64 @@ mod tests {
             Err(Error::WorkTerminal { .. })
         ));
         assert!(legal_next(fx.state(), &fx.graph).is_empty());
+    }
+
+    // ── M1 补测（上限边界与重试路径） ─────────────────────────
+
+    #[test]
+    fn t07_retry_binds_engine_stats_under_retry_dir() {
+        let mut fx = Fixture::with_engine_stats_input();
+        fx.begin("only").unwrap();
+        fx.fail("only#1.0", "再来").unwrap();
+        let d = fx.begin("only").unwrap();
+        let stats = d.state.latest_attempt_of_current().unwrap().inputs["stats"]
+            .clone()
+            .unwrap();
+        assert!(
+            stats
+                .path
+                .as_str()
+                .ends_with("attempts/only/1/1/stats.json")
+        );
+        assert!(
+            d.effects
+                .iter()
+                .any(|e| matches!(e, Effect::WriteFile { path, .. } if path == &stats.path))
+        );
+    }
+
+    #[test]
+    fn t08_submit_accepts_summary_of_exactly_4096_bytes() {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
+        assert_eq!(
+            d.state.attempts[0].summary.as_ref().unwrap().as_str().len(),
+            4096
+        );
+    }
+
+    #[test]
+    fn t08_submit_accepts_output_of_exactly_max_bytes() {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        let id = AttemptId::parse("draft#1.0").unwrap();
+        let d = fx.submit_with(&id, "ok", &[("article", 262_144)]).unwrap();
+        assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
+    }
+
+    #[test]
+    fn t08_fail_reason_limit_is_4096_bytes() {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        assert!(matches!(
+            fx.fail("draft#1.0", &"a".repeat(4097)),
+            Err(Error::SummaryTooLong {
+                max: 4096,
+                actual: 4097
+            })
+        ));
+        let d = fx.fail("draft#1.0", &"a".repeat(4096)).unwrap();
+        assert_eq!(d.state.attempts[0].status, AttemptStatus::Failed);
     }
 }

@@ -539,4 +539,39 @@ instruction = {{ text = "做 A" }}
         );
         assert_eq!(parse_flow(&ok).unwrap().edges[0].kind, EdgeKind::ReReview);
     }
+
+    // ── M1 补测（上限：恰好上限接受，多一个字节拒绝） ─────────
+
+    #[test]
+    fn t04_title_limit_is_128_bytes() {
+        let title = |n: usize| {
+            minimal("").replace("title = \"A\"", &format!("title = \"{}\"", "a".repeat(n)))
+        };
+        assert!(parse_flow(&title(128)).is_ok());
+        assert!(matches!(
+            parse_flow(&title(129)),
+            Err(Error::FlowInvalid { path, .. }) if path == "nodes[0].title"
+        ));
+    }
+
+    #[test]
+    fn t04_instruction_text_limit_is_8192_bytes() {
+        let text = |n: usize| {
+            minimal("").replace(
+                "{ text = \"做 A\" }",
+                &format!("{{ text = \"{}\" }}", "a".repeat(n)),
+            )
+        };
+        assert!(parse_flow(&text(8192)).is_ok());
+        assert!(matches!(
+            parse_flow(&text(8193)),
+            Err(Error::FlowInvalid { path, .. }) if path == "nodes[0].instruction.text"
+        ));
+    }
+
+    #[test]
+    fn t04_max_retries_accepts_upper_bound_8() {
+        let flow = parse_flow(&minimal("max_retries = 8")).unwrap();
+        assert_eq!(flow.nodes[0].max_retries, 8);
+    }
 }

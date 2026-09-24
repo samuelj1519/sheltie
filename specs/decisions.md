@@ -334,7 +334,71 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 ## 里程碑记录
 
-待 M1、M2、M3 完成后填写。
+### M1 core（2026-09-25）
+
+**范围。** `git diff t01-skeleton..8af5f94 -- crates/sheltie-core`（T02 到 T10 的实现提交与其间的复核提交），`git log t01-skeleton..HEAD -- scripts/ tasks.toml` 的三次工具修复。
+
+**结论：需修改。** 一条待修（B1，退回 T05），其余七条遗留（O1 到 O7）不影响已实现行为，归 M2 前的骨架补全或人拍板。实现质量整体扎实：逻辑与合同逐步对得上，错误路径精确，提交说明清楚；主要毛病是合同没写的地方自己补了约定（O1、O5、O6），而不是按规则 10 停下。
+
+**检查表。**
+
+| 项 | 结果 | 依据 |
+| --- | --- | --- |
+| 依据 | 需修改 | B1：合同 §3.2「可选输出下游不得当必需输入」在 §4 与骨架注释里都漏了，没有规则、没有测试。实现者自补、合同未写的约定：`decide_start` 的 `requires` 只取节点并集并注明「由 runtime 补」（O1）；`blocked` 计数的定义（O5）；`engine.stats` 序列化失败时写 `{"nodes":[]}`（O6）。骨架自带、合同未写：规则 5「来源不得是自己」 |
+| 不变式 | 通过 | `cargo tree -p sheltie-core -e normal` 无 I/O crate（`libc` 只经 `sha2 → cpufeatures` 做 CPU 特性探测）；状态转移只看结构与计数，不读摘要或输出内容（`INV-1`、`INV-2`）；`INV-3`、`INV-4` 在 core 不适用 |
+| 正反例 | 已补 | 九条规则各有拒绝例；缺「恰好上限」一侧与 B1。M1 补测见下 |
+| 真实链 | 不适用 | core 没有 CLI 入口，归 T19 到 T21 |
+| 崩溃 | 不适用 | core 纯函数；效果幂等归 M2 |
+| 边界 | 已补，另有遗留 | 大小上限原先只有远超上限的拒绝例，版本、名称、`requires` 个数与字段、标题、说明文本、节点数、边数、说明文件与资源文件大小共十余处「恰好上限 / 多一个」没有测试，M1 补齐；未知字段拒绝有测试；`confine()` 归 runtime。O4：`BoundedText` 的 `#[serde(transparent)]`、`Graph` 的 `Deserialize` 绕过构造校验 |
+| 文档 | 需人拍板 | `check-docs.sh` 过。协议 §4 示例与 T01 快照三处措辞不一致（O7）；本文有两个 `D-25` 标题 |
+| 提交 | 通过，有瑕疵 | 一任务一提交。T07 发现夹具依赖 T08 到 T10 的函数，在 9044612 里一并填了并改了 `plan.md`、`tasks.toml`，说明写清，但 T08 到 T10 因此没有「先看到红」；T07 到 T10 的 `Task`、`Agent` 与 `Co-Authored-By` 之间空了一行，`git log --format='%(trailers)'` 取不到 |
+| 突变 | 已处置 | 首轮 524 个：281 杀死、145 幸存、98 不可编译。处置后 511 个：409 杀死、5 幸存、97 不可编译。5 个都有理由，见下 |
+| 证据 | 附命令 | 下文每项带可重跑命令；首轮突变结果因目标目录共用作废过一次，已写成工具（L1） |
+
+**幸存突变处置（首轮 145 个）。**
+
+- 补测试杀死 134 个。`render.rs` 的时间换算、平均耗时与 `blocked` 计数 80 个：夹具时钟固定，快照里全是 `0s`、`blocked: 0`。`manifest.rs`、`parse.rs`、`compile.rs`、`ids.rs` 的上限与形状 38 个。`decide.rs` 的摘要、失败原因、输出大小边界 4 个。`blocked` 行的 `retries_exhausted` 与 `no_legal_edge` 两个分支。骨架里给 runtime 用的字面形式（`ErrorCode::as_str`、`Executor::as_str`、`Command::name`、`Timestamp::day`、各 newtype 的 `Display` 与 `From<_> for String`）。
+- 删死代码消掉 6 个。`status_after_success` 里的 `!state.current_approved()`：批准只发生在门槛 Occurrence 的 Attempt 成功之后，此后该 Occurrence 不会再有 `Running` 的 Attempt，提交时这个条件恒真；`WorkState::current_approved` 随之删除。`next_attempt_id` 重复了 `decide_begin` 的编号逻辑，根因是骨架的 `bind_inputs` 签名拿不到 attempt id（文档注释却要求它算 `stats.json` 路径）；签名加 `attempt_id` 参数后删除。规则 5 的「来源节点不得是保留字」同样删除：解析层从不产生保留字来源的 `Node`，没有突变但属同类死代码。`lib.rs` 的 `#![allow(dead_code)]` 删除，clippy 无告警。
+- 等价突变 4 个，保留。`next.rs:104` 的 `<` 换 `<=`：`Active` 且最新 Attempt `Failed` 时必有 `retry < max_retries`，否则已是 `Blocked(RetriesExhausted)`。`parse.rs:140` 的 `||` 换 `&&`：漏掉的形状随后被 `OutputName` 校验拒绝，报错规则相同。`render.rs:520` 的 `day - 1` 两个：常数偏移在 `secs_between` 的差里抵消。
+- 测试夹具 1 个（`testkit.rs:273`），`scripts/mutants.sh` 起排除。
+
+复跑：`scripts/mutants.sh sheltie-core`，输出末行 `mutants tested …: 4 missed`（上面四个等价突变）。
+
+**其他核对。**
+
+- `rg -n 'todo!\(|allow\(unused_variables\)' crates/sheltie-core/src` 零命中。core 里的 `#[ignore` 只剩 T11 的十一条与 B1 的一条，runtime、cli 的都属 T12 以后的任务。
+- 工具改动三次：8b33c48（bash 3.2 兼容）、deb31ed（混合文件只比对测试模块、检查 2 收窄为只清 `todo!("Tnn")`、检查时机）、904a54c（范围取并集、全角冒号、空数组）。每次说明逐条写了原错与改法；deb31ed 收窄检查 2 的意图由里程碑的全仓零占位核对兜住，没有放松。
+
+**待修。**
+
+- **B1（T05，退回 `doing`）。** 被引用输出 `required = false` 而输入默认必需时，编译放行；上游不写该文件，`next` 仍给出 `attempt begin`，开工必报 `INPUT_UNAVAILABLE`，Work 只能取消。合同 §4 规则 5 与 `check_rule_5` 注释已补这一句；复核者补 `t05_rejects_required_input_on_optional_output`（禁用）与 `t05_accepts_optional_input_on_optional_output`。三份样例与 `spec-dev` 没有可选输出，不受影响。实现者解开测试、修，提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，M1 再复核这一条。
+
+**遗留（M2 前由骨架作者补签名与测试，或由人拍板）。**
+
+- **O1 `work start` 的 `requires`。** 协议第 8 步要 Workbook 声明的全部宿主资源，`Command::Start` 不带 manifest，core 只能给节点并集。选一：`Command::Start` 带 manifest 的 `requires`，或在 T16 骨架里写明由 runtime 用 manifest 覆盖。落点 T16。
+- **O2 `resource.<path>` 的篡改检测。** 协议第 3 步说「重算 sha256 与已记录值核对」，但 `WorkState` 不记每个资源的摘要，`bind_inputs` 以观察为准，资源上的 `ARTIFACT_MODIFIED` 不可达。冻结副本只读，风险低；要么 `start` 时记下资源摘要，要么协议改成「冻结副本目录摘要与 `workbook.digest` 核对」。落点协议 §3 与 T16。
+- **O3 任务书宿主资源表的「版本」列恒为 `-`。** `render_brief` 看不到 manifest，协议示例是 `^1`。`Graph` 编译时可把 manifest 的版本带进节点的 `requires`。落点 T05 骨架与快照。
+- **O4 反序列化绕过构造校验。** `BoundedText` 是 `#[serde(transparent)]`，从库里读回超长摘要不会报错；`Graph` 可被反序列化出来，与「只能由 `compile` 构造」矛盾；`WorkName` 反序列化时静默规范化。runtime 从 `store.db` 读 `WorkState` 时 `STORE_CORRUPT` 因此漏检。落点 T13、T16 骨架。
+- **O5 `work stats` 的 `blocked` 定义。** 协议只给了示例 `blocked: 1`。实现是「成功过的门槛 Occurrence 数 + 重试耗尽的 Occurrence 数 + 当前是否 `no_legal_edge`」，M1 已用测试钉住。需要人确认后写进协议 §3。
+- **O6 `engine.stats` 序列化失败时写 `{"nodes":[]}`。** 实际不会失败，但失败时伪造内容与「引擎只记事实」相悖；应让它不可失败（手写 JSON）或把错误传出去。低优先，随 T16 一起改。
+- **O7 协议 §4 与快照的措辞。** 「尚无（上游 X 还没有产出）」对快照「尚无」；「此 skill」对「此资源」；说明「逐字」对 `trim_end`。快照是 T10 的标准答案、合同权威更高，两者须对齐，改哪边由人定。
+
+**流程教训。**
+
+| # | 类别 | 证据 | 改哪 | 改成什么 | 处置 |
+| --- | --- | --- | --- | --- | --- |
+| L1 | 工具 | M1 第一次 `cargo mutants`（作废，不计入上面的首轮）：全局 `~/.cargo/config.toml` 设了 `target-dir`，并行副本共用产物，175 个「幸存」里多数是测试跑了未突变的二进制 | `scripts/mutants.sh`（新）；`plan.md` §0.4、M1、M2 卡 | 固定 `CARGO_TARGET_DIR=target`，用 nextest，排除 `testkit.rs` | 采纳，已改 |
+| L2 | 骨架 | 9044612：`bind_inputs` 的注释要求算 `attempt_dir/stats.json`，签名却没有 attempt id，实现者只好写 `next_attempt_id` 重复编号逻辑 | `engineering.md` §3「写新测试的人」段 | 骨架注释要用到的值都必须能从参数得到，做不到改签名 | 采纳，已改 |
+| L3 | 骨架 | B1：合同 §3.2 的「不得」没进 §4 清单，骨架与测试都跟着漏 | `engineering.md` §3 同段；§5「正反例」行 | 合同里每句「不得」「必须」都有一条拒绝例 | 采纳，已改 |
+| L4 | 测试 | 首轮幸存里 `render.rs` 占 80 个：`stats_table_mid_flow` 快照全是 `0s`、`blocked: 0`，改错公式快照也不变 | `engineering.md` §3 同段 | 快照与断言里的数值字段至少一条非零、非默认值的断言；固定时钟下时间差单独造数据 | 采纳，已改 |
+| L5 | 测试 | 首轮幸存里上限类 38 个同时存活 `>`→`==` 与 `>`→`>=`，说明连「多一个」的拒绝例都没有 | `engineering.md` §3 同段；§5「边界」行 | 每个上限一对：恰好上限接受、多一个拒绝 | 采纳，已改 |
+| L6 | 实现者 | 9044612 `decide_start` 注释「未用到的 manifest 条目由 runtime 在返回前补」；`count_blocks` 的定义；`engine_stats_artifact` 的兜底串 | `plan.md` §0.2 规则 10 | 把「由 runtime 补」「解析不了当 0」「出错用默认内容」写进注释也算发明，同样要停 | 采纳，已改 |
+| L7 | 顺序 | 9044612：T07 的夹具要用 submit、fail、render，实现者在 T07 里填了 T08 到 T10 的函数，T08 到 T10 只剩验收，没有「先看到红」 | `plan.md` T01「验证」段 | 骨架作者对每个任务核对：只解开本任务测试时 panic 的都是本任务的 `todo!`。M2 开工前对 T12 到 T16 做一次 | 采纳，已改 |
+| L8 | 提交 | 9044612、4334925、810730f、8af5f94、43ec6bf：`Task`、`Agent` 与 `Co-Authored-By` 之间空行，git 不认作 trailer | `engineering.md` §4 | 所有 trailer 同一段，不空行 | 采纳，已改；`check-task.sh` 仍按文本 grep，不改（改成严格解析会让历史提交全部不合格，收益小） |
+| L9 | 文档 | 本文 294 行与 315 行两个 `D-25`，写的是同一件事的两个版本 | 本文 | 合并为一条 | 否决自动处理：决策记录是历史，合并哪一版由人定；`check-docs.sh` 暂不加唯一性检查，等合并后再加 |
+| L10 | 审查 | M1 卡要求「全仓零 `#[ignore`」，但 T11 以后的测试按设计仍禁用，复核者新加的待修测试也必须禁用 | `plan.md` M1 卡 | 改为「本里程碑覆盖的任务标签为零」 | 采纳，已改 |
+
+**修复提交。** 本条记录所在的 M1 提交（补测试、删死代码、合同与流程修订，打 tag `t05-review-3`）；待 T05 的 `fix(core)`。
 
 ## 首次真实运行
 

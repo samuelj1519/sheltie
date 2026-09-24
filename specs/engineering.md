@@ -65,7 +65,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 3. 下一个红的。
 4. 全绿后跑四条门禁与 `scripts/check-task.sh Tnn`，提交。
 
-写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名说人话，例如 `t07_begin_rejects_node_not_in_next`；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。
+写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名说人话，例如 `t07_begin_rejects_node_not_in_next`；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外四条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算。
 
 ### 3.2 分层
 
@@ -103,7 +103,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
   Agent: Claude
   ```
 
-  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾三行是 git trailer：`Task` 对应 `plan.md` 的任务或 `spec-dev` 的 `Tnn`，`Work` 只在 Sheltie Work 里运行时填 `work_id`，`Agent` 必填，写实际提交者（模型名或人名）。不适用的 trailer 省略，不填占位符。
+  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾三行是 git trailer：`Task` 对应 `plan.md` 的任务或 `spec-dev` 的 `Tnn`，`Work` 只在 Sheltie Work 里运行时填 `work_id`，`Agent` 必填，写实际提交者（模型名或人名）。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行，否则 git 不把 `Task`、`Agent` 认作 trailer。
 
   ```text
   feat(core): 把 Flow 编译成校验过的图
@@ -125,10 +125,10 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 | --- | --- |
 | 依据 | 每个行为能指回 `spec.md`、合同或 `plan.md` 的哪一条？有没有文档没写却实现了的行为？ |
 | 不变式 | `INV-1` 到 `INV-7` 有没有被碰？`core` 有没有 I/O？`runtime` 有没有做业务判断？ |
-| 正反例 | 每条新规则都有合法例与拒绝例？拒绝例只改了一个条件？ |
+| 正反例 | 每条新规则都有合法例与拒绝例？拒绝例只改了一个条件？合同里每句「不得」「必须」都找得到拒绝例？ |
 | 真实链 | 端到端测试走的是 CLI 入口与真实临时目录，不是私有函数？ |
 | 崩溃 | 新写路径在 `COMMIT` 前后被杀，重启后状态一致？效果幂等？ |
-| 边界 | 外部输入的路径都经 `confine()`？大小上限都有测试？未知字段被拒？ |
+| 边界 | 外部输入的路径都经 `confine()`？大小上限都有「恰好上限接受、多一个拒绝」一对测试？未知字段被拒？ |
 | 文档 | 合同、样例、状态卡快照与实现一致？`check-docs.sh` 过？ |
 | 提交 | 一个任务一个提交？信息格式对？无关文件没混进来？ |
 | 突变 | `cargo mutants` 的幸存突变每个都有处置：补测试或删死代码？ |

@@ -81,4 +81,13 @@ mod tests {
             "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"
         );
     }
+
+    #[test]
+    fn t02_sha256_hex_short_display_and_into_string() {
+        let hex = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
+        let h = Sha256Hex::new(hex).unwrap();
+        assert_eq!(h.short(), "5891");
+        assert_eq!(h.to_string(), hex);
+        assert_eq!(String::from(h), hex);
+    }
 }

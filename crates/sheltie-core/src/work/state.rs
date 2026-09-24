@@ -231,11 +231,4 @@ impl WorkState {
     pub fn visits_of(&self, node: &NodeId) -> u32 {
         self.visits.get(node).copied().unwrap_or(0)
     }
-
-    /// 当前 Occurrence 是否有批准记录。
-    pub fn current_approved(&self) -> bool {
-        self.approvals
-            .iter()
-            .any(|a| a.node == self.current.node && a.occurrence == self.current.n)
-    }
 }

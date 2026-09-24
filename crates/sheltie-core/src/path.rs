@@ -153,4 +153,13 @@ mod tests {
             "/root/attempts/draft"
         );
     }
+
+    #[test]
+    fn t02_paths_display_and_convert_into_string() {
+        let rel = RelPath::new("resources/a.md").unwrap();
+        assert_eq!(rel.to_string(), "resources/a.md");
+        assert_eq!(String::from(rel), "resources/a.md");
+        let abs = AbsPath::new("/tmp/x").unwrap();
+        assert_eq!(String::from(abs), "/tmp/x");
+    }
 }
