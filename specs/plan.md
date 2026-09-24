@@ -72,7 +72,7 @@
 | T05 | done | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
 | T06 | done | 初级 | core `Start` | 新 Work 状态与首个 `next` |
 | T07 | done | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
-| T08 | todo | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
+| T08 | done | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
 | T09 | todo | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
 | T10 | todo | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行投影与预写快照一致 |
 | M1 | todo | 强模型 | 里程碑审查：core | diff T01..T10；`cargo mutants -p sheltie-core` 幸存突变逐条处置 |
