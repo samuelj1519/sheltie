@@ -332,6 +332,18 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **后果。** 任务卡多一行「复核的复核」。这一轮往返的成本约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。
 
+## D-26 输入名只查唯一，不走 ID 字符规则
+
+2026-09-25，用户拍板。
+
+**背景。** T04 的 `parse::convert` 对 `inputs[].name` 调了 `validate_id`；T07 复核时把 `workbooks/spec-dev` 与 `testkit` 夹具里带下划线的输入名（`plan_tpl`、`side_out` 等）改成 kebab 去迎合这道检查（00ca15a）。M1 后的对抗复核（verify-t05-compile，14 条发现、每条 3 票反驳制）唯独这一条 0/3 存活：合同 §3.2 对 `inputs[].name` 只写「`name` 在节点内唯一」，ID 字符规则明文给了 `outputs[].name`、`start.<key>`、`requires[].name`，没给输入名。不对称是有意的——输入名不进 `from` 点语法，也不出现在 `inputs/<key>` 路径里，只作展示名与 JSON 键。
+
+**选择。** 按合同字面办：删掉对 `inputs[].name` 的 `validate_id`，保留节点内唯一性检查；00ca15a 的改名全部回退（`side_out`、`plan_tpl`、`tasks_tpl`、`task_rules`、`fix_change`、`implement_change`、`review_report`、`scaffold_report`、`verify_report`），指令文档里的同名引用一并还原。资源文件路径（如 `resources/checklists/task-rules.md`）是 RelPath 不是输入名，不受影响。
+
+**否决。** 改合同把 ID 字符规则扩到 `inputs[].name`（把期望弯向实现，workbook.md 明禁，且会把合同合法的写法判非法）；只回退夹具不改 `parse`（多检还在，下一个夹具还会再被拒一遍）；顺手给输入名补一条新的字符限制（合同没写的约束不发明）。
+
+**后果。** `parse.rs` 的 `validate_id` 剩四个调用点：`start.<key>`、`from` 的输出名、`outputs[].name`、`requires[].name`，与合同逐条对应。`inputs[].name` 只受节点内唯一约束。样例与夹具恢复下划线写法。
+
 ## 里程碑记录
 
 ### M1 core（2026-09-25）

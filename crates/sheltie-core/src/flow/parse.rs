@@ -253,7 +253,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
         let mut inputs = Vec::with_capacity(n.inputs.len());
         for (j, inp) in n.inputs.into_iter().enumerate() {
             let ip = |suffix: &str| format!("nodes[{i}].inputs[{j}].{suffix}");
-            validate_id(&inp.name, "name").map_err(|e| invalid(ip("name"), e.to_string()))?;
+            // 合同 §3.2 对 `inputs[].name` 只要求节点内唯一，不走 ID 字符规则（D-26）。
             if inputs.iter().any(|x: &InputDecl| x.name == inp.name) {
                 return Err(invalid(ip("name"), "节点内输入名重复".to_string()));
             }
