@@ -189,7 +189,16 @@ impl fmt::Display for WorkName {
 impl TryFrom<String> for WorkName {
     type Error = Error;
     fn try_from(value: String) -> Result<Self> {
-        Self::normalize(&value)
+        // 读回（serde、存库往返）只收规范化形式，不替脏数据悄悄改名，与 `WorkId::parse` 同规矩。
+        let name = Self::normalize(&value)?;
+        if name.0 != value {
+            return Err(Error::InvalidId {
+                field: "work_name".to_string(),
+                value,
+                reason: "不是规范化形式",
+            });
+        }
+        Ok(name)
     }
 }
 
@@ -507,5 +516,16 @@ mod tests {
         assert_eq!(String::from(name("文章-初稿")), "文章-初稿");
         let id = WorkId::new("2026-09-24", 3, &name("a")).unwrap();
         assert_eq!(String::from(id), "2026-09-24-003-a");
+    }
+
+    #[test]
+    fn t02_work_name_try_from_and_serde_reject_non_canonical() {
+        assert!(WorkName::try_from("hello".to_string()).is_ok());
+        assert!(WorkName::try_from("文章-初稿".to_string()).is_ok());
+        // 规范化会改写的形式读回时拒绝，不悄悄改名。
+        assert!(WorkName::try_from("Hello".to_string()).is_err());
+        assert!(WorkName::try_from("two  words".to_string()).is_err());
+        assert!(serde_json::from_str::<WorkName>("\"文章 初稿\"").is_err());
+        assert!(serde_json::from_str::<WorkName>("\"文章-初稿\"").is_ok());
     }
 }
