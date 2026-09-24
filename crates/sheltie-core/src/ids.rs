@@ -13,9 +13,57 @@ use crate::error::{Error, Result};
 ///
 /// 失败返回 `Error::InvalidId`。规则：非空；≤ 64 字节；只含 `a-z0-9-`；
 /// 不以 `-` 开头或结尾；没有连续 `-`。
-#[allow(unused_variables)]
 pub fn validate_id(value: &str, field: &str) -> Result<()> {
-    todo!("T02")
+    let reject = |reason: &'static str| Error::InvalidId {
+        field: field.to_string(),
+        value: value.to_string(),
+        reason,
+    };
+    if value.is_empty() {
+        return Err(reject("不能为空"));
+    }
+    if value.len() > 64 {
+        return Err(reject("超过 64 字节"));
+    }
+    if value.starts_with('-') || value.ends_with('-') {
+        return Err(reject("不能以 - 开头或结尾"));
+    }
+    if value.contains("--") {
+        return Err(reject("不能有连续 -"));
+    }
+    if !value
+        .chars()
+        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+    {
+        return Err(reject("只能含 a-z、0-9 与 -"));
+    }
+    Ok(())
+}
+
+/// `YYYY-MM-DD` 形状：四段数字与两个固定位置的连字符。不做日历校验。
+fn is_day_shape(day: &str) -> bool {
+    let b = day.as_bytes();
+    b.len() == 10
+        && b[4] == b'-'
+        && b[7] == b'-'
+        && b[..4].iter().all(u8::is_ascii_digit)
+        && b[5..7].iter().all(u8::is_ascii_digit)
+        && b[8..].iter().all(u8::is_ascii_digit)
+}
+
+/// `\p{Han}` 的常用区段。名字规则允许汉字，std 没有 Unicode 脚本分类，按区段判断。
+fn is_han(c: char) -> bool {
+    matches!(
+        c,
+        '\u{3400}'..='\u{4DBF}'      // 扩展 A
+        | '\u{4E00}'..='\u{9FFF}'    // 基本区
+        | '\u{F900}'..='\u{FAFF}'    // 兼容
+        | '\u{20000}'..='\u{2A6DF}'  // 扩展 B
+        | '\u{2A700}'..='\u{2B73F}'  // 扩展 C
+        | '\u{2B740}'..='\u{2B81F}'  // 扩展 D
+        | '\u{2B820}'..='\u{2CEAF}'  // 扩展 E
+        | '\u{30000}'..='\u{3134F}'  // 扩展 G
+    )
 }
 
 macro_rules! kebab_id {
@@ -79,9 +127,36 @@ impl WorkName {
     pub const MAX_BYTES: usize = 48;
 
     /// 规范化并校验。失败返回 `Error::InvalidId { field: "work_name", .. }`。
-    #[allow(unused_variables)]
     pub fn normalize(raw: &str) -> Result<Self> {
-        todo!("T02")
+        let value = raw
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join("-")
+            .to_lowercase();
+        let reject = |reason: &'static str| Error::InvalidId {
+            field: "work_name".to_string(),
+            value: value.clone(),
+            reason,
+        };
+        if value.is_empty() {
+            return Err(reject("不能为空"));
+        }
+        if value.len() > Self::MAX_BYTES {
+            return Err(reject("超过 48 字节"));
+        }
+        if value.starts_with('-') || value.ends_with('-') {
+            return Err(reject("不能以 - 开头或结尾"));
+        }
+        if value.contains("--") {
+            return Err(reject("不能有连续 -"));
+        }
+        if !value
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || is_han(c))
+        {
+            return Err(reject("只能含 a-z、0-9、汉字与 -"));
+        }
+        Ok(Self(value))
     }
 
     pub fn as_str(&self) -> &str {
@@ -117,17 +192,51 @@ impl WorkId {
     /// 用日期、序号、名字拼出 `work_id`。
     ///
     /// `day` 必须是 `YYYY-MM-DD`；`seq` 必须在 1..=999；否则 `Error::InvalidId { field: "work_id", .. }`。
-    #[allow(unused_variables)]
     pub fn new(day: &str, seq: u32, name: &WorkName) -> Result<Self> {
-        todo!("T02")
+        let reject = |value: &str, reason: &'static str| Error::InvalidId {
+            field: "work_id".to_string(),
+            value: value.to_string(),
+            reason,
+        };
+        if !is_day_shape(day) {
+            return Err(reject(day, "日期必须是 YYYY-MM-DD"));
+        }
+        if !(1..=999).contains(&seq) {
+            return Err(reject(&seq.to_string(), "序号必须在 1..=999"));
+        }
+        Ok(Self(format!("{day}-{seq:03}-{}", name.as_str())))
     }
 
     /// 解析一个完整的 `work_id` 字符串（用于从数据库读回）。
     ///
     /// 形状必须是 `YYYY-MM-DD-NNN-<name>` 且 `<name>` 能通过 `WorkName::normalize` 且规范化后不变。
-    #[allow(unused_variables)]
     pub fn parse(value: &str) -> Result<Self> {
-        todo!("T02")
+        let reject = |reason: &'static str| Error::InvalidId {
+            field: "work_id".to_string(),
+            value: value.to_string(),
+            reason,
+        };
+        let day = value
+            .get(..10)
+            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+        let seq_str = value
+            .get(11..14)
+            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+        let name_str = value
+            .get(15..)
+            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+        if value.as_bytes().get(10) != Some(&b'-') || value.as_bytes().get(14) != Some(&b'-') {
+            return Err(reject("形状不是 YYYY-MM-DD-NNN-名字"));
+        }
+        if !is_day_shape(day) {
+            return Err(reject("日期必须是 YYYY-MM-DD"));
+        }
+        let seq: u32 = seq_str.parse().map_err(|_| reject("序号必须是三位数字"))?;
+        let name = WorkName::normalize(name_str)?;
+        if name.as_str() != name_str {
+            return Err(reject("名字不是规范化形式"));
+        }
+        Self::new(day, seq, &name)
     }
 
     pub fn as_str(&self) -> &str {
@@ -172,9 +281,22 @@ impl AttemptId {
     }
 
     /// 解析 `node#n.retry`。失败返回 `Error::InvalidId { field: "attempt_id", .. }`。
-    #[allow(unused_variables)]
     pub fn parse(value: &str) -> Result<Self> {
-        todo!("T02")
+        let reject = |reason: &'static str| Error::InvalidId {
+            field: "attempt_id".to_string(),
+            value: value.to_string(),
+            reason,
+        };
+        let (node_str, rest) = value
+            .split_once('#')
+            .ok_or_else(|| reject("形状不是 节点#n.retry"))?;
+        let (occ_str, retry_str) = rest
+            .split_once('.')
+            .ok_or_else(|| reject("形状不是 节点#n.retry"))?;
+        let node = NodeId::new(node_str)?;
+        let occurrence: u32 = occ_str.parse().map_err(|_| reject("到达次数不是数字"))?;
+        let retry: u32 = retry_str.parse().map_err(|_| reject("重试序号不是数字"))?;
+        Ok(Self::new(node, occurrence, retry))
     }
 }
 
@@ -193,7 +315,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_workbook_id_accepts_kebab_case() {
         assert_eq!(
             WorkbookId::new("article-review").unwrap().as_str(),
@@ -203,7 +324,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_workbook_id_rejects_uppercase_and_double_dash() {
         for bad in ["Article", "a--b", "-a", "a-", "", "a_b", &"a".repeat(65)] {
             assert!(
@@ -214,7 +334,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_attempt_id_formats_as_node_hash_n_dot_retry() {
         let id = AttemptId::new(NodeId::new("draft").unwrap(), 1, 0);
         assert_eq!(id.to_string(), "draft#1.0");
@@ -226,7 +345,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_id_builds_from_day_seq_and_name() {
         let id = WorkId::new("2026-09-24", 3, &name("文章-初稿")).unwrap();
         assert_eq!(id.as_str(), "2026-09-24-003-文章-初稿");
@@ -234,14 +352,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_name_normalizes_whitespace_and_case() {
         assert_eq!(name("  文章  初稿 ").as_str(), "文章-初稿");
         assert_eq!(name("Export CSV").as_str(), "export-csv");
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_name_rejects_over_48_bytes_and_bad_chars() {
         assert!(WorkName::normalize(&"文".repeat(17)).is_err(), "51 字节");
         assert!(WorkName::normalize("a/b").is_err());
@@ -250,7 +366,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T02"]
     fn t02_work_id_rejects_seq_zero_or_over_999() {
         assert!(WorkId::new("2026-09-24", 0, &name("x")).is_err());
         assert!(WorkId::new("2026-09-24", 1000, &name("x")).is_err());

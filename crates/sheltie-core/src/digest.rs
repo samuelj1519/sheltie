@@ -14,9 +14,16 @@ pub struct Sha256Hex(String);
 
 impl Sha256Hex {
     /// 校验一个已有的十六进制串。失败返回 `Error::InvalidDigest`。
-    #[allow(unused_variables)]
     pub fn new(value: impl Into<String>) -> Result<Self> {
-        todo!("T02")
+        let value = value.into();
+        let ok = value.len() == 64
+            && value
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b));
+        if !ok {
+            return Err(Error::InvalidDigest { value });
+        }
+        Ok(Self(value))
     }
 
     /// 对字节算摘要。纯计算，core 可以做。
@@ -59,7 +66,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore = "T02"]
     fn t02_sha256_hex_requires_64_lowercase_hex() {
         let ok = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
         assert_eq!(Sha256Hex::new(ok).unwrap().as_str(), ok);

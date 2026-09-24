@@ -17,9 +17,30 @@ impl RelPath {
     /// 校验后构造。失败返回 `Error::InvalidPath`。
     ///
     /// 拒绝：空字符串；以 `/` 开头；任一段为 `..`；任一段为空（如 `a//b`）；段为 `.`。
-    #[allow(unused_variables)]
     pub fn new(value: impl Into<String>) -> Result<Self> {
-        todo!("T02")
+        let value: String = value.into();
+        let reject = |reason: &'static str| Error::InvalidPath {
+            path: value.clone(),
+            reason,
+        };
+        if value.is_empty() {
+            return Err(reject("不能为空"));
+        }
+        if value.starts_with('/') {
+            return Err(reject("不能是绝对路径"));
+        }
+        for seg in value.split('/') {
+            if seg.is_empty() {
+                return Err(reject("不能有空段"));
+            }
+            if seg == ".." {
+                return Err(reject("不能含 .."));
+            }
+            if seg == "." {
+                return Err(reject("段不能是 ."));
+            }
+        }
+        Ok(Self(Utf8PathBuf::from(value)))
     }
 
     pub fn as_str(&self) -> &str {
@@ -112,7 +133,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore = "T02"]
     fn t02_rel_path_rejects_dotdot_and_absolute() {
         assert!(RelPath::new("instructions/draft.md").is_ok());
         for bad in ["../x", "a/../b", "/abs", "", "a//b", "./a"] {
