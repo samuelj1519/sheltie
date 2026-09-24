@@ -43,7 +43,7 @@ test_files = ["crates/sheltie-core/src/work/decide.rs"]
 allow_test_changes = false
 
 [T07]
-files = ["crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs"]
+files = ["crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs", "crates/sheltie-core/src/work/render.rs"]
 tests = "t07_"
 test_files = ["crates/sheltie-core/src/work/decide.rs"]
 allow_test_changes = false
