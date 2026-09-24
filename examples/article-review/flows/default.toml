@@ -1,0 +1,47 @@
+schema = "flow/v1"
+id = "default"
+entry = "draft"
+
+[[nodes]]
+id = "draft"
+title = "写初稿"
+executor = "agent"
+instruction = { file = "instructions/draft.md" }
+inputs  = [{ name = "topic", from = "start.topic" }]
+outputs = [{ name = "article", path = "article.md", max_bytes = 262144 }]
+max_visits = 3
+
+[[nodes]]
+id = "review"
+title = "审查初稿"
+executor = "agent"
+instruction = { file = "instructions/review.md" }
+inputs  = [
+  { name = "article",   from = "draft.article" },
+  { name = "checklist", from = "resource.resources/review-checklist.md" },
+]
+outputs = [{ name = "verdict", path = "review.md", max_bytes = 65536 }]
+max_visits = 3
+
+[[nodes]]
+id = "publish"
+title = "定稿"
+executor = "human"
+instruction = { text = "阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。" }
+inputs  = [{ name = "article", from = "draft.article" }, { name = "review", from = "review.verdict" }]
+outputs = [{ name = "final", path = "final.md" }]
+
+[[edges]]
+from = "draft"
+to = "review"
+kind = "main"
+
+[[edges]]
+from = "review"
+to = "publish"
+kind = "main"
+
+[[edges]]
+from = "review"
+to = "draft"
+kind = "back"

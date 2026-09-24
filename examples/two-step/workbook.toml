@@ -1,0 +1,7 @@
+schema = "workbook/v1"
+id = "two-step"
+version = "1.0.0"
+name = "两步写作"
+description = "先列提纲，再按提纲写摘要。无审查、无门槛，证明引擎与业务无关。"
+
+flows = ["flows/default.toml"]

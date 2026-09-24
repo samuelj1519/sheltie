@@ -1,0 +1,21 @@
+---
+source: crates/sheltie-core/src/work/render.rs
+expression: "render_status_card(fx.state(), &fx.graph)"
+---
+# Work 2026-09-24-001-t（t）
+
+workbook: article-review@1.0.0   flow: default   status: active
+current: draft#2
+done: draft#1, review#1
+pending: publish
+visits: draft 2/3, review 1/3, publish 0/1
+
+## 最近一次尝试
+
+draft#2.0 running
+
+## 合法下一步
+
+- sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<一句话结论>"
+- sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+- sheltie work cancel 2026-09-24-001-t

@@ -1,0 +1,143 @@
+# 机器可读的任务表，与 specs/plan.md §2 同源。改计划必改这里。
+# files：本任务允许修改的源码文件（白名单）。
+# tests：测试函数名前缀。
+# test_files：允许删禁用标记的测试所在文件（除删 `#[ignore` 行外不得有其他改动）。
+# allow_test_changes：为 true 时放开 test_files 的改动限制（只用于场景任务修 bug）。
+
+[T02]
+files = ["crates/sheltie-core/src/ids.rs", "crates/sheltie-core/src/path.rs", "crates/sheltie-core/src/text.rs", "crates/sheltie-core/src/digest.rs"]
+tests = "t02_"
+test_files = ["crates/sheltie-core/src/ids.rs", "crates/sheltie-core/src/path.rs", "crates/sheltie-core/src/text.rs", "crates/sheltie-core/src/digest.rs"]
+allow_test_changes = false
+
+[T03]
+files = ["crates/sheltie-core/src/workbook/manifest.rs"]
+tests = "t03_"
+test_files = ["crates/sheltie-core/src/workbook/manifest.rs"]
+allow_test_changes = false
+
+[T04]
+files = ["crates/sheltie-core/src/flow/parse.rs"]
+tests = "t04_"
+test_files = ["crates/sheltie-core/src/flow/parse.rs"]
+allow_test_changes = false
+
+[T05]
+files = ["crates/sheltie-core/src/flow/compile.rs"]
+tests = "t05_"
+test_files = ["crates/sheltie-core/src/flow/compile.rs"]
+allow_test_changes = false
+
+[T06]
+files = ["crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs"]
+tests = "t06_"
+test_files = ["crates/sheltie-core/src/work/decide.rs"]
+allow_test_changes = false
+
+[T07]
+files = ["crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs"]
+tests = "t07_"
+test_files = ["crates/sheltie-core/src/work/decide.rs"]
+allow_test_changes = false
+
+[T08]
+files = ["crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs"]
+tests = "t08_"
+test_files = ["crates/sheltie-core/src/work/decide.rs"]
+allow_test_changes = false
+
+[T09]
+files = ["crates/sheltie-core/src/work/decide.rs"]
+tests = "t09_"
+test_files = ["crates/sheltie-core/src/work/decide.rs"]
+allow_test_changes = false
+
+[T10]
+files = ["crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/next.rs"]
+tests = "t10_"
+test_files = ["crates/sheltie-core/src/work/render.rs"]
+allow_test_changes = false
+
+[T11]
+files = ["examples/two-step", "examples/article-review", "examples/gated-release"]
+tests = "t11_"
+test_files = ["crates/sheltie-core/tests/examples.rs"]
+allow_test_changes = false
+
+[T12]
+files = ["crates/sheltie-runtime/src/home.rs", "crates/sheltie-runtime/src/observe.rs"]
+tests = "t12_"
+test_files = ["crates/sheltie-runtime/tests/home_observe.rs"]
+allow_test_changes = false
+
+[T13]
+files = ["crates/sheltie-runtime/src/store/mod.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-runtime/src/store/read.rs"]
+tests = "t13_"
+test_files = ["crates/sheltie-runtime/tests/store.rs"]
+allow_test_changes = false
+
+[T14]
+files = ["crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/store/read.rs"]
+tests = "t14_"
+test_files = ["crates/sheltie-runtime/tests/workbook_repo.rs"]
+allow_test_changes = false
+
+[T15]
+files = ["crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/store/read.rs"]
+tests = "t15_"
+test_files = ["crates/sheltie-runtime/tests/workbook_repo.rs"]
+allow_test_changes = false
+
+[T16]
+files = ["crates/sheltie-runtime/src/service.rs"]
+tests = "t16_"
+test_files = ["crates/sheltie-runtime/tests/service.rs"]
+allow_test_changes = false
+
+[T17]
+files = ["crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/workbook.rs", "crates/sheltie-cli/src/cli.rs"]
+tests = "t17_"
+test_files = ["crates/sheltie-cli/tests/workbook.rs"]
+allow_test_changes = false
+
+[T18]
+files = ["crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-cli/src/cli.rs"]
+tests = "t18_"
+test_files = ["crates/sheltie-cli/tests/work.rs"]
+allow_test_changes = false
+
+[T19]
+files = ["crates/sheltie-cli/src/commands/attempt.rs", "crates/sheltie-cli/src/commands/gate.rs", "crates/sheltie-cli/src/cli.rs"]
+tests = "t19_"
+test_files = ["crates/sheltie-cli/tests/attempt.rs"]
+allow_test_changes = false
+
+[T20]
+files = ["crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-cli/src/commands/self_cmd.rs", "dist-workspace.toml", ".github/workflows/release.yml", "Cargo.toml", "Cargo.lock", "crates/sheltie-runtime/Cargo.toml"]
+tests = "t20_"
+test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs", "crates/sheltie-cli/tests/self_cmd.rs"]
+allow_test_changes = false
+
+[T21]
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+tests = "t21_"
+test_files = ["crates/sheltie-cli/tests/scenario_article_review.rs"]
+allow_test_changes = false
+
+[T22]
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+tests = "t22_"
+test_files = ["crates/sheltie-cli/tests/scenario_gated_release.rs", "crates/sheltie-cli/tests/scenario_artifacts.rs", "crates/sheltie-cli/tests/scenario_workbook_lifecycle.rs"]
+allow_test_changes = false
+
+[T23]
+files = ["crates/sheltie-runtime/src/failpoint.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/selfmgmt.rs"]
+tests = "t23_"
+test_files = ["crates/sheltie-runtime/tests/crash.rs", "crates/sheltie-cli/tests/replay.rs"]
+allow_test_changes = true
+
+[T24]
+files = ["skills/sheltie/SKILL.md", "scripts/check-skill.sh", ".github/workflows/build.yml", ".pre-commit-config.yaml"]
+tests = "t24_"
+test_files = ["crates/sheltie-cli/tests/skill.rs"]
+allow_test_changes = false

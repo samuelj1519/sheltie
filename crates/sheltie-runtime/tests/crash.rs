@@ -1,0 +1,165 @@
+//! T23：崩溃窗口。用 `--features failpoint` 的子进程跑 `sheltie` 二进制，在指定点退出。
+//! `.config/nextest.toml` 把本文件设为串行。
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+mod common;
+
+use std::path::Path;
+use std::process::Command;
+
+use common::*;
+use sheltie_core::ids::NodeId;
+
+/// 找到 workspace 里的 `sheltie` 二进制。测试进程由 cargo 起，`CARGO_BIN_EXE_*` 只在同 crate 可用，
+/// 所以这里用 target 目录推断。T23 若发现路径不稳，改为在 cli crate 的 tests 里跑同样场景。
+fn sheltie_bin() -> std::path::PathBuf {
+    let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/debug/sheltie");
+    assert!(
+        target.exists(),
+        "先 cargo build -p sheltie-cli --features sheltie-runtime/failpoint"
+    );
+    target
+}
+
+fn run_with_failpoint(
+    home: &sheltie_runtime::Home,
+    failpoint: &str,
+    args: &[&str],
+) -> std::process::Output {
+    Command::new(sheltie_bin())
+        .env("SHELTIE_FAILPOINT", failpoint)
+        .args(["--home", home.root().as_str(), "--json"])
+        .args(args)
+        .output()
+        .unwrap()
+}
+
+#[test]
+#[ignore = "T23"]
+fn t23_kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let out = run_with_failpoint(
+        &home,
+        "before_commit",
+        &[
+            "--request-id",
+            "r-begin",
+            "attempt",
+            "begin",
+            wid.as_str(),
+            "--node",
+            "outline",
+        ],
+    );
+    assert_eq!(
+        out.status.code(),
+        Some(sheltie_runtime::failpoint::EXIT_CODE)
+    );
+    let (_, json) = svc.status(&wid).unwrap();
+    assert!(json.last_attempt.is_none(), "提交前被杀，状态不变");
+    let again = svc
+        .begin(
+            &wid,
+            &NodeId::new("outline").unwrap(),
+            Some("r-begin".into()),
+        )
+        .unwrap();
+    assert!(!again.replayed, "原请求没提交，这次是正常提交");
+}
+
+#[test]
+#[ignore = "T23"]
+fn t23_kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief()
+ {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let out = run_with_failpoint(
+        &home,
+        "after_commit_before_effects",
+        &[
+            "--request-id",
+            "r-begin",
+            "attempt",
+            "begin",
+            wid.as_str(),
+            "--node",
+            "outline",
+        ],
+    );
+    assert_eq!(
+        out.status.code(),
+        Some(sheltie_runtime::failpoint::EXIT_CODE)
+    );
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/1/0/brief.md");
+    assert!(!brief.exists(), "效果前被杀，任务书还没写");
+    let (_, json) = svc.status(&wid).unwrap();
+    assert_eq!(json.last_attempt.as_ref().unwrap().attempt, "outline#1.0");
+    let again = svc
+        .begin(
+            &wid,
+            &NodeId::new("outline").unwrap(),
+            Some("r-begin".into()),
+        )
+        .unwrap();
+    assert!(again.replayed);
+    assert!(brief.exists(), "重放补写了任务书");
+}
+
+#[test]
+#[ignore = "T23"]
+fn t23_status_card_missing_is_regenerated_on_next_write() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
+    std::fs::remove_file(&card).unwrap();
+    svc.begin(&wid, &NodeId::new("outline").unwrap(), None)
+        .unwrap();
+    assert!(card.exists());
+}
+
+#[test]
+#[ignore = "T23"]
+fn t23_kill_between_update_renames_leaves_prev_and_rollback_recovers() {
+    let (d, home) = temp_home();
+    let release = d.path().join("release");
+    sheltie_runtime_test_release::make_release(&release, "9.9.9");
+    let bin = std::path::PathBuf::from(home.bin_dir().as_str());
+    std::fs::create_dir_all(&bin).unwrap();
+    std::fs::copy(sheltie_bin(), bin.join("sheltie")).unwrap();
+    let out = Command::new(bin.join("sheltie"))
+        .env("SHELTIE_FAILPOINT", "update_between_renames")
+        .env("SHELTIE_RELEASE_BASE", release.to_str().unwrap())
+        .args(["--home", home.root().as_str(), "self", "update"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        out.status.code(),
+        Some(sheltie_runtime::failpoint::EXIT_CODE)
+    );
+    assert!(bin.join("sheltie.prev").exists());
+    assert!(!bin.join("sheltie").exists());
+    sheltie_runtime::selfmgmt::rollback(&home).unwrap();
+    assert!(bin.join("sheltie").exists());
+    assert!(!bin.join("sheltie.prev").exists());
+}
+
+/// 造一个本地「发布目录」：`dist-manifest.json` 与对应平台的包。T20 定义精确格式并让本 helper 与之一致。
+mod sheltie_runtime_test_release {
+    use std::path::Path;
+
+    pub fn make_release(dir: &Path, version: &str) {
+        std::fs::create_dir_all(dir).unwrap();
+        let platform = sheltie_runtime::selfmgmt::platform();
+        let payload = format!("fake sheltie {version} for {platform}");
+        let asset = format!("sheltie-{version}-{platform}");
+        std::fs::write(dir.join(&asset), &payload).unwrap();
+        let digest = sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes());
+        let manifest = serde_json::json!({
+            "version": version,
+            "assets": [{ "platform": platform, "name": asset, "sha256": digest.as_str() }]
+        });
+        std::fs::write(dir.join("dist-manifest.json"), manifest.to_string()).unwrap();
+    }
+}

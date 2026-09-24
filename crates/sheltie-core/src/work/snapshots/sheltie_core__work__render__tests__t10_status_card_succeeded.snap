@@ -1,0 +1,22 @@
+---
+source: crates/sheltie-core/src/work/render.rs
+expression: "render_status_card(fx.state(), &fx.graph)"
+---
+# Work 2026-09-24-001-t（t）
+
+workbook: two-step@1.0.0   flow: default   status: succeeded
+current: summary#1
+done: outline#1, summary#1
+pending: 无
+visits: outline 1/1, summary 1/1
+
+## 最近一次尝试
+
+summary#1.0 succeeded
+summary: 摘要好了
+outputs:
+  summary → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/summary/1/0/summary.md (sha256 fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542, 10 B)
+
+## 合法下一步
+
+- 无
