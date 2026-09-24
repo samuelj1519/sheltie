@@ -904,7 +904,6 @@ mod tests {
     // ── T08 Submit / Fail ─────────────────────────────────────
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_marks_attempt_succeeded_and_records_outputs() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -924,7 +923,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_rejects_when_attempt_not_running() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -936,7 +934,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_rejects_summary_over_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -947,7 +944,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_rejects_missing_required_output() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -962,7 +958,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_accepts_missing_optional_output() {
         let mut fx = Fixture::with_optional_output();
         fx.begin("only").unwrap();
@@ -977,7 +972,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_rejects_output_over_max_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -998,7 +992,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_on_gate_node_blocks_work() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
@@ -1007,7 +1000,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_on_terminal_node_succeeds_work() {
         let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
         fx.begin("outline").unwrap();
@@ -1018,7 +1010,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_on_terminal_gate_node_blocks_not_succeeds() {
         let mut fx = Fixture::single_gated_terminal();
         fx.begin("only").unwrap();
@@ -1027,7 +1018,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge() {
         let mut fx = Fixture::article_review_with_review_max_visits_1().started();
         fx.begin("draft").unwrap();
@@ -1043,7 +1033,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_fail_marks_attempt_failed_and_allows_retry() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -1058,7 +1047,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_fail_at_max_retries_blocks_work() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -1073,7 +1061,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_next_after_success_lists_out_edges_with_kind() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -1091,7 +1078,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T08"]
     fn t08_next_when_blocked_gate_has_only_approve_and_cancel() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();

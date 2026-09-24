@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::state::{AttemptStatus, WorkState, WorkStatus};
+use super::state::{AttemptStatus, BlockedReason, WorkState, WorkStatus};
 use crate::flow::{EdgeKind, Executor, Graph, Tier};
 use crate::ids::{AttemptId, NodeId, WorkId};
 
@@ -67,7 +67,6 @@ impl NextOp {
 ///   给一项 `attempt begin <to>` 带 `edge`；再加 `work cancel`。
 ///
 /// T06 填「终态」与「无 Attempt」；T07 填「Succeeded」与「Failed 可重试」；T08 填「Running」与「Blocked」。
-#[allow(unused_variables)]
 pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
     if state.status.is_terminal() {
         return Vec::new();
@@ -89,7 +88,15 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                 ops
             }
             Some(attempt) => match attempt.status {
-                AttemptStatus::Running => todo!("T08"),
+                AttemptStatus::Running => vec![
+                    NextOp::SubmitAttempt {
+                        attempt: attempt.id.clone(),
+                    },
+                    NextOp::FailAttempt {
+                        attempt: attempt.id.clone(),
+                    },
+                    NextOp::Cancel,
+                ],
                 AttemptStatus::Failed => {
                     // 还能重试就再 begin 当前节点（不带边）；否则只剩取消。
                     let mut ops = Vec::with_capacity(2);
@@ -127,7 +134,16 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                 }
             },
         },
-        WorkStatus::Blocked(_) => todo!("T08"),
+        WorkStatus::Blocked(reason) => {
+            let mut ops = Vec::with_capacity(2);
+            if reason == BlockedReason::Gate {
+                ops.push(NextOp::ApproveGate {
+                    node: state.current.node.clone(),
+                });
+            }
+            ops.push(NextOp::Cancel);
+            ops
+        }
         WorkStatus::Succeeded | WorkStatus::Cancelled => Vec::new(),
     }
 }
