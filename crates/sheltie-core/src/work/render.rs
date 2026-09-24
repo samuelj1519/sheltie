@@ -130,6 +130,55 @@ pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
     todo!("T10")
 }
 
+/// 事实视图（协议 `work stats`）：每个节点被到达几次、尝试几次、失败几次、平均耗时、从哪些节点经哪种边进来。
+/// 只是对 `WorkState` 的计数，不含任何判断。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct StatsJson {
+    pub work_id: WorkId,
+    pub status: WorkStatus,
+    /// 从 `created_at` 到 `updated_at` 的秒数。
+    pub total_seconds: u64,
+    pub blocked_count: u32,
+    pub approvals: u32,
+    /// 按图声明顺序。
+    pub nodes: Vec<NodeStatsJson>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct NodeStatsJson {
+    pub node: String,
+    pub visits: u32,
+    pub max_visits: u32,
+    pub attempts: u32,
+    pub failed: u32,
+    /// 已结束 Attempt 的平均秒数；没有则 0。
+    pub avg_seconds: u64,
+    /// `"<from>×<n>"` 或 `"entry×<n>"`，按首次出现顺序。
+    pub entered_via: Vec<String>,
+}
+
+/// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 RFC 3339 时间串相减得到；解析不了的当 0。
+#[allow(unused_variables)]
+pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
+    todo!("T10")
+}
+
+/// 事实视图的文本表（协议 `work stats`）。快照 `*stats_table*.snap` 是标准答案。
+///
+/// ```text
+/// # Stats <work_id>
+///
+/// status: <status>   total: <Ns>   blocked: <n>   approvals: <n>
+///
+/// | node | visits | attempts | failed | avg | entered_via |
+/// | --- | --- | --- | --- | --- | --- |
+/// | draft | 2/3 | 2 | 0 | 0s | entry×1, review×1 |
+/// ```
+#[allow(unused_variables)]
+pub fn render_stats(state: &WorkState, graph: &Graph) -> String {
+    todo!("T10")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -269,6 +318,43 @@ mod tests {
         assert_eq!(json["op"], "attempt begin");
         assert_eq!(json["executor"], "agent");
         assert_eq!(json["tier"], "standard");
+    }
+
+    #[test]
+    #[ignore = "T10"]
+    fn t10_stats_table_mid_flow() {
+        let mut fx = Fixture::article_review().started();
+        fx.run_to_review_done_not_passing();
+        fx.begin("draft").unwrap();
+        insta::assert_snapshot!(render_stats(fx.state(), &fx.graph));
+    }
+
+    #[test]
+    #[ignore = "T10"]
+    fn t10_stats_json_counts_visits_failures_and_entered_via() {
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "崩").unwrap();
+        fx.begin("draft").unwrap();
+        fx.submit_ok("draft#1.1", "ok").unwrap();
+        fx.begin("review").unwrap();
+        fx.submit_ok("review#1.0", "不通过").unwrap();
+        fx.begin("draft").unwrap();
+        let s = render_stats_json(fx.state(), &fx.graph);
+        let draft = &s.nodes[0];
+        assert_eq!(
+            (
+                draft.node.as_str(),
+                draft.visits,
+                draft.attempts,
+                draft.failed
+            ),
+            ("draft", 2, 3, 1)
+        );
+        assert_eq!(draft.entered_via, vec!["entry×1", "review×1"]);
+        assert_eq!(s.nodes[1].entered_via, vec!["draft×1"]);
+        assert_eq!(s.nodes[2].attempts, 0);
+        assert_eq!(s.blocked_count, 0);
     }
 
     #[test]

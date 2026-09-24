@@ -352,6 +352,14 @@ impl Fixture {
         )
     }
 
+    /// 单节点，输入 `stats` 来自 `engine.stats`。已 start。
+    pub fn with_engine_stats_input() -> Self {
+        Self::single_node(
+            "",
+            "inputs = [{ name = \"stats\", from = \"engine.stats\" }]\noutputs = [{ name = \"out\", path = \"out.md\" }]",
+        )
+    }
+
     /// `first -> second`（main）、`first -> side`（branch）、`side -> second`（main）；
     /// `second` 必需输入 `side.out`。已 start 并完成 `first`，此时 `begin("second")` 应报 `INPUT_UNAVAILABLE`。
     pub fn two_step_with_required_input_but_edge_before_success() -> Self {

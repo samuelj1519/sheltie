@@ -84,7 +84,7 @@
 | T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
 | M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`cargo mutants -p sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | todo | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
-| T18 | todo | 初级 | cli `work` 组 | `start / list / status / cancel` |
+| T18 | todo | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
 | T19 | todo | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
 | T20 | todo | 初级 | cli `self` 组与发布链 | `install / update / rollback / uninstall / version`；`cargo-dist` 配置 |
 | T21 | todo | 初级 | 场景：审查回环 | `back` 边、二次到达、`max_visits` 耗尽、`human` 执行者、`resource` 输入 |
@@ -157,7 +157,7 @@
 
 **文件。** `crates/sheltie-core/src/flow/parse.rs`。
 
-**测试。** `parses_three_node_flow`（用 [合同 §3](contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`、`rejects_output_path_brief_md`、`rejects_unknown_edge_kind`。
+**测试。** `parses_three_node_flow`（用 [合同 §3](contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_parses_engine_stats_only`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`、`rejects_output_path_brief_md`、`rejects_unknown_edge_kind`。
 
 **实现要点。** `InputSource::from_str` 先按第一个 `.` 切，前缀是 `start` 或 `resource` 走对应分支，否则是 `node.output` 且只允许一个 `.`。`resource.` 后面的路径可以含 `/`。默认值按合同 §3.2 表。
 
@@ -169,7 +169,7 @@
 
 **文件。** `crates/sheltie-core/src/flow/compile.rs`。
 
-**测试。** `rejects_entry_not_a_node`、`rejects_self_loop_edge`、`rejects_duplicate_from_to`、`rejects_unreachable_node`、`rejects_graph_without_terminal_node`、`rejects_input_from_unknown_output`、`rejects_input_from_node_that_cannot_reach_consumer`、`rejects_gate_node_with_empty_text`、`rejects_missing_instruction_file`、`rejects_non_utf8_instruction`、`rejects_node_id_start_or_resource`、`rejects_missing_resource_input_file`、`accepts_binary_resource_input`、`rejects_node_require_not_declared_in_manifest`、`rejects_duplicate_node_require`、`rejects_optional_input_on_start_or_resource_source`、`rejects_tier_on_human_node`、`compiles_article_review_example`、`proptest_compile_never_panics`。
+**测试。** `rejects_entry_not_a_node`、`rejects_self_loop_edge`、`rejects_duplicate_from_to`、`rejects_unreachable_node`、`rejects_graph_without_terminal_node`、`rejects_input_from_unknown_output`、`rejects_input_from_node_that_cannot_reach_consumer`、`rejects_gate_node_with_empty_text`、`rejects_missing_instruction_file`、`rejects_non_utf8_instruction`、`rejects_node_id_start_or_resource`、`rejects_node_id_engine`、`rejects_missing_resource_input_file`、`accepts_binary_resource_input`、`rejects_node_require_not_declared_in_manifest`、`rejects_duplicate_node_require`、`rejects_optional_input_on_start_or_resource_source`、`rejects_optional_engine_stats_input`、`rejects_tier_on_human_node`、`compiles_article_review_example`、`proptest_compile_never_panics`。
 
 **实现要点。** 骨架里已把九条规则拆成九个私有函数 `check_rule_1` 到 `check_rule_9`，各自 `todo!()`，按顺序调用。可达性用 BFS，骨架里有 `reachable_from(&out_edges, start) -> BTreeSet<NodeId>` 的签名，先填它。错误的 `rule` 字段填 `"1"` 到 `"9"`。
 
@@ -193,7 +193,7 @@
 
 **文件。** `crates/sheltie-core/src/work/{decide,next}.rs` 中的 `decide_begin`、`bind_inputs`、`legal_next` 的「最新 Attempt `Succeeded`」与「`Failed` 且可重试」分支。
 
-**测试。** `begin_on_entry_creates_running_attempt_with_frozen_inputs`、`begin_rejects_node_not_in_next`（`ILLEGAL_NEXT` 且 `detail.next` 等于 `legal_next`）、`begin_via_edge_increments_visits_and_occurrence`、`begin_filters_edges_whose_target_hit_max_visits`、`begin_rejects_modified_upstream_artifact`、`begin_rejects_upstream_without_succeeded_attempt`、`begin_leaves_optional_input_unbound_when_upstream_has_no_attempt`、`begin_binds_optional_input_when_upstream_succeeded_later`、`begin_after_failed_attempt_increments_retry_not_occurrence`、`begin_binds_resource_input_under_frozen_workbook_dir`、`begin_reply_lists_node_requires`、`begin_records_entered_from_occurrence_and_edge_kind`、`retry_keeps_entered_from_of_first_attempt`、`begin_emits_write_brief_effect`。
+**测试。** `begin_on_entry_creates_running_attempt_with_frozen_inputs`、`begin_rejects_node_not_in_next`（`ILLEGAL_NEXT` 且 `detail.next` 等于 `legal_next`）、`begin_via_edge_increments_visits_and_occurrence`、`begin_filters_edges_whose_target_hit_max_visits`、`begin_rejects_modified_upstream_artifact`、`begin_rejects_upstream_without_succeeded_attempt`、`begin_leaves_optional_input_unbound_when_upstream_has_no_attempt`、`begin_binds_optional_input_when_upstream_succeeded_later`、`begin_after_failed_attempt_increments_retry_not_occurrence`、`begin_binds_resource_input_under_frozen_workbook_dir`、`begin_reply_lists_node_requires`、`begin_records_entered_from_occurrence_and_edge_kind`、`retry_keeps_entered_from_of_first_attempt`、`begin_binds_engine_stats_and_emits_write_file`、`begin_emits_write_brief_effect`。
 
 **实现要点。** 先填 `legal_next` 的两个分支再填 `decide_begin`，因为后者第一步就是「`node` 在 `legal_next` 里吗」。`bind_inputs` 对每个 `InputDecl` 分三种来源处理；`Node` 来源找该节点最新 `Succeeded` 的 Attempt，找不到时看 `required`。摘要比较用 `ObservedFile.sha256 == ArtifactRef.sha256`。
 
@@ -223,11 +223,11 @@
 
 ### T10 core 渲染
 
-**结果。** `render_brief`、`render_status_card`、`NextOp::to_command_line`、`StatusCardJson` 与骨架预写的快照逐字节一致。
+**结果。** `render_brief`、`render_status_card`、`render_stats`、`render_stats_json`、`NextOp::to_command_line`、`StatusCardJson` 与骨架预写的快照逐字节一致。
 
 **文件。** `crates/sheltie-core/src/work/{render,next}.rs` 中的 `render_brief`、`render_status_card`、`NextOp::to_command_line`。
 
-**测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`、`status_card_active_mid_flow`、`status_card_blocked_on_gate`、`status_card_succeeded`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`。
+**测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`、`status_card_active_mid_flow`、`status_card_blocked_on_gate`、`status_card_succeeded`、`stats_table_mid_flow`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`、`stats_json_counts_visits_failures_and_entered_via`。
 
 **实现要点。** 格式按 [协议 §4、§6](contracts/protocol.md)。快照就是标准答案，红了看 `insta` 的 diff 逐行对。不 `cargo insta accept`。
 
@@ -239,13 +239,13 @@
 
 **做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `cargo mutants -p sheltie-core --timeout 120`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`、零 `#[ignore`，有就退回对应任务。复核 `git log t01-skeleton..HEAD -- scripts/ tasks.toml` 里每一次工具改动：意图没被放松、提交说明写清了原因。
 
-**产出。** 一份 `M1` 报告放进 `decisions.md` 末节之前的「里程碑记录」，列检查表结果、幸存突变数与处置、修复提交。有阻断项时对应任务状态改回 `doing`，由实现者修，M1 再复核。
+**产出。** 一份 `M1` 报告放进 `decisions.md` 末节之前的「里程碑记录」，列检查表结果、幸存突变数与处置、修复提交。有阻断项时对应任务状态改回 `doing`，由实现者修，M1 再复核。另写一节「流程教训」，格式同 `spec-dev` 的 `lessons.md` 建议表：每条有证据（哪个任务的哪次提交或复核）、有落点（`plan.md`、`engineering.md`、`scripts/` 的哪一段）；采纳的直接改，否决的写原因。M2、M3 同。
 
 ### T11 样例 Workbook 编译测试
 
 **文件。** 允许改 `examples/**`（样例本身若有错就改样例）。不改测试。
 
-**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、`spec_dev_compiles_with_ten_nodes_twenty_three_edges`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_deliver_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
+**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、`spec_dev_compiles_with_eleven_nodes_twenty_four_edges`、`spec_dev_retro_reads_engine_stats`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
 
 **实现要点。** 正常情况下解开测试就全绿。红了先看是样例不合合同（改样例）还是 T03 到 T05 有 bug（按第 9 条卡住，报回对应任务）。
 
@@ -293,6 +293,8 @@
 
 ### T16 runtime Work 服务
 
+**结果。** `WorkService` 提供 `start / begin / submit / fail / approve / cancel / status / stats / list`；`start` 复制冻结副本；`REVISION_CONFLICT` 最多重试 3 次；效果幂等，含 `WriteFile`。
+
 **文件。** `crates/sheltie-runtime/src/service.rs`。
 
 **测试。** `two_step_runs_to_succeeded`、`start_allocates_work_id_with_today_and_seq_001`、`start_replay_returns_same_work_id_without_new_seq`、`start_copies_workbook_into_work_dir_readonly`、`begin_loads_graph_from_frozen_copy_not_repository`、`status_works_after_workbook_removed`、`begin_writes_brief_md_with_absolute_input_paths`、`begin_binds_resource_input_to_frozen_copy_path`、`status_card_regenerated_after_each_commit`、`concurrent_writers_one_gets_revision_conflict`。
@@ -321,7 +323,7 @@
 
 **文件。** `crates/sheltie-cli/src/commands/work.rs`。
 
-**测试。** `work_start_creates_work_and_prints_next`、`work_start_missing_input_exits_1_with_input_missing`、`work_start_accepts_at_file_input`、`work_list_shows_status_and_current`、`work_status_prints_status_card`、`work_status_json_matches_schema`、`work_cancel_then_any_write_is_work_terminal`、`work_id_prefix_resolves_when_unique`、`work_id_prefix_ambiguous_lists_candidates`、`work_start_default_name_is_flow_id`、`work_start_with_chinese_name_creates_matching_directory`。
+**测试。** `work_start_creates_work_and_prints_next`、`work_start_missing_input_exits_1_with_input_missing`、`work_start_accepts_at_file_input`、`work_list_shows_status_and_current`、`work_status_prints_status_card`、`work_stats_prints_table_and_json`、`work_status_json_matches_schema`、`work_cancel_then_any_write_is_work_terminal`、`work_id_prefix_resolves_when_unique`、`work_id_prefix_ambiguous_lists_candidates`、`work_start_default_name_is_flow_id`、`work_start_with_chinese_name_creates_matching_directory`。
 
 **实现要点。** `--input k=v` 解析在骨架的 `parse_input_arg` 里，`@` 开头读文件。前缀解析 `resolve_work` 查 `list_works` 做前缀匹配。
 

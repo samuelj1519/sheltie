@@ -12,7 +12,10 @@ pub mod state;
 pub use command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 pub use decide::{decide, input_paths_for, output_paths_for};
 pub use next::{NextOp, legal_next};
-pub use render::{StatusCardJson, render_brief, render_status_card, status_card_json};
+pub use render::{
+    NodeStatsJson, StatsJson, StatusCardJson, render_brief, render_stats, render_stats_json,
+    render_status_card, status_card_json,
+};
 pub use state::{
     Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, Principal, Timestamp,
     WorkState, WorkStatus, WorkbookRef,

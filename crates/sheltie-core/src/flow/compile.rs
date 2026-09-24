@@ -49,7 +49,7 @@ pub(crate) fn reachable_from(
     todo!("T05")
 }
 
-/// 规则 1：所有 ID 合规、唯一；节点 id 不是保留字 `start`、`resource`；`entry` 存在。
+/// 规则 1：所有 ID 合规、唯一；节点 id 不是保留字（`def::RESERVED_NODE_IDS`：`start`、`resource`、`engine`）；`entry` 存在。
 /// 节点数 1..=64，边数 ≤ 256。
 #[allow(unused_variables)]
 fn check_rule_1(def: &FlowDef) -> Result<()> {
@@ -75,7 +75,7 @@ fn check_rule_4(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
 }
 
 /// 规则 5：`inputs[].from` 的 `Node` 来源存在、不是自己、输出名存在，且从被引用节点能到达本节点。
-/// 另：`Start` 与 `Resource` 来源上 `required = false` 拒绝。
+/// 另：`Start`、`Resource`、`EngineStats` 来源上 `required = false` 拒绝。
 #[allow(unused_variables)]
 fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
     todo!("T05")
@@ -227,6 +227,26 @@ mod tests {
         let text = base().replace(
             "{ name = \"topic\", from = \"start.topic\" }",
             "{ name = \"topic\", from = \"start.topic\", required = false }",
+        );
+        assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
+    }
+
+    #[test]
+    #[ignore = "T05"]
+    fn t05_rejects_node_id_engine() {
+        let text = format!(
+            "{}\n[[nodes]]\nid = \"engine\"\ntitle = \"E\"\nexecutor = \"agent\"\ninstruction = {{ text = \"e\" }}\n[[edges]]\nfrom = \"publish\"\nto = \"engine\"\nkind = \"main\"\n",
+            base()
+        );
+        assert_eq!(rule_of(compile_text(&text).unwrap_err()), "1");
+    }
+
+    #[test]
+    #[ignore = "T05"]
+    fn t05_rejects_optional_engine_stats_input() {
+        let text = base().replace(
+            "{ name = \"topic\", from = \"start.topic\" }",
+            "{ name = \"topic\", from = \"start.topic\" }, { name = \"stats\", from = \"engine.stats\", required = false }",
         );
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }

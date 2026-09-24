@@ -5,7 +5,7 @@
 ## 流程
 
 ```text
-spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶ verify ─▶ review ─▶ deliver(gate)
+spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶ verify ─▶ review ─▶ deliver ─▶ retro(gate)
  ▲        ▲        │  │               │            ▲ │          │ ▲ │       │ ▲        ▲
  └────────┴─back───┘  └─────main──────┘            │ │          │ │ │       │ │        │
                                                    │ │    branch│ │ │       │ │        │
@@ -19,7 +19,7 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
               继续 → 回卡住的那步    跳过 → implement    改方案 → plan    止损 → deliver ┘
 ```
 
-十个节点、二十三条边。人出现在三处：`plan-review`（必经）、`escalate`（只在卡住时）、`deliver` 的门槛（必经）。
+十一个节点、二十四条边。人出现在三处：`plan-review`（必经）、`escalate`（只在卡住时）、`retro` 的门槛（必经，同时看交付说明与反思）。
 
 | 步骤 | 谁 | 产出 | 一句话 |
 | --- | --- | --- | --- |
@@ -32,7 +32,8 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | `fix` | 标准模型 | `change.md` | 只修报告里的发现，一次提交。第一行 `修复完成 / 卡住` |
 | `escalate` | 人 | `decision.md` | 卡住、修两轮不过、需要授权时找人。第一行 `继续 / 跳过 / 改方案 / 止损` |
 | `review` | 强模型（新会话） | `report.md` | 对基线到 HEAD 的整体 diff 审查，可跑突变测试；第一行 `通过 / 不通过` |
-| `deliver` | 标准模型，带 `gate` | `delivery.md` | 做了什么、怎么验、还欠什么、对外动作的命令。人批准后 Work 结束 |
+| `deliver` | 标准模型 | `delivery.md` | 做了什么、怎么验、还欠什么、对外动作的命令 |
+| `retro` | 标准模型，带 `gate` | `lessons.md` | 读引擎的事实视图与各报告第一行，写出对本 Workbook 的具体修改建议。人批准后 Work 结束 |
 
 「强模型」「标准模型」来自节点的 `tier` 字段，任务书与 `next` 里都会显示。协调者按它选派模型：`strong` 派最强的，`standard` 派便宜的。
 
@@ -62,7 +63,8 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | `escalate` | `止损` | `attempt begin deliver` |
 | `review` | `通过` | `attempt begin deliver` |
 | `review` | `不通过` | `attempt begin fix` |
-| `deliver` | 提交后 Work 为 `blocked(gate)` | 通知用户读 `delivery.md`；用户 `gate approve` |
+| `deliver` | 交付说明写好 | `attempt begin retro` |
+| `retro` | 提交后 Work 为 `blocked(gate)` | 通知用户读 `delivery.md` 与 `lessons.md`；用户 `gate approve` |
 
 `verify` 与 `review` 要派给**新的工作 agent**，不要复用实现者的会话。这是独立性的来源。
 
@@ -84,13 +86,14 @@ sheltie work start --workbook spec-dev --flow default \
 
 1. `plan-review`。读 `spec.md`、`plan.md`、`tasks.md`，写 `decision.md`，按任务书末尾的命令提交。
 2. `escalate`，只在 agent 卡住、同一任务修两轮不过、或要做需要授权的事时。读它的报告，写四个词之一加意见。授权要写清范围。
-3. `deliver` 之后。读 `delivery.md`，满意就运行里面列的对外动作（push、开 PR），再 `sheltie gate approve <work> --node deliver`。不满意就 `work cancel`，或者手工改完再批准。
+3. `retro` 之后。读 `delivery.md`，满意就运行里面列的对外动作（push、开 PR），再 `sheltie gate approve <work> --node retro`。不满意就 `work cancel`，或者手工改完再批准。顺手读 `lessons.md`：每条建议指向这份 Workbook 的一个文件一段，采纳的就改进下一版，在 README 修订记录里写「采纳 L1、L3，否决 L2（原因）」。
 
 流程本身不 push、不开 PR、不发布。项目自己的 CI 在 push 后照常运行，是流程外的第二道确认；`plan` 抄进「门禁」的命令应与 CI 一致，这样 CI 很少再报出新问题。
 
 ## 为什么这么设计
 
 - **人只在两头。** 开头审方向，结尾接收并放行对外动作。中间每一步都有机械判据（门禁、验收标准、审查清单），agent 判得比人快且不累。这符合 OpenAI 与 Anthropic 的建议：人工介入放在高风险与不可逆的决定上，其余自动。
+- **Workbook 靠反思演进，不靠引擎自动调参。** `retro` 只写建议，每条有证据有落点；人决定采纳哪些，改出新版本，`workbook add` 后之后的 Work 用新版。引擎不会自己改 `max_visits`、换 `tier`、跳节点，同一版本在每次运行里行为相同。
 - **CI 在流程外。** 流程内已经跑了三遍门禁，CI 是 push 后换干净环境的再确认，不是验收。让 `plan` 抄 CI 的命令，两边就不会打架。
 - **设计集中在强模型手里，实现者只填空。** 初级模型失败的地方集中在四处：发明类型与接口、读大量上下文、判断自己做完没有、处理细微语义。`scaffold` 把类型、签名、注释、测试一次写好，前两项就没了；测试预写，第三项没了；语言的类型系统与穷尽匹配接住第四项的大半。实现者拿到的是「签名、注释、失败的测试」，这是初级模型最稳的场景。
 - **一次一个任务。** 每次 `implement` 只带一条任务、几个文件、十来个测试，上下文 3k 到 8k token，出错也只丢一个任务。
@@ -102,3 +105,9 @@ sheltie work start --workbook spec-dev --flow default \
 - **任务书的「来自」行决定读哪份输入。** 可选输入会一直保留上一次的内容，节点只读「来自」指向的那份，其余当过期忽略。这是防串台的机制，不靠模型自己判断新旧。
 - **门禁由方案写死。** 命令从项目里抄，不由每个实现者现场猜。
 - **一切走文件。** 规格、方案、任务、报告都是文件，任务书只给路径。没有任何一步需要把上一步的全文贴进对话。
+
+## 修订记录
+
+每次采纳 `retro` 的建议出新版本，在这里记一行：版本、采纳了哪些 `Ln`、否决了哪些与原因。`retro` 下次运行会读这一节核对效果。
+
+- 0.1.0 初版。

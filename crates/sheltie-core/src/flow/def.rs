@@ -49,7 +49,7 @@ pub enum Instruction {
     Text(String),
 }
 
-/// 输入来源的三种写法。
+/// 输入来源的四种写法。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InputSource {
@@ -57,9 +57,14 @@ pub enum InputSource {
     Start { key: String },
     /// `resource.<path>`
     Resource { path: RelPath },
+    /// `engine.stats`：引擎在开工时把本 Work 的事实视图（`render_stats_json`）写成文件绑进来。
+    EngineStats,
     /// `<node>.<output>`
     Node { node: NodeId, output: String },
 }
+
+/// 节点 id 的保留字：输入来源的前缀。
+pub const RESERVED_NODE_IDS: &[&str] = &["start", "resource", "engine"];
 
 /// 一条输入声明。`required = false` 只对 `Node` 来源有意义。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

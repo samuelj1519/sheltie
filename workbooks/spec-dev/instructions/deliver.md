@@ -22,7 +22,7 @@
 
 不写过程叙述，不写感想。
 
-你提交之后，Work 会停下等人批准。人读这份文件、运行对外动作、执行 `sheltie gate approve`，Work 才算结束。
+你提交之后还有一步 `retro`（反思）。之后 Work 停下等人批准；人同时读这份文件与反思，运行对外动作，执行 `sheltie gate approve`，Work 才算结束。
 
 ## 写到哪
 

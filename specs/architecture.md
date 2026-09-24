@@ -50,7 +50,7 @@ pub enum   Executor    { Agent, Human }
 pub enum   Tier        { Strong, Standard }   // 只是给协调者的标签，引擎不据此做任何事
 pub enum   Instruction { File(RelPath), Text(String) }
 pub struct InputDecl   { name, from: InputSource, required: bool }   // required=false 只允许 Node 来源
-pub enum   InputSource { Start { key }, Resource { path: RelPath }, Node { node: NodeId, output: String } }
+pub enum   InputSource { Start { key }, Resource { path: RelPath }, EngineStats, Node { node: NodeId, output: String } }
 pub struct OutputDecl  { name, path: RelPath, required: bool, max_bytes: u64 }
 pub struct EdgeDef     { from: NodeId, to: NodeId, kind: EdgeKind }
 pub enum   EdgeKind    { Main, Back, Branch, ReReview }
@@ -137,6 +137,7 @@ core 不做 I/O，但会告诉 runtime 做什么：
 | Effect | runtime 的动作 |
 | --- | --- |
 | `WriteBrief { path, content }` | 把任务书写到 Attempt 目录 |
+| `WriteFile { path, content }` | 写引擎生成的输入文件（`engine.stats` 的 `stats.json`）。内容与摘要在 core 里已定 |
 | `SealOutputs { refs }` | 把输出文件置为只读（尽力而为；权威是记录的 sha256） |
 | `RefreshStatusCard` | 用 `render_status_card` 重写 `status-card.md` |
 
@@ -218,6 +219,7 @@ MSRV 1.85，edition 2024，由根 `Cargo.toml` 与 `rust-toolchain.toml` 固定�
 - **不做异步。** 单用户本地 CLI，一次调用一个事务，`tokio` 只会加复杂度。
 - **不做插件系统。** 执行方式只有 `agent | human` 两种字面量；宿主差异由 skill 文本与 CLI 参数吸收。
 - **不做通用表达式路由。** 协调者选边，引擎不算条件。需要机器路由时再按路线图立项。
+- **不做自适应。** 引擎不按统计调 `max_visits`、换 `tier`、跳节点。它只把统计投影成 `work stats` 给 Workbook 的反思节点读，改进由人冻结新版本。同一版本每次运行行为相同，审计才成立。
 - **不拆独立安装器。** `self` 组管二进制，`workbook` 组管方法，两者都只写 `~/.sheltie`，不碰宿主，`INV-3` 不受影响。`INV-3` 真正要防的是把 skill、subagent 装进 Claude Code 之类的宿主，那部分代码将来放独立 crate 与二进制（[路线图 GF-20](roadmap.md)），`self` 与 `workbook` 留在 `sheltie` 里不动。
 - **宿主资源只声明不打包。** 能让工作 agent「读文件」解决的都放 `resources/` 绑成输入。真要宿主机制的写进 `requires`，引擎列进任务书，不检查、不安装。
 
