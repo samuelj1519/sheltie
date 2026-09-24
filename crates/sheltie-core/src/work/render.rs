@@ -7,7 +7,7 @@ use serde::Serialize;
 
 use super::next::{NextOp, legal_next};
 use super::state::{Attempt, AttemptStatus, BlockedReason, Timestamp, WorkState, WorkStatus};
-use crate::flow::Graph;
+use crate::flow::{Graph, InputSource};
 use crate::ids::WorkId;
 
 /// 渲染一份 Attempt 的任务书（协议 §4）。快照 `snapshots/*brief*.snap` 是逐字节的标准答案。
@@ -27,7 +27,7 @@ use crate::ids::WorkId;
 /// | 名称 | 路径 | sha256 |
 /// | --- | --- | --- |
 /// | <name> | <绝对路径> | <64 位摘要> |        按节点 inputs[] 声明顺序
-/// | <name> | 尚无 | |                         可选且未绑定
+/// | <name> | 尚无（上游 <node> 还没有产出） | |   可选且未绑定
 /// <空行>
 /// ## 需要的宿主资源                           节点 requires 非空时才有此节
 /// <空行>
@@ -100,7 +100,15 @@ pub fn render_brief(
                 r.path,
                 r.sha256.as_str()
             )),
-            None => out.push_str(&format!("| {} | 尚无 | |\n", decl.name)),
+            // 合同 §4 模板：未绑定的可选输入写「尚无（上游 <node> 还没有产出）」。
+            // required = false 只允许来自 <node>.<output>（编译规则 5），其余来源 begin 时必已绑定。
+            None => match &decl.from {
+                InputSource::Node { node, .. } => out.push_str(&format!(
+                    "| {} | 尚无（上游 {} 还没有产出） | |\n",
+                    decl.name, node
+                )),
+                _ => out.push_str(&format!("| {} | 尚无 | |\n", decl.name)),
+            },
         }
     }
 
@@ -663,7 +671,7 @@ mod tests {
         fx.begin("spec").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
         let text = render_brief(fx.state(), &fx.graph, a, "写规格。");
-        assert!(text.contains("| decision | 尚无"));
+        assert!(text.contains("| decision | 尚无（上游 plan-review 还没有产出） | |"));
     }
 
     #[test]
