@@ -388,7 +388,7 @@ id = "second"
 title = "二"
 executor = "agent"
 instruction = { text = "做二。" }
-inputs = [{ name = "side_out", from = "side.out" }]
+inputs = [{ name = "side-out", from = "side.out" }]
 outputs = [{ name = "out", path = "out.md" }]
 
 [[edges]]
