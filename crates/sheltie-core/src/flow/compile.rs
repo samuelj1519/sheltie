@@ -540,11 +540,26 @@ mod tests {
             "executor = \"human\"",
             "executor = \"human\"\ntier = \"strong\"",
         );
-        // parse 可能先拒绝（tier 与 human 同时出现）；无论哪层，都必须是 FlowInvalid。
+        // §3.2 字段规则在 parse 层先拒，rule 是 "parse"，走不到规则 9。
         assert!(matches!(
             compile_text(&text),
-            Err(Error::FlowInvalid { .. })
+            Err(Error::FlowInvalid { rule: "parse", .. })
         ));
+        // 直接改 FlowDef 绕过 parse，钉住编译规则 9 本身。
+        let mut def = parse_flow(base()).unwrap();
+        let human = def
+            .nodes
+            .iter_mut()
+            .find(|n| n.id.as_str() == "publish")
+            .unwrap();
+        human.tier = Some(crate::flow::def::Tier::Strong);
+        let err = compile(
+            &def,
+            &testkit::article_review_manifest(),
+            &testkit::article_review_resources(),
+        )
+        .unwrap_err();
+        assert_eq!(rule_of(err), "9");
     }
 
     proptest::proptest! {
