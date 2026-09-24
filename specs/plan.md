@@ -71,7 +71,7 @@
 | T04 | done | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
 | T05 | done | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
 | T06 | done | 初级 | core `Start` | 新 Work 状态与首个 `next` |
-| T07 | todo | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
+| T07 | done | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
 | T08 | todo | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
 | T09 | todo | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
 | T10 | todo | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行投影与预写快照一致 |
@@ -195,9 +195,9 @@
 
 ### T07 core `BeginAttempt`
 
-**结果。** `Command::BeginAttempt` 按 [协议](contracts/protocol.md) `attempt begin` 细则；`Effect::WriteBrief`。
+**结果。** `Command::BeginAttempt` 按 [协议](contracts/protocol.md) `attempt begin` 细则；`Effect::WriteBrief`。T07 测试的夹具会 `submit` / `fail`，`decide` 入口先过 `guard_not_terminal`，`IllegalNext.next` 与任务书、`engine.stats` 又分别要 `to_command_line`、`render_brief`、`render_stats_json`。因此本任务一并填 `decide_submit`、`check_outputs`、`status_after_success`、`decide_fail`、`output_paths_for`、`guard_not_terminal` 与上述三个投影函数（原属 T08–T10）；不这样，T07 测试在夹具阶段就 `todo!()` 或 `WORK_TERMINAL` 直接崩。
 
-**文件。** `crates/sheltie-core/src/work/{decide,next}.rs` 中的 `decide_begin`、`bind_inputs`、`legal_next` 的「最新 Attempt `Succeeded`」与「`Failed` 且可重试」分支。
+**文件。** `crates/sheltie-core/src/work/{decide,next,render}.rs` 中的 `decide_begin`、`bind_inputs`、`input_paths_for`、`decide_submit`、`check_outputs`、`status_after_success`、`decide_fail`、`output_paths_for`、`guard_not_terminal`、`legal_next` 的「最新 Attempt `Succeeded`」与「`Failed` 且可重试」分支、`NextOp::to_command_line`、`render_brief`、`render_stats_json`。
 
 **测试。** `begin_on_entry_creates_running_attempt_with_frozen_inputs`、`begin_rejects_node_not_in_next`（`ILLEGAL_NEXT` 且 `detail.next` 等于 `legal_next`）、`begin_via_edge_increments_visits_and_occurrence`、`begin_filters_edges_whose_target_hit_max_visits`、`begin_rejects_modified_upstream_artifact`、`begin_rejects_upstream_without_succeeded_attempt`、`begin_leaves_optional_input_unbound_when_upstream_has_no_attempt`、`begin_binds_optional_input_when_upstream_succeeded_later`、`begin_after_failed_attempt_increments_retry_not_occurrence`、`begin_binds_resource_input_under_frozen_workbook_dir`、`begin_reply_lists_node_requires`、`begin_records_entered_from_occurrence_and_edge_kind`、`retry_keeps_entered_from_of_first_attempt`、`begin_binds_engine_stats_and_emits_write_file`、`begin_emits_write_brief_effect`。
 
@@ -207,9 +207,9 @@
 
 ### T08 core `SubmitAttempt` 与 `FailAttempt`
 
-**结果。** 两个命令按协议细则；`legal_next` 的「`Running`」与「`Blocked`」分支。
+**结果。** `legal_next` 的「`Running`」与「`Blocked`」分支。提交与失败的 `decide_*`、输出合同与 `status_after_success` 已在 T07 填（顺序原因见 T07），本任务解开测试核对它们，再补 `legal_next` 剩余分支。
 
-**文件。** `crates/sheltie-core/src/work/{decide,next}.rs` 中的 `decide_submit`、`check_outputs`、`decide_fail`、`status_after_success`、`legal_next` 剩余分支。
+**文件。** `crates/sheltie-core/src/work/next.rs` 中的 `legal_next` 剩余分支。
 
 **测试。** `submit_marks_attempt_succeeded_and_records_outputs`、`submit_rejects_when_attempt_not_running`、`submit_rejects_summary_over_4096_bytes`、`submit_rejects_missing_required_output`、`submit_accepts_missing_optional_output`、`submit_rejects_output_over_max_bytes`、`submit_on_gate_node_blocks_work`、`submit_on_terminal_node_succeeds_work`、`submit_on_terminal_gate_node_blocks_not_succeeds`、`submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge`、`fail_marks_attempt_failed_and_allows_retry`、`fail_at_max_retries_blocks_work`、`next_after_success_lists_out_edges_with_kind`、`next_when_blocked_gate_has_only_approve_and_cancel`。
 
@@ -219,19 +219,19 @@
 
 ### T09 core `ApproveGate` 与 `Cancel`
 
-**文件。** `crates/sheltie-core/src/work/decide.rs` 中的 `decide_approve`、`decide_cancel`、`guard_not_terminal`。
+**文件。** `crates/sheltie-core/src/work/decide.rs` 中的 `decide_approve`、`decide_cancel`。（`guard_not_terminal` 已在 T07 填。）
 
 **测试。** `approve_unblocks_and_records_principal_and_time`、`approve_rejects_when_not_blocked_on_gate`、`approve_rejects_wrong_node`、`approve_on_terminal_node_succeeds_work`、`cancel_from_active_and_blocked`、`terminal_work_rejects_every_command_with_work_terminal`。
 
-**实现要点。** `guard_not_terminal` 是 `decide` 入口第一步，本任务填它；`Start` 不经过它。`decide_approve` 复用 T08 的 `status_after_success`，只是跳过 `gate` 那一步。
+**实现要点。** `decide_approve` 复用 T07 的 `status_after_success`，只是跳过 `gate` 那一步。
 
 **提交。** `feat(core): 门槛批准、取消与终态守卫`
 
 ### T10 core 渲染
 
-**结果。** `render_brief`、`render_status_card`、`render_stats`、`render_stats_json`、`NextOp::to_command_line`、`StatusCardJson` 与骨架预写的快照逐字节一致。
+**结果。** `render_status_card`、`render_stats`、`status_card_json` 与骨架预写的快照逐字节一致。`render_brief`、`render_stats_json`、`NextOp::to_command_line` 已在 T07 填，本任务对着快照校正格式。
 
-**文件。** `crates/sheltie-core/src/work/{render,next}.rs` 中的 `render_brief`、`render_status_card`、`NextOp::to_command_line`。
+**文件。** `crates/sheltie-core/src/work/render.rs` 中的 `render_status_card`、`render_stats`、`status_card_json`。
 
 **测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`、`status_card_active_mid_flow`、`status_card_blocked_on_gate`、`status_card_succeeded`、`stats_table_mid_flow`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`、`stats_json_counts_visits_failures_and_entered_via`。
 

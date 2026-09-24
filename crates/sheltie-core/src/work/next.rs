@@ -33,9 +33,20 @@ impl NextOp {
     /// `sheltie attempt begin <work> --node <node>`、`sheltie attempt submit <work> --attempt <id> --summary "<一句话结论>"`、
     /// `sheltie attempt fail <work> --attempt <id> --reason "<原因>"`、`sheltie gate approve <work> --node <node>`、
     /// `sheltie work cancel <work>`。
-    #[allow(unused_variables)]
     pub fn to_command_line(&self, work_id: &WorkId) -> String {
-        todo!("T10")
+        match self {
+            Self::BeginAttempt { node, .. } => {
+                format!("sheltie attempt begin {work_id} --node {node}")
+            }
+            Self::SubmitAttempt { attempt } => format!(
+                "sheltie attempt submit {work_id} --attempt {attempt} --summary \"<一句话结论>\""
+            ),
+            Self::FailAttempt { attempt } => {
+                format!("sheltie attempt fail {work_id} --attempt {attempt} --reason \"<原因>\"")
+            }
+            Self::ApproveGate { node } => format!("sheltie gate approve {work_id} --node {node}"),
+            Self::Cancel => format!("sheltie work cancel {work_id}"),
+        }
     }
 
     /// 这项是不是「进入或重试节点 `node`」。
@@ -79,8 +90,41 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
             }
             Some(attempt) => match attempt.status {
                 AttemptStatus::Running => todo!("T08"),
-                AttemptStatus::Failed => todo!("T07"),
-                AttemptStatus::Succeeded => todo!("T07"),
+                AttemptStatus::Failed => {
+                    // 还能重试就再 begin 当前节点（不带边）；否则只剩取消。
+                    let mut ops = Vec::with_capacity(2);
+                    if let Some(def) = graph.node(&state.current.node) {
+                        if attempt.id.retry < def.max_retries {
+                            ops.push(NextOp::BeginAttempt {
+                                node: state.current.node.clone(),
+                                edge: None,
+                                executor: def.executor,
+                                tier: def.tier,
+                            });
+                        }
+                    }
+                    ops.push(NextOp::Cancel);
+                    ops
+                }
+                AttemptStatus::Succeeded => {
+                    // 每条出边目标未达 max_visits 就是一项 begin；再加取消。
+                    let mut ops = Vec::with_capacity(4);
+                    for edge in graph.out_edges(&state.current.node) {
+                        let Some(def) = graph.node(&edge.to) else {
+                            continue;
+                        };
+                        if state.visits_of(&edge.to) < def.max_visits {
+                            ops.push(NextOp::BeginAttempt {
+                                node: edge.to.clone(),
+                                edge: Some(edge.kind),
+                                executor: def.executor,
+                                tier: def.tier,
+                            });
+                        }
+                    }
+                    ops.push(NextOp::Cancel);
+                    ops
+                }
             },
         },
         WorkStatus::Blocked(_) => todo!("T08"),

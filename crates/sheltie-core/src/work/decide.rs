@@ -5,11 +5,17 @@ use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
 use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
-use super::state::{ArtifactRef, Occurrence, WorkState, WorkStatus};
+use super::next::legal_next;
+use super::render::{render_brief, render_stats_json};
+use super::state::{
+    ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
+};
+use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
 use crate::flow::{Graph, InputSource};
 use crate::ids::{AttemptId, NodeId};
 use crate::path::AbsPath;
+use crate::text::Summary;
 
 /// 对一个 Work 应用一个命令。
 ///
@@ -54,9 +60,13 @@ pub fn decide(
 }
 
 /// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
-#[allow(unused_variables)]
 fn guard_not_terminal(state: &WorkState) -> Result<()> {
-    todo!("T09")
+    if state.status.is_terminal() {
+        return Err(Error::WorkTerminal {
+            status: state.status.to_string(),
+        });
+    }
+    Ok(())
 }
 
 /// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
@@ -149,7 +159,6 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
 /// 3. `bind_inputs`。
 /// 4. 新建 `Running` 的 Attempt，`started_at = ctx.now`。
 /// 5. 回复 `Reply::AttemptBegun`；效果 `WriteBrief`（内容用 `render_brief(.., instruction_text)`）与 `RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_begin(
     state: &WorkState,
     graph: &Graph,
@@ -158,7 +167,104 @@ fn decide_begin(
     instruction_text: &str,
     ctx: &Context,
 ) -> Result<Decision> {
-    todo!("T07")
+    let next = legal_next(state, graph);
+    let illegal = || Error::IllegalNext {
+        requested: format!("attempt begin {node}"),
+        next: next
+            .iter()
+            .map(|op| op.to_command_line(&state.work_id))
+            .collect(),
+    };
+    if !next.iter().any(|op| op.is_begin_of(node)) {
+        return Err(illegal());
+    }
+    let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
+        reason: format!("节点 {node} 不在图里"),
+    })?;
+
+    let mut new_state = state.clone();
+    let (occ_n, retry, entered_from) = if node != &state.current.node {
+        let edge = graph
+            .out_edges(&state.current.node)
+            .iter()
+            .find(|e| e.to == *node)
+            .ok_or_else(illegal)?;
+        *new_state.visits.entry(node.clone()).or_insert(0) += 1;
+        let n = new_state.visits_of(node);
+        new_state.current = Occurrence {
+            node: node.clone(),
+            n,
+        };
+        (n, 0u32, Some((state.current.clone(), edge.kind)))
+    } else {
+        let prev = state.latest_attempt_of_current();
+        let retry = prev.map(|a| a.id.retry + 1).unwrap_or(0);
+        let entered_from = prev.and_then(|a| a.entered_from.clone());
+        (state.current.n, retry, entered_from)
+    };
+    let attempt_id = AttemptId::new(node.clone(), occ_n, retry);
+
+    let bound = bind_inputs(state, graph, node, observed_inputs)?;
+
+    let mut effects = Vec::new();
+    for decl in &def.inputs {
+        if matches!(decl.from, InputSource::EngineStats) {
+            let (artifact, content) = engine_stats_artifact(state, graph, &attempt_id);
+            effects.push(Effect::WriteFile {
+                path: artifact.path,
+                content,
+            });
+        }
+    }
+
+    let attempt = Attempt {
+        id: attempt_id.clone(),
+        status: AttemptStatus::Running,
+        entered_from,
+        inputs: bound.clone(),
+        outputs: BTreeMap::new(),
+        summary: None,
+        fail_reason: None,
+        started_at: ctx.now.clone(),
+        ended_at: None,
+    };
+    new_state.attempts.push(attempt.clone());
+    new_state.updated_at = ctx.now.clone();
+
+    let attempt_dir = new_state.attempt_dir(&attempt_id);
+    let brief_path = attempt_dir.join_segment("brief.md");
+    effects.push(Effect::WriteBrief {
+        path: brief_path.clone(),
+        content: render_brief(&new_state, graph, &attempt, instruction_text),
+    });
+    effects.push(Effect::RefreshStatusCard);
+
+    let inputs = bound
+        .iter()
+        .map(|(k, v)| (k.clone(), v.as_ref().map(|r| r.path.clone())))
+        .collect();
+    let mut outputs = BTreeMap::new();
+    for decl in &def.outputs {
+        outputs.insert(decl.name.clone(), attempt_dir.join(&decl.path));
+    }
+    let requires = def
+        .requires
+        .iter()
+        .map(|(kind, name)| format!("{}:{}", kind.as_str(), name))
+        .collect();
+
+    Ok(Decision {
+        state: new_state,
+        effects,
+        reply: Reply::AttemptBegun {
+            attempt: attempt_id,
+            brief_path,
+            output_dir: attempt_dir,
+            inputs,
+            outputs,
+            requires,
+        },
+    })
 }
 
 /// 按节点的 `inputs[]` 逐条绑定。
@@ -170,14 +276,81 @@ fn decide_begin(
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
 ///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
-#[allow(unused_variables)]
 fn bind_inputs(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
 ) -> Result<BTreeMap<String, Option<ArtifactRef>>> {
-    todo!("T07")
+    let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
+        reason: format!("节点 {node} 不在图里"),
+    })?;
+    let attempt_id = next_attempt_id(state, node);
+    let mut bound = BTreeMap::new();
+    for decl in &def.inputs {
+        let observed = observed_inputs.get(&decl.name).and_then(|o| o.as_ref());
+        let artifact = match &decl.from {
+            InputSource::Start { key } => {
+                let want = state.inputs.get(key).ok_or_else(|| Error::InputMissing {
+                    missing: vec![key.clone()],
+                    extra: Vec::new(),
+                })?;
+                let obs = observed.ok_or_else(|| Error::ArtifactModified {
+                    input: decl.name.clone(),
+                    path: want.path.as_str().to_string(),
+                })?;
+                if !obs.matches(want) {
+                    return Err(Error::ArtifactModified {
+                        input: decl.name.clone(),
+                        path: want.path.as_str().to_string(),
+                    });
+                }
+                Some(want.clone())
+            }
+            InputSource::Resource { path } => {
+                let full = state.workbook_dir().join(path);
+                let obs = observed.ok_or_else(|| Error::ArtifactModified {
+                    input: decl.name.clone(),
+                    path: full.as_str().to_string(),
+                })?;
+                Some(ArtifactRef {
+                    path: full,
+                    sha256: obs.sha256.clone(),
+                    bytes: obs.bytes,
+                })
+            }
+            InputSource::EngineStats => Some(engine_stats_artifact(state, graph, &attempt_id).0),
+            InputSource::Node { node: src, output } => match state
+                .latest_succeeded_of(src)
+                .and_then(|a| a.outputs.get(output))
+            {
+                Some(want) => {
+                    let obs = observed.ok_or_else(|| Error::ArtifactModified {
+                        input: decl.name.clone(),
+                        path: want.path.as_str().to_string(),
+                    })?;
+                    if !obs.matches(want) {
+                        return Err(Error::ArtifactModified {
+                            input: decl.name.clone(),
+                            path: want.path.as_str().to_string(),
+                        });
+                    }
+                    Some(want.clone())
+                }
+                None => {
+                    if decl.required {
+                        return Err(Error::InputUnavailable {
+                            input: decl.name.clone(),
+                            node: src.clone(),
+                        });
+                    }
+                    None
+                }
+            },
+        };
+        bound.insert(decl.name.clone(), artifact);
+    }
+    Ok(bound)
 }
 
 /// `attempt submit` 第 1 到 6 步。
@@ -188,7 +361,6 @@ fn bind_inputs(
 /// 4. 记录输出 `ArtifactRef`，`status = Succeeded`，`ended_at = ctx.now`。
 /// 5. `status_after_success` 定 Work 状态（含 `gate`）。
 /// 6. 回复 `Reply::AttemptSubmitted`；效果 `SealOutputs`、`RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_submit(
     state: &WorkState,
     graph: &Graph,
@@ -197,32 +369,114 @@ fn decide_submit(
     observed_outputs: &BTreeMap<String, Option<ObservedFile>>,
     ctx: &Context,
 ) -> Result<Decision> {
-    todo!("T08")
+    let not_running = || Error::AttemptNotRunning {
+        attempt: attempt.clone(),
+    };
+    let prev = state.attempt(attempt).ok_or_else(not_running)?;
+    if prev.status != AttemptStatus::Running {
+        return Err(not_running());
+    }
+    if summary.len() > Summary::max_bytes() {
+        return Err(Error::SummaryTooLong {
+            max: Summary::max_bytes(),
+            actual: summary.len(),
+        });
+    }
+    let sealed = check_outputs(state, graph, attempt, observed_outputs)?;
+    let summary_text = Summary::new(summary, "summary")?;
+
+    let mut new_state = state.clone();
+    if let Some(a) = new_state.attempt_mut(attempt) {
+        a.status = AttemptStatus::Succeeded;
+        a.outputs = sealed.clone();
+        a.summary = Some(summary_text);
+        a.ended_at = Some(ctx.now.clone());
+    }
+    new_state.status = status_after_success(&new_state, graph, true);
+    new_state.updated_at = ctx.now.clone();
+
+    Ok(Decision {
+        state: new_state,
+        effects: vec![
+            Effect::SealOutputs {
+                paths: sealed.values().map(|r| r.path.clone()).collect(),
+            },
+            Effect::RefreshStatusCard,
+        ],
+        reply: Reply::AttemptSubmitted {
+            attempt: attempt.clone(),
+            outputs: sealed,
+        },
+    })
 }
 
 /// 对照节点 `outputs[]` 校验观察：`required` 且缺 → `Error::OutputMissing`；
 /// 超 `max_bytes` → `Error::OutputTooLarge`；可选且缺 → 跳过。返回要封存的引用。
-#[allow(unused_variables)]
 fn check_outputs(
     state: &WorkState,
     graph: &Graph,
     attempt: &AttemptId,
     observed_outputs: &BTreeMap<String, Option<ObservedFile>>,
 ) -> Result<BTreeMap<String, ArtifactRef>> {
-    todo!("T08")
+    let def = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    let mut sealed = BTreeMap::new();
+    for decl in &def.outputs {
+        match observed_outputs.get(&decl.name).and_then(|o| o.as_ref()) {
+            Some(obs) => {
+                if obs.bytes > decl.max_bytes {
+                    return Err(Error::OutputTooLarge {
+                        output: decl.name.clone(),
+                        max_bytes: decl.max_bytes,
+                        actual: obs.bytes,
+                    });
+                }
+                sealed.insert(decl.name.clone(), obs.clone().into_ref());
+            }
+            None => {
+                if decl.required {
+                    let path = state.attempt_dir(attempt).join(&decl.path);
+                    return Err(Error::OutputMissing {
+                        output: decl.name.clone(),
+                        path: path.as_str().to_string(),
+                    });
+                }
+            }
+        }
+    }
+    Ok(sealed)
 }
 
 /// 节点 Attempt 成功（或门槛刚批准）后 Work 的状态，按协议 `attempt submit` 第 5 步的顺序：
 /// `consider_gate && node.gate && !approved` → `Blocked(Gate)`；无出边 → `Succeeded`；
 /// 每条出边目标都 `visits >= max_visits` → `Blocked(NoLegalEdge)`；否则 `Active`。
-#[allow(unused_variables)]
 fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
-    todo!("T08")
+    let Some(def) = graph.node(&state.current.node) else {
+        return WorkStatus::Active;
+    };
+    if consider_gate && def.gate && !state.current_approved() {
+        return WorkStatus::Blocked(BlockedReason::Gate);
+    }
+    let outs = graph.out_edges(&state.current.node);
+    if outs.is_empty() {
+        return WorkStatus::Succeeded;
+    }
+    let all_maxed = outs.iter().all(|e| {
+        graph
+            .node(&e.to)
+            .is_some_and(|t| state.visits_of(&e.to) >= t.max_visits)
+    });
+    if all_maxed {
+        return WorkStatus::Blocked(BlockedReason::NoLegalEdge);
+    }
+    WorkStatus::Active
 }
 
 /// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
 /// `retry == max_retries` 时 Work → `Blocked(RetriesExhausted)`。效果 `RefreshStatusCard`。
-#[allow(unused_variables)]
 fn decide_fail(
     state: &WorkState,
     graph: &Graph,
@@ -230,7 +484,43 @@ fn decide_fail(
     reason: &str,
     ctx: &Context,
 ) -> Result<Decision> {
-    todo!("T08")
+    let not_running = || Error::AttemptNotRunning {
+        attempt: attempt.clone(),
+    };
+    let prev = state.attempt(attempt).ok_or_else(not_running)?;
+    if prev.status != AttemptStatus::Running {
+        return Err(not_running());
+    }
+    if reason.len() > Summary::max_bytes() {
+        return Err(Error::SummaryTooLong {
+            max: Summary::max_bytes(),
+            actual: reason.len(),
+        });
+    }
+    let reason_text = Summary::new(reason, "reason")?;
+    let max_retries = graph
+        .node(&attempt.node)
+        .map(|d| d.max_retries)
+        .unwrap_or(0);
+
+    let mut new_state = state.clone();
+    if let Some(a) = new_state.attempt_mut(attempt) {
+        a.status = AttemptStatus::Failed;
+        a.fail_reason = Some(reason_text);
+        a.ended_at = Some(ctx.now.clone());
+    }
+    if attempt.retry >= max_retries {
+        new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+    }
+    new_state.updated_at = ctx.now.clone();
+
+    Ok(Decision {
+        state: new_state,
+        effects: vec![Effect::RefreshStatusCard],
+        reply: Reply::AttemptFailed {
+            attempt: attempt.clone(),
+        },
+    })
 }
 
 /// `gate approve`：Work 必须 `Blocked(Gate)` 且 `node == current.node`，否则 `Error::IllegalNext`。
@@ -254,23 +544,77 @@ fn decide_cancel(state: &WorkState, ctx: &Context) -> Result<Decision> {
 /// runtime 在 `attempt begin` 前调用：本节点每个输入当前应观察的路径。
 /// `None` 表示可选输入的上游尚无产出，或来源是 `engine.stats`（引擎自己生成，不观察）。
 /// 规则与 `bind_inputs` 相同，只是不比摘要。
-#[allow(unused_variables)]
 pub fn input_paths_for(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
 ) -> Result<BTreeMap<String, Option<AbsPath>>> {
-    todo!("T07")
+    let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
+        reason: format!("节点 {node} 不在图里"),
+    })?;
+    let mut paths = BTreeMap::new();
+    for decl in &def.inputs {
+        let path = match &decl.from {
+            InputSource::Start { key } => state.inputs.get(key).map(|r| r.path.clone()),
+            InputSource::Resource { path } => Some(state.workbook_dir().join(path)),
+            InputSource::EngineStats => None,
+            InputSource::Node { node: src, output } => state
+                .latest_succeeded_of(src)
+                .and_then(|a| a.outputs.get(output))
+                .map(|r| r.path.clone()),
+        };
+        paths.insert(decl.name.clone(), path);
+    }
+    Ok(paths)
+}
+
+/// 即将创建的 Attempt 的 id。`bind_inputs` 在 Attempt 落库前就要算出 `engine.stats` 的路径。
+fn next_attempt_id(state: &WorkState, node: &NodeId) -> AttemptId {
+    if &state.current.node == node {
+        let retry = state
+            .latest_attempt_of_current()
+            .map(|a| a.id.retry + 1)
+            .unwrap_or(0);
+        AttemptId::new(node.clone(), state.current.n, retry)
+    } else {
+        AttemptId::new(node.clone(), state.visits_of(node) + 1, 0)
+    }
+}
+
+/// `engine.stats` 绑定：`render_stats_json` 序列化成 JSON，写到 `attempt_dir/stats.json`。
+fn engine_stats_artifact(
+    state: &WorkState,
+    graph: &Graph,
+    attempt_id: &AttemptId,
+) -> (ArtifactRef, String) {
+    let stats = render_stats_json(state, graph);
+    let content = serde_json::to_string(&stats).unwrap_or_else(|_| "{\"nodes\":[]}".to_string());
+    let path = state.attempt_dir(attempt_id).join_segment("stats.json");
+    let artifact = ArtifactRef {
+        sha256: Sha256Hex::of_bytes(content.as_bytes()),
+        bytes: content.len() as u64,
+        path,
+    };
+    (artifact, content)
 }
 
 /// runtime 在 `attempt submit` 前调用：本 Attempt 每个声明输出的目标路径 `attempt_dir/<path>`。
-#[allow(unused_variables)]
 pub fn output_paths_for(
     state: &WorkState,
     graph: &Graph,
     attempt: &AttemptId,
 ) -> Result<BTreeMap<String, AbsPath>> {
-    todo!("T08")
+    let def = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    let dir = state.attempt_dir(attempt);
+    let mut paths = BTreeMap::new();
+    for decl in &def.outputs {
+        paths.insert(decl.name.clone(), dir.join(&decl.path));
+    }
+    Ok(paths)
 }
 
 #[cfg(test)]
@@ -345,7 +689,6 @@ mod tests {
     // ── T07 BeginAttempt ──────────────────────────────────────
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_on_entry_creates_running_attempt_with_frozen_inputs() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
@@ -360,7 +703,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_rejects_node_not_in_next() {
         let mut fx = Fixture::article_review().started();
         let err = fx.begin("review").unwrap_err();
@@ -380,7 +722,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_via_edge_increments_visits_and_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -396,7 +737,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_records_entered_from_occurrence_and_edge_kind() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
@@ -410,7 +750,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_retry_keeps_entered_from_of_first_attempt() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -427,7 +766,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_filters_edges_whose_target_hit_max_visits() {
         // review.max_visits = 3；到第三次 review 成功后，back 边的目标 draft（max_visits 3）已满，main 边仍在。
         let mut fx = Fixture::article_review().started();
@@ -448,7 +786,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_rejects_modified_upstream_artifact() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -460,7 +797,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_rejects_upstream_without_succeeded_attempt() {
         // 用一张自造的图：b 必需 a 的输出，但有边 a -> b 且 a 从未成功。构造方法见 testkit。
         let mut fx = Fixture::two_step_with_required_input_but_edge_before_success();
@@ -471,7 +807,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_leaves_optional_input_unbound_when_upstream_has_no_attempt() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         let d = fx.begin("spec").unwrap();
@@ -481,7 +816,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_binds_optional_input_when_upstream_succeeded_later() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         fx.run_spec_dev_to_plan_review_returning("修改规格");
@@ -491,7 +825,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_after_failed_attempt_increments_retry_not_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -505,7 +838,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_binds_resource_input_under_frozen_workbook_dir() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -528,7 +860,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_reply_lists_node_requires() {
         let mut fx = Fixture::with_requires();
         let d = fx.begin("only").unwrap();
@@ -538,7 +869,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_binds_engine_stats_and_emits_write_file() {
         let mut fx = Fixture::with_engine_stats_input();
         let d = fx.begin("only").unwrap();
@@ -564,7 +894,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T07"]
     fn t07_begin_emits_write_brief_effect() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();

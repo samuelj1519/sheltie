@@ -1,12 +1,12 @@
 //! 任务书与状态卡的渲染。格式见 `specs/contracts/protocol.md` §4、§6。
 //! 快照测试的期望文件在 `snapshots/` 下，由 T01 手写，是标准答案。
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Serialize;
 
 use super::next::{NextOp, legal_next};
-use super::state::{Attempt, WorkState, WorkStatus};
+use super::state::{Attempt, AttemptStatus, BlockedReason, Timestamp, WorkState, WorkStatus};
 use crate::flow::Graph;
 use crate::ids::WorkId;
 
@@ -57,14 +57,113 @@ use crate::ids::WorkId;
 /// ```
 ///
 /// 没有输入时「## 输入」节只有表头两行。`human_size`：能整除 1 MiB 写 `N MiB`，能整除 1 KiB 写 `N KiB`，否则 `N B`。
-#[allow(unused_variables)]
 pub fn render_brief(
     state: &WorkState,
     graph: &Graph,
     attempt: &Attempt,
     instruction_text: &str,
 ) -> String {
-    todo!("T10")
+    let Some(node) = graph.node(&attempt.id.node) else {
+        return String::new();
+    };
+    let mut out = String::new();
+    out.push_str(&format!("# 任务书：{}\n\n", node.title));
+    out.push_str(&format!("Work: {}（{}）\n", state.work_id, state.name));
+    out.push_str(&format!(
+        "节点: {}，第 {} 次尝试\n",
+        attempt.occurrence(),
+        attempt.id.retry
+    ));
+    match &attempt.entered_from {
+        None => out.push_str("来自: 入口\n"),
+        Some((occ, kind)) => {
+            out.push_str(&format!("来自: {occ}（{} 边）\n", kind.as_str()));
+        }
+    }
+    match node.executor {
+        crate::flow::Executor::Agent => {
+            let tier = node.tier.unwrap_or_default();
+            out.push_str(&format!("执行者: agent（{}）\n", tier.as_str()));
+        }
+        crate::flow::Executor::Human => out.push_str("执行者: human\n"),
+    }
+    out.push('\n');
+
+    out.push_str("## 输入\n\n");
+    out.push_str("| 名称 | 路径 | sha256 |\n");
+    out.push_str("| --- | --- | --- |\n");
+    for decl in &node.inputs {
+        match attempt.inputs.get(&decl.name).and_then(|o| o.as_ref()) {
+            Some(r) => out.push_str(&format!(
+                "| {} | {} | {} |\n",
+                decl.name,
+                r.path,
+                r.sha256.as_str()
+            )),
+            None => out.push_str(&format!("| {} | 尚无 | |\n", decl.name)),
+        }
+    }
+
+    if !node.requires.is_empty() {
+        out.push_str("\n## 需要的宿主资源\n\n");
+        out.push_str("| 类型 | 名称 | 版本 | 说明 |\n");
+        out.push_str("| --- | --- | --- | --- |\n");
+        for (kind, name) in &node.requires {
+            out.push_str(&format!(
+                "| {} | {} | - | 请确认你的宿主已装此资源；未装请停下并告知用户 |\n",
+                kind.as_str(),
+                name
+            ));
+        }
+    }
+
+    out.push_str("\n## 说明\n\n");
+    out.push_str(instruction_text.trim_end_matches('\n'));
+    out.push('\n');
+
+    let attempt_dir = state.attempt_dir(&attempt.id);
+    out.push_str("\n## 输出要求\n\n");
+    out.push_str("| 名称 | 写到 | 必需 | 上限 |\n");
+    out.push_str("| --- | --- | --- | --- |\n");
+    for decl in &node.outputs {
+        out.push_str(&format!(
+            "| {} | {} | {} | {} |\n",
+            decl.name,
+            attempt_dir.join(&decl.path),
+            if decl.required { "是" } else { "否" },
+            human_size(decl.max_bytes)
+        ));
+    }
+
+    out.push('\n');
+    match node.executor {
+        crate::flow::Executor::Agent => {
+            out.push_str("完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\n");
+        }
+        crate::flow::Executor::Human => {
+            out.push_str("写完输出文件后，在终端运行：\n\n");
+            out.push_str(&format!(
+                "    sheltie attempt submit {} --attempt {} --summary \"<一句话结论>\"\n",
+                state.work_id, attempt.id
+            ));
+        }
+    }
+    out
+}
+
+/// `N MiB` / `N KiB` / `N B`。0 写 `0 B`。
+fn human_size(bytes: u64) -> String {
+    const MIB: u64 = 1024 * 1024;
+    const KIB: u64 = 1024;
+    if bytes == 0 {
+        "0 B".to_string()
+    } else if bytes % MIB == 0 {
+        format!("{} MiB", bytes / MIB)
+    } else if bytes % KIB == 0 {
+        format!("{} KiB", bytes / KIB)
+    } else {
+        format!("{bytes} B")
+    }
 }
 
 /// 渲染状态卡（协议 §6）。快照 `snapshots/*status_card*.snap` 是标准答案。
@@ -158,9 +257,118 @@ pub struct NodeStatsJson {
 }
 
 /// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 RFC 3339 时间串相减得到；解析不了的当 0。
-#[allow(unused_variables)]
 pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
-    todo!("T10")
+    let mut nodes = Vec::new();
+    for def in graph.nodes() {
+        let attempts: Vec<&Attempt> = state
+            .attempts
+            .iter()
+            .filter(|a| a.id.node == def.id)
+            .collect();
+        let failed = attempts
+            .iter()
+            .filter(|a| a.status == AttemptStatus::Failed)
+            .count() as u32;
+
+        // entered_via 按 Occurrence 计（重试沿用同一来源），首次出现顺序。
+        let mut order: Vec<String> = Vec::new();
+        let mut counts: BTreeMap<String, u32> = BTreeMap::new();
+        let mut seen_occ = BTreeSet::new();
+        for a in &attempts {
+            if !seen_occ.insert(a.id.occurrence) {
+                continue;
+            }
+            let key = match &a.entered_from {
+                Some((occ, _)) => occ.node.as_str().to_string(),
+                None => "entry".to_string(),
+            };
+            if !counts.contains_key(&key) {
+                order.push(key.clone());
+            }
+            *counts.entry(key).or_insert(0) += 1;
+        }
+        let entered_via = order
+            .into_iter()
+            .map(|k| format!("{k}×{}", counts[&k]))
+            .collect();
+
+        let mut ended_secs = 0u64;
+        let mut ended_n = 0u64;
+        for a in &attempts {
+            if let Some(end) = &a.ended_at {
+                ended_secs += secs_between(&a.started_at, end);
+                ended_n += 1;
+            }
+        }
+        nodes.push(NodeStatsJson {
+            node: def.id.as_str().to_string(),
+            visits: state.visits_of(&def.id),
+            max_visits: def.max_visits,
+            attempts: attempts.len() as u32,
+            failed,
+            avg_seconds: ended_secs.checked_div(ended_n).unwrap_or(0),
+            entered_via,
+        });
+    }
+    StatsJson {
+        work_id: state.work_id.clone(),
+        status: state.status,
+        total_seconds: secs_between(&state.created_at, &state.updated_at),
+        blocked_count: count_blocks(state, graph),
+        approvals: state.approvals.len() as u32,
+        nodes,
+    }
+}
+
+/// 被阻断过的次数：门槛成功、重试耗尽，加上当前 `no_legal_edge`。
+fn count_blocks(state: &WorkState, graph: &Graph) -> u32 {
+    let mut latest: BTreeMap<(crate::ids::NodeId, u32), &Attempt> = BTreeMap::new();
+    for a in &state.attempts {
+        latest.insert((a.id.node.clone(), a.id.occurrence), a);
+    }
+    let mut n = 0u32;
+    for a in latest.values() {
+        let Some(def) = graph.node(&a.id.node) else {
+            continue;
+        };
+        match a.status {
+            AttemptStatus::Succeeded if def.gate => n += 1,
+            AttemptStatus::Failed if a.id.retry >= def.max_retries => n += 1,
+            _ => {}
+        }
+    }
+    if state.status == WorkStatus::Blocked(BlockedReason::NoLegalEdge) {
+        n += 1;
+    }
+    n
+}
+
+/// RFC 3339（`…Z`）到秒；解析不了当 0。
+fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
+    let (Some(x), Some(y)) = (rfc3339_secs(a), rfc3339_secs(b)) else {
+        return 0;
+    };
+    (y - x).max(0) as u64
+}
+
+fn rfc3339_secs(ts: &Timestamp) -> Option<i64> {
+    let s = ts.0.strip_suffix('Z')?;
+    let s = s.split('.').next()?;
+    let (d, t) = s.split_once('T')?;
+    let mut dp = d.split('-');
+    let y: i64 = dp.next()?.parse().ok()?;
+    let mo: i64 = dp.next()?.parse().ok()?;
+    let day: i64 = dp.next()?.parse().ok()?;
+    let mut tp = t.split(':');
+    let h: i64 = tp.next()?.parse().ok()?;
+    let mi: i64 = tp.next()?.parse().ok()?;
+    let sec: i64 = tp.next()?.parse().ok()?;
+    let (y2, mp) = if mo > 2 { (y, mo - 3) } else { (y - 1, mo + 9) };
+    let era = y2.div_euclid(400);
+    let yoe = y2 - era * 400;
+    let doy = (153 * mp + 2) / 5 + day - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    Some((era * 146097 + doe) * 86400 + h * 3600 + mi * 60 + sec)
 }
 
 /// 事实视图的文本表（协议 `work stats`）。快照 `*stats_table*.snap` 是标准答案。
