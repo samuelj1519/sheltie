@@ -199,11 +199,19 @@ fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
                     let src_def = def.node(src).ok_or_else(|| {
                         invalid("5", path.clone(), format!("来源节点 {src} 不存在"))
                     })?;
-                    if src_def.output(output).is_none() {
-                        return Err(invalid(
+                    let src_out = src_def.output(output).ok_or_else(|| {
+                        invalid(
                             "5",
                             path.clone(),
                             format!("节点 {src} 没有声明输出 {output}"),
+                        )
+                    })?;
+                    // 可选输出不得被下游当必需输入（合同 §3.2、§4 规则 5）。
+                    if !src_out.required && input.required {
+                        return Err(invalid(
+                            "5",
+                            path,
+                            format!("来源输出 {src}.{output} 是可选的，本输入不得 required = true"),
                         ));
                     }
                     if !reachable_from(out_edges, src).contains(&node.id) {
@@ -687,7 +695,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "T05"]
     fn t05_rejects_required_input_on_optional_output() {
         assert_eq!(rule_of(compile_text(&optional_article()).unwrap_err()), "5");
     }
