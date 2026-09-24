@@ -68,9 +68,6 @@ impl NextOp {
 ///
 /// T06 填「终态」与「无 Attempt」；T07 填「Succeeded」与「Failed 可重试」；T08 填「Running」与「Blocked」。
 pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
-    if state.status.is_terminal() {
-        return Vec::new();
-    }
     match state.status {
         WorkStatus::Active => match state.latest_attempt_of_current() {
             // 首次到达本 Occurrence：进入或重试都从 begin 当前节点开始，不带边。
