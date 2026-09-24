@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::def::{EdgeDef, NodeDef};
 use crate::ids::NodeId;
 use crate::path::RelPath;
+use crate::workbook::HostRequire;
 
 /// runtime 观察到的 Workbook 内文件元数据。core 用它做规则 7 的存在性、大小、编码检查。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,11 +50,18 @@ pub struct Graph {
     order: Vec<NodeId>,
     nodes: BTreeMap<NodeId, NodeDef>,
     out_edges: BTreeMap<NodeId, Vec<EdgeDef>>,
+    /// Workbook 声明的**全部** `requires`，按 manifest 声明顺序，不止本图用到的（work start 用它）。
+    requires: Vec<HostRequire>,
 }
 
 impl Graph {
     /// 仅供 `compile` 在全部规则通过后调用。
-    pub(crate) fn from_checked(entry: NodeId, nodes: Vec<NodeDef>, edges: Vec<EdgeDef>) -> Self {
+    pub(crate) fn from_checked(
+        entry: NodeId,
+        nodes: Vec<NodeDef>,
+        edges: Vec<EdgeDef>,
+        requires: Vec<HostRequire>,
+    ) -> Self {
         let mut out_edges: BTreeMap<NodeId, Vec<EdgeDef>> =
             nodes.iter().map(|n| (n.id.clone(), Vec::new())).collect();
         for e in edges {
@@ -64,6 +72,7 @@ impl Graph {
             order: nodes.iter().map(|n| n.id.clone()).collect(),
             nodes: nodes.into_iter().map(|n| (n.id.clone(), n)).collect(),
             out_edges,
+            requires,
         }
     }
 
@@ -96,5 +105,10 @@ impl Graph {
     /// 没有出边的节点是终点。
     pub fn is_terminal(&self, id: &NodeId) -> bool {
         self.out_edges(id).is_empty()
+    }
+
+    /// Workbook 声明的全部宿主资源，按 manifest 声明顺序。
+    pub fn requires(&self) -> &[HostRequire] {
+        &self.requires
     }
 }

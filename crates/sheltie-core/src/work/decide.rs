@@ -114,14 +114,13 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
     let mut visits = BTreeMap::new();
     visits.insert(entry.clone(), 1);
 
-    // 宿主资源清单：本图各节点声明的 kind:name 并集（合同要求 Workbook 全量，
-    // core 只见图，未用到的 manifest 条目由 runtime 在返回前补）。
-    let mut require_set = BTreeSet::new();
-    for node in graph.nodes() {
-        for (kind, req_name) in &node.requires {
-            require_set.insert(format!("{}:{}", kind.as_str(), req_name));
-        }
-    }
+    // 宿主资源清单：Workbook 声明的**全部** requires，按 manifest 声明顺序
+    // （protocol.md work start 第 8 步；不止本图用到的那些）。
+    let requires: Vec<String> = graph
+        .requires()
+        .iter()
+        .map(|r| format!("{}:{}", r.kind.as_str(), r.name))
+        .collect();
 
     let state = WorkState {
         work_id: work_id.clone(),
@@ -145,7 +144,7 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         reply: Reply::Started {
             work_id: work_id.clone(),
             work_dir: work_dir.clone(),
-            requires: require_set.into_iter().collect(),
+            requires,
         },
     })
 }
@@ -706,6 +705,44 @@ mod tests {
         );
         assert_eq!(d.state.name, WorkName::normalize("t").unwrap());
         assert!(matches!(d.reply, Reply::Started { .. }));
+    }
+
+    // ── M1 复核 O1：work start 回复 Workbook 全量 requires，按 manifest 声明顺序 ─────
+
+    #[test]
+    fn t06_start_requires_is_full_manifest_list_in_declaration_order() {
+        let manifest = crate::workbook::parse_manifest(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"beta\"\n[[requires]]\nkind = \"mcp\"\nname = \"alpha\"\n",
+        )
+        .unwrap();
+        let def = crate::flow::parse_flow(
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:alpha\"]\n",
+        )
+        .unwrap();
+        let graph =
+            crate::flow::compile(&def, &manifest, &crate::flow::ResourceIndex::default()).unwrap();
+        let cmd = Command::Start {
+            work_id: crate::ids::WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap())
+                .unwrap(),
+            name: WorkName::normalize("t").unwrap(),
+            workbook: crate::work::WorkbookRef {
+                id: manifest.id.clone(),
+                version: manifest.version.clone(),
+                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
+            },
+            flow: crate::ids::FlowId::new("default").unwrap(),
+            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
+            inputs: BTreeMap::new(),
+        };
+        let d = decide(None, &graph, &cmd, &testkit::ctx()).unwrap();
+        let Reply::Started { requires, .. } = d.reply else {
+            panic!("应当是 Reply::Started");
+        };
+        // skill:beta 没有任何节点引用，也必须在清单里；顺序是 manifest 声明顺序（不是排序后的）。
+        assert_eq!(
+            requires,
+            vec!["skill:beta".to_string(), "mcp:alpha".to_string()]
+        );
     }
 
     // ── T07 BeginAttempt ──────────────────────────────────────

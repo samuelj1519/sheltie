@@ -40,6 +40,7 @@ pub fn compile(def: &FlowDef, manifest: &Manifest, res: &ResourceIndex) -> Resul
         def.entry.clone(),
         def.nodes.clone(),
         def.edges.clone(),
+        manifest.requires.clone(),
     ))
 }
 
@@ -711,5 +712,36 @@ mod tests {
                 "{ name = \"article\", from = \"draft.article\", required = false }",
             );
         assert!(compile_text(&text).is_ok());
+    }
+
+    // ── M1 复核 O1：图带 Workbook 全量 requires，按 manifest 声明顺序 ─────
+
+    #[test]
+    fn t05_graph_carries_manifest_requires_in_declaration_order() {
+        let def = parse_flow(base()).unwrap();
+        let mut manifest = testkit::article_review_manifest();
+        // 先 beta 后 alpha：若按名字或 kind:name 排序，顺序会反过来。
+        manifest.requires.push(crate::workbook::HostRequire {
+            kind: crate::workbook::RequireKind::Skill,
+            name: "beta".into(),
+            version: None,
+            digest: None,
+            source: None,
+        });
+        manifest.requires.push(crate::workbook::HostRequire {
+            kind: crate::workbook::RequireKind::Mcp,
+            name: "alpha".into(),
+            version: Some("^1".into()),
+            digest: None,
+            source: None,
+        });
+        // base() 的节点一条 requires 都没引用，图里照样有全量声明。
+        let g = compile(&def, &manifest, &testkit::article_review_resources()).unwrap();
+        let got: Vec<(&str, Option<&str>)> = g
+            .requires()
+            .iter()
+            .map(|r| (r.name.as_str(), r.version.as_deref()))
+            .collect();
+        assert_eq!(got, vec![("beta", None), ("alpha", Some("^1"))]);
     }
 }
