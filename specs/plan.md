@@ -69,7 +69,7 @@
 | T02 | done | 初级 | core 基础类型 | ID、路径、有界文本、摘要 newtype 与错误枚举 |
 | T03 | done | 初级 | core 解析 `workbook.toml` | 合法 manifest 解析；未知字段与错 schema 拒绝 |
 | T04 | done | 初级 | core 解析 Flow | 节点、边、输入来源、输出声明解析 |
-| T05 | todo | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
+| T05 | done | 初级 | core 编译图 | 合同 §4 九条规则各有拒绝例 |
 | T06 | todo | 初级 | core `Start` | 新 Work 状态与首个 `next` |
 | T07 | todo | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
 | T08 | todo | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
