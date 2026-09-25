@@ -437,6 +437,40 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 - 交还实现者：T10 退回 `doing`（「此 <kind>」；`Timestamp::unix_secs`，`secs_between` 改用它）；O2 的实现随 T16。完成后 M1 复跑突变并复核实现者本轮自写的测试。`render.rs:520` 的两个等价突变会随 `rfc3339_secs` 删除而消失。
 - 不做：`BoundedText` 的 `Deserialize` 改为调用 `new`。重复只有一个长度比较，而且反序列化拿不到 `field` 名，两处报错本来就不同，改了没有收益。`render_brief` 输入表的 `_ => "尚无"` 分支按编译规则 5 不可达，但删掉只能换成 panic 或静默少一行，都比现在带注释的兜底差，保留。
 
+**第三轮：复审（2026-09-25）。** 核对第二轮退回项的修复，复跑突变，结论：**通过，M1 关闭**。
+
+- B1（5f4b6d6，T05）：`check_rule_5` 的 Node 分支拒绝「可选输出配必需输入」，位置在输出存在性检查之后；`rejects_required_input_on_optional_output`、`accepts_optional_input_on_optional_output` 已启用且绿。改动只有 `compile.rs` 与 `plan.md`。
+- T10 两项（bc14d36）：宿主资源表说明写「此 <kind>」（`render_brief` 用 `kind.as_str()`，格式注释同步）；`Timestamp::unix_secs` 是 `from_unix_secs` 的逆运算（days_from_civil），`secs_between` 改用它，`rfc3339_secs` 与「解析不了当 0」兜底已删。三条禁用测试已启用。期望值抽查与 Python `datetime` 独立核算一致（`2026-09-24T03:04:05Z` → 1790219045 等五个点）。
+- 实现者在修复轮自写的两条测试（51eda62 的版本列、03a9be9 的双 `engine.stats` 输入）逐条读过：断言的是行为（版本取自 manifest、两个输入共享同一份 `stats.json`），不是实现的镜像；当前形式（第二轮改过名与夹具）正确。
+- 快照零改动（`git diff t10-review..HEAD -- '**/*.snap'` 为空）；`next` 的 executor/tier 透传、状态卡 blocked 行、`work stats` 口径与协议一致。
+- 机械核对（命令均可重跑）：`rg 'todo!\(|allow\(unused_variables\)' crates/sheltie-core` 零命中；`#[ignore]` 全仓只剩 T11 到 T24 的标签；core 无 `std::fs`、时钟、随机数；`cargo tree -p sheltie-core -e normal` 无 I/O crate（`libc` 只经 `sha2 → cpufeatures`；`zmij` 是 `serde_json` 的 JSON 解析器）；`check-docs.sh`（47 个文件）、`check-core-vocab.sh`、`check-tests.sh`（289 个测试）、`cargo deny check` 与四条门禁全绿。
+- 工具改动复核（`git log t01-skeleton..HEAD -- scripts/ tasks.toml`）：除第一、二轮已核的三次外，本轮新增 dc44577、18c65fa 两个措辞清扫提交碰过 `scripts/`——逐行核过 diff，只动注释与报错文案，检查意图未放松；fa4710b 碰了 cli/runtime 源码与 cli 测试共用模块，全是文档注释，产品字符串、快照、断言零改动。
+- 提交纪律：修复提交已按 §0.6 新规写被退回任务的编号（5f4b6d6 写 `Task: T05`，bc14d36 写 `Task: T10`）；trailer 连排，`git log --format='%(trailers)'` 能解析出 `Task` 与 `Agent`（L8 的修法生效）。
+
+**突变复跑。** `scripts/mutants.sh sheltie-core`：595 个突变体，519 杀死、7 存活、69 不可编译、0 超时。7 个存活逐条处置：
+
+- `parse.rs:140`（`||`→`&&`）与 `next.rs:101`（`<`→`<=`）：第一轮已论证的等价突变，行号随重构移动，结论不变。
+- `render.rs:520` 的两个等价突变随 `rfc3339_secs` 删除而消失，与第二轮预期一致。
+- `decide.rs:252` 与 `render.rs:124`（`&&`→`||`，O1/O3 修复轮引入的 requires 查找）：**真缺口**。manifest 里出现 kind 与 name 交叉的声明（如 `skill:db` 与 `mcp:db` 并存）时，突变体会拿错声明、任务书版本列与 `attempt begin` 回复出错。补两条测试：`begin_reply_requires_ignore_crossed_kind_name_pairs`（T07）、`brief_require_version_ignores_crossed_kind_name_pairs`（T10）。手工把两处 `&&` 注入成 `||`，两条测试都红；还原后回绿。
+- `state.rs:71` 三个（`from_unix_secs` 的 yoe 世纪修正项 `/1460`、`/36524`、`/146096`）：**真缺口**，既有用例全在 1970 到 2100 年，修正项在这些区段不改变整数除法结果。穷举全部 293 万个可达日（`secs ≤ 253_402_300_799` 饱和域）找到判定日：三个突变都从 1970-03-01 起算错一年，末项修正只在 era 末日（doe = 146096，如 2399-12-31）取值 1。这些日期与 2200/2400/2500/4000/9999 各一个点补进 `timestamp_from_unix_secs_matches_known_dates` 与 `timestamp_unix_secs_matches_independent_calendar_math`，三个突变逐一注入验证杀死。定向复跑（`-F 'replace && with \|\||Timestamp::from_unix_secs'`，79 个突变体）：78 杀死、1 不可编译、0 存活。
+
+**本轮发现与处置。**
+
+- N1（流程）：dc44577、18c65fa、fa4710b 三个措辞清扫改了 T02/T05/T10 测试模块里的五行注释与断言提示文字，`check-task.sh` 检查 4 因此报「测试代码被改动」。逐处核实全是文字、无行为改动（断言、期望值、快照不变）。这是用户拍板的全仓清扫，不是实现者越界；但基准 tag 因此失效。处置：核实后以本轮提交重打 `t02-review-3`、`t05-review-5`、`t10-review-2`。
+- N2（工具）：`cargo mutants` 默认把结果写进未忽略的 `./mutants.out`，跑突变期间工作树变脏，`check-task.sh` 检查 6（只在工作树干净时查提交信息）静默跳过，也有误提交风险。已修（82d870b，`--output target`，`Task: T01` 单独提交）。
+- N3（文档）：合同 §3 的 article-review 样例里 `draft` 节点缺 `max_visits = 3`。缺了它，§3 自己的 `back` 边在默认上限 1 下永远不可用（`draft` 在 start 时已用掉唯一一次到达）。`examples/article-review/` 的实际样例有这一行。已把 §3 改成与样例一致。
+- 观察，不处置：`Graph` 仍 derive `Serialize` 但没有序列化调用者（Deserialize 已按 O4 拆掉）；`NextOp` 的 `edge`、`tier` 序列化成 `null` 而不是省略该键，协议 §5「只在…出现」的措辞与之有出入，CLI 落地时（T17 起）若有人咬文再定；`render_brief` 在节点不在图里时返回空串，`decide` 路径不可达，属防御性兜底；nextest 把 `node_count_limit_is_64` 标 `leaky`（64 节点夹具的线程标记，与正确性无关）。
+
+**流程教训（本轮新增）。**
+
+| # | 类别 | 证据 | 改哪 | 改成什么 | 处置 |
+| --- | --- | --- | --- | --- | --- |
+| L11 | 流程 | N1：措辞清扫改了测试模块注释，三个任务的 `check-task.sh` 基准当场失效 | `engineering.md` §5「文档」行；或清扫规则 | 全仓措辞清扫不得动 `#[cfg(test)]` 模块；非动不可时，由复核者当场逐处核实并重打 `tNN-review` 基准 | 采纳：本轮已重打三个 tag；规则写进 engineering.md §5 |
+| L12 | 工具 | N2：`./mutants.out` 未忽略，check-task 检查 6 在突变测试期间静默跳过 | `scripts/mutants.sh` | 输出收进已忽略的 `target/` | 采纳，已改（82d870b） |
+| L13 | 测试 | state.rs:71 三个突变存活：日期换算的既有用例全挤在 1970 到 2100 年，世纪修正项摸不到 | `engineering.md` §3「写新测试的人」段 | 查表/换算类函数，用例要覆盖修正项生效的每个区段；找不到时穷举可达定义域找第一个判定点 | 采纳，已改 |
+
+**M1 关闭。** T01 到 T10 全部 done；O1 到 O7 的落点：O1、O3 到 O7 已修并复核通过，O2 随 T16（测试已挂 T16 禁用）。下一次模型审查是 M2（runtime）。
+
 ## 首次真实运行
 
 待 [计划](plan.md) T26 完成后填写：协调者是否只用了 `next` 里的命令、有没有试图绕过、任务书是否够用、宿主观测的 token 用量。
