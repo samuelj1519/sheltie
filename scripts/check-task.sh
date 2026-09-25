@@ -106,8 +106,8 @@ while IFS= read -r changed; do
 done < <(changed_paths)
 
 # 2. 本任务占位清零；填完的函数不许留 #[allow(unused_variables)]
-# files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；目录只取其中的 .rs，
-# 文档会引用 todo!() 字样，不是占位。普通文件照旧整文件检查。
+# files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；只检查其中的 .rs，
+# 文档（.md 等）会引用 todo!() 字样，不是占位。
 for entry in "${files[@]}"; do
 	[ -e "$entry" ] || continue
 	targets=()
@@ -115,7 +115,7 @@ for entry in "${files[@]}"; do
 		while IFS= read -r g; do
 			[ -n "$g" ] && targets+=("$g")
 		done < <(find "$entry" -type f -name '*.rs' | sort)
-	elif [ -f "$entry" ]; then
+	elif [ -f "$entry" ] && [ "${entry##*.}" = "rs" ]; then
 		targets+=("$entry")
 	fi
 	for f in ${targets[@]+"${targets[@]}"}; do
