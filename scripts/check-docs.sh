@@ -26,7 +26,7 @@ while IFS= read -r file; do
 	done
 done <<<"$files"
 
-# 2. 禁用措辞。文档只描述目标形状，不得以「现有代码」为主语；命中即失败。
+# 2. 禁用措辞。文档只描述目标形态，不得以「现有代码」为主语；命中即失败。
 # 代码标识符（Verdict、PackageId 等）由 scripts/check-core-vocab.sh 查源码，文档可以把它们当反例引用。
 blacklist='沿现有|复用现有|保留现有|沿当前|旧代码|历史代码|双 reader'
 if grep -nE "$blacklist" $files; then

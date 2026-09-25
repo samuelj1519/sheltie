@@ -15,7 +15,7 @@
 1. 若库文件不存在且操作是写操作，建库并写入全部表。只读操作遇到不存在的库报 `NOT_FOUND`，不建库。
 2. 若 `user_version ≠ 1`，报 `STORE_SCHEMA_MISMATCH`。
 3. 对 `sqlite_master` 核对每张表的建表语句与期望完全一致（忽略空白）。不一致报 `STORE_SCHEMA_MISMATCH`。
-4. 不自动迁移，不清空。测试里放一个手工造的旧形状库作负例。
+4. 不自动迁移，不清空。测试里放一个手工造的旧结构库作负例。
 
 后续改结构时只升 `SCHEMA_VERSION` 并同步建表语句与 fixture，旧库继续被拒绝。
 
@@ -64,7 +64,7 @@ CREATE TABLE audit (
 );
 ```
 
-`state_json` 是权威。`status` 列由写入时从状态派生，读时不信它做业务判断，只用于 `work list` 排序过滤。
+一切以 `state_json` 为准。`status` 列由写入时从状态派生，读时不信它做业务判断，只用于 `work list` 排序过滤。
 
 ## 2. 一次写事务
 
@@ -95,7 +95,7 @@ COMMIT
 | 时刻 | 库 | 目录 | 重启后 |
 | --- | --- | --- | --- |
 | `COMMIT` 前 | 无变化 | 可能有半写的观察副产物（无） | 状态不变；协调者重放同 `request_id` 即可 |
-| `COMMIT` 后、效果前 | 新状态 | 缺 `brief.md` 或状态卡 | `work status` 正确；`attempt begin` 重放返回原 reply 并补写 `brief.md`；状态卡在下次任何写操作后重生 |
+| `COMMIT` 后、效果前 | 新状态 | 缺 `brief.md` 或状态卡 | `work status` 正确；`attempt begin` 重放返回原 reply 并补写 `brief.md`；状态卡在下次任何写操作后重新生成 |
 | 效果中 | 新状态 | 部分文件 | 同上；效果幂等，重放补齐 |
 
 因此所有效果必须幂等：写任务书用「写临时文件再 rename」，置只读可重复执行，状态卡整份重写。
@@ -108,7 +108,7 @@ COMMIT
 2. 读文件算 sha256 与字节数，组成 `ObservedFile`。
 3. core 校验通过并提交后，`chmod a-w`。
 
-**权威是 `ArtifactRef.sha256`，不是只读位。** 下游 `attempt begin` 绑定输入时重算摘要核对；不符报 `ARTIFACT_MODIFIED`。这就是「输入按字节冻结」的实现。
+**以 `ArtifactRef.sha256` 为准，不是只读位。** 下游 `attempt begin` 绑定输入时重算摘要核对；不符报 `ARTIFACT_MODIFIED`。这就是「输入按字节冻结」的实现。
 
 起始输入在 `work start` 时写成 `inputs/<key>` 文件并同样记 `ArtifactRef`。
 
@@ -143,7 +143,7 @@ runtime 只写 `SHELTIE_HOME` 之下。所有由外部输入拼出的路径（Wo
 
 ## 7. 时间与 ID
 
-时间统一为秒精度的 RFC 3339 UTC 字符串，固定形如 `2026-09-24T03:00:00Z`（`YYYY-MM-DDTHH:MM:SSZ`，大写 `T` 与 `Z`，无小数秒、无时区偏移），由 runtime 取 `SystemTime::now()` 后放进 `Context` 传给 core。默认 `request_id` 是 UUID v7，在 runtime 生成。core 不碰时钟与随机数，测试里传固定值。core 的 `Timestamp` 构造与读回都校验这个形状，不合法就报错：形状固定，所以字符串字典序就是时间序。由 Unix 秒数换算（`from_unix_secs`）时超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，引擎产生的时间永远落在这个形状里。
+时间统一为秒精度的 RFC 3339 UTC 字符串，固定形如 `2026-09-24T03:00:00Z`（`YYYY-MM-DDTHH:MM:SSZ`，大写 `T` 与 `Z`，无小数秒、无时区偏移），由 runtime 取 `SystemTime::now()` 后放进 `Context` 传给 core。默认 `request_id` 是 UUID v7，在 runtime 生成。core 不碰时钟与随机数，测试里传固定值。core 的 `Timestamp` 构造与读取都校验这个格式，不合法就报错：格式固定，所以字符串字典序就是时间序。由 Unix 秒数换算（`from_unix_secs`）时超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，引擎产生的时间永远是这个格式。
 
 ### 7.1 `work_id` 的序号分配
 

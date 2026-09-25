@@ -13,7 +13,7 @@ use crate::text::Summary;
 
 /// UTC 时间，秒精度，形如 `2026-09-24T03:00:00Z`（存储合同 §7）。由 runtime 传入。
 ///
-/// 只能经 `parse` 或 `from_unix_secs` 构造，读回也走 `parse`：形状固定，所以字典序就是时间序，
+/// 只能经 `parse` 或 `from_unix_secs` 构造，读取也走 `parse`：格式固定，所以字典序就是时间序，
 /// `day()` 取前 10 字节就是日期。
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(transparent)]
@@ -61,7 +61,7 @@ impl Timestamp {
     }
 
     /// Unix 秒数转成本类型。纯算法（Howard Hinnant 的 civil_from_days），不碰时钟。
-    /// 9999 年以后饱和到 `9999-12-31T23:59:59Z`，保证结果仍是 `parse` 接受的形状。
+    /// 9999 年以后饱和到 `9999-12-31T23:59:59Z`，保证结果仍是 `parse` 接受的格式。
     pub fn from_unix_secs(secs: u64) -> Self {
         let secs = secs.min(253_402_300_799);
         let z = (secs / 86_400) as i64 + 719_468;
@@ -85,7 +85,7 @@ impl Timestamp {
     /// 距 1970-01-01T00:00:00Z 的秒数，1970 年以前为负。`work stats` 的耗时由它相减得出。
     /// 构造时已校验，所以不会失败。
     pub fn unix_secs(&self) -> i64 {
-        // `from_unix_secs` 的逆运算（Howard Hinnant 的 days_from_civil）；形状与日历由 `parse` 保证，直接取数。
+        // `from_unix_secs` 的逆运算（Howard Hinnant 的 days_from_civil）；格式与日历由 `parse` 保证，直接取数。
         let b = self.0.as_bytes();
         let num =
             |r: std::ops::Range<usize>| b[r].iter().fold(0i64, |n, c| n * 10 + i64::from(c - b'0'));
@@ -115,7 +115,7 @@ impl std::fmt::Display for Timestamp {
     }
 }
 
-/// 读回也校验：库里的坏时间串报错（runtime 映射为 `STORE_CORRUPT`），不带进耗时计算。
+/// 读取时也校验：库里的坏时间串报错（runtime 映射为 `STORE_CORRUPT`），不带进耗时计算。
 impl<'de> Deserialize<'de> for Timestamp {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where

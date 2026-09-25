@@ -30,7 +30,7 @@
 
 ## 2. 核心数据类型
 
-以下是 `sheltie-core` 的公开类型骨架。字段完整定义见各合同；此处只画形状。
+以下是 `sheltie-core` 的公开类型骨架。字段完整定义见各合同；此处只列轮廓。
 
 ```rust
 // 强类型 ID，禁止裸 String 在模块边界流动
@@ -138,12 +138,12 @@ core 不做 I/O，但会告诉 runtime 做什么：
 | --- | --- |
 | `WriteBrief { path, content }` | 把任务书写到 Attempt 目录 |
 | `WriteFile { path, content }` | 写引擎生成的输入文件（`engine.stats` 的 `stats.json`）。内容与摘要在 core 里已定 |
-| `SealOutputs { refs }` | 把输出文件置为只读（尽力而为；权威是记录的 sha256） |
+| `SealOutputs { refs }` | 把输出文件置为只读（尽力而为；以记录的 sha256 为准） |
 | `RefreshStatusCard` | 用 `render_status_card` 重写 `status-card.md` |
 
-效果在事务提交后执行。效果失败不回滚状态，只记日志；状态卡可随时从状态重生。
+效果在事务提交后执行。效果失败不回滚状态，只记日志；状态卡可随时从状态重新生成。
 
-## 4. 一次写操作的路径
+## 4. 一次写操作的流程
 
 ```text
 CLI 解析参数
@@ -183,7 +183,7 @@ CLI 解析参数
       <declared output paths>       工作 agent 写；提交后封存
 ```
 
-产物不复制。输出文件在 Attempt 目录里原地封存，权威是 `ArtifactRef.sha256`；下游绑定时重算摘要核对。
+产物不复制。输出文件在 Attempt 目录里原地封存，以 `ArtifactRef.sha256` 为准；下游绑定时重算摘要核对。
 
 Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/workbook/` 编译图，不读 `workbooks/`。于是 `workbook remove` 与升级都不牵连运行中的 Work（[存储合同 §5.1](contracts/storage.md)）。
 
@@ -219,7 +219,7 @@ MSRV 1.85，edition 2024，由根 `Cargo.toml` 与 `rust-toolchain.toml` 固定�
 - **不做异步。** 单用户本地 CLI，一次调用一个事务，`tokio` 只会加复杂度。
 - **不做插件系统。** 执行方式只有 `agent | human` 两种字面量；宿主差异由 skill 文本与 CLI 参数吸收。
 - **不做通用表达式路由。** 协调者选边，引擎不算条件。需要机器路由时再按路线图立项。
-- **不做自适应。** 引擎不按统计调 `max_visits`、换 `tier`、跳节点。它只把统计投影成 `work stats` 给 Workbook 的反思节点读，改进由人冻结新版本。同一版本每次运行行为相同，审计才成立。
+- **不做自适应。** 引擎不按统计调 `max_visits`、换 `tier`、跳节点。它只把统计整理成 `work stats` 给 Workbook 的反思节点读，改进由人冻结新版本。同一版本每次运行行为相同，审计才成立。
 - **不拆独立安装器。** `self` 组管二进制，`workbook` 组管方法，两者都只写 `~/.sheltie`，不碰宿主，`INV-3` 不受影响。`INV-3` 真正要防的是把 skill、subagent 装进 Claude Code 之类的宿主，那部分代码将来放独立 crate 与二进制（[路线图 GF-20](roadmap.md)），`self` 与 `workbook` 留在 `sheltie` 里不动。
 - **宿主资源只声明不打包。** 能让工作 agent「读文件」解决的都放 `resources/` 绑成输入。真要宿主机制的写进 `requires`，引擎列进任务书，不检查、不安装。
 

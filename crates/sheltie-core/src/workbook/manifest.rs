@@ -77,7 +77,7 @@ pub const REQUIRES_MAX: usize = 32;
 /// `source` ≤ 512 字节。
 pub const SOURCE_MAX_BYTES: usize = 512;
 
-/// 原始 TOML 形状。未知字段拒绝。
+/// 原始 TOML 结构。未知字段拒绝。
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ManifestDto {

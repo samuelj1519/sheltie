@@ -512,7 +512,7 @@ fn count_blocks(state: &WorkState, graph: &Graph) -> u32 {
     n
 }
 
-/// 时间差，秒，负差算 0。`Timestamp` 构造时已校验形状，这里没有失败路径。
+/// 时间差，秒，负差算 0。`Timestamp` 构造时已校验格式，这里没有失败路径。
 fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
     (b.unix_secs() - a.unix_secs()).max(0) as u64
 }
@@ -909,7 +909,7 @@ mod tests {
         for (a, b, want) in cases {
             assert_eq!(secs_between(&ts(a), &ts(b)), want, "{a} → {b}");
         }
-        // 倒序夹到 0。形状不合法的时间串在 `Timestamp::parse` 就被拒绝，到不了这里。
+        // 倒序夹到 0。格式不合法的时间串在 `Timestamp::parse` 就被拒绝，到不了这里。
         assert_eq!(
             secs_between(&ts("2026-01-01T00:00:09Z"), &ts("2026-01-01T00:00:00Z")),
             0

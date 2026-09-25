@@ -1,6 +1,6 @@
 # Workbook 与 Flow 格式
 
-本合同定义 Workbook 目录、`workbook.toml`、Flow 文件的精确形状与装入校验规则。版本串 `workbook/v1`、`flow/v1` 是初始值。所有对象**未知字段拒绝**。
+本合同定义 Workbook 目录、`workbook.toml`、Flow 文件的精确结构与装入校验规则。版本串 `workbook/v1`、`flow/v1` 是初始值。所有对象**未知字段拒绝**。
 
 ## 1. 目录
 
@@ -201,7 +201,7 @@ kind = "back"
 
 | 目录 | 证明什么 |
 | --- | --- |
-| `examples/two-step/` | 两个 `agent` 节点，一条 `main` 边，无审查、无门槛。证明业务无关与最小闭环 |
+| `examples/two-step/` | 两个 `agent` 节点，一条 `main` 边，无审查、无门槛。证明业务无关与最小流程 |
 | `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
 

@@ -148,7 +148,7 @@ done
 # 3. 残留禁用
 if grep -rn "#\[ignore = \"$task\"\]" crates >/dev/null; then
 	grep -rn "#\[ignore = \"$task\"\]" crates | head -5
-	fail "还有 $task 的测试没解开"
+	fail "还有 $task 的测试没启用"
 fi
 
 # 4. 测试代码只删了禁用标记；快照零改动

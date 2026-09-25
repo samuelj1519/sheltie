@@ -146,7 +146,7 @@ impl WorkService {
         todo!("T16")
     }
 
-    /// 所有写操作的公共路径：
+    /// 所有写操作的公共流程：
     ///
     /// 1. `load`。
     /// 2. 观察：`BeginAttempt` 用 `input_paths_for` 观察输入并读说明书；`SubmitAttempt` 用 `output_paths_for` 观察输出。

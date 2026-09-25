@@ -32,7 +32,7 @@ impl<const N: usize> BoundedText<N> {
     }
 }
 
-/// 读回也不豁免上限：超限拒绝，不把超限文本悄悄收进库（宪章 `T-4`）。
+/// 读取时也不豁免上限：超限拒绝，不把超限文本悄悄收进库（宪章 `T-4`）。
 impl<'de, const N: usize> Deserialize<'de> for BoundedText<N> {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where

@@ -40,7 +40,7 @@ pub fn validate_id(value: &str, field: &str) -> Result<()> {
     Ok(())
 }
 
-/// `YYYY-MM-DD` 形状：四段数字与两个固定位置的连字符。不做日历校验。
+/// `YYYY-MM-DD` 的格式：四段数字与两个固定位置的连字符。不做日历校验。
 fn is_day_shape(day: &str) -> bool {
     let b = day.as_bytes();
     b.len() == 10
@@ -189,7 +189,7 @@ impl fmt::Display for WorkName {
 impl TryFrom<String> for WorkName {
     type Error = Error;
     fn try_from(value: String) -> Result<Self> {
-        // 读回（serde、存库往返）只收规范化形式，不替脏数据悄悄改名，与 `WorkId::parse` 同规矩。
+        // 读取时（serde、存库往返）只收规范化形式，不替脏数据悄悄改名，与 `WorkId::parse` 同规矩。
         let name = Self::normalize(&value)?;
         if name.0 != value {
             return Err(Error::InvalidId {
@@ -232,9 +232,9 @@ impl WorkId {
         Ok(Self(format!("{day}-{seq:03}-{}", name.as_str())))
     }
 
-    /// 解析一个完整的 `work_id` 字符串（用于从数据库读回）。
+    /// 解析一个完整的 `work_id` 字符串（用于从数据库读出）。
     ///
-    /// 形状必须是 `YYYY-MM-DD-NNN-<name>` 且 `<name>` 能通过 `WorkName::normalize` 且规范化后不变。
+    /// 格式必须是 `YYYY-MM-DD-NNN-<name>` 且 `<name>` 能通过 `WorkName::normalize` 且规范化后不变。
     pub fn parse(value: &str) -> Result<Self> {
         let reject = |reason: &'static str| Error::InvalidId {
             field: "work_id".to_string(),
@@ -243,15 +243,15 @@ impl WorkId {
         };
         let day = value
             .get(..10)
-            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
         let seq_str = value
             .get(11..14)
-            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
         let name_str = value
             .get(15..)
-            .ok_or_else(|| reject("形状不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
         if value.as_bytes().get(10) != Some(&b'-') || value.as_bytes().get(14) != Some(&b'-') {
-            return Err(reject("形状不是 YYYY-MM-DD-NNN-名字"));
+            return Err(reject("格式不是 YYYY-MM-DD-NNN-名字"));
         }
         if !is_day_shape(day) {
             return Err(reject("日期必须是 YYYY-MM-DD"));
@@ -317,10 +317,10 @@ impl AttemptId {
         };
         let (node_str, rest) = value
             .split_once('#')
-            .ok_or_else(|| reject("形状不是 节点#n.retry"))?;
+            .ok_or_else(|| reject("格式不是 节点#n.retry"))?;
         let (occ_str, retry_str) = rest
             .split_once('.')
-            .ok_or_else(|| reject("形状不是 节点#n.retry"))?;
+            .ok_or_else(|| reject("格式不是 节点#n.retry"))?;
         let node = NodeId::new(node_str).map_err(|e| match e {
             Error::InvalidId { reason, .. } => reject(reason),
             e => e,
@@ -488,7 +488,7 @@ mod tests {
         assert!(WorkId::new("20260924", 1, &name("x")).is_err());
     }
 
-    // ── M1 补测（边界与形状，杀幸存突变） ─────────────────────
+    // ── M1 补测（边界与格式，杀死存活的突变体） ─────────────────────
 
     // Task: T02
     #[test]
@@ -541,7 +541,7 @@ mod tests {
     fn work_name_try_from_and_serde_reject_non_canonical() {
         assert!(WorkName::try_from("hello".to_string()).is_ok());
         assert!(WorkName::try_from("文章-初稿".to_string()).is_ok());
-        // 规范化会改写的形式读回时拒绝，不悄悄改名。
+        // 规范化会改写的形式读取时拒绝，不悄悄改名。
         assert!(WorkName::try_from("Hello".to_string()).is_err());
         assert!(WorkName::try_from("two  words".to_string()).is_err());
         assert!(serde_json::from_str::<WorkName>("\"文章 初稿\"").is_err());

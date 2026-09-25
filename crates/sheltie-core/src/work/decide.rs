@@ -30,7 +30,7 @@ pub fn decide(
     match (state, cmd) {
         (None, Command::Start { .. }) => decide_start(graph, cmd, ctx),
         (None, other) => Err(Error::InvalidRequest {
-            reason: format!("{} 需要已存在的 Work", other.name()),
+            reason: format!("{} 要求 Work 已存在", other.name()),
         }),
         (Some(_), Command::Start { .. }) => Err(Error::InvalidRequest {
             reason: "Work 已存在，不能再 start".to_string(),
@@ -613,7 +613,7 @@ pub fn input_paths_for(
 }
 
 /// `engine.stats` 绑定：`render_stats_json` 序列化成 JSON，写到 `attempt_dir/stats.json`。
-/// 序列化失败就报错，不造一份假 stats（core 没有存储类错误码，先落 `InvalidRequest`）。
+/// 序列化失败就报错，不造一份假 stats（core 没有存储类错误码，先归入 `InvalidRequest`）。
 fn engine_stats_artifact(
     state: &WorkState,
     graph: &Graph,
