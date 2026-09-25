@@ -7,7 +7,6 @@ use common::*;
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn remove_in_use_workbook_is_rejected_with_work_list() {
     let env = Env::new();
     env.add_example("two-step");
@@ -19,7 +18,6 @@ fn remove_in_use_workbook_is_rejected_with_work_list() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn remove_after_work_succeeds_then_status_still_renders() {
     let env = Env::new();
     env.add_example("two-step");
@@ -39,7 +37,6 @@ fn remove_after_work_succeeds_then_status_still_renders() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn editing_repository_copy_does_not_change_running_work_brief() {
     let env = Env::new();
     env.add_example("two-step");
@@ -56,7 +53,6 @@ fn editing_repository_copy_does_not_change_running_work_brief() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn verify_detects_the_edit() {
     let env = Env::new();
     env.add_example("two-step");
@@ -72,7 +68,6 @@ fn verify_detects_the_edit() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
     let env = Env::new();
     env.add_example("two-step");
