@@ -15,7 +15,6 @@ fn blocked_at_gate(env: &Env) -> (String, serde_json::Value) {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn gate_node_success_blocks_work_and_next_has_only_approve_and_cancel() {
     let env = Env::new();
     let (_wid, s) = blocked_at_gate(&env);
@@ -26,7 +25,6 @@ fn gate_node_success_blocks_work_and_next_has_only_approve_and_cancel() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn begin_next_node_before_approve_is_illegal_next() {
     let env = Env::new();
     let (wid, _) = blocked_at_gate(&env);
@@ -44,7 +42,6 @@ fn begin_next_node_before_approve_is_illegal_next() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn approve_records_os_user_and_unblocks() {
     let env = Env::new();
     let (wid, _) = blocked_at_gate(&env);
@@ -58,7 +55,6 @@ fn approve_records_os_user_and_unblocks() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn approve_on_terminal_gate_node_succeeds_work() {
     let env = Env::new();
     let src = env.dir.path().join("gate-only");

@@ -9,7 +9,6 @@ use common::*;
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified() {
     let env = Env::new();
     env.add_example("two-step");
@@ -26,7 +25,6 @@ fn modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified(
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn submit_without_required_output_is_output_missing_and_attempt_stays_running() {
     let env = Env::new();
     env.add_example("two-step");
@@ -51,7 +49,6 @@ fn submit_without_required_output_is_output_missing_and_attempt_stays_running() 
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn submit_oversize_output_is_output_too_large() {
     let env = Env::new();
     env.add_example("two-step");
@@ -73,7 +70,6 @@ fn submit_oversize_output_is_output_too_large() {
 
 // Task: T22
 #[test]
-#[ignore = "T22"]
 fn submit_with_symlink_output_is_rejected() {
     let env = Env::new();
     env.add_example("two-step");
