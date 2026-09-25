@@ -7,8 +7,9 @@ use sheltie_core::flow::Executor;
 use sheltie_core::ids::NodeId;
 use sheltie_core::work::{Command, Timestamp};
 
+// Task: T01
 #[test]
-fn t01_error_code_as_str_matches_serde_and_display() {
+fn error_code_as_str_matches_serde_and_display() {
     use ErrorCode::*;
     let all = [
         InvalidRequest,
@@ -43,14 +44,16 @@ fn t01_error_code_as_str_matches_serde_and_display() {
     assert_eq!(ErrorCode::IllegalNext.as_str(), "ILLEGAL_NEXT");
 }
 
+// Task: T01
 #[test]
-fn t01_executor_as_str_is_contract_literal() {
+fn executor_as_str_is_contract_literal() {
     assert_eq!(Executor::Agent.as_str(), "agent");
     assert_eq!(Executor::Human.as_str(), "human");
 }
 
+// Task: T01
 #[test]
-fn t01_command_name_is_cli_verb() {
+fn command_name_is_cli_verb() {
     assert_eq!(Command::Cancel.name(), "work cancel");
     let approve = Command::ApproveGate {
         node: NodeId::new("review").unwrap(),
@@ -58,8 +61,9 @@ fn t01_command_name_is_cli_verb() {
     assert_eq!(approve.name(), "gate approve");
 }
 
+// Task: T01
 #[test]
-fn t01_timestamp_day_is_date_prefix() {
+fn timestamp_day_is_date_prefix() {
     assert_eq!(
         Timestamp("2026-09-24T03:00:00Z".to_string()).day(),
         "2026-09-24"

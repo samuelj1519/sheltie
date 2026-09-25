@@ -15,9 +15,10 @@ fn is_readonly(p: &Path) -> bool {
 
 // ── T14 ───────────────────────────────────────────────────────
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_add_two_step_example_copies_and_marks_readonly() {
+fn add_two_step_example_copies_and_marks_readonly() {
     let (_d, home) = temp_home();
     let added = repo(&home).add(&abs(&example_dir("two-step"))).unwrap();
     assert_eq!(
@@ -32,9 +33,10 @@ fn t14_add_two_step_example_copies_and_marks_readonly() {
     assert_eq!(added.digest, WorkbookRepo::digest_dir(&abs(&dir)).unwrap());
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_add_rejects_duplicate_id_version_with_workbook_exists() {
+fn add_rejects_duplicate_id_version_with_workbook_exists() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -44,9 +46,10 @@ fn t14_add_rejects_duplicate_id_version_with_workbook_exists() {
     ));
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_add_rejects_symlink_inside_workbook() {
+fn add_rejects_symlink_inside_workbook() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
     std::os::unix::fs::symlink("/etc/hosts", src.join("instructions/evil.md")).unwrap();
@@ -54,9 +57,10 @@ fn t14_add_rejects_symlink_inside_workbook() {
     assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_add_rejects_file_over_32mib() {
+fn add_rejects_file_over_32mib() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
     let big = std::fs::File::create(src.join("instructions/big.bin")).unwrap();
@@ -64,9 +68,10 @@ fn t14_add_rejects_file_over_32mib() {
     assert!(repo(&home).add(&abs(&src)).is_err());
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_add_failure_leaves_no_staging_and_no_row() {
+fn add_failure_leaves_no_staging_and_no_row() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
     std::fs::write(src.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
@@ -77,9 +82,10 @@ fn t14_add_failure_leaves_no_staging_and_no_row() {
     assert!(r.list().unwrap().is_empty());
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_load_recompiles_graph_from_installed_copy() {
+fn load_recompiles_graph_from_installed_copy() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("article-review"))).unwrap();
@@ -89,9 +95,10 @@ fn t14_load_recompiles_graph_from_installed_copy() {
     assert!(matches!(r.load("nope", None), Err(Error::NotFound { .. })));
 }
 
+// Task: T14
 #[test]
 #[ignore = "T14"]
-fn t14_list_orders_by_id_then_version() {
+fn list_orders_by_id_then_version() {
     let (d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -120,9 +127,10 @@ fn t14_list_orders_by_id_then_version() {
 
 // ── T15 ───────────────────────────────────────────────────────
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_remove_deletes_row_and_directory() {
+fn remove_deletes_row_and_directory() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -131,9 +139,10 @@ fn t15_remove_deletes_row_and_directory() {
     assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_remove_requires_explicit_version() {
+fn remove_requires_explicit_version() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -143,9 +152,10 @@ fn t15_remove_requires_explicit_version() {
     ));
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_remove_rejects_when_active_work_references_version() {
+fn remove_rejects_when_active_work_references_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
     let err = repo(&home).remove("two-step", "1.0.0").unwrap_err();
@@ -155,18 +165,20 @@ fn t15_remove_rejects_when_active_work_references_version() {
     }
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_remove_allows_when_only_terminal_works_reference_version() {
+fn remove_allows_when_only_terminal_works_reference_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
     svc.cancel(&work_id_of(&resp), None).unwrap();
     repo(&home).remove("two-step", "1.0.0").unwrap();
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_remove_moves_dir_to_tmp_before_delete() {
+fn remove_moves_dir_to_tmp_before_delete() {
     // 观察不到中间态就看结果：目录消失、tmp 下无残留。
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -176,9 +188,10 @@ fn t15_remove_moves_dir_to_tmp_before_delete() {
     assert!(!tmp.exists() || std::fs::read_dir(tmp).unwrap().next().is_none());
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_verify_reports_ok_for_untouched_install() {
+fn verify_reports_ok_for_untouched_install() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -187,9 +200,10 @@ fn t15_verify_reports_ok_for_untouched_install() {
     assert_eq!(rows[0].status, VerifyStatus::Ok);
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_verify_reports_tampered_after_byte_change() {
+fn verify_reports_tampered_after_byte_change() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -200,9 +214,10 @@ fn t15_verify_reports_tampered_after_byte_change() {
     assert_eq!(r.verify(None).unwrap()[0].status, VerifyStatus::Tampered);
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_verify_reports_missing_when_directory_gone() {
+fn verify_reports_missing_when_directory_gone() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
@@ -215,9 +230,10 @@ fn t15_verify_reports_missing_when_directory_gone() {
     assert_eq!(r.verify(None).unwrap()[0].status, VerifyStatus::Missing);
 }
 
+// Task: T15
 #[test]
 #[ignore = "T15"]
-fn t15_verify_all_when_filter_omitted() {
+fn verify_all_when_filter_omitted() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();

@@ -686,8 +686,9 @@ mod tests {
 
     // ── T06 Start ─────────────────────────────────────────────
 
+    // Task: T06
     #[test]
-    fn t06_start_sets_current_to_entry_occurrence_1() {
+    fn start_sets_current_to_entry_occurrence_1() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
         assert_eq!(d.state.current.node.as_str(), "draft");
@@ -697,24 +698,27 @@ mod tests {
         assert!(d.state.attempts.is_empty());
     }
 
+    // Task: T06
     #[test]
-    fn t06_start_rejects_missing_start_input_key() {
+    fn start_rejects_missing_start_input_key() {
         let mut fx = Fixture::article_review();
         assert!(
             matches!(fx.start(&[]), Err(Error::InputMissing { missing, .. }) if missing == vec!["topic".to_string()])
         );
     }
 
+    // Task: T06
     #[test]
-    fn t06_start_rejects_extra_start_input_key() {
+    fn start_rejects_extra_start_input_key() {
         let mut fx = Fixture::article_review();
         assert!(
             matches!(fx.start(&[("topic", "a"), ("bonus", "b")]), Err(Error::InputMissing { extra, .. }) if extra == vec!["bonus".to_string()])
         );
     }
 
+    // Task: T06
     #[test]
-    fn t06_start_next_is_begin_entry_and_cancel() {
+    fn start_next_is_begin_entry_and_cancel() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
         let next = legal_next(&d.state, &fx.graph);
@@ -725,8 +729,9 @@ mod tests {
         assert_eq!(next[1], NextOp::Cancel);
     }
 
+    // Task: T06
     #[test]
-    fn t06_start_records_workbook_ref_and_frozen_inputs() {
+    fn start_records_workbook_ref_and_frozen_inputs() {
         let mut fx = Fixture::article_review();
         let d = fx.start(&[("topic", "hello")]).unwrap();
         assert_eq!(d.state.workbook.id.as_str(), "article-review");
@@ -741,8 +746,9 @@ mod tests {
 
     // ── M1 复核 O1：work start 回复 Workbook 全量 requires，按 manifest 声明顺序 ─────
 
+    // Task: T06
     #[test]
-    fn t06_start_requires_is_full_manifest_list_in_declaration_order() {
+    fn start_requires_is_full_manifest_list_in_declaration_order() {
         let (_graph, d) = start_texts(
             "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"beta\"\n[[requires]]\nkind = \"mcp\"\nname = \"alpha\"\n",
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:alpha\"]\n",
@@ -759,8 +765,9 @@ mod tests {
 
     // ── T07 BeginAttempt ──────────────────────────────────────
 
+    // Task: T07
     #[test]
-    fn t07_begin_on_entry_creates_running_attempt_with_frozen_inputs() {
+    fn begin_on_entry_creates_running_attempt_with_frozen_inputs() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
         let a = d.state.latest_attempt_of_current().unwrap();
@@ -773,8 +780,9 @@ mod tests {
         assert_eq!(a.entered_from, None);
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_rejects_node_not_in_next() {
+    fn begin_rejects_node_not_in_next() {
         let mut fx = Fixture::article_review().started();
         let err = fx.begin("review").unwrap_err();
         match err {
@@ -792,8 +800,9 @@ mod tests {
         }
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_via_edge_increments_visits_and_occurrence() {
+    fn begin_via_edge_increments_visits_and_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "初稿完成").unwrap();
@@ -807,8 +816,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_records_entered_from_occurrence_and_edge_kind() {
+    fn begin_records_entered_from_occurrence_and_edge_kind() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         let d = fx.begin("draft").unwrap();
@@ -820,8 +830,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_retry_keeps_entered_from_of_first_attempt() {
+    fn retry_keeps_entered_from_of_first_attempt() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -836,8 +847,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_filters_edges_whose_target_hit_max_visits() {
+    fn begin_filters_edges_whose_target_hit_max_visits() {
         // review.max_visits = 3；到第三次 review 成功后，back 边的目标 draft（max_visits 3）已满，main 边仍在。
         let mut fx = Fixture::article_review().started();
         for _ in 0..3 {
@@ -856,8 +868,9 @@ mod tests {
         assert!(next.iter().any(|n| n.is_begin_of(&node("publish"))));
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_rejects_modified_upstream_artifact() {
+    fn begin_rejects_modified_upstream_artifact() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -867,8 +880,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_rejects_upstream_without_succeeded_attempt() {
+    fn begin_rejects_upstream_without_succeeded_attempt() {
         // 用一张自造的图：b 必需 a 的输出，但有边 a -> b 且 a 从未成功。构造方法见 testkit。
         let mut fx = Fixture::two_step_with_required_input_but_edge_before_success();
         assert!(matches!(
@@ -877,8 +891,9 @@ mod tests {
         ));
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_leaves_optional_input_unbound_when_upstream_has_no_attempt() {
+    fn begin_leaves_optional_input_unbound_when_upstream_has_no_attempt() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         let d = fx.begin("spec").unwrap();
         let a = d.state.latest_attempt_of_current().unwrap();
@@ -886,8 +901,9 @@ mod tests {
         assert!(a.inputs["request"].is_some());
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_binds_optional_input_when_upstream_succeeded_later() {
+    fn begin_binds_optional_input_when_upstream_succeeded_later() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         fx.run_spec_dev_to_plan_review_returning("修改规格");
         let d = fx.begin("spec").unwrap();
@@ -895,8 +911,9 @@ mod tests {
         assert!(a.inputs["decision"].is_some());
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_after_failed_attempt_increments_retry_not_occurrence() {
+    fn begin_after_failed_attempt_increments_retry_not_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.fail("draft#1.0", "崩").unwrap();
@@ -908,8 +925,9 @@ mod tests {
         assert_eq!(d.state.visits_of(&node("draft")), 1);
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_binds_resource_input_under_frozen_workbook_dir() {
+    fn begin_binds_resource_input_under_frozen_workbook_dir() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -930,8 +948,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_reply_lists_node_requires() {
+    fn begin_reply_lists_node_requires() {
         let mut fx = Fixture::with_requires();
         let d = fx.begin("only").unwrap();
         assert!(
@@ -939,8 +958,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_binds_engine_stats_and_emits_write_file() {
+    fn begin_binds_engine_stats_and_emits_write_file() {
         let mut fx = Fixture::with_engine_stats_input();
         let d = fx.begin("only").unwrap();
         let a = d.state.latest_attempt_of_current().unwrap();
@@ -966,8 +986,9 @@ mod tests {
 
     // ── M1 复核 O6：多个 engine.stats 输入共享一份 stats.json，只算一次、只写一次 ─────
 
+    // Task: T07
     #[test]
-    fn t07_begin_with_two_engine_stats_inputs_writes_one_stats_json() {
+    fn begin_with_two_engine_stats_inputs_writes_one_stats_json() {
         let (graph, d0) = start_texts(
             "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n",
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\ninputs = [{ name = \"s1\", from = \"engine.stats\" }, { name = \"s2\", from = \"engine.stats\" }]\noutputs = [{ name = \"out\", path = \"out.md\" }]\n",
@@ -996,8 +1017,9 @@ mod tests {
         );
     }
 
+    // Task: T07
     #[test]
-    fn t07_begin_emits_write_brief_effect() {
+    fn begin_emits_write_brief_effect() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
         assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/1/0/brief.md") && content.contains("# 任务书"))));
@@ -1006,8 +1028,9 @@ mod tests {
 
     // ── T08 Submit / Fail ─────────────────────────────────────
 
+    // Task: T08
     #[test]
-    fn t08_submit_marks_attempt_succeeded_and_records_outputs() {
+    fn submit_marks_attempt_succeeded_and_records_outputs() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let d = fx.submit_ok("draft#1.0", "初稿完成").unwrap();
@@ -1025,8 +1048,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_rejects_when_attempt_not_running() {
+    fn submit_rejects_when_attempt_not_running() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -1036,8 +1060,9 @@ mod tests {
         ));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_rejects_summary_over_4096_bytes() {
+    fn submit_rejects_summary_over_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         assert!(matches!(
@@ -1046,8 +1071,9 @@ mod tests {
         ));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_rejects_missing_required_output() {
+    fn submit_rejects_missing_required_output() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let err = fx
@@ -1060,8 +1086,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_accepts_missing_optional_output() {
+    fn submit_accepts_missing_optional_output() {
         let mut fx = Fixture::with_optional_output();
         fx.begin("only").unwrap();
         let d = fx
@@ -1074,8 +1101,9 @@ mod tests {
         assert!(!d.state.attempts[0].outputs.contains_key("maybe"));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_rejects_output_over_max_bytes() {
+    fn submit_rejects_output_over_max_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let err = fx
@@ -1094,16 +1122,18 @@ mod tests {
         ));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_on_gate_node_blocks_work() {
+    fn submit_on_gate_node_blocks_work() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         let d = fx.submit_ok("notes#1.0", "写好了").unwrap();
         assert_eq!(d.state.status, WorkStatus::Blocked(BlockedReason::Gate));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_on_terminal_node_succeeds_work() {
+    fn submit_on_terminal_node_succeeds_work() {
         let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
         fx.begin("outline").unwrap();
         fx.submit_ok("outline#1.0", "ok").unwrap();
@@ -1112,16 +1142,18 @@ mod tests {
         assert_eq!(d.state.status, WorkStatus::Succeeded);
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_on_terminal_gate_node_blocks_not_succeeds() {
+    fn submit_on_terminal_gate_node_blocks_not_succeeds() {
         let mut fx = Fixture::single_gated_terminal();
         fx.begin("only").unwrap();
         let d = fx.submit_ok("only#1.0", "ok").unwrap();
         assert_eq!(d.state.status, WorkStatus::Blocked(BlockedReason::Gate));
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge() {
+    fn submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge() {
         let mut fx = Fixture::article_review_with_review_max_visits_1().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -1135,8 +1167,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_fail_marks_attempt_failed_and_allows_retry() {
+    fn fail_marks_attempt_failed_and_allows_retry() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let d = fx.fail("draft#1.0", "超时").unwrap();
@@ -1149,8 +1182,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_fail_at_max_retries_blocks_work() {
+    fn fail_at_max_retries_blocks_work() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.fail("draft#1.0", "一").unwrap();
@@ -1163,8 +1197,9 @@ mod tests {
         assert_eq!(legal_next(&d.state, &fx.graph), vec![NextOp::Cancel]);
     }
 
+    // Task: T08
     #[test]
-    fn t08_next_after_success_lists_out_edges_with_kind() {
+    fn next_after_success_lists_out_edges_with_kind() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -1180,8 +1215,9 @@ mod tests {
         assert_eq!(next[2], NextOp::Cancel);
     }
 
+    // Task: T08
     #[test]
-    fn t08_next_when_blocked_gate_has_only_approve_and_cancel() {
+    fn next_when_blocked_gate_has_only_approve_and_cancel() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         fx.submit_ok("notes#1.0", "ok").unwrap();
@@ -1199,8 +1235,9 @@ mod tests {
 
     // ── T09 Approve / Cancel ──────────────────────────────────
 
+    // Task: T09
     #[test]
-    fn t09_approve_unblocks_and_records_principal_and_time() {
+    fn approve_unblocks_and_records_principal_and_time() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         fx.submit_ok("notes#1.0", "ok").unwrap();
@@ -1215,8 +1252,9 @@ mod tests {
         );
     }
 
+    // Task: T09
     #[test]
-    fn t09_approve_rejects_when_not_blocked_on_gate() {
+    fn approve_rejects_when_not_blocked_on_gate() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         assert!(matches!(
             fx.approve("notes"),
@@ -1224,8 +1262,9 @@ mod tests {
         ));
     }
 
+    // Task: T09
     #[test]
-    fn t09_approve_rejects_wrong_node() {
+    fn approve_rejects_wrong_node() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         fx.submit_ok("notes#1.0", "ok").unwrap();
@@ -1235,8 +1274,9 @@ mod tests {
         ));
     }
 
+    // Task: T09
     #[test]
-    fn t09_approve_on_terminal_node_succeeds_work() {
+    fn approve_on_terminal_node_succeeds_work() {
         let mut fx = Fixture::single_gated_terminal();
         fx.begin("only").unwrap();
         fx.submit_ok("only#1.0", "ok").unwrap();
@@ -1244,8 +1284,9 @@ mod tests {
         assert_eq!(d.state.status, WorkStatus::Succeeded);
     }
 
+    // Task: T09
     #[test]
-    fn t09_cancel_from_active_and_blocked() {
+    fn cancel_from_active_and_blocked() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let d = fx.cancel().unwrap();
@@ -1262,8 +1303,9 @@ mod tests {
         assert_eq!(fx.cancel().unwrap().state.status, WorkStatus::Cancelled);
     }
 
+    // Task: T09
     #[test]
-    fn t09_terminal_work_rejects_every_command_with_work_terminal() {
+    fn terminal_work_rejects_every_command_with_work_terminal() {
         let mut fx = Fixture::article_review().started();
         fx.cancel().unwrap();
         assert!(matches!(fx.begin("draft"), Err(Error::WorkTerminal { .. })));
@@ -1277,8 +1319,9 @@ mod tests {
 
     // ── M1 补测（上限边界与重试路径） ─────────────────────────
 
+    // Task: T07
     #[test]
-    fn t07_retry_binds_engine_stats_under_retry_dir() {
+    fn retry_binds_engine_stats_under_retry_dir() {
         let mut fx = Fixture::with_engine_stats_input();
         fx.begin("only").unwrap();
         fx.fail("only#1.0", "再来").unwrap();
@@ -1299,8 +1342,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_accepts_summary_of_exactly_4096_bytes() {
+    fn submit_accepts_summary_of_exactly_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
@@ -1310,8 +1354,9 @@ mod tests {
         );
     }
 
+    // Task: T08
     #[test]
-    fn t08_submit_accepts_output_of_exactly_max_bytes() {
+    fn submit_accepts_output_of_exactly_max_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let id = AttemptId::parse("draft#1.0").unwrap();
@@ -1319,8 +1364,9 @@ mod tests {
         assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
     }
 
+    // Task: T08
     #[test]
-    fn t08_fail_reason_limit_is_4096_bytes() {
+    fn fail_reason_limit_is_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         assert!(matches!(

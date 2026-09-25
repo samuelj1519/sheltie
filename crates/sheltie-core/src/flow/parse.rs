@@ -390,8 +390,9 @@ instruction = {{ text = "做 A" }}
         )
     }
 
+    // Task: T04
     #[test]
-    fn t04_parses_three_node_flow() {
+    fn parses_three_node_flow() {
         let flow = parse_flow(THREE_NODE).unwrap();
         assert_eq!(flow.nodes.len(), 3);
         assert_eq!(flow.edges.len(), 3);
@@ -403,8 +404,9 @@ instruction = {{ text = "做 A" }}
         assert_eq!(publish.tier, None);
     }
 
+    // Task: T04
     #[test]
-    fn t04_instruction_requires_exactly_one_of_file_or_text() {
+    fn instruction_requires_exactly_one_of_file_or_text() {
         let both = minimal("").replace(
             "instruction = { text = \"做 A\" }",
             "instruction = { text = \"x\", file = \"i.md\" }",
@@ -417,8 +419,9 @@ instruction = {{ text = "做 A" }}
         assert!(parse_flow(&none).is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_input_from_parses_start_resource_and_node_forms() {
+    fn input_from_parses_start_resource_and_node_forms() {
         assert_eq!(
             parse_input_source("start.topic", "p").unwrap(),
             InputSource::Start {
@@ -435,8 +438,9 @@ instruction = {{ text = "做 A" }}
         ));
     }
 
+    // Task: T04
     #[test]
-    fn t04_input_from_parses_engine_stats_only() {
+    fn input_from_parses_engine_stats_only() {
         assert_eq!(
             parse_input_source("engine.stats", "p").unwrap(),
             InputSource::EngineStats
@@ -445,16 +449,18 @@ instruction = {{ text = "做 A" }}
         assert!(parse_input_source("engine", "p").is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_input_from_rejects_three_segments_for_start_and_node() {
+    fn input_from_rejects_three_segments_for_start_and_node() {
         assert!(parse_input_source("start.a.b", "p").is_err());
         assert!(parse_input_source("draft.article.v2", "p").is_err());
         assert!(parse_input_source("draft", "p").is_err());
         assert!(parse_input_source("draft.", "p").is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_input_from_resource_keeps_slashes_in_path() {
+    fn input_from_resource_keeps_slashes_in_path() {
         let src = parse_input_source("resource.resources/templates/spec.md", "p").unwrap();
         assert_eq!(
             src,
@@ -467,28 +473,32 @@ instruction = {{ text = "做 A" }}
         );
     }
 
+    // Task: T04
     #[test]
-    fn t04_node_requires_parses_kind_colon_name() {
+    fn node_requires_parses_kind_colon_name() {
         let flow = parse_flow(&minimal("requires = [\"skill:company-api\", \"mcp:db\"]")).unwrap();
         assert_eq!(flow.nodes[0].requires.len(), 2);
         assert_eq!(flow.nodes[0].requires[0].1, "company-api");
     }
 
+    // Task: T04
     #[test]
-    fn t04_node_requires_rejects_bad_kind() {
+    fn node_requires_rejects_bad_kind() {
         assert!(parse_flow(&minimal("requires = [\"plugin:x\"]")).is_err());
         assert!(parse_flow(&minimal("requires = [\"skill\"]")).is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_input_required_defaults_true_and_parses_false() {
+    fn input_required_defaults_true_and_parses_false() {
         let flow = parse_flow(&minimal("inputs = [{ name = \"a\", from = \"start.a\" }, { name = \"b\", from = \"x.y\", required = false }]")).unwrap();
         assert!(flow.nodes[0].inputs[0].required);
         assert!(!flow.nodes[0].inputs[1].required);
     }
 
+    // Task: T04
     #[test]
-    fn t04_tier_defaults_standard_and_parses_strong() {
+    fn tier_defaults_standard_and_parses_strong() {
         assert_eq!(
             parse_flow(&minimal("")).unwrap().nodes[0].tier,
             Some(Tier::Standard)
@@ -500,23 +510,26 @@ instruction = {{ text = "做 A" }}
         assert!(parse_flow(&minimal("tier = \"huge\"")).is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_defaults_gate_false_visits_1_retries_1() {
+    fn defaults_gate_false_visits_1_retries_1() {
         let n = &parse_flow(&minimal("")).unwrap().nodes[0];
         assert!(!n.gate);
         assert_eq!(n.max_visits, 1);
         assert_eq!(n.max_retries, 1);
     }
 
+    // Task: T04
     #[test]
-    fn t04_rejects_max_visits_zero_or_over_32() {
+    fn rejects_max_visits_zero_or_over_32() {
         assert!(parse_flow(&minimal("max_visits = 0")).is_err());
         assert!(parse_flow(&minimal("max_visits = 33")).is_err());
         assert!(parse_flow(&minimal("max_retries = 9")).is_err());
     }
 
+    // Task: T04
     #[test]
-    fn t04_rejects_output_path_brief_md() {
+    fn rejects_output_path_brief_md() {
         assert!(
             parse_flow(&minimal(
                 "outputs = [{ name = \"o\", path = \"brief.md\" }]"
@@ -526,8 +539,9 @@ instruction = {{ text = "做 A" }}
         assert!(parse_flow(&minimal("outputs = [{ name = \"o\", path = \"out.md\" }]")).is_ok());
     }
 
+    // Task: T04
     #[test]
-    fn t04_rejects_unknown_edge_kind() {
+    fn rejects_unknown_edge_kind() {
         let text = format!(
             "{}\n[[edges]]\nfrom = \"a\"\nto = \"a\"\nkind = \"sideways\"\n",
             minimal("")
@@ -542,8 +556,9 @@ instruction = {{ text = "做 A" }}
 
     // ── M1 补测（上限：恰好上限接受，多一个字节拒绝） ─────────
 
+    // Task: T04
     #[test]
-    fn t04_title_limit_is_128_bytes() {
+    fn title_limit_is_128_bytes() {
         let title = |n: usize| {
             minimal("").replace("title = \"A\"", &format!("title = \"{}\"", "a".repeat(n)))
         };
@@ -554,8 +569,9 @@ instruction = {{ text = "做 A" }}
         ));
     }
 
+    // Task: T04
     #[test]
-    fn t04_instruction_text_limit_is_8192_bytes() {
+    fn instruction_text_limit_is_8192_bytes() {
         let text = |n: usize| {
             minimal("").replace(
                 "{ text = \"做 A\" }",
@@ -569,8 +585,9 @@ instruction = {{ text = "做 A" }}
         ));
     }
 
+    // Task: T04
     #[test]
-    fn t04_max_retries_accepts_upper_bound_8() {
+    fn max_retries_accepts_upper_bound_8() {
         let flow = parse_flow(&minimal("max_retries = 8")).unwrap();
         assert_eq!(flow.nodes[0].max_retries, 8);
     }

@@ -5,9 +5,10 @@ use std::path::Path;
 
 use assert_cmd::Command;
 
+// Task: T24
 #[test]
 #[ignore = "T24"]
-fn t24_every_command_in_skill_exists() {
+fn every_command_in_skill_exists() {
     let skill = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../skills/sheltie/SKILL.md");
     let text = std::fs::read_to_string(&skill).unwrap();
     let mut seen = 0;

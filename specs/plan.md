@@ -48,14 +48,24 @@
 
 | 命令 | 作用 |
 | --- | --- |
-| `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。零个测试匹配视为失败 |
+| `scripts/task.sh Tnn` | 只跑本任务的测试，禁用的也跑（`--run-ignored all`），所以不删标记也能看到红。归属看测试上方的 `// Task: Tnn` 注释，不看名字。零个测试匹配视为失败 |
+| `scripts/check-tests.sh` | 测试名不带任务前缀；每个 `#[test]` 紧贴上方有且只有一行 `// Task: Tnn`，`#[ignore = "Tnn"]` 与它一致；测试名全仓唯一；本文每张任务卡「测试」行列的名字都存在且归属该任务。pre-commit 与 CI 跑 |
 | `scripts/check-task.sh Tnn [base] [--staged]` | 核对：基准以来提交说明含 `Task: Tnn` 的提交的改动与未提交改动的并集，都在 `tasks.toml` 该任务的 `files` 与 `test_files` 里（`plan.md`、`tasks.toml` 始终允许）；`files` 里没有 `todo!("Tnn")` 与不带标签的 `todo!()`（条目可为文件或目录，目录只取其中的 `.rs`，文档会引用 `todo!()` 字样），`#[allow(unused_variables)]` 只准留在还有 `todo!()` 的函数上；没有残留 `#[ignore = "Tnn"]`；`test_files` 相对基准（默认最近一个 `tNN-*` tag：`t01-skeleton` 或复核者打的 `tNN-review`）的测试代码零改动，只允许删 `#[ignore` 行，与 `files` 重叠的混合源文件比对 `#[cfg(test)]` 起的测试模块，快照零改动（`allow_test_changes = true` 的任务除外）；`plan.md` 该任务状态为 `done`；提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才查，`--staged` 跳过） |
-| `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`tests = "t05_"`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
+| `tasks.toml` | 机器可读的任务表，与本文 §2 同源，T01 生成，之后改本文必改它。形状：<br>`[T05]`<br>`files = ["crates/sheltie-core/src/flow/compile.rs"]`<br>`test_files = ["crates/sheltie-core/src/flow/compile.rs"]`（允许删禁用标记的文件）<br>`allow_test_changes = false` |
 | `scripts/mutants.sh <crate>` | 里程碑用。包一层 `cargo mutants`：目标目录固定在仓库内（全局 `target-dir` 会让并行副本共用产物，结果作废），用 nextest，排除 `testkit.rs`。给源码注入突变，看测试能否杀死。幸存突变就是没被测到的逻辑 |
 
 ### 0.5 测试命名
 
-每个测试函数名以任务编号小写开头，例如 `t05_rejects_self_loop_edge`。T01 写测试时统一加 `#[ignore = "T05"]`。§2 各任务卡里列的测试名省略了这个前缀。
+测试名写「条件 → 行为」，例如 `rejects_self_loop_edge`，不带任务编号、工单号这类排期信息。归属写在紧贴 `#[test]` 上方的注释里：
+
+```rust
+// Task: T05
+#[test]
+#[ignore = "T05"]
+fn rejects_self_loop_edge() { … }
+```
+
+测试属于哪个任务以 §2 任务卡为准，注释是它在代码里的机器可读副本，`scripts/check-tests.sh` 核对两者一致。复核者补的测试挂被复核任务的编号，不必回写任务卡。快照用显式名字（`insta::assert_snapshot!("brief_for_review_node", …)`），测试改名不牵动快照文件。
 
 ### 0.6 复核记录
 
@@ -97,7 +107,7 @@
 
 ## 2. 任务
 
-每张任务卡给：结果（做完能观察到什么）、文件（只能改这些）、测试（要变绿的测试名，前缀省略）、实现要点（填空时的提示，不是设计）、提交（信息第一行）。
+每张任务卡给：结果（做完能观察到什么）、文件（只能改这些）、测试（要变绿的测试名）、实现要点（填空时的提示，不是设计）、提交（信息第一行）。
 
 ### T01 骨架、全部测试与脚本
 
@@ -111,7 +121,7 @@
 - `crates/sheltie-core/src/`：`lib.rs`、`ids.rs`、`path.rs`、`text.rs`、`digest.rs`、`error.rs`、`workbook/{mod,manifest}.rs`、`flow/{mod,def,parse,compile,graph}.rs`、`work/{mod,state,command,decide,next,render}.rs`。每个公开类型与函数带文档注释，注释第一行写它对应的合同章节，第二行写要返回的错误。函数体 `todo!()`。
 - `crates/sheltie-runtime/src/`：`lib.rs`、`home.rs`、`observe.rs`、`error.rs`、`store/{mod,schema,commit,read}.rs`、`workbook_repo.rs`、`service.rs`、`selfmgmt.rs`、`failpoint.rs`。`schema.rs` 的建表语句是完整常量，不是 `todo!()`。
 - `crates/sheltie-cli/src/`：`main.rs`、`cli.rs`（完整 `clap` 命令树，这是协议的机器形式，由骨架定死）、`output.rs`、`error_map.rs`、`commands/{workbook,work,attempt,gate,self_cmd}.rs`。
-- 测试：T02 到 T23 每张任务卡列出的全部测试，按 [engineering.md §3.2](engineering.md) 的分层放置，函数名加 `tnn_` 前缀，全部 `#[ignore = "Tnn"]`。`insta` 快照文件按 [协议 §4、§6](contracts/protocol.md) 手写。fixture：`tests/fixtures/manifest/*.toml`、`tests/fixtures/flow/*.toml`、`tests/fixtures/old-shape.db`、`tests/fixtures/release/`。
+- 测试：T02 到 T23 每张任务卡列出的全部测试，按 [engineering.md §3.2](engineering.md) 的分层放置，按 §0.5 命名并挂 `// Task: Tnn`，全部 `#[ignore = "Tnn"]`。`insta` 快照文件按 [协议 §4、§6](contracts/protocol.md) 手写。fixture：`tests/fixtures/manifest/*.toml`、`tests/fixtures/flow/*.toml`、`tests/fixtures/old-shape.db`、`tests/fixtures/release/`。
 - `examples/two-step/`、`examples/article-review/`、`examples/gated-release/` 按 [Workbook 合同 §6](contracts/workbook.md)。`two-step` 是「列提纲 → 按提纲写摘要」；`article-review` 的审查节点用 `resources/review-checklist.md` 作输入；`gated-release` 是「生成发布说明（gate）→ 归档」。三份都不带 `requires`。
 - `tasks.toml`、`scripts/task.sh`、`scripts/check-task.sh`、`scripts/check-core-vocab.sh`（对 `crates/sheltie-core/src` 与 `crates/sheltie-runtime/src` grep `Verdict|Pass\b|Fail\b|Review|PackageId|PackageCatalog`，另对 core 查 `std::fs`）。
 - `.github/workflows/build.yml` 加三个脚本；`.pre-commit-config.yaml` 同步；`.config/nextest.toml` 把 `crash` 测试设为串行。

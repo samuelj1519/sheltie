@@ -8,9 +8,10 @@ use sheltie_core::path::RelPath;
 use sheltie_runtime::observe::{build_resource_index, observe_file};
 use sheltie_runtime::{Error, Home};
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_home_prefers_cli_then_env_then_default() {
+fn home_prefers_cli_then_env_then_default() {
     let cli = Home::resolve(Some("/tmp/cli-home")).unwrap();
     assert_eq!(cli.root().as_str(), "/tmp/cli-home");
     // 环境变量与默认值的分支由子进程测试覆盖（cli 层 `work_start_creates_work_and_prints_next` 用 --home）。
@@ -20,9 +21,10 @@ fn t12_home_prefers_cli_then_env_then_default() {
     assert!(rel.root().as_str().ends_with("/rel-home"));
 }
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_confine_rejects_dotdot_absolute_and_empty_segment() {
+fn confine_rejects_dotdot_absolute_and_empty_segment() {
     let (_d, home) = temp_home();
     let base = home.root();
     assert!(Home::confine(base, "a/b.md").is_ok());
@@ -37,18 +39,20 @@ fn t12_confine_rejects_dotdot_absolute_and_empty_segment() {
     }
 }
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_confine_rejects_symlink_escaping_root() {
+fn confine_rejects_symlink_escaping_root() {
     let (d, home) = temp_home();
     let outside = tempfile::tempdir().unwrap();
     std::os::unix::fs::symlink(outside.path(), d.path().join("link")).unwrap();
     assert!(Home::confine(home.root(), "link/secret").is_err());
 }
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_observe_file_rejects_symlink_and_directory() {
+fn observe_file_rejects_symlink_and_directory() {
     let (d, _home) = temp_home();
     let real = d.path().join("real.txt");
     std::fs::write(&real, "x").unwrap();
@@ -61,9 +65,10 @@ fn t12_observe_file_rejects_symlink_and_directory() {
     ));
 }
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_observe_file_sha256_matches_known_vector() {
+fn observe_file_sha256_matches_known_vector() {
     let (d, _home) = temp_home();
     let p = d.path().join("hello.txt");
     std::fs::write(&p, "hello\n").unwrap();
@@ -75,9 +80,10 @@ fn t12_observe_file_sha256_matches_known_vector() {
     assert_eq!(o.bytes, 6);
 }
 
+// Task: T12
 #[test]
 #[ignore = "T12"]
-fn t12_resource_index_marks_non_utf8() {
+fn resource_index_marks_non_utf8() {
     let (d, _home) = temp_home();
     std::fs::create_dir_all(d.path().join("sub")).unwrap();
     std::fs::write(d.path().join("a.md"), "文字").unwrap();

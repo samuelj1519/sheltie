@@ -6,9 +6,10 @@ mod common;
 use common::*;
 use predicates::prelude::*;
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_start_creates_work_and_prints_next() {
+fn work_start_creates_work_and_prints_next() {
     let env = Env::new();
     env.add_example("two-step");
     let v = env.ok(&[
@@ -31,9 +32,10 @@ fn t18_work_start_creates_work_and_prints_next() {
     );
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_start_missing_input_exits_1_with_input_missing() {
+fn work_start_missing_input_exits_1_with_input_missing() {
     let env = Env::new();
     env.add_example("two-step");
     let (v, code) = env.fail(&[
@@ -48,9 +50,10 @@ fn t18_work_start_missing_input_exits_1_with_input_missing() {
     assert_eq!(v["error"]["code"], "INPUT_MISSING");
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_start_accepts_at_file_input() {
+fn work_start_accepts_at_file_input() {
     let env = Env::new();
     env.add_example("two-step");
     let f = env.dir.path().join("topic.txt");
@@ -60,9 +63,10 @@ fn t18_work_start_accepts_at_file_input() {
     assert_eq!(content, "来自文件");
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_list_shows_status_and_current() {
+fn work_list_shows_status_and_current() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -74,9 +78,10 @@ fn t18_work_list_shows_status_and_current() {
     assert_eq!(rows[0]["current"], "outline#1");
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_status_prints_status_card() {
+fn work_status_prints_status_card() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -89,9 +94,10 @@ fn t18_work_status_prints_status_card() {
         );
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_stats_prints_table_and_json() {
+fn work_stats_prints_table_and_json() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -109,9 +115,10 @@ fn t18_work_stats_prints_table_and_json() {
     assert_eq!(v["data"]["nodes"][1]["attempts"], 0);
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_status_json_matches_schema() {
+fn work_status_json_matches_schema() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -134,9 +141,10 @@ fn t18_work_status_json_matches_schema() {
     assert_eq!(v["data"]["current"], "outline#1");
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_cancel_then_any_write_is_work_terminal() {
+fn work_cancel_then_any_write_is_work_terminal() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -146,9 +154,10 @@ fn t18_work_cancel_then_any_write_is_work_terminal() {
     assert_eq!(e["error"]["code"], "WORK_TERMINAL");
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_id_prefix_resolves_when_unique() {
+fn work_id_prefix_resolves_when_unique() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -156,9 +165,10 @@ fn t18_work_id_prefix_resolves_when_unique() {
     assert_eq!(env.status(prefix)["data"]["work_id"], wid);
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_id_prefix_ambiguous_lists_candidates() {
+fn work_id_prefix_ambiguous_lists_candidates() {
     let env = Env::new();
     env.add_example("two-step");
     let a = env.start("two-step", &[("topic", "x")]);
@@ -169,18 +179,20 @@ fn t18_work_id_prefix_ambiguous_lists_candidates() {
     assert!(msg.contains(&a) && msg.contains(&b));
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_start_default_name_is_flow_id() {
+fn work_start_default_name_is_flow_id() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
     assert!(wid.ends_with("-default"));
 }
 
+// Task: T18
 #[test]
 #[ignore = "T18"]
-fn t18_work_start_with_chinese_name_creates_matching_directory() {
+fn work_start_with_chinese_name_creates_matching_directory() {
     let env = Env::new();
     env.add_example("two-step");
     let v = env.ok(&[

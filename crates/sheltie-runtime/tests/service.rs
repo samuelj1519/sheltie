@@ -18,9 +18,10 @@ fn attempt(s: &str) -> AttemptId {
     AttemptId::parse(s).unwrap()
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_two_step_runs_to_succeeded() {
+fn two_step_runs_to_succeeded() {
     let (_d, home, svc) = home_with_example("two-step");
     let started = start_two_step(&svc);
     let wid = work_id_of(&started);
@@ -47,9 +48,10 @@ fn t16_two_step_runs_to_succeeded() {
     );
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_start_allocates_work_id_with_today_and_seq_001() {
+fn start_allocates_work_id_with_today_and_seq_001() {
     let (_d, _home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let today = sheltie_runtime::observe::now().day().to_string();
@@ -57,9 +59,10 @@ fn t16_start_allocates_work_id_with_today_and_seq_001() {
     assert!(wid.as_str().ends_with("-default"), "默认名字是 flow id");
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_start_replay_returns_same_work_id_without_new_seq() {
+fn start_replay_returns_same_work_id_without_new_seq() {
     let (_d, _home, svc) = home_with_example("two-step");
     let args = StartArgs {
         workbook_id: "two-step".into(),
@@ -77,9 +80,10 @@ fn t16_start_replay_returns_same_work_id_without_new_seq() {
     assert_eq!(svc.list().unwrap().len(), 1);
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_start_copies_workbook_into_work_dir_readonly() {
+fn start_copies_workbook_into_work_dir_readonly() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let frozen =
@@ -88,9 +92,10 @@ fn t16_start_copies_workbook_into_work_dir_readonly() {
     assert!(frozen.metadata().unwrap().permissions().readonly());
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_begin_loads_graph_from_frozen_copy_not_repository() {
+fn begin_loads_graph_from_frozen_copy_not_repository() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let repo_instr = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str())
@@ -108,9 +113,10 @@ fn t16_begin_loads_graph_from_frozen_copy_not_repository() {
     assert!(!brief.contains("被改过的说明"));
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_status_works_after_workbook_removed() {
+fn status_works_after_workbook_removed() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     svc.cancel(&wid, None).unwrap();
@@ -120,9 +126,10 @@ fn t16_status_works_after_workbook_removed() {
     assert!(card.contains("status: cancelled"));
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_begin_writes_brief_md_with_absolute_input_paths() {
+fn begin_writes_brief_md_with_absolute_input_paths() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
@@ -131,9 +138,10 @@ fn t16_begin_writes_brief_md_with_absolute_input_paths() {
     assert!(brief.contains(&format!("| topic | {}/inputs/topic |", home.work_dir(&wid))));
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_begin_binds_resource_input_to_frozen_copy_path() {
+fn begin_binds_resource_input_to_frozen_copy_path() {
     let (_d, home, svc) = home_with_example("article-review");
     let started = svc
         .start(
@@ -162,9 +170,10 @@ fn t16_begin_binds_resource_input_to_frozen_copy_path() {
     )));
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_status_card_regenerated_after_each_commit() {
+fn status_card_regenerated_after_each_commit() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
@@ -181,9 +190,10 @@ fn t16_status_card_regenerated_after_each_commit() {
     );
 }
 
+// Task: T16
 #[test]
 #[ignore = "T16"]
-fn t16_concurrent_writers_one_gets_revision_conflict() {
+fn concurrent_writers_one_gets_revision_conflict() {
     // 两个线程同时对同一 Attempt 提交：一个成功，另一个要么 REVISION_CONFLICT 被重试后变成 ATTEMPT_NOT_RUNNING，要么直接 ATTEMPT_NOT_RUNNING。
     let (_d, _home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));

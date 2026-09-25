@@ -32,9 +32,10 @@ fn make_release(dir: &Path, version: &str, tamper: bool) -> ReleaseSource {
     }
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_install_copies_current_exe_and_is_idempotent() {
+fn install_copies_current_exe_and_is_idempotent() {
     let (_d, home) = temp_home();
     let first = selfmgmt::install(&home, false).unwrap();
     assert!(!first.already_installed);
@@ -43,9 +44,10 @@ fn t20_install_copies_current_exe_and_is_idempotent() {
     assert!(second.already_installed);
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_install_prints_path_hint_and_does_not_touch_rc_by_default() {
+fn install_prints_path_hint_and_does_not_touch_rc_by_default() {
     let (d, home) = temp_home();
     let fake_rc = d.path().join(".zshrc");
     std::fs::write(&fake_rc, "# rc\n").unwrap();
@@ -54,9 +56,10 @@ fn t20_install_prints_path_hint_and_does_not_touch_rc_by_default() {
     assert_eq!(std::fs::read_to_string(&fake_rc).unwrap(), "# rc\n");
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_update_replaces_binary_and_keeps_prev() {
+fn update_replaces_binary_and_keeps_prev() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     let src = make_release(&d.path().join("rel"), "9.9.9", false);
@@ -71,9 +74,10 @@ fn t20_update_replaces_binary_and_keeps_prev() {
     );
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_update_rejects_checksum_mismatch_and_leaves_binary_intact() {
+fn update_rejects_checksum_mismatch_and_leaves_binary_intact() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     let before =
@@ -93,9 +97,10 @@ fn t20_update_rejects_checksum_mismatch_and_leaves_binary_intact() {
     );
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_update_reports_unavailable_when_no_asset_for_platform() {
+fn update_reports_unavailable_when_no_asset_for_platform() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     let dir = d.path().join("rel");
@@ -114,9 +119,10 @@ fn t20_update_reports_unavailable_when_no_asset_for_platform() {
     ));
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_rollback_swaps_prev_back() {
+fn rollback_swaps_prev_back() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     let original =
@@ -134,9 +140,10 @@ fn t20_rollback_swaps_prev_back() {
     );
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_rollback_recovers_when_current_missing() {
+fn rollback_recovers_when_current_missing() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     let bin = std::path::PathBuf::from(home.bin_dir().as_str());
@@ -145,9 +152,10 @@ fn t20_rollback_recovers_when_current_missing() {
     assert!(bin.join("sheltie").exists());
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_uninstall_keeps_store_and_works() {
+fn uninstall_keeps_store_and_works() {
     let (_d, home, svc) = home_with_example("two-step");
     start_two_step(&svc);
     selfmgmt::install(&home, false).unwrap();
@@ -157,9 +165,10 @@ fn t20_uninstall_keeps_store_and_works() {
     assert!(std::path::PathBuf::from(home.works_dir().as_str()).exists());
 }
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_uninstall_purge_requires_yes() {
+fn uninstall_purge_requires_yes() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
     assert!(matches!(

@@ -57,8 +57,9 @@ mod tests {
     use super::*;
     use crate::error::Error;
 
+    // Task: T02
     #[test]
-    fn t02_bounded_text_rejects_over_limit_bytes() {
+    fn bounded_text_rejects_over_limit_bytes() {
         assert!(BoundedText::<4>::new("abcd", "x").is_ok());
         assert!(matches!(
             BoundedText::<4>::new("abcde", "x"),
@@ -73,8 +74,9 @@ mod tests {
         assert!(BoundedText::<6>::new("汉字", "x").is_ok());
     }
 
+    // Task: T02
     #[test]
-    fn t02_bounded_text_deserialize_rejects_over_limit_bytes() {
+    fn bounded_text_deserialize_rejects_over_limit_bytes() {
         assert!(serde_json::from_str::<BoundedText<4>>("\"abcd\"").is_ok());
         assert!(serde_json::from_str::<BoundedText<4>>("\"abcde\"").is_err());
     }

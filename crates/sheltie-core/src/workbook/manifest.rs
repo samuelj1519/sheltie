@@ -274,8 +274,9 @@ flows = ["flows/default.toml"]
         format!("{MINIMAL}\n{extra}")
     }
 
+    // Task: T03
     #[test]
-    fn t03_parses_minimal_manifest() {
+    fn parses_minimal_manifest() {
         let m = parse_manifest(MINIMAL).unwrap();
         assert_eq!(m.id.as_str(), "two-step");
         assert_eq!(m.version, "1.0.0");
@@ -284,46 +285,52 @@ flows = ["flows/default.toml"]
         assert_eq!(m.description, None);
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_unknown_field() {
+    fn rejects_unknown_field() {
         let err = parse_manifest(&with("author = \"x\"")).unwrap_err();
         assert!(matches!(err, Error::WorkbookInvalid { .. }));
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_wrong_schema_string() {
+    fn rejects_wrong_schema_string() {
         let text = MINIMAL.replace("workbook/v1", "workbook/v2");
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "schema")
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_empty_flows() {
+    fn rejects_empty_flows() {
         let text = MINIMAL.replace("[\"flows/default.toml\"]", "[]");
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "flows")
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_flow_path_with_dotdot() {
+    fn rejects_flow_path_with_dotdot() {
         let text = MINIMAL.replace("flows/default.toml", "../x.toml");
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "flows[0]")
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_description_over_2kib() {
+    fn rejects_description_over_2kib() {
         let text = with(&format!("description = \"{}\"", "x".repeat(2049)));
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "description")
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_parses_requires_with_optional_fields() {
+    fn parses_requires_with_optional_fields() {
         let text = with(
             r#"
 [[requires]]
@@ -347,8 +354,9 @@ name = "db"
         assert_eq!(m.requires[1].digest, None);
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_duplicate_require_kind_name() {
+    fn rejects_duplicate_require_kind_name() {
         let text = with(
             "[[requires]]\nkind = \"skill\"\nname = \"a\"\n[[requires]]\nkind = \"skill\"\nname = \"a\"\n",
         );
@@ -357,16 +365,18 @@ name = "db"
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_unknown_require_kind() {
+    fn rejects_unknown_require_kind() {
         let text = with("[[requires]]\nkind = \"plugin\"\nname = \"a\"\n");
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "requires[0].kind")
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_rejects_require_digest_without_sha256_prefix() {
+    fn rejects_require_digest_without_sha256_prefix() {
         let text = with(
             "[[requires]]\nkind = \"skill\"\nname = \"a\"\ndigest = \"5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03\"\n",
         );
@@ -388,24 +398,27 @@ name = "db"
         }
     }
 
+    // Task: T03
     #[test]
-    fn t03_version_limit_is_32_bytes() {
+    fn version_limit_is_32_bytes() {
         let at = MINIMAL.replace("\"1.0.0\"", &format!("\"{}\"", "1".repeat(32)));
         assert!(parse_manifest(&at).is_ok());
         let over = MINIMAL.replace("\"1.0.0\"", &format!("\"{}\"", "1".repeat(33)));
         assert_eq!(field_of(&over), "version");
     }
 
+    // Task: T03
     #[test]
-    fn t03_name_limit_is_128_bytes() {
+    fn name_limit_is_128_bytes() {
         let at = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(128)));
         assert!(parse_manifest(&at).is_ok());
         let over = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(129)));
         assert_eq!(field_of(&over), "name");
     }
 
+    // Task: T03
     #[test]
-    fn t03_description_accepts_exactly_2048_bytes() {
+    fn description_accepts_exactly_2048_bytes() {
         let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
         assert_eq!(
             parse_manifest(&at).unwrap().description.unwrap().len(),
@@ -413,8 +426,9 @@ name = "db"
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_requires_limit_is_32_items() {
+    fn requires_limit_is_32_items() {
         let reqs = |n: usize| {
             (0..n)
                 .map(|i| require_toml("skill", &format!("s{i}"), ""))
@@ -424,8 +438,9 @@ name = "db"
         assert_eq!(field_of(&with(&reqs(33))), "requires");
     }
 
+    // Task: T03
     #[test]
-    fn t03_require_version_limit_is_32_bytes() {
+    fn require_version_limit_is_32_bytes() {
         let v = |n: usize| format!("version = \"{}\"", "1".repeat(n));
         assert!(parse_manifest(&with(&require_toml("skill", "s", &v(32)))).is_ok());
         assert_eq!(
@@ -434,8 +449,9 @@ name = "db"
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_require_source_limit_is_512_bytes() {
+    fn require_source_limit_is_512_bytes() {
         let s = |n: usize| format!("source = \"{}\"", "a".repeat(n));
         assert!(parse_manifest(&with(&require_toml("skill", "s", &s(512)))).is_ok());
         assert_eq!(
@@ -444,8 +460,9 @@ name = "db"
         );
     }
 
+    // Task: T03
     #[test]
-    fn t03_same_kind_different_names_are_not_duplicates() {
+    fn same_kind_different_names_are_not_duplicates() {
         let text = with(&format!(
             "{}{}{}",
             require_toml("agent", "a", ""),

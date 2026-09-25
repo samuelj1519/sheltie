@@ -77,8 +77,9 @@ fn civil_from_days(z: i64) -> (i64, u32, u32) {
 mod tests {
     use super::*;
 
+    // Task: T01
     #[test]
-    fn t01_format_rfc3339_epoch_and_known_date() {
+    fn format_rfc3339_epoch_and_known_date() {
         assert_eq!(format_rfc3339(0), "1970-01-01T00:00:00Z");
         // 2026-09-24T03:00:00Z
         assert_eq!(format_rfc3339(1_790_218_800), "2026-09-24T03:00:00Z");

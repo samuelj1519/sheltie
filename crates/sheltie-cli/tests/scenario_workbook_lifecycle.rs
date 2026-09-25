@@ -5,9 +5,10 @@ mod common;
 
 use common::*;
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_remove_in_use_workbook_is_rejected_with_work_list() {
+fn remove_in_use_workbook_is_rejected_with_work_list() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -16,9 +17,10 @@ fn t22_remove_in_use_workbook_is_rejected_with_work_list() {
     assert_eq!(e["error"]["detail"]["works"], serde_json::json!([wid]));
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_remove_after_work_succeeds_then_status_still_renders() {
+fn remove_after_work_succeeds_then_status_still_renders() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -35,9 +37,10 @@ fn t22_remove_after_work_succeeds_then_status_still_renders() {
     );
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_editing_repository_copy_does_not_change_running_work_brief() {
+fn editing_repository_copy_does_not_change_running_work_brief() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -51,9 +54,10 @@ fn t22_editing_repository_copy_does_not_change_running_work_brief() {
     assert!(brief.contains("列一份提纲"));
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_verify_detects_the_edit() {
+fn verify_detects_the_edit() {
     let env = Env::new();
     env.add_example("two-step");
     let f = env
@@ -66,9 +70,10 @@ fn t22_verify_detects_the_edit() {
     assert_eq!(e["error"]["detail"]["results"][0]["status"], "tampered");
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_add_second_version_marks_it_latest_and_start_defaults_to_it() {
+fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
     let env = Env::new();
     env.add_example("two-step");
     let src = env.dir.path().join("v2");

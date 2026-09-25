@@ -580,31 +580,35 @@ mod tests {
     use crate::testkit::Fixture;
     use crate::work::next::NextOp;
 
+    // Task: T10
     #[test]
-    fn t10_brief_for_review_node() {
+    fn brief_for_review_node() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        insta::assert_snapshot!(render_brief(fx.state(), &fx.graph, a, "审查这篇文章。"));
+        insta::assert_snapshot!(
+            "brief_for_review_node",
+            render_brief(fx.state(), &fx.graph, a, "审查这篇文章。")
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_brief_for_node_with_requires() {
+    fn brief_for_node_with_requires() {
         let mut fx = Fixture::with_requires();
         fx.begin("only").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        insta::assert_snapshot!(render_brief(
-            fx.state(),
-            &fx.graph,
-            a,
-            "用公司 API 做点事。"
-        ));
+        insta::assert_snapshot!(
+            "brief_for_node_with_requires",
+            render_brief(fx.state(), &fx.graph, a, "用公司 API 做点事。")
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_brief_for_node_without_requires_omits_section() {
+    fn brief_for_node_without_requires_omits_section() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
@@ -614,8 +618,9 @@ mod tests {
 
     // ── M1 复核 O3：版本列来自 Workbook 的 requires 声明，没声明版本写 `-` ─────
 
+    // Task: T10
     #[test]
-    fn t10_brief_require_version_column_comes_from_manifest() {
+    fn brief_require_version_column_comes_from_manifest() {
         use crate::digest::Sha256Hex;
         use crate::flow::{ResourceIndex, compile, parse_flow};
         use crate::ids::{FlowId, NodeId, WorkId, WorkName};
@@ -665,8 +670,9 @@ mod tests {
         ));
     }
 
+    // Task: T10
     #[test]
-    fn t10_brief_marks_unbound_optional_input_as_absent() {
+    fn brief_marks_unbound_optional_input_as_absent() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         fx.begin("spec").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
@@ -674,8 +680,9 @@ mod tests {
         assert!(text.contains("| decision | 尚无（上游 plan-review 还没有产出） | |"));
     }
 
+    // Task: T10
     #[test]
-    fn t10_brief_for_human_executor_ends_with_submit_command() {
+    fn brief_for_human_executor_ends_with_submit_command() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
@@ -683,11 +690,15 @@ mod tests {
         fx.submit_ok("review#1.0", "通过").unwrap();
         fx.begin("publish").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        insta::assert_snapshot!(render_brief(fx.state(), &fx.graph, a, "确认可以发布。"));
+        insta::assert_snapshot!(
+            "brief_for_human_executor_ends_with_submit_command",
+            render_brief(fx.state(), &fx.graph, a, "确认可以发布。")
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_brief_shows_entered_from_line_or_entry() {
+    fn brief_shows_entered_from_line_or_entry() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let entry = render_brief(
@@ -708,34 +719,47 @@ mod tests {
         assert!(via.contains("来自: draft#1（main 边）"));
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_active_mid_flow() {
+    fn status_card_active_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         fx.begin("draft").unwrap();
-        insta::assert_snapshot!(render_status_card(fx.state(), &fx.graph));
+        insta::assert_snapshot!(
+            "status_card_active_mid_flow",
+            render_status_card(fx.state(), &fx.graph)
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_blocked_on_gate() {
+    fn status_card_blocked_on_gate() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         fx.submit_ok("notes#1.0", "写好了").unwrap();
-        insta::assert_snapshot!(render_status_card(fx.state(), &fx.graph));
+        insta::assert_snapshot!(
+            "status_card_blocked_on_gate",
+            render_status_card(fx.state(), &fx.graph)
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_succeeded() {
+    fn status_card_succeeded() {
         let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
         fx.begin("outline").unwrap();
         fx.submit_ok("outline#1.0", "提纲好了").unwrap();
         fx.begin("summary").unwrap();
         fx.submit_ok("summary#1.0", "摘要好了").unwrap();
-        insta::assert_snapshot!(render_status_card(fx.state(), &fx.graph));
+        insta::assert_snapshot!(
+            "status_card_succeeded",
+            render_status_card(fx.state(), &fx.graph)
+        );
     }
 
+    // Task: T10
     #[test]
-    fn t10_next_op_renders_begin_with_node_flag() {
+    fn next_op_renders_begin_with_node_flag() {
         let fx = Fixture::article_review().started();
         let next = legal_next(fx.state(), &fx.graph);
         assert_eq!(
@@ -748,8 +772,9 @@ mod tests {
         );
     }
 
+    // Task: T10
     #[test]
-    fn t10_next_op_begin_carries_executor_and_tier() {
+    fn next_op_begin_carries_executor_and_tier() {
         let fx = Fixture::article_review().started();
         let json = serde_json::to_value(&legal_next(fx.state(), &fx.graph)[0]).unwrap();
         assert_eq!(json["op"], "attempt begin");
@@ -757,16 +782,18 @@ mod tests {
         assert_eq!(json["tier"], "standard");
     }
 
+    // Task: T10
     #[test]
-    fn t10_stats_table_mid_flow() {
+    fn stats_table_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         fx.begin("draft").unwrap();
-        insta::assert_snapshot!(render_stats(fx.state(), &fx.graph));
+        insta::assert_snapshot!("stats_table_mid_flow", render_stats(fx.state(), &fx.graph));
     }
 
+    // Task: T10
     #[test]
-    fn t10_stats_json_counts_visits_failures_and_entered_via() {
+    fn stats_json_counts_visits_failures_and_entered_via() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.fail("draft#1.0", "崩").unwrap();
@@ -792,8 +819,9 @@ mod tests {
         assert_eq!(s.blocked_count, 0);
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_lists_done_occurrences_in_order() {
+    fn status_card_lists_done_occurrences_in_order() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         fx.begin("draft").unwrap();
@@ -826,8 +854,9 @@ mod tests {
         fx
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_names_retries_exhausted_occurrence() {
+    fn status_card_names_retries_exhausted_occurrence() {
         let fx = exhausted_draft();
         let card = render_status_card(fx.state(), &fx.graph);
         assert!(
@@ -836,8 +865,9 @@ mod tests {
         );
     }
 
+    // Task: T10
     #[test]
-    fn t10_status_card_explains_no_legal_edge() {
+    fn status_card_explains_no_legal_edge() {
         let fx = no_legal_edge();
         let card = render_status_card(fx.state(), &fx.graph);
         assert!(
@@ -846,8 +876,9 @@ mod tests {
         );
     }
 
+    // Task: T10
     #[test]
-    fn t10_stats_blocked_count_by_reason() {
+    fn stats_blocked_count_by_reason() {
         // 普通成功与可重试的失败都不算阻断。
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
@@ -872,8 +903,9 @@ mod tests {
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
     }
 
+    // Task: T10
     #[test]
-    fn t10_secs_between_matches_independent_calendar_math() {
+    fn secs_between_matches_independent_calendar_math() {
         // 期望值由 Python datetime 独立算出。
         let cases = [
             ("2026-02-28T23:59:30Z", "2026-03-01T00:00:30Z", 60),
@@ -911,8 +943,9 @@ mod tests {
         );
     }
 
+    // Task: T10
     #[test]
-    fn t10_stats_total_and_avg_use_timestamps() {
+    fn stats_total_and_avg_use_timestamps() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.fail("draft#1.0", "一").unwrap();

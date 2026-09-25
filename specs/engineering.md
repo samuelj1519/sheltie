@@ -21,7 +21,7 @@ crates/sheltie-cli    二进制名 sheltie
 examples/             三份样例 Workbook（同时是测试 fixture）
 workbooks/            可分发的业务 Workbook（spec-dev）
 skills/sheltie/       SKILL.md
-scripts/              check-docs.sh、check-core-vocab.sh、check-skill.sh、task.sh、check-task.sh
+scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh
 tasks.toml            机器可读的任务白名单（T01 生成）
 .config/nextest.toml  测试运行配置（crash 测试串行）
 dist-workspace.toml   cargo-dist 发布配置（T20 生成）
@@ -65,7 +65,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 3. 下一个红的。
 4. 全绿后跑四条门禁与 `scripts/check-task.sh Tnn`，提交。
 
-写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名说人话，例如 `t07_begin_rejects_node_not_in_next`；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外四条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算。
+写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里（[plan.md §0.5](plan.md)）；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外四条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算。
 
 ### 3.2 分层
 
