@@ -2,7 +2,7 @@
 //! 由 T01 写完，后续任务不改。runtime 与 cli 的测试通过 `testkit` feature 使用。
 //!
 //! `Fixture` 把「一个 Work 的状态 + 图 + 假文件」捆在一起，提供与 CLI 同名的动作。
-//! 它调用真实的 `decide`，所以 T06 之前所有动作都会 `todo!()`，这是预期的。
+//! 它调用真实的 `decide`，被测的就是生产路径本身。
 
 use std::collections::BTreeMap;
 

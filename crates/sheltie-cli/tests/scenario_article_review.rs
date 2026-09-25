@@ -22,7 +22,6 @@ fn draft_then_review_fail(env: &Env, wid: &str) -> serde_json::Value {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn review_back_edge_creates_second_draft_occurrence() {
     let env = Env::new();
     let wid = start_review(&env);
@@ -40,7 +39,6 @@ fn review_back_edge_creates_second_draft_occurrence() {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn next_after_review_offers_both_main_and_back_with_kinds() {
     let env = Env::new();
     let wid = start_review(&env);
@@ -59,7 +57,6 @@ fn next_after_review_offers_both_main_and_back_with_kinds() {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn max_visits_exhaustion_blocks_with_no_legal_edge() {
     let env = Env::new();
     let src = env.dir.path().join("ar1");
@@ -83,7 +80,6 @@ fn max_visits_exhaustion_blocks_with_no_legal_edge() {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn human_executor_node_is_begun_and_submitted_like_agent() {
     let env = Env::new();
     let wid = start_review(&env);
@@ -103,7 +99,6 @@ fn human_executor_node_is_begun_and_submitted_like_agent() {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn downstream_binds_latest_succeeded_occurrence_output() {
     let env = Env::new();
     let wid = start_review(&env);
@@ -122,7 +117,6 @@ fn downstream_binds_latest_succeeded_occurrence_output() {
 
 // Task: T21
 #[test]
-#[ignore = "T21"]
 fn review_brief_lists_checklist_resource_with_frozen_path() {
     let env = Env::new();
     let wid = start_review(&env);
