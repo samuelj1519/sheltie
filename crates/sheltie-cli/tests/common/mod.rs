@@ -1,4 +1,4 @@
-//! cli 端到端测试共用：临时管理根、跑命令、解析 JSON 包络、按 `next` 走。
+//! cli 端到端测试共用：临时管理根、跑命令、解析 JSON 响应封装、按 `next` 走。
 #![allow(dead_code)]
 
 use std::path::{Path, PathBuf};
@@ -36,7 +36,7 @@ impl Env {
         c
     }
 
-    /// 跑命令，要求成功，返回解析后的包络。
+    /// 跑命令，要求成功，返回解析后的响应封装。
     pub fn ok(&self, args: &[&str]) -> Value {
         let out = self.cmd(args).output().unwrap();
         assert!(
@@ -50,7 +50,7 @@ impl Env {
         v
     }
 
-    /// 跑命令，要求失败，返回包络与退出码。
+    /// 跑命令，要求失败，返回响应封装与退出码。
     pub fn fail(&self, args: &[&str]) -> (Value, i32) {
         let out = self.cmd(args).output().unwrap();
         assert!(!out.status.success(), "命令意外成功：{args:?}");

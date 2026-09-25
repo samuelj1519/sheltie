@@ -1,10 +1,10 @@
-//! 输出：给人读的文本，或协议 §5 的 JSON 包络。
+//! 输出：给人读的文本，或协议 §5 的 JSON 响应封装。
 
 use serde::Serialize;
 use sheltie_core::ErrorCode;
 use sheltie_core::work::NextOp;
 
-/// 成功包络。
+/// 成功响应封装。
 #[derive(Debug, Serialize)]
 pub struct OkEnvelope<T: Serialize> {
     pub ok: bool,
@@ -16,7 +16,7 @@ pub struct OkEnvelope<T: Serialize> {
     pub next: Vec<NextOp>,
 }
 
-/// 失败包络。
+/// 失败响应封装。
 #[derive(Debug, Serialize)]
 pub struct ErrEnvelope {
     pub ok: bool,
@@ -37,7 +37,7 @@ pub struct ErrorBody {
 pub struct Outcome {
     /// 文本模式下打印的内容。
     pub text: String,
-    /// JSON 模式下的完整包络。
+    /// JSON 模式下的完整响应封装。
     pub json: serde_json::Value,
     pub exit_code: i32,
 }

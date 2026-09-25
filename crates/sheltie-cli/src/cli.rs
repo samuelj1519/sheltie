@@ -5,7 +5,7 @@ use clap::{Args, Parser, Subcommand};
 #[derive(Debug, Parser)]
 #[command(name = "sheltie", version, about = "给协调者 agent 用的本地工作流引擎", long_about = None)]
 pub struct Cli {
-    /// 输出一行 JSON 包络，而不是给人读的文本。
+    /// 输出一行 JSON 响应封装，而不是给人读的文本。
     #[arg(long, global = true)]
     pub json: bool,
 

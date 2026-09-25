@@ -317,7 +317,7 @@ fn rejects_self_loop_edge() { … }
 
 **实现要点。** `works_referencing` 先用 `status` 列过滤非终态，再解 `state_json` 核对 `workbook`，不只信冗余列。
 
-**提交。** `feat(runtime): Workbook remove 引用守卫与 verify`
+**提交。** `feat(runtime): Workbook remove 引用检查与 verify`
 
 ### T16 runtime Work 服务
 
@@ -345,7 +345,7 @@ fn rejects_self_loop_edge() { … }
 
 **测试。** `workbook_add_prints_id_version_digest`、`workbook_add_json_has_ok_true_and_data`、`workbook_add_invalid_dir_exits_1_with_workbook_invalid`、`workbook_list_after_add_shows_one_row_marked_latest`、`workbook_show_lists_nodes_edges_and_requires`、`workbook_remove_without_version_exits_2`、`workbook_remove_then_list_is_empty`、`workbook_verify_exits_1_after_tamper`、`unknown_subcommand_exits_2`。
 
-**实现要点。** `error_map` 是 runtime `Error` 到 [协议 §7](contracts/protocol.md) 错误码与退出码的一张 `match`，一次填全。`output` 有两个函数：文本与 JSON 包络，包络格式按 [协议 §5](contracts/protocol.md)。
+**实现要点。** `error_map` 是 runtime `Error` 到 [协议 §7](contracts/protocol.md) 错误码与退出码的一张 `match`，一次填全。`output` 有两个函数：文本与 JSON 响应封装，格式按 [协议 §5](contracts/protocol.md)。
 
 **提交。** `feat(cli): workbook add/list/show/remove/verify`
 
