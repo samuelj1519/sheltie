@@ -9,7 +9,6 @@ use common::*;
 
 // Task: T19
 #[test]
-#[ignore = "T19"]
 fn two_step_via_cli_reaches_succeeded() {
     let env = Env::new();
     env.add_example("two-step");
@@ -35,7 +34,6 @@ fn two_step_via_cli_reaches_succeeded() {
 
 // Task: T19
 #[test]
-#[ignore = "T19"]
 fn attempt_begin_returns_brief_path_that_exists() {
     let env = Env::new();
     env.add_example("two-step");
@@ -50,7 +48,6 @@ fn attempt_begin_returns_brief_path_that_exists() {
 
 // Task: T19
 #[test]
-#[ignore = "T19"]
 fn attempt_submit_summary_from_at_file() {
     let env = Env::new();
     env.add_example("two-step");
@@ -75,7 +72,6 @@ fn attempt_submit_summary_from_at_file() {
 
 // Task: T19
 #[test]
-#[ignore = "T19"]
 fn attempt_fail_then_begin_retries_same_occurrence() {
     let env = Env::new();
     env.add_example("two-step");
