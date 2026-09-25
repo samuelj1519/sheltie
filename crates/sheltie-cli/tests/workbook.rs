@@ -8,7 +8,6 @@ use predicates::prelude::*;
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_add_prints_id_version_digest() {
     let env = Env::new();
     env.cmd_text(&["workbook", "add", example_dir("two-step").to_str().unwrap()])
@@ -23,7 +22,6 @@ fn workbook_add_prints_id_version_digest() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_add_json_has_ok_true_and_data() {
     let env = Env::new();
     let v = env.add_example("two-step");
@@ -34,7 +32,6 @@ fn workbook_add_json_has_ok_true_and_data() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_add_invalid_dir_exits_1_with_workbook_invalid() {
     let env = Env::new();
     let bad = env.dir.path().join("bad");
@@ -48,7 +45,6 @@ fn workbook_add_invalid_dir_exits_1_with_workbook_invalid() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_list_after_add_shows_one_row_marked_latest() {
     let env = Env::new();
     env.add_example("two-step");
@@ -64,7 +60,6 @@ fn workbook_list_after_add_shows_one_row_marked_latest() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_show_lists_nodes_edges_and_requires() {
     let env = Env::new();
     env.add_example("article-review");
@@ -76,7 +71,6 @@ fn workbook_show_lists_nodes_edges_and_requires() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_remove_without_version_exits_2() {
     let env = Env::new();
     env.add_example("two-step");
@@ -86,7 +80,6 @@ fn workbook_remove_without_version_exits_2() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_remove_then_list_is_empty() {
     let env = Env::new();
     env.add_example("two-step");
@@ -101,7 +94,6 @@ fn workbook_remove_then_list_is_empty() {
 
 // Task: T17
 #[test]
-#[ignore = "T17"]
 fn workbook_verify_exits_1_after_tamper() {
     let env = Env::new();
     env.add_example("two-step");
