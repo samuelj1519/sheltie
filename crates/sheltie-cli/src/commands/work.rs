@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use serde_json::json;
 use sheltie_core::ids::WorkId;
-use sheltie_core::work::{NextOp, Reply, WorkState};
+use sheltie_core::work::{Reply, WorkState};
 use sheltie_runtime::store::OpenMode;
 use sheltie_runtime::{Response, WorkService};
 
@@ -158,14 +158,8 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    output::ok_work(
-        text,
-        None,
-        None,
-        json!(card),
-        &next_ops_of(&card.next),
-        wid.as_str(),
-    )
+    let next = card.next.clone();
+    output::ok_work(text, None, None, json!(card), &next, wid.as_str())
 }
 
 /// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。
@@ -183,7 +177,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     let ops = match svc.status(&wid) {
-        Ok((_, card)) => next_ops_of(&card.next),
+        Ok((_, card)) => card.next,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     output::ok_work(text, None, None, json!(stats), &ops, wid.as_str())
@@ -250,10 +244,4 @@ pub(crate) fn reply_mismatch(expected: &str) -> Outcome {
         None,
         Vec::new(),
     )
-}
-
-/// 状态卡里的 `next` 是 `NextOp` 的平铺 JSON；封装层要协议 §5 的 `args` 形式，
-/// 往返一次取回操作列表（刚序列化出来的数据，解不开只能是实现错）。
-pub(crate) fn next_ops_of(ops: &[NextOp]) -> Vec<NextOp> {
-    serde_json::from_value(json!(ops)).unwrap_or_default()
 }
