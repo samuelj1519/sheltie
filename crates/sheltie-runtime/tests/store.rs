@@ -39,7 +39,6 @@ fn input(
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn open_creates_schema_with_user_version_1() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -54,7 +53,6 @@ fn open_creates_schema_with_user_version_1() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn open_readonly_on_missing_db_is_not_found() {
     let (_d, home) = temp_home();
     assert!(matches!(
@@ -66,7 +64,6 @@ fn open_readonly_on_missing_db_is_not_found() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
@@ -81,7 +78,6 @@ fn open_rejects_wrong_user_version() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn open_rejects_same_version_different_table_shape() {
     // 手工造一个「旧结构」库：user_version = 1，但 works 表少一列。
     let (d, home) = temp_home();
@@ -104,7 +100,6 @@ fn open_rejects_same_version_different_table_shape() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn commit_inserts_state_audit_and_request_atomically() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -126,7 +121,6 @@ fn commit_inserts_state_audit_and_request_atomically() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn commit_replays_same_request_id_and_payload() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -148,7 +142,6 @@ fn commit_replays_same_request_id_and_payload() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn commit_rejects_same_request_id_different_payload() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -162,7 +155,6 @@ fn commit_rejects_same_request_id_different_payload() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn commit_rejects_stale_revision() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -180,7 +172,6 @@ fn commit_rejects_stale_revision() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn status_column_mirrors_state_json() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -199,7 +190,6 @@ fn status_column_mirrors_state_json() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn allocate_seq_starts_at_1_per_day_and_increments() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -210,7 +200,6 @@ fn allocate_seq_starts_at_1_per_day_and_increments() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn allocate_seq_is_not_reused_after_failed_start() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -221,7 +210,6 @@ fn allocate_seq_is_not_reused_after_failed_start() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn allocate_seq_rejects_1000th_of_day() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
@@ -236,7 +224,6 @@ fn allocate_seq_rejects_1000th_of_day() {
 
 // Task: T13
 #[test]
-#[ignore = "T13"]
 fn allocate_seq_under_two_threads_yields_distinct_numbers() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
