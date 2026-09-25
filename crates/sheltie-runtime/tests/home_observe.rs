@@ -63,6 +63,20 @@ fn observe_file_rejects_symlink_and_directory() {
 
 // Task: T12
 #[test]
+fn confine_errors_on_unreadable_ancestor() {
+    let (d, home) = temp_home();
+    let locked = d.path().join("locked");
+    std::fs::create_dir(&locked).unwrap();
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o000)).unwrap();
+    let r = Home::confine(home.root(), "locked/x.md");
+    // 恢复权限再断言，否则 TempDir 收尾删不掉（fe7f5fe 的教训）。
+    std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o755)).unwrap();
+    assert!(r.is_err(), "不可读祖先上的观察错误不得当成不存在放行");
+}
+
+// Task: T12
+#[test]
 fn observe_file_sha256_matches_known_vector() {
     let (d, _home) = temp_home();
     let p = d.path().join("hello.txt");

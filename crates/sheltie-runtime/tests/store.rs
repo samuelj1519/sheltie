@@ -100,6 +100,59 @@ fn open_rejects_same_version_different_table_shape() {
 
 // Task: T13
 #[test]
+fn open_readonly_on_existing_db_succeeds() {
+    let (_d, home) = temp_home();
+    open_rw(&home);
+    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
+    assert!(ro.list_works().unwrap().is_empty());
+}
+
+// Task: T13
+#[test]
+fn open_rejects_same_whitespace_different_column_type() {
+    // 与 schema::TABLES 同空白、只把 works 表的 TEXT 换成 BLOB：
+    // 「去掉全部空白后比较」不能被替换成「只比较空白」。
+    let (d, home) = temp_home();
+    let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
+    let mut script = String::new();
+    for (name, sql) in sheltie_runtime::store::schema::TABLES {
+        let sql = if *name == "works" {
+            sql.replace("TEXT", "BLOB")
+        } else {
+            (*sql).to_string()
+        };
+        script.push_str(&sql);
+        script.push_str(";\n");
+    }
+    script.push_str("PRAGMA user_version = 1;");
+    conn.execute_batch(&script).unwrap();
+    drop(conn);
+    assert!(matches!(
+        Store::open(&home.store_path(), OpenMode::ReadWrite),
+        Err(Error::StoreSchemaMismatch { .. })
+    ));
+}
+
+// Task: T13
+#[test]
+fn insert_workbook_on_readonly_store_is_not_workbook_exists() {
+    // 只读连接上插入失败是 SQLITE_READONLY，不得被归成 WorkbookExists。
+    let (_d, home) = temp_home();
+    open_rw(&home);
+    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
+    let row = sheltie_runtime::WorkbookRow {
+        id: "x".into(),
+        version: "1.0.0".into(),
+        digest: "0".repeat(64),
+        dir: "workbooks/x/1.0.0".into(),
+        added_at: "2026-09-25T00:00:00Z".into(),
+    };
+    let err = ro.insert_workbook(&row).unwrap_err();
+    assert!(!matches!(err, Error::WorkbookExists { .. }), "{err}");
+}
+
+// Task: T13
+#[test]
 fn commit_inserts_state_audit_and_request_atomically() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
