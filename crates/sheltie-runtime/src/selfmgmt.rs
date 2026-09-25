@@ -92,6 +92,9 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
     let bin = home.bin_dir();
     let target = bin.join_segment("sheltie");
+    // 建管理根的 store.db（协议 self install：复制之外还要建库）；
+    // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
+    crate::store::Store::open(&home.store_path(), crate::store::OpenMode::ReadWrite)?;
     // 已存在且字节相同就不动（幂等）。
     if target.as_path().exists() && same_bytes(&current, target.as_path().as_std_path()) {
         return Ok(InstallOutcome {
@@ -112,8 +115,6 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
     std::fs::rename(staged.as_path(), target.as_path())
         .map_err(|e| Error::io(target.as_str(), e))?;
     let _ = std::fs::remove_dir_all(tmp.as_path());
-    // 建管理根的其余部分：store.db（读写打开即建库）。
-    crate::store::Store::open(&home.store_path(), crate::store::OpenMode::ReadWrite)?;
     if modify_path {
         modify_shell_rc(home)?;
     }
