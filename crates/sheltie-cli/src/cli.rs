@@ -157,9 +157,15 @@ pub enum GateCmd {
 }
 
 /// `k=v` 解析；`v` 以 `@` 开头读文件。返回 `(key, value)`。
-#[allow(unused_variables)]
 pub fn parse_input_arg(arg: &str) -> Result<(String, String), String> {
-    todo!("T18")
+    let (key, value) = arg
+        .split_once('=')
+        .ok_or_else(|| format!("--input 的值 {arg:?} 要是 k=v"))?;
+    if key.is_empty() {
+        return Err(format!("--input 的值 {arg:?} 缺键"));
+    }
+    let value = read_text_arg(value)?;
+    Ok((key.to_string(), value))
 }
 
 /// `<id>@<version>` 解析。没有 `@` 时版本为 `None`。
@@ -178,8 +184,10 @@ pub fn parse_workbook_spec(spec: &str) -> Result<(String, Option<String>), Strin
     }
 }
 
-/// `--summary` 与 `--reason` 的值：以 `@` 开头读文件，否则原样。
-#[allow(unused_variables)]
+/// `--summary` 与 `--reason` 的值：以 `@` 开头读文件，否则原样。`--input` 的 `v` 同一规则。
 pub fn read_text_arg(value: &str) -> Result<String, String> {
-    todo!("T19")
+    let Some(path) = value.strip_prefix('@') else {
+        return Ok(value.to_string());
+    };
+    std::fs::read_to_string(path).map_err(|e| format!("读不了 {path}：{e}"))
 }

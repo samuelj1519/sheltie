@@ -98,7 +98,7 @@ fn rejects_self_loop_edge() { … }
 | T16 | done | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
 | M2 | done | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | done | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
-| T18 | todo | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
+| T18 | done | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
 | T19 | todo | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
 | T20 | todo | 初级 | cli `self` 组与发布链 | `install / update / rollback / uninstall / version`；`cargo-dist` 配置 |
 | T21 | todo | 初级 | 场景：审查回环 | `back` 边、二次到达、`max_visits` 耗尽、`human` 执行者、`resource` 输入 |
@@ -353,7 +353,7 @@ fn rejects_self_loop_edge() { … }
 
 ### T18 cli `work` 组
 
-**文件。** `crates/sheltie-cli/src/commands/work.rs`。
+**文件。** `crates/sheltie-cli/src/commands/work.rs`、`crates/sheltie-cli/src/cli.rs`，另按依赖拉入 `commands/attempt.rs` 的 `begin` 分支与 `cli.rs` 的 `read_text_arg`（原属 T19）——本任务的 `work_cancel_then_any_write_is_work_terminal` 要走 `attempt begin` 拿到 `WORK_TERMINAL` 封装，不先有它测试只能撞 `todo!("T19")` 的 panic（T07、T15 的先例）；`parse_input_arg` 的 `@file` 逻辑与 `read_text_arg` 同一段代码。T19 只剩 `submit`、`fail` 与 `gate`。
 
 **测试。** `work_start_creates_work_and_prints_next`、`work_start_missing_input_exits_1_with_input_missing`、`work_start_accepts_at_file_input`、`work_list_shows_status_and_current`、`work_status_prints_status_card`、`work_stats_prints_table_and_json`、`work_status_json_matches_schema`、`work_cancel_then_any_write_is_work_terminal`、`work_id_prefix_resolves_when_unique`、`work_id_prefix_ambiguous_lists_candidates`、`work_start_default_name_is_flow_id`、`work_start_with_chinese_name_creates_matching_directory`。
 
@@ -363,7 +363,7 @@ fn rejects_self_loop_edge() { … }
 
 ### T19 cli `attempt` 与 `gate` 组
 
-**文件。** `crates/sheltie-cli/src/commands/{attempt,gate}.rs`。
+**文件。** `crates/sheltie-cli/src/commands/{attempt,gate}.rs`。`attempt` 的 `begin` 分支与 `cli.rs` 的 `read_text_arg` 已在 T18 一并填（原因见 T18 任务卡）；本任务填 `submit`、`fail` 与 `gate`。
 
 **测试。** `two_step_via_cli_reaches_succeeded`（每步只从 `--json` 的 `next` 里取命令拼出来跑）、`attempt_begin_returns_brief_path_that_exists`、`attempt_submit_summary_from_at_file`、`attempt_fail_then_begin_retries_same_occurrence`。
 
