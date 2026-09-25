@@ -297,6 +297,8 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **背景。** T02 的实现者对复核意见写了一份反驳。核实后，反驳全部成立：复核有两处事实不实（说「删除行只有 `allow`、`ignore`、`todo`」，实际 `text.rs` 换了一行 `use`；说「改动只增不删」）、三处漏检（`check-task.sh` 第 124 行 `"$residue："` 里的全角冒号被 bash 当作变量名的一部分，`set -u` 直接中止，负例输出里的报错行被复核者忽略；`manifest.rs:114` 有骨架残留的 `#[allow(unused_variables)]`，按新检查 2 的语义会让 T03 按规则做完也过不了；检查 1 在工作树脏与净两种情形下只看一边）。另有两条判断偏窄：B1 只点了前导 `+`，前导零同样破坏解析回环；B3 的根因是 `kebab_id!` 宏用类型名当 `field`，与 `work_name`、`work_id` 的词汇不一致。
 
+**事实。** 复核声称「用 diff 核对了删除行只有 `#[allow]`、`#[ignore]` 与 `todo!`」，实际只查了一个文件，`text.rs` 还删了一行 `use`。复核声称「重跑负例仍能报错」，实际只 grep 了以 `check-task:` 开头的行，没看到脚本在 `set -u` 下因 `"$residue："`（全角冒号被 bash 吞进变量名）中止。复核没发现骨架在 `parse_manifest` 上留了一个没有 `todo!()` 的 `#[allow(unused_variables)]`，按新的检查 2 语义 T03 填完也过不了。复核把 `is_han` 缺区段的处理定为「改合同措辞」，实现者指出模糊措辞让合同失去可测性，应列出码点区间。复核把 B3 当单点文档失配，根因是 `kebab_id!` 宏用类型名当错误 `field`，与 `work_name`、`work_id` 词汇不一致。
+
 **根因。** 复核者只 grep 了输出里以 `check-task:` 开头的行，没读整段输出；只对一个文件做了 diff 核对，把结论推广到四个文件。两处都是「看了一部分，说成全部」。
 
 **选择。**
@@ -310,7 +312,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **否决。** 撤回 T02 的「通过」（没有影响已实现行为的缺陷，十条测试绿，撤回没有依据）；把复核者的错误算成实现者的返工；因为复核不够严就取消逐任务复核（问题是复核的方法，不是复核本身）；让复核者顺手把实现者的缺陷一起修掉（归属混了，下次就分不清谁该对什么负责）。
 
-**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。（此条原先被写成两条同号的 D-25，M1 第二轮合并，`check-docs.sh` 加编号唯一检查。）
+**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。（此条原先被写成两条同号的 D-25，M1 第二轮合并为一条，保留本条结构，并入另一条的两项否决、归属划分与「事实」段；合并哪一版原写「由人定」，2026-09-25 用户认可本次合并。`check-docs.sh` 加编号唯一检查。）
 
 ## D-26 输入名只查唯一，不走 ID 字符规则
 
@@ -340,12 +342,12 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 2026-09-25，M1 第二轮，复核者定。
 
-**背景。** M1 的 O1 修完后 `work start` 回了 Workbook 全量 `requires`，但每项是拼好的 `kind:name` 字符串：manifest 里写的 `version`、`digest`、`source` 到回复里就丢了，协调者开工前「自行确认宿主」时拿不到要确认的版本。`attempt begin` 同样。另一件：`Timestamp` 是 `pub struct Timestamp(pub String)`，谁都能塞任意字符串；`secs_between` 为此带着「解析不了当 0」的兜底，`day()` 取前 10 字节在短串上会 panic，字符串排序也不等于时间序（`…05Z` 与 `…05.678Z`、`+08:00`）。
+**背景。** M1 的 O1 修完后 `work start` 回了 Workbook 全量 `requires`，但每项是拼好的 `kind:name` 字符串：manifest 里写的 `version`、`digest`、`source` 到回复里就丢了，协调者开工前「自行确认宿主」时拿不到要确认的版本。`attempt begin` 同样。另一件：`Timestamp` 是 `pub struct Timestamp(pub String)`，谁都能塞任意字符串；`secs_between` 为此带着「解析不了当 0」的兜底，`day()` 取前 10 字节在短串上返回整串垃圾而不是日期，字符串排序也不等于时间序（`…05Z` 与 `…05.678Z`、`+08:00`）。
 
 **选择。**
 
 1. 两处回复的 `requires` 都是 `Vec<HostRequire>`，每项原样是 manifest 那条声明 `{ kind, name, version, digest, source }`，没写的字段为 `null`。`work start` 按 manifest 声明顺序给全量；`attempt begin` 按节点里的书写顺序给本节点引用的那几条。`digest` 用引擎统一的裸 64 位十六进制，`sha256:` 前缀只是 manifest 的书写格式。
-2. `Timestamp` 只能经 `parse` 或 `from_unix_secs` 构造，反序列化也走 `parse`。形状固定为 `YYYY-MM-DDTHH:MM:SSZ`，校验日历（闰年、每月天数、`23:59:59` 为止）。runtime 的 `format_rfc3339` 与 `civil_from_days` 挪进 core 成 `from_unix_secs`（纯算法，不碰时钟，不违反 INV-1）。存储合同 §7 写明秒精度。
+2. `Timestamp` 只能经 `parse` 或 `from_unix_secs` 构造，反序列化也走 `parse`。形状固定为 `YYYY-MM-DDTHH:MM:SSZ`，校验日历（闰年、每月天数、`23:59:59` 为止）。runtime 的 `format_rfc3339` 与 `civil_from_days` 挪进 core 成 `from_unix_secs`（纯算法，不碰时钟，不违反 INV-1）；它对超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，不产出 `parse` 会拒绝的五位年份。存储合同 §7 写明秒精度与这条饱和。
 3. `Timestamp::unix_secs` 留给实现者（T10）：有了它，`secs_between` 不再需要私有解析与 0 兜底。
 
 **否决。** 回复里继续用 `kind:name` 再另加一个 `versions` 映射（两份并行数据，协调者要自己拼）；`requires` 只给 `(kind, name, version)`（`digest` 与 `source` 是作者写给协调者核对与安装用的，砍掉就得再去读 manifest）；`Timestamp` 允许毫秒与时区偏移再在比较时归一（引擎自己产生时间，没有理由接受多种写法；固定形状换来字典序即时间序）。
