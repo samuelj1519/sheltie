@@ -8,7 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-# 崩溃测试用的失败点：设置 SHELTIE_FAILPOINT=<名字> 时在该点退出进程。
+# 崩溃测试用的失败点：设置 SHELTIE_FAILPOINT=<名字> 时在该处退出进程。
 failpoint = []
 
 [dependencies]

@@ -10,7 +10,7 @@
 <例如 cargo nextest run --all-features -E 'test(/^<tnn>_/)'>
 ```
 
-零个测试匹配时该命令必须失败。
+零个测试匹配时这条命令必须失败。
 
 ## 任务与文件
 

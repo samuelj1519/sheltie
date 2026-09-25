@@ -98,7 +98,7 @@ pub enum WorkCmd {
     List,
     /// 打印状态卡。
     Status { work: String },
-    /// 打印事实视图：每个节点被到达、尝试、失败几次，平均耗时，从哪进来。
+    /// 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来。
     Stats { work: String },
     /// 取消。
     Cancel { work: String },

@@ -265,7 +265,7 @@ fn rejects_self_loop_edge() { … }
 
 **执行者。** 强模型，未参与 T02 到 T10。
 
-**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `scripts/mutants.sh sheltie-core`，对每个幸存突变判断：是测试漏了（补测试，作为 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`，`#[ignore` 只剩后续任务的标签（本里程碑覆盖的任务标签为零），有就退回对应任务。复核 `git log t01-skeleton..HEAD -- scripts/ tasks.toml` 里每一次工具改动：意图没被放松、提交说明写清了原因。
+**做什么。** 读 `git diff T01..T10 -- crates/sheltie-core`，按 [engineering.md §5](engineering.md) 检查表逐项打钩。跑 `scripts/mutants.sh sheltie-core`，对每个幸存突变判断：是测试漏了（补测试，算 M1 的提交），还是死代码（删）。核对 `cargo tree -p sheltie-core` 无 I/O crate。全仓 grep 确认零 `todo!()`、零 `#[allow(unused_variables)]`，`#[ignore` 只剩后续任务的标签（本里程碑覆盖的任务标签为零），有就退回对应任务。复核 `git log t01-skeleton..HEAD -- scripts/ tasks.toml` 里每一次工具改动：意图没被放松、提交说明写清了原因。
 
 **产出。** 一份 `M1` 报告放进 `decisions.md` 末节之前的「里程碑记录」，列检查表结果、幸存突变数与处置、修复提交。有阻断项时对应任务状态改回 `doing`，由实现者修，M1 再复核。另写一节「流程教训」，格式同 `spec-dev` 的 `lessons.md` 建议表：每条有证据（哪个任务的哪次提交或复核）、有落点（`plan.md`、`engineering.md`、`scripts/` 的哪一段）；采纳的直接改，否决的写原因。M2、M3 同。
 

@@ -56,7 +56,7 @@ use crate::ids::WorkId;
 ///     sheltie attempt submit <work_id> --attempt <attempt_id> --summary "<一句话结论>"
 /// ```
 ///
-/// 没有输入时「## 输入」节只有表头两行。`human_size`：能整除 1 MiB 写 `N MiB`，能整除 1 KiB 写 `N KiB`，否则 `N B`。
+/// 没有输入时「## 输入」节只有表头两行。`human_size`：字节数是 1 MiB 的整数倍写 `N MiB`，是 1 KiB 的整数倍写 `N KiB`，否则 `N B`。
 pub fn render_brief(
     state: &WorkState,
     graph: &Graph,
@@ -398,7 +398,7 @@ fn blocked_line(state: &WorkState) -> Option<String> {
     }
 }
 
-/// 事实视图（协议 `work stats`）：每个节点被到达几次、尝试几次、失败几次、平均耗时、从哪些节点经哪种边进来。
+/// 事实视图（协议 `work stats`）：每个节点到达、尝试、失败几次，平均耗时、从哪些节点经哪种边进来。
 /// 只是对 `WorkState` 的计数，不含任何判断。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct StatsJson {

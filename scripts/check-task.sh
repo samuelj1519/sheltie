@@ -4,7 +4,7 @@
 #
 # 检查：
 #   1. 改动范围是并集：基准以来提交说明含 `Task: Tnn` 的提交的改动 ∪ 未提交改动。
-#      每条都要在 tasks.toml 该任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
+#      每条都要在 tasks.toml 本任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
 #   2. files 里没有本任务的 todo!("Tnn") 与不带标签的 todo!()。#[allow(unused_variables)]
 #      只准留在还有 todo!() 的函数上；别的任务的占位按 plan.md 规则 8 原样保留。
 #      files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；目录只取其中的 .rs，
@@ -12,7 +12,7 @@
 #   3. 仓库里没有残留 #[ignore = "Tnn"]。
 #   4. test_files 相对基准的测试代码零改动，只允许删 #[ignore 行（allow_test_changes = true 的任务除外）。
 #      与 files 重叠的是混合源文件：实现填充必须动文件，改查 #[cfg(test)] 起的测试模块。快照零改动。
-#   5. plan.md 该任务状态为 done。
+#   5. plan.md 本任务状态为 done。
 #   6. 最近一次提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
 set -euo pipefail
 
@@ -45,7 +45,7 @@ cd "$(dirname "$0")/.."
 status=0
 fail() { echo "check-task: $*"; status=1; }
 
-# 读 tasks.toml 里该任务的数组字段（简单 TOML，一行一个数组）。
+# 读 tasks.toml 里本任务的数组字段（简单 TOML，一行一个数组）。
 field() {
 	awk -v t="[$task]" -v f="$1" '
 		$0 == t { inside = 1; next }

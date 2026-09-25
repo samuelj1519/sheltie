@@ -119,7 +119,7 @@ impl WorkbookRepo {
         todo!("T15")
     }
 
-    /// 引用该版本且非终态的 Work。先按 `status` 列过滤，再解 `state_json` 核对。
+    /// 引用本版本且非终态的 Work。先按 `status` 列过滤，再解 `state_json` 核对。
     #[allow(unused_variables)]
     pub(crate) fn works_referencing(&self, id: &str, version: &str) -> Result<Vec<WorkId>> {
         todo!("T15")
