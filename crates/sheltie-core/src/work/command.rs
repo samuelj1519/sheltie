@@ -8,6 +8,7 @@ use super::state::{ArtifactRef, Principal, Timestamp, WorkState, WorkbookRef};
 use crate::digest::Sha256Hex;
 use crate::ids::{AttemptId, FlowId, NodeId, WorkId, WorkName};
 use crate::path::AbsPath;
+use crate::workbook::HostRequire;
 
 /// runtime 对一个文件的只读观察。core 拿它对照合同，不自己读文件。
 ///
@@ -135,7 +136,7 @@ pub enum Reply {
     Started {
         work_id: WorkId,
         work_dir: AbsPath,
-        requires: Vec<String>,
+        requires: Vec<HostRequire>,
     },
     AttemptBegun {
         attempt: AttemptId,
@@ -143,7 +144,7 @@ pub enum Reply {
         output_dir: AbsPath,
         inputs: BTreeMap<String, Option<AbsPath>>,
         outputs: BTreeMap<String, AbsPath>,
-        requires: Vec<String>,
+        requires: Vec<HostRequire>,
     },
     AttemptSubmitted {
         attempt: AttemptId,

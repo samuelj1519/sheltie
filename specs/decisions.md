@@ -308,29 +308,9 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 5. `tasks.toml` 加 `[T01]`：工具提交不得动 `crates/`，不再落在核对盲区。
 6. 规则 3 明确：同文件私有辅助函数是实现细节，允许。原文没禁，实现者按最严解释自我批评，说明规则需要写清而不是靠猜。
 
-**否决。** 撤回 T02 的「通过」（没有影响已实现行为的缺陷，十条测试绿，撤回没有依据）；把复核者的错误算成实现者的返工。
+**否决。** 撤回 T02 的「通过」（没有影响已实现行为的缺陷，十条测试绿，撤回没有依据）；把复核者的错误算成实现者的返工；因为复核不够严就取消逐任务复核（问题是复核的方法，不是复核本身）；让复核者顺手把实现者的缺陷一起修掉（归属混了，下次就分不清谁该对什么负责）。
 
-**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。
-
-## D-25 复核也要被复核：T02 的两轮往返
-
-2026-09-24。
-
-**背景。** 复核者（强模型）审 T02，结论「通过，两项待修」。实现者回复：结论可维持，但复核过程有两处事实不实、三处漏检，其中一处会让 T03 必然过不了门禁。逐条核实后全部成立。
-
-**事实。** 复核声称「用 diff 核对了删除行只有 `#[allow]`、`#[ignore]` 与 `todo!`」，实际只查了一个文件，`text.rs` 还删了一行 `use`。复核声称「重跑负例仍能报错」，实际只 grep 了以 `check-task:` 开头的行，没看到脚本在 `set -u` 下因 `"$residue："`（全角冒号被 bash 吞进变量名）中止。复核没发现骨架在 `parse_manifest` 上留了一个没有 `todo!()` 的 `#[allow(unused_variables)]`，按新的检查 2 语义 T03 填完也过不了。复核把 `is_han` 缺区段的处理定为「改合同措辞」，实现者指出模糊措辞让合同失去可测性，应列出码点区间。复核把 B3 当单点文档失配，根因是 `kebab_id!` 宏用类型名当错误 `field`，与 `work_name`、`work_id` 词汇不一致。
-
-**选择。**
-
-1. 复核的验证义务写成硬规则：读工具的完整输出而不是 grep 一行；对「零改动」类主张用覆盖全部文件的机械 diff，并把命令贴进复核记录。
-2. 合同不用模糊词换可测性：汉字区段在协议里列出十二个码点区间，实现逐区间一致，测试每区间取一个码点。
-3. `tasks.toml` 加 `[T01]`：工具修复提交有自己的白名单，只准动脚本、计划、配置，不准动 `crates/`。此前标 `Task: T01` 的提交在机器核对的盲区里。
-4. 规则 3 明确：同文件私有辅助函数允许。拆分是骨架的职责，但不禁止实现者为可读性加非 `pub` 的小函数。
-5. 归属不变：实现者引入的（deb31ed 的全角冒号、检查 1 的互斥路径）由实现者修；骨架引入的（残留 `allow`、宏字段词汇、缺 `[T01]`）由骨架作者修。
-
-**否决。** 因为复核不够严就取消逐任务复核（问题是复核的方法，不是复核本身）；让复核者顺手把实现者的缺陷一起修掉（归属混了，下次就分不清谁该对什么负责）。
-
-**后果。** 任务卡多一行「复核的复核」。这一轮往返的成本约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。
+**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。（此条原先被写成两条同号的 D-25，M1 第二轮合并，`check-docs.sh` 加编号唯一检查。）
 
 ## D-26 输入名只查唯一，不走 ID 字符规则
 
@@ -355,6 +335,22 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 **否决。** 按 `test_files` 选跑（上述原因）；`task.sh` 直接解析任务卡取名字（复核者补的测试都得回写任务卡，漏写无人发现，且 bash 解析 Markdown 太脆）；新测试执行新规、旧名渐进迁移（半新半旧比现状更乱，T11 起尚未填空，现在一次改最便宜）；用模块名命名（`optional_outputs_work` 是分类不是规格）。
 
 **后果。** 两份映射（任务卡与注释）由 `check-tests.sh` 核对单向一致：卡上列的必须存在且归属相符；代码里多出的测试（复核者补的）只需挂被复核任务的编号。`unknown_subcommand_exits_2` 原名挂 `t01_`，任务卡列在 T17，按任务卡归 T17（T01 骨架里它已经是绿的）。
+
+## D-28 宿主资源清单原样给声明；时间只有秒精度
+
+2026-09-25，M1 第二轮，复核者定。
+
+**背景。** M1 的 O1 修完后 `work start` 回了 Workbook 全量 `requires`，但每项是拼好的 `kind:name` 字符串：manifest 里写的 `version`、`digest`、`source` 到回复里就丢了，协调者开工前「自行确认宿主」时拿不到要确认的版本。`attempt begin` 同样。另一件：`Timestamp` 是 `pub struct Timestamp(pub String)`，谁都能塞任意字符串；`secs_between` 为此带着「解析不了当 0」的兜底，`day()` 取前 10 字节在短串上会 panic，字符串排序也不等于时间序（`…05Z` 与 `…05.678Z`、`+08:00`）。
+
+**选择。**
+
+1. 两处回复的 `requires` 都是 `Vec<HostRequire>`，每项原样是 manifest 那条声明 `{ kind, name, version, digest, source }`，没写的字段为 `null`。`work start` 按 manifest 声明顺序给全量；`attempt begin` 按节点里的书写顺序给本节点引用的那几条。`digest` 用引擎统一的裸 64 位十六进制，`sha256:` 前缀只是 manifest 的书写格式。
+2. `Timestamp` 只能经 `parse` 或 `from_unix_secs` 构造，反序列化也走 `parse`。形状固定为 `YYYY-MM-DDTHH:MM:SSZ`，校验日历（闰年、每月天数、`23:59:59` 为止）。runtime 的 `format_rfc3339` 与 `civil_from_days` 挪进 core 成 `from_unix_secs`（纯算法，不碰时钟，不违反 INV-1）。存储合同 §7 写明秒精度。
+3. `Timestamp::unix_secs` 留给实现者（T10）：有了它，`secs_between` 不再需要私有解析与 0 兜底。
+
+**否决。** 回复里继续用 `kind:name` 再另加一个 `versions` 映射（两份并行数据，协调者要自己拼）；`requires` 只给 `(kind, name, version)`（`digest` 与 `source` 是作者写给协调者核对与安装用的，砍掉就得再去读 manifest）；`Timestamp` 允许毫秒与时区偏移再在比较时归一（引擎自己产生时间，没有理由接受多种写法；固定形状换来字典序即时间序）。
+
+**后果。** `Reply::Started` 与 `Reply::AttemptBegun` 的 `requires` 类型变了，协议 work start 第 8 步、attempt begin 第 5 步随之改写。`Timestamp` 的字段私有，runtime 与测试改用 `parse`；`observe::now()` 改调 `from_unix_secs`。新增测试见 M1 第二轮处置。
 
 ## 里程碑记录
 
@@ -419,10 +415,25 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 | L6 | 实现者 | 9044612 `decide_start` 注释「未用到的 manifest 条目由 runtime 在返回前补」；`count_blocks` 的定义；`engine_stats_artifact` 的兜底串 | `plan.md` §0.2 规则 10 | 把「由 runtime 补」「解析不了当 0」「出错用默认内容」写进注释也算发明，同样要停 | 采纳，已改 |
 | L7 | 顺序 | 9044612：T07 的夹具要用 submit、fail、render，实现者在 T07 里填了 T08 到 T10 的函数，T08 到 T10 只剩验收，没有「先看到红」 | `plan.md` T01「验证」段 | 骨架作者对每个任务核对：只解开本任务测试时 panic 的都是本任务的 `todo!`。M2 开工前对 T12 到 T16 做一次 | 采纳，已改 |
 | L8 | 提交 | 9044612、4334925、810730f、8af5f94、43ec6bf：`Task`、`Agent` 与 `Co-Authored-By` 之间空行，git 不认作 trailer | `engineering.md` §4 | 所有 trailer 同一段，不空行 | 采纳，已改；`check-task.sh` 仍按文本 grep，不改（改成严格解析会让历史提交全部不合格，收益小） |
-| L9 | 文档 | 本文 294 行与 315 行两个 `D-25`，写的是同一件事的两个版本 | 本文 | 合并为一条 | 否决自动处理：决策记录是历史，合并哪一版由人定；`check-docs.sh` 暂不加唯一性检查，等合并后再加 |
+| L9 | 文档 | 本文 294 行与 315 行两个 `D-25`，写的是同一件事的两个版本 | 本文 | 合并为一条 | 否决自动处理：决策记录是历史，合并哪一版由人定；`check-docs.sh` 暂不加唯一性检查，等合并后再加。第二轮已合并（保留第一条的结构，并入第二条的两项否决与成本），`check-docs.sh` 加编号唯一检查 |
 | L10 | 审查 | M1 卡要求「全仓零 `#[ignore`」，但 T11 以后的测试按设计仍禁用，复核者新加的待修测试也必须禁用 | `plan.md` M1 卡 | 改为「本里程碑覆盖的任务标签为零」 | 采纳，已改 |
 
 **修复提交。** 本条记录所在的 M1 提交（补测试、删死代码、合同与流程修订，打 tag `t05-review-3`）；待 T05 的 `fix(core)`。
+
+**第二轮处置（2026-09-25）。** 实现者在 `t05-review-3` 之后交了七个修复提交（5f4b6d6 到 6290c61），附六条疑问。逐条核对后：
+
+- 已修，复核通过：B1（5f4b6d6）；O1 的「全量」（51eda62）；O3（51eda62）；O4（f47af48）；O5 写进协议（ac17547）；O6（03a9be9）；O7 第一处「尚无（上游 X 还没有产出）」（496a182）。
+- 实现者的疑问里成立的：O2 复核者原建议报 `WORKBOOK_TAMPERED`，存储合同 §5.1 明文要求冻结副本不符报 `STORE_CORRUPT`，复核者撤回原建议。不成立的：「样例说明文件没有末尾换行」，实际全部以 `0a` 结尾，`end-of-file-fixer` 也强制这一点。
+- 复核者本轮改的（签名、测试、合同，实现者不能动的部分）：
+  - O1 的形状：`requires` 从 `kind:name` 字符串改为原样的 manifest 声明，见 D-28。`Reply` 两处改类型，`decide` 两处随之改，新增 `start_requires_carry_manifest_declaration_as_is`（T06）。
+  - `Timestamp` 收紧，见 D-28。新增 `timestamp_parse_accepts_utc_second_precision`、`timestamp_parse_rejects_offsets_fractions_and_impossible_dates`、`timestamp_deserialize_validates_and_serialize_is_plain_string`、`timestamp_from_unix_secs_matches_known_dates`（T01），以及禁用的 `timestamp_unix_secs_matches_independent_calendar_math`（T10）。runtime 的日历算法挪进 core，`format_rfc3339_epoch_and_known_date` 随之删除，覆盖由 `timestamp_from_unix_secs_matches_known_dates` 接替。
+  - O7 第二处定为「此 <kind>」：协议 §4 补说明；快照 `brief_for_node_with_requires` 改成「此 skill」；`brief_require_version_column_comes_from_manifest` 改名 `brief_require_row_takes_version_from_manifest_and_names_kind` 并加一条 `mcp` 声明。两条都禁用为 T10。已用正确实现临时验证两条会变绿，然后撤回。
+  - O7 第三处定为「逐字，去掉末尾换行」：协议 §4 模板改写，与实现一致，不动代码。
+  - O2 落到 T16：协议 attempt begin 第 3 步写明 `resource.<path>` 输入由副本整体摘要覆盖，不符报 `STORE_CORRUPT`；`tests/service.rs` 补三条禁用测试，挂 T16。
+  - D-25 合并（L9）。
+- 流程：实现者的修复提交都写了 `Task: M1`，`check-task.sh` 因此按 M1 的白名单核对，而 M1 没有白名单，等于没核。`plan.md` §0.6 补一条：里程碑复核退回的修复用被退回任务的编号。
+- 交还实现者：T10 退回 `doing`（「此 <kind>」；`Timestamp::unix_secs`，`secs_between` 改用它）；O2 的实现随 T16。完成后 M1 复跑突变并复核实现者本轮自写的测试。`render.rs:520` 的两个等价突变会随 `rfc3339_secs` 删除而消失。
+- 不做：`BoundedText` 的 `Deserialize` 改为调用 `new`。重复只有一个长度比较，而且反序列化拿不到 `field` 名，两处报错本来就不同，改了没有收益。`render_brief` 输入表的 `_ => "尚无"` 分支按编译规则 5 不可达，但删掉只能换成 panic 或静默少一行，都比现在带注释的兜底差，保留。
 
 ## 首次真实运行
 

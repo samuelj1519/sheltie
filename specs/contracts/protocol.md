@@ -81,7 +81,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 5. 建目录 `works/<work_id>/`。把整个 Workbook 目录复制到 `works/<work_id>/workbook/` 并置只读，这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
 6. 建 `inputs/`，把每个输入值写成文件 `inputs/<key>`，记 `ArtifactRef`。
 7. `current = entry#1`，`status = active`。
-8. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`。`requires` 是 Workbook 声明的全部宿主资源，供协调者在开工前自行确认；MVP 的引擎不检查宿主。
+8. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`。`requires` 是 Workbook 声明的全部宿主资源，按 manifest 声明顺序，每项原样是那条声明 `{ kind, name, version, digest, source }`（没写的字段为 `null`；`digest` 与其他回复一样是裸 64 位十六进制，不带 `sha256:` 前缀），供协调者在开工前自行确认；MVP 的引擎不检查宿主。
 
 例：`sheltie work start --workbook article-review --flow default --name "文章 初稿"` 得到 `2026-09-24-003-文章-初稿`。
 
@@ -89,11 +89,11 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 1. `node` 必须出现在当前 `next` 里，否则 `ILLEGAL_NEXT`（响应里附上当前 `next`）。
 2. 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`，记下来自哪个 Occurrence 与边类型。重试时沿用上一次的来源。
-3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
+3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。来源为 `resource.<path>` 的输入读 Work 的冻结副本，它没有单独记录的摘要，由副本整体摘要覆盖：副本缺失或摘要不符报 `STORE_CORRUPT`（[存储合同 §5.1](storage.md)），不报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
 4. 建 Attempt 目录 `attempts/<node>/<n>/<retry>/`，写 `brief.md`（§4）。
 5. 返回 `{ attempt_id, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`。
 
-`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点声明的宿主资源（`kind:name`）。协调者把 `brief_path` 交给工作 agent 即可。
+`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，形状同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
 ### `attempt submit <work> --attempt <id> --summary <text>`
 
@@ -162,11 +162,11 @@ Work: <work_id>（<name>）
 | --- | --- | --- | --- |
 | skill | company-api | ^1 | 请确认你的宿主已装此 skill；未装请停下并告知用户 |
 
-（节点没有声明时省略本节。）
+（节点没有声明时省略本节。「此 skill」随类型变成「此 agent」「此 mcp」；版本没写时填 `-`。）
 
 ## 说明
 
-<instruction 原文，逐字>
+<instruction 原文，逐字；末尾的换行去掉，由模板统一换行>
 
 ## 输出要求
 

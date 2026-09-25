@@ -33,7 +33,7 @@ fn input(
         reply_json: format!("{{\"reply\":\"{payload}\"}}"),
         principal: Principal("tester".into()),
         command_json: "{}".into(),
-        at: Timestamp("2026-09-24T03:00:00Z".into()),
+        at: Timestamp::parse("2026-09-24T03:00:00Z").unwrap(),
     }
 }
 

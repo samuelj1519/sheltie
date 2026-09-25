@@ -37,51 +37,11 @@ pub fn principal() -> Principal {
     Principal(name)
 }
 
-/// 当前 UTC 时间，RFC 3339，秒精度。
+/// 当前 UTC 时间，秒精度。格式化在 core 的 `Timestamp::from_unix_secs`。
 pub fn now() -> Timestamp {
     let secs = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    Timestamp(format_rfc3339(secs))
-}
-
-/// 把 Unix 秒数格式化成 `YYYY-MM-DDTHH:MM:SSZ`。纯算法，不依赖时区库。
-pub fn format_rfc3339(secs: u64) -> String {
-    let days = secs / 86_400;
-    let rem = secs % 86_400;
-    let (y, m, d) = civil_from_days(days as i64);
-    format!(
-        "{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z",
-        rem / 3600,
-        (rem % 3600) / 60,
-        rem % 60
-    )
-}
-
-// Howard Hinnant 的 days_from_civil 逆运算。
-fn civil_from_days(z: i64) -> (i64, u32, u32) {
-    let z = z + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z.rem_euclid(146_097);
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = (doy - (153 * mp + 2) / 5 + 1) as u32;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 } as u32;
-    (if m <= 2 { y + 1 } else { y }, m, d)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // Task: T01
-    #[test]
-    fn format_rfc3339_epoch_and_known_date() {
-        assert_eq!(format_rfc3339(0), "1970-01-01T00:00:00Z");
-        // 2026-09-24T03:00:00Z
-        assert_eq!(format_rfc3339(1_790_218_800), "2026-09-24T03:00:00Z");
-    }
+    Timestamp::from_unix_secs(secs)
 }
