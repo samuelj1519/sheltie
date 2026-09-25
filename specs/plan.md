@@ -90,7 +90,7 @@ fn rejects_self_loop_edge() { … }
 | T09 | done | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
 | T10 | done | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行与预写快照一致 |
 | M1 | done | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 存活的突变体逐条处置 |
-| T11 | todo | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
+| T11 | done | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | todo | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
 | T13 | todo | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
 | T14 | todo | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
