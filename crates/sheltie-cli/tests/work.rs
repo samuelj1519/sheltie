@@ -8,7 +8,6 @@ use predicates::prelude::*;
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_start_creates_work_and_prints_next() {
     let env = Env::new();
     env.add_example("two-step");
@@ -34,7 +33,6 @@ fn work_start_creates_work_and_prints_next() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_start_missing_input_exits_1_with_input_missing() {
     let env = Env::new();
     env.add_example("two-step");
@@ -52,7 +50,6 @@ fn work_start_missing_input_exits_1_with_input_missing() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_start_accepts_at_file_input() {
     let env = Env::new();
     env.add_example("two-step");
@@ -65,7 +62,6 @@ fn work_start_accepts_at_file_input() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_list_shows_status_and_current() {
     let env = Env::new();
     env.add_example("two-step");
@@ -80,7 +76,6 @@ fn work_list_shows_status_and_current() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_status_prints_status_card() {
     let env = Env::new();
     env.add_example("two-step");
@@ -96,7 +91,6 @@ fn work_status_prints_status_card() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_stats_prints_table_and_json() {
     let env = Env::new();
     env.add_example("two-step");
@@ -117,7 +111,6 @@ fn work_stats_prints_table_and_json() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_status_json_matches_schema() {
     let env = Env::new();
     env.add_example("two-step");
@@ -143,7 +136,6 @@ fn work_status_json_matches_schema() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_cancel_then_any_write_is_work_terminal() {
     let env = Env::new();
     env.add_example("two-step");
@@ -156,7 +148,6 @@ fn work_cancel_then_any_write_is_work_terminal() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_id_prefix_resolves_when_unique() {
     let env = Env::new();
     env.add_example("two-step");
@@ -167,7 +158,6 @@ fn work_id_prefix_resolves_when_unique() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_id_prefix_ambiguous_lists_candidates() {
     let env = Env::new();
     env.add_example("two-step");
@@ -181,7 +171,6 @@ fn work_id_prefix_ambiguous_lists_candidates() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_start_default_name_is_flow_id() {
     let env = Env::new();
     env.add_example("two-step");
@@ -191,7 +180,6 @@ fn work_start_default_name_is_flow_id() {
 
 // Task: T18
 #[test]
-#[ignore = "T18"]
 fn work_start_with_chinese_name_creates_matching_directory() {
     let env = Env::new();
     env.add_example("two-step");

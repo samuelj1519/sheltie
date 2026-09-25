@@ -92,7 +92,7 @@ test_files = ["crates/sheltie-cli/tests/workbook.rs"]
 allow_test_changes = false
 
 [T18]
-files = ["crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-cli/src/cli.rs"]
+files = ["crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/commands/attempt.rs"]
 test_files = ["crates/sheltie-cli/tests/work.rs"]
 allow_test_changes = false
 
