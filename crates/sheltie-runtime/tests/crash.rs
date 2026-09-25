@@ -10,15 +10,42 @@ use std::process::Command;
 use common::*;
 use sheltie_core::ids::NodeId;
 
-/// 找到 workspace 里的 `sheltie` 二进制。测试进程由 cargo 起，`CARGO_BIN_EXE_*` 只在同 crate 可用，
-/// 所以这里用 target 目录推断。T23 若发现路径不稳，改为在 cli crate 的 tests 里跑同样场景。
+/// 找到 workspace 里的 `sheltie` 二进制，带 `failpoint` 特性构建。
+/// `CARGO_BIN_EXE_*` 只在同 crate 可用；`../../target` 的推断又被全局
+/// `~/.cargo/config.toml` 的 `target-dir` 打破（构建落在别处），
+/// 所以直接问 cargo 要可执行文件路径。本文件被 nextest 设为串行，cargo 不会并发。
 fn sheltie_bin() -> std::path::PathBuf {
-    let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/debug/sheltie");
+    let out = Command::new("cargo")
+        .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."))
+        .args([
+            "build",
+            "-p",
+            "sheltie-cli",
+            "--features",
+            "sheltie-runtime/failpoint",
+            "--message-format=json",
+        ])
+        .output()
+        .expect("起不了 cargo");
     assert!(
-        target.exists(),
-        "先 cargo build -p sheltie-cli --features sheltie-runtime/failpoint"
+        out.status.success(),
+        "cargo build 失败：{}",
+        String::from_utf8_lossy(&out.stderr)
     );
-    target
+    for line in String::from_utf8_lossy(&out.stdout).lines() {
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
+            continue;
+        };
+        if v["reason"] == "compiler-artifact"
+            && v["target"]["name"] == "sheltie"
+            && v["executable"].is_string()
+        {
+            let p = std::path::PathBuf::from(v["executable"].as_str().unwrap_or_default());
+            assert!(p.exists(), "cargo 报的路径不存在：{}", p.display());
+            return p;
+        }
+    }
+    panic!("cargo 没报出 sheltie 的可执行文件路径");
 }
 
 fn run_with_failpoint(
@@ -36,7 +63,6 @@ fn run_with_failpoint(
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -71,7 +97,6 @@ fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -110,7 +135,6 @@ fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn status_card_missing_is_regenerated_on_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -123,7 +147,6 @@ fn status_card_missing_is_regenerated_on_next_write() {
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
     let (d, home) = temp_home();
     let release = d.path().join("release");
