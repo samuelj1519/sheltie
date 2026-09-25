@@ -130,7 +130,7 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 
 行按图声明顺序。`total` 是 `created_at` 到 `updated_at`。`blocked` 是 Work 被挡住的累计次数：每个节点每个 Occurrence 只看最后一次 Attempt，`gate` 节点提交成功（含已批准）算一次，用尽重试的失败算一次，Work 当前停在 `blocked(no_legal_edge)` 再算一次。`approvals` 是 `gate approve` 的次数。`avg` 是该节点已结束 Attempt 的平均耗时。`entered_via` 按首次出现顺序列出 `来源节点×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / avg_seconds / entered_via`）。
 
-`engine.stats` 输入绑定的就是这份 JSON：`attempt begin` 时引擎把它写到 `attempts/<node>/<n>/<retry>/stats.json`，记 sha256，任务书输入表里像其他文件一样列出。
+`engine.stats` 输入绑定的就是这份 JSON：`attempt begin` 时引擎把它写到 `attempts/<node>/<n>/<retry>/stats.json`，记 sha256，任务书输入表里像其他文件一样列出。口径含本次 Attempt 本身（当前节点的 `visits` 与 `attempts` 都已计入，`total_seconds` 算到本次提交时刻）：只有用提交后的完整状态计算，崩溃后的重放才能从库里的状态逐字节重建同一份文件（[decisions.md](../decisions.md) D-29）。
 
 ### `work cancel <work>`
 
