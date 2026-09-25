@@ -24,7 +24,7 @@ pub struct StartArgs {
     pub inputs: BTreeMap<String, String>,
 }
 
-/// 写操作的统一响应，对应协议 §5 的包络。
+/// 写操作的统一响应，对应协议 §5 的响应封装。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Response {
     pub request_id: String,
