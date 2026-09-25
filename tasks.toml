@@ -77,7 +77,7 @@ test_files = ["crates/sheltie-runtime/tests/workbook_repo.rs"]
 allow_test_changes = false
 
 [T15]
-files = ["crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/store/read.rs"]
+files = ["crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/service.rs"]
 test_files = ["crates/sheltie-runtime/tests/workbook_repo.rs"]
 allow_test_changes = false
 
