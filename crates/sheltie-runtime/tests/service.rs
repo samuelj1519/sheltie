@@ -219,6 +219,169 @@ fn concurrent_writers_one_gets_revision_conflict() {
     )));
 }
 
+// Task: T16
+#[test]
+fn resolve_work_unique_prefix_resolves() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let prefix: String = wid.as_str().chars().take(20).collect();
+    assert_eq!(svc.resolve_work(&prefix).unwrap(), wid);
+    assert_eq!(svc.resolve_work(wid.as_str()).unwrap(), wid);
+}
+
+// Task: T16
+#[test]
+fn resolve_work_rejects_unknown_prefix() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let _ = start_two_step(&svc);
+    assert!(matches!(
+        svc.resolve_work("1999-01-01"),
+        Err(Error::NotFound { .. })
+    ));
+}
+
+// Task: T16
+#[test]
+fn response_revision_increments_with_each_commit() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let started = start_two_step(&svc);
+    assert_eq!(started.revision, 1);
+    let wid = work_id_of(&started);
+    let b = svc.begin(&wid, &node("outline"), None).unwrap();
+    assert_eq!(b.revision, 2);
+    write_output(&output_dir_of(&b), "outline.md", "x");
+    let s = svc
+        .submit(&wid, &attempt("outline#1.0"), "ok", None)
+        .unwrap();
+    assert_eq!(s.revision, 3);
+}
+
+// Task: T16
+#[test]
+fn begin_replay_returns_original_reply_and_rewrites_brief() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let first = svc
+        .begin(&wid, &node("outline"), Some("r-begin".into()))
+        .unwrap();
+    let dir = output_dir_of(&first);
+    let brief = Path::new(dir.as_str()).join("brief.md");
+    std::fs::remove_file(&brief).unwrap();
+    let again = svc
+        .begin(&wid, &node("outline"), Some("r-begin".into()))
+        .unwrap();
+    assert!(again.replayed);
+    assert_eq!(again.revision, first.revision, "重放不推进 revision");
+    assert_eq!(again.reply, first.reply, "重放返回原响应");
+    assert!(brief.exists(), "重放补写任务书");
+    assert!(
+        !Path::new(dir.as_str()).join("stats.json").exists(),
+        "没有 engine.stats 输入的 Attempt 不生成 stats.json"
+    );
+}
+
+// Task: T16
+#[test]
+fn begin_same_request_id_different_node_is_request_conflict() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    svc.begin(&wid, &node("outline"), Some("r-x".into()))
+        .unwrap();
+    assert!(matches!(
+        svc.begin(&wid, &node("summary"), Some("r-x".into())),
+        Err(Error::RequestConflict { .. })
+    ));
+}
+
+// Task: T16
+#[test]
+fn start_same_request_id_different_inputs_is_request_conflict() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let args = || StartArgs {
+        workbook_id: "two-step".into(),
+        version: None,
+        flow: "default".into(),
+        name: None,
+        inputs: [("topic".to_string(), "x".to_string())]
+            .into_iter()
+            .collect(),
+    };
+    svc.start(args(), Some("req-9".into())).unwrap();
+    let mut changed = args();
+    changed.inputs.insert("topic".to_string(), "y".to_string());
+    assert!(matches!(
+        svc.start(changed, Some("req-9".into())),
+        Err(Error::RequestConflict { .. })
+    ));
+}
+
+// Task: T16
+#[test]
+fn audit_stores_command_with_instruction_text_redacted() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    svc.begin(&wid, &node("outline"), None).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let json: String = conn
+        .query_row(
+            "SELECT command_json FROM audit ORDER BY seq DESC LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert!(json.contains("字节"), "说明书原文换成字节数：{json}");
+    assert!(!json.contains("列一份提纲"), "说明书原文不进审计表：{json}");
+}
+
+// Task: T16
+#[test]
+fn begin_replay_regenerates_missing_stats_json() {
+    let (_d, home) = temp_home();
+    let src = Path::new(_d.path()).join("stats-wb");
+    std::fs::create_dir_all(src.join("flows")).unwrap();
+    std::fs::write(
+        src.join("workbook.toml"),
+        "schema = \"workbook/v1\"\nid = \"stats-wb\"\nversion = \"1.0.0\"\nname = \"统计重放\"\ndescription = \"engine.stats 重放。\"\nflows = [\"flows/default.toml\"]\n",
+    )
+    .unwrap();
+    std::fs::write(
+        src.join("flows/default.toml"),
+        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"甲\"\nexecutor = \"agent\"\ninstruction = { text = \"做甲。\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n\n[[nodes]]\nid = \"b\"\ntitle = \"乙\"\nexecutor = \"agent\"\ninstruction = { text = \"做乙。\" }\ninputs = [{ name = \"stats\", from = \"engine.stats\" }, { name = \"x\", from = \"a.x\" }]\noutputs = [{ name = \"y\", path = \"y.md\", max_bytes = 65536 }]\n\n[[edges]]\nfrom = \"a\"\nto = \"b\"\nkind = \"main\"\n",
+    )
+    .unwrap();
+    let r = repo(&home);
+    r.add(&abs(&src)).unwrap();
+    let svc = service(&home);
+    let started = svc
+        .start(
+            StartArgs {
+                workbook_id: "stats-wb".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: Default::default(),
+            },
+            None,
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
+    let begin_a = svc.begin(&wid, &node("a"), None).unwrap();
+    write_output(&output_dir_of(&begin_a), "x.md", "x");
+    svc.submit(&wid, &attempt("a#1.0"), "ok", None).unwrap();
+    let begin_b = svc.begin(&wid, &node("b"), Some("r-b".into())).unwrap();
+    let dir = output_dir_of(&begin_b);
+    let stats = Path::new(dir.as_str()).join("stats.json");
+    let original = std::fs::read(&stats).unwrap();
+    std::fs::remove_file(&stats).unwrap();
+    let replay = svc.begin(&wid, &node("b"), Some("r-b".into())).unwrap();
+    assert!(replay.replayed);
+    assert_eq!(
+        std::fs::read(&stats).unwrap(),
+        original,
+        "重放按提交时的口径重算 stats.json"
+    );
+}
+
 // ── M1 复核 O2：冻结副本缺失或被改，对本 Work 的操作报 STORE_CORRUPT（存储合同 §5.1）──
 
 // Task: T16

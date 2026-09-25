@@ -16,7 +16,7 @@ use sheltie_core::workbook::parse_manifest;
 
 use crate::error::{Error, Result};
 use crate::home::Home;
-use crate::observe::{build_resource_index, now, observe_file, principal};
+use crate::observe::{build_resource_index, now, observe_optional, principal};
 use crate::store::{CommitInput, CommitOutcome, Store};
 use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
 
@@ -33,6 +33,7 @@ pub struct StartArgs {
 
 /// 写操作的统一响应，对应协议 §5 的响应封装。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Response {
     pub request_id: String,
     pub revision: u64,
@@ -159,13 +160,9 @@ impl WorkService {
                     sheltie_core::work::input_paths_for(&loaded.state, &loaded.graph, node)?;
                 let mut observed = BTreeMap::new();
                 for (name, path) in paths {
+                    // 缺文件记 None，由 core 按合同的 required 决定拒绝还是留空。
                     let obs = match path {
-                        // 缺文件记 None，由 core 按合同的 required 决定拒绝还是留空。
-                        Some(p) => match observe_file(&p) {
-                            Ok(f) => Some(f),
-                            Err(Error::NotFound { .. }) => None,
-                            Err(e) => return Err(e),
-                        },
+                        Some(p) => observe_optional(&p)?,
                         None => None,
                     };
                     observed.insert(name, obs);
@@ -195,12 +192,7 @@ impl WorkService {
                 let mut observed = BTreeMap::new();
                 for (name, path) in paths {
                     // 缺文件记 None（OUTPUT_MISSING 由 core 报）；软链等观察错误直接拒绝。
-                    let obs = match observe_file(&path) {
-                        Ok(f) => Some(f),
-                        Err(Error::NotFound { .. }) => None,
-                        Err(e) => return Err(e),
-                    };
-                    observed.insert(name, obs);
+                    observed.insert(name, observe_optional(&path)?);
                 }
                 Ok(Command::SubmitAttempt {
                     attempt: attempt.clone(),
@@ -384,7 +376,6 @@ impl WorkService {
         build: &dyn Fn(&Loaded) -> Result<Command>,
         request_id: Option<String>,
     ) -> Result<Response> {
-        crate::failpoint::maybe_exit("after_commit_before_effects");
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
         // 重放预检：decide 在状态已推进后会拒绝同一命令，必须先于 decide 查 requests。
         {
@@ -466,6 +457,8 @@ impl WorkService {
         };
         match self.store.commit(input)? {
             CommitOutcome::Committed { revision } => {
+                // 崩溃窗口：COMMIT 之后、效果之前（存储合同 §3 第二行）。
+                crate::failpoint::maybe_exit("after_commit_before_effects");
                 self.apply_effects(&decision.state, graph, &decision.effects)?;
                 Ok(Response {
                     request_id,
@@ -556,8 +549,8 @@ impl WorkService {
                 &loaded.state.attempt_dir(attempt).join_segment("brief.md"),
                 &brief,
             )?;
-            // engine.stats 的 stats.json：只在文件缺失时按提交时的口径重算
-            // （去掉本 Attempt 的状态就是 begin 之前的状态）。
+            // engine.stats 的 stats.json：只在文件缺失时重算。口径含本次 Attempt（D-29），
+            // 库里的状态就是提交时的状态，重算与提交时逐字节一致。
             let stats_path = loaded.state.attempt_dir(attempt).join_segment("stats.json");
             if at
                 .inputs
@@ -565,10 +558,8 @@ impl WorkService {
                 .any(|r| r.as_ref().is_some_and(|a| a.path == stats_path))
                 && !stats_path.as_path().exists()
             {
-                let mut before = loaded.state.clone();
-                before.attempts.retain(|a| a.id != *attempt);
                 let content = serde_json::to_string(&sheltie_core::work::render_stats_json(
-                    &before,
+                    &loaded.state,
                     &loaded.graph,
                 ))
                 .map_err(|e| Error::StoreCorrupt {
