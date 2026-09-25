@@ -9,13 +9,14 @@ use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
 use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
     Command, Context, Decision, Effect, NextOp, Reply, StatsJson, StatusCardJson, WorkState,
-    WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_status_card,
+    WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_stats, render_stats_json,
+    render_status_card, status_card_json,
 };
 use sheltie_core::workbook::parse_manifest;
 
 use crate::error::{Error, Result};
 use crate::home::Home;
-use crate::observe::{build_resource_index, now, principal};
+use crate::observe::{build_resource_index, now, observe_file, principal};
 use crate::store::{CommitInput, CommitOutcome, Store};
 use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
 
@@ -142,20 +143,43 @@ impl WorkService {
             work_dir,
             inputs,
         };
-        self.commit_one(None, None, &flow.1, &cmd, &ctx, request_id)
+        self.commit_one(None, &flow.1, &cmd, &ctx, request_id, payload_hash)
     }
 
-    #[allow(unused_variables)]
     pub fn begin(
         &self,
         work: &WorkId,
         node: &NodeId,
         request_id: Option<String>,
     ) -> Result<Response> {
-        todo!("T16")
+        self.run_command(
+            work,
+            &|loaded| {
+                let paths =
+                    sheltie_core::work::input_paths_for(&loaded.state, &loaded.graph, node)?;
+                let mut observed = BTreeMap::new();
+                for (name, path) in paths {
+                    let obs = match path {
+                        // 缺文件记 None，由 core 按合同的 required 决定拒绝还是留空。
+                        Some(p) => match observe_file(&p) {
+                            Ok(f) => Some(f),
+                            Err(Error::NotFound { .. }) => None,
+                            Err(e) => return Err(e),
+                        },
+                        None => None,
+                    };
+                    observed.insert(name, obs);
+                }
+                Ok(Command::BeginAttempt {
+                    node: node.clone(),
+                    observed_inputs: observed,
+                    instruction_text: instruction_text_of(&loaded.state, &loaded.graph, node)?,
+                })
+            },
+            request_id,
+        )
     }
 
-    #[allow(unused_variables)]
     pub fn submit(
         &self,
         work: &WorkId,
@@ -163,10 +187,31 @@ impl WorkService {
         summary: &str,
         request_id: Option<String>,
     ) -> Result<Response> {
-        todo!("T16")
+        self.run_command(
+            work,
+            &|loaded| {
+                let paths =
+                    sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
+                let mut observed = BTreeMap::new();
+                for (name, path) in paths {
+                    // 缺文件记 None（OUTPUT_MISSING 由 core 报）；软链等观察错误直接拒绝。
+                    let obs = match observe_file(&path) {
+                        Ok(f) => Some(f),
+                        Err(Error::NotFound { .. }) => None,
+                        Err(e) => return Err(e),
+                    };
+                    observed.insert(name, obs);
+                }
+                Ok(Command::SubmitAttempt {
+                    attempt: attempt.clone(),
+                    summary: summary.to_string(),
+                    observed_outputs: observed,
+                })
+            },
+            request_id,
+        )
     }
 
-    #[allow(unused_variables)]
     pub fn fail(
         &self,
         work: &WorkId,
@@ -174,17 +219,29 @@ impl WorkService {
         reason: &str,
         request_id: Option<String>,
     ) -> Result<Response> {
-        todo!("T16")
+        self.run_command(
+            work,
+            &|_| {
+                Ok(Command::FailAttempt {
+                    attempt: attempt.clone(),
+                    reason: reason.to_string(),
+                })
+            },
+            request_id,
+        )
     }
 
-    #[allow(unused_variables)]
     pub fn approve(
         &self,
         work: &WorkId,
         node: &NodeId,
         request_id: Option<String>,
     ) -> Result<Response> {
-        todo!("T16")
+        self.run_command(
+            work,
+            &|_| Ok(Command::ApproveGate { node: node.clone() }),
+            request_id,
+        )
     }
 
     pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
@@ -192,26 +249,61 @@ impl WorkService {
     }
 
     /// 只读：状态卡文本与结构化形式。
-    #[allow(unused_variables)]
     pub fn status(&self, work: &WorkId) -> Result<(String, StatusCardJson)> {
-        todo!("T16")
+        let loaded = self.load(work)?;
+        Ok((
+            render_status_card(&loaded.state, &loaded.graph),
+            status_card_json(&loaded.state, &loaded.graph),
+        ))
     }
 
     /// 只读：事实视图文本与结构化形式（`render_stats`、`render_stats_json`）。
-    #[allow(unused_variables)]
     pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson)> {
-        todo!("T16")
+        let loaded = self.load(work)?;
+        Ok((
+            render_stats(&loaded.state, &loaded.graph),
+            render_stats_json(&loaded.state, &loaded.graph),
+        ))
     }
 
     /// 只读：全部 Work 摘要。
     pub fn list(&self) -> Result<Vec<WorkSummary>> {
-        todo!("T16")
+        Ok(self
+            .store
+            .list_works()?
+            .into_iter()
+            .map(|row| WorkSummary {
+                work_id: row.state.work_id.clone(),
+                name: row.state.name.to_string(),
+                status: row.state.status,
+                current: row.state.current.to_string(),
+                updated_at: row.state.updated_at.as_str().to_string(),
+            })
+            .collect())
     }
 
     /// 只读：按完整 id 或唯一前缀解析。多个匹配报 `InvalidRequest` 并列出候选。
-    #[allow(unused_variables)]
     pub fn resolve_work(&self, prefix: &str) -> Result<WorkId> {
-        todo!("T16")
+        let matches = self.store.find_works_by_prefix(prefix)?;
+        match matches.len() {
+            0 => Err(Error::NotFound {
+                what: format!("Work {prefix}"),
+            }),
+            1 => Ok(matches
+                .into_iter()
+                .next()
+                .unwrap_or_else(|| unreachable!("长度为 1 的匹配向量必有元素"))),
+            _ => Err(Error::InvalidRequest {
+                reason: format!(
+                    "前缀 {prefix} 匹配多个 Work：{}",
+                    matches
+                        .iter()
+                        .map(|w| w.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            }),
+        }
     }
 
     fn repo(&self) -> WorkbookRepo {
@@ -320,12 +412,12 @@ impl WorkService {
             let loaded = self.load(work)?;
             let cmd = build(&loaded)?;
             match self.commit_one(
-                Some(&loaded.state),
-                Some(loaded.revision),
+                Some((&loaded.state, loaded.revision)),
                 &loaded.graph,
                 &cmd,
                 &ctx,
                 request_id.clone(),
+                hash_command(&cmd)?,
             ) {
                 Ok(resp) => return Ok(resp),
                 Err(Error::RevisionConflict { expected, actual }) => {
@@ -338,22 +430,22 @@ impl WorkService {
         Err(last_conflict)
     }
 
-    /// `decide` + `commit` + 效果。`pre_state` 为 `None` 是 start（新 Work）；`expected` 为
-    /// `None` 同样只出现在 start（插入新行）。
+    /// `decide` + `commit` + 效果。`pre` 是「提交前的状态与 revision」；`None` 只出现在
+    /// `start`（新 Work，插入 revision 1 的行）。
     fn commit_one(
         &self,
-        pre_state: Option<&WorkState>,
-        expected: Option<u64>,
+        pre: Option<(&WorkState, u64)>,
         graph: &Graph,
         cmd: &Command,
         ctx: &Context,
         request_id: String,
+        payload_hash: String,
     ) -> Result<Response> {
-        let decision: Decision = decide(pre_state, graph, cmd, ctx)?;
+        let decision: Decision = decide(pre.map(|(s, _)| s), graph, cmd, ctx)?;
         let next = legal_next(&decision.state, graph);
         let reply_json = serde_json::to_string(&Response {
             request_id: request_id.clone(),
-            revision: expected.map_or(1, |r| r + 1),
+            revision: pre.map_or(1, |(_, r)| r + 1),
             replayed: false,
             reply: decision.reply.clone(),
             next: next.clone(),
@@ -363,10 +455,10 @@ impl WorkService {
         })?;
         let input = CommitInput {
             work_id: Some(decision.state.work_id.clone()),
-            expected_revision: expected,
+            expected_revision: pre.map(|(_, r)| r),
             state: Some(decision.state.clone()),
             request_id: request_id.clone(),
-            payload_hash: hash_command(cmd)?,
+            payload_hash,
             reply_json,
             principal: ctx.principal.clone(),
             command_json: audit_json(cmd)?,
