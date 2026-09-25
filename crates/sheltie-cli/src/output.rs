@@ -42,8 +42,8 @@ pub struct Outcome {
     pub exit_code: i32,
 }
 
-/// 把成功结果包成两种形式。`text` 由调用方渲染。
-#[allow(unused_variables)]
+/// 把成功结果包成两种形式。`text` 由调用方渲染。`next` 为空的命令用一个；
+/// Work 命令的 `next` 项要按协议 §5 组装 `args`，用 [`ok_work`]。
 pub fn ok<T: Serialize>(
     text: String,
     request_id: Option<String>,
@@ -51,22 +51,133 @@ pub fn ok<T: Serialize>(
     data: T,
     next: Vec<NextOp>,
 ) -> Outcome {
-    todo!("T17")
+    let json = to_value_lossy(OkEnvelope {
+        ok: true,
+        request_id,
+        revision,
+        data,
+        next,
+    });
+    Outcome {
+        text,
+        json,
+        exit_code: 0,
+    }
+}
+
+/// [`ok`] 的 Work 版：`next` 项按协议 §5 组装，`args` 里带上 `work`。
+/// `edge` 只在进入另一节点时出现；`executor` 与 `tier` 只在 `attempt begin` 项上。
+pub(crate) fn ok_work(
+    text: String,
+    request_id: Option<String>,
+    revision: Option<u64>,
+    data: serde_json::Value,
+    next: &[NextOp],
+    work: &str,
+) -> Outcome {
+    let mut root = serde_json::Map::new();
+    root.insert("ok".to_string(), serde_json::Value::Bool(true));
+    if let Some(id) = request_id {
+        root.insert("request_id".to_string(), serde_json::json!(id));
+    }
+    if let Some(rev) = revision {
+        root.insert("revision".to_string(), serde_json::json!(rev));
+    }
+    root.insert("data".to_string(), data);
+    let next: Vec<_> = next.iter().map(|op| next_item(work, op)).collect();
+    root.insert("next".to_string(), serde_json::Value::Array(next));
+    Outcome {
+        text,
+        json: serde_json::Value::Object(root),
+        exit_code: 0,
+    }
+}
+
+/// 协议 §5 的 `next` 项。`to_command_line` 是它的文本形式。
+fn next_item(work: &str, op: &NextOp) -> serde_json::Value {
+    match op {
+        NextOp::BeginAttempt {
+            node,
+            edge,
+            executor,
+            tier,
+        } => {
+            let mut v = serde_json::json!({
+                "op": "attempt begin",
+                "args": { "work": work, "node": node.as_str() },
+            });
+            if let Some(kind) = edge {
+                v["edge"] = serde_json::json!(kind.as_str());
+            }
+            v["executor"] = serde_json::json!(executor.as_str());
+            if let Some(t) = tier {
+                v["tier"] = serde_json::json!(t.as_str());
+            }
+            v
+        }
+        NextOp::SubmitAttempt { attempt } => serde_json::json!({
+            "op": "attempt submit",
+            "args": { "work": work, "attempt": attempt.to_string() },
+        }),
+        NextOp::FailAttempt { attempt } => serde_json::json!({
+            "op": "attempt fail",
+            "args": { "work": work, "attempt": attempt.to_string() },
+        }),
+        NextOp::ApproveGate { node } => serde_json::json!({
+            "op": "gate approve",
+            "args": { "work": work, "node": node.as_str() },
+        }),
+        NextOp::Cancel => serde_json::json!({
+            "op": "work cancel",
+            "args": { "work": work },
+        }),
+    }
 }
 
 /// 把错误包成两种形式。退出码 1。
-#[allow(unused_variables)]
 pub fn err(
     code: ErrorCode,
     message: String,
     detail: Option<serde_json::Value>,
     next: Vec<NextOp>,
 ) -> Outcome {
-    todo!("T17")
+    let mut error = serde_json::Map::new();
+    error.insert("code".to_string(), to_value_lossy(code));
+    error.insert("message".to_string(), serde_json::json!(message));
+    if let Some(d) = detail {
+        error.insert("detail".to_string(), d);
+    }
+    let json = serde_json::json!({
+        "ok": false,
+        "error": serde_json::Value::Object(error),
+        "next": to_value_lossy(next),
+    });
+    Outcome {
+        text: format!("{message}\n"),
+        json,
+        exit_code: 1,
+    }
+}
+
+/// 参数格式错误的统一出口：`INVALID_REQUEST` 封装、退出码 2（协议 §5「参数解析错误 2」）。
+pub(crate) fn param_error(message: String) -> Outcome {
+    let mut out = err(ErrorCode::InvalidRequest, message, None, Vec::new());
+    out.exit_code = 2;
+    out
 }
 
 /// 打印。JSON 模式打一行 `json`；文本模式打 `text`。错误走 stderr。
-#[allow(unused_variables)]
 pub fn print(outcome: &Outcome, json_mode: bool) {
-    todo!("T17")
+    if json_mode {
+        println!("{}", outcome.json);
+    } else if outcome.exit_code == 0 {
+        print!("{}", outcome.text);
+    } else {
+        eprint!("{}", outcome.text);
+    }
+}
+
+/// 这些响应类型全是普通数据，序列化实际不会失败；真失败了给 `null` 也不比 panic 差。
+fn to_value_lossy<T: Serialize>(value: T) -> serde_json::Value {
+    serde_json::to_value(value).unwrap_or(serde_json::Value::Null)
 }

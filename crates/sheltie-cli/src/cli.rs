@@ -163,9 +163,19 @@ pub fn parse_input_arg(arg: &str) -> Result<(String, String), String> {
 }
 
 /// `<id>@<version>` 解析。没有 `@` 时版本为 `None`。
-#[allow(unused_variables)]
 pub fn parse_workbook_spec(spec: &str) -> Result<(String, Option<String>), String> {
-    todo!("T17")
+    if spec.is_empty() {
+        return Err("Workbook 引用不能为空，写 <id> 或 <id>@<version>".to_string());
+    }
+    match spec.split_once('@') {
+        None => Ok((spec.to_string(), None)),
+        Some((id, version)) => {
+            if id.is_empty() || version.is_empty() {
+                return Err(format!("Workbook 引用 {spec:?} 不合规，@ 两侧都要有内容"));
+            }
+            Ok((id.to_string(), Some(version.to_string())))
+        }
+    }
 }
 
 /// `--summary` 与 `--reason` 的值：以 `@` 开头读文件，否则原样。
