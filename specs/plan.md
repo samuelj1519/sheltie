@@ -94,7 +94,7 @@ fn rejects_self_loop_edge() { … }
 | T12 | done | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
 | T13 | done | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
 | T14 | done | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
-| T15 | todo | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
+| T15 | done | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
 | T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
 | M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | todo | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
@@ -311,7 +311,9 @@ fn rejects_self_loop_edge() { … }
 
 ### T15 runtime Workbook `remove` 与 `verify`
 
-**文件。** `crates/sheltie-runtime/src/workbook_repo.rs` 中的 `remove`、`verify`、`works_referencing`。
+**文件。** `crates/sheltie-runtime/src/workbook_repo.rs` 中的 `remove`、`verify`、`works_referencing`，`store/read.rs` 的 `delete_workbook`；另按依赖拉入 `service.rs` 的 `start`、`cancel`、`run_command`、`load` 与效果执行（原属 T16）——本任务的两条引用检查测试必经 `svc.start` 与 `svc.cancel`，不先有它们测试只能撞 `todo!("T16")`。
+
+**复核记录（2026-09-25，实现前）。** 夹具修复一次：`verify_reports_missing_when_directory_gone` 把整棵目录 chmod 0644 后 `remove_dir_all` 在 POSIX 上必失败（目录失 x 位进不了子目录），任何实现都不可能通过；改为目录 0755、文件 0644，提交 fe7f5fe，tag `t15-review` 作新基准。T16 只剩 `begin/submit/fail/approve/status/stats/list/resolve_work` 与其测试。
 
 **测试。** `remove_deletes_row_and_directory`、`remove_requires_explicit_version`、`remove_rejects_when_active_work_references_version`、`remove_allows_when_only_terminal_works_reference_version`、`remove_moves_dir_to_tmp_before_delete`、`verify_reports_ok_for_untouched_install`、`verify_reports_tampered_after_byte_change`、`verify_reports_missing_when_directory_gone`、`verify_all_when_filter_omitted`。
 

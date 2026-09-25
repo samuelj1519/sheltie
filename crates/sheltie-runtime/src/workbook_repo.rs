@@ -211,21 +211,98 @@ impl WorkbookRepo {
     }
 
     /// `workbook remove <id>@<version>`（协议细则三步）。
-    #[allow(unused_variables)]
     pub fn remove(&self, id: &str, version: &str) -> Result<Removed> {
-        todo!("T15")
+        if version.is_empty() {
+            return Err(Error::InvalidRequest {
+                reason: "remove 必须给全版本，不接受「最高版本」默认".to_string(),
+            });
+        }
+        let works = self.works_referencing(id, version)?;
+        if !works.is_empty() {
+            return Err(Error::WorkbookInUse {
+                id: id.to_string(),
+                version: version.to_string(),
+                works,
+            });
+        }
+        self.store.delete_workbook(id, version)?;
+        // 提交后把目录挪到 tmp/ 再删；失败只影响磁盘，不影响库。
+        let dir = self.home.workbook_dir(id, version);
+        if dir.as_path().exists() {
+            std::fs::create_dir_all(self.home.tmp_dir().as_path())
+                .map_err(|e| Error::io(self.home.tmp_dir().as_str(), e))?;
+            let tmp = self
+                .home
+                .tmp_dir()
+                .join_segment(&uuid::Uuid::now_v7().to_string());
+            // macOS 上挪动目录本身要写权限（会更新 ..），先放开再挪。
+            make_tree_writable(&dir);
+            if std::fs::rename(dir.as_path(), tmp.as_path()).is_ok() {
+                let _ = std::fs::remove_dir_all(tmp.as_path());
+            }
+        }
+        Ok(Removed {
+            id: id.to_string(),
+            version: version.to_string(),
+        })
     }
 
     /// 引用本版本且非终态的 Work。先按 `status` 列过滤，再解 `state_json` 核对。
-    #[allow(unused_variables)]
     pub(crate) fn works_referencing(&self, id: &str, version: &str) -> Result<Vec<WorkId>> {
-        todo!("T15")
+        let conn = self.store.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT work_id, state_json FROM works WHERE status IN ('active', 'blocked')",
+        )?;
+        let rows = stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?;
+        let mut out = Vec::new();
+        for row in rows {
+            let (_work_id, state_json) = row?;
+            // 冗余列只当索引用；身份以 state_json 里的 workbook 引用为准。
+            let state: sheltie_core::work::WorkState = match serde_json::from_str(&state_json) {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
+            if state.workbook.id.as_str() == id && state.workbook.version == version {
+                out.push(state.work_id);
+            }
+        }
+        Ok(out)
     }
 
     /// `workbook verify`。`filter` 为 `Some((id, version))` 只核对一个。
-    #[allow(unused_variables)]
     pub fn verify(&self, filter: Option<(&str, &str)>) -> Result<Vec<VerifyRow>> {
-        todo!("T15")
+        let rows = match filter {
+            Some((id, version)) => {
+                let row = self
+                    .store
+                    .workbook_versions(id)?
+                    .into_iter()
+                    .find(|r| r.version == version)
+                    .ok_or_else(|| Error::NotFound {
+                        what: format!("Workbook {id}@{version}"),
+                    })?;
+                vec![row]
+            }
+            None => self.store.list_workbooks()?,
+        };
+        let mut out = Vec::with_capacity(rows.len());
+        for row in rows {
+            let dir = self.home.workbook_dir(&row.id, &row.version);
+            let status = if !dir.as_path().exists() {
+                VerifyStatus::Missing
+            } else {
+                match Self::digest_dir(&dir) {
+                    Ok(d) if d.as_str() == row.digest => VerifyStatus::Ok,
+                    _ => VerifyStatus::Tampered,
+                }
+            };
+            out.push(VerifyRow {
+                id: row.id,
+                version: row.version,
+                status,
+            });
+        }
+        Ok(out)
     }
 
     /// 受限复制：拒绝软链、硬链、非普通文件、含 `..`、单文件超 32 MiB、总量超 256 MiB。
@@ -334,15 +411,11 @@ fn collect_file_bytes(
     Ok(())
 }
 
-/// 整棵置只读：文件 0444，目录 0555。
-fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
+/// 内容置只读：子目录 0555、文件 0444。传入的目录本身保持原样——macOS 挪动或
+/// 删除目录需要它可写；防篡改靠文件只读位加 `verify` 的摘要核对。
+/// `work start` 的冻结副本也用它。
+pub(crate) fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
     use std::os::unix::fs::PermissionsExt;
-    let meta = std::fs::metadata(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))?;
-    std::fs::set_permissions(dir.as_path(), std::fs::Permissions::from_mode(0o555))
-        .map_err(|e| Error::io(dir.as_str(), e))?;
-    if !meta.is_dir() {
-        return Ok(());
-    }
     for entry in std::fs::read_dir(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))? {
         let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
         let name = entry.file_name().to_string_lossy().into_owned();
@@ -352,6 +425,8 @@ fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
             .map_err(|e| Error::io(path.as_str(), e))?
             .is_dir()
         {
+            std::fs::set_permissions(path.as_path(), std::fs::Permissions::from_mode(0o555))
+                .map_err(|e| Error::io(path.as_str(), e))?;
             set_tree_readonly(&path)?;
         } else {
             std::fs::set_permissions(path.as_path(), std::fs::Permissions::from_mode(0o444))
@@ -359,4 +434,22 @@ fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// 整棵放开写权限：文件 0644，目录 0755。删除只读目录前用；尽力而为。
+pub(crate) fn make_tree_writable(dir: &AbsPath) {
+    use std::os::unix::fs::PermissionsExt;
+    let Ok(meta) = std::fs::metadata(dir.as_path()) else {
+        return;
+    };
+    let mode = if meta.is_dir() { 0o755 } else { 0o644 };
+    let _ = std::fs::set_permissions(dir.as_path(), std::fs::Permissions::from_mode(mode));
+    if meta.is_dir() {
+        if let Ok(entries) = std::fs::read_dir(dir.as_path()) {
+            for entry in entries.flatten() {
+                let name = entry.file_name().to_string_lossy().into_owned();
+                make_tree_writable(&dir.join_segment(&name));
+            }
+        }
+    }
 }

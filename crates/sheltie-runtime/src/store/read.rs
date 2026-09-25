@@ -142,9 +142,30 @@ impl Store {
     }
 
     /// 删一行 Workbook。不存在报 `NotFound`。
-    #[allow(unused_variables)]
     pub fn delete_workbook(&self, id: &str, version: &str) -> Result<()> {
-        todo!("T15")
+        let conn = self.connect()?;
+        let n = conn.execute(
+            "DELETE FROM workbooks WHERE id = ?1 AND version = ?2",
+            rusqlite::params![id, version],
+        )?;
+        if n == 0 {
+            return Err(Error::NotFound {
+                what: format!("Workbook {id}@{version}"),
+            });
+        }
+        Ok(())
+    }
+
+    /// 查一个请求的 `(payload_hash, reply_json)`。`work start` 的重放预检用。
+    pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT payload_hash, reply_json FROM requests WHERE request_id = ?1",
+                [request_id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?)
     }
 }
 

@@ -2,16 +2,22 @@
 
 use std::collections::BTreeMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use sheltie_core::digest::Sha256Hex;
 use sheltie_core::flow::Graph;
-use sheltie_core::ids::{AttemptId, NodeId, WorkId};
+use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
+use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
-    Command, NextOp, Reply, StatsJson, StatusCardJson, WorkState, WorkStatus,
+    Command, Context, Decision, Effect, NextOp, Reply, StatsJson, StatusCardJson, WorkState,
+    WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_status_card,
 };
+use sheltie_core::workbook::parse_manifest;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::home::Home;
-use crate::store::Store;
+use crate::observe::{build_resource_index, now, principal};
+use crate::store::{CommitInput, CommitOutcome, Store};
+use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
 
 /// `work start` 的参数。
 #[derive(Debug, Clone)]
@@ -25,7 +31,7 @@ pub struct StartArgs {
 }
 
 /// 写操作的统一响应，对应协议 §5 的响应封装。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Response {
     pub request_id: String,
     pub revision: u64,
@@ -65,9 +71,78 @@ impl WorkService {
 
     /// `work start`。比其他写操作多三步前置：查 `requests` 表重放；`allocate_seq` 拼 `work_id`；
     /// 复制冻结副本（存储合同 §5.1）并写起始输入文件。之后走 `run_command`。
-    #[allow(unused_variables)]
     pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
-        todo!("T16")
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let wb = self
+            .repo()
+            .load(&args.workbook_id, args.version.as_deref())?;
+        let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
+            what: format!("Flow {}", args.flow),
+        })?;
+        let ctx = Context {
+            now: now(),
+            principal: principal(),
+        };
+        // 载荷指纹：同一请求重放必须逐字节相同（BTreeMap 保证键序稳定）。
+        let payload = serde_json::json!({
+            "workbook": args.workbook_id,
+            "version": args.version,
+            "flow": args.flow,
+            "name": args.name,
+            "inputs": args.inputs,
+        });
+        let payload_hash = hash_json(&payload)?;
+        // 重放预检在分配序号之前（存储合同 §7.1），避免重放烧掉一个新号。
+        if let Some((hash, reply_json)) = self.store.lookup_request(&request_id)? {
+            if hash != payload_hash {
+                return Err(Error::RequestConflict {
+                    request_id: request_id.clone(),
+                });
+            }
+            return self.replay(None, request_id, reply_json);
+        }
+        let day = ctx.now.day().to_string();
+        let seq = self.store.allocate_seq(&day)?;
+        let name = WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
+        let work_id = WorkId::new(&day, seq, &name)?;
+        let work_dir = self.home.work_dir(&work_id);
+        // 冻结副本：本 Work 之后只读它（存储合同 §5.1）。
+        std::fs::create_dir_all(work_dir.as_path()).map_err(|e| Error::io(work_dir.as_str(), e))?;
+        let frozen = work_dir.join_segment("workbook");
+        WorkbookRepo::copy_confined(&wb.dir, &frozen)?;
+        set_tree_readonly(&frozen)?;
+        // 起始输入物化成文件并记 ArtifactRef。
+        let inputs_dir = work_dir.join_segment("inputs");
+        std::fs::create_dir_all(inputs_dir.as_path())
+            .map_err(|e| Error::io(inputs_dir.as_str(), e))?;
+        let mut inputs = BTreeMap::new();
+        for (key, value) in &args.inputs {
+            // 键来自外部输入，先经 confine 限制在 inputs/ 之下。
+            let path = Home::confine(&inputs_dir, key)?;
+            std::fs::write(path.as_path(), value.as_bytes())
+                .map_err(|e| Error::io(path.as_str(), e))?;
+            inputs.insert(
+                key.clone(),
+                sheltie_core::work::ArtifactRef {
+                    sha256: Sha256Hex::of_bytes(value.as_bytes()),
+                    bytes: value.len() as u64,
+                    path,
+                },
+            );
+        }
+        let cmd = Command::Start {
+            work_id: work_id.clone(),
+            name,
+            workbook: WorkbookRef {
+                id: wb.manifest.id.clone(),
+                version: wb.manifest.version.clone(),
+                digest: wb.digest.clone(),
+            },
+            flow: flow.0.id.clone(),
+            work_dir,
+            inputs,
+        };
+        self.commit_one(None, None, &flow.1, &cmd, &ctx, request_id)
     }
 
     #[allow(unused_variables)]
@@ -112,9 +187,8 @@ impl WorkService {
         todo!("T16")
     }
 
-    #[allow(unused_variables)]
     pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
-        todo!("T16")
+        self.run_command(work, &|_| Ok(Command::Cancel), request_id)
     }
 
     /// 只读：状态卡文本与结构化形式。
@@ -140,10 +214,67 @@ impl WorkService {
         todo!("T16")
     }
 
+    fn repo(&self) -> WorkbookRepo {
+        WorkbookRepo::new(self.home.clone(), self.store.clone())
+    }
+
     /// 从冻结副本加载状态与图。副本缺失或摘要不符报 `StoreCorrupt`。
-    #[allow(unused_variables)]
     fn load(&self, work: &WorkId) -> Result<Loaded> {
-        todo!("T16")
+        let row = self.store.load_work(work)?;
+        let frozen = row.state.workbook_dir();
+        if !frozen.as_path().exists() {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work {work} 的冻结副本 {} 缺失", frozen),
+            });
+        }
+        let digest = WorkbookRepo::digest_dir(&frozen).map_err(|e| Error::StoreCorrupt {
+            detail: format!("冻结副本 {} 读不了：{e}", frozen),
+        })?;
+        if digest != row.state.workbook.digest {
+            return Err(Error::StoreCorrupt {
+                detail: format!("冻结副本 {} 的摘要 {} 与记录不符", frozen, digest.as_str()),
+            });
+        }
+        let graph = self.compile_frozen(&frozen, &row.state)?;
+        Ok(Loaded {
+            state: row.state,
+            revision: row.revision,
+            graph,
+        })
+    }
+
+    /// 从冻结副本解析 manifest 与 Flow，取出本 Work 的图。
+    fn compile_frozen(&self, frozen: &AbsPath, state: &WorkState) -> Result<Graph> {
+        let manifest_text = std::fs::read_to_string(frozen.join_segment("workbook.toml").as_path())
+            .map_err(|e| Error::StoreCorrupt {
+                detail: format!("冻结副本的 workbook.toml 读不了：{e}"),
+            })?;
+        let manifest = parse_manifest(&manifest_text).map_err(|e| Error::StoreCorrupt {
+            detail: format!("冻结副本的 workbook.toml 解不开：{e}"),
+        })?;
+        let res = build_resource_index(frozen).map_err(|e| Error::StoreCorrupt {
+            detail: format!("冻结副本读不了：{e}"),
+        })?;
+        for path in &manifest.flows {
+            let text = std::fs::read_to_string(frozen.join(path).as_path()).map_err(|e| {
+                Error::StoreCorrupt {
+                    detail: format!("冻结副本的 {path} 读不了：{e}"),
+                }
+            })?;
+            let def = sheltie_core::flow::parse_flow(&text).map_err(|e| Error::StoreCorrupt {
+                detail: format!("冻结副本的 {path} 解不开：{e}"),
+            })?;
+            if def.id == state.flow {
+                return sheltie_core::flow::compile(&def, &manifest, &res).map_err(|e| {
+                    Error::StoreCorrupt {
+                        detail: format!("冻结副本的图编不过：{e}"),
+                    }
+                });
+            }
+        }
+        Err(Error::StoreCorrupt {
+            detail: format!("冻结副本里没有 Flow {}", state.flow),
+        })
     }
 
     /// 所有写操作的公共流程：
@@ -155,7 +286,6 @@ impl WorkService {
     /// 5. 效果：写任务书与引擎生成的输入文件（临时文件再 rename）、置只读、重写状态卡。全部幂等。
     ///
     /// 重放（`Replayed`）时不做第 3 步以后，但仍补做效果，保证崩溃后任务书与状态卡齐全。
-    #[allow(unused_variables)]
     fn run_command(
         &self,
         work: &WorkId,
@@ -163,6 +293,262 @@ impl WorkService {
         request_id: Option<String>,
     ) -> Result<Response> {
         crate::failpoint::maybe_exit("after_commit_before_effects");
-        todo!("T16")
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        // 重放预检：decide 在状态已推进后会拒绝同一命令，必须先于 decide 查 requests。
+        {
+            let loaded = self.load(work)?;
+            let cmd = build(&loaded)?;
+            let payload_hash = hash_command(&cmd)?;
+            if let Some((hash, reply_json)) = self.store.lookup_request(&request_id)? {
+                if hash != payload_hash {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.clone(),
+                    });
+                }
+                return self.replay(Some(work), request_id, reply_json);
+            }
+        }
+        let ctx = Context {
+            now: now(),
+            principal: principal(),
+        };
+        let mut last_conflict = Error::RevisionConflict {
+            expected: 0,
+            actual: 0,
+        };
+        for _ in 0..3 {
+            let loaded = self.load(work)?;
+            let cmd = build(&loaded)?;
+            match self.commit_one(
+                Some(&loaded.state),
+                Some(loaded.revision),
+                &loaded.graph,
+                &cmd,
+                &ctx,
+                request_id.clone(),
+            ) {
+                Ok(resp) => return Ok(resp),
+                Err(Error::RevisionConflict { expected, actual }) => {
+                    last_conflict = Error::RevisionConflict { expected, actual };
+                    continue;
+                }
+                Err(e) => return Err(e),
+            }
+        }
+        Err(last_conflict)
     }
+
+    /// `decide` + `commit` + 效果。`pre_state` 为 `None` 是 start（新 Work）；`expected` 为
+    /// `None` 同样只出现在 start（插入新行）。
+    fn commit_one(
+        &self,
+        pre_state: Option<&WorkState>,
+        expected: Option<u64>,
+        graph: &Graph,
+        cmd: &Command,
+        ctx: &Context,
+        request_id: String,
+    ) -> Result<Response> {
+        let decision: Decision = decide(pre_state, graph, cmd, ctx)?;
+        let next = legal_next(&decision.state, graph);
+        let reply_json = serde_json::to_string(&Response {
+            request_id: request_id.clone(),
+            revision: expected.map_or(1, |r| r + 1),
+            replayed: false,
+            reply: decision.reply.clone(),
+            next: next.clone(),
+        })
+        .map_err(|e| Error::StoreCorrupt {
+            detail: format!("序列化响应失败：{e}"),
+        })?;
+        let input = CommitInput {
+            work_id: Some(decision.state.work_id.clone()),
+            expected_revision: expected,
+            state: Some(decision.state.clone()),
+            request_id: request_id.clone(),
+            payload_hash: hash_command(cmd)?,
+            reply_json,
+            principal: ctx.principal.clone(),
+            command_json: audit_json(cmd)?,
+            at: ctx.now.clone(),
+        };
+        match self.store.commit(input)? {
+            CommitOutcome::Committed { revision } => {
+                self.apply_effects(&decision.state, graph, &decision.effects)?;
+                Ok(Response {
+                    request_id,
+                    revision,
+                    replayed: false,
+                    reply: decision.reply,
+                    next,
+                })
+            }
+            CommitOutcome::Replayed { reply_json } => {
+                self.replay(Some(&decision.state.work_id), request_id, reply_json)
+            }
+        }
+    }
+
+    /// 重放：返回原响应（`replayed = true`）并补做效果。崩溃可能发生在 `COMMIT` 之后、
+    /// 效果之前，任务书与状态卡靠这里补齐（存储合同 §3）。`work_hint` 是调用方已知的
+    /// work_id；start 的重放发生在 work_id 分配之前，从 `Reply::Started` 里取。
+    fn replay(
+        &self,
+        work_hint: Option<&WorkId>,
+        request_id: String,
+        reply_json: String,
+    ) -> Result<Response> {
+        let mut resp: Response =
+            serde_json::from_str(&reply_json).map_err(|e| Error::StoreCorrupt {
+                detail: format!("requests 表里的响应解不开：{e}"),
+            })?;
+        resp.request_id = request_id;
+        resp.replayed = true;
+        let work = match work_hint.cloned().or_else(|| match &resp.reply {
+            Reply::Started { work_id, .. } => Some(work_id.clone()),
+            _ => None,
+        }) {
+            Some(w) => w,
+            None => {
+                return Err(Error::StoreCorrupt {
+                    detail: "重放响应里没有 work_id".to_string(),
+                });
+            }
+        };
+        // 能走到重放说明原事务已提交，works 行一定在。
+        let loaded = self.load(&work)?;
+        self.replay_effects(&loaded, &resp.reply)?;
+        Ok(resp)
+    }
+
+    /// 效果执行。幂等：文件用「写临时再 rename」，置只读可重复，状态卡整份重写。
+    /// 效果失败不回滚状态（存储合同 §3）；这里把 IO 错误往上抛给调用者记录。
+    fn apply_effects(&self, state: &WorkState, graph: &Graph, effects: &[Effect]) -> Result<()> {
+        for effect in effects {
+            match effect {
+                Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {
+                    write_atomic(path, content)?;
+                }
+                Effect::SealOutputs { paths } => {
+                    for p in paths {
+                        use std::os::unix::fs::PermissionsExt;
+                        // 尽力而为；封存以记录的 sha256 为准，不是只读位。
+                        let _ = std::fs::set_permissions(
+                            p.as_path(),
+                            std::fs::Permissions::from_mode(0o444),
+                        );
+                    }
+                }
+                Effect::RefreshStatusCard => {
+                    let card = render_status_card(state, graph);
+                    write_atomic(&state.status_card_path(), &card)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// 重放时的效果补齐：状态已在库里，按回复重建任务书与状态卡。
+    fn replay_effects(&self, loaded: &Loaded, reply: &Reply) -> Result<()> {
+        if let Reply::AttemptBegun { attempt, .. } = reply {
+            let Some(at) = loaded.state.attempt(attempt) else {
+                return Ok(());
+            };
+            let brief = render_brief(
+                &loaded.state,
+                &loaded.graph,
+                at,
+                &instruction_text_of(&loaded.state, &loaded.graph, &attempt.node)?,
+            );
+            write_atomic(
+                &loaded.state.attempt_dir(attempt).join_segment("brief.md"),
+                &brief,
+            )?;
+            // engine.stats 的 stats.json：只在文件缺失时按提交时的口径重算
+            // （去掉本 Attempt 的状态就是 begin 之前的状态）。
+            let stats_path = loaded.state.attempt_dir(attempt).join_segment("stats.json");
+            if at
+                .inputs
+                .values()
+                .any(|r| r.as_ref().is_some_and(|a| a.path == stats_path))
+                && !stats_path.as_path().exists()
+            {
+                let mut before = loaded.state.clone();
+                before.attempts.retain(|a| a.id != *attempt);
+                let content = serde_json::to_string(&sheltie_core::work::render_stats_json(
+                    &before,
+                    &loaded.graph,
+                ))
+                .map_err(|e| Error::StoreCorrupt {
+                    detail: format!("engine.stats 序列化失败：{e}"),
+                })?;
+                write_atomic(&stats_path, &content)?;
+            }
+        }
+        let card = render_status_card(&loaded.state, &loaded.graph);
+        write_atomic(&loaded.state.status_card_path(), &card)
+    }
+}
+
+/// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。
+fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Result<String> {
+    let def = graph.node(node).ok_or_else(|| Error::NotFound {
+        what: format!("节点 {node}"),
+    })?;
+    match &def.instruction {
+        sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
+        sheltie_core::flow::Instruction::File(rel) => {
+            let path = state.workbook_dir().join(rel);
+            std::fs::read_to_string(path.as_path()).map_err(|e| Error::io(path.as_str(), e))
+        }
+    }
+}
+
+/// 写临时文件再 rename；父目录不存在就先建（Attempt 目录由这里首次创建）。
+fn write_atomic(path: &AbsPath, content: &str) -> Result<()> {
+    if let Some(parent) = path.as_path().parent() {
+        std::fs::create_dir_all(parent).map_err(|e| Error::io(path.as_str(), e))?;
+    }
+    let tmp = path.as_path().with_extension("tmp-pending");
+    std::fs::write(&tmp, content).map_err(|e| Error::io(path.as_str(), e))?;
+    std::fs::rename(&tmp, path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
+    Ok(())
+}
+
+// ── 自由函数与共用小件 ─────────────────────────────────────────
+
+/// start 的载荷指纹。
+fn hash_json(value: &serde_json::Value) -> Result<String> {
+    serde_json::to_string(value)
+        .map(|s| Sha256Hex::of_bytes(s.as_bytes()).as_str().to_string())
+        .map_err(|e| Error::StoreCorrupt {
+            detail: format!("序列化载荷失败：{e}"),
+        })
+}
+
+/// 命令的载荷指纹：同一 request_id 换载荷必须在这里露出差别。
+fn hash_command(cmd: &Command) -> Result<String> {
+    serde_json::to_string(cmd)
+        .map(|s| Sha256Hex::of_bytes(s.as_bytes()).as_str().to_string())
+        .map_err(|e| Error::StoreCorrupt {
+            detail: format!("序列化命令失败：{e}"),
+        })
+}
+
+/// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。
+fn audit_json(cmd: &Command) -> Result<String> {
+    let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {
+        detail: format!("序列化命令失败：{e}"),
+    })?;
+    if let serde_json::Value::Object(map) = &mut value {
+        if let Some(text) = map.get("instruction_text").and_then(|v| v.as_str()) {
+            map.insert(
+                "instruction_text".to_string(),
+                serde_json::Value::String(format!("<{} 字节>", text.len())),
+            );
+        }
+    }
+    serde_json::to_string(&value).map_err(|e| Error::StoreCorrupt {
+        detail: format!("序列化命令失败：{e}"),
+    })
 }

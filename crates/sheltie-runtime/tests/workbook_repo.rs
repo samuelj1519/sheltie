@@ -122,7 +122,6 @@ fn list_orders_by_id_then_version() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn remove_deletes_row_and_directory() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -134,7 +133,6 @@ fn remove_deletes_row_and_directory() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn remove_requires_explicit_version() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -147,7 +145,6 @@ fn remove_requires_explicit_version() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn remove_rejects_when_active_work_references_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
@@ -160,7 +157,6 @@ fn remove_rejects_when_active_work_references_version() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn remove_allows_when_only_terminal_works_reference_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
@@ -170,7 +166,6 @@ fn remove_allows_when_only_terminal_works_reference_version() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn remove_moves_dir_to_tmp_before_delete() {
     // 观察不到中间态就看结果：目录消失、tmp 下无残留。
     let (_d, home) = temp_home();
@@ -183,7 +178,6 @@ fn remove_moves_dir_to_tmp_before_delete() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn verify_reports_ok_for_untouched_install() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -195,7 +189,6 @@ fn verify_reports_ok_for_untouched_install() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn verify_reports_tampered_after_byte_change() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -209,7 +202,6 @@ fn verify_reports_tampered_after_byte_change() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn verify_reports_missing_when_directory_gone() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -227,7 +219,6 @@ fn verify_reports_missing_when_directory_gone() {
 
 // Task: T15
 #[test]
-#[ignore = "T15"]
 fn verify_all_when_filter_omitted() {
     let (_d, home) = temp_home();
     let r = repo(&home);
