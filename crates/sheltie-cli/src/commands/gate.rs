@@ -37,12 +37,13 @@ pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
         Ok(s) => s,
         Err(out) => return out,
     };
-    // 批准人以库里的记录为准（INV-6：身份是系统事实，不取自参数）。
-    let approved_by = state.approvals.last().map(|a| a.by.0.clone());
+    // 批准人与时间以库里的记录为准（INV-6：身份与时间是系统事实，不取自参数）。
+    let approval = state.approvals.last();
     let data = json!({
         "node": node.as_str(),
         "occurrence": occurrence,
-        "by": approved_by,
+        "by": approval.map(|a| a.by.0.clone()),
+        "at": approval.map(|a| a.at.as_str()),
         "work_status": state.status,
         "replayed": resp.replayed,
     });
