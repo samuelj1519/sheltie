@@ -560,6 +560,77 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **M2 关闭。** T11 到 T16 全部 done；无退回实现者的待修项。下一次模型审查是 M3（端到端），复跑 `scripts/mutants.sh sheltie-runtime` 时存活应只剩 `home.rs:97` 一个等价突变（`failpoint` 与 `selfmgmt` 的六个由 T20、T23 的测试杀死）。
 
+### M3 端到端（2026-09-25）
+
+**范围。** `git diff 268ec6d..7008803`（T17 到 T23 的实现提交 71930b6、63dea79、72794ea、420157e、96c79f9、3c62ead、64c34ad，工具修复 767084b，审查提交 dc05b1d、67332b6、fe91704、7008803），`git log t16-review..HEAD -- tasks.toml` 的白名单修订（T18 加 `attempt.rs` 的 begin 分支、T20 加两份 specs 文档），tag `t20-review` 重设 T20 测试基准。实现者与复核者是同一会话的强模型（plan.md §0.2.1 的连做模式）。
+
+**结论：需修改 → 本轮直接修复，通过，M3 关闭。** 两条实质缺陷（B1、B2）是一行级失配，当场修复；两条骨架与工具缺陷（B3、B4）按规则 9 例外处理并记录。T21、T22 的十三条场景测试启用即绿，未暴露实现缺陷——T06 到 T16 的分层测试与场景测试口径一致。CLI 层整体扎实：23 个错误码的 detail 一次对齐协议 §7，next 项按 §5 组装 `args`，文本与 JSON 双模式的输出口径统一（错误 JSON 走 stdout 供脚本解析，文本错误走 stderr）。
+
+**检查表。**
+
+| 项 | 结果 | 依据（命令均可重跑） |
+| --- | --- | --- |
+| 依据 | 通过 | CLI 行为逐条指回协议：响应封装与退出码（§5）、`work start` 第 8 步与 `attempt begin` 第 5 步的 data 字段（§3）、错误码与 `detail.*`（§7 全表）、`self` 组（§3 与存储合同 §9，axoupdater 不可行改走 D-30 并先改合同再写代码）。无文档外发明行为；`verify` 给半截引用按 §5「参数解析错误 2」拒绝，协议未定义半截语义 |
+| 不变式 | 通过 | `INV-1/2`：CLI 只渲染 reply 与 `next`，不读输出文档、不替协调者选边（`two_step_via_cli_reaches_succeeded` 每步只从 `next` 取命令）；`INV-3`：写入全部在管理根之下，唯 `self install --modify-path` 按 §3 明文经用户主动要求写 rc（子进程临时 `$HOME` 测试钉住）；`INV-6`：批准人与时间取库里的记录（`gate.rs`），CLI 参数里没有任何摘要字段；`INV-7`：状态只从 `store.db` 读。`cargo tree -p sheltie-core -e normal --depth 1`：camino、serde、serde_json、sha2、thiserror、toml，无 I/O crate（T25 收口提交再贴全文） |
+| 正反例 | 通过 | 23 个错误码每个都有触发与拒绝例（`workbook_add_invalid_dir…`、`work_start_missing_input…`、`begin_next_node_before_approve…`、`update_rejects_checksum_mismatch…`、`workbook_remove_without_version_exits_2` 等）；合法例与拒绝例成对（`same_request_id` 两条、`add_second_version` 的 latest 与默认版本） |
+| 真实链 | 通过 | T17 到 T23 的 cli 测试全部经 `assert_cmd` 走真实二进制与临时目录；三个场景文件用 `examples/` 样例走全链；崩溃测试跑带 `failpoint` 特性的子进程 |
+| 崩溃 | 通过 | T23 六条：`before_commit`、`after_commit_before_effects`、状态卡重建、`update_between_renames` + `rollback` 恢复；存储合同 §3 走查结论沿用 M2，runtime 未改语义（仅 selfmgmt 新增） |
+| 边界 | 通过 | 参数边界各有拒绝例：`--input` 缺等号与键、`@file` 读不了、`<id>@<version>` 两侧空、`work` 前缀零匹配与多匹配（列候选）；路径与大小上限沿用 T12 到 T14 测试；未知字段拒绝沿用 M2 serde 收紧（内部标签枚举的限制照旧观察） |
+| 文档 | 通过 | `check-docs.sh`（47 文件）绿；storage §9 与 D-30、plan T18/T20 卡、tasks.toml 四处同步改；M2 遗留的「`remove` 删目录失败只记日志」维持静默观察 |
+| 提交 | 通过 | 一任务一提交，trailer 连排可解析（T17 到 T23 与修复提交逐条核对）；三次白名单修订与工具修复（767084b）意图未放松——`.rs`-only 让占位检查只落在 Rust 源码，白名单与测试零改动检查不变 |
+| 突变 | 已处置 | 全量 `MUTANTS_TIMEOUT=300 scripts/mutants.sh sheltie-runtime`：216 个，128 杀死、21 存活、67 不可编译、0 超时。存活里除 M2 已判等价的 `home.rs:97` 外全在 T20 新增的 selfmgmt。补测八条（fe91704、7008803）后定向复跑 `-f selfmgmt.rs`：40 个，32 杀死、8 存活——7 个是联网分支（curl、is_local 的远端侧）归 T25 真实升级，1 个 `fsync → Ok(())` 在可写普通文件上无失败路径，黑盒不可测，靠 §9 的 fsync 明文背书 |
+| 证据 | 附命令 | 全量 `cargo nextest run --all-features --no-tests=pass`：314 条通过、1 条跳过（T24），约 11.6 秒；每个场景下表带测试名 |
+
+**规格 §7 场景对照（十三项逐行）。**
+
+| 场景 | 测试（全部通过） |
+| --- | --- |
+| 无审查两步 Flow | `two_step_via_cli_reaches_succeeded`（走 `next` 链）；`two_step_runs_to_succeeded`（runtime 层） |
+| 审查通过 | `human_executor_node_is_begun_and_submitted_like_agent`（提交「通过」后协调者选 `main` 边）；`next_after_review_offers_both_main_and_back_with_kinds`（两条边并列由协调者选） |
+| 审查不通过 | `review_back_edge_creates_second_draft_occurrence`（`back` 边、`draft#2`、`review#2`）；`downstream_binds_latest_succeeded_occurrence_output`（旧产出留在 `attempts/draft/1/0` 不被覆盖） |
+| 回环超限 | `max_visits_exhaustion_blocks_with_no_legal_edge`（`next` 不再含该边）；`submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge` |
+| 人工门槛 | `gate_node_success_blocks_work_and_next_has_only_approve_and_cancel`、`begin_next_node_before_approve_is_illegal_next`、`approve_records_os_user_and_unblocks`、`approve_on_terminal_gate_node_succeeds_work` |
+| 输入被改 | `modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified`；`begin_rejects_modified_upstream_artifact`（core 层） |
+| 输出缺失 | `submit_without_required_output_is_output_missing_and_attempt_stays_running` |
+| 重放 | `same_request_id_same_payload_returns_replayed_true`、`same_request_id_different_payload_is_request_conflict`；`start_replay_returns_same_work_id_without_new_seq`、`commit_replays_same_request_id_and_payload` |
+| 中途被杀 | `kill_before_commit_leaves_state_unchanged_and_replay_succeeds`、`kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief`、`status_card_missing_is_regenerated_on_next_write` |
+| 删除被引用的 Workbook | `remove_in_use_workbook_is_rejected_with_work_list`、`remove_after_work_succeeds_then_status_still_renders`、`remove_allows_when_only_terminal_works_reference_version`；`begin_loads_graph_from_frozen_copy_not_repository`、`status_works_after_workbook_removed` |
+| 参考文件作输入 | `review_brief_lists_checklist_resource_with_frozen_path`、`editing_repository_copy_does_not_change_running_work_brief`、`verify_detects_the_edit` |
+| 升级后回滚 | `update_rejects_checksum_mismatch_and_leaves_binary_intact`、`rollback_swaps_prev_back`（回滚后 `.prev` 不在）、`kill_between_update_renames_leaves_prev_and_rollback_recovers` |
+| 事实视图 | `stats_json_counts_visits_failures_and_entered_via`（`draft` 经 `entry×1, review×1`）、`work_stats_prints_table_and_json`、`begin_replay_regenerates_missing_stats_json`（`engine.stats` 文件与库中摘要逐字节一致，D-29） |
+| 新人上手 | 人工，归 T25 |
+
+**发现与处置。**
+
+- **B1（T19，已修 dc05b1d）。** `gate approve` 的 data 缺 `at`：协议 §3 写明记录 `{ node, occurrence, by, at }`，实现只回前三个。`at` 与 `by` 一样从库里的批准记录取。
+- **B2（T20，已修 67332b6）。** `self install` 把「建 store.db」放在幂等短路之后：`bin/` 里已有同字节二进制但库没建的场合（手工复制、半途删除）不会补库，与协议的顺序句相悖。`Store::open` 挪到短路之前。
+- **B3（工具缺陷，已修 767084b，`Task: T01`）。** `check-task.sh` 检查 2 对目录条目只取 `.rs`、对文件条目却整文件 grep：T20 按规则把两份 specs 文档加进白名单后，decisions.md 里程碑记录里的 `todo!()` 字样被误判为占位。改成文件条目也只查 `.rs`，占位宏只可能出现在 Rust 源码里，检查意图不变。
+- **B4（骨架顺序缺陷，T18 卡补记）。** T18 的 `work_cancel_then_any_write_is_work_terminal` 要走 `attempt begin` 拿 `WORK_TERMINAL` 封装，不先实现它只能撞 `todo!("T19")` 的 panic。按 T07、T13、T15 先例把 `attempt begin` 与共用的 `read_text_arg` 拉进 T18，T19 剩 `submit`、`fail` 与 `gate`。与 B1 类的注入点位置问题同根：T01 的依赖顺序核对没有覆盖 CLI 层任务。
+- **D-30（合同修订先行）。** 存储合同 §9 原定用 `axoupdater` 读清单；核对其 0.10.2 公开 API（不暴露清单与 sha256、唯一完整入口执行安装脚本）后不可行，先改合同与决策记录再实现，不引新依赖。
+- **夹具修复（T23，`allow_test_changes = true` 卡上预判）。** 全局 `~/.cargo/config.toml` 把 `target-dir` 指到 `~/.rust/target`，crash.rs 按 `../../target` 找二进制必然落空；改为在测试里 `cargo build --message-format=json` 直接问 cargo 要路径。
+- **testkit.rs 过时注释（T21 提交内）。** 「T06 之前所有动作都会 `todo!()`」让目录白名单的占位扫描误命中且已不成立，改写。
+
+**观察（不处置，记录在案）。**
+
+- `self update` 的联网分支（`curl`、`is_local` 的远端侧、cargo-dist 完整清单的真实字段）离线测不了：定向复跑存活 7 个突变体，归 T25 从 `v0.1.0-rc` 真实升级核对，字段对不上改 `selfmgmt` 适配层。
+- `output::ok` 走 `OkEnvelope` 的平铺 `next`，实际调用方（workbook 组、`work list`）都传空；Work 命令一律走带 `args` 的 `ok_work`。内部死路径，MVP 后可合并。
+- `work stats` 为拿封装层的 `next` 再读一次状态卡：只读操作，多一次冻结副本加载，不影响正确性。
+- 文本模式下 `workbook verify` 失败只打结果表，`WORKBOOK_TAMPERED` 的 message 只在 JSON 里；JSON 是协调者的主接口，可接受。
+- `update` 的版本比较是字面相等：允许降级（`from > to` 也换），协议未定义排序语义，T25 若要禁再补合同。
+- M2 遗留观察全部维持：`works_referencing` 跳过解不开的行、`verify` 不看非普通文件、内部标签枚举变体多余字段仍被忽略。
+
+**流程教训。**
+
+| # | 类别 | 证据 | 改哪 | 改成什么 | 处置 |
+| --- | --- | --- | --- | --- | --- |
+| L17 | 骨架 | B4：T18 测试要撞 `todo!("T19")`，T01 的「依赖顺序逐任务核对」没有覆盖 CLI 层任务 | `plan.md` T01 验证段已有明文 | 该核对按任务卡机械执行（启用本任务测试、确认 panic 都是本任务占位）；T18 卡已补记拉入关系。不再写自动化脚本：`check-tests.sh` 已知归属，脚本收益低于成本 | 采纳（T18 卡已改）；脚本化否决 |
+| L18 | 合同 | D-30：合同把 `axoupdater` 写成既成事实，核对公开 API 后不可行，靠实现者停下来改合同才没硬塞 | `engineering.md` §1 | 合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入；写不进任务的先改合同 | 采纳，已补进 §1 |
+| L19 | 测试 | T23：全局 `~/.cargo/config.toml` 的 `target-dir` 让按相对路径找构建产物的夹具全数落空 | `engineering.md` §3.2 | 测试要构建产物时问 cargo 要路径（`cargo build --message-format=json` 的 `executable`），不要猜 target 目录 | 采纳，已补进 §3.2 |
+
+**修复提交。** dc05b1d（B1，`Task: T19`）、67332b6（B2，`Task: T20`）、fe91704（补测六条，`Task: M3`，tag `t20-review`）、7008803（`.tgz` 区段补测，`Task: M3`）、767084b（B3，`Task: T01`）、本条记录所在的文档提交。
+
+**M3 关闭。** T17 到 T23 全部 done，规格 §7 十三项里十二项有通过的自动化测试、`新人上手` 归 T25；全量 314 条测试约 11.6 秒全绿；仓库零 `todo!()`，`#[ignore` 只剩 T24 一处。剩 T24（skill）、T25（收口，含 `self update` 联网分支与 cargo-dist 真实清单的人工核对、`cargo tree -p sheltie-core` 贴进提交）、T26（真实宿主实测）。
+
 ## 首次真实运行
 
 待 [计划](plan.md) T26 完成后填写：协调者是否只用了 `next` 里的命令、有没有试图绕过、任务书是否够用、宿主观测的 token 用量。

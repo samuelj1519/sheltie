@@ -5,7 +5,7 @@
 ## 1. 工作方式：spec 先于代码
 
 1. 动手前找到依据。产品行为 → `spec.md`；类型与模块 → `architecture.md`；字段、命令、表结构 → 对应合同；做哪一步 → `plan.md`。
-2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改合同，顺序问题改 `plan.md`。在提交里同时带上文档改动。
+2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改合同，顺序问题改 `plan.md`。在提交里同时带上文档改动。合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入（M3 教训 D-30：`axoupdater` 写进合同后核对不可行）。
 3. 文档描述目标，不描述进度。代码进度只看 `plan.md` 每个任务的状态与 git 历史。不得把计划中的能力写成「已支持」。
 4. 一个事实只在一处定义，别处链接。`scripts/check-docs.sh` 检查断链与禁用词。
 
@@ -75,6 +75,8 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 | runtime 集成 | `crates/sheltie-runtime/tests/` | 事务原子、重放、`REVISION_CONFLICT`、封存、路径约束、旧库拒绝 | `tempfile` 建独立 `SHELTIE_HOME` |
 | CLI 端到端 | `crates/sheltie-cli/tests/` | 用 `examples/` 三份 Workbook 走完整场景；`--json` 输出可解析；退出码 | `assert_cmd` + `tempfile` |
 | 崩溃 | `crates/sheltie-runtime/tests/crash.rs` | 在 `COMMIT` 前后注入失败（feature `fail-points` 或子进程 kill），重启后状态一致 | 子进程 + 临时目录 |
+
+测试要构建产物（如带特性的二进制）时问 cargo 要路径（`cargo build --message-format=json` 里的 `executable`），不要按相对路径猜 target 目录——全局 `~/.cargo/config.toml` 可能把它指到别处（M3 教训）。
 
 期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。fake 只替换外部边界（时钟、ID、文件观察），不直接写「成功」进状态。
 
