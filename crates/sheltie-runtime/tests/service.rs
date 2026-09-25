@@ -33,7 +33,6 @@ fn make_writable(path: &Path) {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn two_step_runs_to_succeeded() {
     let (_d, home, svc) = home_with_example("two-step");
     let started = start_two_step(&svc);
@@ -63,7 +62,6 @@ fn two_step_runs_to_succeeded() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn start_allocates_work_id_with_today_and_seq_001() {
     let (_d, _home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -74,7 +72,6 @@ fn start_allocates_work_id_with_today_and_seq_001() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn start_replay_returns_same_work_id_without_new_seq() {
     let (_d, _home, svc) = home_with_example("two-step");
     let args = StartArgs {
@@ -95,7 +92,6 @@ fn start_replay_returns_same_work_id_without_new_seq() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn start_copies_workbook_into_work_dir_readonly() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -107,7 +103,6 @@ fn start_copies_workbook_into_work_dir_readonly() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn begin_loads_graph_from_frozen_copy_not_repository() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -128,7 +123,6 @@ fn begin_loads_graph_from_frozen_copy_not_repository() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn status_works_after_workbook_removed() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -141,7 +135,6 @@ fn status_works_after_workbook_removed() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn begin_writes_brief_md_with_absolute_input_paths() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -153,7 +146,6 @@ fn begin_writes_brief_md_with_absolute_input_paths() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn begin_binds_resource_input_to_frozen_copy_path() {
     let (_d, home, svc) = home_with_example("article-review");
     let started = svc
@@ -185,7 +177,6 @@ fn begin_binds_resource_input_to_frozen_copy_path() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn status_card_regenerated_after_each_commit() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -205,7 +196,6 @@ fn status_card_regenerated_after_each_commit() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn concurrent_writers_one_gets_revision_conflict() {
     // 两个线程同时对同一 Attempt 提交：一个成功，另一个要么先报 REVISION_CONFLICT、重试后变成 ATTEMPT_NOT_RUNNING，要么直接报 ATTEMPT_NOT_RUNNING。
     let (_d, _home, svc) = home_with_example("two-step");
@@ -233,7 +223,6 @@ fn concurrent_writers_one_gets_revision_conflict() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn begin_on_tampered_frozen_copy_is_store_corrupt() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -246,7 +235,6 @@ fn begin_on_tampered_frozen_copy_is_store_corrupt() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn missing_frozen_copy_is_store_corrupt_for_begin_and_status() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -262,7 +250,6 @@ fn missing_frozen_copy_is_store_corrupt_for_begin_and_status() {
 
 // Task: T16
 #[test]
-#[ignore = "T16"]
 fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
     let (_d, home, svc) = home_with_example("article-review");
     let started = svc

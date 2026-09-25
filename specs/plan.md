@@ -95,7 +95,7 @@ fn rejects_self_loop_edge() { … }
 | T13 | done | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
 | T14 | done | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
 | T15 | done | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
-| T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
+| T16 | done | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
 | M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | todo | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
 | T18 | todo | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
@@ -325,7 +325,7 @@ fn rejects_self_loop_edge() { … }
 
 **结果。** `WorkService` 提供 `start / begin / submit / fail / approve / cancel / status / stats / list`；`start` 复制冻结副本；`REVISION_CONFLICT` 最多重试 3 次；效果幂等，含 `WriteFile`。
 
-**文件。** `crates/sheltie-runtime/src/service.rs`。
+**文件。** `crates/sheltie-runtime/src/service.rs`（`start`、`cancel`、`run_command`、`load` 与效果执行已在 T15 一并填，原因见 T15 任务卡；本任务填 `begin / submit / fail / approve / status / stats / list / resolve_work`）。
 
 **测试。** `two_step_runs_to_succeeded`、`start_allocates_work_id_with_today_and_seq_001`、`start_replay_returns_same_work_id_without_new_seq`、`start_copies_workbook_into_work_dir_readonly`、`begin_loads_graph_from_frozen_copy_not_repository`、`status_works_after_workbook_removed`、`begin_writes_brief_md_with_absolute_input_paths`、`begin_binds_resource_input_to_frozen_copy_path`、`status_card_regenerated_after_each_commit`、`concurrent_writers_one_gets_revision_conflict`、`begin_on_tampered_frozen_copy_is_store_corrupt`、`missing_frozen_copy_is_store_corrupt_for_begin_and_status`、`tampered_resource_input_is_store_corrupt_not_artifact_modified`。
 
