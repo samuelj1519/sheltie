@@ -14,7 +14,7 @@
 
 **否决。** 用 `depends_on` 表达 DAG 加 `routes` 表达条件路由。条件路由需要一套表达式语言与结构化结果字段，而自然语言结论的节点用不上它；回边在这种形式下无法直接写出。
 
-**后果。** 图可以有环，靠 `max_visits` 保证有限。`kind` 对引擎只是标签，四种边的合法性判断相同。机器路由若将来需要，作为显式节点类型另立项（[路线图](roadmap.md)）。
+**后果。** 图可以有环，靠 `max_visits` 保证有限。`kind` 对引擎只是标签，四种边的合法性判断相同。机器路由若将来需要，以显式节点类型另立项（[路线图](roadmap.md)）。
 
 ## D-02 协调者选边，引擎不读内容
 
@@ -36,7 +36,7 @@
 
 **选择。** `workbook add|list|show|remove|verify`、`work start|list|status|cancel`、`attempt begin|submit|fail`、`gate approve`，加 `self` 组五条管二进制自身。领取与准备合并为 `attempt begin`，返回任务书。每个响应带可直接执行的 `next`。
 
-**否决。** 把领取、准备调用、读输入、开始、提交拆成独立操作。对本地文件系统上的单用户工具，这些分步没有独立价值，只增加协调者出错的机会。
+**否决。** 把领取、准备调用、读输入、开始、提交拆成独立操作。对本地文件系统上的单用户工具，拆成这些分步没有独立价值，只会增加协调者出错的机会。
 
 **后果。** MCP 面若将来需要，只是同一组操作的薄封装。工具描述短，符合 Anthropic 关于工具接口的建议。
 
@@ -128,7 +128,7 @@
 
 2026-09-24。
 
-**选择。** `max_visits`（节点被到达次数，含回环）与 `max_retries`（同一次到达内的失败重试）。到顶就从 `next` 里拿掉对应项；所有出边目标都到顶时 `blocked(no_legal_edge)`。
+**选择。** `max_visits`（节点到达次数，含回环）与 `max_retries`（同一次到达内的失败重试）。到顶就从 `next` 里拿掉对应项；所有出边目标都到顶时 `blocked(no_legal_edge)`。
 
 **否决。** 再加一个「修订次数」上限。它与 `max_visits` 语义交叠，而修订本来就是通过回边再次到达。
 
@@ -169,7 +169,7 @@
 
 2026-09-24。
 
-**背景。** 回环里被打回的节点需要读审核意见，但第一次到达时还没有意见。所有输入都必需的话，这种节点写不出来。
+**背景。** 回环里被打回的节点需要读审核意见，但第一次到达时还没有意见。若所有输入都必需，这种节点写不出来。
 
 **选择。** `inputs[].required = false`，只允许 `<node>.<output>` 来源。上游没有成功 Attempt 时不绑定，任务书标「尚无」。上游有了就绑最新一次。
 
@@ -195,7 +195,7 @@
 
 **背景。** 最后一步由谁验收：人看一眼，还是交给 pre-commit、lint、GitHub Actions。
 
-**选择。** `deliver` 节点 `gate = true`。人读 `delivery.md`，自己运行里面列出的对外动作（push、开 PR），再 `gate approve`。流程内不 push、不发布。CI 作为 push 后的冗余确认留在流程外；`plan` 把 CI 命令抄进「门禁」，流程内每个任务已跑过三遍同样的检查。
+**选择。** `deliver` 节点 `gate = true`。人读 `delivery.md`，自己运行里面列出的对外动作（push、开 PR），再 `gate approve`。流程内不 push、不发布。CI 是 push 后的冗余确认，留在流程外；`plan` 把 CI 命令抄进「门禁」，流程内每个任务已跑过三遍同样的检查。
 
 **否决。** 不设门槛、靠 CI 验收。CI 只能验机器可判的性质，验不了「做的是不是想要的」，且只在 push 之后才跑，而 push 本身是不可逆的对外动作，按 OpenAI 与 Anthropic 的建议应有人放行。
 
@@ -207,13 +207,13 @@
 
 **背景。** 工作 agent 会遇到三类靠自己解决不了的事：缺只有人知道的信息、要做需要授权的高风险动作、同一任务反复修不过。`max_retries` 与 `max_visits` 耗尽只给 `work cancel`，会丢掉全部进度。
 
-**选择。** `spec-dev` 加一个 `executor = human` 的 `escalate` 节点，`implement`、`fix`、`verify` 都有 `branch` 边进去；人写四个词之一（`继续 / 跳过 / 改方案 / 止损`）加意见，四条出边分别回 `implement` 或 `fix`、`implement`、`plan`、`deliver`。「修两轮不过」由报告里手递手传的 `修复轮次` 数字触发，`verify` 在轮次到 2 时写 `不通过，需要人`。「需要授权」由工作 agent 自报 `卡住` 并写清需要什么，人在决定里写授权范围，这段话作为下一步输入原样进任务书。
+**选择。** `spec-dev` 加一个 `executor = human` 的 `escalate` 节点，`implement`、`fix`、`verify` 都有 `branch` 边进去；人写四个词之一（`继续 / 跳过 / 改方案 / 止损`）加意见，四条出边分别回 `implement` 或 `fix`、`implement`、`plan`、`deliver`。「修两轮不过」由报告里手递手传的 `修复轮次` 数字触发，`verify` 在轮次到 2 时写 `不通过，需要人`。「需要授权」由工作 agent 自报 `卡住` 并写清需要什么，人在决定里写授权范围，这段话原样进任务书，给下一步当输入。
 
 同时给引擎的任务书加「来自」行（上游 Occurrence 与边类型），`Attempt` 记 `entered_from`。原因：可选输入绑定后会一直带着上一次的内容，多入口节点必须知道自己是从哪条边来的才能决定读哪份。
 
 **否决。** 靠引擎的 `blocked` 加 `cancel`（丢进度）；让协调者在聊天里问用户（不落文件，弱协调者会即兴处理）；用 `gate` 代替（只能批准或取消，不能带意见分四路）；由引擎在 `max_visits` 到顶时自动转人（引擎不知道该转到哪个节点，且违反「引擎不选路」）。
 
-**关于越权。** 宿主层的工具权限提示（Claude Code 的 allow / deny）仍然是第一道拦截。Workbook 里的 `卡住` 约定处理的是任务范围外的动作，两者互补。引擎级的权限求值见 [路线图 GF-22](roadmap.md)。
+**越权。** 宿主层的工具权限提示（Claude Code 的 allow / deny）仍然是第一道拦截。Workbook 里的 `卡住` 约定处理的是任务范围外的动作，两者互补。引擎级的权限求值见 [路线图 GF-22](roadmap.md)。
 
 **后果。** `spec-dev` 九节点二十边。人在流程里最多出现三次，其中 `escalate` 只在异常时出现。
 
@@ -239,7 +239,7 @@
 
 **背景。** D-20 的做法只写在 `plan.md` 里，服务本仓库的开发。`spec-dev` Workbook 面向任意项目，实现者同样可能是初级模型，同样的问题会出现。
 
-**选择。** `spec-dev` 在 `plan-review` 之后加 `scaffold` 节点（强模型）：把方案与任务清单变成一次骨架提交，全部类型、签名、注释、占位函数体、禁用的测试，并输出单任务测试命令。`implement` 与 `fix` 变成填空，附一份十条实现者规则作为输入。`verify` 用 `git diff` 机械核对改动只在白名单里、测试与快照未改、无残留占位。`review` 可跑突变测试。任务清单模板改为「只改哪些文件、要变绿的测试」。
+**选择。** `spec-dev` 在 `plan-review` 之后加 `scaffold` 节点（强模型）：把方案与任务清单变成一次骨架提交，全部类型、签名、注释、占位函数体、禁用的测试，并输出单任务测试命令。`implement` 与 `fix` 变成填空，附一份十条实现者规则当输入。`verify` 用 `git diff` 机械核对改动只在白名单里、测试与快照未改、无残留占位。`review` 可跑突变测试。任务清单模板改为「只改哪些文件、要变绿的测试」。
 
 Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，`human` 节点不得声明。引擎只把它透传到 `next` 与任务书；协调者据此派模型。`spec-dev` 里 `spec`、`plan`、`scaffold`、`review` 为 `strong`，其余 `standard`。
 
@@ -297,7 +297,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **背景。** T02 的实现者对复核意见写了一份反驳。核实后，反驳全部成立：复核有两处事实不实（说「删除行只有 `allow`、`ignore`、`todo`」，实际 `text.rs` 换了一行 `use`；说「改动只增不删」）、三处漏检（`check-task.sh` 第 124 行 `"$residue："` 里的全角冒号被 bash 当作变量名的一部分，`set -u` 直接中止，负例输出里的报错行被复核者忽略；`manifest.rs:114` 有骨架残留的 `#[allow(unused_variables)]`，按新检查 2 的语义会让 T03 按规则做完也过不了；检查 1 在工作树脏与净两种情形下只看一边）。另有两条判断偏窄：B1 只点了前导 `+`，前导零同样破坏解析回环；B3 的根因是 `kebab_id!` 宏用类型名当 `field`，与 `work_name`、`work_id` 的词汇不一致。
 
-**事实。** 复核声称「用 diff 核对了删除行只有 `#[allow]`、`#[ignore]` 与 `todo!`」，实际只查了一个文件，`text.rs` 还删了一行 `use`。复核声称「重跑负例仍能报错」，实际只 grep 了以 `check-task:` 开头的行，没看到脚本在 `set -u` 下因 `"$residue："`（全角冒号被 bash 吞进变量名）中止。复核没发现骨架在 `parse_manifest` 上留了一个没有 `todo!()` 的 `#[allow(unused_variables)]`，按新的检查 2 语义 T03 填完也过不了。复核把 `is_han` 缺区段的处理定为「改合同措辞」，实现者指出模糊措辞让合同失去可测性，应列出码点区间。复核把 B3 当单点文档失配，根因是 `kebab_id!` 宏用类型名当错误 `field`，与 `work_name`、`work_id` 词汇不一致。
+**事实。** 复核声称「用 diff 核对了删除行只有 `#[allow]`、`#[ignore]` 与 `todo!`」，实际只查了一个文件，`text.rs` 还删了一行 `use`。复核声称「重跑负例仍能报错」，实际只 grep 了以 `check-task:` 开头的行，没看到脚本在 `set -u` 下因 `"$residue："`（全角冒号被 bash 吞进变量名）中止。复核没发现骨架在 `parse_manifest` 上留了一个没有 `todo!()` 的 `#[allow(unused_variables)]`，按新的检查 2 语义 T03 填完也过不了。复核把 `is_han` 缺区段的处理定为「改合同措辞」，实现者指出这样的措辞没法测，应列出码点区间。复核把 B3 当单点文档失配，根因是 `kebab_id!` 宏用类型名当错误 `field`，与 `work_name`、`work_id` 词汇不一致。
 
 **根因。** 复核者只 grep 了输出里以 `check-task:` 开头的行，没读整段输出；只对一个文件做了 diff 核对，把结论推广到四个文件。两处都是「看了一部分，说成全部」。
 
@@ -312,13 +312,13 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **否决。** 撤回 T02 的「通过」（没有影响已实现行为的缺陷，十条测试绿，撤回没有依据）；把复核者的错误算成实现者的返工；因为复核不够严就取消逐任务复核（问题是复核的方法，不是复核本身）；让复核者顺手把实现者的缺陷一起修掉（归属混了，下次就分不清谁该对什么负责）。
 
-**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，换来三处会在 T03 立刻爆炸的缺陷提前消除。（此条原先被写成两条同号的 D-25，M1 第二轮合并为一条，保留本条结构，并入另一条的两项否决、归属划分与「事实」段；合并哪一版原写「由人定」，2026-09-25 用户认可本次合并。`check-docs.sh` 加编号唯一检查。）
+**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，提前消掉三处会在 T03 立刻爆炸的缺陷。（此条原先被写成两条同号的 D-25，M1 第二轮合并为一条，保留本条结构，并入另一条的两项否决、归属划分与「事实」段；合并哪一版原写「由人定」，2026-09-25 用户认可本次合并。`check-docs.sh` 加编号唯一检查。）
 
 ## D-26 输入名只查唯一，不走 ID 字符规则
 
 2026-09-25，用户拍板。
 
-**背景。** T04 的 `parse::convert` 对 `inputs[].name` 调了 `validate_id`；T07 复核时把 `workbooks/spec-dev` 与 `testkit` 夹具里带下划线的输入名（`plan_tpl`、`side_out` 等）改成 kebab 去迎合这道检查（00ca15a）。M1 后的对抗复核（verify-t05-compile，14 条发现、每条 3 票反驳制）唯独这一条 0/3 存活：合同 §3.2 对 `inputs[].name` 只写「`name` 在节点内唯一」，ID 字符规则明文给了 `outputs[].name`、`start.<key>`、`requires[].name`，没给输入名。不对称是有意的——输入名不进 `from` 点语法，也不出现在 `inputs/<key>` 路径里，只作展示名与 JSON 键。
+**背景。** T04 的 `parse::convert` 对 `inputs[].name` 调了 `validate_id`；T07 复核时把 `workbooks/spec-dev` 与 `testkit` 夹具里带下划线的输入名（`plan_tpl`、`side_out` 等）改成 kebab 去迎合这道检查（00ca15a）。M1 后的对抗复核（verify-t05-compile，14 条发现、每条 3 票反驳制）唯独这一条 0/3 存活：合同 §3.2 对 `inputs[].name` 只写「`name` 在节点内唯一」，ID 字符规则明文给了 `outputs[].name`、`start.<key>`、`requires[].name`，没给输入名。不对称是有意的：输入名不进 `from` 点语法，也不出现在 `inputs/<key>` 路径里，只作展示名与 JSON 键。
 
 **选择。** 按合同字面办：删掉对 `inputs[].name` 的 `validate_id`，保留节点内唯一性检查；00ca15a 的改名全部回退（`side_out`、`plan_tpl`、`tasks_tpl`、`task_rules`、`fix_change`、`implement_change`、`review_report`、`scaffold_report`、`verify_report`），指令文档里的同名引用一并还原。资源文件路径（如 `resources/checklists/task-rules.md`）是 RelPath 不是输入名，不受影响。
 

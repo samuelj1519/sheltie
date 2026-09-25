@@ -207,7 +207,7 @@ fn status_card_regenerated_after_each_commit() {
 #[test]
 #[ignore = "T16"]
 fn concurrent_writers_one_gets_revision_conflict() {
-    // 两个线程同时对同一 Attempt 提交：一个成功，另一个要么 REVISION_CONFLICT 被重试后变成 ATTEMPT_NOT_RUNNING，要么直接 ATTEMPT_NOT_RUNNING。
+    // 两个线程同时对同一 Attempt 提交：一个成功，另一个要么先报 REVISION_CONFLICT、重试后变成 ATTEMPT_NOT_RUNNING，要么直接报 ATTEMPT_NOT_RUNNING。
     let (_d, _home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
@@ -229,7 +229,7 @@ fn concurrent_writers_one_gets_revision_conflict() {
     )));
 }
 
-// ── M1 复核 O2：冻结副本缺失或被改，对该 Work 的操作报 STORE_CORRUPT（存储合同 §5.1）──
+// ── M1 复核 O2：冻结副本缺失或被改，对本 Work 的操作报 STORE_CORRUPT（存储合同 §5.1）──
 
 // Task: T16
 #[test]

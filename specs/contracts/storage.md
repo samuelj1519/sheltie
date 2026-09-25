@@ -84,7 +84,7 @@ COMMIT
 
 规则：
 
-- 事务内不读文件、不算摘要、不调模型。文件观察全部在 `BEGIN` 之前完成，作为 `Command` 的一部分传进 core。
+- 事务内不读文件、不算摘要、不调模型。文件观察全部在 `BEGIN` 之前完成，随 `Command` 一起传进 core。
 - `decide` 在事务外调用。若事务因 `REVISION_CONFLICT` 回滚，整个调用重新开始（重读、重观察、重决定），最多 3 次。
 - 写目录、写任务书、置只读、刷状态卡都在 `COMMIT` 之后执行。这些是效果，不是状态。
 
@@ -129,7 +129,7 @@ COMMIT
 
 ### 5.1 Work 的冻结副本
 
-`work start` 在分配 `work_id` 之后、写起始输入之前，把 `workbooks/<id>/<version>/` 整棵复制到 `works/<work_id>/workbook/` 并置只读。`WorkState.workbook.digest` 记的是这份副本的摘要，与仓库里的相同。之后所有对该 Work 的操作（编译图、读说明书、绑 `resource.<path>` 输入）只读副本。这使得：
+`work start` 在分配 `work_id` 之后、写起始输入之前，把 `workbooks/<id>/<version>/` 整棵复制到 `works/<work_id>/workbook/` 并置只读。`WorkState.workbook.digest` 记的是这份副本的摘要，与仓库里的相同。之后所有对该 Work 的操作（编译图、读说明书、绑 `resource.<path>` 输入）只读副本。这样有三个结果：
 
 - `workbook remove` 与运行中的 Work 无关，只需拦非终态引用作为安全网。
 - 有人改了 `workbooks/` 下的文件，已开始的 Work 不受影响；`workbook verify` 能发现。

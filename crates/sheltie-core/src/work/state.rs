@@ -1,4 +1,4 @@
-//! Work 的运行时状态。整份 `WorkState` 作为一列 JSON 持久化（存储合同 §1.2）。
+//! Work 的运行时状态。整份 `WorkState` 按一列 JSON 持久化（存储合同 §1.2）。
 
 use std::collections::BTreeMap;
 
@@ -147,7 +147,7 @@ pub struct ArtifactRef {
     pub bytes: u64,
 }
 
-/// 节点第 `n` 次被到达。
+/// 节点第 `n` 次到达。
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Occurrence {
     pub node: NodeId,
@@ -384,7 +384,7 @@ mod tests {
             "２026-01-01T00:00:00Z",
             "",
         ] {
-            assert!(Timestamp::parse(bad).is_err(), "{bad:?} 应被拒绝");
+            assert!(Timestamp::parse(bad).is_err(), "{bad:?} 应当报错");
         }
     }
 

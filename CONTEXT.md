@@ -21,7 +21,7 @@
 | Node | 图上的一步。有说明书、输入、输出、执行者，可带门槛 |
 | Edge | 两个节点间的显式有向边，类型 `main / back / branch / re_review` |
 | Work | 某个 Workbook 版本的一次运行。`work_id` 形如 `2026-09-24-001-文章-初稿`：UTC 日期、当日序号、名字 |
-| Occurrence | 节点在一次 Work 里第 n 次被到达，写作 `node#n` |
+| Occurrence | 节点在一次 Work 里第 n 次到达，写作 `node#n` |
 | Attempt | 一个 Occurrence 内的一次执行尝试，写作 `node#n.retry`。只有执行事实：`running / succeeded / failed` |
 | 任务书（brief） | 引擎为一次 Attempt 生成的文件：说明书原文加绑定好的输入路径与输出要求 |
 | 状态卡（status card） | 引擎生成的紧凑进度视图；只有指针，没有历史正文 |

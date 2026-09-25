@@ -335,7 +335,7 @@ mod tests {
         }
     }
 
-    /// 用 article-review 样例作为合法基线，改一处得到反例。
+    /// 把 article-review 样例当合法基线，改一处得到反例。
     fn compile_text(flow_text: &str) -> Result<Graph> {
         let def = parse_flow(flow_text)?;
         compile(

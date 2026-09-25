@@ -1,6 +1,6 @@
 # Sheltie 架构
 
-本文把 [产品规格](spec.md) 翻译成 crate、模块、数据类型与不变式的落点。产品语义冲突时以规格为准；机制细节以 [contracts/](contracts/) 三份合同为准。
+本文把产品规格落到 crate、模块、数据类型与不变式上。产品语义冲突时以规格为准；机制细节以 [contracts/](contracts/) 三份合同为准。
 
 ## 1. 总览
 
@@ -22,7 +22,7 @@
 
 | crate | 职责 | 禁止 |
 | --- | --- | --- |
-| `sheltie-core` | 类型、TOML 解析、图编译、`decide` 状态机、`legal_next`、状态卡渲染 | 任何 I/O。不出现 `std::fs`、`std::time::SystemTime::now`、随机数、SQLite。时间与 ID 作为参数传入 |
+| `sheltie-core` | 类型、TOML 解析、图编译、`decide` 状态机、`legal_next`、状态卡渲染 | 任何 I/O。不出现 `std::fs`、`std::time::SystemTime::now`、随机数、SQLite。时间与 ID 从参数传进来 |
 | `sheltie-runtime` | 管理根目录、Workbook 仓库、SQLite 存储、产物封存、把观察到的文件事实交给 core、执行 core 返回的效果 | 业务决定。不重算 core 已决定的事；不解释自然语言 |
 | `sheltie-cli` | `clap` 命令树、参数到 `Command` 的转换、文本与 `--json` 输出、退出码 | 直接碰数据库或文件 |
 
@@ -156,7 +156,7 @@ CLI 解析参数
  → CLI 渲染 reply + next
 ```
 
-同一个 `request_id` 第二次到达时，`store.commit` 在事务里查到原记录：载荷相同返回原 reply，不同报 `REQUEST_CONFLICT`。core 不会被调用第二次。
+同一个 `request_id` 第二次到达时，`store.commit` 在事务里查到原记录：载荷相同返回原 reply，不同报 `REQUEST_CONFLICT`。这两种情形都不再调用 core。
 
 `work start` 多一步：在 `observe` 之前先用一个独立的小事务分配当日序号并拼出 `work_id`（[存储合同 §7](contracts/storage.md)），之后才能建目录、写起始输入、观察、决定、提交。序号一旦分配不回收，`start` 后续失败会留下一个空号，这是接受的代价。
 
@@ -191,7 +191,7 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 
 | 不变式 | 守在哪 |
 | --- | --- |
-| `INV-1` `INV-2` `INV-5` | `sheltie-core` 里禁用词 lint：`Verdict`、`Pass`、`Fail`、`Review`、`approve_by_content` 等不得作为类型或变体名。`scripts/check-core-vocab.sh` 在 CI 跑 |
+| `INV-1` `INV-2` `INV-5` | `sheltie-core` 里禁用词 lint：`Verdict`、`Pass`、`Fail`、`Review`、`approve_by_content` 等不得用作类型或变体名。`scripts/check-core-vocab.sh` 在 CI 跑 |
 | `INV-3` | `sheltie-runtime` 只写 `SHELTIE_HOME` 之下；路径进入 runtime 前经 `confine()` 检查。集成测试用只读的假 `$HOME` 证明引擎从不写它 |
 | `INV-4` | 同一 lint 禁 `PackageId`、`PackageCatalog` |
 | `INV-6` | `SubmitAttempt` 的摘要字段类型是 `ObservedFile`，构造函数标 `#[doc(hidden)]`，只有 runtime 的 `observe_file` 调用；CLI 参数里没有任何摘要字段 |
@@ -215,7 +215,7 @@ MSRV 1.85，edition 2024，由根 `Cargo.toml` 与 `rust-toolchain.toml` 固定�
 
 ## 8. 刻意不做的设计
 
-- **不做事件溯源。** Work 很小，整份 `WorkState` 作为 JSON 存一列，配 `revision` 做乐观并发。审计表另存每次 Command。读写都简单，恢复只需读一行。
+- **不做事件溯源。** Work 很小，整份 `WorkState` 存成一列 JSON，配 `revision` 做乐观并发。审计表另存每次 Command。读写都简单，恢复只需读一行。
 - **不做异步。** 单用户本地 CLI，一次调用一个事务，`tokio` 只会加复杂度。
 - **不做插件系统。** 执行方式只有 `agent | human` 两种字面量；宿主差异由 skill 文本与 CLI 参数吸收。
 - **不做通用表达式路由。** 协调者选边，引擎不算条件。需要机器路由时再按路线图立项。

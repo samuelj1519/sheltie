@@ -42,7 +42,7 @@ impl ResourceIndex {
     }
 }
 
-/// 校验通过的图。只能由 `compile` 构造——不给 `Deserialize`，读回绕不过校验。
+/// 校验通过的图。只能由 `compile` 构造，不派生 `Deserialize`，读回绕不过校验。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Graph {
     entry: NodeId,

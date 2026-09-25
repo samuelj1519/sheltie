@@ -429,7 +429,7 @@ mod tests {
         assert!(AttemptId::parse("draft#1.0").is_ok());
         assert!(
             AttemptId::parse("draft#0.0").is_ok(),
-            "到达次数与重试都允许 0 本身"
+            "到达次数与重试都接受 0 本身"
         );
         // work_id 的序号固定三位，恰好三位数字才合法。
         assert!(WorkId::parse("2026-09-24-0001-x").is_err());
@@ -450,7 +450,7 @@ mod tests {
         ] {
             assert!(
                 WorkName::normalize(&c.to_string()).is_ok(),
-                "{c:?} 应被接受"
+                "{c:?} 应当合法"
             );
         }
         // 部首补充区不在允许列表里。

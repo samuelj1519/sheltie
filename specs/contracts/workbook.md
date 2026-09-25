@@ -137,7 +137,7 @@ kind = "back"
 | `outputs` | array | `[]` | 每项 `{ name, path, required?, max_bytes? }`；`name` 与 `path` 在节点内唯一 |
 | `requires` | array of string | `[]` | 每项 `"<kind>:<name>"`，必须对应 `workbook.toml` 的一条 `requires`。引擎把它们列进任务书 |
 | `gate` | bool | `false` | `true` 表示 Attempt 成功后要真人批准才能离开本节点 |
-| `max_visits` | integer | `1` | 1 到 32。本节点被到达的次数上限，含回环 |
+| `max_visits` | integer | `1` | 1 到 32。本节点到达次数的上限，含回环 |
 | `max_retries` | integer | `1` | 0 到 8。同一次到达内失败重试上限 |
 
 `inputs[].from` 四种写法：

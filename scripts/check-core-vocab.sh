@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 引擎源码里不得出现业务词汇作为标识符（INV-1、INV-4、INV-5）；core 不得直接做文件 I/O。
+# 引擎源码里不得把业务词汇用作标识符（INV-1、INV-4、INV-5）；core 不得直接做文件 I/O。
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

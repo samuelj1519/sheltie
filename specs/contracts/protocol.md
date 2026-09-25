@@ -35,7 +35,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | 是 | 创建 Work，冻结一份 Workbook 副本 |
 | `work list` | 否 | 列出 Work 的 id、名称、状态、当前节点、更新时间 |
 | `work status <work>` | 否 | 打印状态卡（文本或 JSON） |
-| `work stats <work>` | 否 | 打印事实视图：每个节点被到达、尝试、失败几次，平均耗时，从哪进来 |
+| `work stats <work>` | 否 | 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来 |
 | `work cancel <work>` | 是 | 取消 |
 | `attempt begin <work> --node <node>` | 是 | 进入节点并开始一次尝试；返回任务书 |
 | `attempt submit <work> --attempt <id> --summary <text\|@file>` | 是 | 提交尝试；引擎校验并封存输出 |
@@ -128,7 +128,7 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 | publish | 0/1 | 0 | 0 | 0s |  |
 ```
 
-行按图声明顺序。`total` 是 `created_at` 到 `updated_at`；`blocked` 是 Work 被挡住的累计次数——每个节点每个 Occurrence 只看最后一次 Attempt，`gate` 节点提交成功（含已批准）算一次、用尽重试的失败算一次，Work 当前停在 `blocked(no_legal_edge)` 再算一次；`approvals` 是 `gate approve` 的次数；`avg` 是该节点已结束 Attempt 的平均耗时；`entered_via` 按首次出现顺序列出 `来源节点×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / avg_seconds / entered_via`）。
+行按图声明顺序。`total` 是 `created_at` 到 `updated_at`。`blocked` 是 Work 被挡住的累计次数：每个节点每个 Occurrence 只看最后一次 Attempt，`gate` 节点提交成功（含已批准）算一次，用尽重试的失败算一次，Work 当前停在 `blocked(no_legal_edge)` 再算一次。`approvals` 是 `gate approve` 的次数。`avg` 是该节点已结束 Attempt 的平均耗时。`entered_via` 按首次出现顺序列出 `来源节点×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / avg_seconds / entered_via`）。
 
 `engine.stats` 输入绑定的就是这份 JSON：`attempt begin` 时引擎把它写到 `attempts/<node>/<n>/<retry>/stats.json`，记 sha256，任务书输入表里像其他文件一样列出。
 
