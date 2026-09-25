@@ -1,0 +1,83 @@
+---
+name: sheltie
+description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或进行中的 Work、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
+---
+
+# Sheltie 协调者
+
+Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。你是协调者：派活、读产出、在引擎给出的合法下一步（`next`）里选一条。
+
+## 铁律
+
+1. 只做 `next` 里的事。每次写操作的响应都带 `next` 数组，每项都能直接拼成命令执行。`next` 之外的操作会被引擎拒绝；被拒绝了就回到 `next` 里选，不要绕过。
+2. 结论在输出文档里。执行成功只说明「这一步做完了」，通过与否写在输出文档里（通常第一行是结论）。你读文档后在多条边之间选，引擎不知道、也不替你知道哪个结论算通过。
+3. 只通过 CLI 读写状态。不直接改管理根（默认 `~/.sheltie`）下的任何文件。产出文件由执行者按任务书写到声明的位置，提交封存后任何人不得再改。
+4. 一律带 `--json` 调用，从响应的 `next` 取下一步。写操作可带 `--request-id <uuid>`；不确定上一次是否生效时，用同一个 id 重发是安全的，不会重复执行。
+
+## 流程
+
+1. **选 Workbook。** 列出已装的方法，看清它的节点、边与宿主资源声明：
+
+   ```bash
+   sheltie workbook list
+   sheltie workbook show <id>
+   ```
+
+   用户没有指定 Workbook 或 Flow 时，问用户。
+
+2. **开 Work。** Flow 声明的起始输入按键给全，多给少给都会被拒绝：
+
+   ```bash
+   sheltie work start --workbook <id> --flow <flow> --name <名字> --input <key>=<值> --json
+   ```
+
+   `--name` 省略时取 Flow id；`--input` 的值以 `@` 开头时读文件内容。响应给出 `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的唯一前缀即可指代这个 Work。
+
+3. **核对宿主资源。** `work start` 与每次 `attempt begin` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
+
+4. **领任务书。** 从 `next` 选一条 `attempt begin` 执行：
+
+   ```bash
+   sheltie attempt begin <work> --node <node> --json
+   ```
+
+   响应的 `brief_path` 指向任务书：说明书原文加本次绑好的输入绝对路径与输出要求。`next` 项上的 `executor` 与 `tier` 说明这一步该谁做：`agent` 就派一个工作 agent（`tier` 是给你选模型的提示），`human` 就把任务书交给人。
+
+5. **派活。** 把 `brief_path` 交给执行者。执行者读输入、按说明干活、把结论写进声明的输出文件、用几句话回复你。不要替执行者写产出，也不要改任务书声明之外的文件。
+
+6. **提交或标失败。** 执行者回复后提交：
+
+   ```bash
+   sheltie attempt submit <work> --attempt <attempt_id> --summary "<几句话结论>" --json
+   ```
+
+   摘要有界（超 4096 字节被拒绝），细节放进输出文档。引擎只校验输出文件齐全合规，不判断内容。执行者崩溃、超时、交不出文件时标失败：
+
+   ```bash
+   sheltie attempt fail <work> --attempt <attempt_id> --reason "<原因>" --json
+   ```
+
+   `next` 里还有 `attempt begin` 就可以重试。注意：「审查结论是不通过」是一次成功的执行，走 submit，不走 fail。
+
+7. **选边。** submit 成功后的 `next` 可能有多条 `attempt begin`，各带 `edge`（`main` / `back` / `branch` / `re_review`）。读输出文档，按结论选一条进入；没有边声明的去处不能去。
+
+8. **门槛找人。** Work 因门槛受阻时 `next` 只剩 `gate approve` 与 `work cancel`。把状态卡与相关产出拿给用户看，用户明确批准后才执行：
+
+   ```bash
+   sheltie gate approve <work> --node <node> --json
+   ```
+
+   其他原因的受阻（重试耗尽、无合法边）只剩 `work cancel` 合法：报告用户，由用户决定。
+
+9. **随时看状态。** 不确定进行到哪，读状态卡与事实视图：
+
+   ```bash
+   sheltie work status <work>
+   sheltie work stats <work>
+   ```
+
+   Work 到 `succeeded` 后，全部产出在 Work 目录里，每份都能追溯到是哪一步、哪一次尝试写的。
+
+## 细节
+
+每条命令的参数、任务书格式、错误码见 [协议合同](../../specs/contracts/protocol.md)；Workbook 怎么写见 [Workbook 合同](../../specs/contracts/workbook.md)。

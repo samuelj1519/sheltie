@@ -105,7 +105,7 @@ fn rejects_self_loop_edge() { … }
 | T22 | done | 初级 | 场景：门槛、产物与 Workbook 生命周期 | 门槛阻断、`ARTIFACT_MODIFIED`、`OUTPUT_MISSING`、`WORKBOOK_IN_USE` |
 | T23 | done | 初级 | 场景：重放与崩溃 | 同 id 重放、载荷冲突、`COMMIT` 前后被杀、`self update` 中途被杀 |
 | M3 | done | 强模型 | 里程碑审查：端到端 | diff M2..T23；对照 [规格 §7](spec.md) 十三个场景逐条找到测试 |
-| T24 | todo | 强模型 | sheltie skill | `SKILL.md` 与机械检查 |
+| T24 | done | 强模型 | sheltie skill | `SKILL.md` 与机械检查 |
 | T25 | todo | 人 | 收口 | 用 `install.sh` 从零装起走通快速开始、`cargo deny`、`v0.1.0` |
 | T26 | todo | 人 | 真实宿主实测 | 在 Claude Code 里用 skill 走完一个样例，记录结果 |
 
