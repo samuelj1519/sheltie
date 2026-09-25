@@ -7,9 +7,10 @@ use std::path::Path;
 
 use common::*;
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified() {
+fn modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -23,9 +24,10 @@ fn t22_modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modif
     assert_eq!(e["error"]["detail"]["input"], "outline");
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_submit_without_required_output_is_output_missing_and_attempt_stays_running() {
+fn submit_without_required_output_is_output_missing_and_attempt_stays_running() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -47,9 +49,10 @@ fn t22_submit_without_required_output_is_output_missing_and_attempt_stays_runnin
     );
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_submit_oversize_output_is_output_too_large() {
+fn submit_oversize_output_is_output_too_large() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -68,9 +71,10 @@ fn t22_submit_oversize_output_is_output_too_large() {
     assert_eq!(e["error"]["code"], "OUTPUT_TOO_LARGE");
 }
 
+// Task: T22
 #[test]
 #[ignore = "T22"]
-fn t22_submit_with_symlink_output_is_rejected() {
+fn submit_with_symlink_output_is_rejected() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);

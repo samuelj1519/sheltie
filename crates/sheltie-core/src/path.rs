@@ -132,8 +132,9 @@ impl From<AbsPath> for String {
 mod tests {
     use super::*;
 
+    // Task: T02
     #[test]
-    fn t02_rel_path_rejects_dotdot_and_absolute() {
+    fn rel_path_rejects_dotdot_and_absolute() {
         assert!(RelPath::new("instructions/draft.md").is_ok());
         for bad in ["../x", "a/../b", "/abs", "", "a//b", "./a"] {
             assert!(
@@ -143,8 +144,9 @@ mod tests {
         }
     }
 
+    // Task: T01
     #[test]
-    fn t01_abs_path_requires_absolute() {
+    fn abs_path_requires_absolute() {
         assert!(AbsPath::new("/tmp/x").is_ok());
         assert!(AbsPath::new("tmp/x").is_err());
         let root = AbsPath::new("/root").unwrap();
@@ -154,8 +156,9 @@ mod tests {
         );
     }
 
+    // Task: T02
     #[test]
-    fn t02_paths_display_and_convert_into_string() {
+    fn paths_display_and_convert_into_string() {
         let rel = RelPath::new("resources/a.md").unwrap();
         assert_eq!(rel.to_string(), "resources/a.md");
         assert_eq!(String::from(rel), "resources/a.md");

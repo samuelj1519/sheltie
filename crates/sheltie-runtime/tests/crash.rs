@@ -34,9 +34,10 @@ fn run_with_failpoint(
         .unwrap()
 }
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
+fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let out = run_with_failpoint(
@@ -68,10 +69,10 @@ fn t23_kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
     assert!(!again.replayed, "原请求没提交，这次是正常提交");
 }
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief()
- {
+fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let out = run_with_failpoint(
@@ -107,9 +108,10 @@ fn t23_kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply
     assert!(brief.exists(), "重放补写了任务书");
 }
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_status_card_missing_is_regenerated_on_next_write() {
+fn status_card_missing_is_regenerated_on_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
@@ -119,9 +121,10 @@ fn t23_status_card_missing_is_regenerated_on_next_write() {
     assert!(card.exists());
 }
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_kill_between_update_renames_leaves_prev_and_rollback_recovers() {
+fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
     let (d, home) = temp_home();
     let release = d.path().join("release");
     sheltie_runtime_test_release::make_release(&release, "9.9.9");

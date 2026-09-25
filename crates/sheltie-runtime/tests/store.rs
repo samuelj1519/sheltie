@@ -37,9 +37,10 @@ fn input(
     }
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_open_creates_schema_with_user_version_1() {
+fn open_creates_schema_with_user_version_1() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
@@ -51,9 +52,10 @@ fn t13_open_creates_schema_with_user_version_1() {
     assert_eq!(n, 5);
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_open_readonly_on_missing_db_is_not_found() {
+fn open_readonly_on_missing_db_is_not_found() {
     let (_d, home) = temp_home();
     assert!(matches!(
         Store::open(&home.store_path(), OpenMode::ReadOnly),
@@ -62,9 +64,10 @@ fn t13_open_readonly_on_missing_db_is_not_found() {
     assert!(!std::path::PathBuf::from(home.store_path().as_str()).exists());
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_open_rejects_wrong_user_version() {
+fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -76,9 +79,10 @@ fn t13_open_rejects_wrong_user_version() {
     ));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_open_rejects_same_version_different_table_shape() {
+fn open_rejects_same_version_different_table_shape() {
     // 手工造一个「旧形状」库：user_version = 1，但 works 表少一列。
     let (d, home) = temp_home();
     let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
@@ -98,9 +102,10 @@ fn t13_open_rejects_same_version_different_table_shape() {
     ));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_commit_inserts_state_audit_and_request_atomically() {
+fn commit_inserts_state_audit_and_request_atomically() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let st = state_fixture();
@@ -119,9 +124,10 @@ fn t13_commit_inserts_state_audit_and_request_atomically() {
     assert_eq!((audit, req), (1, 1));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_commit_replays_same_request_id_and_payload() {
+fn commit_replays_same_request_id_and_payload() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let st = state_fixture();
@@ -140,9 +146,10 @@ fn t13_commit_replays_same_request_id_and_payload() {
     );
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_commit_rejects_same_request_id_different_payload() {
+fn commit_rejects_same_request_id_different_payload() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let st = state_fixture();
@@ -153,9 +160,10 @@ fn t13_commit_rejects_same_request_id_different_payload() {
     ));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_commit_rejects_stale_revision() {
+fn commit_rejects_stale_revision() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let st = state_fixture();
@@ -170,9 +178,10 @@ fn t13_commit_rejects_stale_revision() {
     ));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_status_column_mirrors_state_json() {
+fn status_column_mirrors_state_json() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
@@ -188,9 +197,10 @@ fn t13_status_column_mirrors_state_json() {
     assert_eq!(status, "cancelled");
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_allocate_seq_starts_at_1_per_day_and_increments() {
+fn allocate_seq_starts_at_1_per_day_and_increments() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 1);
@@ -198,9 +208,10 @@ fn t13_allocate_seq_starts_at_1_per_day_and_increments() {
     assert_eq!(store.allocate_seq("2026-09-25").unwrap(), 1);
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_allocate_seq_is_not_reused_after_failed_start() {
+fn allocate_seq_is_not_reused_after_failed_start() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let _ = store.allocate_seq("2026-09-24").unwrap();
@@ -208,9 +219,10 @@ fn t13_allocate_seq_is_not_reused_after_failed_start() {
     assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 2);
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_allocate_seq_rejects_1000th_of_day() {
+fn allocate_seq_rejects_1000th_of_day() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     for _ in 0..999 {
@@ -222,9 +234,10 @@ fn t13_allocate_seq_rejects_1000th_of_day() {
     ));
 }
 
+// Task: T13
 #[test]
 #[ignore = "T13"]
-fn t13_allocate_seq_under_two_threads_yields_distinct_numbers() {
+fn allocate_seq_under_two_threads_yields_distinct_numbers() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let handles: Vec<_> = (0..2)

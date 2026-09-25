@@ -20,9 +20,10 @@ fn draft_then_review_fail(env: &Env, wid: &str) -> serde_json::Value {
     env.submit_all(wid, &r, "不通过。第二段论据不足。")
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_review_back_edge_creates_second_draft_occurrence() {
+fn review_back_edge_creates_second_draft_occurrence() {
     let env = Env::new();
     let wid = start_review(&env);
     let after_review = draft_then_review_fail(&env, &wid);
@@ -37,9 +38,10 @@ fn t21_review_back_edge_creates_second_draft_occurrence() {
     assert_eq!(p["data"]["attempt"], "publish#1.0");
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_next_after_review_offers_both_main_and_back_with_kinds() {
+fn next_after_review_offers_both_main_and_back_with_kinds() {
     let env = Env::new();
     let wid = start_review(&env);
     let v = draft_then_review_fail(&env, &wid);
@@ -55,9 +57,10 @@ fn t21_next_after_review_offers_both_main_and_back_with_kinds() {
     assert_eq!(draft["tier"], "standard");
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_max_visits_exhaustion_blocks_with_no_legal_edge() {
+fn max_visits_exhaustion_blocks_with_no_legal_edge() {
     let env = Env::new();
     let src = env.dir.path().join("ar1");
     copy_dir(&example_dir("article-review"), &src);
@@ -78,9 +81,10 @@ fn t21_max_visits_exhaustion_blocks_with_no_legal_edge() {
     assert_eq!(s2["data"]["work_status"]["reason"], "no_legal_edge");
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_human_executor_node_is_begun_and_submitted_like_agent() {
+fn human_executor_node_is_begun_and_submitted_like_agent() {
     let env = Env::new();
     let wid = start_review(&env);
     let b = env.begin(&wid, "draft");
@@ -97,9 +101,10 @@ fn t21_human_executor_node_is_begun_and_submitted_like_agent() {
     assert_eq!(done["data"]["work_status"]["kind"], "succeeded");
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_downstream_binds_latest_succeeded_occurrence_output() {
+fn downstream_binds_latest_succeeded_occurrence_output() {
     let env = Env::new();
     let wid = start_review(&env);
     let after_review = draft_then_review_fail(&env, &wid);
@@ -115,9 +120,10 @@ fn t21_downstream_binds_latest_succeeded_occurrence_output() {
     );
 }
 
+// Task: T21
 #[test]
 #[ignore = "T21"]
-fn t21_review_brief_lists_checklist_resource_with_frozen_path() {
+fn review_brief_lists_checklist_resource_with_frozen_path() {
     let env = Env::new();
     let wid = start_review(&env);
     let b = env.begin(&wid, "draft");

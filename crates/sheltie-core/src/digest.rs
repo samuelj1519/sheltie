@@ -65,8 +65,9 @@ impl From<Sha256Hex> for String {
 mod tests {
     use super::*;
 
+    // Task: T02
     #[test]
-    fn t02_sha256_hex_requires_64_lowercase_hex() {
+    fn sha256_hex_requires_64_lowercase_hex() {
         let ok = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
         assert_eq!(Sha256Hex::new(ok).unwrap().as_str(), ok);
         assert!(Sha256Hex::new(ok.to_uppercase()).is_err());
@@ -74,16 +75,18 @@ mod tests {
         assert!(Sha256Hex::new(format!("{}g", &ok[..63])).is_err());
     }
 
+    // Task: T01
     #[test]
-    fn t01_of_bytes_matches_known_vector() {
+    fn of_bytes_matches_known_vector() {
         assert_eq!(
             Sha256Hex::of_bytes(b"hello\n").as_str(),
             "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"
         );
     }
 
+    // Task: T02
     #[test]
-    fn t02_sha256_hex_short_display_and_into_string() {
+    fn sha256_hex_short_display_and_into_string() {
         let hex = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
         let h = Sha256Hex::new(hex).unwrap();
         assert_eq!(h.short(), "5891");

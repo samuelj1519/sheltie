@@ -3,8 +3,9 @@
 
 use assert_cmd::Command;
 
+// Task: T01
 #[test]
-fn t01_version_prints_name_and_version() {
+fn version_prints_name_and_version() {
     Command::cargo_bin("sheltie")
         .unwrap()
         .arg("--version")
@@ -13,8 +14,9 @@ fn t01_version_prints_name_and_version() {
         .stdout("sheltie 0.1.0\n");
 }
 
+// Task: T17
 #[test]
-fn t01_unknown_subcommand_exits_2() {
+fn unknown_subcommand_exits_2() {
     Command::cargo_bin("sheltie")
         .unwrap()
         .arg("frobnicate")

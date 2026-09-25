@@ -5,9 +5,10 @@ mod common;
 
 use common::*;
 
+// Task: T20
 #[test]
 #[ignore = "T20"]
-fn t20_self_version_works_without_home() {
+fn self_version_works_without_home() {
     let env = Env::new();
     // 管理根目录存在但里面什么都没有；self version 不需要 store.db。
     let v = env.ok(&["self", "version"]);

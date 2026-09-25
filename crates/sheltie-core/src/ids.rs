@@ -347,8 +347,9 @@ mod tests {
         WorkName::normalize(s).unwrap()
     }
 
+    // Task: T02
     #[test]
-    fn t02_workbook_id_accepts_kebab_case() {
+    fn workbook_id_accepts_kebab_case() {
         assert_eq!(
             WorkbookId::new("article-review").unwrap().as_str(),
             "article-review"
@@ -356,8 +357,9 @@ mod tests {
         assert_eq!(WorkbookId::new("a1").unwrap().as_str(), "a1");
     }
 
+    // Task: T02
     #[test]
-    fn t02_workbook_id_rejects_uppercase_and_double_dash() {
+    fn workbook_id_rejects_uppercase_and_double_dash() {
         for bad in ["Article", "a--b", "-a", "a-", "", "a_b", &"a".repeat(65)] {
             assert!(
                 matches!(WorkbookId::new(bad), Err(Error::InvalidId { .. })),
@@ -366,8 +368,9 @@ mod tests {
         }
     }
 
+    // Task: T02
     #[test]
-    fn t02_attempt_id_formats_as_node_hash_n_dot_retry() {
+    fn attempt_id_formats_as_node_hash_n_dot_retry() {
         let id = AttemptId::new(NodeId::new("draft").unwrap(), 1, 0);
         assert_eq!(id.to_string(), "draft#1.0");
         assert_eq!(
@@ -377,43 +380,49 @@ mod tests {
         assert!(AttemptId::parse("review#x.1").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_id_builds_from_day_seq_and_name() {
+    fn work_id_builds_from_day_seq_and_name() {
         let id = WorkId::new("2026-09-24", 3, &name("文章-初稿")).unwrap();
         assert_eq!(id.as_str(), "2026-09-24-003-文章-初稿");
         assert_eq!(WorkId::parse("2026-09-24-003-文章-初稿").unwrap(), id);
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_normalizes_whitespace_and_case() {
+    fn work_name_normalizes_whitespace_and_case() {
         assert_eq!(name("  文章  初稿 ").as_str(), "文章-初稿");
         assert_eq!(name("Export CSV").as_str(), "export-csv");
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_rejects_over_48_bytes_and_bad_chars() {
+    fn work_name_rejects_over_48_bytes_and_bad_chars() {
         assert!(WorkName::normalize(&"文".repeat(17)).is_err(), "51 字节");
         assert!(WorkName::normalize("a/b").is_err());
         assert!(WorkName::normalize("").is_err());
         assert!(WorkName::normalize("--").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_id_parse_rejects_plus_sign_in_seq() {
+    fn work_id_parse_rejects_plus_sign_in_seq() {
         // str::parse::<u32> 接受前导 +，解析层必须自己拒绝，否则解析再拼出会得到不同的串。
         assert!(WorkId::parse("2026-09-24-+12-x").is_err());
         assert!(WorkId::parse("2026-09-24-0x1-x").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_attempt_id_parse_rejects_plus_sign() {
+    fn attempt_id_parse_rejects_plus_sign() {
         assert!(AttemptId::parse("draft#+1.0").is_err());
         assert!(AttemptId::parse("draft#1.+0").is_err());
         assert!(AttemptId::parse("draft# 1.0").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_parse_rejects_leading_zero_in_numeric_segments() {
+    fn parse_rejects_leading_zero_in_numeric_segments() {
         // "01".parse::<u32>() 放行，会让 draft#01.0 重排成 draft#1.0；序号段必须是规范十进制。
         assert!(AttemptId::parse("draft#01.0").is_err());
         assert!(AttemptId::parse("draft#1.00").is_err());
@@ -427,8 +436,9 @@ mod tests {
         assert!(WorkId::parse("2026-09-24-01-x").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_accepts_han_extension_f_h_i_and_compat_supplement() {
+    fn work_name_accepts_han_extension_f_h_i_and_compat_supplement() {
         // 协议 work start 第 3 步列出的全部区段各取一个码点。
         for c in [
             '\u{2CEB0}',
@@ -447,8 +457,9 @@ mod tests {
         assert!(WorkName::normalize("\u{2E80}").is_err());
     }
 
+    // Task: T02
     #[test]
-    fn t02_kebab_id_error_field_is_snake_case() {
+    fn kebab_id_error_field_is_snake_case() {
         assert!(
             matches!(WorkbookId::new("Bad"), Err(Error::InvalidId { field, .. }) if field == "workbook_id")
         );
@@ -460,16 +471,18 @@ mod tests {
         );
     }
 
+    // Task: T02
     #[test]
-    fn t02_attempt_id_parse_error_field_is_attempt_id() {
+    fn attempt_id_parse_error_field_is_attempt_id() {
         match AttemptId::parse("Bad#1.0") {
             Err(Error::InvalidId { field, .. }) => assert_eq!(field, "attempt_id"),
             other => panic!("应是 InvalidId{{ field: attempt_id }}，实际 {other:?}"),
         }
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_id_rejects_seq_zero_or_over_999() {
+    fn work_id_rejects_seq_zero_or_over_999() {
         assert!(WorkId::new("2026-09-24", 0, &name("x")).is_err());
         assert!(WorkId::new("2026-09-24", 1000, &name("x")).is_err());
         assert!(WorkId::new("20260924", 1, &name("x")).is_err());
@@ -477,20 +490,23 @@ mod tests {
 
     // ── M1 补测（边界与形状，杀幸存突变） ─────────────────────
 
+    // Task: T02
     #[test]
-    fn t02_id_accepts_exactly_64_bytes() {
+    fn id_accepts_exactly_64_bytes() {
         let at = "a".repeat(64);
         assert_eq!(WorkbookId::new(&at).unwrap().as_str(), at);
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_accepts_exactly_48_bytes() {
+    fn work_name_accepts_exactly_48_bytes() {
         let at = "a".repeat(48);
         assert_eq!(name(&at).as_str(), at);
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_rejects_leading_or_trailing_dash_alone() {
+    fn work_name_rejects_leading_or_trailing_dash_alone() {
         for bad in ["-abc", "abc-"] {
             assert!(
                 matches!(WorkName::normalize(bad), Err(Error::InvalidId { .. })),
@@ -499,8 +515,9 @@ mod tests {
         }
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_id_parse_rejects_each_misplaced_separator() {
+    fn work_id_parse_rejects_each_misplaced_separator() {
         for bad in [
             "2026x09-24-001-a",
             "2026-09x24-001-a",
@@ -511,15 +528,17 @@ mod tests {
         }
     }
 
+    // Task: T02
     #[test]
-    fn t02_names_and_work_ids_convert_into_string() {
+    fn names_and_work_ids_convert_into_string() {
         assert_eq!(String::from(name("文章-初稿")), "文章-初稿");
         let id = WorkId::new("2026-09-24", 3, &name("a")).unwrap();
         assert_eq!(String::from(id), "2026-09-24-003-a");
     }
 
+    // Task: T02
     #[test]
-    fn t02_work_name_try_from_and_serde_reject_non_canonical() {
+    fn work_name_try_from_and_serde_reject_non_canonical() {
         assert!(WorkName::try_from("hello".to_string()).is_ok());
         assert!(WorkName::try_from("文章-初稿".to_string()).is_ok());
         // 规范化会改写的形式读回时拒绝，不悄悄改名。

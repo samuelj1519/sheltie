@@ -5,9 +5,10 @@ mod common;
 
 use common::*;
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_same_request_id_same_payload_returns_replayed_true() {
+fn same_request_id_same_payload_returns_replayed_true() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -34,9 +35,10 @@ fn t23_same_request_id_same_payload_returns_replayed_true() {
     assert_eq!(a["revision"], b["revision"]);
 }
 
+// Task: T23
 #[test]
 #[ignore = "T23"]
-fn t23_same_request_id_different_payload_is_request_conflict() {
+fn same_request_id_different_payload_is_request_conflict() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);

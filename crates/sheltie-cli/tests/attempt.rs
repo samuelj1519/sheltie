@@ -7,9 +7,10 @@ use std::path::Path;
 
 use common::*;
 
+// Task: T19
 #[test]
 #[ignore = "T19"]
-fn t19_two_step_via_cli_reaches_succeeded() {
+fn two_step_via_cli_reaches_succeeded() {
     let env = Env::new();
     env.add_example("two-step");
     let started = env.ok(&[
@@ -32,9 +33,10 @@ fn t19_two_step_via_cli_reaches_succeeded() {
     assert!(s2["next"].as_array().unwrap().is_empty());
 }
 
+// Task: T19
 #[test]
 #[ignore = "T19"]
-fn t19_attempt_begin_returns_brief_path_that_exists() {
+fn attempt_begin_returns_brief_path_that_exists() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -46,9 +48,10 @@ fn t19_attempt_begin_returns_brief_path_that_exists() {
     assert_eq!(b["data"]["attempt"], "outline#1.0");
 }
 
+// Task: T19
 #[test]
 #[ignore = "T19"]
-fn t19_attempt_submit_summary_from_at_file() {
+fn attempt_submit_summary_from_at_file() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
@@ -70,9 +73,10 @@ fn t19_attempt_submit_summary_from_at_file() {
     assert_eq!(st["data"]["last_attempt"]["summary"], "来自文件的摘要");
 }
 
+// Task: T19
 #[test]
 #[ignore = "T19"]
-fn t19_attempt_fail_then_begin_retries_same_occurrence() {
+fn attempt_fail_then_begin_retries_same_occurrence() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);

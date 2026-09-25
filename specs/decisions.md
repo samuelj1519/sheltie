@@ -344,6 +344,18 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **后果。** `parse.rs` 的 `validate_id` 剩四个调用点：`start.<key>`、`from` 的输出名、`outputs[].name`、`requires[].name`，与合同逐条对应。`inputs[].name` 只受节点内唯一约束。样例与夹具恢复下划线写法。
 
+## D-27 测试名写行为，任务归属写注释
+
+2026-09-25，用户拍板。
+
+**背景。** 此前测试名以任务编号开头（`t05_rejects_self_loop_edge`），任务卡里列的名字又省略前缀。前缀是把任务映射抄进交付物：任务重排、合并时名字变成化石，失败输出里读到的是排期号而不是哪条行为坏了。但前缀不只是装饰：`scripts/task.sh` 靠它选测试，而且带 `--run-ignored all`，好让实现者不删标记就看到红。按文件选跑行不通：`decide.rs` 装着 T06 到 T09 的测试，做 T08 时会连 T09 仍停在 `todo!` 上的禁用测试一起跑，`task.sh` 永远红。
+
+**选择。** 测试名只写「条件 → 行为」。归属写成紧贴 `#[test]` 上方的一行 `// Task: Tnn`，它是任务卡映射在代码里的机器可读副本；`task.sh` 按它选测试。新增 `scripts/check-tests.sh`（pre-commit 与 CI）：名字不带前缀、每个测试恰好一行归属注释、`#[ignore]` 标签与之一致、名字全仓唯一、任务卡列的名字都存在且归属对。快照改显式名字，与函数名解耦。一次改完全部 279 个测试，7 个快照 `git mv`（字节不变），`tasks.toml` 删 `tests` 字段。改名提交打 tag `t11-baseline`，`check-task.sh` 以它为新基准。
+
+**否决。** 按 `test_files` 选跑（上述原因）；`task.sh` 直接解析任务卡取名字（复核者补的测试都得回写任务卡，漏写无人发现，且 bash 解析 Markdown 太脆）；新测试执行新规、旧名渐进迁移（半新半旧比现状更乱，T11 起尚未填空，现在一次改最便宜）；用模块名命名（`optional_outputs_work` 是分类不是规格）。
+
+**后果。** 两份映射（任务卡与注释）由 `check-tests.sh` 核对单向一致：卡上列的必须存在且归属相符；代码里多出的测试（复核者补的）只需挂被复核任务的编号。`unknown_subcommand_exits_2` 原名挂 `t01_`，任务卡列在 T17，按任务卡归 T17（T01 骨架里它已经是绿的）。
+
 ## 里程碑记录
 
 ### M1 core（2026-09-25）
@@ -383,7 +395,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **待修。**
 
-- **B1（T05，退回 `doing`）。** 被引用输出 `required = false` 而输入默认必需时，编译放行；上游不写该文件，`next` 仍给出 `attempt begin`，开工必报 `INPUT_UNAVAILABLE`，Work 只能取消。合同 §4 规则 5 与 `check_rule_5` 注释已补这一句；复核者补 `t05_rejects_required_input_on_optional_output`（禁用）与 `t05_accepts_optional_input_on_optional_output`。三份样例与 `spec-dev` 没有可选输出，不受影响。实现者解开测试、修，提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，M1 再复核这一条。
+- **B1（T05，退回 `doing`）。** 被引用输出 `required = false` 而输入默认必需时，编译放行；上游不写该文件，`next` 仍给出 `attempt begin`，开工必报 `INPUT_UNAVAILABLE`，Work 只能取消。合同 §4 规则 5 与 `check_rule_5` 注释已补这一句；复核者补 `rejects_required_input_on_optional_output`（禁用）与 `accepts_optional_input_on_optional_output`。三份样例与 `spec-dev` 没有可选输出，不受影响。实现者解开测试、修，提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，M1 再复核这一条。
 
 **遗留（M2 前由骨架作者补签名与测试，或由人拍板）。**
 

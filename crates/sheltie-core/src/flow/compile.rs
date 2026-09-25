@@ -349,16 +349,18 @@ mod tests {
         testkit::ARTICLE_REVIEW_FLOW
     }
 
+    // Task: T05
     #[test]
-    fn t05_compiles_article_review_example() {
+    fn compiles_article_review_example() {
         let g = compile_text(base()).unwrap();
         assert_eq!(g.node_count(), 3);
         assert_eq!(g.edge_count(), 3);
         assert!(g.is_terminal(&NodeId::new("publish").unwrap()));
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_entry_not_a_node() {
+    fn rejects_entry_not_a_node() {
         assert_eq!(
             rule_of(
                 compile_text(&base().replace("entry = \"draft\"", "entry = \"nope\"")).unwrap_err()
@@ -367,8 +369,9 @@ mod tests {
         );
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_node_id_start_or_resource() {
+    fn rejects_node_id_start_or_resource() {
         let text = format!(
             "{}\n[[nodes]]\nid = \"start\"\ntitle = \"S\"\nexecutor = \"agent\"\ninstruction = {{ text = \"s\" }}\n[[edges]]\nfrom = \"publish\"\nto = \"start\"\nkind = \"main\"\n",
             base()
@@ -376,8 +379,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "1");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_self_loop_edge() {
+    fn rejects_self_loop_edge() {
         let text = format!(
             "{}\n[[edges]]\nfrom = \"publish\"\nto = \"publish\"\nkind = \"back\"\n",
             base()
@@ -385,8 +389,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "2");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_duplicate_from_to() {
+    fn rejects_duplicate_from_to() {
         let text = format!(
             "{}\n[[edges]]\nfrom = \"draft\"\nto = \"review\"\nkind = \"branch\"\n",
             base()
@@ -394,8 +399,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "2");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_unreachable_node() {
+    fn rejects_unreachable_node() {
         let text = format!(
             "{}\n[[nodes]]\nid = \"island\"\ntitle = \"I\"\nexecutor = \"agent\"\ninstruction = {{ text = \"i\" }}\n",
             base()
@@ -403,8 +409,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "3");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_graph_without_terminal_node() {
+    fn rejects_graph_without_terminal_node() {
         let text = format!(
             "{}\n[[edges]]\nfrom = \"publish\"\nto = \"draft\"\nkind = \"back\"\n",
             base()
@@ -412,14 +419,16 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "4");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_input_from_unknown_output() {
+    fn rejects_input_from_unknown_output() {
         let text = base().replace("from = \"draft.article\"", "from = \"draft.nope\"");
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_input_from_node_that_cannot_reach_consumer() {
+    fn rejects_input_from_node_that_cannot_reach_consumer() {
         // draft 引用 publish 的输出：publish 是终点，到不了 draft。
         let text = base().replace(
             "inputs  = [{ name = \"topic\", from = \"start.topic\" }]",
@@ -428,8 +437,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_optional_input_on_start_or_resource_source() {
+    fn rejects_optional_input_on_start_or_resource_source() {
         let text = base().replace(
             "{ name = \"topic\", from = \"start.topic\" }",
             "{ name = \"topic\", from = \"start.topic\", required = false }",
@@ -437,8 +447,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_node_id_engine() {
+    fn rejects_node_id_engine() {
         let text = format!(
             "{}\n[[nodes]]\nid = \"engine\"\ntitle = \"E\"\nexecutor = \"agent\"\ninstruction = {{ text = \"e\" }}\n[[edges]]\nfrom = \"publish\"\nto = \"engine\"\nkind = \"main\"\n",
             base()
@@ -446,8 +457,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "1");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_optional_engine_stats_input() {
+    fn rejects_optional_engine_stats_input() {
         let text = base().replace(
             "{ name = \"topic\", from = \"start.topic\" }",
             "{ name = \"topic\", from = \"start.topic\" }, { name = \"stats\", from = \"engine.stats\", required = false }",
@@ -455,8 +467,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_gate_node_with_empty_text() {
+    fn rejects_gate_node_with_empty_text() {
         let text = base().replace(
             "instruction = { text = \"阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。\" }",
             "gate = true\ninstruction = { text = \"   \" }",
@@ -468,14 +481,16 @@ mod tests {
         ));
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_missing_instruction_file() {
+    fn rejects_missing_instruction_file() {
         let text = base().replace("instructions/review.md", "instructions/missing.md");
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "7");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_non_utf8_instruction() {
+    fn rejects_non_utf8_instruction() {
         let def = parse_flow(base()).unwrap();
         let mut res = testkit::article_review_resources();
         if let Some(meta) = res
@@ -488,14 +503,16 @@ mod tests {
         assert_eq!(rule_of(err), "7");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_missing_resource_input_file() {
+    fn rejects_missing_resource_input_file() {
         let text = base().replace("resources/review-checklist.md", "resources/nope.md");
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "7");
     }
 
+    // Task: T05
     #[test]
-    fn t05_accepts_binary_resource_input() {
+    fn accepts_binary_resource_input() {
         let def = parse_flow(base()).unwrap();
         let mut res = testkit::article_review_resources();
         if let Some(meta) = res
@@ -507,8 +524,9 @@ mod tests {
         assert!(compile(&def, &testkit::article_review_manifest(), &res).is_ok());
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_node_require_not_declared_in_manifest() {
+    fn rejects_node_require_not_declared_in_manifest() {
         let text = base().replace(
             "max_visits = 3",
             "max_visits = 3\nrequires = [\"skill:ghost\"]",
@@ -516,8 +534,9 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "8");
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_duplicate_node_require() {
+    fn rejects_duplicate_node_require() {
         let def = parse_flow(&base().replace(
             "max_visits = 3",
             "max_visits = 3\nrequires = [\"skill:a\", \"skill:a\"]",
@@ -537,8 +556,9 @@ mod tests {
         );
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_tier_on_human_node() {
+    fn rejects_tier_on_human_node() {
         let text = base().replace(
             "executor = \"human\"",
             "executor = \"human\"\ntier = \"strong\"",
@@ -566,8 +586,9 @@ mod tests {
     }
 
     proptest::proptest! {
+        // Task: T05
         #[test]
-        fn t05_proptest_compile_never_panics(
+        fn proptest_compile_never_panics(
             n in 2usize..=8,
             edges in proptest::collection::vec((0usize..8, 0usize..8), 0..16),
         ) {
@@ -606,8 +627,9 @@ mod tests {
         )
     }
 
+    // Task: T05
     #[test]
-    fn t05_node_count_limit_is_64() {
+    fn node_count_limit_is_64() {
         assert_eq!(
             compile_def(&testkit::random_flow(64, &chain_with_edges(64, 63)))
                 .unwrap()
@@ -620,8 +642,9 @@ mod tests {
         );
     }
 
+    // Task: T05
     #[test]
-    fn t05_edge_count_limit_is_256() {
+    fn edge_count_limit_is_256() {
         let at = chain_with_edges(64, 256);
         assert_eq!(at.len(), 256);
         assert_eq!(
@@ -660,8 +683,9 @@ mod tests {
         )
     }
 
+    // Task: T05
     #[test]
-    fn t05_instruction_file_limit_is_64_kib() {
+    fn instruction_file_limit_is_64_kib() {
         assert!(compile_with(&resources_with("instructions/draft.md", 65_536)).is_ok());
         assert_eq!(
             rule_of(compile_with(&resources_with("instructions/draft.md", 65_537)).unwrap_err()),
@@ -669,8 +693,9 @@ mod tests {
         );
     }
 
+    // Task: T05
     #[test]
-    fn t05_resource_input_limit_is_32_mib() {
+    fn resource_input_limit_is_32_mib() {
         let path = "resources/review-checklist.md";
         assert!(compile_with(&resources_with(path, 33_554_432)).is_ok());
         assert_eq!(
@@ -679,8 +704,9 @@ mod tests {
         );
     }
 
+    // Task: T05
     #[test]
-    fn t05_node_with_out_edges_is_not_terminal() {
+    fn node_with_out_edges_is_not_terminal() {
         let g = compile_text(base()).unwrap();
         assert!(!g.is_terminal(&NodeId::new("draft").unwrap()));
         assert!(!g.is_terminal(&NodeId::new("review").unwrap()));
@@ -695,13 +721,15 @@ mod tests {
         )
     }
 
+    // Task: T05
     #[test]
-    fn t05_rejects_required_input_on_optional_output() {
+    fn rejects_required_input_on_optional_output() {
         assert_eq!(rule_of(compile_text(&optional_article()).unwrap_err()), "5");
     }
 
+    // Task: T05
     #[test]
-    fn t05_accepts_optional_input_on_optional_output() {
+    fn accepts_optional_input_on_optional_output() {
         let text = optional_article()
             .replace(
                 "{ name = \"article\",   from = \"draft.article\" }",
@@ -716,8 +744,9 @@ mod tests {
 
     // ── M1 复核 O1：图带 Workbook 全量 requires，按 manifest 声明顺序 ─────
 
+    // Task: T05
     #[test]
-    fn t05_graph_carries_manifest_requires_in_declaration_order() {
+    fn graph_carries_manifest_requires_in_declaration_order() {
         let def = parse_flow(base()).unwrap();
         let mut manifest = testkit::article_review_manifest();
         // 先 beta 后 alpha：若按名字或 kind:name 排序，顺序会反过来。
