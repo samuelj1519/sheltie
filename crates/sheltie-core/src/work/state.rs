@@ -85,7 +85,18 @@ impl Timestamp {
     /// 距 1970-01-01T00:00:00Z 的秒数，1970 年以前为负。`work stats` 的耗时由它相减得出。
     /// 构造时已校验，所以不会失败。
     pub fn unix_secs(&self) -> i64 {
-        todo!("T10")
+        // `from_unix_secs` 的逆运算（Howard Hinnant 的 days_from_civil）；形状与日历由 `parse` 保证，直接取数。
+        let b = self.0.as_bytes();
+        let num =
+            |r: std::ops::Range<usize>| b[r].iter().fold(0i64, |n, c| n * 10 + i64::from(c - b'0'));
+        let (y, mo, d) = (num(0..4), num(5..7), num(8..10));
+        let (h, mi, s) = (num(11..13), num(14..16), num(17..19));
+        let (y, mp) = if mo > 2 { (y, mo - 3) } else { (y - 1, mo + 9) };
+        let era = y.div_euclid(400);
+        let yoe = y - era * 400;
+        let doy = (153 * mp + 2) / 5 + d - 1;
+        let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+        (era * 146_097 + doe - 719_468) * 86_400 + h * 3600 + mi * 60 + s
     }
 
     pub fn as_str(&self) -> &str {
@@ -411,7 +422,6 @@ mod tests {
 
     // Task: T10
     #[test]
-    #[ignore = "T10"]
     fn timestamp_unix_secs_matches_independent_calendar_math() {
         // 期望值由 Python datetime 独立算出；1970 年以前为负。
         for (s, want) in [

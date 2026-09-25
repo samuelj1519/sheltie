@@ -33,7 +33,7 @@ use crate::ids::WorkId;
 /// <空行>
 /// | 类型 | 名称 | 版本 | 说明 |
 /// | --- | --- | --- | --- |
-/// | <kind> | <name> | <version 或 -> | 请确认你的宿主已装此资源；未装请停下并告知用户 |
+/// | <kind> | <name> | <version 或 -> | 请确认你的宿主已装此 <kind>；未装请停下并告知用户 |   「此 <kind>」随类型变成「此 skill」「此 agent」「此 mcp」
 /// <空行>
 /// ## 说明
 /// <空行>
@@ -124,11 +124,13 @@ pub fn render_brief(
                 .find(|r| r.kind == *kind && r.name == *name)
                 .and_then(|r| r.version.as_deref())
                 .unwrap_or("-");
+            // 说明里的「此 <kind>」随类型变：此 skill / 此 agent / 此 mcp（协议 §4）。
             out.push_str(&format!(
-                "| {} | {} | {} | 请确认你的宿主已装此资源；未装请停下并告知用户 |\n",
+                "| {} | {} | {} | 请确认你的宿主已装此 {}；未装请停下并告知用户 |\n",
                 kind.as_str(),
                 name,
-                version
+                version,
+                kind.as_str()
             ));
         }
     }
@@ -423,7 +425,7 @@ pub struct NodeStatsJson {
     pub entered_via: Vec<String>,
 }
 
-/// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 RFC 3339 时间串相减得到；解析不了的当 0。
+/// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 `Timestamp::unix_secs` 相减得到。
 pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
     let mut nodes = Vec::new();
     for def in graph.nodes() {
@@ -510,32 +512,9 @@ fn count_blocks(state: &WorkState, graph: &Graph) -> u32 {
     n
 }
 
-/// RFC 3339（`…Z`）到秒；解析不了当 0。
+/// 时间差，秒，负差算 0。`Timestamp` 构造时已校验形状，这里没有失败路径。
 fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
-    let (Some(x), Some(y)) = (rfc3339_secs(a), rfc3339_secs(b)) else {
-        return 0;
-    };
-    (y - x).max(0) as u64
-}
-
-fn rfc3339_secs(ts: &Timestamp) -> Option<i64> {
-    let s = ts.as_str().strip_suffix('Z')?;
-    let s = s.split('.').next()?;
-    let (d, t) = s.split_once('T')?;
-    let mut dp = d.split('-');
-    let y: i64 = dp.next()?.parse().ok()?;
-    let mo: i64 = dp.next()?.parse().ok()?;
-    let day: i64 = dp.next()?.parse().ok()?;
-    let mut tp = t.split(':');
-    let h: i64 = tp.next()?.parse().ok()?;
-    let mi: i64 = tp.next()?.parse().ok()?;
-    let sec: i64 = tp.next()?.parse().ok()?;
-    let (y2, mp) = if mo > 2 { (y, mo - 3) } else { (y - 1, mo + 9) };
-    let era = y2.div_euclid(400);
-    let yoe = y2 - era * 400;
-    let doy = (153 * mp + 2) / 5 + day - 1;
-    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-    Some((era * 146097 + doe) * 86400 + h * 3600 + mi * 60 + sec)
+    (b.unix_secs() - a.unix_secs()).max(0) as u64
 }
 
 /// 事实视图的文本表（协议 `work stats`）。快照 `*stats_table*.snap` 是标准答案。
@@ -596,7 +575,6 @@ mod tests {
 
     // Task: T10
     #[test]
-    #[ignore = "T10"]
     fn brief_for_node_with_requires() {
         let mut fx = Fixture::with_requires();
         fx.begin("only").unwrap();
@@ -621,7 +599,6 @@ mod tests {
 
     // Task: T10
     #[test]
-    #[ignore = "T10"]
     fn brief_require_row_takes_version_from_manifest_and_names_kind() {
         use crate::digest::Sha256Hex;
         use crate::flow::{ResourceIndex, compile, parse_flow};
