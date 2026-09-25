@@ -216,7 +216,9 @@ fn verify_reports_missing_when_directory_gone() {
     r.add(&abs(&example_dir("two-step"))).unwrap();
     let dir = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str());
     for entry in walk(&dir) {
-        std::fs::set_permissions(&entry, std::os::unix::fs::PermissionsExt::from_mode(0o644))
+        // 目录保留可遍历的 0755（同本文件 `make_writable` 的约定），否则 remove_dir_all 进不了子目录。
+        let mode = if entry.is_dir() { 0o755 } else { 0o644 };
+        std::fs::set_permissions(&entry, std::os::unix::fs::PermissionsExt::from_mode(mode))
             .unwrap();
     }
     std::fs::remove_dir_all(&dir).unwrap();
