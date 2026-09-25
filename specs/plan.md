@@ -99,7 +99,7 @@ fn rejects_self_loop_edge() { … }
 | M2 | done | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | done | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
 | T18 | done | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
-| T19 | todo | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
+| T19 | done | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
 | T20 | todo | 初级 | cli `self` 组与发布链 | `install / update / rollback / uninstall / version`；`cargo-dist` 配置 |
 | T21 | todo | 初级 | 场景：审查回环 | `back` 边、二次到达、`max_visits` 耗尽、`human` 执行者、`resource` 输入 |
 | T22 | todo | 初级 | 场景：门槛、产物与 Workbook 生命周期 | 门槛阻断、`ARTIFACT_MODIFIED`、`OUTPUT_MISSING`、`WORKBOOK_IN_USE` |

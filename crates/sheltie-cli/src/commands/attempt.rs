@@ -1,8 +1,8 @@
 //! `attempt begin | submit | fail`。
 
 use serde_json::json;
-use sheltie_core::ids::NodeId;
-use sheltie_core::work::Reply;
+use sheltie_core::ids::{AttemptId, NodeId, WorkId};
+use sheltie_core::work::{Reply, WorkState};
 use sheltie_runtime::store::OpenMode;
 
 use crate::cli::AttemptCmd;
@@ -16,8 +16,16 @@ use crate::output::{self, Outcome};
 pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
     match cmd {
         AttemptCmd::Begin { work, node } => begin(ctx, &work, &node),
-        AttemptCmd::Submit { .. } => todo!("T19"),
-        AttemptCmd::Fail { .. } => todo!("T19"),
+        AttemptCmd::Submit {
+            work,
+            attempt,
+            summary,
+        } => submit(ctx, &work, &attempt, &summary),
+        AttemptCmd::Fail {
+            work,
+            attempt,
+            reason,
+        } => fail(ctx, &work, &attempt, &reason),
     }
 }
 
@@ -75,4 +83,114 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         &resp.next,
         wid.as_str(),
     )
+}
+
+/// `attempt submit`（协议 §3 第 6 步的返回）。
+fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
+    let summary = match crate::cli::read_text_arg(summary) {
+        Ok(s) => s,
+        Err(m) => return output::param_error(m),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(a) => a,
+        Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
+    };
+    let svc = match service(ctx, OpenMode::ReadWrite) {
+        Ok(s) => s,
+        Err(out) => return out,
+    };
+    let wid = match resolve(&svc, work) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.submit(&wid, &attempt, &summary, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let Reply::AttemptSubmitted { attempt, outputs } = &resp.reply else {
+        return reply_mismatch("AttemptSubmitted");
+    };
+    let state = match state_of(ctx, &wid) {
+        Ok(s) => s,
+        Err(out) => return out,
+    };
+    let data = json!({
+        "attempt": attempt.to_string(),
+        "outputs": outputs,
+        "work_status": state.status,
+        "replayed": resp.replayed,
+    });
+    let mut text = format!("已提交 {attempt}\n");
+    for (name, r) in outputs {
+        text.push_str(&format!(
+            "  {name} → {} (sha256 {})\n",
+            r.path,
+            r.sha256.as_str()
+        ));
+    }
+    let text = next_lines(text, &resp, &wid);
+    output::ok_work(
+        text,
+        Some(resp.request_id),
+        Some(resp.revision),
+        data,
+        &resp.next,
+        wid.as_str(),
+    )
+}
+
+/// `attempt fail`。
+fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
+    let reason = match crate::cli::read_text_arg(reason) {
+        Ok(s) => s,
+        Err(m) => return output::param_error(m),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(a) => a,
+        Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
+    };
+    let svc = match service(ctx, OpenMode::ReadWrite) {
+        Ok(s) => s,
+        Err(out) => return out,
+    };
+    let wid = match resolve(&svc, work) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.fail(&wid, &attempt, &reason, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let Reply::AttemptFailed { attempt } = &resp.reply else {
+        return reply_mismatch("AttemptFailed");
+    };
+    let state = match state_of(ctx, &wid) {
+        Ok(s) => s,
+        Err(out) => return out,
+    };
+    let data = json!({
+        "attempt": attempt.to_string(),
+        "work_status": state.status,
+        "replayed": resp.replayed,
+    });
+    let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
+    output::ok_work(
+        text,
+        Some(resp.request_id),
+        Some(resp.revision),
+        data,
+        &resp.next,
+        wid.as_str(),
+    )
+}
+
+/// 提交后的 `work_status` 与批准人不在 reply 里，只读加载一次状态。
+pub(crate) fn state_of(ctx: &Ctx, work: &WorkId) -> Result<WorkState, Outcome> {
+    let store = ctx
+        .store(OpenMode::ReadOnly)
+        .map_err(|e| crate::error_map::to_outcome(&e))?;
+    store
+        .load_work(work)
+        .map(|row| row.state)
+        .map_err(|e| crate::error_map::to_outcome(&e))
 }
