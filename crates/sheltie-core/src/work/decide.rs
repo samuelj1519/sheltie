@@ -114,13 +114,9 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
     let mut visits = BTreeMap::new();
     visits.insert(entry.clone(), 1);
 
-    // 宿主资源清单：Workbook 声明的**全部** requires，按 manifest 声明顺序
-    // （protocol.md work start 第 8 步；不止本图用到的那些）。
-    let requires: Vec<String> = graph
-        .requires()
-        .iter()
-        .map(|r| format!("{}:{}", r.kind.as_str(), r.name))
-        .collect();
+    // 宿主资源清单：Workbook 声明的**全部** requires，按 manifest 声明顺序，原样带上
+    // version / digest / source（protocol.md work start 第 8 步；不止本图用到的那些）。
+    let requires = graph.requires().to_vec();
 
     let state = WorkState {
         work_id: work_id.clone(),
@@ -244,10 +240,18 @@ fn decide_begin(
     for decl in &def.outputs {
         outputs.insert(decl.name.clone(), attempt_dir.join(&decl.path));
     }
+    // 节点引用的 `kind:name` 换成 manifest 里的那条声明，按节点里的顺序。
+    // 编译期已保证每条引用都能在 manifest 找到（flow::compile）。
     let requires = def
         .requires
         .iter()
-        .map(|(kind, name)| format!("{}:{}", kind.as_str(), name))
+        .filter_map(|(kind, name)| {
+            graph
+                .requires()
+                .iter()
+                .find(|r| r.kind == *kind && r.name == *name)
+                .cloned()
+        })
         .collect();
 
     Ok(Decision {
@@ -757,9 +761,35 @@ mod tests {
             panic!("应当是 Reply::Started");
         };
         // skill:beta 没有任何节点引用，也必须在清单里；顺序是 manifest 声明顺序（不是排序后的）。
+        let ids: Vec<_> = requires
+            .iter()
+            .map(|r| (r.kind.as_str(), r.name.as_str()))
+            .collect();
+        assert_eq!(ids, vec![("skill", "beta"), ("mcp", "alpha")]);
+    }
+
+    // Task: T06
+    #[test]
+    fn start_requires_carry_manifest_declaration_as_is() {
+        let (_graph, d) = start_texts(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"2.1.0\"\ndigest = \"sha256:abababababababababababababababababababababababababababababababab\"\nsource = \"https://example.com/company-api\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\n",
+        );
+        // 回复里的每一项就是 manifest 的那条声明：没声明的字段是 null，不省略、不拼成 `kind:name`。
+        // digest 和引擎其他回复一样是裸 64 位十六进制；`sha256:` 前缀只是 manifest 的书写格式。
+        let reply = serde_json::to_value(&d.reply).unwrap();
         assert_eq!(
-            requires,
-            vec!["skill:beta".to_string(), "mcp:alpha".to_string()]
+            reply["requires"],
+            serde_json::json!([
+                {
+                    "kind": "skill",
+                    "name": "company-api",
+                    "version": "2.1.0",
+                    "digest": "abababababababababababababababababababababababababababababababab",
+                    "source": "https://example.com/company-api"
+                },
+                { "kind": "mcp", "name": "db", "version": null, "digest": null, "source": null }
+            ])
         );
     }
 
@@ -953,9 +983,12 @@ mod tests {
     fn begin_reply_lists_node_requires() {
         let mut fx = Fixture::with_requires();
         let d = fx.begin("only").unwrap();
-        assert!(
-            matches!(d.reply, Reply::AttemptBegun { requires, .. } if requires == vec!["skill:company-api".to_string()])
-        );
+        let Reply::AttemptBegun { requires, .. } = d.reply else {
+            panic!("应当是 Reply::AttemptBegun");
+        };
+        assert_eq!(requires.len(), 1);
+        assert_eq!(requires[0].kind.as_str(), "skill");
+        assert_eq!(requires[0].name, "company-api");
     }
 
     // Task: T07

@@ -71,6 +71,8 @@ fn rejects_self_loop_edge() { … }
 
 每个任务完成后由强模型复核一次，结论写进任务卡的「复核」行：日期、通过与否、待修项编号。待修项用 `Bn` 编号，修复提交说明里引用它。复核者补的测试列在同一行；补测试的提交打 tag `tNN-review`，`check-task.sh` 以它为新的测试基准，实现者的修复提交才不会被判为「改了测试」。
 
+里程碑审查退回的修复也一样：提交写被退回任务的编号（`Task: T10`），不写 `Task: M1`。`check-task.sh` 按 `Task:` 找白名单，M1 没有白名单，写成 M1 就等于没核。复核者自己的补测试、改合同提交才写 `Task: Mn`。
+
 ## 1. 任务表
 
 | ID | 状态 | 执行者 | 标题 | 结果 |
@@ -84,7 +86,7 @@ fn rejects_self_loop_edge() { … }
 | T07 | done | 初级 | core `BeginAttempt` | 选边、访问计数、输入冻结、任务书效果 |
 | T08 | done | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
 | T09 | done | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
-| T10 | done | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行投影与预写快照一致 |
+| T10 | doing | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行投影与预写快照一致 |
 | M1 | doing | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 幸存突变逐条处置 |
 | T11 | todo | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | todo | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
@@ -251,6 +253,12 @@ fn rejects_self_loop_edge() { … }
 
 **提交。** `feat(core): 渲染任务书、状态卡与 next 投影`
 
+**复核（M1 第二轮，2026-09-25）。** 退回 `doing`，两项，一个提交 `fix(core): …`，`Task: T10`：
+
+1. 任务书宿主资源表的说明写「此 <kind>」（协议 §4）。解开 `brief_for_node_with_requires`、`brief_require_row_takes_version_from_manifest_and_names_kind`。`render_brief` 上方的格式注释同步改。
+2. 实现 `Timestamp::unix_secs`（`state.rs`），解开 `timestamp_unix_secs_matches_independent_calendar_math`。然后 `secs_between` 改用它，删掉 `rfc3339_secs` 与「解析不了当 0」的兜底，`StatsJson` 注释里的「解析不了的当 0」同步删。`Timestamp` 构造已校验形状，这里没有失败路径。
+
+见 [decisions.md 里程碑记录](decisions.md) M1 第二轮处置与 D-28。
 ### M1 里程碑审查：core
 
 **执行者。** 强模型，未参与 T02 到 T10。
@@ -315,13 +323,13 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** `crates/sheltie-runtime/src/service.rs`。
 
-**测试。** `two_step_runs_to_succeeded`、`start_allocates_work_id_with_today_and_seq_001`、`start_replay_returns_same_work_id_without_new_seq`、`start_copies_workbook_into_work_dir_readonly`、`begin_loads_graph_from_frozen_copy_not_repository`、`status_works_after_workbook_removed`、`begin_writes_brief_md_with_absolute_input_paths`、`begin_binds_resource_input_to_frozen_copy_path`、`status_card_regenerated_after_each_commit`、`concurrent_writers_one_gets_revision_conflict`。
+**测试。** `two_step_runs_to_succeeded`、`start_allocates_work_id_with_today_and_seq_001`、`start_replay_returns_same_work_id_without_new_seq`、`start_copies_workbook_into_work_dir_readonly`、`begin_loads_graph_from_frozen_copy_not_repository`、`status_works_after_workbook_removed`、`begin_writes_brief_md_with_absolute_input_paths`、`begin_binds_resource_input_to_frozen_copy_path`、`status_card_regenerated_after_each_commit`、`concurrent_writers_one_gets_revision_conflict`、`begin_on_tampered_frozen_copy_is_store_corrupt`、`missing_frozen_copy_is_store_corrupt_for_begin_and_status`、`tampered_resource_input_is_store_corrupt_not_artifact_modified`。
 
 **实现要点。** 每个写操作都是同一个私有函数 `run_command` 的调用，骨架已写好它的签名与「加载 → 观察 → 决定 → 提交 → 效果」五个步骤的注释，先填它，再填八个薄的公开方法。`start` 多一步前置：先查 `requests` 表重放，再 `allocate_seq`，再复制冻结副本。`REVISION_CONFLICT` 重试循环最多 3 次。效果按 [存储合同 §3](contracts/storage.md) 幂等。
 
 **提交。** `feat(runtime): Work 服务与每 Work 冻结副本`
 
-**M1 遗留（开工前由骨架作者补签名与测试）。** [decisions.md 里程碑记录](decisions.md) M1 的 O1 到 O4：`work start` 的 `requires` 取 manifest 全量；`resource.<path>` 输入的篡改检测；任务书宿主资源表的「版本」列；从库里反序列化的 `WorkState` 要重新校验有界文本。
+**M1 遗留。** [decisions.md 里程碑记录](decisions.md) M1 的 O1、O3、O4 已在 core 修完；剩 O2，测试已补（上面最后三条）。加载 Work 时先核对冻结副本：目录在、摘要等于 `WorkState.workbook.digest`，否则 `STORE_CORRUPT`，不回退到仓库。这一步放在「加载」里，`status` 与所有写操作都经过它；`resource.<path>` 输入因此不需要单独记摘要（[存储合同 §5.1](contracts/storage.md)、[协议](contracts/protocol.md) attempt begin 第 3 步）。
 
 ### M2 里程碑审查：runtime
 

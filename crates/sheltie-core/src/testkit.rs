@@ -196,7 +196,7 @@ pub fn article_review_resources() -> ResourceIndex {
 
 /// 固定时钟：所有测试里的「现在」。
 pub fn now() -> Timestamp {
-    Timestamp("2026-09-24T03:00:00Z".to_string())
+    Timestamp::parse("2026-09-24T03:00:00Z").unwrap_or_else(|e| panic!("固定时钟应合法：{e}"))
 }
 
 pub fn principal() -> Principal {

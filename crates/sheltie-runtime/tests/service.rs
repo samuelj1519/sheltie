@@ -6,6 +6,7 @@ mod common;
 use std::path::Path;
 
 use common::*;
+use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::work::WorkStatus;
 use sheltie_runtime::{Error, StartArgs};
@@ -16,6 +17,18 @@ fn node(s: &str) -> NodeId {
 
 fn attempt(s: &str) -> AttemptId {
     AttemptId::parse(s).unwrap()
+}
+
+/// 冻结副本整棵只读；篡改或删除前先放开权限，模拟有人绕过引擎动了文件。
+fn make_writable(path: &Path) {
+    use std::os::unix::fs::PermissionsExt;
+    let mode = if path.is_dir() { 0o755 } else { 0o644 };
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode)).unwrap();
+    if path.is_dir() {
+        for entry in std::fs::read_dir(path).unwrap() {
+            make_writable(&entry.unwrap().path());
+        }
+    }
 }
 
 // Task: T16
@@ -214,4 +227,66 @@ fn concurrent_writers_one_gets_revision_conflict() {
         Err(Error::Core(sheltie_core::Error::AttemptNotRunning { .. }))
             | Err(Error::RevisionConflict { .. })
     )));
+}
+
+// ── M1 复核 O2：冻结副本缺失或被改，对该 Work 的操作报 STORE_CORRUPT（存储合同 §5.1）──
+
+// Task: T16
+#[test]
+#[ignore = "T16"]
+fn begin_on_tampered_frozen_copy_is_store_corrupt() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
+    make_writable(&copy);
+    std::fs::write(copy.join("instructions/outline.md"), "被改过的说明").unwrap();
+    let err = svc.begin(&wid, &node("outline"), None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
+}
+
+// Task: T16
+#[test]
+#[ignore = "T16"]
+fn missing_frozen_copy_is_store_corrupt_for_begin_and_status() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
+    make_writable(&copy);
+    std::fs::remove_dir_all(&copy).unwrap();
+    // 仓库里的那份还在，也不回退去读它。
+    let err = svc.begin(&wid, &node("outline"), None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
+    let err = svc.status(&wid).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
+}
+
+// Task: T16
+#[test]
+#[ignore = "T16"]
+fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
+    let (_d, home, svc) = home_with_example("article-review");
+    let started = svc
+        .start(
+            StartArgs {
+                workbook_id: "article-review".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: [("topic".to_string(), "x".to_string())]
+                    .into_iter()
+                    .collect(),
+            },
+            None,
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
+    let b = svc.begin(&wid, &node("draft"), None).unwrap();
+    write_output(&output_dir_of(&b), "article.md", "文章");
+    svc.submit(&wid, &attempt("draft#1.0"), "ok", None).unwrap();
+    // `resource.<path>` 输入没有单独记录的摘要，由副本整体摘要覆盖。
+    let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
+    make_writable(&copy);
+    std::fs::write(copy.join("resources/review-checklist.md"), "被改过的清单").unwrap();
+    let err = svc.begin(&wid, &node("review"), None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
 }

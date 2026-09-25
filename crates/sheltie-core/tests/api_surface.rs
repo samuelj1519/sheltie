@@ -65,7 +65,7 @@ fn command_name_is_cli_verb() {
 #[test]
 fn timestamp_day_is_date_prefix() {
     assert_eq!(
-        Timestamp("2026-09-24T03:00:00Z".to_string()).day(),
+        Timestamp::parse("2026-09-24T03:00:00Z").unwrap().day(),
         "2026-09-24"
     );
 }

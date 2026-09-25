@@ -519,7 +519,7 @@ fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
 }
 
 fn rfc3339_secs(ts: &Timestamp) -> Option<i64> {
-    let s = ts.0.strip_suffix('Z')?;
+    let s = ts.as_str().strip_suffix('Z')?;
     let s = s.split('.').next()?;
     let (d, t) = s.split_once('T')?;
     let mut dp = d.split('-');
@@ -596,6 +596,7 @@ mod tests {
 
     // Task: T10
     #[test]
+    #[ignore = "T10"]
     fn brief_for_node_with_requires() {
         let mut fx = Fixture::with_requires();
         fx.begin("only").unwrap();
@@ -620,7 +621,8 @@ mod tests {
 
     // Task: T10
     #[test]
-    fn brief_require_version_column_comes_from_manifest() {
+    #[ignore = "T10"]
+    fn brief_require_row_takes_version_from_manifest_and_names_kind() {
         use crate::digest::Sha256Hex;
         use crate::flow::{ResourceIndex, compile, parse_flow};
         use crate::ids::{FlowId, NodeId, WorkId, WorkName};
@@ -631,11 +633,11 @@ mod tests {
         use crate::workbook::parse_manifest;
 
         let manifest = parse_manifest(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
         )
         .unwrap();
         let def = parse_flow(
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"用公司 API 做点事。\" }\nrequires = [\"skill:company-api\"]\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"用公司 API 做点事。\" }\nrequires = [\"skill:company-api\", \"mcp:db\"]\n",
         )
         .unwrap();
         let graph = compile(&def, &manifest, &ResourceIndex::default()).unwrap();
@@ -665,8 +667,10 @@ mod tests {
         .unwrap();
         let a = d1.state.latest_attempt_of_current().unwrap();
         let text = render_brief(&d1.state, &graph, a, "用公司 API 做点事。");
+        // 版本取自 manifest，没写时填 `-`；说明里的「此 <kind>」随类型变（protocol.md §4）。
         assert!(text.contains(
-            "| skill | company-api | ^1 | 请确认你的宿主已装此资源；未装请停下并告知用户 |"
+            "| skill | company-api | ^1 | 请确认你的宿主已装此 skill；未装请停下并告知用户 |\n\
+             | mcp | db | - | 请确认你的宿主已装此 mcp；未装请停下并告知用户 |\n"
         ));
     }
 
@@ -913,7 +917,7 @@ mod tests {
             ("1999-12-31T23:59:59Z", "2000-03-01T00:00:00Z", 5_184_001),
             (
                 "1970-01-01T00:00:00Z",
-                "2026-09-24T03:04:05.678Z",
+                "2026-09-24T03:04:05Z",
                 1_790_219_045,
             ),
             ("1900-02-28T00:00:00Z", "1900-03-01T00:00:00Z", 86_400),
@@ -924,21 +928,13 @@ mod tests {
                 25_277_183_999,
             ),
         ];
+        let ts = |s: &str| Timestamp::parse(s).unwrap();
         for (a, b, want) in cases {
-            let got = secs_between(&Timestamp(a.to_string()), &Timestamp(b.to_string()));
-            assert_eq!(got, want, "{a} → {b}");
+            assert_eq!(secs_between(&ts(a), &ts(b)), want, "{a} → {b}");
         }
-        // 倒序夹到 0；不是 `…Z` 的形状解析不了，当 0。
-        let ts = |s: &str| Timestamp(s.to_string());
+        // 倒序夹到 0。形状不合法的时间串在 `Timestamp::parse` 就被拒绝，到不了这里。
         assert_eq!(
             secs_between(&ts("2026-01-01T00:00:09Z"), &ts("2026-01-01T00:00:00Z")),
-            0
-        );
-        assert_eq!(
-            secs_between(
-                &ts("2026-01-01T00:00:00+08:00"),
-                &ts("2026-01-01T00:00:09Z")
-            ),
             0
         );
     }
@@ -953,7 +949,7 @@ mod tests {
         fx.submit_ok("draft#1.1", "ok").unwrap();
         fx.begin("review").unwrap();
         let mut state = fx.state().clone();
-        let ts = |s: &str| Timestamp(s.to_string());
+        let ts = |s: &str| Timestamp::parse(s).unwrap();
         state.created_at = ts("2026-09-24T03:00:00Z");
         state.updated_at = ts("2026-09-24T04:00:00Z");
         state.attempts[0].started_at = ts("2026-09-24T03:00:00Z");

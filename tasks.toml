@@ -52,8 +52,8 @@ test_files = ["crates/sheltie-core/src/work/decide.rs"]
 allow_test_changes = false
 
 [T10]
-files = ["crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/next.rs"]
-test_files = ["crates/sheltie-core/src/work/render.rs"]
+files = ["crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/next.rs", "crates/sheltie-core/src/work/state.rs"]
+test_files = ["crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/state.rs"]
 allow_test_changes = false
 
 [T11]
