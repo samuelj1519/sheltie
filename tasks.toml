@@ -67,7 +67,7 @@ test_files = ["crates/sheltie-runtime/tests/home_observe.rs"]
 allow_test_changes = false
 
 [T13]
-files = ["crates/sheltie-runtime/src/store/mod.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-runtime/src/store/read.rs"]
+files = ["crates/sheltie-runtime/src/store/mod.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/failpoint.rs"]
 test_files = ["crates/sheltie-runtime/tests/store.rs"]
 allow_test_changes = false
 

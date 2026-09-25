@@ -92,7 +92,7 @@ fn rejects_self_loop_edge() { … }
 | M1 | done | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 存活的突变体逐条处置 |
 | T11 | done | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | done | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
-| T13 | todo | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
+| T13 | done | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
 | T14 | todo | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
 | T15 | todo | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
 | T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
@@ -291,7 +291,7 @@ fn rejects_self_loop_edge() { … }
 
 ### T13 runtime SQLite 存储
 
-**文件。** `crates/sheltie-runtime/src/store/{mod,commit,read}.rs`。`schema.rs` 的建表常量已由骨架写死，本任务只填 `open` 里的结构校验与 `allocate_seq`。
+**文件。** `crates/sheltie-runtime/src/store/{mod,commit,read}.rs` 与 `crates/sheltie-runtime/src/failpoint.rs`。`schema.rs` 的建表常量已由骨架写死，本任务只填 `open` 里的结构校验与 `allocate_seq`。`commit()` 入口就调用 `failpoint::maybe_exit("before_commit")`，而 `--all-features` 启用 `failpoint` 特性后该函数是 `todo!("T23")`，本任务的提交类测试必经此处；按 T07 的先例，`maybe_exit` 一并在本任务填（原属 T23，实现即 T23 任务卡的「实现要点」那四行），T23 只剩启用自己的测试。
 
 **测试。** `open_creates_schema_with_user_version_1`、`open_readonly_on_missing_db_is_not_found`、`open_rejects_wrong_user_version`、`open_rejects_same_version_different_table_shape`、`commit_inserts_state_audit_and_request_atomically`、`commit_replays_same_request_id_and_payload`、`commit_rejects_same_request_id_different_payload`、`commit_rejects_stale_revision`、`status_column_mirrors_state_json`、`allocate_seq_starts_at_1_per_day_and_increments`、`allocate_seq_is_not_reused_after_failed_start`、`allocate_seq_rejects_1000th_of_day`、`allocate_seq_under_two_threads_yields_distinct_numbers`。
 
@@ -397,7 +397,7 @@ fn rejects_self_loop_edge() { … }
 
 ### T23 场景：重放与崩溃
 
-**文件。** `crates/sheltie-runtime/src/failpoint.rs`（填 `maybe_exit(name)`）；`service.rs` 与 `selfmgmt.rs` 里骨架已留好的三处 `failpoint::maybe_exit("…")` 调用不动。
+**文件。** `crates/sheltie-runtime/src/failpoint.rs`（`maybe_exit(name)` 已在 T13 提前填，原因见 T13 任务卡）；`service.rs` 与 `selfmgmt.rs` 里骨架已留好的三处 `failpoint::maybe_exit("…")` 调用不动。
 
 **测试。** `kill_before_commit_leaves_state_unchanged_and_replay_succeeds`、`kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief`、`status_card_missing_is_regenerated_on_next_write`、`kill_between_update_renames_leaves_prev_and_rollback_recovers`、`same_request_id_same_payload_returns_replayed_true`、`same_request_id_different_payload_is_request_conflict`。
 
