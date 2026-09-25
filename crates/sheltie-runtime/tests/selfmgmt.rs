@@ -34,7 +34,6 @@ fn make_release(dir: &Path, version: &str, tamper: bool) -> ReleaseSource {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn install_copies_current_exe_and_is_idempotent() {
     let (_d, home) = temp_home();
     let first = selfmgmt::install(&home, false).unwrap();
@@ -46,7 +45,6 @@ fn install_copies_current_exe_and_is_idempotent() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn install_prints_path_hint_and_does_not_touch_rc_by_default() {
     let (d, home) = temp_home();
     let fake_rc = d.path().join(".zshrc");
@@ -58,7 +56,6 @@ fn install_prints_path_hint_and_does_not_touch_rc_by_default() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn update_replaces_binary_and_keeps_prev() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
@@ -76,7 +73,6 @@ fn update_replaces_binary_and_keeps_prev() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn update_rejects_checksum_mismatch_and_leaves_binary_intact() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
@@ -99,7 +95,6 @@ fn update_rejects_checksum_mismatch_and_leaves_binary_intact() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn update_reports_unavailable_when_no_asset_for_platform() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
@@ -121,7 +116,6 @@ fn update_reports_unavailable_when_no_asset_for_platform() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn rollback_swaps_prev_back() {
     let (d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
@@ -142,7 +136,6 @@ fn rollback_swaps_prev_back() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn rollback_recovers_when_current_missing() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();
@@ -154,7 +147,6 @@ fn rollback_recovers_when_current_missing() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn uninstall_keeps_store_and_works() {
     let (_d, home, svc) = home_with_example("two-step");
     start_two_step(&svc);
@@ -167,7 +159,6 @@ fn uninstall_keeps_store_and_works() {
 
 // Task: T20
 #[test]
-#[ignore = "T20"]
 fn uninstall_purge_requires_yes() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home, false).unwrap();

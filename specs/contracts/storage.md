@@ -188,8 +188,8 @@ MVP 不提供 `clear`。删除一个 Work 的方法是手工删目录再删行�
 
 `self update` 的顺序：
 
-1. 查发布清单，找到当前平台（`os-arch`）的包与 sha256。没有报 `UPDATE_UNAVAILABLE`。
-2. 下载到 `tmp/<uuid>/`，解包，算摘要。不符报 `UPDATE_CHECKSUM_MISMATCH` 并删 `tmp/<uuid>/`。
+1. 查发布清单，找到当前平台（Rust target triple，如 `aarch64-apple-darwin`）的包与 sha256。没有报 `UPDATE_UNAVAILABLE`。
+2. 下载到 `tmp/<uuid>/`，算发布包文件的摘要，不符报 `UPDATE_CHECKSUM_MISMATCH` 并删 `tmp/<uuid>/`；通过后若是压缩包（`.tar.gz` / `.tar.xz`）则解包取 `sheltie/bin/sheltie`，瘦格式的资产就是二进制本身，不解包。
 3. `rename bin/sheltie → bin/sheltie.prev`（覆盖旧的 `.prev`）。
 4. `rename tmp/<uuid>/sheltie → bin/sheltie`。
 5. 删 `tmp/<uuid>/`。
@@ -198,4 +198,4 @@ MVP 不提供 `clear`。删除一个 Work 的方法是手工删目录再删行�
 
 `self update` 不改 `store.db`。新版本若带更高的 `SCHEMA_VERSION`，下次任何操作按 §1.1 报 `STORE_SCHEMA_MISMATCH`，提示 `self rollback`。MVP 只有 schema 1。
 
-发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台 tar 包、sha256 清单、`install.sh`；`self update` 用 `axoupdater` 库读同一份清单。二进制只包含 `sheltie` 一个可执行文件。
+发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台压缩包、sha256 清单、`install.sh`。`self update` 读发布清单 `dist-manifest.json`，认两种写法：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }`（本地发布目录与测试用，`SHELTIE_RELEASE_BASE` 指向本地目录时不联网），以及 cargo-dist 发布的完整清单（在 `selfmgmt` 里适配成同一形状）。网络下载用系统 `curl`。不引 `axoupdater`：其公开 API 只能执行安装脚本，不暴露清单与 sha256，与本节五步冲突（[decisions.md](../decisions.md) D-30）。二进制只包含 `sheltie` 一个可执行文件。

@@ -366,6 +366,18 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **后果。** 工作 agent 读 `stats.json` 时看到自己这次 Attempt 已计入。`bind_inputs` 不再带 `attempt_id`，`EngineStats` 条目由 `decide_begin` 推进状态后回填。协议 `work stats` 一节已写明口径。
 
+## D-30 `self update` 不引 `axoupdater`，直接读 `dist-manifest.json`
+
+2026-09-25，T20，实现者定。
+
+**背景。** 存储合同 §9 原写「`self update` 用 `axoupdater` 库读同一份清单」。核对 axoupdater 0.10.2 的公开 API：清单获取（`fetch_release`）是私有的，公开的 `Asset` 不带 sha256，唯一的完整更新入口 `run_sync` 会下载并执行 cargo-dist 的 `installer.sh`（由安装脚本自己决定装到哪、是否改 PATH）。这与本节的五步（下载到 `tmp/`、核对 sha256、两级 rename）不一致，安装脚本还可能写 shell rc 文件，踩 `INV-3` 的边界；依赖树还要带进 reqwest、tokio、miette。
+
+**选择。** 不引 `axoupdater`。`selfmgmt` 直接读发布清单 `dist-manifest.json`：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }` 是本地发布目录与测试的合同（`SHELTIE_RELEASE_BASE`）；真实 GitHub Releases 的完整清单在 `selfmgmt` 里适配成同一形状，下载用系统 `curl`。替换顺序仍是存储合同 §9 的五步。平台串用 Rust target triple（`aarch64-apple-darwin` 等，与发布包命名一致），不是 `<os>-<arch>`。
+
+**否决。** 用 `run_sync` 走安装脚本（不受控、可能写 rc、无 sha256 核对）；把 `axoupdater` 仅当版本探针再自己下载（同一个清单要两套读法，且省不掉网络栈）；引入 `ureq` 等内嵌 HTTP 客户端（多一棵 TLS 依赖树，换来与 `curl` 相同的一次 GET）。
+
+**后果。** `self update` 依赖系统 `curl`（`install.sh` 本来就要求）。真实清单的适配分支没有自动化测试，T25 从 `v0.1.0-rc` 升 `v0.1.0` 时人工核对，字段对不上就改 `selfmgmt` 的适配层，测试清单格式不变。存储合同 §9 已同步改写。
+
 ## 里程碑记录
 
 ### M1 core（2026-09-25）

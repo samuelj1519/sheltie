@@ -102,7 +102,7 @@ test_files = ["crates/sheltie-cli/tests/attempt.rs"]
 allow_test_changes = false
 
 [T20]
-files = ["crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-cli/src/commands/self_cmd.rs", "dist-workspace.toml", ".github/workflows/release.yml", "Cargo.toml", "Cargo.lock", "crates/sheltie-runtime/Cargo.toml"]
+files = ["crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-cli/src/commands/self_cmd.rs", "dist-workspace.toml", ".github/workflows/release.yml", "Cargo.toml", "Cargo.lock", "crates/sheltie-runtime/Cargo.toml", "specs/contracts/storage.md", "specs/decisions.md"]
 test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs", "crates/sheltie-cli/tests/self_cmd.rs"]
 allow_test_changes = false
 
