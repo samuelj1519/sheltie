@@ -10,7 +10,6 @@ use sheltie_runtime::{Error, Home};
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn home_prefers_cli_then_env_then_default() {
     let cli = Home::resolve(Some("/tmp/cli-home")).unwrap();
     assert_eq!(cli.root().as_str(), "/tmp/cli-home");
@@ -23,7 +22,6 @@ fn home_prefers_cli_then_env_then_default() {
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn confine_rejects_dotdot_absolute_and_empty_segment() {
     let (_d, home) = temp_home();
     let base = home.root();
@@ -41,7 +39,6 @@ fn confine_rejects_dotdot_absolute_and_empty_segment() {
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn confine_rejects_symlink_escaping_root() {
     let (d, home) = temp_home();
     let outside = tempfile::tempdir().unwrap();
@@ -51,7 +48,6 @@ fn confine_rejects_symlink_escaping_root() {
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn observe_file_rejects_symlink_and_directory() {
     let (d, _home) = temp_home();
     let real = d.path().join("real.txt");
@@ -67,7 +63,6 @@ fn observe_file_rejects_symlink_and_directory() {
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn observe_file_sha256_matches_known_vector() {
     let (d, _home) = temp_home();
     let p = d.path().join("hello.txt");
@@ -82,7 +77,6 @@ fn observe_file_sha256_matches_known_vector() {
 
 // Task: T12
 #[test]
-#[ignore = "T12"]
 fn resource_index_marks_non_utf8() {
     let (d, _home) = temp_home();
     std::fs::create_dir_all(d.path().join("sub")).unwrap();
