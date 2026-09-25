@@ -7,7 +7,6 @@ use common::*;
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn same_request_id_same_payload_returns_replayed_true() {
     let env = Env::new();
     env.add_example("two-step");
@@ -37,7 +36,6 @@ fn same_request_id_same_payload_returns_replayed_true() {
 
 // Task: T23
 #[test]
-#[ignore = "T23"]
 fn same_request_id_different_payload_is_request_conflict() {
     let env = Env::new();
     env.add_example("two-step");
