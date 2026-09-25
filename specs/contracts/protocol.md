@@ -48,7 +48,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `self` 组
 
-`self install`。把 `std::env::current_exe()` 复制到 `bin/sheltie`，建 `store.db`。已存在同版本直接返回 `data.already_installed = true`。默认只打印一行「把 `~/.sheltie/bin` 加进 PATH」的提示；`--modify-path` 才往 shell rc 文件追加一行，追加前打印将写入的文件与内容。
+`self install`。把 `std::env::current_exe()` 复制到 `bin/sheltie`，建 `store.db`。已存在且字节相同则直接返回 `data.already_installed = true`（与[存储合同 §9](storage.md) 同一口径，见 [decisions.md](../decisions.md) D-31）。默认只打印一行「把 `~/.sheltie/bin` 加进 PATH」的提示；`--modify-path` 才往 shell rc 文件追加一行，追加前打印将写入的文件与内容。
 
 `self update`。按 [存储合同 §9](storage.md) 的顺序：下载到 `tmp/`、核对 sha256、`sheltie` 挪到 `sheltie.prev`、`rename` 新文件到位。没有对应平台的发布报 `UPDATE_UNAVAILABLE`；摘要不符报 `UPDATE_CHECKSUM_MISMATCH` 并删下载文件。成功返回 `{ from, to }`。已是最新返回 `data.up_to_date = true`。
 
