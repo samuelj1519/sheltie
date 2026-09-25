@@ -199,17 +199,9 @@ fn decide_begin(
     };
     let attempt_id = AttemptId::new(node.clone(), occ_n, retry);
 
-    let (bound, stats) = bind_inputs(state, graph, node, &attempt_id, observed_inputs)?;
+    let (mut bound, wants_stats) = bind_inputs(state, graph, node, observed_inputs)?;
 
     let mut effects = Vec::new();
-    // 一次 begin 只写一个 stats.json（多个 engine.stats 输入共享同一份内容）。
-    if let Some((artifact, content)) = stats {
-        effects.push(Effect::WriteFile {
-            path: artifact.path,
-            content,
-        });
-    }
-
     let attempt = Attempt {
         id: attempt_id.clone(),
         status: AttemptStatus::Running,
@@ -223,6 +215,28 @@ fn decide_begin(
     };
     new_state.attempts.push(attempt.clone());
     new_state.updated_at = ctx.now.clone();
+
+    if wants_stats {
+        // stats.json 的口径含本次 Attempt（D-29）：用提交后的完整状态算，
+        // 崩溃后的重放才能从库里那份状态逐字节重建同一份文件。
+        // stats 只计数，不序列化 `inputs`，所以可以先推进状态再回填绑定。
+        let (artifact, content) = engine_stats_artifact(&new_state, graph, &attempt_id)?;
+        for decl in def
+            .inputs
+            .iter()
+            .filter(|d| matches!(d.from, InputSource::EngineStats))
+        {
+            bound.insert(decl.name.clone(), Some(artifact.clone()));
+        }
+        let idx = new_state.attempts.len() - 1;
+        new_state.attempts[idx].inputs = bound.clone();
+        // 一次 begin 只写一个 stats.json（多个 engine.stats 输入共享同一份内容）。
+        effects.push(Effect::WriteFile {
+            path: artifact.path,
+            content,
+        });
+    }
+    let attempt = new_state.attempts[new_state.attempts.len() - 1].clone();
 
     let attempt_dir = new_state.attempt_dir(&attempt_id);
     let brief_path = attempt_dir.join_segment("brief.md");
@@ -272,28 +286,27 @@ fn decide_begin(
 ///
 /// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
 /// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
-/// - `EngineStats`：不看观察。用 `render::render_stats_json(state, graph)` 生成内容，路径 `attempt_dir(attempt_id)/stats.json`，
-///   摘要 `Sha256Hex::of_bytes(内容)`；一次 begin 只算一份，返回值把它带回去给 `decide_begin` 追加一个 `Effect::WriteFile`。
+/// - `EngineStats`：不看观察，这里只记下「要」，绑定由 `decide_begin` 在推进状态后用
+///   `engine_stats_artifact` 回填并追加 `Effect::WriteFile`（口径含本次 Attempt，D-29）。
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
 ///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
 ///
-/// 返回逐条绑定；有 `engine.stats` 输入时一并带回那份 stats.json 产物（内容与摘要同源）。
+/// 返回逐条绑定（`EngineStats` 条目为占位 `None`）与「是否有 engine.stats 输入」。
 type BoundInputs = BTreeMap<String, Option<ArtifactRef>>;
-type StatsArtifact = (ArtifactRef, String);
 
 fn bind_inputs(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
-    attempt_id: &AttemptId,
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
-) -> Result<(BoundInputs, Option<StatsArtifact>)> {
+) -> Result<(BoundInputs, bool)> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
         reason: format!("节点 {node} 不在图里"),
     })?;
     let mut bound = BTreeMap::new();
-    let mut stats: Option<StatsArtifact> = None;
+    // 是否有 engine.stats 输入。它的绑定由 `decide_begin` 在推进状态后回填（口径含本次 Attempt）。
+    let mut wants_stats = false;
     for decl in &def.inputs {
         let observed = observed_inputs.get(&decl.name).and_then(|o| o.as_ref());
         let artifact = match &decl.from {
@@ -327,11 +340,9 @@ fn bind_inputs(
                 })
             }
             InputSource::EngineStats => {
-                // 一次 begin 只算一份 stats.json，多个 engine.stats 输入共享它。
-                if stats.is_none() {
-                    stats = Some(engine_stats_artifact(state, graph, attempt_id)?);
-                }
-                stats.as_ref().map(|(artifact, _)| artifact.clone())
+                // 占位，由 decide_begin 在推进状态后统一回填。
+                wants_stats = true;
+                None
             }
             InputSource::Node { node: src, output } => match state
                 .latest_succeeded_of(src)
@@ -363,7 +374,7 @@ fn bind_inputs(
         };
         bound.insert(decl.name.clone(), artifact);
     }
-    Ok((bound, stats))
+    Ok((bound, wants_stats))
 }
 
 /// `attempt submit` 第 1 到 6 步。
@@ -1015,6 +1026,25 @@ mod tests {
         );
         assert_eq!(stats.bytes, content.len() as u64);
         assert!(content.contains("\"nodes\""));
+    }
+
+    // Task: T07
+    #[test]
+    fn begin_engine_stats_counts_current_attempt() {
+        // stats.json 的口径含本次 Attempt（D-29）：崩溃后的重放用库里的状态重算，逐字节一致。
+        let mut fx = Fixture::with_engine_stats_input();
+        let d = fx.begin("only").unwrap();
+        let a = d.state.latest_attempt_of_current().unwrap();
+        let stats = a.inputs["stats"].as_ref().unwrap();
+        let written = d.effects.iter().find_map(|e| match e {
+            Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
+            _ => None,
+        });
+        let content = written.expect("应有 WriteFile 效果");
+        assert!(
+            content.contains("\"attempts\":1"),
+            "本次 Attempt 已计入：{content}"
+        );
     }
 
     // ── M1 复核 O6：多个 engine.stats 输入共享一份 stats.json，只算一次、只写一次 ─────
