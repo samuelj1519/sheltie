@@ -370,3 +370,51 @@ fn install_modify_path_appends_export_line_to_shell_rc() {
         ".zshrc 里没有 PATH 行：{rc}"
     );
 }
+
+// Task: T20
+#[test]
+fn update_unpacks_tgz_named_asset() {
+    // 覆盖后缀判定的第三个区段：.tgz 与 .tar.gz、.tar.xz 是并列写法，
+    // 只测 .tar.gz 时「|| 换 &&」的突变体测不出来。
+    let (d, home) = temp_home();
+    selfmgmt::install(&home, false).unwrap();
+    let dir = d.path().join("rel");
+    let platform = selfmgmt::platform();
+    let payload = format!("tgz sheltie for {platform}");
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::create_dir_all(dir.join("sheltie/bin")).unwrap();
+    std::fs::write(dir.join("sheltie/bin/sheltie"), &payload).unwrap();
+    std::fs::set_permissions(
+        dir.join("sheltie/bin/sheltie"),
+        std::fs::Permissions::from_mode(0o755),
+    )
+    .unwrap();
+    let asset = format!("sheltie-9.9.9-{platform}.tgz");
+    let tar = std::process::Command::new("tar")
+        .args(["-czf", &asset, "sheltie"])
+        .current_dir(&dir)
+        .output()
+        .unwrap();
+    assert!(
+        tar.status.success(),
+        "tar 打包失败：{}",
+        String::from_utf8_lossy(&tar.stderr)
+    );
+    let bytes = std::fs::read(dir.join(&asset)).unwrap();
+    let digest = sheltie_core::digest::Sha256Hex::of_bytes(&bytes);
+    let manifest = serde_json::json!({
+        "version": "9.9.9",
+        "assets": [{ "platform": platform, "name": asset, "sha256": digest.as_str() }]
+    });
+    std::fs::write(dir.join("dist-manifest.json"), manifest.to_string()).unwrap();
+    selfmgmt::update(
+        &home,
+        &ReleaseSource {
+            base: dir.to_str().unwrap().to_string(),
+        },
+        None,
+    )
+    .unwrap();
+    let bin = std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie");
+    assert_eq!(std::fs::read(&bin).unwrap(), payload.as_bytes());
+}
