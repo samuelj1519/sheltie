@@ -29,7 +29,6 @@ fn id(s: &str) -> NodeId {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn all_examples_compile() {
     for name in ["two-step", "article-review", "gated-release", "spec-dev"] {
         compile_example(name);
@@ -38,7 +37,6 @@ fn all_examples_compile() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn two_step_has_one_main_edge_and_no_gate() {
     let g = compile_example("two-step");
     assert_eq!(g.node_count(), 2);
@@ -48,7 +46,6 @@ fn two_step_has_one_main_edge_and_no_gate() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn article_review_has_back_edge_human_publish_and_resource_input() {
     let g = compile_example("article-review");
     assert!(
@@ -68,7 +65,6 @@ fn article_review_has_back_edge_human_publish_and_resource_input() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn gated_release_first_node_is_gate() {
     let g = compile_example("gated-release");
     assert!(g.node(g.entry()).unwrap().gate);
@@ -76,7 +72,6 @@ fn gated_release_first_node_is_gate() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn no_example_declares_requires() {
     for name in ["two-step", "article-review", "gated-release", "spec-dev"] {
         let g = compile_example(name);
@@ -86,7 +81,6 @@ fn no_example_declares_requires() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn spec_dev_compiles_with_eleven_nodes_twenty_four_edges() {
     let g = compile_example("spec-dev");
     assert_eq!(g.node_count(), 11);
@@ -95,7 +89,6 @@ fn spec_dev_compiles_with_eleven_nodes_twenty_four_edges() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn spec_dev_retro_reads_engine_stats() {
     let g = compile_example("spec-dev");
     let retro = g.node(&id("retro")).unwrap();
@@ -110,7 +103,6 @@ fn spec_dev_retro_reads_engine_stats() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn spec_dev_optional_inputs_all_point_to_reachable_upstream() {
     // 编译规则 5 已经保证；这里再确认每个可选输入都是 Node 来源。
     let g = compile_example("spec-dev");
@@ -130,7 +122,6 @@ fn spec_dev_optional_inputs_all_point_to_reachable_upstream() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate() {
     let g = compile_example("spec-dev");
     let gated: Vec<_> = g
@@ -149,7 +140,6 @@ fn spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review() {
     let g = compile_example("spec-dev");
     let strong: Vec<_> = g
@@ -162,7 +152,6 @@ fn spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review() {
 
 // Task: T11
 #[test]
-#[ignore = "T11"]
 fn mutated_two_step_manifest_with_extra_field_is_rejected() {
     let text = format!(
         "{}\nauthor = \"x\"\n",
