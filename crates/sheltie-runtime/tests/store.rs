@@ -83,7 +83,7 @@ fn open_rejects_wrong_user_version() {
 #[test]
 #[ignore = "T13"]
 fn open_rejects_same_version_different_table_shape() {
-    // 手工造一个「旧形状」库：user_version = 1，但 works 表少一列。
+    // 手工造一个「旧结构」库：user_version = 1，但 works 表少一列。
     let (d, home) = temp_home();
     let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
     conn.execute_batch(

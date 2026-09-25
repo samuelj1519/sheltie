@@ -1,7 +1,7 @@
 //! Work 状态机。类型见 `specs/architecture.md` §2，转换见 §3，操作细则见 `specs/contracts/protocol.md` §3。
 //!
 //! 唯一入口是 [`decide`]：给定当前状态、图、一个命令与上下文，返回新状态、效果与回复。
-//! [`legal_next`] 算当前合法下一步。[`render`] 把状态投影成任务书与状态卡。
+//! [`legal_next`] 算当前合法下一步。[`render`] 把状态渲染成任务书与状态卡。
 
 pub mod command;
 pub mod decide;

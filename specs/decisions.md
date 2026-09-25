@@ -32,13 +32,13 @@
 
 2026-09-24。
 
-**背景。** 协调者与引擎的交互面要小到 skill 一页纸能教完，又要覆盖领取、执行、提交、门槛、取消。
+**背景。** 协调者与引擎的接口要小到 skill 一页纸能教完，又要覆盖领取、执行、提交、门槛、取消。
 
 **选择。** `workbook add|list|show|remove|verify`、`work start|list|status|cancel`、`attempt begin|submit|fail`、`gate approve`，加 `self` 组五条管二进制自身。领取与准备合并为 `attempt begin`，返回任务书。每个响应带可直接执行的 `next`。
 
 **否决。** 把领取、准备调用、读输入、开始、提交拆成独立操作。对本地文件系统上的单用户工具，拆成这些分步没有独立价值，只会增加协调者出错的机会。
 
-**后果。** MCP 面若将来需要，只是同一组操作的薄封装。工具描述短，符合 Anthropic 关于工具接口的建议。
+**后果。** MCP 接口若将来需要，只是同一组操作的薄封装。工具描述短，符合 Anthropic 关于工具接口的建议。
 
 ## D-04 `gate` 与 `executor` 正交
 
@@ -66,7 +66,7 @@
 
 2026-09-24，用户决定。
 
-**选择。** `work_id = <UTC 日期>-<当日序号 001..999>-<名字>`，目录名等于 `work_id`。序号在独立短事务里按日期递增，分配后不回收。身份权威是 SQLite 行，目录名只是投影。
+**选择。** `work_id = <UTC 日期>-<当日序号 001..999>-<名字>`，目录名等于 `work_id`。序号在独立短事务里按日期递增，分配后不回收。身份以 SQLite 行为准，目录名只是投影。
 
 **否决。** UUID v7。对人不可读，`work list` 与目录浏览体验差。项目定位为单机单进程，事务内分配序号的成本可接受。
 
@@ -90,7 +90,7 @@
 
 **选择。** `sheltie self install|update|rollback|uninstall|version`。发布用 `cargo-dist`，自更新用 `axoupdater` 读同一份发布清单。替换二进制走「下载到 `tmp/`、核对 sha256、挪 `.prev`、`rename` 到位」，保留一级回滚。默认不写 shell 配置。
 
-**否决。** 两个二进制（要先解决谁装安装器、版本对齐）；不做自更新（单机用户升级与回滚体验差）。
+**否决。** 两个二进制（要先解决谁装安装器、两处版本如何保持一致）；不做自更新（单机用户升级与回滚体验差）。
 
 ## D-09 每个 Work 持有 Workbook 的冻结副本
 
@@ -177,7 +177,7 @@
 
 **后果。** `Attempt.inputs` 的值类型变成 `Option<ArtifactRef>`；`start` 与 `resource` 来源上写 `required = false` 编译拒绝。
 
-## D-17 `spec-dev` Workbook 的形状
+## D-17 `spec-dev` Workbook 的结构
 
 2026-09-24。
 
@@ -223,7 +223,7 @@
 
 **背景。** 实现者可能是首次接触项目的初级开发者或初级模型。要在低 token、少返工、高质量三者之间取综合成本最低。
 
-**选择。** T01 由强模型一次性写出全部类型、签名、文档注释、`todo!()` 函数体、全部测试（禁用）、快照、脚本与样例。之后每个任务是「解开一组测试，填几个函数体，让它们变绿」。实现者不做设计、不写测试、不改签名。逐任务审查交给编译器、clippy、测试和 `scripts/check-task.sh`（改动文件白名单、无残留 `todo!()`、测试与快照未改）。模型审查只在三个里程碑做一次，配 `cargo mutants` 找没被测到的逻辑。
+**选择。** T01 由强模型一次性写出全部类型、签名、文档注释、`todo!()` 函数体、全部测试（禁用）、快照、脚本与样例。之后每个任务是「启用一组测试，填几个函数体，让它们变绿」。实现者不做设计、不写测试、不改签名。逐任务审查交给编译器、clippy、测试和 `scripts/check-task.sh`（改动文件白名单、无残留 `todo!()`、测试与快照未改）。模型审查只在三个里程碑做一次，配 `cargo mutants` 找没被测到的逻辑。
 
 **为什么有效。** 初级实现者失败的地方集中在四处：发明类型与接口、读大量上下文、判断自己做完没有、处理事务顺序这类细微语义。骨架把前两项做掉，测试把第三项做掉，Rust 的类型系统与穷尽 `match` 把第四项的大部分交给编译器。剩下的工作是「给定签名、注释、失败的测试，写函数体」，这正是初级模型最稳的场景。每个任务的输入上下文压到 3k 到 8k token。
 
@@ -273,7 +273,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 2. 新增 §0.2.1「实现者是强模型时」：可连做相邻任务；复核发现由实现者修，复核者只补测试。测试仍归骨架与复核者，这条不松。
 3. 新增 §0.6 复核记录：每个任务卡一行「复核」，待修项编号 `Bn`，修复提交引用它。任务状态在有待修项时回到 `doing`。
 
-**根因与补救。** T01 只用负例验证了门禁脚本，没有做过一次「按规则填满一个任务再跑门禁」的正例干跑。T01 的验收与 `spec-dev` 的骨架规则都补上这一条。
+**根因与补救。** T01 只用负例验证了门禁脚本，没有做过一次「按规则填满一个任务再跑门禁」的正例试跑。T01 的验收与 `spec-dev` 的骨架规则都补上这一条。
 
 **否决。** 把工具缺陷也算「卡住」让人来修（人要看的是方向，不是 shell 脚本）；允许实现者改测试来配合工具（测试是合同，一旦可改就没有锚点）。
 
@@ -285,7 +285,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **选择。** 分三层。引擎加一个只读投影 `work stats`（每节点到达、尝试、失败次数、平均耗时、进入来源；受阻与批准次数）与第四种输入来源 `engine.stats`，开工时把这份 JSON 写成 `stats.json` 按字节冻结绑给节点。`spec-dev` 加终点节点 `retro`（`standard`，带 `gate`）：读 `stats` 与各报告第一行，按六个闭集类别写 `lessons.md`，每条建议必须有证据（哪个 Attempt 的哪份文件哪一行）与落点（Workbook 内哪个文件哪一段），否则进「不建议改的」。人在最后一次批准时同时看交付说明与反思，采纳的改进下一版并在 README 修订记录里写「采纳 L1、L3，否决 L2」；下一次 `retro` 核对上一版建议是否见效。`gate` 从 `deliver` 挪到 `retro`。
 
-**否决。** 引擎按统计自动调 `max_visits`、换 `tier`、跳节点（宪章 §7 否决的「更聪明的调度」，且同一版本行为不再一致，审计失效）；让 `retro` 直接改 Workbook（`INV-6`，权威来自人冻结）；给引擎加「反思」命令（引擎没有可反思的东西，只有事实）；`retro` 用 `strong`（它做的是归类与定位，判断留给看 `lessons.md` 的人）。
+**否决。** 引擎按统计自动调 `max_visits`、换 `tier`、跳节点（宪章 §7 否决的「更聪明的调度」，且同一版本行为不再一致，审计失效）；让 `retro` 直接改 Workbook（`INV-6`，Workbook 只由人冻结）；给引擎加「反思」命令（引擎没有可反思的东西，只有事实）；`retro` 用 `strong`（它做的是归类与定位，判断留给看 `lessons.md` 的人）。
 
 **依据。** 宪章 `INV-1`、`INV-2`、`INV-6`、§7。「自我进化」去掉「自我」：Workbook 提出对自己的修改，人冻结，引擎装新版本。差的那一步是人，这一步是产品定位里不能省的。
 
@@ -312,13 +312,13 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **否决。** 撤回 T02 的「通过」（没有影响已实现行为的缺陷，十条测试绿，撤回没有依据）；把复核者的错误算成实现者的返工；因为复核不够严就取消逐任务复核（问题是复核的方法，不是复核本身）；让复核者顺手把实现者的缺陷一起修掉（归属混了，下次就分不清谁该对什么负责）。
 
-**后果。** T02 保持 `doing`，五条新测试待实现者解开；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，提前消掉三处会在 T03 立刻爆炸的缺陷。（此条原先被写成两条同号的 D-25，M1 第二轮合并为一条，保留本条结构，并入另一条的两项否决、归属划分与「事实」段；合并哪一版原写「由人定」，2026-09-25 用户认可本次合并。`check-docs.sh` 加编号唯一检查。）
+**后果。** T02 保持 `doing`，五条新测试待实现者启用；`check-task.sh` 两处由实现者修，`Task: T01`。M1 检查表加一项：复核结论是否附带可重跑的命令与完整输出。任务卡多一行「复核的复核」。这一轮往返约两次强模型调用，提前消掉三处会在 T03 立刻爆炸的缺陷。（此条原先被写成两条同号的 D-25，M1 第二轮合并为一条，保留本条结构，并入另一条的两项否决、归属划分与「事实」段；合并哪一版原写「由人定」，2026-09-25 用户认可本次合并。`check-docs.sh` 加编号唯一检查。）
 
 ## D-26 输入名只查唯一，不走 ID 字符规则
 
 2026-09-25，用户拍板。
 
-**背景。** T04 的 `parse::convert` 对 `inputs[].name` 调了 `validate_id`；T07 复核时把 `workbooks/spec-dev` 与 `testkit` 夹具里带下划线的输入名（`plan_tpl`、`side_out` 等）改成 kebab 去迎合这道检查（00ca15a）。M1 后的对抗复核（verify-t05-compile，14 条发现、每条 3 票反驳制）唯独这一条 0/3 存活：合同 §3.2 对 `inputs[].name` 只写「`name` 在节点内唯一」，ID 字符规则明文给了 `outputs[].name`、`start.<key>`、`requires[].name`，没给输入名。不对称是有意的：输入名不进 `from` 点语法，也不出现在 `inputs/<key>` 路径里，只作展示名与 JSON 键。
+**背景。** T04 的 `parse::convert` 对 `inputs[].name` 调了 `validate_id`；T07 复核时把 `workbooks/spec-dev` 与 `testkit` 夹具里带下划线的输入名（`plan_tpl`、`side_out` 等）改成 kebab 去迎合这道检查（00ca15a）。M1 后的对抗复核（verify-t05-compile，14 条发现、每条 3 票反驳制）唯独这一条三次反驳都没驳倒（0/3）：合同 §3.2 对 `inputs[].name` 只写「`name` 在节点内唯一」，ID 字符规则明文给了 `outputs[].name`、`start.<key>`、`requires[].name`，没给输入名。不对称是有意的：输入名不进 `from` 点语法，也不出现在 `inputs/<key>` 路径里，只作展示名与 JSON 键。
 
 **选择。** 按合同字面办：删掉对 `inputs[].name` 的 `validate_id`，保留节点内唯一性检查；00ca15a 的改名全部回退（`side_out`、`plan_tpl`、`tasks_tpl`、`task_rules`、`fix_change`、`implement_change`、`review_report`、`scaffold_report`、`verify_report`），指令文档里的同名引用一并还原。资源文件路径（如 `resources/checklists/task-rules.md`）是 RelPath 不是输入名，不受影响。
 
@@ -347,10 +347,10 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 **选择。**
 
 1. 两处回复的 `requires` 都是 `Vec<HostRequire>`，每项原样是 manifest 那条声明 `{ kind, name, version, digest, source }`，没写的字段为 `null`。`work start` 按 manifest 声明顺序给全量；`attempt begin` 按节点里的书写顺序给本节点引用的那几条。`digest` 用引擎统一的裸 64 位十六进制，`sha256:` 前缀只是 manifest 的书写格式。
-2. `Timestamp` 只能经 `parse` 或 `from_unix_secs` 构造，反序列化也走 `parse`。形状固定为 `YYYY-MM-DDTHH:MM:SSZ`，校验日历（闰年、每月天数、`23:59:59` 为止）。runtime 的 `format_rfc3339` 与 `civil_from_days` 挪进 core 成 `from_unix_secs`（纯算法，不碰时钟，不违反 INV-1）；它对超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，不产出 `parse` 会拒绝的五位年份。存储合同 §7 写明秒精度与这条饱和。
+2. `Timestamp` 只能经 `parse` 或 `from_unix_secs` 构造，反序列化也走 `parse`。格式固定为 `YYYY-MM-DDTHH:MM:SSZ`，校验日历（闰年、每月天数、`23:59:59` 为止）。runtime 的 `format_rfc3339` 与 `civil_from_days` 挪进 core 成 `from_unix_secs`（纯算法，不碰时钟，不违反 INV-1）；它对超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，不产出 `parse` 会拒绝的五位年份。存储合同 §7 写明秒精度与这条饱和。
 3. `Timestamp::unix_secs` 留给实现者（T10）：有了它，`secs_between` 不再需要私有解析与 0 兜底。
 
-**否决。** 回复里继续用 `kind:name` 再另加一个 `versions` 映射（两份并行数据，协调者要自己拼）；`requires` 只给 `(kind, name, version)`（`digest` 与 `source` 是作者写给协调者核对与安装用的，砍掉就得再去读 manifest）；`Timestamp` 允许毫秒与时区偏移再在比较时归一（引擎自己产生时间，没有理由接受多种写法；固定形状换来字典序即时间序）。
+**否决。** 回复里继续用 `kind:name` 再另加一个 `versions` 映射（两份并行数据，协调者要自己拼）；`requires` 只给 `(kind, name, version)`（`digest` 与 `source` 是作者写给协调者核对与安装用的，砍掉就得再去读 manifest）；`Timestamp` 允许毫秒与时区偏移再在比较时归一（引擎自己产生时间，没有理由接受多种写法；固定格式换来字典序即时间序）。
 
 **后果。** `Reply::Started` 与 `Reply::AttemptBegun` 的 `requires` 类型变了，协议 work start 第 8 步、attempt begin 第 5 步随之改写。`Timestamp` 的字段私有，runtime 与测试改用 `parse`；`observe::now()` 改调 `from_unix_secs`。新增测试见 M1 第二轮处置。
 
@@ -374,14 +374,14 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 | 边界 | 已补，另有遗留 | 大小上限原先只有远超上限的拒绝例，版本、名称、`requires` 个数与字段、标题、说明文本、节点数、边数、说明文件与资源文件大小共十余处「恰好上限 / 多一个」没有测试，M1 补齐；未知字段拒绝有测试；`confine()` 归 runtime。O4：`BoundedText` 的 `#[serde(transparent)]`、`Graph` 的 `Deserialize` 绕过构造校验 |
 | 文档 | 需人拍板 | `check-docs.sh` 过。协议 §4 示例与 T01 快照三处措辞不一致（O7）；本文有两个 `D-25` 标题 |
 | 提交 | 通过，有瑕疵 | 一任务一提交。T07 发现夹具依赖 T08 到 T10 的函数，在 9044612 里一并填了并改了 `plan.md`、`tasks.toml`，说明写清，但 T08 到 T10 因此没有「先看到红」；T07 到 T10 的 `Task`、`Agent` 与 `Co-Authored-By` 之间空了一行，`git log --format='%(trailers)'` 取不到 |
-| 突变 | 已处置 | 首轮 524 个：281 杀死、145 幸存、98 不可编译。处置后 511 个：409 杀死、5 幸存、97 不可编译。5 个都有理由，见下 |
+| 突变 | 已处置 | 首轮 524 个：281 杀死、145 存活、98 不可编译。处置后 511 个：409 杀死、5 存活、97 不可编译。5 个都有理由，见下 |
 | 证据 | 附命令 | 下文每项带可重跑命令；首轮突变结果因目标目录共用作废过一次，已写成工具（L1） |
 
-**幸存突变处置（首轮 145 个）。**
+**存活的突变体处置（首轮 145 个）。**
 
-- 补测试杀死 134 个。`render.rs` 的时间换算、平均耗时与 `blocked` 计数 80 个：夹具时钟固定，快照里全是 `0s`、`blocked: 0`。`manifest.rs`、`parse.rs`、`compile.rs`、`ids.rs` 的上限与形状 38 个。`decide.rs` 的摘要、失败原因、输出大小边界 4 个。`blocked` 行的 `retries_exhausted` 与 `no_legal_edge` 两个分支。骨架里给 runtime 用的字面形式（`ErrorCode::as_str`、`Executor::as_str`、`Command::name`、`Timestamp::day`、各 newtype 的 `Display` 与 `From<_> for String`）。
+- 补测试杀死 134 个。`render.rs` 的时间换算、平均耗时与 `blocked` 计数 80 个：夹具时钟固定，快照里全是 `0s`、`blocked: 0`。`manifest.rs`、`parse.rs`、`compile.rs`、`ids.rs` 的上限与格式 38 个。`decide.rs` 的摘要、失败原因、输出大小边界 4 个。`blocked` 行的 `retries_exhausted` 与 `no_legal_edge` 两个分支。骨架里给 runtime 用的字面形式（`ErrorCode::as_str`、`Executor::as_str`、`Command::name`、`Timestamp::day`、各 newtype 的 `Display` 与 `From<_> for String`）。
 - 删死代码消掉 6 个。`status_after_success` 里的 `!state.current_approved()`：批准只发生在门槛 Occurrence 的 Attempt 成功之后，此后该 Occurrence 不会再有 `Running` 的 Attempt，提交时这个条件恒真；`WorkState::current_approved` 随之删除。`next_attempt_id` 重复了 `decide_begin` 的编号逻辑，根因是骨架的 `bind_inputs` 签名拿不到 attempt id（文档注释却要求它算 `stats.json` 路径）；签名加 `attempt_id` 参数后删除。规则 5 的「来源节点不得是保留字」同样删除：解析层从不产生保留字来源的 `Node`，没有突变但属同类死代码。`lib.rs` 的 `#![allow(dead_code)]` 删除，clippy 无告警。
-- 等价突变 4 个，保留。`next.rs:104` 的 `<` 换 `<=`：`Active` 且最新 Attempt `Failed` 时必有 `retry < max_retries`，否则已是 `Blocked(RetriesExhausted)`。`parse.rs:140` 的 `||` 换 `&&`：漏掉的形状随后被 `OutputName` 校验拒绝，报错规则相同。`render.rs:520` 的 `day - 1` 两个：常数偏移在 `secs_between` 的差里抵消。
+- 等价突变 4 个，保留。`next.rs:104` 的 `<` 换 `<=`：`Active` 且最新 Attempt `Failed` 时必有 `retry < max_retries`，否则已是 `Blocked(RetriesExhausted)`。`parse.rs:140` 的 `||` 换 `&&`：漏掉的不合规项随后被 `OutputName` 校验拒绝，报错规则相同。`render.rs:520` 的 `day - 1` 两个：常数偏移在 `secs_between` 的差里抵消。
 - 测试夹具 1 个（`testkit.rs:273`），`scripts/mutants.sh` 起排除。
 
 复跑：`scripts/mutants.sh sheltie-core`，输出末行 `mutants tested …: 4 missed`（上面四个等价突变）。
@@ -393,29 +393,29 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **待修。**
 
-- **B1（T05，退回 `doing`）。** 被引用输出 `required = false` 而输入默认必需时，编译放行；上游不写该文件，`next` 仍给出 `attempt begin`，开工必报 `INPUT_UNAVAILABLE`，Work 只能取消。合同 §4 规则 5 与 `check_rule_5` 注释已补这一句；复核者补 `rejects_required_input_on_optional_output`（禁用）与 `accepts_optional_input_on_optional_output`。三份样例与 `spec-dev` 没有可选输出，不受影响。实现者解开测试、修，提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，M1 再复核这一条。
+- **B1（T05，退回 `doing`）。** 被引用输出 `required = false` 而输入默认必需时，编译放行；上游不写该文件，`next` 仍给出 `attempt begin`，开工必报 `INPUT_UNAVAILABLE`，Work 只能取消。合同 §4 规则 5 与 `check_rule_5` 注释已补这一句；复核者补 `rejects_required_input_on_optional_output`（禁用）与 `accepts_optional_input_on_optional_output`。三份样例与 `spec-dev` 没有可选输出，不受影响。实现者启用测试、修，提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，M1 再复核这一条。
 
 **遗留（M2 前由骨架作者补签名与测试，或由人拍板）。**
 
 - **O1 `work start` 的 `requires`。** 协议第 8 步要 Workbook 声明的全部宿主资源，`Command::Start` 不带 manifest，core 只能给节点并集。选一：`Command::Start` 带 manifest 的 `requires`，或在 T16 骨架里写明由 runtime 用 manifest 覆盖。落点 T16。
 - **O2 `resource.<path>` 的篡改检测。** 协议第 3 步说「重算 sha256 与已记录值核对」，但 `WorkState` 不记每个资源的摘要，`bind_inputs` 以观察为准，资源上的 `ARTIFACT_MODIFIED` 不可达。冻结副本只读，风险低；要么 `start` 时记下资源摘要，要么协议改成「冻结副本目录摘要与 `workbook.digest` 核对」。落点协议 §3 与 T16。
 - **O3 任务书宿主资源表的「版本」列恒为 `-`。** `render_brief` 看不到 manifest，协议示例是 `^1`。`Graph` 编译时可把 manifest 的版本带进节点的 `requires`。落点 T05 骨架与快照。
-- **O4 反序列化绕过构造校验。** `BoundedText` 是 `#[serde(transparent)]`，从库里读回超长摘要不会报错；`Graph` 可被反序列化出来，与「只能由 `compile` 构造」矛盾；`WorkName` 反序列化时静默规范化。runtime 从 `store.db` 读 `WorkState` 时 `STORE_CORRUPT` 因此漏检。落点 T13、T16 骨架。
+- **O4 反序列化绕过构造校验。** `BoundedText` 是 `#[serde(transparent)]`，从库里读出超长摘要不会报错；`Graph` 可被反序列化出来，与「只能由 `compile` 构造」矛盾；`WorkName` 反序列化时静默规范化。runtime 从 `store.db` 读 `WorkState` 时 `STORE_CORRUPT` 因此漏检。落点 T13、T16 骨架。
 - **O5 `work stats` 的 `blocked` 定义。** 协议只给了示例 `blocked: 1`。实现是「成功过的门槛 Occurrence 数 + 重试耗尽的 Occurrence 数 + 当前是否 `no_legal_edge`」，M1 已用测试钉住。需要人确认后写进协议 §3。
 - **O6 `engine.stats` 序列化失败时写 `{"nodes":[]}`。** 实际不会失败，但失败时伪造内容与「引擎只记事实」相悖；应让它不可失败（手写 JSON）或把错误传出去。低优先，随 T16 一起改。
-- **O7 协议 §4 与快照的措辞。** 「尚无（上游 X 还没有产出）」对快照「尚无」；「此 skill」对「此资源」；说明「逐字」对 `trim_end`。快照是 T10 的标准答案、合同权威更高，两者须对齐，改哪边由人定。
+- **O7 协议 §4 与快照的措辞。** 「尚无（上游 X 还没有产出）」对快照「尚无」；「此 skill」对「此资源」；说明「逐字」对 `trim_end`。快照是 T10 的标准答案，但以合同为准；两者须一致，改哪边由人定。
 
 **流程教训。**
 
 | # | 类别 | 证据 | 改哪 | 改成什么 | 处置 |
 | --- | --- | --- | --- | --- | --- |
-| L1 | 工具 | M1 第一次 `cargo mutants`（作废，不计入上面的首轮）：全局 `~/.cargo/config.toml` 设了 `target-dir`，并行副本共用产物，175 个「幸存」里多数是测试跑了未突变的二进制 | `scripts/mutants.sh`（新）；`plan.md` §0.4、M1、M2 卡 | 固定 `CARGO_TARGET_DIR=target`，用 nextest，排除 `testkit.rs` | 采纳，已改 |
+| L1 | 工具 | M1 第一次 `cargo mutants`（作废，不计入上面的首轮）：全局 `~/.cargo/config.toml` 设了 `target-dir`，并行副本共用产物，175 个「存活」里多数是测试跑了未突变的二进制 | `scripts/mutants.sh`（新）；`plan.md` §0.4、M1、M2 卡 | 固定 `CARGO_TARGET_DIR=target`，用 nextest，排除 `testkit.rs` | 采纳，已改 |
 | L2 | 骨架 | 9044612：`bind_inputs` 的注释要求算 `attempt_dir/stats.json`，签名却没有 attempt id，实现者只好写 `next_attempt_id` 重复编号逻辑 | `engineering.md` §3「写新测试的人」段 | 骨架注释要用到的值都必须能从参数得到，做不到改签名 | 采纳，已改 |
 | L3 | 骨架 | B1：合同 §3.2 的「不得」没进 §4 清单，骨架与测试都跟着漏 | `engineering.md` §3 同段；§5「正反例」行 | 合同里每句「不得」「必须」都有一条拒绝例 | 采纳，已改 |
-| L4 | 测试 | 首轮幸存里 `render.rs` 占 80 个：`stats_table_mid_flow` 快照全是 `0s`、`blocked: 0`，改错公式快照也不变 | `engineering.md` §3 同段 | 快照与断言里的数值字段至少一条非零、非默认值的断言；固定时钟下时间差单独造数据 | 采纳，已改 |
-| L5 | 测试 | 首轮幸存里上限类 38 个同时存活 `>`→`==` 与 `>`→`>=`，说明连「多一个」的拒绝例都没有 | `engineering.md` §3 同段；§5「边界」行 | 每个上限一对：恰好上限接受、多一个拒绝 | 采纳，已改 |
+| L4 | 测试 | 首轮存活里 `render.rs` 占 80 个：`stats_table_mid_flow` 快照全是 `0s`、`blocked: 0`，改错公式快照也不变 | `engineering.md` §3 同段 | 快照与断言里的数值字段至少一条非零、非默认值的断言；固定时钟下时间差单独造数据 | 采纳，已改 |
+| L5 | 测试 | 首轮存活里上限类 38 个同时存活 `>`→`==` 与 `>`→`>=`，说明连「多一个」的拒绝例都没有 | `engineering.md` §3 同段；§5「边界」行 | 每个上限一对：恰好上限接受、多一个拒绝 | 采纳，已改 |
 | L6 | 实现者 | 9044612 `decide_start` 注释「未用到的 manifest 条目由 runtime 在返回前补」；`count_blocks` 的定义；`engine_stats_artifact` 的兜底串 | `plan.md` §0.2 规则 10 | 把「由 runtime 补」「解析不了当 0」「出错用默认内容」写进注释也算发明，同样要停 | 采纳，已改 |
-| L7 | 顺序 | 9044612：T07 的夹具要用 submit、fail、render，实现者在 T07 里填了 T08 到 T10 的函数，T08 到 T10 只剩验收，没有「先看到红」 | `plan.md` T01「验证」段 | 骨架作者对每个任务核对：只解开本任务测试时 panic 的都是本任务的 `todo!`。M2 开工前对 T12 到 T16 做一次 | 采纳，已改 |
+| L7 | 顺序 | 9044612：T07 的夹具要用 submit、fail、render，实现者在 T07 里填了 T08 到 T10 的函数，T08 到 T10 只剩验收，没有「先看到红」 | `plan.md` T01「验证」段 | 骨架作者对每个任务核对：只启用本任务测试时 panic 的都是本任务的 `todo!`。M2 开工前对 T12 到 T16 做一次 | 采纳，已改 |
 | L8 | 提交 | 9044612、4334925、810730f、8af5f94、43ec6bf：`Task`、`Agent` 与 `Co-Authored-By` 之间空行，git 不认作 trailer | `engineering.md` §4 | 所有 trailer 同一段，不空行 | 采纳，已改；`check-task.sh` 仍按文本 grep，不改（改成严格解析会让历史提交全部不合格，收益小） |
 | L9 | 文档 | 本文 294 行与 315 行两个 `D-25`，写的是同一件事的两个版本 | 本文 | 合并为一条 | 否决自动处理：决策记录是历史，合并哪一版由人定；`check-docs.sh` 暂不加唯一性检查，等合并后再加。第二轮已合并（保留第一条的结构，并入第二条的两项否决与成本），`check-docs.sh` 加编号唯一检查 |
 | L10 | 审查 | M1 卡要求「全仓零 `#[ignore`」，但 T11 以后的测试按设计仍禁用，复核者新加的待修测试也必须禁用 | `plan.md` M1 卡 | 改为「本里程碑覆盖的任务标签为零」 | 采纳，已改 |
@@ -427,7 +427,7 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 - 已修，复核通过：B1（5f4b6d6）；O1 的「全量」（51eda62）；O3（51eda62）；O4（f47af48）；O5 写进协议（ac17547）；O6（03a9be9）；O7 第一处「尚无（上游 X 还没有产出）」（496a182）。
 - 实现者的疑问里成立的：O2 复核者原建议报 `WORKBOOK_TAMPERED`，存储合同 §5.1 明文要求冻结副本不符报 `STORE_CORRUPT`，复核者撤回原建议。不成立的：「样例说明文件没有末尾换行」，实际全部以 `0a` 结尾，`end-of-file-fixer` 也强制这一点。
 - 复核者本轮改的（签名、测试、合同，实现者不能动的部分）：
-  - O1 的形状：`requires` 从 `kind:name` 字符串改为原样的 manifest 声明，见 D-28。`Reply` 两处改类型，`decide` 两处随之改，新增 `start_requires_carry_manifest_declaration_as_is`（T06）。
+  - O1 的改法：`requires` 从 `kind:name` 字符串改为原样的 manifest 声明，见 D-28。`Reply` 两处改类型，`decide` 两处随之改，新增 `start_requires_carry_manifest_declaration_as_is`（T06）。
   - `Timestamp` 收紧，见 D-28。新增 `timestamp_parse_accepts_utc_second_precision`、`timestamp_parse_rejects_offsets_fractions_and_impossible_dates`、`timestamp_deserialize_validates_and_serialize_is_plain_string`、`timestamp_from_unix_secs_matches_known_dates`（T01），以及禁用的 `timestamp_unix_secs_matches_independent_calendar_math`（T10）。runtime 的日历算法挪进 core，`format_rfc3339_epoch_and_known_date` 随之删除，覆盖由 `timestamp_from_unix_secs_matches_known_dates` 接替。
   - O7 第二处定为「此 <kind>」：协议 §4 补说明；快照 `brief_for_node_with_requires` 改成「此 skill」；`brief_require_version_column_comes_from_manifest` 改名 `brief_require_row_takes_version_from_manifest_and_names_kind` 并加一条 `mcp` 声明。两条都禁用为 T10。已用正确实现临时验证两条会变绿，然后撤回。
   - O7 第三处定为「逐字，去掉末尾换行」：协议 §4 模板改写，与实现一致，不动代码。

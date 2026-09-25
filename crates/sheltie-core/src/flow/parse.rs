@@ -1,4 +1,4 @@
-//! Flow TOML 到 `FlowDef` 的解析。只做形状与取值范围，不做图语义（那是 `compile`）。
+//! Flow TOML 到 `FlowDef` 的解析。只做结构与取值范围，不做图语义（那是 `compile`）。
 
 use serde::Deserialize;
 

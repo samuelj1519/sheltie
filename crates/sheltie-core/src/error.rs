@@ -115,7 +115,7 @@ pub enum Error {
     /// Work 已是终态。
     #[error("Work 已结束（{status}）")]
     WorkTerminal { status: String },
-    /// 操作不在当前 `next` 里。`next` 是当前合法集合的命令行投影。
+    /// 操作不在当前 `next` 里。`next` 把当前合法集合列成命令行。
     #[error("{requested} 不在合法下一步里")]
     IllegalNext {
         requested: String,
@@ -143,7 +143,7 @@ pub enum Error {
         max_bytes: u64,
         actual: u64,
     },
-    /// 其他形状或取值错误。
+    /// 其他格式或取值错误。
     #[error("{reason}")]
     InvalidRequest { reason: String },
 }

@@ -1,6 +1,6 @@
 # 公开操作、状态卡与错误
 
-本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个面；MCP 面是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应形状版本串 `cli-result/v1`。
+本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v1`。
 
 ## 1. 全局约定
 
@@ -93,7 +93,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 4. 建 Attempt 目录 `attempts/<node>/<n>/<retry>/`，写 `brief.md`（§4）。
 5. 返回 `{ attempt_id, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`。
 
-`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，形状同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
+`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
 ### `attempt submit <work> --attempt <id> --summary <text>`
 
@@ -215,7 +215,7 @@ Work: <work_id>（<name>）
 }
 ```
 
-`next` 是当前合法下一步的可执行投影，每项能直接拼成命令行。只读操作也带 `next`。`edge` 只在 `attempt begin` 进入另一节点时出现；`executor` 与 `tier` 只在 `attempt begin` 项上出现，让协调者在派活前就知道该找谁、用什么模型。
+`next` 把当前合法下一步列成命令行，每项能直接执行。只读操作也带 `next`。`edge` 只在 `attempt begin` 进入另一节点时出现；`executor` 与 `tier` 只在 `attempt begin` 项上出现，让协调者在派活前就知道该找谁、用什么模型。
 
 退出码：成功 `0`；`ok = false` 时 `1`；参数解析错误 `2`。
 
@@ -253,7 +253,7 @@ outputs:
 
 | 代码 | 含义 | 已发生什么 | 下一步 |
 | --- | --- | --- | --- |
-| `INVALID_REQUEST` | 参数形状或取值不对 | 无变化 | 修参数 |
+| `INVALID_REQUEST` | 参数格式或取值不对 | 无变化 | 修参数 |
 | `NOT_FOUND` | Workbook、Work、节点或 Attempt 不存在 | 无变化 | 核对 id |
 | `WORKBOOK_INVALID` | manifest 或文件引用不合规，`detail.path` 指出位置 | 未复制任何文件 | 修 Workbook |
 | `FLOW_INVALID` | 图编译失败，`detail.path` 与 `detail.rule` 指出哪条规则 | 未复制任何文件 | 修 Flow |

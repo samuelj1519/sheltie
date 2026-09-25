@@ -1,4 +1,4 @@
-//! 崩溃测试用的失败点。只在 `failpoint` 特性下生效。
+//! 崩溃测试用的故障注入点。只在 `failpoint` 特性下生效。
 //!
 //! 三个命名点：`before_commit`、`after_commit_before_effects`、`update_between_renames`。
 //! 调用处已由骨架放好，T23 填 `maybe_exit` 的实现。
@@ -14,5 +14,5 @@ pub fn maybe_exit(name: &str) {
 #[cfg(not(feature = "failpoint"))]
 pub fn maybe_exit(_name: &str) {}
 
-/// 失败点退出码。
+/// 故障注入点的退出码。
 pub const EXIT_CODE: i32 = 70;

@@ -27,7 +27,7 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | `plan` | 强模型 | `plan.md`、`tasks.md` | 技术方案、门禁命令、三到二十个填空式任务 |
 | `plan-review` | 人 | `decision.md` | 第一行 `通过 / 修改规格 / 修改方案` |
 | `scaffold` | 强模型 | `scaffold.md` 加一次骨架提交 | 全部类型、签名、注释、占位函数体、禁用的测试。最后一个做设计的步骤 |
-| `implement` | 标准模型 | `change.md` | 一次一个任务：解开测试、填占位体、过门禁、提交。第一行 `完成 Tnn / 卡住 Tnn` |
+| `implement` | 标准模型 | `change.md` | 一次一个任务：启用测试、填占位体、过门禁、提交。第一行 `完成 Tnn / 卡住 Tnn` |
 | `verify` | 标准模型（新会话） | `report.md` | 自己跑单任务测试与门禁，核对没改白名单外的文件与测试；第一行 `通过，下一任务 Tnn / 通过，全部完成 / 不通过 / 不通过，需要人` |
 | `fix` | 标准模型 | `change.md` | 只修报告里的发现，一次提交。第一行 `修复完成 / 卡住` |
 | `escalate` | 人 | `decision.md` | 卡住、修两轮不过、需要授权时找人。第一行 `继续 / 跳过 / 改方案 / 止损` |
