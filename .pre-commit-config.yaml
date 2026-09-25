@@ -26,6 +26,13 @@ repos:
         language: script
         files: \.md$
         pass_filenames: false
+      - id: check-skill
+        name: check sheltie skill
+        description: Skill commands exist in the protocol; no storage internals.
+        entry: scripts/check-skill.sh
+        language: script
+        files: (skills/sheltie/SKILL\.md|specs/contracts/protocol\.md)$
+        pass_filenames: false
       - id: check-core-vocab
         name: check engine vocabulary
         entry: scripts/check-core-vocab.sh
