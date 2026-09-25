@@ -89,7 +89,7 @@ fn rejects_self_loop_edge() { … }
 | T08 | done | 初级 | core `SubmitAttempt` 与 `FailAttempt` | 输出合同、摘要上限、门槛阻断、重试耗尽 |
 | T09 | done | 初级 | core `ApproveGate` 与 `Cancel` | 门槛放行、取消、终态拒写 |
 | T10 | done | 初级 | core 渲染 | 任务书、状态卡、`next` 命令行与预写快照一致 |
-| M1 | doing | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 存活的突变体逐条处置 |
+| M1 | done | 强模型 | 里程碑审查：core | diff T01..T10；`scripts/mutants.sh sheltie-core` 存活的突变体逐条处置 |
 | T11 | todo | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | todo | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
 | T13 | todo | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
@@ -195,7 +195,7 @@ fn rejects_self_loop_edge() { … }
 
 **提交。** `feat(core): 把 Flow 编译成校验过的图`
 
-**复核（M1，2026-09-25）。** 需修改。B1：合同 §3.2 说可选输出「下游不得把它当必需输入」，§4 规则 5 与骨架注释都漏了这一句，编译放行后 `next` 会给出一个必然 `INPUT_UNAVAILABLE` 的 `begin`，只能取消。合同与 `check_rule_5` 注释已补；复核者补测试 `rejects_required_input_on_optional_output`（禁用，待启用）与 `accepts_optional_input_on_optional_output`。缺口在上游文档，不算实现者违规。修完提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，`Task: T05`。见 [decisions.md 里程碑记录](decisions.md)。
+**复核（M1，2026-09-25，三轮后通过）。** 需修改。B1：合同 §3.2 说可选输出「下游不得把它当必需输入」，§4 规则 5 与骨架注释都漏了这一句，编译放行后 `next` 会给出一个必然 `INPUT_UNAVAILABLE` 的 `begin`，只能取消。合同与 `check_rule_5` 注释已补；复核者补测试 `rejects_required_input_on_optional_output`（禁用，待启用）与 `accepts_optional_input_on_optional_output`。缺口在上游文档，不算实现者违规。修完提交 `fix(core): 规则 5 拒绝把可选输出当必需输入`，`Task: T05`。第三轮复审确认修复（5f4b6d6），另补交叉声明测试 `begin_reply_requires_ignore_crossed_kind_name_pairs`（挂 T07）。见 [decisions.md 里程碑记录](decisions.md)。
 
 ### T06 core `Start`
 
@@ -260,7 +260,7 @@ fn rejects_self_loop_edge() { … }
 1. 任务书宿主资源表的说明写「此 <kind>」（协议 §4）。启用 `brief_for_node_with_requires`、`brief_require_row_takes_version_from_manifest_and_names_kind`。`render_brief` 上方的格式注释同步改。
 2. 实现 `Timestamp::unix_secs`（`state.rs`），启用 `timestamp_unix_secs_matches_independent_calendar_math`。然后 `secs_between` 改用它，删掉 `rfc3339_secs` 与「解析不了当 0」的兜底，`StatsJson` 注释里的「解析不了的当 0」同步删。`Timestamp` 构造已校验格式，这里没有失败路径。
 
-见 [decisions.md 里程碑记录](decisions.md) M1 第二轮处置与 D-28。
+第三轮复审（2026-09-25）确认修复（bc14d36），另补交叉声明测试 `brief_require_version_ignores_crossed_kind_name_pairs` 与远年时间用例。见 [decisions.md 里程碑记录](decisions.md) M1 各轮处置与 D-28。
 ### M1 里程碑审查：core
 
 **执行者。** 强模型，未参与 T02 到 T10。

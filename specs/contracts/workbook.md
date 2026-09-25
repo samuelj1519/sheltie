@@ -77,6 +77,7 @@ executor = "agent"
 instruction = { file = "instructions/draft.md" }
 inputs  = [{ name = "topic", from = "start.topic" }]
 outputs = [{ name = "article", path = "article.md", max_bytes = 262144 }]
+max_visits = 3
 
 [[nodes]]
 id = "review"

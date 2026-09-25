@@ -1061,6 +1061,42 @@ mod tests {
 
     // ── T08 Submit / Fail ─────────────────────────────────────
 
+    // ── M1 复审：begin 回复的 requires 在 kind 与 name 交叉时不许串 ─────
+
+    // Task: T07
+    #[test]
+    fn begin_reply_requires_ignore_crossed_kind_name_pairs() {
+        // manifest 里 skill:company-api 与 mcp:db 都存在，节点只引用 mcp:db。
+        // 声明查找若把 && 写成 ||，回复会带上 kind 或 name 单边相同的那条。
+        let (graph, d0) = start_texts(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"company-api\"\nversion = \"2.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:db\"]\n",
+        );
+        let d = decide(
+            Some(&d0.state),
+            &graph,
+            &Command::BeginAttempt {
+                node: node("only"),
+                observed_inputs: BTreeMap::new(),
+                instruction_text: "做这一件事。".to_string(),
+            },
+            &testkit::ctx(),
+        )
+        .unwrap();
+        let Reply::AttemptBegun { requires, .. } = d.reply else {
+            panic!("应当是 Reply::AttemptBegun");
+        };
+        assert_eq!(requires.len(), 1);
+        assert_eq!(
+            (
+                requires[0].kind.as_str(),
+                requires[0].name.as_str(),
+                requires[0].version.as_deref()
+            ),
+            ("mcp", "db", Some("3.0"))
+        );
+    }
+
     // Task: T08
     #[test]
     fn submit_marks_attempt_succeeded_and_records_outputs() {

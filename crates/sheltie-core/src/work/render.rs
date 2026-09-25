@@ -651,6 +651,63 @@ mod tests {
         ));
     }
 
+    // ── M1 复审：manifest 里 kind 与 name 交叉的声明不得串行 ─────
+
+    // Task: T10
+    #[test]
+    fn brief_require_version_ignores_crossed_kind_name_pairs() {
+        use crate::digest::Sha256Hex;
+        use crate::flow::{ResourceIndex, compile, parse_flow};
+        use crate::ids::{FlowId, NodeId, WorkId, WorkName};
+        use crate::path::AbsPath;
+        use crate::work::WorkbookRef;
+        use crate::work::command::Command;
+        use crate::work::decide::decide;
+        use crate::workbook::parse_manifest;
+
+        // skill:db 与 mcp:db 同 name 不同 kind；mcp:db 才是节点引用的那条。
+        // 版本查找若把 && 写成 ||，会先命中 skill:db 的 1.0。
+        let manifest = parse_manifest(
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
+        )
+        .unwrap();
+        let def = parse_flow(
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:db\"]\n",
+        )
+        .unwrap();
+        let graph = compile(&def, &manifest, &ResourceIndex::default()).unwrap();
+        let start = Command::Start {
+            work_id: WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap()).unwrap(),
+            name: WorkName::normalize("t").unwrap(),
+            workbook: WorkbookRef {
+                id: manifest.id.clone(),
+                version: manifest.version.clone(),
+                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
+            },
+            flow: FlowId::new("default").unwrap(),
+            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
+            inputs: BTreeMap::new(),
+        };
+        let d0 = decide(None, &graph, &start, &crate::testkit::ctx()).unwrap();
+        let d1 = decide(
+            Some(&d0.state),
+            &graph,
+            &Command::BeginAttempt {
+                node: NodeId::new("only").unwrap(),
+                observed_inputs: BTreeMap::new(),
+                instruction_text: "做这一件事。".to_string(),
+            },
+            &crate::testkit::ctx(),
+        )
+        .unwrap();
+        let a = d1.state.latest_attempt_of_current().unwrap();
+        let text = render_brief(&d1.state, &graph, a, "做这一件事。");
+        assert!(
+            text.contains("| mcp | db | 3.0 |"),
+            "版本必须来自 mcp:db 那条声明：\n{text}"
+        );
+    }
+
     // Task: T10
     #[test]
     fn brief_marks_unbound_optional_input_as_absent() {
