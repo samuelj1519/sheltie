@@ -218,7 +218,8 @@ pub fn rollback(home: &Home) -> Result<()> {
             let _ = std::fs::create_dir_all(parent);
         }
         if std::fs::rename(target.as_path(), trash.as_path()).is_ok() {
-            let _ = std::fs::remove_dir_all(trash.as_path());
+            // trash 是文件不是目录；remove_dir_all 对文件报 ENOTDIR，会把它留在 tmp/ 里。
+            let _ = std::fs::remove_file(trash.as_path());
         }
     }
     std::fs::rename(prev.as_path(), target.as_path()).map_err(|e| Error::io(target.as_str(), e))?;
