@@ -100,7 +100,7 @@ fn rejects_self_loop_edge() { … }
 | T17 | done | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
 | T18 | done | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
 | T19 | done | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
-| T20 | todo | 初级 | cli `self` 组与发布链 | `install / update / rollback / uninstall / version`；`cargo-dist` 配置 |
+| T20 | done | 初级 | cli `self` 组与发布链 | `install / update / rollback / uninstall / version`；`cargo-dist` 配置 |
 | T21 | todo | 初级 | 场景：审查回环 | `back` 边、二次到达、`max_visits` 耗尽、`human` 执行者、`resource` 输入 |
 | T22 | todo | 初级 | 场景：门槛、产物与 Workbook 生命周期 | 门槛阻断、`ARTIFACT_MODIFIED`、`OUTPUT_MISSING`、`WORKBOOK_IN_USE` |
 | T23 | todo | 初级 | 场景：重放与崩溃 | 同 id 重放、载荷冲突、`COMMIT` 前后被杀、`self update` 中途被杀 |
@@ -371,11 +371,11 @@ fn rejects_self_loop_edge() { … }
 
 ### T20 cli `self` 组与发布链
 
-**文件。** `crates/sheltie-runtime/src/selfmgmt.rs`、`crates/sheltie-cli/src/commands/self_cmd.rs`。`dist-workspace.toml` 与 `.github/workflows/release.yml` 由 `cargo dist init` 与 `cargo dist generate` 生成，本任务允许新建这两个文件。
+**文件。** `crates/sheltie-runtime/src/selfmgmt.rs`、`crates/sheltie-cli/src/commands/self_cmd.rs`，另加 `specs/contracts/storage.md` 与 `specs/decisions.md` 的对应改动（见下）。`dist-workspace.toml` 与 `.github/workflows/release.yml` 由 `cargo dist init` 与 `cargo dist generate` 生成，本任务允许新建这两个文件（手写，T25 打 tag 后用 `cargo dist generate` 校对）。
 
 **测试。** `install_copies_current_exe_and_is_idempotent`、`install_prints_path_hint_and_does_not_touch_rc_by_default`、`update_replaces_binary_and_keeps_prev`、`update_rejects_checksum_mismatch_and_leaves_binary_intact`、`update_reports_unavailable_when_no_asset_for_platform`、`rollback_swaps_prev_back`、`rollback_recovers_when_current_missing`、`uninstall_keeps_store_and_works`、`uninstall_purge_requires_yes`、`self_version_works_without_home`。
 
-**实现要点。** 本任务加 `axoupdater` 依赖，并同步 `deny.toml` 的许可白名单。测试通过 `SHELTIE_RELEASE_BASE` 指向测试自己生成的本地发布目录，不联网；本地清单格式是 `dist-manifest.json` `{ version, assets: [{ platform, name, sha256 }] }`（`tests/selfmgmt.rs` 的 `make_release`），若 `axoupdater` 读的真实清单格式不同，在 `selfmgmt.rs` 里做一层解析适配，测试清单格式不变。替换顺序按 [存储合同 §9](contracts/storage.md) 五步。目标平台 `aarch64-apple-darwin`、`x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`、`aarch64-unknown-linux-gnu`。
+**实现要点。** 原「加 `axoupdater` 依赖」经核对不可行：其 0.10.2 公开 API 不暴露清单与 sha256，唯一完整入口会执行安装脚本，与五步冲突。改为直接读 `dist-manifest.json`（瘦格式为本地与测试的合同；cargo-dist 完整清单在 `selfmgmt` 里适配），网络下载用系统 `curl`，见 [decisions.md D-30](decisions.md) 与存储合同 §9 的同步改写。测试通过 `SHELTIE_RELEASE_BASE` 指向测试自己生成的本地发布目录，不联网。替换顺序按 [存储合同 §9](contracts/storage.md) 五步，`update_between_renames` 故障点挪到第 3、4 步之间。目标平台 `aarch64-apple-darwin`、`x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`、`aarch64-unknown-linux-gnu`。
 
 **提交。** `feat(cli): self 命令组与 cargo-dist 发布链`
 
