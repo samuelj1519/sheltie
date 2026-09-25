@@ -17,7 +17,6 @@ fn is_readonly(p: &Path) -> bool {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn add_two_step_example_copies_and_marks_readonly() {
     let (_d, home) = temp_home();
     let added = repo(&home).add(&abs(&example_dir("two-step"))).unwrap();
@@ -35,7 +34,6 @@ fn add_two_step_example_copies_and_marks_readonly() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn add_rejects_duplicate_id_version_with_workbook_exists() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -48,7 +46,6 @@ fn add_rejects_duplicate_id_version_with_workbook_exists() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn add_rejects_symlink_inside_workbook() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
@@ -59,7 +56,6 @@ fn add_rejects_symlink_inside_workbook() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn add_rejects_file_over_32mib() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
@@ -70,7 +66,6 @@ fn add_rejects_file_over_32mib() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn add_failure_leaves_no_staging_and_no_row() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
@@ -84,7 +79,6 @@ fn add_failure_leaves_no_staging_and_no_row() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn load_recompiles_graph_from_installed_copy() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -97,7 +91,6 @@ fn load_recompiles_graph_from_installed_copy() {
 
 // Task: T14
 #[test]
-#[ignore = "T14"]
 fn list_orders_by_id_then_version() {
     let (d, home) = temp_home();
     let r = repo(&home);

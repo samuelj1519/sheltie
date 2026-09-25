@@ -120,9 +120,25 @@ impl Store {
     }
 
     /// 插入一行 Workbook。主键冲突报 `WorkbookExists`。独立事务（Workbook 入库不经 `commit`）。
-    #[allow(unused_variables)]
     pub fn insert_workbook(&self, row: &WorkbookRow) -> Result<()> {
-        todo!("T14")
+        let conn = self.connect()?;
+        conn.execute(
+            "INSERT INTO workbooks (id, version, digest, dir, added_at)
+             VALUES (?1, ?2, ?3, ?4, ?5)",
+            rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],
+        )
+        .map_err(|e| match &e {
+            rusqlite::Error::SqliteFailure(code, _)
+                if code.code == rusqlite::ErrorCode::ConstraintViolation =>
+            {
+                Error::WorkbookExists {
+                    id: row.id.clone(),
+                    version: row.version.clone(),
+                }
+            }
+            _ => e.into(),
+        })?;
+        Ok(())
     }
 
     /// 删一行 Workbook。不存在报 `NotFound`。

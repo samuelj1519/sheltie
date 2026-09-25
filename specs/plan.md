@@ -93,7 +93,7 @@ fn rejects_self_loop_edge() { … }
 | T11 | done | 初级 | 样例 Workbook 编译测试 | 三份样例与 `spec-dev` 全部编译通过 |
 | T12 | done | 初级 | runtime 管理根与文件观察 | `SHELTIE_HOME`、`confine()`、`ObservedFile` |
 | T13 | done | 初级 | runtime SQLite 存储 | 建库、结构校验、`commit()` 去重与 CAS、序号分配 |
-| T14 | todo | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
+| T14 | done | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
 | T15 | todo | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
 | T16 | todo | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
 | M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
