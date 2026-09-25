@@ -354,6 +354,18 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 **后果。** `Reply::Started` 与 `Reply::AttemptBegun` 的 `requires` 类型变了，协议 work start 第 8 步、attempt begin 第 5 步随之改写。`Timestamp` 的字段私有，runtime 与测试改用 `parse`；`observe::now()` 改调 `from_unix_secs`。新增测试见 M1 第二轮处置。
 
+## D-29 `engine.stats` 的口径含本次 Attempt
+
+2026-09-25，M2，复核者定。
+
+**背景。** M2 给 T16 补重放测试时发现：提交时 `stats.json` 从 `begin` 之前的状态算（当前节点的 `visits` 还没增、本次 Attempt 还没进表），而崩溃后的重放只能拿到库里的提交后状态。从提交后状态反推提交前状态不可行：`visits`、`current`、`attempts` 可以借 `entered_from` 逆推，但 `updated_at` 在每个提交点都被刷新，跨秒时 `total_seconds` 就重建不出来，重放补写的 `stats.json` 与 `Attempt.inputs` 里记录的摘要必然对不上。
+
+**选择。** 口径改为含本次 Attempt：`decide_begin` 先把 `visits`、`current`、新 Attempt、`updated_at` 推进到位，再用这份完整状态算 `stats.json`。提交后状态等于库里的状态，重放重算逐字节一致，效果真正幂等。
+
+**否决。** 反推提交前状态（`updated_at` 不可恢复）；把 `stats.json` 内容存进库（内容可由状态导出，存两份必然漂移）；容忍重放内容不同（`Attempt.inputs` 里记的摘要与磁盘文件不符，「输入按字节冻结」名存实亡）。
+
+**后果。** 工作 agent 读 `stats.json` 时看到自己这次 Attempt 已计入。`bind_inputs` 不再带 `attempt_id`，`EngineStats` 条目由 `decide_begin` 推进状态后回填。协议 `work stats` 一节已写明口径。
+
 ## 里程碑记录
 
 ### M1 core（2026-09-25）
@@ -470,6 +482,71 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 | L13 | 测试 | state.rs:71 三个突变存活：日期换算的既有用例全挤在 1970 到 2100 年，世纪修正项摸不到 | `engineering.md` §3「写新测试的人」段 | 查表/换算类函数，用例要覆盖修正项生效的每个区段；找不到时穷举可达定义域找第一个判定点 | 采纳，已改 |
 
 **M1 关闭。** T01 到 T10 全部 done；O1 到 O7 的落点：O1、O3 到 O7 已修并复核通过，O2 随 T16（测试已挂 T16 禁用）。下一次模型审查是 M2（runtime）。
+
+### M2 runtime（2026-09-25）
+
+**范围。** `git diff 94519d7..2344894 -- crates/sheltie-runtime`（T12 到 T16 的实现提交 9b2d00f、a860311、00bd835、fc4f9f9、2344894，与复核者的夹具修复 fe7f5fe），`git log 94519d7..HEAD -- scripts/ tasks.toml` 的两次 `tasks.toml` 白名单修订（T13 加 `failpoint.rs`、T15 加 `service.rs`，均为按依赖提前填入的登记，提交说明写清了原因，检查意图未动）。T16 同时验收了 M1 遗留 O2（冻结副本核对）。
+
+**结论：需修改 → 复核者本轮直接修复，通过，M2 关闭。** 两条实质缺陷（B1 注入点位置、B2 重放口径）都源于骨架与语义缺口，按 [plan.md](plan.md) §0.6 由复核者修，不退回实现者：B1 不改测试只挪一行调用；B2 动了 `bind_inputs` 签名与 stats 口径，记为 D-29。实现质量整体扎实：事务顺序与合同逐行对得上，错误归类精确（`WORKBOOK_EXISTS` 只认主键冲突），提交说明完整。
+
+**检查表。**
+
+| 项 | 结果 | 依据（命令均可重跑） |
+| --- | --- | --- |
+| 依据 | 通过 | 每个行为能指回存储合同或协议：staging 四步（§5）、`commit()` 事务顺序（§2，逐行对照 `store/commit.rs:52-144`）、序号分配（§7.1，`store/mod.rs:119` SQL 与合同原文一致）、冻结副本（§5.1，`service.rs:306` `load` 核对摘要）、`resource.<path>` 由副本整体摘要覆盖（协议 attempt begin 第 3 步，O2 落地）。无文档外发明行为 |
+| 不变式 | 通过 | runtime 无业务判断：规则判断全在 core 的 `decide`/`compile`，runtime 只做观察、事务、效果；`INV-3`：写入全部在管理根之下，外部键先经 `confine`（`service.rs:122`）；`INV-7`：状态只从 `works.state_json` 读，目录是投影。`cargo tree -p sheltie-runtime -e normal`：rusqlite、serde、serde_json、sha2、thiserror、uuid、camino、sheltie-core，无越界依赖 |
+| 正反例 | 已补 | 存储合同 §5「拒绝符号链接、硬链接、非普通文件、单文件超 32 MiB、总量超 256 MiB」原先缺硬链接与非普通文件的拒绝例、缺两个上限的「恰好接受」一侧，本轮补齐（见补测试清单） |
+| 真实链 | 通过（本层） | runtime 集成测试全部用 `tempfile` 独立管理根走公开 API；CLI 端到端归 T17 到 T23 |
+| 崩溃 | 通过（走查） | §3 三行逐行走查见下；T23 的子进程测试仍禁用（依赖 T17 到 T19 的 CLI），B1 修复后它们才可能绿 |
+| 边界 | 已补 | `confine` 三条拒绝例加不可读祖先一条；32 MiB 与 256 MiB 都有恰好上限接受、多一字节拒绝；`user_version` 与同空白异类型拒绝；只读库插入归类。`deny_unknown_fields` 补齐见下 |
+| 文档 | 通过 | `check-docs.sh`（48 个文件）绿；协议 `work stats` 一节补了 stats 口径一句（D-29）；T23 任务卡补复核记录 |
+| 提交 | 通过 | 一任务一提交，trailer 连排可解析（`git log --format='%(trailers)'` 核对 T11 到 T16 每条都有 `Task` 与 `Agent`）；T13、T15 提前填入的跨界都改了任务卡与 `tasks.toml` 并在说明里写清（T07 先例）；fe7f5fe 夹具修复打 `t15-review` 基准，与卡上记录一致 |
+| 突变 | 已处置 | 首轮 177 个：78 杀死、36 存活、63 不可编译；处置后复跑 176 个：106 杀死、7 存活、63 不可编译，7 个都有归属（见下）。core 改动定向复跑 `scripts/mutants.sh sheltie-core -F 'work/decide.rs'`：56 个，40 杀死、0 存活、16 不可编译 |
+| 证据 | 附命令 | 上文与下文每条带文件行号或可重跑命令 |
+
+**崩溃窗口人工走查（存储合同 §3，逐行对代码）。**
+
+| 时刻 | 保证 | 代码位置 | 结论 |
+| --- | --- | --- | --- |
+| `COMMIT` 前 | 库无变化，无观察副产物 | 注入点 `store/commit.rs:53`（`BEGIN IMMEDIATE` 在 :55）；效果只在 `store.commit` 返回 `Committed` 后执行（`service.rs:458-462`）；观察全程只读（`observe.rs` 无写） | 成立 |
+| `COMMIT` 后、效果前 | 状态已推进；`status` 正确；重放补写任务书与状态卡 | 注入点 `service.rs:461`（B1 修复后）；重放预检 `service.rs:385-401` 命中后走 `replay`（:480）→ `replay_effects`（:537）补写 `brief.md`、`stats.json`（缺失才写）、状态卡 | 成立 |
+| 效果中 | 效果幂等，重放补齐 | `write_atomic`（`service.rs:591`）临时文件再 rename；`SealOutputs` 置只读可重复（`apply_effects`，:511）；状态卡整份重写（同上） | 成立 |
+
+`workbook add` 的窗口按 §5：staging 写在事务前，崩溃残留由下次 `add` 顺手清（`workbook_repo.rs:98`）；行已插入而目录未 rename 时 `verify` 报 `missing`（:291）。`work start` 在事务前写冻结副本与起始输入，是 §5.1 与协议 `work start` 第 5、6 步的明文顺序；事务没提交时库无变化，重放同 `request_id` 重新分配序号（烧掉的号按 §7.1 不回收）。
+
+**存活的突变体处置（首轮 36 个）。**
+
+- 补测试杀死 25 个。`confine` 不可读祖先（home.rs:93）；只读打开已存在的库（store/mod.rs:75）；同空白异类型的结构比对（schema.rs:63，原有负例的 SQL 连空白都不同，「只比空白」的突变体漏网）；只读库插入的归类（read.rs:132）；显式版本加载（workbook_repo.rs:183）；硬链接（:353）与单文件上限 `>=`（:359）、总量上限 `==`/`>=`/`*=`（:366、:375）；`remove` 的同号他 Workbook 牵连（:265）；`resolve_work` 两个 match 臂与 `find_works_by_prefix`（service.rs:289、:292，read.rs:77）；重放预检比较（service.rs:395）、两个载荷哈希函数（:614、:623）、审计脱敏（:632）、响应 revision 递增（:448 两个）、`replay_effects` 整体与 stats 条件四个（:545、:565、:566 两个、:569）。
+- 重构消掉 1 个。`observe_optional`（observe.rs:47）原先零调用，`begin`/`submit` 各抄了一份它的错误分支；改为调用它，突变体随真实调用被既有测试杀死。
+- 修复带出 2 个。B2 修复后 `replay_effects` 的 `retain` 反推被删除，service.rs:569 一类突变体随之消失；D-29 的 core 改动定向复跑零存活。
+- 等价突变 1 个，保留。`home.rs:97` 的 `p != base.as_path()` 换 `true`：走到 `base` 本身时 `canonicalize(base)` 必以 `base_canon` 为前缀，结论相同；`base` 不可读时突变体报错、原实现放行，是 fail-closed 方向。
+- 归后续任务 6 个。`failpoint.rs` 两个只在 T23 的子进程崩溃测试里被测（测试仍在等 CLI）；`selfmgmt.rs` 四个是 T20 的 `todo!()` 骨架与其 `platform()`（唯一调用方是禁用的 T20/T23 测试）。M3 复跑时应只剩 `home.rs:97` 一个。
+
+**发现与处置。**
+
+- **B1（骨架缺陷，复核者已修）。** `after_commit_before_effects` 注入点被骨架留在 `run_command` 入口，进程在加载前就退出，与 `before_commit` 效果相同，T23 的 `kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief` 任何实现都不可能通过。已挪到 `commit_one` 的 COMMIT 之后、效果之前（1a5d7a7），T23 任务卡补复核记录。属 M1 L7「依赖顺序核对」没覆盖到的一类：注入点的位置语义。
+- **B2（语义缺口，复核者已修，D-29）。** 提交时 `stats.json` 从 begin 之前的状态算，崩溃重放只有提交后状态，`updated_at` 不可反推，跨秒就重建不出同一份文件。口径改为含本次 Attempt，core（00eaeeb）与 runtime（1a5d7a7）一起改，补测试 `begin_replay_regenerates_missing_stats_json` 断言重放重算与提交时逐字节一致，`begin_engine_stats_counts_current_attempt` 钉住口径。
+- **serde 边界收紧（复核者已修）。** engineering §2.2 要求所有 serde 结构 `deny_unknown_fields`，存储合同 §1.2 对 `state_json` 点名；work 模块七个结构与 `HostRequire`、`Response` 缺，库里多余字段会被静默吞掉（M1 O4 收构造校验，漏了这一层）。已补（c5d567c、1a5d7a7）。限制：内部标签枚举（`Command`/`Effect`/`Reply`/`NextOp`）serde 不支持该属性，变体内多余字段仍被忽略，记为观察。
+- **骨架豁免删除（复核者已修）。** runtime `lib.rs` 的 `#![allow(dead_code)]` 按自身注释在 M2 删除，clippy 无告警。
+
+**观察（不处置，记录在案）。**
+
+- `work start` 被 `decide` 拒绝（如起始输入缺键）或崩溃时，`works/<work_id>/` 下已写的冻结副本与起始输入成为残留，库无行；§8 的「手工删」是唯一出路。不影响正确性。
+- `works_referencing` 对解不开的 `state_json` 静默跳过（`workbook_repo.rs:263`）：损坏行可能被 `remove` 放行。该行之后任何读写都会报 `STORE_CORRUPT`，风险有限。
+- 合同 §5 说 `remove` 删目录失败「只记日志」，runtime 没有日志设施，当前静默忽略（`workbook_repo.rs:240`）。T17 落地 CLI 时若有人咬文再定。
+- `verify`/`digest_dir` 跳过非普通文件：往已装目录里塞一个 fifo 不会触发 `tampered`。普通文件的新增会被发现。
+
+**流程教训。**
+
+| # | 类别 | 证据 | 改哪 | 改成什么 | 处置 |
+| --- | --- | --- | --- | --- | --- |
+| L14 | 骨架 | B1：骨架放的注入点位置与名字语义相反，T13 到 T16 按规则不动它，缺陷一直留到 M2 | `plan.md` T23 卡；骨架自查清单 | 骨架放置的注入点、钩子逐个按名字核对语义位置（「X 之后」要在 X 真的发生之后）；T23 卡已记实际位置 | 采纳，已改 |
+| L15 | 测试 | B2：T23 的崩溃测试只断言「brief.md 存在」，`stats.json` 重建口径与提交口径不一致因此漏网 | `engineering.md` §3「写新测试的人」段 | 重放与恢复类测试断言重建内容与提交时逐字节一致（或摘要相等），不只断言存在 | 采纳，已改 |
+| L16 | 测试 | schema.rs:63：旧结构负例的 SQL 连空白排版都与常量不同，把比对函数换成「只比空白」也能过 | 同上（边界类用例的构造） | 白盒比对类函数的反例要控制变量：只改一个语义字符，其余（含空白）逐字相同 | 采纳，已在本轮测试落实；不另改文档，归入「只改一个条件」的既有规则 |
+
+**修复提交。** 00eaeeb（core，D-29 口径，tag `t07-review-3`）、1a5d7a7（runtime 修复与十三条补测试，tag `t12-review`、`t13-review`、`t14-review`、`t15-review-2`、`t16-review`）、c5d567c（core serde 边界）、本条记录所在的文档提交。
+
+**M2 关闭。** T11 到 T16 全部 done；无退回实现者的待修项。下一次模型审查是 M3（端到端），复跑 `scripts/mutants.sh sheltie-runtime` 时存活应只剩 `home.rs:97` 一个等价突变（`failpoint` 与 `selfmgmt` 的六个由 T20、T23 的测试杀死）。
 
 ## 首次真实运行
 

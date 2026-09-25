@@ -96,7 +96,7 @@ fn rejects_self_loop_edge() { … }
 | T14 | done | 初级 | runtime Workbook 仓库 | `add / list / load` 含 staging 与只读 |
 | T15 | done | 初级 | runtime Workbook `remove` 与 `verify` | 引用检查、摘要核对 |
 | T16 | done | 初级 | runtime Work 服务 | 观察 → 决定 → 提交 → 效果；`start` 冻结 Workbook 副本；库级端到端 |
-| M2 | todo | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
+| M2 | done | 强模型 | 里程碑审查：runtime | diff M1..T16；`scripts/mutants.sh sheltie-runtime`；崩溃窗口人工走查 |
 | T17 | todo | 初级 | cli `workbook` 组 | `add / list / show / remove / verify`，`--json`，退出码 |
 | T18 | todo | 初级 | cli `work` 组 | `start / list / status / stats / cancel` |
 | T19 | todo | 初级 | cli `attempt` 与 `gate` 组 | 两步样例从 CLI 走完 |
@@ -399,7 +399,9 @@ fn rejects_self_loop_edge() { … }
 
 ### T23 场景：重放与崩溃
 
-**文件。** `crates/sheltie-runtime/src/failpoint.rs`（`maybe_exit(name)` 已在 T13 提前填，原因见 T13 任务卡）；`service.rs` 与 `selfmgmt.rs` 里骨架已留好的三处 `failpoint::maybe_exit("…")` 调用不动。
+**文件。** `crates/sheltie-runtime/src/failpoint.rs`（`maybe_exit(name)` 已在 T13 提前填，原因见 T13 任务卡）；三处 `failpoint::maybe_exit("…")` 调用不动：`commit.rs` 入口的 `before_commit`、`service.rs` `commit_one` 里 COMMIT 之后的 `after_commit_before_effects`、`selfmgmt.rs` 的 `update_between_renames`。
+
+**复核记录（2026-09-25，M2，实现前）。** 骨架把 `after_commit_before_effects` 留在 `run_command` 入口，进程在提交前就退出，`kill_after_commit_…` 测试任何实现都不可能通过；M2 已把它挪到 `commit_one` 的 COMMIT 之后、效果之前（见 [decisions.md](decisions.md) M2 记录 B1）。
 
 **测试。** `kill_before_commit_leaves_state_unchanged_and_replay_succeeds`、`kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief`、`status_card_missing_is_regenerated_on_next_write`、`kill_between_update_renames_leaves_prev_and_rollback_recovers`、`same_request_id_same_payload_returns_replayed_true`、`same_request_id_different_payload_is_request_conflict`。
 
