@@ -1,4 +1,4 @@
-//! `self install | update | rollback | uninstall | version`。不打开 `store.db`。
+//! `self install | update | rollback | uninstall | version`。除 `install` 建库外不打开 `store.db`。
 
 use serde_json::json;
 use sheltie_runtime::selfmgmt;
