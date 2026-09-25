@@ -133,6 +133,7 @@ pub struct Principal(pub String);
 
 /// Work 绑定的 Workbook 版本与内容摘要。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WorkbookRef {
     pub id: WorkbookId,
     pub version: String,
@@ -141,6 +142,7 @@ pub struct WorkbookRef {
 
 /// 一个按字节冻结的文件引用。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ArtifactRef {
     pub path: AbsPath,
     pub sha256: Sha256Hex,
@@ -149,6 +151,7 @@ pub struct ArtifactRef {
 
 /// 节点第 `n` 次到达。
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Occurrence {
     pub node: NodeId,
     pub n: u32,
@@ -181,6 +184,7 @@ impl AttemptStatus {
 
 /// 一次执行尝试。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Attempt {
     pub id: AttemptId,
     pub status: AttemptStatus,
@@ -207,6 +211,7 @@ impl Attempt {
 
 /// 门槛批准记录。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Approval {
     pub node: NodeId,
     pub occurrence: u32,
@@ -270,6 +275,7 @@ impl std::fmt::Display for WorkStatus {
 
 /// 一个 Work 的全部状态。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WorkState {
     pub work_id: WorkId,
     pub name: WorkName,

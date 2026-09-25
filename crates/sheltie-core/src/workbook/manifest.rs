@@ -38,6 +38,7 @@ impl RequireKind {
 
 /// 一条宿主资源声明。身份是 `kind + name`。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct HostRequire {
     pub kind: RequireKind,
     pub name: String,

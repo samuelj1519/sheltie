@@ -14,6 +14,7 @@ use crate::workbook::HostRequire;
 ///
 /// 只有 runtime 的 `observe_file` 会构造它；这是 `INV-6` 的落点：摘要不由模型报。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ObservedFile {
     pub path: AbsPath,
     pub sha256: Sha256Hex,
