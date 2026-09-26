@@ -433,6 +433,8 @@ fn rejects_self_loop_edge() { … }
 
 **结果。** `README.md` 的「快速开始」从 `curl … install.sh | sh` 开始，由一个从未接触项目的人（或一个新开的 agent 会话）在干净的 `SHELTIE_HOME` 下只按文字操作走通 `two-step`；`cargo deny check` 绿；`CHANGELOG.md` 由 `git-cliff` 生成；打 tag `v0.1.0`，确认 release 工作流产出四个平台的包与 `install.sh`。
 
+**文件。** `README.md`、`CHANGELOG.md`、`cliff.toml`、`Cargo.toml`、`Cargo.lock`、`dist-workspace.toml`、`.github/workflows/`、`crates/sheltie-cli/tests/{version,self_cmd}.rs`、`crates/sheltie-runtime/{src/selfmgmt.rs,tests/selfmgmt.rs}`（后两者仅当真实清单不适配时）、`specs/`。执行手册见 [t25-t26-runbook.md](t25-t26-runbook.md)。
+
 **验证。** 记录实测者、日期、卡住的地方；卡住即改文档再测，直到一次走通。`sheltie self update` 从 `v0.1.0-rc` 升到 `v0.1.0` 走一次真实网络。
 
 **提交。** `docs(specs): 从 install.sh 实测快速开始并发布 v0.1.0`
@@ -442,6 +444,8 @@ fn rejects_self_loop_edge() { … }
 **执行者。** 人。
 
 **结果。** 在 Claude Code 里把 `skills/sheltie` 装到用户 skill 目录（手工 `cp`，MVP 不做安装工具），输入 `/sheltie`，让协调者用 `article-review` 样例走完一次含打回的流程。记录：协调者是否只用了 `next` 里的命令；有没有试图绕过；任务书是否够用；token 用量的宿主观测值。
+
+**文件。** `specs/`。执行手册见 [t25-t26-runbook.md](t25-t26-runbook.md)。
 
 **结果去向。** 写进 `specs/decisions.md` 末节「首次真实运行」。发现的问题按 [engineering.md §7](engineering.md) 路由。这一项不产生代码提交，产生一次文档提交。
 

@@ -125,3 +125,13 @@ allow_test_changes = true
 files = ["skills/sheltie/SKILL.md", "scripts/check-skill.sh", ".github/workflows/build.yml", ".pre-commit-config.yaml"]
 test_files = ["crates/sheltie-cli/tests/skill.rs"]
 allow_test_changes = false
+
+[T25]
+files = ["README.md", "CHANGELOG.md", "cliff.toml", "Cargo.toml", "Cargo.lock", "dist-workspace.toml", ".github/workflows", "crates/sheltie-cli/tests/version.rs", "crates/sheltie-cli/tests/self_cmd.rs", "crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-runtime/tests/selfmgmt.rs", "specs"]
+test_files = []
+allow_test_changes = false
+
+[T26]
+files = ["specs"]
+test_files = []
+allow_test_changes = false
