@@ -785,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "sheltie-cli"
-version = "0.1.0"
+version = "0.1.0-rc"
 dependencies = [
  "assert_cmd",
  "clap",
@@ -799,7 +799,7 @@ dependencies = [
 
 [[package]]
 name = "sheltie-core"
-version = "0.1.0"
+version = "0.1.0-rc"
 dependencies = [
  "camino",
  "insta",
@@ -814,7 +814,7 @@ dependencies = [
 
 [[package]]
 name = "sheltie-runtime"
-version = "0.1.0"
+version = "0.1.0-rc"
 dependencies = [
  "camino",
  "rusqlite",
