@@ -230,16 +230,19 @@ fn update_unpacks_tarball_asset_and_keeps_executable_bit() {
     let platform = selfmgmt::platform();
     let payload = format!("tarred sheltie for {platform}");
     use std::os::unix::fs::PermissionsExt as _;
-    std::fs::create_dir_all(dir.join("sheltie/bin")).unwrap();
-    std::fs::write(dir.join("sheltie/bin/sheltie"), &payload).unwrap();
+    // cargo-dist 0.32 的真实包内布局（T25 用 dist build 的产出核过）：
+    // <产物名去掉扩展>/sheltie，二进制在内层目录根部。
+    let asset = format!("sheltie-cli-9.9.9-{platform}.tar.gz");
+    let inner = format!("sheltie-cli-9.9.9-{platform}");
+    std::fs::create_dir_all(dir.join(&inner)).unwrap();
+    std::fs::write(dir.join(&inner).join("sheltie"), &payload).unwrap();
     std::fs::set_permissions(
-        dir.join("sheltie/bin/sheltie"),
+        dir.join(&inner).join("sheltie"),
         std::fs::Permissions::from_mode(0o755),
     )
     .unwrap();
-    let asset = format!("sheltie-9.9.9-{platform}.tar.gz");
     let tar = std::process::Command::new("tar")
-        .args(["-czf", &asset, "sheltie"])
+        .args(["-czf", &asset, &inner])
         .current_dir(&dir)
         .output()
         .unwrap();
@@ -280,23 +283,27 @@ fn update_adapts_cargo_dist_manifest_format() {
     let dir = d.path().join("rel");
     let platform = selfmgmt::platform();
     let payload = format!("cargo-dist style sheltie for {platform}");
-    let asset = format!("sheltie-7.7.7-{platform}");
+    let asset = format!("sheltie-cli-7.7.7-{platform}");
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(dir.join(&asset), &payload).unwrap();
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes());
-    // 完整 dist-manifest.json：非 executable-zip 的产物要被跳过，别的平台的也要被跳过。
+    // 完整 dist-manifest.json 的真实形态（0.32.0，T25 用 dist build 的产出核过）：
+    // artifacts 是按产物名索引的对象；checksum 是校验文件名，真哈希在 checksums.sha256。
+    // 非 executable-zip 的产物要被跳过，别的平台的也要被跳过。
     let manifest = serde_json::json!({
         "dist_version": "0.32.0",
         "announcement_tag": "v7.7.7",
         "announcement_is_prerelease": false,
-        "releases": [{ "app_name": "sheltie", "app_version": "7.7.7", "artifacts": ["install.sh", asset] }],
-        "artifacts": [
-            { "name": "install.sh", "kind": "installer", "target_triples": [] },
-            { "name": asset, "kind": "executable-zip", "target_triples": [platform],
-              "checksum": { "sha256": digest.as_str() } },
-            { "name": "sheltie-7.7.7-other-platform", "kind": "executable-zip",
-              "target_triples": ["other-platform"], "checksum": { "sha256": "0".repeat(64) } },
-        ]
+        "releases": [{ "app_name": "sheltie-cli", "app_version": "7.7.7", "artifacts": ["sheltie-cli-installer.sh", &asset] }],
+        "artifacts": {
+            "sheltie-cli-installer.sh": { "name": "sheltie-cli-installer.sh", "kind": "installer", "target_triples": [] },
+            asset.clone(): { "name": &asset, "kind": "executable-zip", "target_triples": [&platform],
+              "checksum": format!("{asset}.sha256"),
+              "checksums": { "sha256": digest.as_str() } },
+            "sheltie-cli-7.7.7-other-platform": { "name": "sheltie-cli-7.7.7-other-platform", "kind": "executable-zip",
+              "target_triples": ["other-platform"], "checksum": "sheltie-cli-7.7.7-other-platform.sha256",
+              "checksums": { "sha256": "0".repeat(64) } },
+        }
     });
     std::fs::write(dir.join("dist-manifest.json"), manifest.to_string()).unwrap();
     let src = ReleaseSource {

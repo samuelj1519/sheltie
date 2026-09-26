@@ -173,7 +173,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
             actual: got.as_str().to_string(),
         });
     }
-    // 压缩包解包取 sheltie/bin/sheltie；瘦格式的资产就是二进制本身。
+    // 压缩包解包取包内的 sheltie 二进制；瘦格式的资产就是二进制本身。
     let new_bin = match unpack_if_archive(&downloaded, &tmp)? {
         Some(bin) => bin,
         None => downloaded,
@@ -299,6 +299,9 @@ fn read_manifest(source: &ReleaseSource) -> Result<ReleaseManifest> {
 
 /// cargo-dist 完整清单 → 瘦格式：版本取 `announcement_tag`（去 `v` 前缀），
 /// 资产取 `kind = executable-zip` 的压缩包，平台取 `target_triples` 的第一个。
+/// 0.32 的真实形态（T25 用 `dist build` 的产出核过）：`artifacts` 是按产物名索引的
+/// 对象（也容忍数组写法）；真哈希在 `checksums.sha256`；`checksum` 字段是同名的
+/// 校验文件**名**，不是哈希，裸串只在恰好是 64 位十六进制时才当哈希接受。
 fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
     let bad = || Error::UpdateUnavailable {
         reason: "发布清单既不是瘦格式也解不出 cargo-dist 的字段".to_string(),
@@ -312,12 +315,16 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
         .and_then(|v| v.as_str())
         .ok_or_else(bad)?;
     let version = tag.strip_prefix('v').ok_or_else(bad)?.to_string();
-    let mut assets = Vec::new();
-    let list = value
+    let artifacts = value
         .get("artifacts")
         .or_else(|| value.get("assets"))
-        .and_then(|v| v.as_array())
         .ok_or_else(bad)?;
+    let list: Vec<&serde_json::Value> = match artifacts {
+        serde_json::Value::Object(map) => map.values().collect(),
+        serde_json::Value::Array(arr) => arr.iter().collect(),
+        _ => return Err(bad()),
+    };
+    let mut assets = Vec::new();
     for artifact in list {
         let kind = artifact.get("kind").and_then(|v| v.as_str());
         if kind != Some("executable-zip") {
@@ -334,19 +341,21 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
         else {
             continue;
         };
-        // checksum 的写法随 cargo-dist 版本变过：对象 {sha256}、裸串 "sha256:…"、字段 checksum_sha256。
         let checksum = artifact
-            .get("checksum")
-            .and_then(|c| {
-                c.get("sha256")
+            .get("checksums")
+            .and_then(|c| c.get("sha256"))
+            .and_then(|v| v.as_str())
+            .or_else(|| {
+                artifact
+                    .get("checksum")
+                    .and_then(|c| c.get("sha256"))
                     .and_then(|v| v.as_str())
-                    .or_else(|| c.as_str())
             })
             .or_else(|| artifact.get("checksum_sha256").and_then(|v| v.as_str()))
-            .map(|s| {
-                s.strip_prefix("sha256:")
-                    .map(str::to_string)
-                    .unwrap_or_else(|| s.to_string())
+            .or_else(|| {
+                let raw = artifact.get("checksum").and_then(|v| v.as_str())?;
+                let s = raw.strip_prefix("sha256:").unwrap_or(raw);
+                (s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit())).then_some(s)
             });
         let Some(sha256) = checksum else {
             continue;
@@ -354,7 +363,7 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
         assets.push(SlimAsset {
             platform: triple.to_string(),
             name: name.to_string(),
-            sha256,
+            sha256: sha256.to_string(),
         });
     }
     Ok(ReleaseManifest { version, assets })
@@ -410,7 +419,7 @@ fn curl_to(url: &str, dst: &AbsPath) -> std::result::Result<(), String> {
     Ok(())
 }
 
-/// 压缩包解包，返回其中的 `sheltie/bin/sheltie`；不是压缩包返回 `None`。
+/// 压缩包解包，返回包内唯一名为 `sheltie` 的普通文件；不是压缩包返回 `None`。
 fn unpack_if_archive(asset: &AbsPath, tmp: &AbsPath) -> Result<Option<AbsPath>> {
     let name = asset
         .as_path()
@@ -431,17 +440,44 @@ fn unpack_if_archive(asset: &AbsPath, tmp: &AbsPath) -> Result<Option<AbsPath>> 
             reason: format!("解包 {name} 失败：{}", String::from_utf8_lossy(&out.stderr)),
         });
     }
-    // cargo-dist 的包内布局是 sheltie/bin/sheltie。
-    let bin = dir
-        .join_segment("sheltie")
-        .join_segment("bin")
-        .join_segment("sheltie");
-    if bin.as_path().exists() {
-        return Ok(Some(bin));
+    // cargo-dist 0.32 的包内布局是 <产物名去掉扩展>/sheltie（二进制在内层目录根部，
+    // T25 用 dist build 的真实产出核过）；旧假设 sheltie/bin/sheltie 也接受：
+    // 在解包目录里找恰好一个名为 sheltie 的普通文件。
+    let mut found = Vec::new();
+    find_named_file(dir.as_path().as_std_path(), "sheltie", 3, &mut found);
+    if found.len() == 1 {
+        return Ok(found.into_iter().next());
     }
+    let detail = if found.is_empty() {
+        "找不到"
+    } else {
+        "找到多个"
+    };
     Err(Error::UpdateUnavailable {
-        reason: format!("解包 {name} 后找不到 sheltie/bin/sheltie"),
+        reason: format!("解包 {name} 后{detail} sheltie 二进制"),
     })
+}
+
+/// 递归收集 `dir` 下名为 `name` 的普通文件，最多下潜 `depth` 层；读不了的目录跳过。
+fn find_named_file(dir: &std::path::Path, name: &str, depth: u8, out: &mut Vec<AbsPath>) {
+    if depth == 0 {
+        return;
+    }
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let Ok(meta) = entry.metadata() else {
+            continue;
+        };
+        if meta.is_dir() {
+            find_named_file(&entry.path(), name, depth - 1, out);
+        } else if meta.is_file() && entry.file_name() == name {
+            if let Ok(p) = AbsPath::new(entry.path().to_string_lossy().into_owned()) {
+                out.push(p);
+            }
+        }
+    }
 }
 
 // ── 小件 ──────────────────────────────────────────────────────
