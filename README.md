@@ -2,20 +2,47 @@
 
 本地运行的工作流引擎，给协调者 agent 用。人把做事方法写成 Workbook（TOML 图加自然语言说明），协调者 agent 按图派活，引擎记状态、发任务书、限定合法下一步、守门槛。引擎不判断内容好坏。
 
-仓库当前是脚手架，尚未实现规格。目标与计划见 [specs/README.md](specs/README.md)；词汇见 [CONTEXT.md](CONTEXT.md)；agent 入口见 [AGENTS.md](AGENTS.md)。
+词汇见 [CONTEXT.md](CONTEXT.md)；规格见 [specs/README.md](specs/README.md)；agent 入口见 [AGENTS.md](AGENTS.md)。
 
-## 快速开始（目标形态，随 MVP 落地生效）
+## 快速开始
+
+装引擎（macOS 与 Linux，x86_64 与 aarch64）：
 
 ```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/<owner>/sheltie/releases/latest/download/sheltie-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-cli-installer.sh | sh
 export PATH="$HOME/.sheltie/bin:$PATH"
-
-sheltie workbook add examples/two-step
-sheltie work start --workbook two-step --flow default --input topic="给新人介绍 Sheltie"
-sheltie work status 2026-09-24-001      # work_id 的唯一前缀即可
+sheltie self version
 ```
 
-之后按状态卡里的「合法下一步」逐条执行，或在 Claude Code 里输入 `/sheltie` 让协调者代劳。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
+拿一份样例 Workbook 并装进来：
+
+```bash
+git clone --depth 1 https://github.com/samuelj1519/sheltie.git
+sheltie workbook add sheltie/examples/two-step
+```
+
+开一个 Work 并走完它。`work start` 的响应给出 `work_id`，之后用它的唯一前缀即可（下面写作 `<work>`）：
+
+```bash
+sheltie work start --workbook two-step --flow default --input topic="给新人介绍 Sheltie"
+sheltie attempt begin <work> --node outline
+```
+
+`attempt begin` 的响应给出 `brief_path`（任务书）与输出目录。读任务书，按它把提纲写到输出目录里的 `outline.md`，然后提交：
+
+```bash
+sheltie attempt submit <work> --attempt outline#1.0 --summary "三段提纲：是什么、怎么用、边界"
+sheltie attempt begin <work> --node summary
+```
+
+同样读任务书、写 `summary.md`、提交：
+
+```bash
+sheltie attempt submit <work> --attempt summary#1.0 --summary "按提纲写完摘要"
+sheltie work status <work>          # status: succeeded
+```
+
+不知道下一步做什么，就看每次响应里的 `next` 数组（每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。在 Claude Code 里可以输入 `/sheltie` 让协调者代劳：把 `skills/sheltie/` 复制到 `~/.claude/skills/` 即可。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
 
 ## 开发
 
