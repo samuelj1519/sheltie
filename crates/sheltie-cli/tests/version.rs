@@ -11,7 +11,7 @@ fn version_prints_name_and_version() {
         .arg("--version")
         .assert()
         .success()
-        .stdout("sheltie 0.1.0\n");
+        .stdout(format!("sheltie {}\n", env!("CARGO_PKG_VERSION")));
 }
 
 // Task: T17
