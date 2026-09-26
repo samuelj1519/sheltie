@@ -675,4 +675,21 @@ Flow 格式加节点字段 `tier = "strong" | "standard"`，默认 `standard`，
 
 ## 首次真实运行
 
-待 [计划](plan.md) T26 完成后填写：协调者是否只用了 `next` 里的命令、有没有试图绕过、任务书是否够用、宿主观测的 token 用量。
+2026-09-26 至 27，宿主 Claude Code（配置目录 `~/.claude-glm/`），skill 手工装在 `~/.claude-glm/skills/sheltie/`，引擎 v0.1.0 经 install.sh 装入 `~/.sheltie/bin`。共三轮 Work，协调者都是新开的会话，只按 skill 与引擎响应驱动。记录前全部结论都在本机用引擎复核过（状态、review.md 首行、sha256 对照、stats）。
+
+**Run 1（two-step，2026-09-26-003-local-engine，succeeded）。** prompt 指定了 article-review 并给了样例路径，协调者发现它没装后没有 `workbook add`，改用已装的 two-step 且未向用户声明替换——skill 的「用户没有指定 Workbook 时问用户」没覆盖「指定了但没装」。它还用一次必败的 `work start` 探测起始输入键，烧掉当日序号 002（留下空目录；序号不回收是存储合同 §7.1 接受的代价，但协调者注释「给少会被拒绝，不会产生副作用」与合同不符——`workbook show` 就能查输入键）。
+
+**Run 2（article-review，2026-09-26-004-why-local-engine，succeeded）。** prompt 被宿主客户端拆条：「从严标准审」一句未送达，第一轮审查「通过」，无打回。收到明确指令后协调者正确执行了 `workbook add`；draft 与 review 派了独立 agent；读 `review.md` 第一行后选 `main` 边。publish（human 节点）的结论「确认发布」是用户给的，但复制 final.md 与跑 submit 由协调者代劳——任务书约定人自己提交，引擎按 D-04 不区分执行者，协调者越过的是任务书字面，不是引擎规则。
+
+**Run 3（article-review，2026-09-26-005-local-workflow-engine-article，succeeded，含打回）。** 单行 prompt 完整送达。draft#1 → review#1「不通过」（用户要求第一轮加严）→ `back` 边 → draft#2（任务书带「来自： review#1（back 边）」行）→ review#2「通过」→ `main` → publish → succeeded。visits：draft 2/3、review 2/3、publish 1/1。协调者把「审查不通过」正确当作成功执行走 submit 而非 fail；收尾主动调了 `work stats`（`entered_via` 显示 draft 经 `review×1` 进入）。注意：article-review 样例的 draft 没有声明来自 review 的可选输入，打回意见是协调者按协议 §4 追加给改稿 agent 的，不是输入绑定——想让意见传递机制化的 Workbook 应给被打回节点声明 `required = false` 的 `<review>.<output>` 输入。
+
+**四条观测结论。**
+
+1. **是否只用了 `next` 里的命令：是。** 三轮全部写操作都在引擎给出的合法集合内；写之前的只读探查（list、show、status）不计。
+2. **有没有试图绕过：引擎层面没有。** 不直接改 `~/.sheltie`、不跳过 submit、被拒后回到 `next`。两次越界都在引擎之外：run 1 替换用户指定的 Workbook 未声明；run 2、3 代劳 human 节点的机械动作（run 3 是用户在选项里明确选「由协调者代执行」）。
+3. **任务书是否够用：够。** 三轮的工作 agent 都只靠任务书与绑定输入完成，没有回头要上下文；「来自」行在回环里被实际读到并引用。
+4. **token 用量：宿主的 `/cost` 读数三轮都未采集成功。** 可记的代理指标：run 3 端到端约 22 分钟，`work stats` 的平均耗时 draft 136s、review 209s、publish 590s（publish 含人工确认等待）。
+
+**完整性实证。** Run 2 撞见 003 报 `STORE_CORRUPT`：冻结副本目录被 Finder 落了一个 `.DS_Store`，摘要核对按存储合同 §5.1 拒绝加载——「输入按字节冻结」在真实环境按设计工作。副本顶层目录可写是注释明说的取舍（macOS 挪动/删除目录需要父目录可写，防篡改靠摘要核对），这次事件正是这条设计的实证；代价是副本被碰后该 Work 的 status 也读不了，记录为已知行为。
+
+**路由（engineering §7）。** 改进项两条，都不阻塞 MVP，随下个版本：skill 补两句——「指定的 Workbook 没装时先 `workbook add`（素材路径由用户给），不得自行换用其他 Workbook」「探测输入键用 `workbook show`，不用必败的 `work start`」。`PATH` 在新会话三次都不可用、协调者三次都自行找到 `~/.sheltie/bin/sheltie` 恢复——宿主 shell 配置的传播问题，记录不改。
