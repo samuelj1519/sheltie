@@ -10,11 +10,11 @@
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-cli-installer.sh | sh
-export PATH="$HOME/.sheltie/bin:$PATH"
+export PATH="$HOME/.sheltie/bin:$PATH"    # 安装器也会提示 source ~/.sheltie/bin/env，效果相同
 sheltie self version
 ```
 
-拿一份样例 Workbook 并装进来：
+拿一份样例 Workbook 并装进来（`workbook add` 的相对路径在克隆的父目录里执行）：
 
 ```bash
 git clone --depth 1 https://github.com/samuelj1519/sheltie.git
@@ -42,7 +42,7 @@ sheltie attempt submit <work> --attempt summary#1.0 --summary "按提纲写完�
 sheltie work status <work>          # status: succeeded
 ```
 
-不知道下一步做什么，就看每次响应里的 `next` 数组（每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。在 Claude Code 里可以输入 `/sheltie` 让协调者代劳：把 `skills/sheltie/` 复制到 `~/.claude/skills/` 即可。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
+不知道下一步做什么，就看每次响应里的下一步列表（文本模式下是「下一步：」，JSON 模式下是 `next` 数组，每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。在 Claude Code 里可以输入 `/sheltie` 让协调者代劳：把 `skills/sheltie/` 复制到 `~/.claude/skills/` 即可。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
 
 ## 开发
 
