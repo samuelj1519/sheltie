@@ -17,7 +17,7 @@ pub struct ReleaseSource {
 impl ReleaseSource {
     pub fn from_env() -> Self {
         let base = std::env::var("SHELTIE_RELEASE_BASE")
-            .unwrap_or_else(|_| "https://github.com/Samuel-J/sheltie/releases".to_string());
+            .unwrap_or_else(|_| "https://github.com/samuelj1519/sheltie/releases".to_string());
         Self { base }
     }
 
