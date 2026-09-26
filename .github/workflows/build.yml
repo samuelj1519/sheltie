@@ -58,25 +58,3 @@ jobs:
         run: scripts/check-core-vocab.sh
       - name: Check test names and owners
         run: scripts/check-tests.sh
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: build-rust
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v4
-        id: git-cliff
-        with:
-          config: cliff.toml
-          args: -vv --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
-          GITHUB_REPO: ${{ github.repository }}
-      - name: Release
-        uses: softprops/action-gh-release@v3
-        with:
-          body: ${{ steps.git-cliff.outputs.content }}
