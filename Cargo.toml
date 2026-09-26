@@ -29,9 +29,29 @@ predicates = "3"
 proptest = "1"
 tempfile = "3"
 
+
+[workspace.metadata.dist]
+cargo-dist-version = "0.32.0"
+installers = ["shell"]
+install-path = "~/.sheltie/bin"
+targets = [
+  "aarch64-apple-darwin",
+  "x86_64-apple-darwin",
+  "x86_64-unknown-linux-gnu",
+  "aarch64-unknown-linux-gnu",
+]
+ci = ["github"]
+pr-run-mode = "plan"
+github-release = "announce"
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
+
+# dist build 用的发布 profile（cargo-dist 约定）
+[profile.dist]
+inherits = "release"
+lto = "thin"

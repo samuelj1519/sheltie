@@ -11,7 +11,7 @@
 - `.github/workflows/build.yml` 的 `release` job 与 cargo-dist 的 `release.yml` 都会建 GitHub Release，同 tag 下必然打架（见 §3.2）。
 - `dist-workspace.toml` 没写 `install-path`，cargo-dist 默认装进 `~/.cargo/bin`，与 README、`self update` 假设的 `~/.sheltie/bin` 不符（见 §3.3）。
 - `release.yml` 是 T20 手写的，从没真正跑过；rc 发版就是它的试跑。
-- 执行中补充的基线（§2 实测发现）：仓库实际建在 `samuelj1519/sheltie`，而 `Cargo.toml`、`cliff.toml`、`selfmgmt.rs` 写死的是 `Samuel-J/sheltie`（见 §3.0）；cargo-dist 0.32.0 的二进制叫 `dist`，手写 release.yml 里的 `cargo dist …` 调用在 CI 会报「no such command」，由 §3.3 的再生修复。
+- 执行中补充的基线（§2、§3 实测发现）：仓库实际建在 `samuelj1519/sheltie`，而 `Cargo.toml`、`cliff.toml`、`selfmgmt.rs` 写死的是 `Samuel-J/sheltie`（见 §3.0）；cargo-dist 0.32.0 的二进制叫 `dist`，手写 release.yml 里的 `cargo dist …` 调用在 CI 会报「no such command」；T20 手写的 `dist-workspace.toml` 是 0.32.0 不认的格式（已由 §3.3 挪进 `Cargo.toml` 的 `[workspace.metadata.dist]`）；cargo-dist 以 package 名 `sheltie-cli` 命名产物与安装器（不是 `sheltie`）。
 
 ## 1. 开工前确认
 
@@ -100,20 +100,13 @@ allow_test_changes = false
 
 提交：`fix(ci): 删去 build.yml 的 release job，发布只走 cargo-dist`。
 
-### 3.3 C3：install-path 定为 ~/.sheltie/bin，再生 release.yml
+### 3.3 C3：install-path 定为 ~/.sheltie/bin，dist 配置挪进 Cargo.toml 并再生 release.yml
 
-**为什么。** cargo-dist 的 shell 安装器默认装到 `~/.cargo/bin`；README 快速开始与 `self update`/`self rollback`（存储合同 §9）管理的是 `~/.sheltie/bin/sheltie`。不改的话，install.sh 装一份、`self update` 更新另一份，用户 PATH 里的永远是旧版。
+**为什么。** 执行时发现 T20 手写的 `dist-workspace.toml` 真机不可用：0.32.0 要求 workspace 清单格式（`[workspace]` 加 `cargo:` 前缀的 members），且 `github-release = true`、`create-release = true` 两个键不符合 schema（`github-release` 要字符串）。手写 release.yml 里的 `cargo dist …` 调用同样不可用——0.32.0 的二进制只叫 `dist`。另外 cargo-dist 的 shell 安装器默认装到 `~/.cargo/bin`；README 快速开始与 `self update`/`self rollback`（存储合同 §9）管理的是 `~/.sheltie/bin/sheltie`，不加 `install-path` 的话 install.sh 装一份、`self update` 更新另一份，用户 PATH 里的永远是旧版。
 
-**改法。**
+**改法（已按实际执行修正）。**
 
-1. `dist-workspace.toml` 的 `[dist]` 段加一行：
-
-   ```toml
-   install-path = "~/.sheltie/bin"
-   ```
-
-   `cargo-dist-version` 保持 `"0.32.0"` 不动；本地 cargo-dist、cargo-dist-version、release.yml 里安装器的版本三处必须同一版本。
-
+1. 删掉 `dist-workspace.toml`，配置挪进根 `Cargo.toml` 的 `[workspace.metadata.dist]`（engineering.md §2.1 同步改）：`installers = ["shell"]`、`install-path = "~/.sheltie/bin"`、四个 target、`ci = ["github"]`、`pr-run-mode = "plan"`、`github-release = "announce"`、`cargo-dist-version = "0.32.0"`。`rust-toolchain-version` 是废弃键（0.32.0 提示用 rust-toolchain.toml），不写。
 2. 顺手让 git-cliff 永久忽略预发布 tag（否则将来重新生成 CHANGELOG 时 rc 会单独成节）。`cliff.toml` 里 `ignore_tags = ""` 改为：
 
    ```toml
@@ -123,16 +116,14 @@ allow_test_changes = false
 3. 再生发布工作流并审 diff（T20 任务卡本来就安排「T25 用 `dist generate` 校对再生」）：
 
    ```bash
-   dist generate
-   git diff --stat .github/workflows/release.yml
+   dist generate --mode=ci
    git diff .github/workflows/release.yml   # 逐行看
    ```
 
-   手写版与生成版有出入是正常的（比如生成版会补 Rust 工具链安装步骤），以生成版为准整体接受。这条工作流从没跑过，rc 发版（§5）就是它的试跑。
+   生成版与手写版差异很大是正常的：调用全部从 `cargo dist` 改为 `dist`、补了 rustup 安装与 dist 缓存。以生成版为准整体接受。之后 `dist plan` 必须能跑通并列出四个 target。
+4. **注意应用名。** cargo-dist 以 package 名 `sheltie-cli` 为应用名：产物叫 `sheltie-cli-<target>.tar.xz`、安装器叫 `sheltie-cli-installer.sh`。README 的下载 URL 与 §4 的解包核对都按这个名字来；crate 不改名。
 
-4. 本地预检：`dist plan`，确认输出里 sheltie 0.1.0 带四个 target（aarch64/x86_64 的 apple-darwin 与 unknown-linux-gnu）与 shell 安装器。
-
-提交：`chore(release): install-path 定为 ~/.sheltie/bin，dist generate 再生 release.yml`。
+提交：`chore(release): dist 配置挪进 Cargo.toml、定 install-path 并再生 release.yml`。
 
 ## 4. 核对 `self update` 的清单适配（D-30 遗留，发 rc 之前做完）
 
@@ -185,8 +176,8 @@ git push origin main v0.1.0-rc
 tag 推送同时触发 `build.yml`（docs + 两平台门禁）与 `release.yml`（plan → 四平台构建 → 全局产物 → host → announce）。预期：
 
 - `gh run list --branch v0.1.0-rc` 两个工作流都绿。四平台构建大约 15–40 分钟。
-- `gh release view v0.1.0-rc`：标了 **Pre-release**，资产里有四个 `sheltie-<target>.tar.gz`、`sheltie-installer.sh`、`dist-manifest.json` 及配套 `.sha256`。
-- 下载安装器核对安装路径：`curl -fsSL https://github.com/samuelj1519/sheltie/releases/download/v0.1.0-rc/sheltie-installer.sh | grep -m2 '.sheltie/bin'` 能命中。
+- `gh release view v0.1.0-rc`：标了 **Pre-release**，资产里有四个 `sheltie-cli-<target>.tar.xz`、`sheltie-cli-installer.sh`、`dist-manifest.json` 及配套 `.sha256`（cargo-dist 以 package 名 `sheltie-cli` 命名产物）。
+- 下载安装器核对安装路径：`curl -fsSL https://github.com/samuelj1519/sheltie/releases/download/v0.1.0-rc/sheltie-cli-installer.sh | grep -m2 '.sheltie/bin'` 能命中。
 - 按 §4 第 5 条抽查真实 `dist-manifest.json`。
 
 release.yml 是首跑，挂了就看日志修（白名单含 `.github/workflows`），修复提交写 `Task: T25`，重发新 rc（版本 `0.1.0-rc.2`，tag `v0.1.0-rc.2`，以此类推；`release.yml` 的 tag 模式与 cargo-dist 都接受带后缀的预发布）。
@@ -205,7 +196,7 @@ release.yml 是首跑，挂了就看日志修（白名单含 `.github/workflows`
 3. **实测。** 用 rc 的安装器走完整快速开始。只有 rc 存在时 `releases/latest/download/` 可能指不到它，rc 阶段用钉死版本的 URL：
 
    ```bash
-   curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.1.0-rc/sheltie-installer.sh | sh
+   curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.1.0-rc/sheltie-cli-installer.sh | sh
    export PATH="$HOME/.sheltie/bin:$PATH"
    # 之后逐字按改好的 README 走，直到 work status 显示 succeeded
    ```
@@ -231,7 +222,7 @@ release.yml 是首跑，挂了就看日志修（白名单含 `.github/workflows`
    git tag v0.1.0 && git push origin main v0.1.0
    ```
 
-4. 等 release 工作流跑完，核对 `gh release view v0.1.0`：**不是** prerelease；四个平台包、`sheltie-installer.sh`、`dist-manifest.json` 都在。
+4. 等 release 工作流跑完，核对 `gh release view v0.1.0`：**不是** prerelease；四个平台包、`sheltie-cli-installer.sh`、`dist-manifest.json` 都在。
 
 ## 8. 真实网络升级（v0.1.0-rc → v0.1.0）
 

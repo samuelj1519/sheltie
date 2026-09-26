@@ -24,7 +24,7 @@ skills/sheltie/       SKILL.md
 scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh
 tasks.toml            机器可读的任务白名单（T01 生成）
 .config/nextest.toml  测试运行配置（crash 测试串行）
-dist-workspace.toml   cargo-dist 发布配置（T20 生成）
+dist 配置            根 Cargo.toml 的 [workspace.metadata.dist]（T25 起；0.32.0 不认 T20 手写的 dist-workspace.toml）
 AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 ```
 
