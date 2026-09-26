@@ -106,7 +106,7 @@ allow_test_changes = false
 
 **改法（已按实际执行修正）。**
 
-1. 删掉 `dist-workspace.toml`，配置挪进根 `Cargo.toml` 的 `[workspace.metadata.dist]`（engineering.md §2.1 同步改）：`installers = ["shell"]`、`install-path = "~/.sheltie/bin"`、四个 target、`ci = ["github"]`、`pr-run-mode = "plan"`、`github-release = "announce"`、`cargo-dist-version = "0.32.0"`。`rust-toolchain-version` 是废弃键（0.32.0 提示用 rust-toolchain.toml），不写。
+1. 删掉 `dist-workspace.toml`，配置挪进根 `Cargo.toml` 的 `[workspace.metadata.dist]`（engineering.md §2.1 同步改）：`installers = ["shell"]`、`install-path = "~/.sheltie/bin"`、四个 target、`ci = ["github"]`、`pr-run-mode = "plan"`、`github-release = "announce"`、`cargo-dist-version = "0.32.0"`。`rust-toolchain-version` 是废弃键（0.32.0 提示用 rust-toolchain.toml），不写。另加 `[profile.dist] inherits = "release", lto = "thin"`——`dist build` 固定用 `--profile dist` 构建，T20 的手写配置没有这个 profile，CI 构建会同样失败。
 2. 顺手让 git-cliff 永久忽略预发布 tag（否则将来重新生成 CHANGELOG 时 rc 会单独成节）。`cliff.toml` 里 `ignore_tags = ""` 改为：
 
    ```toml
@@ -128,6 +128,8 @@ allow_test_changes = false
 ## 4. 核对 `self update` 的清单适配（D-30 遗留，发 rc 之前做完）
 
 `selfmgmt.rs` 的 `adapt_cargo_dist_manifest` 是按**设想**的 cargo-dist 完整清单格式写的，自动化测试用的夹具也是设想格式，真实字段从没验证过。适配层错了的症状是 `self update` 报 `UPDATE_UNAVAILABLE`。注意因果方向：**执行升级的是旧二进制**，v0.1.0 里修适配层救不了已经装出去的 rc——所以这一步放在 rc 之前，用一个 tag 都不打的方式验证。
+
+**执行记录（已发生）。** 三类不符全部命中：`artifacts` 是按产物名索引的对象（适配器按数组读）；真哈希在 `checksums.sha256`，`checksum` 字段是同名的校验文件名（适配器会把文件名当哈希，必然摘要不符）；包内布局是 `<产物名去掉扩展>/sheltie`（适配器找 `sheltie/bin/sheltie`）。已修适配层与两条测试的夹具（`fix(runtime)` 提交），存储合同 §9 第 2 步同步改写，并用 `dist build` 的真实产物本地走通 install → update（0.0.0 → 0.1.0）。另外两处 T20 手写配置的硬伤也由 §3.3 修掉：`dist build` 需要的 `[profile.dist]` 缺失、cargo-dist 二进制叫 `dist` 而不是 `cargo dist`。
 
 1. **拿真实格式的清单**（两个来源，都做更好）：
    - cargo-dist 给自己的发布就挂着完整清单：`curl -fsSL https://github.com/axodotdev/cargo-dist/releases/latest/download/dist-manifest.json -o /tmp/real-dist-manifest.json`。

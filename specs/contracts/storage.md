@@ -189,7 +189,7 @@ MVP 不提供 `clear`。删除一个 Work 的方法是手工删目录再删行�
 `self update` 的顺序：
 
 1. 查发布清单，找到当前平台（Rust target triple，如 `aarch64-apple-darwin`）的包与 sha256。没有报 `UPDATE_UNAVAILABLE`。
-2. 下载到 `tmp/<uuid>/`，算发布包文件的摘要，不符报 `UPDATE_CHECKSUM_MISMATCH` 并删 `tmp/<uuid>/`；通过后若是压缩包（`.tar.gz` / `.tar.xz`）则解包取 `sheltie/bin/sheltie`，瘦格式的资产就是二进制本身，不解包。
+2. 下载到 `tmp/<uuid>/`，算发布包文件的摘要，不符报 `UPDATE_CHECKSUM_MISMATCH` 并删 `tmp/<uuid>/`；通过后若是压缩包（`.tar.gz` / `.tar.xz`）则解包，取包内唯一名为 `sheltie` 的普通文件（cargo-dist 的布局是 `<产物名去掉扩展>/sheltie`），瘦格式的资产就是二进制本身，不解包。
 3. `rename bin/sheltie → bin/sheltie.prev`（覆盖旧的 `.prev`）。
 4. `rename tmp/<uuid>/sheltie → bin/sheltie`。
 5. 删 `tmp/<uuid>/`。
