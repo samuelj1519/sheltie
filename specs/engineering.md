@@ -22,7 +22,8 @@ examples/             三份样例 Workbook（同时是测试 fixture）
 workbooks/            可分发的业务 Workbook（spec-dev）
 skills/sheltie/       SKILL.md
 scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh
-tasks.toml            机器可读的任务白名单（T01 生成）
+specs/releases/v0.1.0/tasks.toml  MVP legacy 任务白名单
+specs/changes/        后续迭代 package；active change 自带 plan、progress、validation 与 tasks.toml
 .config/nextest.toml  测试运行配置（crash 测试串行）
 dist 配置            根 Cargo.toml 的 [workspace.metadata.dist]（T25 起；0.32.0 不认 T20 手写的 dist-workspace.toml）
 AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
@@ -58,7 +59,7 @@ cargo nextest run --all-features --no-tests=pass
 
 ### 3.1 循环
 
-MVP 期间测试由 [legacy plan](plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
+MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
 
 MVP 填空任务的循环是：
 
@@ -67,7 +68,7 @@ MVP 填空任务的循环是：
 3. 下一个红的。
 4. 全绿后跑四条门禁与 `scripts/check-task.sh Tnn`，提交。
 
-写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里（[plan.md §0.5](plan.md)）；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外五条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算；查表与换算类函数（日期、进位、修正项）的用例要覆盖每个修正项生效的区段，找不到判定输入时穷举可达定义域找第一个判定点（`from_unix_secs` 的世纪修正项在 1970 到 2100 年的用例下全部摸不到，判定点是 1970-03-01）。第六条（M2 教训）：重放与恢复类测试要断言重建出的内容与提交时逐字节一致（或摘要相等），只断言「文件存在」不够——`stats.json` 的重建口径与提交口径不一致就是这样漏掉的。
+写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里（[legacy plan §0.5](releases/v0.1.0/plan.md)）；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外五条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算；查表与换算类函数（日期、进位、修正项）的用例要覆盖每个修正项生效的区段，找不到判定输入时穷举可达定义域找第一个判定点（`from_unix_secs` 的世纪修正项在 1970 到 2100 年的用例下全部摸不到，判定点是 1970-03-01）。第六条（M2 教训）：重放与恢复类测试要断言重建出的内容与提交时逐字节一致（或摘要相等），只断言「文件存在」不够——`stats.json` 的重建口径与提交口径不一致就是这样漏掉的。
 
 ### 3.2 分层
 
@@ -144,7 +145,7 @@ MVP 填空任务的循环是：
 
 全仓措辞清扫（改名、去翻译腔）不得动 `#[cfg(test)]` 模块：测试是合同，`check-task.sh` 按「测试零改动」核对。非动不可时，由复核者逐处核实改动只是文字，然后重打 `tNN-review` 基准 tag（M1 第三轮 N1）。
 
-MVP 的逐任务与 M1–M3 审查规则保存在 [legacy plan](plan.md)。后续 change 的逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`。
+MVP 的逐任务与 M1–M3 审查规则保存在 [legacy plan](releases/v0.1.0/plan.md)。后续 change 的逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`。
 
 ## 6. 文档写法
 

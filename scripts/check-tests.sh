@@ -29,7 +29,7 @@ dups="$(echo "$owners" | awk '{print $2}' | sort | uniq -d)"
 [ -z "$dups" ] || fail "测试名重复：$(echo $dups)"
 
 # 任务卡：`### Tnn` 标题下以「**测试。**」开头的行，去掉全角括号注解后取反引号里的小写标识符。
-plan_files=(specs/plan.md)
+plan_files=(specs/releases/v0.1.0/plan.md)
 while IFS= read -r plan; do [ -n "$plan" ] && plan_files+=("$plan"); done < <(
 	find specs/changes/active -mindepth 2 -maxdepth 2 -type f -name plan.md | sort
 )

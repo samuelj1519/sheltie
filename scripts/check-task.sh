@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 提交前核对一个任务没有越界。用法：scripts/check-task.sh <task> [基准提交] [--staged]
-# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn 默认取 active package README 的基线。
+# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn 默认取 change package README 的基线。
 #
 # 检查：
 #   1. 改动范围是并集：基准以来提交说明含当前 `Task:` 的提交改动 ∪ 未提交改动。
@@ -13,7 +13,7 @@
 #   4. test_files 相对基准的测试代码零改动，只允许删 #[ignore 行（allow_test_changes = true 的任务除外）。
 #      与 files 重叠的是混合源文件：实现填充必须动文件，改查 #[cfg(test)] 起的测试模块。快照零改动。
 #   5. plan.md 本任务状态为 done。
-#   6. 最近一次提交信息含当前 `Task:` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
+#   6. 最近一个属于当前任务的提交含 `Task:` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
 set -euo pipefail
 
 task=""
@@ -44,18 +44,18 @@ if [ -z "$task" ]; then
 fi
 cd "$(dirname "$0")/.."
 
-task_table="tasks.toml"
-plan_file="specs/plan.md"
+task_table="specs/releases/v0.1.0/tasks.toml"
+plan_file="specs/releases/v0.1.0/plan.md"
 case "$task" in
 C[0-9][0-9][0-9]-T[0-9][0-9])
 	change_id="${task%%-*}"
-	active_dir="$(find specs/changes/active -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
-	if [ -z "$active_dir" ] || [ "$(printf '%s\n' "$active_dir" | grep -c .)" -ne 1 ]; then
-		echo "check-task: active change $change_id 不存在或不唯一" >&2
+	change_dir="$(find specs/changes/active specs/changes/completed -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
+	if [ -z "$change_dir" ] || [ "$(printf '%s\n' "$change_dir" | grep -c .)" -ne 1 ]; then
+		echo "check-task: active/completed change $change_id 不存在或不唯一" >&2
 		exit 2
 	fi
-	task_table="$active_dir/tasks.toml"
-	plan_file="$active_dir/plan.md"
+	task_table="$change_dir/tasks.toml"
+	plan_file="$change_dir/plan.md"
 	for required in "$task_table" "$plan_file"; do
 		[ -f "$required" ] || {
 			echo "check-task: 缺 $required" >&2
@@ -63,9 +63,9 @@ C[0-9][0-9][0-9]-T[0-9][0-9])
 		}
 	done
 	if [ "$base_given" -eq 0 ]; then
-		base="$(sed -n 's/^基线：`\([^`]*\)`.*/\1/p' "$active_dir/README.md")"
+		base="$(sed -n 's/^基线：`\([^`]*\)`.*/\1/p' "$change_dir/README.md")"
 		[ -n "$base" ] || {
-			echo "check-task: $active_dir/README.md 缺基线" >&2
+			echo "check-task: $change_dir/README.md 缺基线" >&2
 			exit 2
 		}
 	fi
@@ -210,9 +210,21 @@ if ! grep -qE "^\| $task \| done \|" "$plan_file"; then
 	fail "$plan_file 里 $task 的状态不是 done"
 fi
 
-# 6. 提交信息（提交前工作树不干净，跳过；--staged 也跳过）
+# 6. 提交信息（提交前工作树不干净，跳过；--staged 也跳过）。
+# 检查最近一个属于本任务的提交，而不是 HEAD；这样任务关闭后仍可复查。
 if [ "$staged" -eq 0 ] && [ -z "$(git status --porcelain)" ]; then
-	msg="$(git log -1 --format=%B)"
+	task_commit=""
+	while IFS= read -r c; do
+		if git log -1 --format=%B "$c" | grep "^Task: $task$" >/dev/null; then
+			task_commit="$c"
+			break
+		fi
+	done < <(git rev-list HEAD)
+	if [ -z "$task_commit" ]; then
+		fail "历史中没有含 'Task: $task' 的提交"
+		exit 1
+	fi
+	msg="$(git log -1 --format=%B "$task_commit")"
 	echo "$msg" | grep -q "^Task: $task$" || fail "提交信息缺 'Task: $task'"
 	echo "$msg" | grep -q "^Agent: " || fail "提交信息缺 'Agent:'"
 fi

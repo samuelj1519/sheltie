@@ -1,6 +1,6 @@
 # T25、T26 执行手册
 
-状态：`archived`。T25、T26 已完成；本文只保留 v0.1.0 的发布与真实宿主执行方法，不作为当前步骤。发布闭包见 [v0.1.0 release record](releases/v0.1.0.md)。
+状态：`archived`。T25、T26 已完成；本文只保留 v0.1.0 的发布与真实宿主执行方法，不作为当前步骤。发布闭包见 [v0.1.0 release record](README.md)。
 
 给执行 [plan.md](plan.md) 最后两个任务的人。两个任务都是人工任务：T25 把仓库变成可安装、可升级的 v0.1.0 发布；T26 在真实 Claude Code 里用 skill 走完一次 Work 并留记录。本手册自包含，按顺序做即可；每步写了预期结果，与预期不符就停下来对照「风险与对策」。
 
@@ -260,7 +260,7 @@ sheltie self update      # 再回到 0.1.0，留在正式版
 
 ## 10. T26：真实宿主实测
 
-T25 完成后做。目标：在真实 Claude Code 里，协调者只靠 skill 与 CLI，用 `article-review` 样例走完一次**含打回**的 Work。产生一次文档提交，不产生代码提交；发现的任何问题按 [engineering.md](engineering.md) §7 路由，不修在 T26 里。
+T25 完成后做。目标：在真实 Claude Code 里，协调者只靠 skill 与 CLI，用 `article-review` 样例走完一次**含打回**的 Work。产生一次文档提交，不产生代码提交；发现的任何问题按 [engineering.md](../../engineering.md) §7 路由，不修在 T26 里。
 
 1. **装 skill**（这是人的动作，不是引擎安装东西，`INV-3` 不涉）：
 

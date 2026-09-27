@@ -32,7 +32,7 @@ C002-T02..C002-T15 ── C002-M1 独立全链审查 ── C002-T16 宿主回�
 
 ## 2. 通用执行规则
 
-C002-T01 要先修改根权威文档与本 package 的 `tasks.toml`，明确 C002-T02 起是 post-MVP repair task。它们允许同一 Owner 修改测试、类型、实现和真实 caller，`allow_test_changes = true`；仍然一个任务一个提交、白名单闭合、每个提交可编译。MVP legacy `specs/plan.md` 与根 `tasks.toml` 不再追加。
+C002-T01 要先修改根权威文档与本 package 的 `tasks.toml`，明确 C002-T02 起是 post-MVP repair task。它们允许同一 Owner 修改测试、类型、实现和真实 caller，`allow_test_changes = true`；仍然一个任务一个提交、白名单闭合、每个提交可编译。MVP legacy `specs/releases/v0.1.0/plan.md` 与 `specs/releases/v0.1.0/tasks.toml` 不再追加。
 
 每个实现任务必须：
 
