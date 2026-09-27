@@ -1,0 +1,128 @@
+# C004 任务白名单（草案）。package 采用、移入 active/ 后生效；路径为暂定，C004-T02 按 C002 完成后的代码定死并在同一提交里更新本文件与 plan.md。
+# 用法：scripts/check-task.sh C004-Tnn [base] [--staged]。默认基准是最近一个 c004-t* tag（T02 负责让工具支持这一点，见 plan.md §0.3）。
+# files：本任务允许修改的文件或目录前缀。
+# test_files：测试所在文件；allow_test_changes = false 时只许删 #[ignore 行，与 files 重叠的混合源文件从 #[cfg(test)] 起比较；快照不许改。
+# 里程碑 C004-Mn 不经 check-task 核对，不在本表登记；审查者补测试的提交写 Task: C004-Mn。
+# 条件任务（plan.md §3）由 C004-T01 在采用决定后追加，未采用的不登记。
+
+[C004-T01]
+files = ["specs", "CONTEXT.md"]
+test_files = []
+allow_test_changes = true
+
+# 骨架与工具修复提交（plan.md §0.2 第 9 条的例外）共用本条。
+[C004-T02]
+files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "examples", "scripts", ".config", ".github", "specs/changes/active/C004-verifiable-delegation"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C004-T03]
+files = ["crates/sheltie-core/src/contract/mod.rs", "crates/sheltie-core/src/contract/parse.rs"]
+test_files = ["crates/sheltie-core/src/contract/parse.rs"]
+allow_test_changes = false
+
+[C004-T04]
+files = ["crates/sheltie-core/src/contract/load_check.rs", "crates/sheltie-core/src/flow/compile.rs"]
+test_files = ["crates/sheltie-core/src/contract/load_check.rs"]
+allow_test_changes = false
+
+[C004-T05]
+files = ["crates/sheltie-core/src/contract/evidence.rs"]
+test_files = ["crates/sheltie-core/src/contract/evidence.rs"]
+allow_test_changes = false
+
+[C004-T06]
+files = ["crates/sheltie-core/src/contract/exits.rs", "crates/sheltie-core/src/work/next.rs"]
+test_files = ["crates/sheltie-core/src/contract/exits.rs"]
+allow_test_changes = false
+
+[C004-T07]
+files = ["crates/sheltie-core/src/work/decide.rs"]
+test_files = ["crates/sheltie-core/src/work/decide.rs"]
+allow_test_changes = false
+
+[C004-T08]
+files = ["crates/sheltie-core/src/work/render.rs"]
+test_files = ["crates/sheltie-core/src/work/render.rs"]
+allow_test_changes = false
+
+[C004-T09]
+files = ["crates/sheltie-core/src/work/delivery.rs"]
+test_files = ["crates/sheltie-core/src/work/delivery.rs"]
+allow_test_changes = false
+
+[C004-T10]
+files = ["crates/sheltie-runtime/src/store/schema.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-runtime/src/store/read.rs"]
+test_files = ["crates/sheltie-runtime/tests/store.rs"]
+allow_test_changes = false
+
+[C004-T11]
+files = ["crates/sheltie-runtime/src/service.rs"]
+test_files = ["crates/sheltie-runtime/tests/service.rs"]
+allow_test_changes = false
+
+[C004-T12]
+files = ["crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/failpoint.rs"]
+test_files = ["crates/sheltie-runtime/tests/service.rs", "crates/sheltie-runtime/tests/crash.rs"]
+allow_test_changes = false
+
+[C004-T13]
+files = ["crates/sheltie-cli/src/commands/evidence.rs", "crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-cli/src/commands/attempt.rs", "crates/sheltie-cli/src/commands/workbook.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs"]
+test_files = ["crates/sheltie-cli/tests/contract.rs"]
+allow_test_changes = false
+
+[C004-T14]
+files = ["crates/sheltie-verify/src/pin.rs", "crates/sheltie-verify/src/snapshot.rs"]
+test_files = ["crates/sheltie-verify/tests/snapshot.rs"]
+allow_test_changes = false
+
+[C004-T15]
+files = ["crates/sheltie-verify/src/inputs.rs", "crates/sheltie-verify/src/scope.rs"]
+test_files = ["crates/sheltie-verify/tests/inputs.rs"]
+allow_test_changes = false
+
+[C004-T16]
+files = ["crates/sheltie-verify/src/exec.rs"]
+test_files = ["crates/sheltie-verify/tests/exec.rs"]
+allow_test_changes = false
+
+[C004-T17]
+files = ["crates/sheltie-verify/src/record.rs", "crates/sheltie-verify/src/lib.rs"]
+test_files = ["crates/sheltie-verify/tests/record.rs"]
+allow_test_changes = false
+
+[C004-T18]
+files = ["crates/sheltie-cli/src/commands/verify.rs"]
+test_files = ["crates/sheltie-cli/tests/verify.rs"]
+allow_test_changes = false
+
+# 场景任务只删 #[ignore 行；场景变红时停下交给里程碑审查者，不改生产代码。
+[C004-T19]
+files = []
+test_files = ["crates/sheltie-cli/tests/scenario_code_change.rs"]
+allow_test_changes = false
+
+[C004-T20]
+files = []
+test_files = ["crates/sheltie-cli/tests/scenario_code_change.rs"]
+allow_test_changes = false
+
+[C004-T21]
+files = []
+test_files = ["crates/sheltie-cli/tests/scenario_code_change.rs"]
+allow_test_changes = false
+
+[C004-T22]
+files = ["examples/code-change", "skills", "crates/sheltie-core/tests/examples.rs", "crates/sheltie-cli/tests/skill.rs"]
+test_files = ["crates/sheltie-core/tests/examples.rs", "crates/sheltie-cli/tests/skill.rs"]
+allow_test_changes = true
+
+[C004-T23]
+files = ["specs/changes/active/C004-verifiable-delegation"]
+test_files = []
+allow_test_changes = false
+
+[C004-T24]
+files = ["specs", "CHANGELOG.md", "Cargo.toml", "Cargo.lock", "crates/sheltie-core/Cargo.toml", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-cli/Cargo.toml", "crates/sheltie-verify/Cargo.toml"]
+test_files = []
+allow_test_changes = false

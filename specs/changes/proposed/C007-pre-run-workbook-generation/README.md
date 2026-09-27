@@ -54,6 +54,7 @@ Owner：`待采用时指定`
 4. [validation.md](validation.md)：authoring 实验与检查器的失败路径测试，目前全部为 `not_run`。
 5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 6. [review-response-2026-09-27.md](review-response-2026-09-27.md)：对独立审阅的逐条答复与本轮修订位置。
+7. [plan.md](plan.md)：第一阶段的实施计划草案，做法同 C004；检查器是仓库内不发布的独立程序 `sheltie-plan-check`，产品代码零改动；含 C004、C005 增量组与第二阶段提纲。配套 [tasks.toml](tasks.toml)（逐任务改动白名单）与 [progress.md](progress.md)（交接）。
 
 ## 采用条件
 

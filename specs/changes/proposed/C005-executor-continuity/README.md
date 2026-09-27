@@ -83,6 +83,7 @@ C005 的增量只在这些条件之外：非交互运行、周额度、跨宿主
 4. [validation.md](validation.md)：两阶段实验与失败路径测试，目前全部为 `not_run`。
 5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 6. [review-response-2026-09-27.md](review-response-2026-09-27.md)：对独立审阅的逐条答复与本轮修订位置。
+7. [plan.md](plan.md)：第一阶段的实施计划草案，做法同 C004；含 C004 增量组与第二阶段提纲。配套 [tasks.toml](tasks.toml)（逐任务改动白名单）与 [progress.md](progress.md)（交接）。
 
 ## 采用条件
 
