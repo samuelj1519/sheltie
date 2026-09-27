@@ -1,6 +1,6 @@
 //! Work 的运行时状态。整份 `WorkState` 按一列 JSON 持久化（存储合同 §1.2）。
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
@@ -295,6 +295,107 @@ pub struct WorkState {
 }
 
 impl WorkState {
+    /// 核对持久状态内部必须相符的事实。Store 负责把字段位置映射为 STORE_CORRUPT。
+    pub fn validate_persisted(&self) -> std::result::Result<(), String> {
+        if self.work_id.as_str().get(15..) != Some(self.name.as_str()) {
+            return Err("work_id 与 name 不一致".to_string());
+        }
+        if self.work_id.as_str().get(..10) != Some(self.created_at.day()) {
+            return Err("work_id 日期与 created_at 不一致".to_string());
+        }
+        if self.current.n == 0 || self.visits.get(&self.current.node) != Some(&self.current.n) {
+            return Err("current 与 visits 不一致".to_string());
+        }
+        if self.visits.values().any(|count| *count == 0) {
+            return Err("visits 含零次到达".to_string());
+        }
+
+        let mut seen = BTreeSet::new();
+        let mut running = None;
+        for (index, attempt) in self.attempts.iter().enumerate() {
+            let id = &attempt.id;
+            if id.occurrence == 0
+                || self
+                    .visits
+                    .get(&id.node)
+                    .is_none_or(|count| id.occurrence > *count)
+            {
+                return Err(format!("attempts[{index}].id 与 visits 不一致"));
+            }
+            if !seen.insert(id) {
+                return Err(format!("attempts[{index}].id 重复"));
+            }
+            let valid = match attempt.status {
+                AttemptStatus::Running => {
+                    if running.replace(attempt.occurrence()).is_some() {
+                        return Err("存在多个 running Attempt".to_string());
+                    }
+                    attempt.ended_at.is_none()
+                        && attempt.summary.is_none()
+                        && attempt.fail_reason.is_none()
+                        && attempt.outputs.is_empty()
+                }
+                AttemptStatus::Succeeded => {
+                    attempt.ended_at.is_some()
+                        && attempt.summary.is_some()
+                        && attempt.fail_reason.is_none()
+                }
+                AttemptStatus::Failed => {
+                    attempt.ended_at.is_some()
+                        && attempt.summary.is_none()
+                        && attempt.fail_reason.is_some()
+                        && attempt.outputs.is_empty()
+                }
+            };
+            if !valid {
+                return Err(format!("attempts[{index}] 的 status/结果字段不一致"));
+            }
+        }
+        if running
+            .as_ref()
+            .is_some_and(|occurrence| occurrence != &self.current)
+        {
+            return Err("running Attempt 与 current 不一致".to_string());
+        }
+        if running.is_some()
+            && self.status != WorkStatus::Active
+            && self.status != WorkStatus::Cancelled
+        {
+            return Err("running Attempt 与 Work status 不一致".to_string());
+        }
+
+        for (index, approval) in self.approvals.iter().enumerate() {
+            if !self.attempts.iter().any(|attempt| {
+                attempt.id.node == approval.node
+                    && attempt.id.occurrence == approval.occurrence
+                    && attempt.status == AttemptStatus::Succeeded
+            }) {
+                return Err(format!("approvals[{index}] 没有对应的成功 Attempt"));
+            }
+        }
+
+        let latest = self
+            .latest_attempt_of_current()
+            .map(|attempt| attempt.status);
+        let expected = match self.status {
+            WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+            | WorkStatus::Succeeded => Some(AttemptStatus::Succeeded),
+            WorkStatus::Blocked(BlockedReason::RetriesExhausted) => Some(AttemptStatus::Failed),
+            WorkStatus::Active | WorkStatus::Cancelled => None,
+        };
+        if expected.is_some_and(|status| latest != Some(status)) {
+            return Err("Work status 与当前 Attempt 不一致".to_string());
+        }
+        if self.status == WorkStatus::Blocked(BlockedReason::Gate)
+            && self.approvals.iter().any(|approval| {
+                approval.node == self.current.node && approval.occurrence == self.current.n
+            })
+        {
+            return Err("当前 gate 已批准却仍受阻".to_string());
+        }
+        Ok(())
+    }
+
     /// 冻结副本目录 `work_dir/workbook`。
     pub fn workbook_dir(&self) -> AbsPath {
         self.work_dir.join_segment("workbook")

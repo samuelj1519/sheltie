@@ -37,28 +37,114 @@ impl RequireKind {
 }
 
 /// 一条宿主资源声明。身份是 `kind + name`。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+/// Reply 快照读取需要反序列化，字段仍按 manifest 规则校验。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct HostRequire {
-    pub kind: RequireKind,
-    pub name: String,
-    pub version: Option<String>,
-    pub digest: Option<Sha256Hex>,
-    pub source: Option<String>,
+    pub(crate) kind: RequireKind,
+    pub(crate) name: String,
+    pub(crate) version: Option<String>,
+    pub(crate) digest: Option<Sha256Hex>,
+    pub(crate) source: Option<String>,
 }
 
-/// 校验过的 manifest。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct HostRequireWire {
+    kind: RequireKind,
+    name: String,
+    version: Option<String>,
+    digest: Option<Sha256Hex>,
+    source: Option<String>,
+}
+
+impl<'de> Deserialize<'de> for HostRequire {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let wire = HostRequireWire::deserialize(deserializer)?;
+        validate_id(&wire.name, "name").map_err(serde::de::Error::custom)?;
+        if wire
+            .version
+            .as_ref()
+            .is_some_and(|value| value.len() > VERSION_MAX_BYTES)
+        {
+            return Err(serde::de::Error::custom("requires.version 超过 32 字节"));
+        }
+        if wire
+            .source
+            .as_ref()
+            .is_some_and(|value| value.len() > SOURCE_MAX_BYTES)
+        {
+            return Err(serde::de::Error::custom("requires.source 超过 512 字节"));
+        }
+        Ok(Self {
+            kind: wire.kind,
+            name: wire.name,
+            version: wire.version,
+            digest: wire.digest,
+            source: wire.source,
+        })
+    }
+}
+
+impl HostRequire {
+    pub fn kind(&self) -> RequireKind {
+        self.kind
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+/// 校验过的 manifest。外部调用方只能读取，不能修改解析后的定义。
+///
+/// ```compile_fail
+/// use sheltie_core::workbook::parse_manifest;
+/// let mut manifest = parse_manifest("schema = \"workbook/v1\"\nid = \"x\"\nversion = \"1.0.0\"\nname = \"x\"\nflows = [\"flows/f.toml\"]").unwrap();
+/// manifest.flows.clear();
+/// ```
+///
+/// ```compile_fail
+/// use sheltie_core::workbook::Manifest;
+/// let _: Manifest = serde_json::from_str("{}").unwrap();
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Manifest {
-    pub id: WorkbookId,
-    pub version: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub flows: Vec<RelPath>,
-    pub requires: Vec<HostRequire>,
+    pub(crate) id: WorkbookId,
+    pub(crate) version: String,
+    pub(crate) name: String,
+    pub(crate) description: Option<String>,
+    pub(crate) flows: Vec<RelPath>,
+    pub(crate) requires: Vec<HostRequire>,
 }
 
 impl Manifest {
+    pub fn id(&self) -> &WorkbookId {
+        &self.id
+    }
+
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+
+    pub fn flows(&self) -> &[RelPath] {
+        &self.flows
+    }
+
+    pub fn requires(&self) -> &[HostRequire] {
+        &self.requires
+    }
+
     /// 按 `kind:name` 查一条声明。
     pub fn find_require(&self, kind: RequireKind, name: &str) -> Option<&HostRequire> {
         self.requires
@@ -262,6 +348,52 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Task: C002-T14
+    #[test]
+    fn host_require_snapshot_decode_accepts_valid_fields() {
+        let raw = serde_json::json!({
+            "kind": "skill",
+            "name": "company-api",
+            "version": "^1",
+            "digest": "0".repeat(64),
+            "source": "https://example.com/skill"
+        });
+        let value: HostRequire = serde_json::from_value(raw).unwrap();
+        assert_eq!(value.kind(), RequireKind::Skill);
+        assert_eq!(value.name(), "company-api");
+    }
+
+    // Task: C002-T14
+    #[test]
+    fn host_require_snapshot_decode_rejects_one_invalid_field() {
+        let valid = serde_json::json!({
+            "kind": "skill",
+            "name": "company-api",
+            "version": "^1",
+            "digest": "0".repeat(64),
+            "source": "https://example.com/skill"
+        });
+        for (field, bad) in [
+            ("name", serde_json::json!("Bad Name")),
+            (
+                "version",
+                serde_json::json!("v".repeat(VERSION_MAX_BYTES + 1)),
+            ),
+            (
+                "source",
+                serde_json::json!("x".repeat(SOURCE_MAX_BYTES + 1)),
+            ),
+            ("digest", serde_json::json!("not-a-digest")),
+        ] {
+            let mut changed = valid.clone();
+            changed[field] = bad;
+            assert!(
+                serde_json::from_value::<HostRequire>(changed).is_err(),
+                "{field} must be checked"
+            );
+        }
+    }
 
     const MINIMAL: &str = r#"
 schema = "workbook/v1"

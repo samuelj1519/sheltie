@@ -27,8 +27,9 @@ impl ResourceIndex {
         self.files.get(path)
     }
 
-    /// 测试与样例用：登记一个 UTF-8 小文件。
-    pub fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
+    /// 测试夹具登记 UTF-8 小文件，不暴露为生产 API。
+    #[cfg(any(test, feature = "testkit"))]
+    pub(crate) fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
         if let Ok(p) = RelPath::new(path) {
             self.files.insert(
                 p,

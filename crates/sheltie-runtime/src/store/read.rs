@@ -28,46 +28,38 @@ impl Store {
     /// 读一个 Work。不存在报 `NotFound`；`state_json` 解不出报 `StoreCorrupt`。
     pub fn load_work(&self, id: &WorkId) -> Result<WorkRow> {
         let conn = self.connect()?;
-        let row: Option<(i64, String)> = conn
+        let row: Option<(i64, String, String)> = conn
             .query_row(
-                "SELECT revision, state_json FROM works WHERE work_id = ?1",
+                "SELECT revision, status, state_json FROM works WHERE work_id = ?1",
                 [id.as_str()],
-                |r| Ok((r.get(0)?, r.get(1)?)),
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
             )
             .optional()?;
-        let Some((revision, state_json)) = row else {
+        let Some((revision, status, state_json)) = row else {
             return Err(Error::NotFound {
                 what: format!("Work {id}"),
             });
         };
-        Ok(WorkRow {
-            revision: revision as u64,
-            state: decode_state(id, &state_json)?,
-        })
+        decode_row(id.as_str(), revision, &status, &state_json)
     }
 
     /// 全部 Work，按 `work_id` 升序。
     pub fn list_works(&self) -> Result<Vec<WorkRow>> {
         let conn = self.connect()?;
-        let mut stmt =
-            conn.prepare("SELECT work_id, revision, state_json FROM works ORDER BY work_id")?;
+        let mut stmt = conn
+            .prepare("SELECT work_id, revision, status, state_json FROM works ORDER BY work_id")?;
         let rows = stmt.query_map([], |r| {
             Ok((
                 r.get::<_, String>(0)?,
                 r.get::<_, i64>(1)?,
                 r.get::<_, String>(2)?,
+                r.get::<_, String>(3)?,
             ))
         })?;
         let mut out = Vec::new();
         for row in rows {
-            let (work_id, revision, state_json) = row?;
-            let id = WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {
-                detail: format!("works 表的 work_id {work_id:?} 解不开：{e}"),
-            })?;
-            out.push(WorkRow {
-                revision: revision as u64,
-                state: decode_state(&id, &state_json)?,
-            });
+            let (work_id, revision, status, state_json) = row?;
+            out.push(decode_row(&work_id, revision, &status, &state_json)?);
         }
         Ok(out)
     }
@@ -179,8 +171,33 @@ fn workbook_row_of(r: &rusqlite::Row<'_>) -> rusqlite::Result<WorkbookRow> {
     })
 }
 
-fn decode_state(id: &WorkId, state_json: &str) -> Result<WorkState> {
-    serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {
-        detail: format!("Work {id} 的 state_json 解不开：{e}"),
-    })
+fn decode_row(work_id: &str, revision: i64, status: &str, state_json: &str) -> Result<WorkRow> {
+    let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
+        detail: format!("works 行 {work_id:?} 的 work_id 不合法：{e}"),
+    })?;
+    let revision = u64::try_from(revision)
+        .ok()
+        .filter(|revision| *revision > 0)
+        .ok_or_else(|| Error::StoreCorrupt {
+            detail: format!("works 行 {id} 的 revision 必须大于零"),
+        })?;
+    let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {
+        detail: format!("works 行 {id} 的 state_json 解不开：{e}"),
+    })?;
+    if state.work_id != id {
+        return Err(Error::StoreCorrupt {
+            detail: format!("works 行 {id} 的 state_json.work_id 是 {}", state.work_id),
+        });
+    }
+    if state.status.column() != status {
+        return Err(Error::StoreCorrupt {
+            detail: format!("works 行 {id} 的 status {status:?} 与 state_json.status 不一致"),
+        });
+    }
+    state
+        .validate_persisted()
+        .map_err(|detail| Error::StoreCorrupt {
+            detail: format!("works 行 {id} 的 state_json.{detail}"),
+        })?;
+    Ok(WorkRow { revision, state })
 }

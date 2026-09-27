@@ -121,64 +121,64 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
     let mut flows = Vec::with_capacity(loaded.flows.len());
     let mut text = format!(
         "workbook: {}@{}（{}）\ndigest: {}\nrequires: {}\n",
-        loaded.manifest.id,
-        loaded.manifest.version,
-        loaded.manifest.name,
+        loaded.manifest.id(),
+        loaded.manifest.version(),
+        loaded.manifest.name(),
         loaded.digest.as_str(),
-        if loaded.manifest.requires.is_empty() {
+        if loaded.manifest.requires().is_empty() {
             "无".to_string()
         } else {
             loaded
                 .manifest
-                .requires
+                .requires()
                 .iter()
-                .map(|r| format!("{}:{}", r.kind.as_str(), r.name))
+                .map(|r| format!("{}:{}", r.kind().as_str(), r.name()))
                 .collect::<Vec<_>>()
                 .join(", ")
         },
     );
     for (def, _) in &loaded.flows {
         flows.push(json!({
-            "id": def.id.as_str(),
-            "entry": def.entry.as_str(),
-            "nodes": def.nodes.iter().map(|n| json!({
-                "id": n.id.as_str(),
-                "title": n.title,
-                "executor": n.executor.as_str(),
-                "gate": n.gate,
+            "id": def.id().as_str(),
+            "entry": def.entry().as_str(),
+            "nodes": def.nodes().iter().map(|n| json!({
+                "id": n.id().as_str(),
+                "title": n.title(),
+                "executor": n.executor().as_str(),
+                "gate": n.gate(),
             })).collect::<Vec<_>>(),
-            "edges": def.edges.iter().map(|e| json!({
-                "from": e.from.as_str(),
-                "to": e.to.as_str(),
-                "kind": e.kind.as_str(),
+            "edges": def.edges().iter().map(|e| json!({
+                "from": e.from().as_str(),
+                "to": e.to().as_str(),
+                "kind": e.kind().as_str(),
             })).collect::<Vec<_>>(),
         }));
-        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id, def.entry));
-        for n in &def.nodes {
+        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        for n in def.nodes() {
             text.push_str(&format!(
                 "  {}  {}  {}{}\n",
-                n.id,
-                n.title,
-                n.executor.as_str(),
-                if n.gate { "  [gate]" } else { "" }
+                n.id(),
+                n.title(),
+                n.executor().as_str(),
+                if n.gate() { "  [gate]" } else { "" }
             ));
         }
-        for e in &def.edges {
+        for e in def.edges() {
             text.push_str(&format!(
                 "  {} -> {}（{}）\n",
-                e.from,
-                e.to,
-                e.kind.as_str()
+                e.from(),
+                e.to(),
+                e.kind().as_str()
             ));
         }
     }
     let data = json!({
-        "id": loaded.manifest.id.as_str(),
-        "version": loaded.manifest.version,
-        "name": loaded.manifest.name,
-        "description": loaded.manifest.description,
+        "id": loaded.manifest.id().as_str(),
+        "version": loaded.manifest.version(),
+        "name": loaded.manifest.name(),
+        "description": loaded.manifest.description(),
         "digest": loaded.digest.as_str(),
-        "requires": loaded.manifest.requires,
+        "requires": loaded.manifest.requires(),
         "flows": flows,
     });
     output::ok(text, None, None, data, Vec::new())

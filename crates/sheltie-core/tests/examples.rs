@@ -41,7 +41,7 @@ fn two_step_has_one_main_edge_and_no_gate() {
     let g = compile_example("two-step");
     assert_eq!(g.node_count(), 2);
     assert_eq!(g.edge_count(), 1);
-    assert!(g.nodes().all(|n| !n.gate));
+    assert!(g.nodes().all(|n| !n.gate()));
 }
 
 // Task: T11
@@ -51,15 +51,15 @@ fn article_review_has_back_edge_human_publish_and_resource_input() {
     assert!(
         g.out_edges(&id("review"))
             .iter()
-            .any(|e| e.kind == sheltie_core::flow::EdgeKind::Back)
+            .any(|e| e.kind() == sheltie_core::flow::EdgeKind::Back)
     );
-    assert_eq!(g.node(&id("publish")).unwrap().executor, Executor::Human);
+    assert_eq!(g.node(&id("publish")).unwrap().executor(), Executor::Human);
     assert!(
         g.node(&id("review"))
             .unwrap()
-            .inputs
+            .inputs()
             .iter()
-            .any(|i| matches!(i.from, sheltie_core::flow::InputSource::Resource { .. }))
+            .any(|i| matches!(i.source(), sheltie_core::flow::InputSource::Resource { .. }))
     );
 }
 
@@ -67,7 +67,7 @@ fn article_review_has_back_edge_human_publish_and_resource_input() {
 #[test]
 fn gated_release_first_node_is_gate() {
     let g = compile_example("gated-release");
-    assert!(g.node(g.entry()).unwrap().gate);
+    assert!(g.node(g.entry()).unwrap().gate());
 }
 
 // Task: T11
@@ -75,7 +75,7 @@ fn gated_release_first_node_is_gate() {
 fn no_example_declares_requires() {
     for name in ["two-step", "article-review", "gated-release", "spec-dev"] {
         let g = compile_example(name);
-        assert!(g.nodes().all(|n| n.requires.is_empty()), "{name}");
+        assert!(g.nodes().all(|n| n.requires().is_empty()), "{name}");
     }
 }
 
@@ -94,9 +94,9 @@ fn spec_dev_retro_reads_engine_stats() {
     let retro = g.node(&id("retro")).unwrap();
     assert!(
         retro
-            .inputs
+            .inputs()
             .iter()
-            .any(|i| i.from == sheltie_core::flow::InputSource::EngineStats)
+            .any(|i| i.source() == &sheltie_core::flow::InputSource::EngineStats)
     );
     assert!(g.is_terminal(&id("retro")));
 }
@@ -107,13 +107,13 @@ fn spec_dev_optional_inputs_all_point_to_reachable_upstream() {
     // 编译规则 5 已经保证；这里再确认每个可选输入都是 Node 来源。
     let g = compile_example("spec-dev");
     for n in g.nodes() {
-        for i in &n.inputs {
-            if !i.required {
+        for i in n.inputs() {
+            if !i.required() {
                 assert!(
-                    matches!(i.from, sheltie_core::flow::InputSource::Node { .. }),
+                    matches!(i.source(), sheltie_core::flow::InputSource::Node { .. }),
                     "{}.{}",
-                    n.id,
-                    i.name
+                    n.id(),
+                    i.name()
                 );
             }
         }
@@ -126,14 +126,14 @@ fn spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate() {
     let g = compile_example("spec-dev");
     let gated: Vec<_> = g
         .nodes()
-        .filter(|n| n.gate)
-        .map(|n| n.id.as_str().to_string())
+        .filter(|n| n.gate())
+        .map(|n| n.id().as_str().to_string())
         .collect();
     assert_eq!(gated, vec!["retro"]);
     let humans: Vec<_> = g
         .nodes()
-        .filter(|n| n.executor == Executor::Human)
-        .map(|n| n.id.as_str().to_string())
+        .filter(|n| n.executor() == Executor::Human)
+        .map(|n| n.id().as_str().to_string())
         .collect();
     assert_eq!(humans, vec!["plan-review", "escalate"]);
 }
@@ -144,8 +144,8 @@ fn spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review() {
     let g = compile_example("spec-dev");
     let strong: Vec<_> = g
         .nodes()
-        .filter(|n| n.tier == Some(Tier::Strong))
-        .map(|n| n.id.as_str().to_string())
+        .filter(|n| n.tier() == Some(Tier::Strong))
+        .map(|n| n.id().as_str().to_string())
         .collect();
     assert_eq!(strong, vec!["spec", "plan", "scaffold", "review"]);
 }

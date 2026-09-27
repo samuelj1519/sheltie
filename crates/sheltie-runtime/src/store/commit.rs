@@ -50,6 +50,24 @@ impl Store {
     /// ```
     /// 事务内不读文件、不算摘要。
     pub fn commit(&self, input: CommitInput) -> Result<CommitOutcome> {
+        if let Some(state) = &input.state {
+            let id = input.work_id.as_ref().ok_or_else(|| Error::StoreCorrupt {
+                detail: "写入 WorkState 时缺 work_id".to_string(),
+            })?;
+            if &state.work_id != id {
+                return Err(Error::StoreCorrupt {
+                    detail: format!(
+                        "写入目标 {id} 与 state_json.work_id {} 不一致",
+                        state.work_id
+                    ),
+                });
+            }
+            state
+                .validate_persisted()
+                .map_err(|detail| Error::StoreCorrupt {
+                    detail: format!("写入 WorkState 不合法：{detail}"),
+                })?;
+        }
         crate::failpoint::maybe_exit("before_commit");
         let mut conn = self.connect()?;
         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
@@ -80,7 +98,15 @@ impl Store {
                     .optional()?,
                 None => None,
             };
-            let actual = actual.unwrap_or(0) as u64;
+            let actual = match actual {
+                Some(value) => u64::try_from(value)
+                    .ok()
+                    .filter(|revision| *revision > 0)
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("Work revision {value} 不合法"),
+                    })?,
+                None => 0,
+            };
             if actual != expected {
                 return Err(Error::RevisionConflict { expected, actual });
             }
@@ -88,7 +114,15 @@ impl Store {
         // start（expected_revision 为 None）插入 revision 1；其他写操作在期望值上加一。
         let mut revision = 0u64;
         if let Some(state) = &input.state {
-            revision = input.expected_revision.map_or(1, |r| r + 1);
+            revision = match input.expected_revision {
+                None => 1,
+                Some(previous) => previous.checked_add(1).ok_or_else(|| Error::StoreCorrupt {
+                    detail: "Work revision 无法安全递增".to_string(),
+                })?,
+            };
+            let db_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {
+                detail: "Work revision 超过 SQLite INTEGER 上限".to_string(),
+            })?;
             let state_json = serde_json::to_string(state).map_err(|e| Error::StoreCorrupt {
                 detail: format!("序列化 WorkState 失败：{e}"),
             })?;
@@ -106,7 +140,7 @@ impl Store {
                    updated_at = excluded.updated_at",
                 rusqlite::params![
                     work_id,
-                    revision as i64,
+                    db_revision,
                     state.status.column(),
                     state_json,
                     state.created_at.as_str(),
@@ -114,6 +148,9 @@ impl Store {
                 ],
             )?;
         }
+        let audit_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {
+            detail: "审计 revision 超过 SQLite INTEGER 上限".to_string(),
+        })?;
         tx.execute(
             "INSERT INTO audit (work_id, revision, request_id, principal, command_json, at)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
@@ -122,7 +159,7 @@ impl Store {
                     .work_id
                     .as_ref()
                     .map_or_else(String::new, |w| w.as_str().to_string()),
-                revision as i64,
+                audit_revision,
                 input.request_id,
                 input.principal.0,
                 input.command_json,

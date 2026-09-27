@@ -6,6 +6,7 @@ mod common;
 use std::path::Path;
 
 use common::*;
+use sheltie_core::testkit::Fixture;
 use sheltie_runtime::workbook_repo::VerifyStatus;
 use sheltie_runtime::{Error, WorkbookRepo};
 
@@ -184,10 +185,16 @@ fn load_with_explicit_version_picks_that_version() {
     std::fs::write(src.join("workbook.toml"), m).unwrap();
     r.add(&abs(&src)).unwrap();
     assert_eq!(
-        r.load("two-step", Some("1.0.0")).unwrap().manifest.version,
+        r.load("two-step", Some("1.0.0"))
+            .unwrap()
+            .manifest
+            .version(),
         "1.0.0"
     );
-    assert_eq!(r.load("two-step", None).unwrap().manifest.version, "1.1.0");
+    assert_eq!(
+        r.load("two-step", None).unwrap().manifest.version(),
+        "1.1.0"
+    );
 }
 
 // Task: T14
@@ -254,6 +261,34 @@ fn remove_requires_explicit_version() {
         r.remove("two-step", ""),
         Err(Error::InvalidRequest { .. })
     ));
+}
+
+// Task: C002-T14
+#[test]
+fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
+    let (_dir, home) = temp_home();
+    let repo = repo(&home);
+    repo.add(&abs(&example_dir("two-step"))).unwrap();
+    let state = Fixture::two_step()
+        .started_with(&[("topic", "t")])
+        .state()
+        .clone();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "INSERT INTO works (work_id, revision, status, state_json, created_at, updated_at)
+         VALUES (?1, 1, 'succeeded', ?2, ?3, ?4)",
+        rusqlite::params![
+            state.work_id.as_str(),
+            serde_json::to_string(&state).unwrap(),
+            state.created_at.as_str(),
+            state.updated_at.as_str()
+        ],
+    )
+    .unwrap();
+    let error = repo.remove("two-step", "1.0.0").unwrap_err();
+    assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
+    assert_eq!(repo.list().unwrap().len(), 1);
+    assert!(std::path::Path::new(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
 }
 
 // Task: T15

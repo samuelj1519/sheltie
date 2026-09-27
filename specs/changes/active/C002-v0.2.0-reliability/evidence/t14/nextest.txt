@@ -1,0 +1,334 @@
+   Compiling sheltie-core v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.01s
+────────────
+ Nextest run ID 88333664-74c1-43da-857a-16076175dba2 with nextest profile: default
+    Starting 325 tests across 22 binaries
+        PASS [   0.927s] (  1/325) sheltie-cli::attempt attempt_begin_returns_brief_path_that_exists
+        PASS [   0.946s] (  2/325) sheltie-cli::replay same_request_id_different_payload_is_request_conflict
+        PASS [   0.949s] (  3/325) sheltie-cli::scenario_artifacts submit_with_symlink_output_is_rejected
+        PASS [   0.959s] (  4/325) sheltie-cli::scenario_artifacts submit_oversize_output_is_output_too_large
+        PASS [   0.970s] (  5/325) sheltie-cli::scenario_artifacts submit_without_required_output_is_output_missing_and_attempt_stays_running
+        PASS [   0.971s] (  6/325) sheltie-cli::replay same_request_id_same_payload_returns_replayed_true
+        PASS [   1.056s] (  7/325) sheltie-cli::attempt attempt_fail_then_begin_retries_same_occurrence
+        PASS [   1.071s] (  8/325) sheltie-cli::attempt attempt_submit_summary_from_at_file
+        PASS [   1.086s] (  9/325) sheltie-cli::scenario_artifacts modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified
+        PASS [   1.176s] ( 10/325) sheltie-cli::scenario_article_review review_brief_lists_checklist_resource_with_frozen_path
+        PASS [   0.014s] ( 11/325) sheltie-cli::self_cmd self_version_works_without_home
+        PASS [   0.039s] ( 12/325) sheltie-cli::skill every_command_in_skill_exists
+        PASS [   0.010s] ( 13/325) sheltie-cli::version unknown_subcommand_exits_2
+        PASS [   0.012s] ( 14/325) sheltie-cli::version version_prints_name_and_version
+        PASS [   1.269s] ( 15/325) sheltie-cli::attempt two_step_via_cli_reaches_succeeded
+        PASS [   0.188s] ( 16/325) sheltie-cli::scenario_workbook_lifecycle verify_detects_the_edit
+        PASS [   1.325s] ( 17/325) sheltie-cli::scenario_article_review next_after_review_offers_both_main_and_back_with_kinds
+        PASS [   0.329s] ( 18/325) sheltie-cli::scenario_workbook_lifecycle remove_in_use_workbook_is_rejected_with_work_list
+        PASS [   0.462s] ( 19/325) sheltie-cli::scenario_workbook_lifecycle add_second_version_marks_it_latest_and_start_defaults_to_it
+        PASS [   0.467s] ( 20/325) sheltie-cli::scenario_workbook_lifecycle editing_repository_copy_does_not_change_running_work_brief
+        PASS [   0.608s] ( 21/325) sheltie-cli::scenario_gated_release gate_node_success_blocks_work_and_next_has_only_approve_and_cancel
+        PASS [   1.577s] ( 22/325) sheltie-cli::scenario_article_review human_executor_node_is_begun_and_submitted_like_agent
+        PASS [   0.635s] ( 23/325) sheltie-cli::scenario_gated_release begin_next_node_before_approve_is_illegal_next
+        PASS [   1.586s] ( 24/325) sheltie-cli::scenario_article_review max_visits_exhaustion_blocks_with_no_legal_edge
+        PASS [   0.316s] ( 25/325) sheltie-cli::work work_id_prefix_resolves_when_unique
+        PASS [   0.666s] ( 26/325) sheltie-cli::scenario_gated_release approve_records_os_user_and_unblocks
+        PASS [   0.325s] ( 27/325) sheltie-cli::work work_list_shows_status_and_current
+        PASS [   0.738s] ( 28/325) sheltie-cli::scenario_gated_release approve_on_terminal_gate_node_succeeds_work
+        PASS [   0.308s] ( 29/325) sheltie-cli::work work_start_accepts_at_file_input
+        PASS [   0.114s] ( 30/325) sheltie-cli::workbook workbook_add_invalid_dir_exits_1_with_workbook_invalid
+        PASS [   0.466s] ( 31/325) sheltie-cli::work work_id_prefix_ambiguous_lists_candidates
+        PASS [   0.322s] ( 32/325) sheltie-cli::work work_start_default_name_is_flow_id
+        PASS [   0.329s] ( 33/325) sheltie-cli::work work_start_creates_work_and_prints_next
+        PASS [   0.544s] ( 34/325) sheltie-cli::work work_cancel_then_any_write_is_work_terminal
+        PASS [   0.146s] ( 35/325) sheltie-cli::workbook workbook_add_prints_id_version_digest
+        PASS [   0.010s] ( 36/325) sheltie-core digest::tests::of_bytes_matches_known_vector
+        PASS [   0.175s] ( 37/325) sheltie-cli::workbook workbook_add_json_has_ok_true_and_data
+        PASS [   0.009s] ( 38/325) sheltie-core digest::tests::sha256_hex_requires_64_lowercase_hex
+        PASS [   0.010s] ( 39/325) sheltie-core digest::tests::sha256_hex_short_display_and_into_string
+        PASS [   0.010s] ( 40/325) sheltie-core flow::compile::tests::accepts_optional_input_on_optional_output
+        PASS [   0.010s] ( 41/325) sheltie-core flow::compile::tests::accepts_binary_resource_input
+        PASS [   0.008s] ( 42/325) sheltie-core flow::compile::tests::compiles_article_review_example
+        PASS [   0.009s] ( 43/325) sheltie-core flow::compile::tests::graph_carries_manifest_requires_in_declaration_order
+        PASS [   0.007s] ( 44/325) sheltie-core flow::compile::tests::instruction_file_limit_is_64_kib
+        PASS [   0.015s] ( 45/325) sheltie-core flow::compile::tests::edge_count_limit_is_256
+        PASS [   0.289s] ( 46/325) sheltie-cli::work work_start_missing_input_exits_1_with_input_missing
+        PASS [   0.011s] ( 47/325) sheltie-core flow::compile::tests::node_count_limit_is_64
+        PASS [   0.008s] ( 48/325) sheltie-core flow::compile::tests::node_with_out_edges_is_not_terminal
+        PASS [   0.008s] ( 49/325) sheltie-core flow::compile::tests::rejects_duplicate_from_to
+        PASS [   0.008s] ( 50/325) sheltie-core flow::compile::tests::rejects_duplicate_node_require
+        PASS [   0.008s] ( 51/325) sheltie-core flow::compile::tests::rejects_entry_not_a_node
+        PASS [   0.008s] ( 52/325) sheltie-core flow::compile::tests::rejects_gate_node_with_empty_text
+        PASS [   0.008s] ( 53/325) sheltie-core flow::compile::tests::rejects_graph_without_terminal_node
+        PASS [   0.009s] ( 54/325) sheltie-core flow::compile::tests::rejects_input_from_node_that_cannot_reach_consumer
+        PASS [   0.009s] ( 55/325) sheltie-core flow::compile::tests::rejects_input_from_unknown_output
+        PASS [   0.008s] ( 56/325) sheltie-core flow::compile::tests::rejects_missing_resource_input_file
+        PASS [   0.008s] ( 57/325) sheltie-core flow::compile::tests::rejects_missing_instruction_file
+        PASS [   0.008s] ( 58/325) sheltie-core flow::compile::tests::rejects_node_id_engine
+        PASS [   0.008s] ( 59/325) sheltie-core flow::compile::tests::rejects_node_id_start_or_resource
+        PASS [   0.008s] ( 60/325) sheltie-core flow::compile::tests::rejects_node_require_not_declared_in_manifest
+        PASS [   0.008s] ( 61/325) sheltie-core flow::compile::tests::rejects_non_utf8_instruction
+        PASS [   0.008s] ( 62/325) sheltie-core flow::compile::tests::rejects_optional_engine_stats_input
+        PASS [   0.008s] ( 63/325) sheltie-core flow::compile::tests::rejects_optional_input_on_start_or_resource_source
+        PASS [   0.061s] ( 64/325) sheltie-core flow::compile::tests::proptest_compile_never_panics
+        PASS [   0.008s] ( 65/325) sheltie-core flow::compile::tests::rejects_required_input_on_optional_output
+        PASS [   0.010s] ( 66/325) sheltie-core flow::compile::tests::rejects_tier_on_human_node
+        PASS [   0.010s] ( 67/325) sheltie-core flow::compile::tests::rejects_self_loop_edge
+        PASS [   0.351s] ( 68/325) sheltie-cli::work work_start_with_chinese_name_creates_matching_directory
+        PASS [   0.215s] ( 69/325) sheltie-cli::workbook workbook_list_after_add_shows_one_row_marked_latest
+        PASS [   0.192s] ( 70/325) sheltie-cli::workbook workbook_remove_without_version_exits_2
+        PASS [   0.011s] ( 71/325) sheltie-core flow::compile::tests::resource_input_limit_is_32_mib
+        PASS [   0.011s] ( 72/325) sheltie-core flow::compile::tests::rejects_unreachable_node
+        PASS [   1.935s] ( 73/325) sheltie-cli::scenario_article_review downstream_binds_latest_succeeded_occurrence_output
+        PASS [   0.010s] ( 74/325) sheltie-core flow::parse::tests::input_from_parses_start_resource_and_node_forms
+        PASS [   0.011s] ( 75/325) sheltie-core flow::parse::tests::input_from_parses_engine_stats_only
+        PASS [   0.012s] ( 76/325) sheltie-core flow::parse::tests::defaults_gate_false_visits_1_retries_1
+        PASS [   1.942s] ( 77/325) sheltie-cli::scenario_article_review review_back_edge_creates_second_draft_occurrence
+        PASS [   0.176s] ( 78/325) sheltie-cli::workbook workbook_show_lists_nodes_edges_and_requires
+        PASS [   0.348s] ( 79/325) sheltie-cli::work work_status_prints_status_card
+        PASS [   0.013s] ( 80/325) sheltie-core flow::parse::tests::input_from_rejects_three_segments_for_start_and_node
+        PASS [   0.357s] ( 81/325) sheltie-cli::work work_status_json_matches_schema
+        PASS [   0.014s] ( 82/325) sheltie-core flow::parse::tests::input_from_resource_keeps_slashes_in_path
+        PASS [   0.010s] ( 83/325) sheltie-core flow::parse::tests::instruction_requires_exactly_one_of_file_or_text
+        PASS [   0.010s] ( 84/325) sheltie-core flow::parse::tests::input_required_defaults_true_and_parses_false
+        PASS [   0.882s] ( 85/325) sheltie-cli::scenario_workbook_lifecycle remove_after_work_succeeds_then_status_still_renders
+        PASS [   0.181s] ( 86/325) sheltie-cli::workbook workbook_verify_exits_1_after_tamper
+        PASS [   0.215s] ( 87/325) sheltie-cli::workbook workbook_remove_then_list_is_empty
+        PASS [   0.014s] ( 88/325) sheltie-core flow::parse::tests::instruction_text_limit_is_8192_bytes
+        PASS [   0.009s] ( 89/325) sheltie-core flow::parse::tests::max_retries_accepts_upper_bound_8
+        PASS [   0.009s] ( 90/325) sheltie-core flow::parse::tests::node_requires_rejects_bad_kind
+        PASS [   0.010s] ( 91/325) sheltie-core flow::parse::tests::node_requires_parses_kind_colon_name
+        PASS [   0.010s] ( 92/325) sheltie-core flow::parse::tests::rejects_max_visits_zero_or_over_32
+        PASS [   0.011s] ( 93/325) sheltie-core flow::parse::tests::rejects_unknown_edge_kind
+        PASS [   0.013s] ( 94/325) sheltie-core flow::parse::tests::parses_three_node_flow
+        PASS [   0.010s] ( 95/325) sheltie-core flow::parse::tests::title_limit_is_128_bytes
+        PASS [   0.010s] ( 96/325) sheltie-core ids::tests::attempt_id_formats_as_node_hash_n_dot_retry
+        PASS [   0.012s] ( 97/325) sheltie-core flow::parse::tests::tier_defaults_standard_and_parses_strong
+        PASS [   0.013s] ( 98/325) sheltie-core flow::parse::tests::rejects_output_path_brief_md
+        PASS [   0.010s] ( 99/325) sheltie-core ids::tests::attempt_id_parse_rejects_plus_sign
+        PASS [   0.011s] (100/325) sheltie-core ids::tests::attempt_id_parse_error_field_is_attempt_id
+        PASS [   0.011s] (101/325) sheltie-core ids::tests::id_accepts_exactly_64_bytes
+        PASS [   0.009s] (102/325) sheltie-core ids::tests::names_and_work_ids_convert_into_string
+        PASS [   0.012s] (103/325) sheltie-core ids::tests::kebab_id_error_field_is_snake_case
+        PASS [   0.010s] (104/325) sheltie-core ids::tests::parse_rejects_leading_zero_in_numeric_segments
+        PASS [   0.010s] (105/325) sheltie-core ids::tests::work_id_parse_rejects_each_misplaced_separator
+        PASS [   0.011s] (106/325) sheltie-core ids::tests::work_id_builds_from_day_seq_and_name
+        PASS [   0.010s] (107/325) sheltie-core ids::tests::work_id_parse_rejects_plus_sign_in_seq
+        PASS [   0.009s] (108/325) sheltie-core ids::tests::work_name_accepts_exactly_48_bytes
+        PASS [   0.009s] (109/325) sheltie-core ids::tests::work_name_rejects_over_48_bytes_and_bad_chars
+        PASS [   0.010s] (110/325) sheltie-core ids::tests::work_name_accepts_han_extension_f_h_i_and_compat_supplement
+        PASS [   0.010s] (111/325) sheltie-core ids::tests::work_name_normalizes_whitespace_and_case
+        PASS [   0.011s] (112/325) sheltie-core ids::tests::work_id_rejects_seq_zero_or_over_999
+        PASS [   0.010s] (113/325) sheltie-core ids::tests::work_name_rejects_leading_or_trailing_dash_alone
+        PASS [   0.009s] (114/325) sheltie-core ids::tests::workbook_id_rejects_uppercase_and_double_dash
+        PASS [   0.010s] (115/325) sheltie-core ids::tests::work_name_try_from_and_serde_reject_non_canonical
+        PASS [   0.010s] (116/325) sheltie-core ids::tests::workbook_id_accepts_kebab_case
+        PASS [   0.009s] (117/325) sheltie-core path::tests::abs_path_requires_absolute
+        PASS [   0.008s] (118/325) sheltie-core path::tests::paths_display_and_convert_into_string
+        PASS [   0.008s] (119/325) sheltie-core text::tests::bounded_text_deserialize_rejects_over_limit_bytes
+        PASS [   0.010s] (120/325) sheltie-core path::tests::rel_path_rejects_dotdot_and_absolute
+        PASS [   0.010s] (121/325) sheltie-core text::tests::bounded_text_rejects_over_limit_bytes
+        PASS [   0.009s] (122/325) sheltie-core work::decide::tests::approve_on_terminal_node_succeeds_work
+        PASS [   0.385s] (123/325) sheltie-cli::work work_stats_prints_table_and_json
+        PASS [   0.010s] (124/325) sheltie-core work::decide::tests::approve_rejects_when_not_blocked_on_gate
+        PASS [   0.009s] (125/325) sheltie-core work::decide::tests::begin_after_failed_attempt_increments_retry_not_occurrence
+        PASS [   0.010s] (126/325) sheltie-core work::decide::tests::begin_binds_engine_stats_and_emits_write_file
+        PASS [   0.010s] (127/325) sheltie-core work::decide::tests::approve_unblocks_and_records_principal_and_time
+        PASS [   0.011s] (128/325) sheltie-core work::decide::tests::approve_rejects_wrong_node
+        PASS [   0.011s] (129/325) sheltie-core work::decide::tests::begin_engine_stats_counts_current_attempt
+        PASS [   0.011s] (130/325) sheltie-core work::decide::tests::begin_emits_write_brief_effect
+        PASS [   0.011s] (131/325) sheltie-core work::decide::tests::begin_binds_resource_input_under_frozen_workbook_dir
+        PASS [   0.010s] (132/325) sheltie-core work::decide::tests::begin_filters_edges_whose_target_hit_max_visits
+        PASS [   0.010s] (133/325) sheltie-core work::decide::tests::begin_on_entry_creates_running_attempt_with_frozen_inputs
+        PASS [   0.013s] (134/325) sheltie-core work::decide::tests::begin_binds_optional_input_when_upstream_succeeded_later
+        PASS [   0.011s] (135/325) sheltie-core work::decide::tests::begin_leaves_optional_input_unbound_when_upstream_has_no_attempt
+        PASS [   0.010s] (136/325) sheltie-core work::decide::tests::begin_records_entered_from_occurrence_and_edge_kind
+        PASS [   0.009s] (137/325) sheltie-core work::decide::tests::begin_rejects_modified_upstream_artifact
+        PASS [   0.009s] (138/325) sheltie-core work::decide::tests::begin_rejects_node_not_in_next
+        PASS [   0.009s] (139/325) sheltie-core work::decide::tests::begin_rejects_upstream_without_succeeded_attempt
+        PASS [   0.009s] (140/325) sheltie-core work::decide::tests::begin_reply_lists_node_requires
+        PASS [   0.009s] (141/325) sheltie-core work::decide::tests::begin_with_two_engine_stats_inputs_writes_one_stats_json
+        PASS [   0.010s] (142/325) sheltie-core work::decide::tests::begin_reply_requires_ignore_crossed_kind_name_pairs
+        PASS [   0.011s] (143/325) sheltie-core work::decide::tests::begin_via_edge_increments_visits_and_occurrence
+        PASS [   0.010s] (144/325) sheltie-core work::decide::tests::cancel_from_active_and_blocked
+        PASS [   0.009s] (145/325) sheltie-core work::decide::tests::fail_at_max_retries_blocks_work
+        PASS [   0.009s] (146/325) sheltie-core work::decide::tests::next_after_success_lists_out_edges_with_kind
+        PASS [   0.010s] (147/325) sheltie-core work::decide::tests::fail_reason_limit_is_4096_bytes
+        PASS [   0.009s] (148/325) sheltie-core work::decide::tests::retry_keeps_entered_from_of_first_attempt
+        PASS [   0.011s] (149/325) sheltie-core work::decide::tests::fail_marks_attempt_failed_and_allows_retry
+        PASS [   0.011s] (150/325) sheltie-core work::decide::tests::next_when_blocked_gate_has_only_approve_and_cancel
+        PASS [   0.009s] (151/325) sheltie-core work::decide::tests::start_next_is_begin_entry_and_cancel
+        PASS [   0.008s] (152/325) sheltie-core work::decide::tests::start_records_workbook_ref_and_frozen_inputs
+        PASS [   0.010s] (153/325) sheltie-core work::decide::tests::retry_binds_engine_stats_under_retry_dir
+        PASS [   0.010s] (154/325) sheltie-core work::decide::tests::start_rejects_extra_start_input_key
+        PASS [   0.010s] (155/325) sheltie-core work::decide::tests::start_rejects_missing_start_input_key
+        PASS [   0.009s] (156/325) sheltie-core work::decide::tests::start_requires_carry_manifest_declaration_as_is
+        PASS [   0.009s] (157/325) sheltie-core work::decide::tests::start_requires_is_full_manifest_list_in_declaration_order
+        PASS [   0.010s] (158/325) sheltie-core work::decide::tests::start_sets_current_to_entry_occurrence_1
+        PASS [   0.009s] (159/325) sheltie-core work::decide::tests::submit_accepts_missing_optional_output
+        PASS [   0.008s] (160/325) sheltie-core work::decide::tests::submit_on_terminal_node_succeeds_work
+        PASS [   0.009s] (161/325) sheltie-core work::decide::tests::submit_on_gate_node_blocks_work
+        PASS [   0.011s] (162/325) sheltie-core work::decide::tests::submit_accepts_summary_of_exactly_4096_bytes
+        PASS [   0.011s] (163/325) sheltie-core work::decide::tests::submit_marks_attempt_succeeded_and_records_outputs
+        PASS [   0.009s] (164/325) sheltie-core work::decide::tests::submit_rejects_when_attempt_not_running
+        PASS [   0.009s] (165/325) sheltie-core work::decide::tests::submit_rejects_missing_required_output
+        PASS [   0.009s] (166/325) sheltie-core work::decide::tests::submit_rejects_summary_over_4096_bytes
+        PASS [   0.010s] (167/325) sheltie-core work::decide::tests::submit_on_terminal_gate_node_blocks_not_succeeds
+        PASS [   0.012s] (168/325) sheltie-core work::decide::tests::terminal_work_rejects_every_command_with_work_terminal
+        PASS [   0.013s] (169/325) sheltie-core work::decide::tests::submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge
+        PASS [   0.009s] (170/325) sheltie-core work::render::tests::brief_for_node_without_requires_omits_section
+        PASS [   0.018s] (171/325) sheltie-core work::decide::tests::submit_accepts_output_of_exactly_max_bytes
+        PASS [   0.010s] (172/325) sheltie-core work::render::tests::brief_require_row_takes_version_from_manifest_and_names_kind
+        PASS [   0.010s] (173/325) sheltie-core work::render::tests::brief_require_version_ignores_crossed_kind_name_pairs
+        PASS [   0.010s] (174/325) sheltie-core work::render::tests::next_op_renders_begin_with_node_flag
+        PASS [   0.009s] (175/325) sheltie-core work::render::tests::secs_between_matches_independent_calendar_math
+        PASS [   0.010s] (176/325) sheltie-core work::render::tests::brief_shows_entered_from_line_or_entry
+        PASS [   0.019s] (177/325) sheltie-core work::decide::tests::submit_rejects_output_over_max_bytes
+        PASS [   0.011s] (178/325) sheltie-core work::render::tests::next_op_begin_carries_executor_and_tier
+        PASS [   0.013s] (179/325) sheltie-core work::render::tests::stats_blocked_count_by_reason
+        PASS [   0.015s] (180/325) sheltie-core work::render::tests::brief_marks_unbound_optional_input_as_absent
+        PASS [   0.010s] (181/325) sheltie-core work::render::tests::stats_json_counts_visits_failures_and_entered_via
+        PASS [   0.011s] (182/325) sheltie-core work::render::tests::stats_total_and_avg_use_timestamps
+        PASS [   0.010s] (183/325) sheltie-core work::state::tests::timestamp_from_unix_secs_matches_known_dates
+        PASS [   0.010s] (184/325) sheltie-core work::state::tests::timestamp_deserialize_validates_and_serialize_is_plain_string
+        PASS [   0.012s] (185/325) sheltie-core work::render::tests::status_card_names_retries_exhausted_occurrence
+        PASS [   0.012s] (186/325) sheltie-core work::render::tests::status_card_lists_done_occurrences_in_order
+        PASS [   0.012s] (187/325) sheltie-core work::render::tests::status_card_explains_no_legal_edge
+        PASS [   0.008s] (188/325) sheltie-core work::state::tests::timestamp_unix_secs_matches_independent_calendar_math
+        PASS [   0.010s] (189/325) sheltie-core work::state::tests::timestamp_parse_accepts_utc_second_precision
+        PASS [   0.028s] (190/325) sheltie-core work::render::tests::brief_for_human_executor_ends_with_submit_command
+        PASS [   0.028s] (191/325) sheltie-core work::render::tests::brief_for_node_with_requires
+        PASS [   0.010s] (192/325) sheltie-core work::state::tests::timestamp_parse_rejects_offsets_fractions_and_impossible_dates
+        PASS [   0.028s] (193/325) sheltie-core work::render::tests::brief_for_review_node
+        PASS [   0.009s] (194/325) sheltie-core workbook::manifest::tests::description_accepts_exactly_2048_bytes
+        PASS [   0.009s] (195/325) sheltie-core workbook::manifest::tests::host_require_snapshot_decode_accepts_valid_fields
+        PASS [   0.011s] (196/325) sheltie-core workbook::manifest::tests::host_require_snapshot_decode_rejects_one_invalid_field
+        PASS [   0.010s] (197/325) sheltie-core workbook::manifest::tests::rejects_description_over_2kib
+        PASS [   0.011s] (198/325) sheltie-core workbook::manifest::tests::name_limit_is_128_bytes
+        PASS [   0.011s] (199/325) sheltie-core workbook::manifest::tests::parses_requires_with_optional_fields
+        PASS [   0.012s] (200/325) sheltie-core workbook::manifest::tests::parses_minimal_manifest
+        PASS [   0.010s] (201/325) sheltie-core workbook::manifest::tests::rejects_flow_path_with_dotdot
+        PASS [   0.011s] (202/325) sheltie-core workbook::manifest::tests::rejects_duplicate_require_kind_name
+        PASS [   0.011s] (203/325) sheltie-core workbook::manifest::tests::rejects_empty_flows
+        PASS [   0.010s] (204/325) sheltie-core workbook::manifest::tests::rejects_unknown_field
+        PASS [   0.029s] (205/325) sheltie-core work::render::tests::status_card_active_mid_flow
+        PASS [   0.011s] (206/325) sheltie-core workbook::manifest::tests::rejects_require_digest_without_sha256_prefix
+        PASS [   0.027s] (207/325) sheltie-core work::render::tests::status_card_blocked_on_gate
+        PASS [   0.031s] (208/325) sheltie-core work::render::tests::stats_table_mid_flow
+        PASS [   0.028s] (209/325) sheltie-core work::render::tests::status_card_succeeded
+        PASS [   0.012s] (210/325) sheltie-core workbook::manifest::tests::rejects_unknown_require_kind
+        PASS [   0.009s] (211/325) sheltie-core workbook::manifest::tests::rejects_wrong_schema_string
+        PASS [   0.010s] (212/325) sheltie-core workbook::manifest::tests::require_source_limit_is_512_bytes
+        PASS [   0.010s] (213/325) sheltie-core workbook::manifest::tests::same_kind_different_names_are_not_duplicates
+        PASS [   0.010s] (214/325) sheltie-core workbook::manifest::tests::require_version_limit_is_32_bytes
+        PASS [   0.011s] (215/325) sheltie-core workbook::manifest::tests::requires_limit_is_32_items
+        PASS [   0.010s] (216/325) sheltie-core::api_surface command_name_is_cli_verb
+        PASS [   0.010s] (217/325) sheltie-core::api_surface executor_as_str_is_contract_literal
+        PASS [   0.010s] (218/325) sheltie-core::examples article_review_has_back_edge_human_publish_and_resource_input
+        PASS [   0.011s] (219/325) sheltie-core::api_surface error_code_as_str_matches_serde_and_display
+        PASS [   0.011s] (220/325) sheltie-core::api_surface timestamp_day_is_date_prefix
+        PASS [   0.013s] (221/325) sheltie-core workbook::manifest::tests::version_limit_is_32_bytes
+        PASS [   0.011s] (222/325) sheltie-core::examples mutated_two_step_manifest_with_extra_field_is_rejected
+        PASS [   0.011s] (223/325) sheltie-core::examples gated_release_first_node_is_gate
+        PASS [   0.010s] (224/325) sheltie-core::examples no_example_declares_requires
+        PASS [   0.013s] (225/325) sheltie-core::examples all_examples_compile
+        PASS [   0.011s] (226/325) sheltie-core::examples spec_dev_compiles_with_eleven_nodes_twenty_four_edges
+        PASS [   0.010s] (227/325) sheltie-core::examples spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate
+        PASS [   0.013s] (228/325) sheltie-core::examples spec_dev_optional_inputs_all_point_to_reachable_upstream
+        PASS [   0.012s] (229/325) sheltie-core::examples spec_dev_retro_reads_engine_stats
+        PASS [   0.012s] (230/325) sheltie-core::examples spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review
+        PASS [   0.012s] (231/325) sheltie-core::examples two_step_has_one_main_edge_and_no_gate
+        PASS [   0.011s] (232/325) sheltie-runtime::home_observe confine_errors_on_unreadable_ancestor
+        PASS [   0.011s] (233/325) sheltie-runtime::home_observe confine_rejects_dotdot_absolute_and_empty_segment
+        PASS [   0.010s] (234/325) sheltie-runtime::home_observe observe_file_rejects_symlink_and_directory
+        PASS [   0.011s] (235/325) sheltie-runtime::home_observe home_prefers_cli_then_env_then_default
+        PASS [   0.012s] (236/325) sheltie-runtime::home_observe confine_rejects_symlink_escaping_root
+        PASS [   0.011s] (237/325) sheltie-runtime::home_observe observe_file_sha256_matches_known_vector
+        PASS [   0.012s] (238/325) sheltie-runtime::home_observe resource_index_marks_non_utf8
+        PASS [   0.010s] (239/325) sheltie-runtime::selfmgmt platform_matches_supported_target_triples
+        PASS [   0.065s] (240/325) sheltie-runtime::selfmgmt install_prints_path_hint_and_does_not_touch_rc_by_default
+        PASS [   0.099s] (241/325) sheltie-runtime::selfmgmt install_copies_current_exe_and_is_idempotent
+        PASS [   0.096s] (242/325) sheltie-runtime::selfmgmt rollback_recovers_when_current_missing
+        PASS [   0.111s] (243/325) sheltie-runtime::selfmgmt uninstall_purge_requires_yes
+        PASS [   0.118s] (244/325) sheltie-runtime::selfmgmt install_replaces_divergent_binary_instead_of_short_circuit
+        PASS [   0.110s] (245/325) sheltie-runtime::selfmgmt update_reports_unavailable_when_no_asset_for_platform
+        PASS [   0.120s] (246/325) sheltie-runtime::selfmgmt update_adapts_cargo_dist_manifest_format
+        PASS [   0.120s] (247/325) sheltie-runtime::selfmgmt update_rejects_checksum_mismatch_and_leaves_binary_intact
+        PASS [   0.115s] (248/325) sheltie-runtime::selfmgmt update_version_flag_mismatch_is_unavailable
+        PASS [   0.125s] (249/325) sheltie-runtime::selfmgmt update_replaces_binary_and_keeps_prev
+        PASS [   0.127s] (250/325) sheltie-runtime::selfmgmt rollback_swaps_prev_back
+        PASS [   0.211s] (251/325) sheltie-runtime::selfmgmt update_unpacks_tarball_asset_and_keeps_executable_bit
+        PASS [   0.243s] (252/325) sheltie-runtime::selfmgmt update_unpacks_tgz_named_asset
+        PASS [   0.401s] (253/325) sheltie-runtime::selfmgmt uninstall_keeps_store_and_works
+        PASS [   0.398s] (254/325) sheltie-runtime::service begin_on_tampered_frozen_copy_is_store_corrupt
+        PASS [   0.415s] (255/325) sheltie-runtime::service resolve_work_rejects_unknown_prefix
+        PASS [   0.489s] (256/325) sheltie-runtime::service audit_stores_command_with_instruction_text_redacted
+        PASS [   0.462s] (257/325) sheltie-runtime::service begin_loads_graph_from_frozen_copy_not_repository
+        PASS [   0.434s] (258/325) sheltie-runtime::service missing_frozen_copy_is_store_corrupt_for_begin_and_status
+        PASS [   0.355s] (259/325) sheltie-runtime::service resolve_work_unique_prefix_resolves
+        PASS [   0.519s] (260/325) sheltie-runtime::service begin_replay_returns_original_reply_and_rewrites_brief
+        PASS [   0.519s] (261/325) sheltie-runtime::service begin_same_request_id_different_node_is_request_conflict
+        PASS [   0.519s] (262/325) sheltie-runtime::service begin_writes_brief_md_with_absolute_input_paths
+        PASS [   0.295s] (263/325) sheltie-runtime::service start_allocates_work_id_with_today_and_seq_001
+        PASS [   0.581s] (264/325) sheltie-runtime::service concurrent_writers_one_gets_revision_conflict
+        PASS [   0.616s] (265/325) sheltie-runtime::service begin_binds_resource_input_to_frozen_copy_path
+        PASS [   0.147s] (266/325) sheltie-runtime::store allocate_seq_is_not_reused_after_failed_start
+        PASS [   0.543s] (267/325) sheltie-runtime::service response_revision_increments_with_each_commit
+        PASS [   0.286s] (268/325) sheltie-runtime::service start_copies_workbook_into_work_dir_readonly
+        PASS [   0.711s] (269/325) sheltie-runtime::service begin_replay_regenerates_missing_stats_json
+        PASS [   0.161s] (270/325) sheltie-runtime::store commit_inserts_state_audit_and_request_atomically
+        PASS [   0.330s] (271/325) sheltie-runtime::service start_same_request_id_different_inputs_is_request_conflict
+        PASS [   0.179s] (272/325) sheltie-runtime::store allocate_seq_starts_at_1_per_day_and_increments
+        PASS [   0.101s] (273/325) sheltie-runtime::store commit_rejects_revision_overflow_without_negative_row
+        PASS [   0.109s] (274/325) sheltie-runtime::store commit_rejects_mismatched_state_identity_without_writing
+        PASS [   0.112s] (275/325) sheltie-runtime::store commit_rejects_same_request_id_different_payload
+        PASS [   0.371s] (276/325) sheltie-runtime::service start_replay_returns_same_work_id_without_new_seq
+        PASS [   0.049s] (277/325) sheltie-runtime::store insert_workbook_on_readonly_store_is_not_workbook_exists
+        PASS [   0.098s] (278/325) sheltie-runtime::store commit_rejects_stale_revision
+        PASS [   0.365s] (279/325) sheltie-runtime::service status_card_regenerated_after_each_commit
+        PASS [   0.059s] (280/325) sheltie-runtime::store commit_replays_same_request_id_and_payload
+        PASS [   0.053s] (281/325) sheltie-runtime::store load_rejects_invalid_state_combination
+        PASS [   0.030s] (282/325) sheltie-runtime::store load_rejects_running_attempt_on_different_current_occurrence
+        PASS [   0.021s] (283/325) sheltie-runtime::store open_creates_schema_with_user_version_1
+        PASS [   0.374s] (284/325) sheltie-runtime::service status_works_after_workbook_removed
+        PASS [   0.012s] (285/325) sheltie-runtime::store open_readonly_on_missing_db_is_not_found
+        PASS [   0.026s] (286/325) sheltie-runtime::store load_rejects_running_attempt_with_end_time
+        PASS [   0.020s] (287/325) sheltie-runtime::store open_readonly_on_existing_db_succeeds
+        PASS [   0.020s] (288/325) sheltie-runtime::store open_rejects_same_version_different_table_shape
+        PASS [   0.379s] (289/325) sheltie-runtime::service tampered_resource_input_is_store_corrupt_not_artifact_modified
+        PASS [   0.020s] (290/325) sheltie-runtime::store open_rejects_wrong_user_version
+        PASS [   0.021s] (291/325) sheltie-runtime::store open_rejects_same_whitespace_different_column_type
+        PASS [   0.024s] (292/325) sheltie-runtime::store status_column_mirrors_state_json
+        PASS [   0.070s] (293/325) sheltie-runtime::store load_rejects_row_identity_status_and_revision_mismatch
+        PASS [   0.040s] (294/325) sheltie-runtime::workbook_repo add_failure_leaves_no_staging_and_no_row
+        PASS [   0.059s] (295/325) sheltie-runtime::store store_accepts_real_running_and_failed_attempt_states
+        PASS [   0.084s] (296/325) sheltie-runtime::workbook_repo add_rejects_hard_link_inside_workbook
+        PASS [   0.087s] (297/325) sheltie-runtime::workbook_repo add_rejects_non_regular_file
+        PASS [   0.094s] (298/325) sheltie-runtime::workbook_repo add_rejects_symlink_inside_workbook
+        PASS [   0.110s] (299/325) sheltie-runtime::workbook_repo add_rejects_file_over_32mib
+        PASS [   0.139s] (300/325) sheltie-runtime::workbook_repo add_rejects_duplicate_id_version_with_workbook_exists
+        PASS [   0.130s] (301/325) sheltie-runtime::workbook_repo add_two_step_example_copies_and_marks_readonly
+        PASS [   0.526s] (302/325) sheltie-runtime::service two_step_runs_to_succeeded
+        PASS [   0.251s] (303/325) sheltie-runtime::workbook_repo load_recompiles_graph_from_installed_copy
+        PASS [   0.309s] (304/325) sheltie-runtime::workbook_repo add_rejects_when_total_over_256mib
+        PASS [   0.226s] (305/325) sheltie-runtime::workbook_repo remove_requires_explicit_version
+        PASS [   0.321s] (306/325) sheltie-runtime::workbook_repo remove_moves_dir_to_tmp_before_delete
+        PASS [   0.357s] (307/325) sheltie-runtime::workbook_repo remove_deletes_row_and_directory
+        PASS [   0.243s] (308/325) sheltie-runtime::workbook_repo remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal
+        PASS [   0.415s] (309/325) sheltie-runtime::workbook_repo load_with_explicit_version_picks_that_version
+        PASS [   0.449s] (310/325) sheltie-runtime::workbook_repo list_orders_by_id_then_version
+        PASS [   0.192s] (311/325) sheltie-runtime::workbook_repo verify_reports_missing_when_directory_gone
+        PASS [   0.268s] (312/325) sheltie-runtime::workbook_repo verify_all_when_filter_omitted
+        PASS [   0.419s] (313/325) sheltie-runtime::workbook_repo remove_rejects_when_active_work_references_version
+        PASS [   0.188s] (314/325) sheltie-runtime::workbook_repo verify_reports_ok_for_untouched_install
+        PASS [   0.121s] (315/325) sheltie-runtime::workbook_repo verify_reports_tampered_after_byte_change
+        PASS [   0.472s] (316/325) sheltie-runtime::workbook_repo remove_allows_when_only_terminal_works_reference_version
+        PASS [   0.469s] (317/325) sheltie-runtime::workbook_repo remove_allows_when_other_workbook_shares_version
+        PASS [   0.816s] (318/325) sheltie-runtime::store allocate_seq_under_two_threads_yields_distinct_numbers
+        PASS [   1.497s] (319/325) sheltie-runtime::store allocate_seq_rejects_1000th_of_day
+        PASS [   3.570s] (320/325) sheltie-runtime::selfmgmt install_modify_path_appends_export_line_to_shell_rc
+        PASS [   4.657s] (321/325) sheltie-runtime::crash kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and_rewrites_brief
+        PASS [   0.432s] (322/325) sheltie-runtime::crash kill_before_commit_leaves_state_unchanged_and_replay_succeeds
+        PASS [   0.366s] (323/325) sheltie-runtime::crash kill_between_update_renames_leaves_prev_and_rollback_recovers
+        PASS [   0.062s] (324/325) sheltie-runtime::crash status_card_missing_is_regenerated_on_next_write
+        PASS [   9.051s] (325/325) sheltie-runtime::workbook_repo add_accepts_files_at_exact_limits
+────────────
+     Summary [  12.046s] 325 tests run: 325 passed, 0 skipped

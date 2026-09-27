@@ -299,3 +299,202 @@ fn allocate_seq_under_two_threads_yields_distinct_numbers() {
     assert_eq!(all.len(), 100);
     let _ = testkit::now();
 }
+
+// Task: C002-T14
+#[test]
+fn load_rejects_row_identity_status_and_revision_mismatch() {
+    for corruption in ["identity", "status", "revision"] {
+        let (_dir, home) = temp_home();
+        let store = open_rw(&home);
+        let state = state_fixture();
+        store.commit(input(&state, "r1", "p1", None)).unwrap();
+        let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+        match corruption {
+            "identity" => {
+                let mut json = serde_json::to_value(&state).unwrap();
+                json["work_id"] = serde_json::json!("2026-09-24-999-other");
+                conn.execute("UPDATE works SET state_json = ?1", [json.to_string()])
+                    .unwrap();
+            }
+            "status" => {
+                conn.execute("UPDATE works SET status = 'succeeded'", [])
+                    .unwrap();
+            }
+            "revision" => {
+                conn.execute("UPDATE works SET revision = -1", []).unwrap();
+            }
+            _ => unreachable!(),
+        }
+        let error = store.load_work(&state.work_id).unwrap_err();
+        assert!(
+            matches!(&error, Error::StoreCorrupt { .. }),
+            "{corruption}: {error}"
+        );
+        assert!(
+            matches!(store.list_works(), Err(Error::StoreCorrupt { .. })),
+            "{corruption} must also stop list"
+        );
+    }
+}
+
+// Task: C002-T14
+#[test]
+fn load_rejects_invalid_state_combination() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    store.commit(input(&state, "r1", "p1", None)).unwrap();
+    let mut json = serde_json::to_value(&state).unwrap();
+    json["status"] = serde_json::json!({"kind": "blocked", "reason": "gate"});
+    let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE works SET status = 'blocked', state_json = ?1",
+        [json.to_string()],
+    )
+    .unwrap();
+    let error = store.load_work(&state.work_id).unwrap_err();
+    assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
+    assert!(error.to_string().contains("status 与当前 Attempt"));
+}
+
+// Task: C002-T14
+#[test]
+fn load_rejects_running_attempt_with_end_time() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let mut fixture = Fixture::two_step().started_with(&[("topic", "t")]);
+    store
+        .commit(input(fixture.state(), "r1", "start", None))
+        .unwrap();
+    let node = fixture.state().current.node.as_str().to_string();
+    fixture.begin(&node).unwrap();
+    store
+        .commit(input(fixture.state(), "r2", "begin", Some(1)))
+        .unwrap();
+
+    let mut json = serde_json::to_value(fixture.state()).unwrap();
+    json["attempts"][0]["ended_at"] = serde_json::json!("2026-09-24T03:00:00Z");
+    let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    conn.execute("UPDATE works SET state_json = ?1", [json.to_string()])
+        .unwrap();
+    let error = store.load_work(&fixture.state().work_id).unwrap_err();
+    assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
+    assert!(error.to_string().contains("attempts[0]"));
+}
+
+// Task: C002-T14
+#[test]
+fn load_rejects_running_attempt_on_different_current_occurrence() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let mut fixture = Fixture::two_step().started_with(&[("topic", "t")]);
+    fixture.begin("outline").unwrap();
+    fixture.submit_ok("outline#1.0", "完成提纲").unwrap();
+    fixture.begin("summary").unwrap();
+    let state = fixture.state();
+    assert!(state.validate_persisted().is_ok());
+
+    let mut json = serde_json::to_value(state).unwrap();
+    json["current"]["node"] = serde_json::json!("outline");
+    let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    conn.execute(
+        "INSERT INTO works (work_id, revision, status, state_json, created_at, updated_at)
+         VALUES (?1, 4, 'active', ?2, ?3, ?4)",
+        rusqlite::params![
+            state.work_id.as_str(),
+            json.to_string(),
+            state.created_at.as_str(),
+            state.updated_at.as_str()
+        ],
+    )
+    .unwrap();
+    let error = store.load_work(&state.work_id).unwrap_err();
+    assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
+    assert!(error.to_string().contains("running Attempt 与 current"));
+}
+
+// Task: C002-T14
+#[test]
+fn commit_rejects_mismatched_state_identity_without_writing() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    let mut wrong = input(&state, "r1", "p1", None);
+    wrong.work_id = Some(sheltie_core::ids::WorkId::parse("2026-09-24-999-other").unwrap());
+    assert!(matches!(
+        store.commit(wrong),
+        Err(Error::StoreCorrupt { .. })
+    ));
+    assert!(store.list_works().unwrap().is_empty());
+    let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    let requests: i64 = conn
+        .query_row("SELECT count(*) FROM requests", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(requests, 0);
+}
+
+// Task: C002-T14
+#[test]
+fn commit_rejects_revision_overflow_without_negative_row() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    conn.execute(
+        "INSERT INTO works (work_id, revision, status, state_json, created_at, updated_at)
+         VALUES (?1, ?2, 'active', ?3, ?4, ?5)",
+        rusqlite::params![
+            state.work_id.as_str(),
+            i64::MAX,
+            serde_json::to_string(&state).unwrap(),
+            state.created_at.as_str(),
+            state.updated_at.as_str()
+        ],
+    )
+    .unwrap();
+    assert_eq!(
+        store.load_work(&state.work_id).unwrap().revision,
+        i64::MAX as u64
+    );
+    let error = store
+        .commit(input(&state, "r2", "after-max", Some(i64::MAX as u64)))
+        .unwrap_err();
+    assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
+    let revision: i64 = conn
+        .query_row("SELECT revision FROM works", [], |row| row.get(0))
+        .unwrap();
+    let requests: i64 = conn
+        .query_row("SELECT count(*) FROM requests", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(revision, i64::MAX);
+    assert_eq!(requests, 0);
+}
+
+// Task: C002-T14
+#[test]
+fn store_accepts_real_running_and_failed_attempt_states() {
+    let (_dir, home) = temp_home();
+    let store = open_rw(&home);
+    let mut fixture = Fixture::two_step().started_with(&[("topic", "t")]);
+    store
+        .commit(input(fixture.state(), "r1", "start", None))
+        .unwrap();
+
+    let node = fixture.state().current.node.as_str().to_string();
+    fixture.begin(&node).unwrap();
+    store
+        .commit(input(fixture.state(), "r2", "begin", Some(1)))
+        .unwrap();
+    assert_eq!(
+        store.load_work(&fixture.state().work_id).unwrap().revision,
+        2
+    );
+
+    fixture.fail(&format!("{node}#1.0"), "需要重试").unwrap();
+    store
+        .commit(input(fixture.state(), "r3", "fail", Some(2)))
+        .unwrap();
+    let row = store.load_work(&fixture.state().work_id).unwrap();
+    assert_eq!(row.revision, 3);
+    assert_eq!(&row.state, fixture.state());
+}
