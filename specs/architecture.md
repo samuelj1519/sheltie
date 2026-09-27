@@ -67,7 +67,8 @@ pub struct WorkState {
     visits: BTreeMap<NodeId, u32>,
     attempts: Vec<Attempt>,
     approvals: Vec<Approval>,                         // gate 批准记录
-    revision: u64, created_at, updated_at,
+    blocked_count: u32,                               // 累计受阻事实，由状态转换递增（GF-29）
+    created_at, updated_at,
 }
 pub struct Occurrence { node: NodeId, n: u32 }
 pub struct Attempt {
@@ -111,6 +112,8 @@ pub struct Decision { state: WorkState, effects: Vec<Effect>, reply: Reply }
 
 `observed` 是 runtime 在调用前对输出目录做的只读观察（路径、大小、sha256）。core 拿观察对照合同，不自己读文件。这就是 `INV-6` 的落点：摘要由 runtime 算，不由模型报。
 
+core 另外提供两个纯函数作为 start 的共享事实源（GF-30）：`start_requirements(graph)` 返回图里全部 `start.<key>` 键（按节点声明顺序首次出现），`validate_start_inputs(graph, keys)` 校验给出的键集合恰好相等。decide、runtime preflight 与 `workbook show` 用同一份结果，不各自重算。
+
 ### 3.1 合法下一步
 
 ```rust
@@ -143,49 +146,64 @@ core 不做 I/O，但会告诉 runtime 做什么：
 
 效果在事务提交后执行。效果失败不回滚状态，只记日志；状态卡可随时从状态重新生成。
 
+runtime 另有一层**发布效果**（目录级），不是 core Effect：`publish_dir`（把 `pending/<内部 id>/` 原子改名为最终目录）、`delete_dir`（把已核归属的目录移入本操作自己的 pending 再删除）。发布效果随请求登记进 `requests.effects_json`，带完成标记；崩溃后由下一次写操作在同一管理根写锁内恢复（[存储合同 §5](contracts/storage.md)）。文件级效果的精确字节同样登记，保证历史任务书与 `stats.json` 按提交时字节恢复，而不是从最新状态重算。
+
 ## 4. 一次写操作的流程
 
+写操作分三段：只读预检、持锁执行、提交后发布（[存储合同 §2](contracts/storage.md)）。
+
 ```text
-CLI 解析参数
- → runtime.load(work_id)            读 WorkState + 编译好的 Graph（缓存不可变定义）
- → runtime.observe(cmd)             只读观察：输出文件、输入文件当前摘要
- → core::decide(state, graph, cmd, ctx)
- → store.commit(work_id, expected_revision, new_state, audit_row, request_id)
-        单个 SQLite 事务：revision CAS + request_id 去重 + 状态 + 审计
- → runtime.apply_effects(effects)
- → CLI 渲染 reply + next
+CLI 解析参数（@file 读取失败在此结束，退出码 2）
+ → 只读预检：识别已有 schema、按 request_id 查可重放请求、解析目标、
+   完成全部确定性校验（Workbook/Flow/名字/起始输入键）。不建目录、不建锁、不写 PRAGMA。
+ → 取得管理根写锁（合法写操作才创建管理根与 .lock；只读命令永远不碰）
+ → 锁内：
+     重核 schema、request_id 与受并发影响的前置事实
+     恢复未完成的发布效果（先于一切新命令）
+     runtime.load(work_id) / 解析 Workbook
+     runtime.observe(cmd)             只读观察：输出文件、输入文件当前摘要
+     core::decide(state, graph, cmd, ctx)
+     store.commit(...)                单个 SQLite 事务：request 去重 + revision CAS + 状态 + 审计 + 效果登记
+     发布效果（rename pending → 最终目录、写 brief/stats、封存、状态卡）并标记完成
+ → CLI 渲染 ResponseSnapshot + next
 ```
 
-同一个 `request_id` 第二次到达时，`store.commit` 在事务里查到原记录：载荷相同返回原 reply，不同报 `REQUEST_CONFLICT`。这两种情形都不再调用 core。
+同一个 `request_id` 在预检或事务内命中已提交记录：意图相同返回原 `ResponseSnapshot`（`replayed = true`），不同报 `REQUEST_CONFLICT`。这两种情形都不再调用 core。CLI 不再在提交后回读 Store 拼响应——响应字段全部来自提交时快照。
 
-`work start` 多一步：在 `observe` 之前先用一个独立的小事务分配当日序号并拼出 `work_id`（[存储合同 §7](contracts/storage.md)），之后才能建目录、写起始输入、观察、决定、提交。序号一旦分配不回收，`start` 后续失败会留下一个空号，这是接受的代价。
+`work start` 的当日序号在锁内、目录物化之前用独立小事务分配（[存储合同 §7](contracts/storage.md)）。序号一旦分配不回收，`start` 在序号之后的失败会留下一个空号，这是接受的代价；确定性拒绝（缺输入、非法名字、缺 Workbook/Flow）发生在分配之前，不烧号（GF-30）。
 
 ## 5. 目录布局
 
-管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。只有 runtime 能写这棵树。
+管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。只有 runtime 能写这棵树。所有 managed 路径（Store、锁、workbooks、works、pending、tmp、bin 及恢复与删除目标）都从根派生并经 `confine` 检查。
 
 ```text
 ~/.sheltie/
+  store.db                          SQLite，SCHEMA_VERSION = 2（schema 1 明确拒绝）
+  .lock                             管理根写锁（写操作创建；只读命令不碰）
   bin/sheltie                       当前二进制；bin/sheltie.prev 供回滚
-  tmp/                              下载与 staging，随时可删
-  store.db                          SQLite，SCHEMA_VERSION = 1
-  workbooks/<id>/<version>/         workbook add 复制进来的目录，只读
+  tmp/                              下载与解包等一次性暂存，可按年龄清理
+  pending/<内部 id>/                Store 拥有的发布暂存：已提交未发布原件、待删除目录。
+                                     永不按年龄清理；只按 Store 登记恢复或清理
+  workbooks/<id>/<version>/         workbook add 复制进来的目录，只读（含根）
     workbook.toml
     flows/<flow-id>.toml
     instructions/*.md
     resources/*                     可选，用 resource.<path> 绑成节点输入
   works/<work-id>/
+    status-card.md                  投影，从最新状态生成
     workbook/                       start 时复制的冻结副本；本 Work 之后只读这里
-    status-card.md                  投影，可重生成
-    inputs/<key>                    起始输入物化成文件
-    attempts/<node>/<n>/<retry>/    每次 Attempt 一个目录
+    start-inputs/<key>              起始输入物化成文件
+    attempts/<node>/occurrence-001/attempt-000/
       brief.md                      任务书（引擎写）
-      <declared output paths>       工作 agent 写；提交后封存
+      engine/stats.json             engine.stats 输入（引擎写）
+      outputs/<declared-path>       工作 agent 写；提交后封存
 ```
 
-产物不复制。输出文件在 Attempt 目录里原地封存，以 `ArtifactRef.sha256` 为准；下游绑定时重算摘要核对。
+路径由 core 的单一 `WorkLayout` 函数生成：`AttemptId = node#n.retry` 保持原含义，目录标签 `occurrence-001` / `attempt-000` 只是零补齐的浏览形式。引擎文件（`brief.md`、`engine/stats.json`）与 worker 输出（`outputs/` 之下）分目录，输出声明路径不再与引擎文件比较。
 
-Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/workbook/` 编译图，不读 `workbooks/`。于是 `workbook remove` 与升级都不牵连运行中的 Work（[存储合同 §5.1](contracts/storage.md)）。
+产物不复制。输出文件在 Attempt 的 `outputs/` 下原地封存，以 `ArtifactRef.sha256` 为准；下游绑定时重算摘要核对。
+
+Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/workbook/` 编译图，不读 `workbooks/`。于是 `workbook remove` 与升级都不牵连运行中的 Work（[存储合同 §5.4](contracts/storage.md)）。
 
 ## 6. 不变式的机械落点
 
@@ -206,7 +224,9 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 | 序列化 | `serde` + `toml` + `serde_json` | Workbook 用 TOML，状态与 `--json` 用 JSON。`#[serde(deny_unknown_fields)]` 实现「未知字段拒绝」 |
 | 存储 | `rusqlite`（`bundled`） | 单文件、事务、零运维。WAL 模式 |
 | ID | `work_id` 为 `<UTC 日期>-<当日序号>-<名字>`；`request_id` 用 `uuid` v7 | `work_id` 对人可读、目录名即 id；序号在 SQLite 事务内分配（见 [存储合同 §7](contracts/storage.md)） |
-| 摘要 | `sha2` | 产物冻结 |
+| 摘要 | `sha2` | 产物冻结与 `workbook-digest/v2` |
+| 管理根写锁 | `fs4`（std 文件的排他锁） | 文件生命周期串行化；进程退出由 OS 释放（D-035） |
+| OS 主体 | `libc`（`geteuid` + `getpwuid_r`，仅 unix） | 真实进程身份，不采信 `USER`/`USERNAME`（D-036） |
 | 错误 | `thiserror` | 每个 crate 一个错误枚举；CLI 映射为错误码与退出码 |
 | 路径 | `camino` | UTF-8 路径，避免 `OsStr` 泛滥 |
 | 测试 | `insta`（状态卡快照）、`assert_cmd` + `tempfile`（CLI 端到端）、`proptest`（图编译） | 测行为，不测私有 helper |

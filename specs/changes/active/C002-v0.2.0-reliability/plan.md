@@ -1,8 +1,8 @@
 # C002 实施计划
 
-状态：`proposed`，全部产品修复 `not_run`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。本计划尚未采用，不是当前任务授权。
+状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 由用户采用，本计划是当前实施进度的唯一权威。
 
-先读 [spec.md](spec.md) 与 [design.md](design.md)，按 [findings.md](findings.md) 逐项关闭。保留旧 C002 的任务 ID 便于引用，但下列范围、依赖和兼容策略取代旧卡片。
+先读 [spec.md](spec.md) 与 [design.md](design.md)，按 [findings.md](findings.md) 逐项关闭。保留旧 C002 的任务 ID 便于引用，但下列范围、依赖和兼容策略取代旧卡片。任务白名单见 [tasks.toml](tasks.toml)，跨会话交接见 [progress.md](progress.md)，执行证据记入 [validation.md](validation.md)。
 
 ## 1. 采用与执行规则
 
@@ -14,28 +14,28 @@
 
 ## 2. 任务与依赖
 
-全部状态为 `not_run`；采用后才创建实施状态表。
+实施状态只在下表维护：`not_run / doing / done / blocked`。T16 与 T17 含只有用户能完成的动作，保持 `not_run` 不是异常。
 
-| ID | 责任角色 | 任务 | 依赖 |
+| ID | 状态 | 任务 | 依赖 |
 | --- | --- | --- | --- |
-| C002-T01 | 方案 Owner | 固定上游合同、兼容性与任务治理 | 人采用 |
-| C002-T14 | core Owner | 收紧已校验定义、持久状态验证接口 | T01 |
-| C002-T02 | core/runtime Owner | StartRequirements 与无副作用 preflight | T14 |
-| C002-T03 | core Owner | 单一 WorkLayout 与输出冲突规则 | T14 |
-| C002-T04 | runtime Owner | 管理路径、文件句柄、限额和安全原子写 | T03 |
-| C002-T09 | runtime/core Owner | 无歧义目录摘要与独立向量 | T01 |
-| C002-T05 | runtime Owner | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |
-| C002-T06 | core/CLI Owner | 一致事实视图与统计 | T14 |
-| C002-T07 | runtime/CLI Owner | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
-| C002-T08 | runtime/CLI Owner | Workbook 事务、幂等与发布生命周期 | T05、T07 |
-| C002-T10 | skill/CLI Owner | 输入发现、授权边界与恢复用法 | T02、T07 |
-| C002-T11 | Workbook Owner | article-review 打回意见绑定 | T01 |
-| C002-T12 | Workbook Owner | spec-dev 单任务与整体交付闭环 | T01 |
-| C002-T13 | 交付 Owner | skill 安装产物自包含 | T10 |
-| C002-T15 | runtime/交付 Owner | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
-| C002-M1 | 独立 Reviewer | 固定候选全链审查 | T02–T15 |
-| C002-T16 | Host 验收 Owner 与用户 | rc 真实宿主回归 | M1 |
-| C002-T17 | 发布 Owner 与用户 | 发布 v0.2.0 | M1、T16 |
+| C002-T01 | done | 固定上游合同、兼容性与任务治理 | 人采用 |
+| C002-T14 | not_run | 收紧已校验定义、持久状态验证接口 | T01 |
+| C002-T02 | not_run | StartRequirements 与无副作用 preflight | T14 |
+| C002-T03 | not_run | 单一 WorkLayout 与输出冲突规则 | T14 |
+| C002-T04 | not_run | 管理路径、文件句柄、限额和安全原子写 | T03 |
+| C002-T09 | not_run | 无歧义目录摘要与独立向量 | T01 |
+| C002-T05 | not_run | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |
+| C002-T06 | not_run | 一致事实视图与统计 | T14 |
+| C002-T07 | not_run | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
+| C002-T08 | not_run | Workbook 事务、幂等与发布生命周期 | T05、T07 |
+| C002-T10 | not_run | 输入发现、授权边界与恢复用法 | T02、T07 |
+| C002-T11 | not_run | article-review 打回意见绑定 | T01 |
+| C002-T12 | not_run | spec-dev 单任务与整体交付闭环 | T01 |
+| C002-T13 | not_run | skill 安装产物自包含 | T10 |
+| C002-T15 | not_run | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
+| C002-M1 | not_run | 固定候选全链审查 | T02–T15 |
+| C002-T16 | not_run | rc 真实宿主回归 | M1 |
+| C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 
 ## 3. 任务卡
 

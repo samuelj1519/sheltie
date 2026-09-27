@@ -1,0 +1,94 @@
+# C002 任务白名单。用法与 legacy 表相同：scripts/check-task.sh C002-Tnn 按此核对改动范围。
+# 与 MVP 填空不同：C002 的测试由各任务自己编写，全部任务 allow_test_changes = true；
+# 期望值必须来自独立 oracle（plan.md §1），review 时核对。
+# files / test_files 条目可以是文件或目录（目录作为前缀白名单）。
+
+[C002-T01]
+files = ["specs"]
+test_files = []
+allow_test_changes = true
+
+[C002-T14]
+files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store"]
+test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests"]
+allow_test_changes = true
+
+[C002-T02]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T03]
+files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock"]
+test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T04]
+files = ["crates/sheltie-runtime/src"]
+test_files = ["crates/sheltie-runtime/tests"]
+allow_test_changes = true
+
+[C002-T09]
+files = ["crates/sheltie-core/src/digest.rs", "crates/sheltie-runtime/src"]
+test_files = ["crates/sheltie-runtime/tests"]
+allow_test_changes = true
+
+[C002-T05]
+files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-core"]
+allow_test_changes = true
+
+[C002-T06]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-cli/src"]
+test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T07]
+files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T08]
+files = ["crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T10]
+files = ["skills", "crates/sheltie-cli/src", "specs/contracts/protocol.md"]
+test_files = ["crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T11]
+files = ["examples/article-review", "crates"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T12]
+files = ["workbooks", "crates"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T13]
+files = ["skills", "scripts", "crates", ".github"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T15]
+files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "rust-toolchain.toml", ".github", "scripts", "README.md", ".pre-commit-config.yaml"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-M1]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = true
+
+[C002-T16]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = true
+
+[C002-T17]
+files = ["specs", "CHANGELOG.md", "README.md", "Cargo.toml", "Cargo.lock"]
+test_files = []
+allow_test_changes = true

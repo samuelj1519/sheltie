@@ -18,7 +18,7 @@ my-workbook/
     review-checklist.md
 ```
 
-`sheltie workbook add <dir>` 做四件事：解析 `workbook.toml`；解析每个 Flow 并编译成图；核对每个 `instruction.file`、`resource.<path>` 输入与 `requires` 引用都存在；把整个目录复制到 `~/.sheltie/workbooks/<id>/<version>/` 并置只读。任一步失败则整体拒绝，不落任何文件。校验不执行脚本、不调模型、不联网。
+`sheltie workbook add <dir>` 做四件事：解析 `workbook.toml`；解析每个 Flow 并编译成图；核对每个 `instruction.file`、`resource.<path>` 输入与 `requires` 引用都存在；把整个目录复制到 `~/.sheltie/workbooks/<id>/<version>/` 并置只读。任一步失败则整体拒绝，不落任何文件。校验与登记身份都基于复制后的最终副本（[存储合同 §5.2](storage.md)）；目录摘要用 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。校验不执行脚本、不调模型、不联网。
 
 同一 `<id>/<version>` 已存在时拒绝（`WORKBOOK_EXISTS`）。要改内容就升版本。
 
@@ -45,7 +45,7 @@ source = "https://github.com/acme/skills/tree/main/company-api"   # 可选，告
 | --- | --- | --- |
 | `schema` | string | 必须等于 `workbook/v1` |
 | `id` | string | 正则 `^[a-z0-9]+(-[a-z0-9]+)*$`，≤ 64 字节 |
-| `version` | string | 非空，≤ 32 字节，只允许 `[0-9A-Za-z.+-]` |
+| `version` | string | 非空，≤ 32 字节，只允许 `[0-9A-Za-z.+-]`；再拒绝 `.`、`..` 与保留名 `.staging`（它要作为单个安全目录段，[存储合同 §5.3](storage.md)） |
 | `name` | string | 非空，≤ 128 字节 |
 | `description` | string | 可选，≤ 2 KiB |
 | `flows` | array of string | 非空；每项是 Workbook 内相对路径，不得含 `..`、绝对路径或符号链接 |
@@ -157,9 +157,18 @@ kind = "back"
 | 字段 | 默认 | 规则 |
 | --- | --- | --- |
 | `name` | 必填 | ID 字符规则 |
-| `path` | 必填 | Attempt 目录内相对路径；不得含 `..`；不得与 `brief.md` 相同 |
+| `path` | 必填 | 输出目录（Attempt 目录下 `outputs/`）内相对路径，规则见下 |
 | `required` | `true` | `false` 时缺文件不算错，下游不得把它当必需输入 |
 | `max_bytes` | `1048576` | 1 到 33554432（32 MiB） |
+
+`path` 的写法规则（拒绝信息均点名 `nodes[i].outputs[j].path`）：
+
+1. 不含 `..`、不是绝对路径、没有空段（`RelPath` 通用规则）。
+2. **可移植字符集**：每段只含 `A-Z a-z 0-9 . _ -`，段非空、≤ 128 字节。非 ASCII（含汉字、Unicode 变体）拒绝；这使大小写折叠成为完整的别名判定，不需要 Unicode 归一化猜测。
+3. 同一节点内不得重复，不得互为祖先（`out` 与 `out/x.md` 只能留一个）。
+4. 同一节点内两条路径按 ASCII 大小写折叠后相同即拒绝（`OUT.md` 与 `out.md`、`A/` 与 `a/`）：目标平台默认文件系统大小写不敏感。
+
+引擎文件（`brief.md`、`engine/stats.json`）在 Attempt 目录根部，worker 输出在 `outputs/` 之下，两套命名空间不再比较；`outputs/brief.md`、`outputs/stats.json` 都是合法输出。
 
 ### 3.3 Edge 字段
 
