@@ -4,9 +4,9 @@
 
 Released：[`v0.1.0`](releases/v0.1.0/README.md)，MVP 与 T26 complete
 Active change：无
-Proposed：[`C002 v0.2.0 可靠性修复`](changes/proposed/C002-v0.2.0-reliability/README.md)，产品修复 `not_run`
+Proposed：[`C002 v0.2.0 可靠性修复`](changes/proposed/C002-v0.2.0-reliability/README.md)，产品修复 `not_run`；[`C004 可验收委派`](changes/proposed/C004-verifiable-delegation/README.md)，实验 `not_run`；[`C005 执行者替换与任务接续`](changes/proposed/C005-executor-continuity/README.md)，实验 `not_run`
 
-当前没有已采用的 change。C002 仍是 proposed，尚未授权实施。
+当前没有已采用的 change。C002、C004 与 C005 仍是 proposed，尚未授权实施。
 
 ## 权威文档
 
