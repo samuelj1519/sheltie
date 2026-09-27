@@ -24,7 +24,7 @@
 
 写给做填空任务的人或模型。每条都是硬规则，多数由 `scripts/check-task.sh` 机械核对。
 
-1. **只读三样东西。** 本文 §0、你的任务卡、卡上「文件」与「测试」列出的代码。任务卡点名某合同某节时，只读那一节。
+1. **先按仓库入口开工，再聚焦任务。** 先读 `CONTEXT.md`、`specs/README.md`、`specs/changes/README.md`、本 active package 入口和 `specs/engineering.md`（AGENTS.md「开工入口」）；随后重点读本文 §0、自己的任务卡、卡上列出的文件与合同章节。遇到调用链超出卡片时继续追到真实使用者，不以“只读卡片”为由跳过。
 2. **先看到红。** 运行 `scripts/task.sh C004-Tnn`（禁用的测试也会跑），确认本任务测试全红；然后删掉这些测试上的 `#[ignore = "C004-Tnn"]`。编译错误不算红。
 3. **只填 `todo!("C004-Tnn")`。** 不改签名、类型、`pub` 可见性，不加依赖，不新建文件。同文件内新增私有辅助函数可以，但不得改变任何公开项的行为边界。文档注释就是函数要做的事。
 4. **不改测试，不改快照。** 测试红了改实现。快照不一致改渲染代码，不运行 `cargo insta accept`。
@@ -57,9 +57,9 @@
 
 ### 0.4 复核与里程碑记录
 
-- 逐任务不安排模型复核；由 `check-task.sh`、门禁和测试完成机械审查。
+- 每个填空任务在提交前由未参与该任务实现的复核者核对任务卡、合同、受影响调用链与本任务正反例；`check-task.sh`、门禁和测试负责机械检查。里程碑再做整组调用链、故障窗口与突变审查，不为每个小任务重复跑突变。
 - 里程碑审查者没有参与本组实现。审查中发现缺陷时，审查者补禁用测试、打 `c004-tNN-review`，并把对应任务改回 `doing`；实现者修复后再提交一次，写被退回任务的 `Task:`，不写 `Task: C004-Mn`。审查者自己补测试的提交写 `Task: C004-Mn`。
-- 缺陷涉及签名或数据结构、会让全仓夹具一起变红时，由审查者（骨架作者）直接修改，并在报告中记录；只有边界清楚、能留成禁用测试的缺陷才交给实现者。
+- 缺陷涉及签名或数据结构、会让全仓夹具一起变红时，交回骨架作者修复并记录；未编写该修复的审查者再审修复 diff 与受影响调用链。边界清楚、能留成禁用测试的缺陷交给实现者。里程碑审查者不得审自己写的骨架或修复。
 - 里程碑报告写入本 package 的 `milestones.md`（M1 创建此文件）。报告包含：检查表逐项结论、存活突变体的数量与处置、validation.md §6 的行与测试名对照、每一次工具改动的复核结论、退回清单，以及一节「流程教训」（每条写明证据与落点）。结论只用“通过 / 需修改 / 阻断”。validation.md 的执行状态表由里程碑审查者填写：写命令、原始输出路径、退出码和输入闭包，不只写 PASS。
 
 ### 0.5 成本
@@ -376,13 +376,13 @@
 
 ### C004-T15 验证器：额外文件与受保护路径
 
-**结果。** 合同列出的额外文件被复制进快照，摘要按实际复制的字节计算。合同未允许时覆盖提交中的同名文件，记为快照准备失败；已允许的覆盖写进验证输入。合同未列出的未跟踪文件不复制。相同提交、额外文件字节不同，得到不同的验证输入摘要。比较基线与候选之间改动的路径，命中受保护 glob 时列出命中的路径。
+**结果。** 合同列出的额外文件被复制进快照，摘要按实际复制的字节计算。合同未允许时覆盖提交中的同名文件，记为快照准备失败；已允许的覆盖写进验证输入，但目标路径命中受保护 glob 时仍在复制前拒绝并记为越权。合同未列出的未跟踪文件不复制。相同提交、额外文件字节不同，得到不同的验证输入摘要。比较基线与候选之间改动的路径，并检查全部额外文件目标，命中受保护 glob 时列出命中的路径。
 
 **文件。** `crates/sheltie-verify/src/{inputs,scope}.rs`。
 
-**测试。** `extra_file_copied_and_digest_taken_from_delivered_bytes`、`extra_file_overwrite_without_permission_is_snapshot_fault`、`extra_file_overwrite_with_permission_recorded_in_input`、`untracked_file_not_listed_is_not_copied`、`same_commit_different_extra_bytes_gives_different_input_digest`、`protected_glob_hit_between_baseline_and_candidate_reports_paths`、`change_outside_protected_list_is_not_scope_violation`
+**测试。** `extra_file_copied_and_digest_taken_from_delivered_bytes`、`extra_file_overwrite_without_permission_is_snapshot_fault`、`extra_file_overwrite_with_permission_recorded_in_input`、`extra_file_overwrite_of_protected_path_is_scope_violation_even_when_permitted`、`extra_file_new_target_matching_protected_glob_is_scope_violation`、`untracked_file_not_listed_is_not_copied`、`same_commit_different_extra_bytes_gives_different_input_digest`、`protected_glob_hit_between_baseline_and_candidate_reports_paths`、`change_outside_protected_list_is_not_scope_violation`
 
-**实现要点。** 先复制再计算摘要，摘要读的是快照里的文件，不是源文件。改动路径用 `git diff --name-only <基线>..<候选>` 取得。glob 语义以合同为准。测试里的 SHA-256 期望值是手写常量。
+**实现要点。** 先按合同的 glob 语义检查额外文件目标与受保护清单；无交集才复制，摘要读快照中的实际字节。提交改动路径用 `git diff --name-only <基线>..<候选>` 取得，它不能代替额外文件目标检查。测试里的 SHA-256 期望值是手写常量。
 
 **停止条件。** 合同没有定义 glob 语义（例如 `**` 是否跨目录）。
 

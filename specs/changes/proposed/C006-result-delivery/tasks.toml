@@ -85,9 +85,8 @@ files = ["crates/sheltie-deliver/src/receipt.rs"]
 test_files = ["crates/sheltie-deliver/tests/receipt.rs"]
 allow_test_changes = false
 
-# T01 第 5 项选“否”时删去本条。
 [C006-T17]
-files = ["crates/sheltie-runtime/src/selfmgmt.rs"]
+files = ["crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-cli/src", "Cargo.toml", "crates/sheltie-deliver/Cargo.toml"]
 test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs"]
 allow_test_changes = false
 

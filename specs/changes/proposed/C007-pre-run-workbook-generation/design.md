@@ -44,7 +44,7 @@ binding = "binding-v2"
 
 `kind` 只是检查器使用的标签，不进入引擎（GF-01）。项目默认要求和本次差异合成这份快照时，每一条都保留来源（项目默认 / 本次差异 / 执行政策）。
 
-**输入闭包。** 检查器的输入是草稿目录、约束快照、约束映射（含 \(P\) 的排除清单）和检查器版本，四者的摘要都进入锁定文件。项目默认要求第一阶段放在用户目录，不放在规划者与执行者正常写入的仓库里；若放进仓库以便共享，检查器把它的摘要与仓库之外记录的上次确认摘要比较，不一致就要求用户重新确认。两种位置对同一 OS 用户下的 agent 都不是防篡改边界。
+**输入闭包。** 检查器的输入是草稿目录、约束快照、约束映射（含 \(P\) 的排除清单）和检查器版本。锁定文件记录前三者的摘要与检查器版本；版本号不是第四份内容摘要。项目默认要求第一阶段放在用户目录，不放在规划者与执行者正常写入的仓库里；若放进仓库以便共享，检查器把它的摘要与仓库之外记录的上次确认摘要比较，不一致就要求用户重新确认。两种位置对同一 OS 用户下的 agent 都不是防篡改边界。
 
 ## 3. 检查器算法
 
@@ -77,8 +77,7 @@ binding = "binding-v2"
 schema = "plan-lock/v0"
 constraints_version = "3"
 constraints_digest = "sha256:…"
-plan_digest = "sha256:…"          # 草稿目录去掉本文件后的摘要
-draft_load_digest = "…"           # 草稿在临时 SHELTIE_HOME 装入时返回的 workbook-digest/v2
+plan_digest = "sha256:…"          # 去掉本文件的草稿在临时 SHELTIE_HOME 装入时，sheltie 返回的 workbook-digest/v2 摘要
 mapping_digest = "sha256:…"       # 下方 [mapping] 表的摘要
 checker_version = "0.1.0"
 rule_verdict = "pass"             # 闭集：pass | fail；只描述适用规则
@@ -91,7 +90,7 @@ not_candidate_producers = ["verify", "approve"]   # P 的显式排除；门槛�
 ```
 
 - 放在 `resources/` 下，是因为 `workbook add` 复制整个目录，Workbook 的目录摘要自然覆盖它；节点也能用 `resource.resources/plan.lock.toml` 把它绑定为输入；
-- `plan_digest` 排除锁定文件自身，避免自引用；
+- `plan_digest` 是引擎对去掉锁定文件的草稿返回的目录摘要，避免自引用；不再另存一个与它相同的 `draft_load_digest`；
 - `rule_verdict = "pass"` 与非空 `unresolved` 并存表示“所有可检查规则通过，另有未决条目”，不表示整份约束已满足（spec.md WG-04）；
 - 安装前检查器重新计算 `plan_digest`、`constraints_digest` 与 `mapping_digest`，任一不一致就报告，由用户停止安装；
 - 用户确认记录（谁、何时、确认了哪些差异）第一阶段只作实验记录，格式留到第二阶段（§7 第 6 问）；
@@ -105,10 +104,10 @@ not_candidate_producers = ["verify", "approve"]   # P 的显式排除；门槛�
 
 1. 用户手工整理约束快照（只用现有 Workbook 能表达的条目；C004、C005 的候选字段只作记录）；
 2. 规划者在宿主中按 authoring skill 起草 Workbook 与约束映射；
-3. 外部脚本实现 §3 的检查器。“可装入”规则在一个新建的临时 `SHELTIE_HOME` 中运行 `sheltie workbook add`，记录返回的 `digest`；检查结束即删除该目录。不能在正式管理根里试装：`workbook add` 会复制并登记 Workbook，未确认的草稿会被提前安装，之后正式安装同一 `<id>/<version>` 还会撞上 `WORKBOOK_EXISTS`；
+3. 仓库内不发布的独立检查器 `sheltie-plan-check` 实现 §3 的规则，只经 `sheltie` 公开命令取图和摘要。“可装入”规则在一个新建的临时 `SHELTIE_HOME` 中运行 `sheltie workbook add`，记录返回的 `digest`；检查结束即删除该目录。不能在正式管理根里试装：`workbook add` 会复制并登记 Workbook，未确认的草稿会被提前安装，之后正式安装同一 `<id>/<version>` 还会撞上 `WORKBOOK_EXISTS`；
 4. 用户查看摘要、映射、差异、规则判定和未决清单后确认；脚本写锁定文件；
-5. 安装前核对：脚本重算锁定文件中的各项摘要，再把含锁定文件的最终目录装入另一个临时 `SHELTIE_HOME`，得到最终摘要 \(D\)；
-6. 用户在正式管理根运行 `sheltie workbook add`；脚本比较返回的 `digest` 与 \(D\)，不同就报告“安装的不是确认过的字节”，用户不应开始 Work；
+5. 安装前核对：检查器重算锁定文件中的各项摘要，再把含锁定文件的最终目录装入另一个临时 `SHELTIE_HOME`，得到最终摘要 \(D\)；
+6. 用户在正式管理根运行 `sheltie workbook add`；检查器比较返回的 `digest` 与 \(D\)，不同就报告“安装的不是确认过的字节”，用户不应开始 Work；
 7. `sheltie work start` 开始。
 
 第 5、6 步把“确认”与“安装”之间的窗口缩到正式安装本身：确认后草稿若被改动，正式安装返回的摘要就与 \(D\) 不同。装入失败只影响临时目录，不在正式 Store 留下状态。
@@ -128,7 +127,7 @@ not_candidate_producers = ["verify", "approve"]   # P 的显式排除；门槛�
 | 方案 | 做法 | 优点 | 缺点 |
 | --- | --- | --- | --- |
 | E1 引擎装入校验 | `workbook add` 读取约束快照并执行路径覆盖检查 | 装入即强制 | 装入校验依赖外部约束文件；约束的来源与版本管理进入引擎；修改 GF-17 |
-| E2 引擎之外的独立检查器 | 第一阶段是外部脚本，第二阶段作为独立组件随 Sheltie 发布；引擎不变 | 引擎零改动；检查规则可以独立演进；与 C006 导出组件（独立二进制 `sheltie-deliver`）同一模式 | 第一阶段可以被跳过，只是流程约定 |
+| E2 引擎之外的独立检查器 | 第一阶段是仓库内不发布的独立程序；第二阶段是否随 Sheltie 发布由实验决定；引擎不变 | 引擎零改动；检查规则可以独立演进 | 第一阶段可以被跳过，只是流程约定；实验程序仍需维护 |
 | E3 只靠 skill 让规划者自检 | 在 authoring skill 里写检查清单 | 最简单 | 规划者既生成计划又判定合规，等于没有检查 |
 
 ### 建议

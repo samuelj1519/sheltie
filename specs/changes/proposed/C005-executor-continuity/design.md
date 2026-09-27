@@ -58,6 +58,7 @@ Occurrence N
 - 取代与旧 Attempt 的 `submit` 争同一把写锁：先到的生效，后到的看到非 `running` 状态被拒；恢复后按 Store 记录重建同一结果；
 - 谁可以发起取代：任何经 CLI 的调用者（用户、接手的协调者），调用本身记为来源；引擎不判断旧执行者是否真的停了；
 - 代次不另存，是 Occurrence 内 Attempt 的顺序；状态卡和交接包可以显示“第 N 次执行”；
+- Attempt id 后缀按每次 `begin` 的顺序递增，保持唯一；`max_retries` 按本 Occurrence 的 `failed` Attempt 数判定，`superseded` 不占业务失败名额。不能再用后缀与 `max_retries` 比较；业务失败数从 Attempt 记录派生，不另存一份可能分叉的计数；
 - 拒收的迟到提交保留一条记录，交接包和 `work stats` 可见；
 - Store 内每个 Attempt 的输出目录已经分开，旧进程写入的未提交文件留在旧 Attempt 目录，不并入新 Attempt；
 - 旧执行者可能仍在修改共享的 Git 工作区，这在引擎之外。无法确认停止时，新执行者使用分开的工作区，交接包写明这一交接条件。

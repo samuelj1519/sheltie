@@ -28,7 +28,7 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 写给做填空任务的人或模型。每条都是硬规则，多数由 `scripts/check-task.sh` 机械核对。
 
-1. **只读三样东西。** 本文 §0、你的任务卡、卡上「文件」与「测试」列出的代码。任务卡点名某合同某节时，只读那一节。
+1. **先按仓库入口开工，再聚焦任务。** 先读 `CONTEXT.md`、`specs/README.md`、`specs/changes/README.md`、本 active package 入口和 `specs/engineering.md`（AGENTS.md「开工入口」）；随后重点读本文 §0、自己的任务卡、卡上列出的文件与合同章节。遇到调用链超出卡片时继续追到真实使用者，不以“只读卡片”为由跳过。
 2. **先看到红。** 运行 `scripts/task.sh C005-Tnn`（禁用的测试也会跑），确认本任务测试全红；然后删掉这些测试上的 `#[ignore = "C005-Tnn"]`。编译错误不算红。
 3. **只填 `todo!("C005-Tnn")`。** 不改签名、类型、`pub` 可见性，不加依赖，不新建文件。同文件内新增私有辅助函数可以，但不得改变任何公开项的行为边界。文档注释就是函数要做的事。
 4. **不改测试，不改快照。** 测试红了改实现。快照不一致改渲染代码，不运行 `cargo insta accept`。
@@ -53,9 +53,9 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 ### 0.4 复核与里程碑记录
 
-- 逐任务不安排模型复核；由 `check-task.sh`、门禁和测试完成机械审查。
+- 每个填空任务在提交前由未参与该任务实现的复核者核对任务卡、合同、受影响调用链与本任务正反例；`check-task.sh`、门禁和测试负责机械检查。里程碑再做整组调用链、故障窗口与突变审查，不为每个小任务重复跑突变。
 - 里程碑审查者没有参与本组实现。审查中发现缺陷时，审查者补禁用测试、打 `c005-tNN-review`，并把对应任务改回 `doing`；实现者修复后再提交一次，写被退回任务的 `Task:`，不写 `Task: C005-Mn`。审查者自己补测试的提交写 `Task: C005-Mn`。
-- 缺陷涉及签名或数据结构、会让全仓夹具一起变红时，由审查者（骨架作者）直接修改，并在报告中记录。
+- 缺陷涉及签名或数据结构、会让全仓夹具一起变红时，交回骨架作者修复并记录；未编写该修复的审查者再审修复 diff 与受影响调用链。里程碑审查者不得审自己写的骨架或修复。
 - 里程碑报告写入本 package 的 `milestones.md`（M1 创建此文件；`review.md` 是提案讨论记录，不混写）。报告包含：检查表逐项结论、存活突变体的数量与处置、validation.md §5 的行与测试名对照、每一次工具改动的复核结论、退回清单，以及一节「流程教训」（每条写明证据与落点）。结论只用“通过 / 需修改 / 阻断”。validation.md 的执行状态表由里程碑审查者填写：写命令、原始输出路径、退出码和输入闭包，不只写 PASS。
 
 ### 0.5 成本
@@ -103,7 +103,7 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 **执行者。** 人审定，强模型起草。
 
-**结果。** 按 spec.md §6 中标为“一”的各行修订 `specs/spec.md`（GF-05、GF-06、GF-10、GF-11、GF-13、GF-14、GF-15、GF-18、GF-23）、`specs/constitution.md`（INV-6 的来源分项、§7）、`specs/roadmap.md`、`specs/contracts/{protocol,storage}.md`；`CONTEXT.md` 加入取代、资源等待、接续耗尽、切换次数、资源重试、总等待期限、交接包、原因来源等词汇。C004 已采用时，GF-14 的停止原因措辞与 C004 合并（`scope_violation`、`retries_exhausted`、`continuity_exhausted` 只能取消，`resource_wait` 可恢复）。README 的 `基线：` 改为实施起点提交。
+**结果。** 按 spec.md §6 中标为“一”的各行修订 `specs/spec.md`（GF-05、GF-06、GF-10、GF-11、GF-13、GF-14、GF-15、GF-18、GF-23）、`specs/architecture.md`（Attempt 编号与重试判定）、`specs/constitution.md`（INV-6 的来源分项、§7）、`specs/roadmap.md`、`specs/contracts/{protocol,storage}.md`；`CONTEXT.md` 加入取代、资源等待、接续耗尽、切换次数、资源重试、总等待期限、交接包、原因来源等词汇。C004 已采用时，GF-14 的停止原因措辞与 C004 合并（`scope_violation`、`retries_exhausted`、`continuity_exhausted` 只能取消，`resource_wait` 可恢复）。README 的 `基线：` 改为实施起点提交。
 
 **必须写定的决定。** 括号里是本计划的建议：
 
@@ -118,10 +118,11 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 9. Store 是否升结构版本、旧库怎么处理（沿用 C002 的“显式拒绝、不写旧库”）。
 10. 两份宿主 skill 的位置（建议：`skills/sheltie/SKILL.md` 增加接手一节，另建 `skills/sheltie-codex/SKILL.md`；T02 把 `scripts/check-skill.sh` 扩到 `skills/*/SKILL.md`）。
 11. §3 增量组是否现在插入（取决于 C004 是否已实现）。
+12. Attempt id 后缀与 `max_retries` 解耦：后缀是 Occurrence 内每次 `begin` 的唯一顺序号，core 字段与 CONTEXT 词条不再叫 `retry`；业务失败数从 `failed` Attempt 派生。写定 `next` 与 `attempt fail` 的上限判定、Store 往返和旧结构库拒绝方式，并同步 `architecture.md`。`max_retries = 0` 时仍可取代后重新领取，但随后第一次失败必须阻塞。
 
 **文件。** `specs/`、`CONTEXT.md`、本 package 目录。
 
-**验证。** `scripts/check-docs.sh`、`scripts/check-specs.sh` 绿。人逐条确认上面 11 项都已写定且有出处；design.md §5 转换表的每一行都能在 protocol 合同里找到对应的命令、前提、结果和错误码。
+**验证。** `scripts/check-docs.sh`、`scripts/check-specs.sh` 绿。人逐条确认上面 12 项都已写定且有出处；design.md §5 转换表的每一行都能在 protocol 合同里找到对应的命令、前提、结果和错误码。
 
 **停止条件。** 任一项无法写定。
 
@@ -131,11 +132,11 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 **执行者。** 强模型。这是唯一做代码设计的任务。
 
-**结果。** 全仓可编译；新增类型、签名和文档注释齐全，函数体是 `todo!("C005-Tnn")`；本文每张卡列出的测试全部写好，挂 `// Task:` 注释并禁用；快照预写；CI 全绿。`scripts/task.sh C005-T03` 退出非零，并列出 T03 的测试名。
+**结果。** 全仓可编译；先按 T01 的合同完整改好现行 `BeginAttempt`、`FailAttempt` 的编号与失败计数语义，让已有路径和测试保持可用；这部分不能留 `todo!` 破坏现行入口。新命令的类型、签名和文档注释齐全，未实现的新路径函数体是 `todo!("C005-Tnn")`；本文每张卡列出的新测试全部写好并禁用，既有路径的回归测试启用；快照预写；CI 全绿。`scripts/task.sh C005-T03` 退出非零，并列出 T03 的测试名。
 
 **文件（暂定，按实施起点代码定死）。**
 
-- core：`work/state.rs` 加 `AttemptState::Superseded`、`BlockedReason::{ResourceWait, ContinuityExhausted}`、中断原因与来源枚举、四种计数与上限；`work/command.rs` 加 `SupersedeAttempt`、`WaitForResource`、`Resume` 三个命令；`work/decide.rs` 为三条命令各留一个私有 `todo!` 函数；`work/next.rs`、`work/render.rs` 留对应分支；新增 `work/handoff.rs` 放交接包投影；`error.rs` 加新错误码。
+- core：`work/state.rs` 加 `AttemptState::Superseded`、`BlockedReason::{ResourceWait, ContinuityExhausted}`、中断原因与来源枚举、接续计数与上限；Attempt id 后缀改为唯一顺序号，业务失败数从 `failed` 记录派生，不另存；`work/command.rs` 加 `SupersedeAttempt`、`WaitForResource`、`Resume` 三个命令；`work/decide.rs` 为三条命令各留一个私有 `todo!` 函数并替换原先 `retry == max_retries` 的判断；`work/next.rs`、`work/render.rs` 留对应分支；新增 `work/handoff.rs` 放交接包投影；`error.rs` 加新错误码。
 - runtime：`store/{schema,commit,read}.rs` 加等待记录、迟到提交记录与计数；`service.rs` 加三条命令的服务入口和时钟注入；`failpoint.rs` 加 `work wait` 事务前后的 fail-point。
 - cli：`cli.rs` 命令树；`commands/{attempt,work}.rs`、`output.rs`、`error_map.rs`。
 - 测试：各卡的全部测试；并发测试用的“两进程争锁” helper 与固定时钟 helper，**完整实现，不留填空**。
@@ -147,7 +148,7 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 1. 四条门禁、`cargo deny check`、`scripts/check-docs.sh`、`scripts/check-core-vocab.sh`、`scripts/check-tests.sh`、`scripts/check-skill.sh` 全绿。
 2. `cargo nextest run --all-features` 显示新增测试全部 ignored、零失败。
-3. **正例试跑：** 临时填满 T03，运行 `scripts/check-task.sh C005-T03` 必须通过，然后撤掉填充。
+3. **现行路径回归：** `max_retries = 0` 首次失败阻塞、`max_retries = 1` 首次失败可重试而第二次失败阻塞；T02 的编号重构不能改变这些行为。临时填满 T03，运行 `scripts/check-task.sh C005-T03` 必须通过，然后撤掉填充。
 4. **依赖顺序检查：** 对每个填空任务，只启用本任务的测试时，触发的 panic 都来自本任务的 `todo!("C005-Tnn")`。
 5. **反例：** 改一行测试后，`check-task.sh` 必须失败。
 
@@ -161,9 +162,9 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 **文件。** `crates/sheltie-core/src/work/decide.rs`（只填标 `C005-T03` 的私有函数）。
 
-**测试。** `supersede_running_attempt_marks_superseded_and_opens_begin`、`supersede_does_not_consume_max_retries`、`supersede_increments_switch_count`、`switch_count_at_limit_allowed_and_limit_plus_one_exhausts`、`supersede_exhausting_switches_still_marks_attempt_superseded`、`supersede_rejected_when_latest_attempt_not_running`、`supersede_with_policy_denied_reason_rejected`（按 T01 第 3 项）、`late_submit_after_supersede_rejected_attempt_not_running`、`late_fail_after_supersede_rejected_attempt_not_running`
+**测试。** `supersede_running_attempt_marks_superseded_and_opens_begin`、`supersede_does_not_consume_max_retries`、`supersede_at_zero_business_retries_opens_new_attempt_with_unique_id`、`first_failure_after_supersede_at_zero_retries_exhausts`、`supersede_increments_switch_count`、`switch_count_at_limit_allowed_and_limit_plus_one_exhausts`、`supersede_exhausting_switches_still_marks_attempt_superseded`、`supersede_rejected_when_latest_attempt_not_running`、`supersede_with_policy_denied_reason_rejected`（按 T01 第 3 项）、`late_submit_after_supersede_rejected_attempt_not_running`、`late_fail_after_supersede_rejected_attempt_not_running`
 
-**实现要点。** 先核对前提（Work 活动、最新 Attempt `running`、原因允许），再算计数，最后决定是否耗尽，顺序不能换。耗尽时旧 Attempt 也要转 `superseded`，不能留在 `running`。不另存“代次”。
+**实现要点。** 先核对前提（Work 活动、最新 Attempt `running`、原因允许），再算切换次数，最后决定是否耗尽，顺序不能换。耗尽时旧 Attempt 也要转 `superseded`，不能留在 `running`。新 Attempt 的唯一编号由已有记录顺序得出；业务失败数只数 `failed`，不另存“代次”。
 
 **停止条件。** 测试要求改动 `max_retries` 或 `max_visits`；需要新增状态。
 
@@ -185,7 +186,7 @@ C005 第一阶段可以排在 C004 之前，也可以排在它之后（README「
 
 ### C005-T05 core `next` 形状与分开计数
 
-**结果。** `running` 时，`next` 在 `submit`、`fail`、`cancel` 之外加入 `supersede` 与 `wait`；`resource_wait` 时只给 `resume` 与 `cancel`；`continuity_exhausted` 只给 `cancel`；`retries_exhausted` 不变。状态中四种计数分开报告，各带上限。执行代次从 Occurrence 内 Attempt 的顺序派生。
+**结果。** `running` 时，`next` 在 `submit`、`fail`、`cancel` 之外加入 `supersede` 与 `wait`；`resource_wait` 时只给 `resume` 与 `cancel`；`continuity_exhausted` 只给 `cancel`；`retries_exhausted` 不变。状态视图中分开报告业务失败数、资源重试、切换次数与累计等待，各带上限；业务失败数和执行代次从 Occurrence 内 Attempt 记录派生。
 
 **文件。** `crates/sheltie-core/src/work/next.rs`（只填标 `C005-T05` 的分支）、`crates/sheltie-core/src/work/state.rs`（只填标 `C005-T05` 的派生函数）。
 

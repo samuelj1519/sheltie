@@ -98,8 +98,12 @@ test_files=()
 while IFS= read -r line; do [ -n "$line" ] && test_files+=("$line"); done < <(field test_files)
 allow_test_changes="$(scalar allow_test_changes)"
 
-if [ "${#files[@]}" -eq 0 ]; then
+if ! awk -v t="[$task]" '$0 == t { found = 1; exit } END { exit !found }' "$task_table"; then
 	fail "$task_table 里没有 $task"
+	exit 1
+fi
+if [ "${#files[@]}" -eq 0 ] && [ "${#test_files[@]}" -eq 0 ]; then
+	fail "$task_table 里的 $task 没有允许的文件或测试文件"
 	exit 1
 fi
 
@@ -138,7 +142,7 @@ done < <(changed_paths)
 # 2. 本任务占位清零；填完的函数不许留 #[allow(unused_variables)]
 # files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；只检查其中的 .rs，
 # 文档（.md 等）会引用 todo!() 字样，不是占位。
-for entry in "${files[@]}"; do
+for entry in ${files[@]+"${files[@]}"}; do
 	[ -e "$entry" ] || continue
 	targets=()
 	if [ -d "$entry" ]; then
@@ -186,7 +190,7 @@ if [ "$allow_test_changes" != "true" ]; then
 	for f in ${test_files[@]+"${test_files[@]}"}; do
 		[ -e "$f" ] || continue
 		mixed=0
-		for src in "${files[@]}"; do [ "$f" = "$src" ] && mixed=1; done
+		for src in ${files[@]+"${files[@]}"}; do [ "$f" = "$src" ] && mixed=1; done
 		if [ "$mixed" -eq 1 ]; then
 			before="$(git show "$base:$f" 2>/dev/null | sed -n '/#\[cfg(test)\]/,$p' | grep -vE '^[[:space:]]*#\[ignore' || true)"
 			after="$(sed -n '/#\[cfg(test)\]/,$p' "$f" | grep -vE '^[[:space:]]*#\[ignore' || true)"
