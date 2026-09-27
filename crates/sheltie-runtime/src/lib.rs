@@ -13,6 +13,7 @@ pub mod observe;
 pub mod selfmgmt;
 pub mod service;
 pub mod store;
+pub mod workbook_digest;
 pub mod workbook_repo;
 
 pub use error::{Error, Result};
