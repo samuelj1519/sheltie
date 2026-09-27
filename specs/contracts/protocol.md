@@ -121,7 +121,7 @@ Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表
 
 ### `gate approve <work> --node <node>`
 
-Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`。记录 `{ node, occurrence, by, at }`（`by` 是发起调用的 OS 账户）。然后按 `attempt submit` 第 5 步除门槛之外的规则决定 Work 状态：无出边 → `succeeded`；无合法边 → `blocked(no_legal_edge)`；否则 `active`。返回 `{ node, occurrence, by, at, work_status }` 与 `next`。
+Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`。记录 `{ node, occurrence, by, at }`（`by` 是发起调用的 OS 账户）；用户授权后由 agent 代执行时，`by` 记的是 agent 进程的账户，如实呈现，不表述为「已验证独立真人」（宪章 §5）。然后按 `attempt submit` 第 5 步除门槛之外的规则决定 Work 状态：无出边 → `succeeded`；无合法边 → `blocked(no_legal_edge)`；否则 `active`。返回 `{ node, occurrence, by, at, work_status }` 与 `next`。
 
 ### `work stats <work>`
 

@@ -390,3 +390,97 @@ fn start_param_errors_exit_2_before_any_storage_access() {
         .unwrap();
     assert_eq!(out.status.code(), Some(2));
 }
+
+// Task: C002-T10
+#[test]
+fn request_id_rejected_for_readonly_and_self_commands() {
+    let env = Env::new();
+    env.add_example("two-step");
+    for args in [
+        vec!["--request-id", "r-1", "workbook", "list"],
+        vec!["--request-id", "r-1", "work", "status", "any"],
+        vec!["--request-id", "r-1", "self", "version"],
+    ] {
+        let (v, code) = env.fail(&args);
+        assert_eq!(code, 2, "{args:?}：只读与 self 不支持 request-id");
+        assert_eq!(v["error"]["code"], "INVALID_REQUEST", "{args:?}");
+    }
+}
+
+// Task: C002-T10
+#[test]
+fn named_but_missing_workbook_is_not_silently_replaced() {
+    let env = Env::new();
+    env.add_example("two-step");
+    // 协调者按用户指定的 ghost 开工：NOT_FOUND，不换已装的 two-step。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "ghost",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert!(
+        v["error"]["message"].as_str().unwrap().contains("ghost"),
+        "{v}"
+    );
+    // 没有任何 Work 被创建。
+    assert!(
+        env.ok(&["work", "list"])["data"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+}
+
+// Task: C002-T10
+#[test]
+fn resume_after_replay_reads_current_status_not_historical_next() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let wid = env.start("two-step", &[("topic", "x")]);
+    let rid = "11111111-2222-3333-4444-555555555555";
+    let begun = env.begin(&wid, "outline");
+    for (_, path) in begun["data"]["outputs"].as_object().unwrap() {
+        let p = std::path::Path::new(path.as_str().unwrap());
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(p, "输出内容\n").unwrap();
+    }
+    let first = env.ok(&[
+        "attempt",
+        "submit",
+        &wid,
+        "--attempt",
+        "outline#1.0",
+        "--summary",
+        "完成",
+        "--request-id",
+        rid,
+    ]);
+    env.ok(&["work", "cancel", &wid]);
+    // 同 id 重放：返回原快照（replayed=true），历史 next 保留；当前状态仍是 cancelled，
+    // 续接以 status 为准，不用历史 next。
+    let replay = env.ok(&[
+        "attempt",
+        "submit",
+        &wid,
+        "--attempt",
+        "outline#1.0",
+        "--summary",
+        "完成",
+        "--request-id",
+        rid,
+    ]);
+    assert_eq!(replay["data"]["replayed"], serde_json::json!(true));
+    assert_eq!(replay["data"]["attempt"], first["data"]["attempt"]);
+    let status = env.status(&wid);
+    assert_eq!(
+        status["data"]["status"],
+        serde_json::json!({"kind": "cancelled"})
+    );
+}
