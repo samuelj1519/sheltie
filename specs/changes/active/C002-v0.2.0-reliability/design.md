@@ -1,6 +1,6 @@
 # C002 候选设计
 
-状态：`active`。机制细节已由 T01 固定进架构与三份合同；冲突时以合同为准，本文件保留为设计意图与取舍记录。此设计替换旧版 C002 的隐式双格式兼容、错误摘要固化和历史状态卡重放方案。
+状态：`active`。机制细节以架构与三份合同为准；T01 首次提交的勘误仍待门禁与独立 review。本文件保留设计意图与取舍，不代替当前合同。此设计替换旧版 C002 的隐式双格式兼容、错误摘要固化和历史状态卡重放方案。
 
 ## 1. 保留的结构与版本边界
 
@@ -12,11 +12,11 @@ Store schema 从 1 升到 2，原子创建表和 user_version。旧 schema 先�
 
 ## 2. 用户意图与提交快照
 
-runtime 提供内部 `RequestIntent`：操作种类、完整目标身份、用户参数。Work 前缀先只读解析为完整 WorkId；已有 Work 行即使已终态仍能解析，不能靠读取 Workbook 才解析。request-id 是有界、不作路径的 opaque key；内部 staging ID 由 runtime 随机生成。
+runtime 提供内部 `RequestIntent`：操作种类、完整目标身份、用户参数。新 Work 请求的前缀只读解析为完整 WorkId；历史 request-id 从 `requests.work_id` 取原目标并核原始前缀，不因后来出现同前缀 Work 而改绑或拒绝。已有 Work 行即使终态也能解析，不能靠读取 Workbook 才解析。request-id 是有界、不作路径的 opaque key；内部 staging ID 由 runtime 随机生成。
 
-- Work intent 含完整 WorkId、node/attempt 与 summary/reason 等用户参数，不含重新计算的观察结果、时钟和模型自报事实。
-- start intent 含用户给的 Workbook selector、Flow、规范化名字与起始输入内容。没有显式版本时第一次解析的实际版本进入提交响应；重放先查记录，不重新解释“最新版本”。
-- add intent 含规范化源目录参数和明确操作；相同请求成功后源目录变化不重新安装，返回原结果。新 request-id 才表示新的安装意图；同 id/version 的另一安装遵守冲突规则。
+- Work intent 含完整 WorkId、node/attempt 与 summary/reason 等用户参数，不含重新计算的观察结果、时钟和模型自报事实。`--summary @file` 按文件路径记录意图，首次执行才读取内容；重放不要求源文件仍存在。
+- start intent 含用户给的 Workbook selector、Flow、规范化名字与起始输入参数。字面值按值记录；`@file` 按规范化绝对路径记录，文件内容是首次执行时的观察结果。没有显式版本时第一次解析的实际版本进入提交响应；重放先查记录，不读当前 `@file` 或 Workbook，也不重新解释“最新版本”。
+- add intent 含不访问文件系统即可词法规范化的源目录绝对路径和明确操作；相同请求成功后源目录变化或消失也不重新安装，返回原结果。新 request-id 才表示新的安装意图；同 id/version 的另一安装遵守冲突规则。
 - remove intent 含完整 id/version。self 收到 request-id 直接参数错误，查询也不虚构 request-id。
 
 第一次提交保存完整 `ResponseSnapshot`（包括 Work 身份、status、next、批准记录、输出引用与 revision），CLI 不再提交后重新读 Store 拼数据。重放只附 `replayed=true`，其他业务字段不变。历史 next 是历史响应的一部分；skill 在恢复后通过 status 获取当前 next。
@@ -40,7 +40,7 @@ works/<work-id>/
     outputs/<declared-path>
 ```
 
-Occurrence 与 retry 是两个真实维度，均保留。`AttemptId=node#n.retry` 保持原含义；目录标签仅改善浏览。begin 返回前创建输出目录。编译拒绝输出相同、祖先冲突及受支持平台上指向同一文件的别名；测试至少覆盖大小写与 macOS Unicode 归一化。不要把 ASCII lowercase 当完整文件系统等价判断。可选最小合同是将新输出路径限定为可移植字符集并拒绝大小写冲突，T01 必须固定选择与拒绝信息。
+Occurrence 与 retry 是两个真实维度，均保留。`AttemptId=node#n.retry` 保持原含义；目录标签仅改善浏览。begin 返回前创建输出目录。T01 已将输出路径限定为可移植 ASCII：编译拒绝非 ASCII、重复、祖先冲突与 ASCII 大小写折叠后的别名。测试覆盖合法嵌套路径、大小写别名和 Unicode 路径准确拒绝，不做 Unicode 归一化猜测。
 
 Home 在入口确定规范根，所有 managed 路径（Store、workbooks、works、pending、tmp、bin 及恢复/删除目标）都从它派生。检查到叶与最近存在祖先；不允许不可信父软链把根重新定义成根外位置。缺祖先与权限错误要区分，不能把任意 canonicalize 失败视为安全。
 
@@ -69,11 +69,11 @@ Workbook 与冻结副本的文件设 0444、目录含根设 0555；合法移除�
 
 请求表保存 intent_hash、响应快照和恢复所需效果；具体 SQL 在 T01 固定，所有字段、状态与索引随 schema 2 一次定义。效果记录是 I/O 完成情况，不参与业务选边，不构成第二套 Work 状态。
 
-先以只读方式识别已有 schema、查询可重放请求并完成不需要恢复的确定性 preflight。旧库拒绝、新 home 的失败 start 都发生在创建目录/锁文件或写 PRAGMA 之前。合法写操作才创建管理根并取得锁；锁内重新核对 schema、request-id 与受并发影响的前置事实，再恢复/准备/提交。
+先以只读方式识别已有 schema、构造不依赖当前文件内容的意图并查询可重放请求；未命中才读当前文件并完成确定性 preflight。旧库拒绝、新 home 的失败 start 都发生在创建目录/锁文件或写 PRAGMA 之前。合法写操作才创建管理根并取得锁；锁内重新核对 schema、request-id 与受并发影响的前置事实，再恢复/准备/提交。
 
 为避免本地多个写进程交错发布/删除，runtime 使用一个管理根级写锁，覆盖锁内重放复查、恢复、准备、事务与效果发布；进程退出由 OS 释放。只读操作不获取写锁，不创建锁文件。self 的写入口也遵守这把锁；purge 持锁删除后，等待者取得旧锁时必须复核管理根/锁对象身份，发现删除或重建就退出重试，不能把旧 inode 当现根的锁。这是文件生命周期串行化；SQLite revision/CAS 保留为事务边界校验，不做自动业务重试框架。锁只针对本地协作进程，不声称约束同用户手工改文件。采用具体锁库前按工程规范核其公开 API。
 
-start 和 add 的 staging 位于专用 `pending/<internal-id>/`，不是可任意清理的 tmp。先 sync 原件和必要目录，再在一个事务中记录 Work/Workbook、audit、request snapshot 与发布效果，随后 rename 到最终目录、完成效果标记。拒绝在内存中“记住”唯一恢复信息。
+start 和 add 的 staging 位于专用 `pending/<internal-id>/payload/`；引擎先独占创建并 fsync `pending/<internal-id>.owner` 侧车，再创建 payload，绝不把它放进可按年龄清理的 tmp。先 sync 原件和必要目录，再在一个事务中记录 Work/Workbook、audit、request snapshot 与发布效果，随后 rename `payload/` 到最终目录、刷新当前状态卡并完成效果标记。拒绝在内存中“记住”唯一恢复信息。
 
 | 窗口 | 行为与恢复 |
 | --- | --- |
@@ -86,13 +86,13 @@ start 和 add 的 staging 位于专用 `pending/<internal-id>/`，不是可任�
 
 Workbook remove 的“查非终态引用、删行、写请求/审计/效果”在同一个事务；损坏的引用状态必须报 STORE_CORRUPT，不能跳过。提交后将准确归属的旧目录移入自己的待删除位置再删除。add/remove 在写锁下先完成前序 pending，防止删除与重加交错。
 
-完成的发布/删除/封存效果不会因历史请求重放再次执行。正常已完成 submit 的重放直接返回原 snapshot，不重新观察或 chmod 当前输出；只有尚未完成的 seal 恢复才核对原 ArtifactRef。相同 id/version 的新生命周期不能被旧 add/remove 重放覆盖或删除。发布/删除后的唯一字节若被外部删除，只能明确报缺失，不得臆造恢复；测试需覆盖这一条件。
+完成的发布/删除/封存效果不会因历史请求重放再次执行。正常已完成 submit 的重放直接返回原 snapshot，不重新观察或 chmod 当前输出；只有尚未完成的 seal 恢复才核对原 ArtifactRef。历史 brief/stats 是例外：显式重放已完成 begin 时，若文件缺失且父目录可信，按登记字节补齐；已有不同字节或父目录缺失则报已提交恢复错误，不覆盖。相同 id/version 的新生命周期不能被旧 add/remove 重放覆盖或删除。发布/删除后的唯一字节若被外部删除，只能明确报缺失，不得臆造恢复；测试需覆盖这一条件。
 
 ## 6. 历史文件与当前投影分别恢复
 
-brief 与 engine.stats 的内容在提交前确定，持久保存精确字节及目标身份。重放：缺失则补齐；存在且摘要相同则不写；存在但不同则报完整性错误，不能掩盖修改。尚未完成的 SealOutputs 恢复针对原产物引用；不存在或改变时不重造、不越界 chmod。此时返回明确的恢复错误，携带 committed=true、原 revision/request-id 和 original_response（已保存业务 snapshot），使调用者知道业务已经提交；不得重新执行业务，也不得把恢复错误当成未提交。正常已完成请求没有这个恢复错误，返回原 snapshot。
+brief 与 engine.stats 的内容在提交前确定，持久保存精确字节及目标身份。显式重放已完成 begin 时：缺失且父目录可信则补齐；存在且摘要相同则不写；存在但不同或父目录缺失则报已提交恢复错误，不能掩盖修改。尚未完成的 SealOutputs 恢复针对原产物引用；不存在或改变时不重造、不越界 chmod。已提交请求的效果恢复错误携带 committed=true、原 revision/request-id 和 original_response（已保存业务 snapshot）；文件完整或成功补齐时返回原 snapshot。不得重新执行业务，也不得把恢复错误当成未提交。
 
-status-card 是当前 Store 投影，不存为可无条件重放的历史文件。每次恢复在同一写锁下从最新状态生成并发布；旧请求返回旧 snapshot 也不能把卡写回旧 revision。故障测试覆盖新状态已提交、旧请求晚到、两个写者和投影丢失。
+status-card 是当前 Store 投影，不存历史卡字节。`refresh_status_card` 作为请求效果登记完成状态，但每次恢复都在同一写锁下从最新状态生成；失败返回 `EFFECT_PENDING`，旧请求不能把卡写回旧 revision。故障测试覆盖新状态已提交、旧请求晚到、两个写者和投影丢失。
 
 ## 7. 事实视图、身份与定义边界
 

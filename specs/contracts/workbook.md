@@ -18,7 +18,7 @@ my-workbook/
     review-checklist.md
 ```
 
-`sheltie workbook add <dir>` 做四件事：解析 `workbook.toml`；解析每个 Flow 并编译成图；核对每个 `instruction.file`、`resource.<path>` 输入与 `requires` 引用都存在；把整个目录复制到 `~/.sheltie/workbooks/<id>/<version>/` 并置只读。任一步失败则整体拒绝，不落任何文件。校验与登记身份都基于复制后的最终副本（[存储合同 §5.2](storage.md)）；目录摘要用 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。校验不执行脚本、不调模型、不联网。
+`sheltie workbook add <dir>` 在本操作的 `pending/` 内复制目录，随后解析 `workbook.toml`、编译每个 Flow，并核对 `instruction.file`、`resource.<path>` 与 `requires` 引用。校验与登记身份都基于复制后的最终副本（[存储合同 §5.2](storage.md)）；目录摘要用 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。提交前失败不产生 Workbook 行或最终目录；未提交的私有暂存按存储合同清理。提交后发布失败返回 `EFFECT_PENDING`，保留受 Store 保护的原件供恢复。校验不执行脚本、不调模型、不联网。
 
 同一 `<id>/<version>` 已存在时拒绝（`WORKBOOK_EXISTS`）。要改内容就升版本。
 
@@ -147,7 +147,7 @@ kind = "back"
 | --- | --- | --- |
 | `"start.<key>"` | 起始输入里的键 | `key` 是 ID 字符规则；运行时缺该键则 `work start` 拒绝 |
 | `"resource.<path>"` | Workbook 内的一个文件，随版本冻结 | `path` 是 Workbook 内相对路径，文件存在、是普通文件、≤ 32 MiB。运行时指向本 Work 的冻结副本 |
-| `"engine.stats"` | 引擎在开工时生成的事实视图（[协议 `work stats`](protocol.md) 的 JSON），写成 Attempt 目录下的 `stats.json` 并按字节冻结 | 字面量，`engine.` 后只允许 `stats`。给反思类节点用；引擎只给数字，不给结论 |
+| `"engine.stats"` | 引擎在开工时生成的事实视图（[协议 `work stats`](protocol.md) 的 JSON），写成 Attempt 目录下的 `engine/stats.json` 并按字节冻结 | 字面量，`engine.` 后只允许 `stats`。给反思类节点用；引擎只给数字，不给结论 |
 | `"<node>.<output>"` | 某节点最近一次成功 Attempt 的某个输出 | `node` 存在且不是自己，且 `node` 不能叫 `start`、`resource`、`engine`；`output` 是该节点声明的输出名；见 §4 第 5 条 |
 
 `inputs[].required = false` 只对 `<node>.<output>` 来源有意义：上游还没有成功的 Attempt 时，这个输入不绑定，任务书里标「尚无」，`attempt begin` 不报 `INPUT_UNAVAILABLE`。这是回环的标准写法：被打回的节点用可选输入接收审核意见，第一次到达时没有意见也能开工。`start.<key>`、`resource.<path>`、`engine.stats` 来源上 `required = false` 编译拒绝，它们永远存在。
@@ -166,7 +166,7 @@ kind = "back"
 1. 不含 `..`、不是绝对路径、没有空段（`RelPath` 通用规则）。
 2. **可移植字符集**：每段只含 `A-Z a-z 0-9 . _ -`，段非空、≤ 128 字节。非 ASCII（含汉字、Unicode 变体）拒绝；这使大小写折叠成为完整的别名判定，不需要 Unicode 归一化猜测。
 3. 同一节点内不得重复，不得互为祖先（`out` 与 `out/x.md` 只能留一个）。
-4. 同一节点内两条路径按 ASCII 大小写折叠后相同即拒绝（`OUT.md` 与 `out.md`、`A/` 与 `a/`）：目标平台默认文件系统大小写不敏感。
+4. 同一节点内两条路径先逐段按 ASCII 大小写折叠；折叠后相同或互为祖先即拒绝（`OUT.md` 与 `out.md`、`Out` 与 `out/x.md`）：目标平台默认文件系统大小写不敏感。
 
 引擎文件（`brief.md`、`engine/stats.json`）在 Attempt 目录根部，worker 输出在 `outputs/` 之下，两套命名空间不再比较；`outputs/brief.md`、`outputs/stats.json` 都是合法输出。
 

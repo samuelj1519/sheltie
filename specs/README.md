@@ -6,7 +6,7 @@ Released：[`v0.1.0`](releases/v0.1.0/README.md)，MVP 与 T26 complete
 Active change：[`C002 v0.2.0 可靠性修复`](changes/active/C002-v0.2.0-reliability/README.md)，当前任务见其 [plan.md](changes/active/C002-v0.2.0-reliability/plan.md)
 Proposed：无
 
-C002 已于 2026-09-27 采用。上游规格与合同已由 C002-T01 更新为 v0.2.0 目标（schema 2、`workbook-digest/v2`、新 Work 目录布局、`cli-result/v2`）；描述的是目标合同，实现进度只看 C002 的 plan.md。
+C002 已于 2026-09-27 采用。上游规格与合同描述 v0.2.0 目标（schema 2、`workbook-digest/v2`、新 Work 目录布局、`cli-result/v2`）；T01 勘误与审查见 C002 的 validation.md。产品实现进度只看 C002 的 plan.md。
 
 ## 权威文档
 

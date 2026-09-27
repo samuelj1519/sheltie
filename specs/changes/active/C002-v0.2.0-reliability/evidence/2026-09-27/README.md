@@ -12,7 +12,7 @@ env RUSTC_WRAPPER= CARGO_TARGET_DIR="$review_dir/target" \
   cargo build --locked --all-features --message-format=json > "$review_dir/build.jsonl"
 export SHELTIE_REVIEW_BIN="$(python3 -c 'import json,sys; print(next(x["executable"] for x in map(json.loads,open(sys.argv[1])) if x.get("executable") and x.get("target",{}).get("name")=="sheltie"))' "$review_dir/build.jsonl")"
 export SHELTIE_REVIEW_REPO="$PWD"
-python3 specs/changes/proposed/C002-v0.2.0-reliability/evidence/2026-09-27/request_probe.py
+python3 specs/changes/active/C002-v0.2.0-reliability/evidence/2026-09-27/request_probe.py
 ```
 
 其他 `*_probe.py` 以相同方式逐个运行。每个脚本在自己的临时目录中使用假数据；`boundary_probe.py` 的 self install 使用假 HOME，只修改该临时树。脚本用于观察当前候选，不把复现 bug 的 exit 0 当产品 PASS；修复者应把相应预期转成正式回归断言。`workbook_probe.py` 使用合成业务文档，不构成人工审批或真实 agent 交付证据。
