@@ -4,7 +4,7 @@
 
 Released：[`v0.1.0`](releases/v0.1.0/README.md)，MVP 与 T26 complete
 Active change：[`C002 v0.2.0 可靠性修复`](changes/active/C002-v0.2.0-reliability/README.md)，当前任务见其 [plan.md](changes/active/C002-v0.2.0-reliability/plan.md)
-Proposed：[`C004 可验收委派`](changes/proposed/C004-verifiable-delegation/README.md)、[`C005 执行者替换与任务接续`](changes/proposed/C005-executor-continuity/README.md)、[`C006 成果交付与依赖就绪`](changes/proposed/C006-delivery-and-readiness/README.md)、[`C007 运行前生成 Workbook`](changes/proposed/C007-pre-run-workbook-generation/README.md)，实验或探针均为 `not_run`
+Proposed：[`C004 可验收委派`](changes/proposed/C004-verifiable-delegation/README.md)、[`C005 执行者替换与任务接续`](changes/proposed/C005-executor-continuity/README.md)、[`C006 成果交付`](changes/proposed/C006-result-delivery/README.md)、[`C007 运行前生成 Workbook`](changes/proposed/C007-pre-run-workbook-generation/README.md)、[`C008 依赖就绪`](changes/proposed/C008-dependency-readiness/README.md)，实验或探针均为 `not_run`
 
 C002 已于 2026-09-27 采用。上游规格与合同描述 v0.2.0 目标（schema 2、`workbook-digest/v2`、新 Work 目录布局、`cli-result/v2`）；T01 勘误与审查见 C002 的 validation.md。产品实现进度只看 C002 的 plan.md。
 
