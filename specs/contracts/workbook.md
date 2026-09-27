@@ -218,6 +218,6 @@ kind = "back"
 | `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、可选输入接收打回意见、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
 
-另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十四条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
+另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十五条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
 
 样例文件的字节由测试固定。实现与样例不一致时，先改合同与样例再改实现，不能改期望迎合实现。

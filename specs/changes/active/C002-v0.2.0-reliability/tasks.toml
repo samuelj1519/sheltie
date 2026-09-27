@@ -80,7 +80,11 @@ test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T12]
-files = ["workbooks", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/contracts/workbook.md §6：spec-dev 的边数随本任务的回程边 24→25，事实同步。
+# specs/releases/v0.1.0/plan.md：legacy T11 卡列的 spec_dev_compiles_with_eleven_nodes_twenty_four_edges
+# 随本任务的图改动改名 spec_dev_compiles_with_eleven_nodes_twenty_five_edges 并由本任务接管；
+# 按 check-tests 规则把旧名改为原位注记（与 C002-T03 同一处置），不改归档计划的其他内容。
+files = ["workbooks", "crates", "specs/contracts/workbook.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 

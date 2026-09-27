@@ -19,7 +19,7 @@
 
 ## 基线
 
-`git rev-parse HEAD`：`<哈希>`
+原始基线（Work 开始时的 `git rev-parse HEAD`；改方案从上一版原样抄这一行，不重设）：`<哈希>`
 
 ## 风险
 
