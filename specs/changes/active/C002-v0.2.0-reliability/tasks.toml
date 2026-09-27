@@ -69,7 +69,13 @@ test_files = ["crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T11]
-files = ["examples/article-review", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/contracts/workbook.md §3 是 examples/article-review/flows/default.toml 的图
+# （§6「即本文 §3 的图」）；draft 增加可选 review.verdict 输入后两处必须同步。
+# specs/contracts/protocol.md attempt begin 的返回补「未绑定的可选输入值为 null」一句：
+# 本任务的 CLI 例要固定该形状，没有合同依据就是文档没写却断言的行为。
+# crates/sheltie-core/src/flow/compile.rs 的 rejects_input_from_node_that_cannot_reach_consumer
+# 夹具按样例字节同步替换目标（draft 输入改多行数组），断言语义不变。
+files = ["examples/article-review", "crates", "specs/contracts/workbook.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 

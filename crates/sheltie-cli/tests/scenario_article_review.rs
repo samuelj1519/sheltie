@@ -139,3 +139,98 @@ fn review_brief_lists_checklist_resource_with_frozen_path() {
         std::fs::read(&repo_copy).unwrap()
     );
 }
+
+// Task: C002-T11
+#[test]
+fn first_draft_marks_review_input_absent_without_body() {
+    let env = Env::new();
+    let wid = start_review(&env);
+    let b = env.begin(&wid, "draft");
+    assert_eq!(b["data"]["attempt"], "draft#1.0");
+    // 未绑定的可选输入在 inputs 里占一行、值是 null（协议 §3 attempt begin 的返回说明）。
+    // 用 get 断言：Index 对缺失键同样给 Null，固定不了 key 的存在性。
+    assert_eq!(
+        b["data"]["inputs"].as_object().unwrap().get("review"),
+        Some(&serde_json::Value::Null)
+    );
+    let brief = std::fs::read_to_string(b["data"]["brief_path"].as_str().unwrap()).unwrap();
+    // 合同 §4 模板：可选且未绑定写「尚无（上游 <node> 还没有产出）」。
+    assert!(brief.contains("| review | 尚无（上游 review 还没有产出） | |"));
+    assert!(brief.contains("来自: 入口"));
+    // 说明书讲清首次没有意见（合同 §3.2 回环标准写法）。
+    assert!(brief.contains("首次开工它标「尚无」"));
+    assert!(!brief.contains("attempts/review/"));
+}
+
+// Task: C002-T11
+#[test]
+fn back_to_draft_binds_review_verdict_path_with_source_occurrence() {
+    let env = Env::new();
+    let wid = start_review(&env);
+    let after_review = draft_then_review_fail(&env, &wid);
+    let b2 = env.follow_begin(&after_review, "draft");
+    assert_eq!(b2["data"]["attempt"], "draft#2.0");
+    let review = b2["data"]["inputs"]["review"].as_str().unwrap().to_string();
+    // 期望路径手写，不从引擎的布局 helper 生成。
+    assert!(
+        review.ends_with("/attempts/review/occurrence-001/attempt-000/outputs/review.md"),
+        "{review}"
+    );
+    let brief = std::fs::read_to_string(b2["data"]["brief_path"].as_str().unwrap()).unwrap();
+    // 来源 Occurrence 在「来自」行，产物路径在输入表。
+    assert!(brief.contains("来自: review#1（back 边）"));
+    assert!(brief.contains(&format!("| review | {review} | ")));
+    assert!(brief.contains("逐条回应审查意见再改"));
+    // 只传文件路径、不内联历史正文：意见正文只在绑定的文档里。
+    let body = std::fs::read_to_string(&review).unwrap();
+    assert_eq!(body, "output for review#1.0\n");
+    assert!(!brief.contains("output for review#1.0"));
+    assert!(!brief.contains("不通过。第二段论据不足。"));
+}
+
+// Task: C002-T11
+#[test]
+fn later_back_to_draft_binds_latest_review_occurrence() {
+    let env = Env::new();
+    let wid = start_review(&env);
+    let after_review = draft_then_review_fail(&env, &wid);
+    let b2 = env.follow_begin(&after_review, "draft");
+    let s2 = env.submit_all(&wid, &b2, "改了");
+    let r2 = env.follow_begin(&s2, "review");
+    let s3 = env.submit_all(&wid, &r2, "不通过。结论段还要再看。");
+    let b3 = env.follow_begin(&s3, "draft");
+    assert_eq!(b3["data"]["attempt"], "draft#3.0");
+    // 只改轮次这一个条件：绑定的是最近一次成功 review 的产物，不是第一轮的。
+    let review = b3["data"]["inputs"]["review"].as_str().unwrap().to_string();
+    assert!(
+        review.ends_with("/attempts/review/occurrence-002/attempt-000/outputs/review.md"),
+        "{review}"
+    );
+    let brief = std::fs::read_to_string(b3["data"]["brief_path"].as_str().unwrap()).unwrap();
+    assert!(brief.contains("来自: review#2（back 边）"));
+    let body = std::fs::read_to_string(&review).unwrap();
+    assert_eq!(body, "output for review#2.0\n");
+}
+
+// Task: C002-T11
+#[test]
+fn required_review_verdict_blocks_first_draft_begin() {
+    let env = Env::new();
+    let src = env.dir.path().join("ar-required");
+    copy_dir(&example_dir("article-review"), &src);
+    let flow = src.join("flows/default.toml");
+    // 只去掉 required = false 这一个条件，其余与样例相同。
+    let text = std::fs::read_to_string(&flow).unwrap().replacen(
+        "{ name = \"review\", from = \"review.verdict\", required = false }",
+        "{ name = \"review\", from = \"review.verdict\" }",
+        1,
+    );
+    std::fs::write(&flow, text).unwrap();
+    env.ok(&["workbook", "add", src.to_str().unwrap()]);
+    let wid = env.start("article-review", &[("topic", "x")]);
+    let (e, code) = env.fail(&["attempt", "begin", &wid, "--node", "draft"]);
+    assert_eq!(code, 1);
+    assert_eq!(e["error"]["code"], "INPUT_UNAVAILABLE");
+    assert_eq!(e["error"]["detail"]["input"], "review");
+    assert_eq!(e["error"]["detail"]["node"], "review");
+}
