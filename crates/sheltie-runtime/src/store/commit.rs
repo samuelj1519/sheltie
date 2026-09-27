@@ -20,6 +20,9 @@ pub struct CommitInput {
     pub workbook_insert: Option<super::WorkbookRow>,
     /// 本事务要删除的 `workbooks` 行（remove）。
     pub workbook_delete: Option<(String, String)>,
+    /// 与删除同事务的引用检查：有非终态 Work 引用时 `WORKBOOK_IN_USE`（§5.2）。
+    /// 损坏的 works 行在这里报 `STORE_CORRUPT`，不跳过。
+    pub workbook_in_use_check: Option<(String, String)>,
     pub request_id: String,
     /// `RequestIntent` canonical JSON 的 sha256（§2.1）。
     pub intent_hash: String,
@@ -186,6 +189,36 @@ impl Store {
                 }
                 _ => e.into(),
             })?;
+        }
+        if let Some((id, version)) = &input.workbook_in_use_check {
+            // 逐行校验后查引用；损坏行整体停止（GF-16）。
+            let mut stmt = tx.prepare("SELECT work_id, revision, status, state_json FROM works")?;
+            let rows = stmt.query_map([], |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, i64>(1)?,
+                    r.get::<_, String>(2)?,
+                    r.get::<_, String>(3)?,
+                ))
+            })?;
+            let mut referencing = Vec::new();
+            for row in rows {
+                let (work_id, revision, status, state_json) = row?;
+                let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;
+                if !row.state.status.is_terminal()
+                    && row.state.workbook.id.as_str() == id
+                    && row.state.workbook.version == *version
+                {
+                    referencing.push(row.state.work_id);
+                }
+            }
+            if !referencing.is_empty() {
+                return Err(Error::WorkbookInUse {
+                    id: id.clone(),
+                    version: version.clone(),
+                    works: referencing,
+                });
+            }
         }
         if let Some((id, version)) = &input.workbook_delete {
             let n = tx.execute(

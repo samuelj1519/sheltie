@@ -20,13 +20,14 @@ pub enum OpenMode {
     ReadWrite,
 }
 
-/// 用只读连接核对 `user_version` 与逐表建表语句。旧库拒绝前对文件没有任何写入
-///（不改 journal mode、不写 PRAGMA）。
+/// 核对 `user_version` 与逐表建表语句。识别连接**不执行任何会写库的操作**
+///（不改 journal mode、不写 PRAGMA、不建表）；普通打开而非 `READ_ONLY` 旗标，
+/// 因为 WAL 库的只读连接在写者活动或 `-shm` 缺席时会直接失败。库文件不存在由
+/// 调用方先行判断。
 fn validate_readonly(path: &AbsPath) -> Result<()> {
-    let conn = rusqlite::Connection::open_with_flags(
-        path.as_str(),
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
-    )?;
+    let conn = rusqlite::Connection::open(path.as_str())?;
+    // 识别连接也要等待本地写者（首次建库窗口）。
+    conn.busy_timeout(std::time::Duration::from_millis(5000))?;
     check_schema(&conn)
 }
 
@@ -120,12 +121,13 @@ impl Store {
             ),
             OpenMode::ReadWrite => rusqlite::Connection::open(self.path.as_str()),
         }?;
+        // 等待先于任何可能取写锁的 PRAGMA（journal_mode 在建库后的首次设置要等）。
+        conn.busy_timeout(std::time::Duration::from_millis(5000))?;
         // WAL 与 synchronous 改的是库文件，只读连接上写不进去；本来就持久在库里。
         if self.mode == OpenMode::ReadWrite {
             conn.execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")?;
         }
         conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-        conn.busy_timeout(std::time::Duration::from_millis(5000))?;
         Ok(conn)
     }
 

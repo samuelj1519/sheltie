@@ -26,6 +26,7 @@ fn input(
         work_id: Some(work.work_id.clone()),
         workbook_insert: None,
         workbook_delete: None,
+        workbook_in_use_check: None,
         expected_revision: expected,
         state: Some(work.clone()),
         request_id: request_id.to_string(),

@@ -708,6 +708,7 @@ impl WorkService {
             work_id: Some(decision.state.work_id.clone()),
             workbook_insert: None,
             workbook_delete: None,
+            workbook_in_use_check: None,
             expected_revision,
             state: Some(decision.state.clone()),
             request_id: request_id.to_string(),
