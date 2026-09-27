@@ -1,0 +1,20 @@
+{
+  "root": "/private/tmp/sheltie-git-probe-s_8vmagb",
+  "scaffold": "91ac1fb500aeb4a4cd72d8bf76cf0acec8bad108",
+  "task1": "135e6e0d8b2f6f31399f461604240fb8de206502",
+  "task2": "f00a15afaeba164562935958b9512f7a00fb0a2b",
+  "verify_task2_baseline_to_HEAD": [
+    "a.rs",
+    "b.rs"
+  ],
+  "actual_task2_changed": [
+    "b.rs"
+  ],
+  "final_review_after_replan_at_task1": [
+    "b.rs"
+  ],
+  "true_whole_change": [
+    "a.rs",
+    "b.rs"
+  ]
+}

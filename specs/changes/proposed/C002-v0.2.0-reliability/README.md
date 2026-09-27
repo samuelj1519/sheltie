@@ -1,36 +1,35 @@
-# C002：v0.2.0 可靠性修复
+# C002：统一 MVP 审查与 v0.2.0 可靠性修复
 
 状态：`proposed`
 目标版本：`v0.2.0`
-兼容性：`minor`
-基线：`31d7ddee18921b4066c7433a752c2000e5110869`
+兼容性：`breaking`（候选：新 Store 格式明确拒旧，旧数据原样保留）
+基线：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`
 Owner：待采用时指定
-权威性：未采用；不得据此修改产品代码
+权威性：审查与候选修复方案；产品修复 `not_run`
 
 ## 要解决的问题
 
-MVP 与 T26 已完成。后续复审确认了请求重放、输出路径、Workbook identity、start 副作用、Work 目录可读性、sample Workbook、skill 与 `spec-dev` 的一组可靠性问题。
+v0.1.0 已发布，MVP 与 T26 已被项目接受。独立全量审查确认：基本产品定位和三个 crate 的分工成立，但路径、摘要、幂等、崩溃恢复、事实视图、Workbook 交接与 CI 仍有缺口。本 package 是统一的问题与修复入口。
+
+## 阅读顺序
+
+1. [review.md](review.md)：产品价值、适用场景、架构评价、官方来源、审查覆盖和旧 C002 核对。
+2. [findings.md](findings.md)：统一问题清单、证据与任务映射。
+3. [spec.md](spec.md)：候选行为变化与明确边界。
+4. [design.md](design.md)：请求、路径、摘要、事务与恢复设计。
+5. [plan.md](plan.md)：任务、依赖、正反例、停止条件与交付门禁。
+6. [validation.md](validation.md)：本次审查证据及尚未执行的修复/宿主/发布验证。
 
 ## 成功判据
 
-- [findings.md](findings.md) 中的确认问题全部有合法例、单条件拒绝例和真实 caller 验证。
-- v0.1.0 完整 Work 无迁移可读；新 Work 使用版本化可读目录。
-- `INPUT_MISSING` 不分配序号、不创建最终 Work 目录。
-- 同 request-id 重放返回提交时响应与引擎效果。
-- rc 完成独立全链审查和真实宿主回归。
-
-## 不做什么
-
-本 change 不增加 MCP、宿主资源安装器、多人认证、并行节点或动态模板。
-
-## 文档入口
-
-- [findings.md](findings.md)：复审结论与证据。
-- [spec.md](spec.md)：产品 delta、成功判据和不做项。
-- [design.md](design.md)：候选 interface、顺序和兼容策略。
-- [plan.md](plan.md)：任务、依赖和完成判据。
-- [validation.md](validation.md)：当前验证状态和采用前验证要求。
+- 确认问题逐项有合法例、单条件反例和真实 caller 验证。
+- 同请求不会作用于其他目标，历史响应稳定，恢复不改历史产物或回退当前投影。
+- 管理根、Workbook 身份、产物摘要与发布恢复贯通；确定性 start 拒绝无业务副作用。
+- 协调者可发现输入、获得完整状态并按 Workbook 接收人工条件。
+- 修复候选通过独立全链审查、真实宿主回归及绑定同一候选的发布门禁。
 
 ## 采用条件
 
-人确认范围、兼容策略和目标版本后，移动到 `changes/active/`，指定 Owner，更新根规格、架构、合同与 ADR，再开始实现。仅有 review 或 plan 不构成采用。
+人采用后才移动到 active，指定 Owner、建立 tasks/progress，并先同步上游规格、合同和必要 ADR。新 Store、目录、摘要和协议的破坏性变更必须在采用时明确；默认不自动迁移、不清空旧管理根。若确有旧 Work 原地延续要求，另补有证据的迁移设计后再实施。
+
+本次更新完成审查与方案整合；没有采用 C002、修改产品代码、改变 MVP 历史状态或发布版本。

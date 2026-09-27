@@ -1,201 +1,72 @@
-# T26 同步提交与 Work 目录复审
+# MVP 统一问题清单
 
-审查日期：2026-09-27
-固定点：`4177b57738ef5f56a6699bbb5310342d32dadd68`
-候选：`31d7ddee18921b4066c7433a752c2000e5110869`
-差异：`git diff 4177b57...31d7dde`
-结论：**MVP 与 T26 已按项目决定完成；同步提交仍有事实归因和证据边界问题，新发现应进入后续版本提案，不能写成已经修复。**
+候选：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。结论：**需修改**。以下均为 OPEN，产品修复 `not_run`。P1 表示会破坏数据/身份/执行判断或交付链，下一版发布前必须关闭；P2 表示合同、可用性或验证缺口，同样纳入本次修复。优先级不是攻击严重度评级。
 
-本审查只新增 review 与修复方案文档，不修改产品代码、既有 T26 记录或任务状态。对应方案见 [C002 README](README.md) 与 [实施计划](plan.md)。
+保留原 O01–O13 编号；N01 起为本次补全或从旧叙述提升为独立可追踪的问题。代码行号均对应上述候选。审查过程、产品分析和旧方案裁决见 [review.md](review.md)，全部证据位置见 [validation.md](validation.md)。
 
-## 审查范围与证据
+## 1. 原有问题核对
 
-同步提交只有一项：
+| ID | 级别 | 确认问题、依据与可观察后果 | 修复任务 |
+| --- | --- | --- | --- |
+| O01 | P1 | 管理根隔离未贯通。`runtime/service.rs:114,591–597`、`observe.rs:15–40`：只检查叶文件，未统一验证祖先；固定 `tmp-pending` 可跟随软链。真实 CLI 将 `works` 链到根外后 start 在根外写整棵；状态卡临时路径软链使 cancel 覆盖外部文件。违反 INV-3、storage §6。范围扩大到读、写、chmod、rename、删除与恢复，不仅输出观察 | T03、T04 |
+| O02 | P1 | 请求指纹未含目标 Work。`service.rs:366–373,606–613`：cancel A 后相同 request-id cancel B 返回 `ok=true/replayed=true/revision=2/next=[]`，B 实际仍 active。违反 GF-15 和 INV-7 | T07 |
+| O03 | P1 | 已装 Workbook load 忽略登记摘要。`workbook_repo.rs:178–196`：verify 已 tampered，start 仍以新摘要接受同 id/version。source 校验与复制之间也没有对最终副本重新建立可信闭包。违反 GF-05、GF-17、storage §5.1 | T05、T09 |
+| O04 | P1 | 重放依赖当前观察，CLI 又读取当前状态拼历史响应。`service.rs:82–95,366–375`、`commands/attempt.rs:120–131`：已提交输出删除后同请求变 REQUEST_CONFLICT；cancel 后重放旧 submit 混入 cancelled 与旧 next；删除仓库版本后 start 重放 NOT_FOUND。违反 GF-15 | T07 |
+| O05 | P1 | 历史 engine.stats 用最新 WorkState 重建。`service.rs:534–552`：begin 后 submit，删除旧 stats 再重放 begin，恢复内容从 active 变 succeeded，与原 ArtifactRef 不符。违反 GF-07、GF-29 | T07 |
+| O06 | P2 | 新管理根不能直接 self install/add。CLI/`selfmgmt.rs:97` 先 open DB，父目录不存在时 STORE_CORRUPT。真实 CLI 已复现；初始化顺序和错误分类错误 | T05、T15 |
+| O07 | P1 | 目录摘要实现为双 SHA256；更严重的是合同 `path\0content` 拼接有歧义。`workbook_repo.rs:199–210`：相同公共文件加 `za="zb\0X"`，与 `za="", zb="X"` 得到相同 digest。这是编码碰撞，不需要破解 SHA256。旧“保留两阶段算法兼容”的方案无效 | T09 |
+| O08 | P1 | Workbook/self 写操作仅回显 request-id，未提供全局声明的重放语义。add 同 id 再执行是 WORKBOOK_EXISTS；remove/update/rollback 的重复动作也不能统一当成安全重试。协议 §1/GF-15 范围需要明确 | T08、T15 |
+| O09 | P1 | spec-dev 用骨架至 HEAD 的累计 diff 验当前任务，且禁止白名单文件内全部 todo。`instructions/verify.md:17–18`：任务 2 误判任务 1 的文件越界；共享文件中未来任务占位也被误拒。临时 Git 独立 oracle 已复现累计范围错误 | T12 |
+| O10 | P1 | 人工意见未完整进入后续输入。`plan-review.md:19` 与 `flows/default.toml:66–73`：scaffold 缺 decision；escalate→scaffold 缺 escalation。verify 可以升级给人却没有返回 verify 的边。仅加边仍需改 verify 的输入选择。违反 Workbook 自身的批准/继续约定 | T12 |
+| O11 | P2 | skill 单目录按 README 复制后，`../../specs/contracts/` 两条链接离开交付目录。安装产物不自包含；源码内链接检查无法证明安装后可用 | T13 |
+| O12 | P1 | 引擎输入与 worker 输出命名空间碰撞，路径祖先冲突未拒。`flow/parse.rs:276` 仅拒 exact brief.md，`decide.rs:637` 固定 stats.json。合法节点输出 stats.json 时无需 worker 写入也能 submit succeeded；brief.md/out 或 out 与 out/sub 安装成功但合同不可满足。须同时验证目标平台的文件名别名 | T03、T14 |
+| O13 | P2 | JSON 状态卡缺失败原因、输出摘要与大小。`render.rs:314–345`：fail reason 有明确文本，但 JSON summary=null 且无 reason，outputs 只有路径。与 protocol §6“同样字段”不符。data.next 与顶层 next 也使用不同形状 | T06 |
 
-```text
-31d7dde docs(specs): 记录首次真实运行
-```
+## 2. 补全的问题
 
-变更文件只有 `specs/releases/v0.1.0/decisions.md` 与 `specs/releases/v0.1.0/plan.md`。产品代码与上一轮全面审查时相同，因此上一轮确认的 13 项代码、Workbook 与交付问题没有因本次同步关闭。
+| ID | 级别 | 问题、证据与边界 | 修复任务 |
+| --- | --- | --- | --- |
+| N01 | P1 | start preflight 在副作用之后。`service.rs:101–147` 缺 topic 先分配序号并建冻结副本/inputs，最后 INPUT_MISSING；库无 Work 行但最终目录存在。真实 CLI 复现。storage 允许后续失败空号，不能豁免确定性输入检查 | T02、T07 |
+| N02 | P1 | Workbook 发布缺恢复归属。`workbook_repo.rs:98,134–143,220–228`：add 先插行后 rename；目录冲突后 row 留存，重试 WORKBOOK_EXISTS。每次 add 清空整棵 staging 会影响其他操作；remove 的引用检查与删行分属连接。add rename 失败后的残留行与重试失败已复现；并发清理、引用检查竞争和 kill 窗口本次为静态确认 | T05、T08 |
+| N03 | P2 | Store 建库 DDL/user_version 未在一个显式事务中，首次并发建库亦有 exists/open 竞争。`store/mod.rs:46–61`。decode_state 仅 serde，不校验行 work_id/revision 与 JSON 身份、状态关键组合；`works_referencing` 解码失败直接 continue。GF-16 要求准确拒绝，不能跳过损坏记录批准删除。静态确认，未做随机 kill 压测 | T07、T14 |
+| N04 | P2 | 身份取 USER/USERNAME 环境变量，不能等同“当前 OS 用户”；gate 无独立人工认证。`observe.rs:101–105`、protocol §1、宪章 §4 的承诺不一致。修真实主体来源并收窄单用户信任声明，不把身份修复误写成真人认证 | T01、T05、T10 |
+| N05 | P2 | `self install --modify-path` 写宿主 rc，与根规则只写管理根冲突；拼接未 shell quote；--json 时输出额外提示破坏单 JSON。`selfmgmt.rs:478–501`。隔离假 HOME 已复现 JSON 污染；删除该写宿主模式优于维护 shell 分支 | T01、T15 |
+| N06 | P2 | `self update --version` 只读取 latest 并比较字符串，不能实际选择历史版本；清单与资产两次 latest 解析会漂移。`selfmgmt.rs:130–143`。静态确认，未联网升级；应先解析固定 release/tag，再以同一版本定位资产 | T15 |
+| N07 | P2 | stats 事实口径不闭合。`render.rs:451,493–514` 丢弃 EdgeKind；NoLegalEdge 后 cancel 使 blocked_count 从 1 降到 0。真实 CLI 已复现。GF-29“哪种边/累计受阻”与 protocol 的当前状态推导公式冲突，采用时先统一上游 | T01、T06 |
+| N08 | P1 | spec-dev 改方案时重设基线，最终 review 只看新基线差异。`instructions/plan.md:10`、`review.md:10`。临时 Git oracle 证明任务 1 的变更从整体 review 范围消失；须保留 Work 原始基线与独立的每任务基线 | T12 |
+| N09 | P2 | article-review draft 未声明 optional review.verdict，back 后意见只靠聊天补充。Flow 与说明静态确认。绑定上一轮文档后验证第一次尚无、第二次正确来源 | T11 |
+| N10 | P2 | set_tree_readonly 不设 Workbook 根只读。`workbook_repo.rs:418–441`。自动生成文件会改变冻结定义摘要，导致整个 Work 不可读。权限缺口已静态确认；此前真实用户目录的 .DS_Store 事件本次未重验。只读位只能减少误写，不能证明同用户防篡改 | T05 |
+| N11 | P1 | check-specs 要求历史 tag/commit，而 build docs job 使用默认浅 checkout。隔离 `git clone --depth 1 --no-local file://…` 后检查明确失败。检查器末段还要求 Cargo 当前版本已有 release record/tag，阻断 active/RC 开发。C003 本地 PASS 未覆盖该入口 | T15 |
+| N12 | P2 | release 工作流独立触发，没有依赖相同候选的质量结果；stable 通过不证明 MSRV 1.85。`build.yml`/`release.yml` 静态确认。未断言目前 lock 必定不兼容 1.85；本机没有该工具链，本项是缺验证门禁 | T15 |
+| N13 | P2 | 测试有自证与假并发。runtime tests/service.rs:205–212 的 lazy spawn→join 链逐个执行；workbook_repo 测试用同 digest helper 生成 expected。崩溃测试只覆盖少数点，spec-dev 只有图结构测试。315 PASS 未覆盖本表真实反例 | 各修复任务、M1 |
+| N14 | P2 | 文件观察/资源索引先全文读取再验证大小，digest 收集整树内容；run_command 重复 load/build，stats 再读一次 status。`observe.rs:40,86`、`workbook_repo.rs:200–208`、`service.rs:365–400`。大于合同上限的输入仍可先占用大内存。修有限读取与重复扫描；本次未做 OOM/性能基准，不声称速度回退比例 | T04、T05、T07 |
 
-本轮重新执行：
+## 3. 证据重点与最小修复
 
-| 检查 | 结果 |
-| --- | --- |
-| `cargo nextest run --all-features --no-tests=pass` | PASS：315 passed，0 skipped，11.806 秒，不含编译 |
-| `cargo fmt --all -- --check` | PASS |
-| `scripts/check-docs.sh` | PASS：49 个文件（写入本审查文档之前） |
-| `scripts/check-task.sh T26` | PASS；只证明白名单、状态和提交格式，不证明 T26 语义完成 |
-| 当前 HEAD 构建的真实 CLI 探针 | 缺 `--workbook`：退出 2，无 Work 副作用；缺 `topic`：`INPUT_MISSING`，但分配序号并留下孤儿目录 |
-| 当前真实 `~/.sheltie` 只读检查 | `002-default` 目录存在但数据库无 Work 行；`article-review@1.0.0` 为 `tampered`；`003-local-engine` 的 status 为 `STORE_CORRUPT` |
+### 请求身份、响应与文件恢复
 
-临时探针使用独立的 `/tmp/sheltie-post-t26-review/` 和临时管理根。对真实 `~/.sheltie` 只执行 `find`、只读 SQLite 查询、`workbook verify` 与 `work status`，没有修改用户数据。
+[request-probes.json](evidence/2026-09-27/request-probes.json) 保存每次真实 argv、exit、stdout/stderr。O02 的响应显示目标 B 仍 active 却成功“重放取消”；O04 的旧 submit 响应保留 revision 3 和可 begin summary 的 next，却把 work_status 改成 cancelled。请求应绑定解析后的目标与用户参数；响应字段从提交时 snapshot 返回。
 
-## Standards
+历史响应可以保留历史 next，这是重放定义，但调用者要以新的 status 查询继续操作。当前 status-card 必须反映最新 Store；不能为修 O05 把所有文件都按历史字节覆盖。
 
-这一轴只评价同步提交是否符合仓库的事实、文档和审查标准。结论：5 项 finding，最高 P1。
+### 目录摘要
 
-### S1 · P1 · 把违反合同的副作用写成已接受代价
+[hash-framing.json](evidence/2026-09-27/hash-framing.json) 的两个合法源目录摘要相同。因为 `za\0zb\0X` 可以解释成一个文件的内容，也可以解释成两个文件。必须把路径与内容长度编码进摘要流，并对该流做一次 SHA256；独立测试手工组装字节。
 
-`specs/releases/v0.1.0/decisions.md:680` 把 `002` 描述为“空目录”，并用存储合同 §7.1 的“序号不回收”解释。实际目录含冻结 Workbook 和 `inputs/`，只是数据库没有 `works` 行。
+这是格式修复。用新 Store/schema 明确拒旧，比让同一字段同时代表错误旧摘要和新摘要更清楚。旧用户数据必须原样保留，不能“为了测试通过”清空或改写。
 
-协议 `work start` 明确要求先核对起始输入，再分配序号并建目录；错误码表又规定 `INPUT_MISSING` 的结果是“无变化”。§7.1 只允许**已经进入序号分配之后**的失败留下空号，不能覆盖本应在分配前完成的输入校验。
+### 文件和发布生命周期
 
-这项记录应改为 runtime 实现缺陷，并路由到代码、合同回归测试和崩溃/清理验证。
+[standards-probes.json](evidence/2026-09-27/standards-probes.json) 记录根外写入、固定临时路径覆盖、add 失败残留行、clean home 与 JSON 反例。修复必须贯穿 Service、WorkbookRepo、self 与恢复；局部增加 observe_confined_file 仍会遗漏 start、原子写和删除。
 
-### S2 · P2 · T26 完成记录没有保存两项原始观测
+已提交的未发布目录含唯一的输入/Workbook 字节，属于持久事实的待发布部分。它不能放在“24 小时可删”的临时区；只能按 Store 归属确认后清理。过期、时间戳或目录名都不构成单独删除依据。
 
-`specs/releases/v0.1.0/plan.md:446` 要求记录宿主 token 观测值，`specs/releases/v0.1.0/decisions.md:691` 明确写三轮均未取得。执行手册还要求 human 节点由人写 `final.md` 并自己 submit；记录显示含打回的 Run 3 仍由协调者代执行。
+### Workbook 的业务闭环
 
-真实运行、skill 发现、article-review、back 边和新会话均有叙述证据。项目已经接受 T26 与 MVP 完成；token 未采集、human 节点由协调者代执行仍应作为验收限制保留，并在后续版本的宿主回归中补测，不能改写成已经取得的证据。
+[git-probes.json](evidence/2026-09-27/git-probes.json)、[workbook-probes.json](evidence/2026-09-27/workbook-probes.json) 分别证明 Git 范围与机械绑定缺口。后者使用合成输出走图，只证明图/输入/next，不证明模型完成真实开发或真人批准。
 
-### S3 · P2 · 把 Workbook 副本完整性称为输入冻结
+## 4. 不重复计数的历史限制与设计建议
 
-`specs/releases/v0.1.0/decisions.md:693` 把 `.DS_Store` 触发的 Workbook 整目录摘要不符称为“输入按字节冻结”。项目词汇中，输入冻结是 `ArtifactRef.sha256` 对起始输入、上游产物和绑定输入的核对；本次验证的是存储合同 §5.1 的 Workbook 冻结副本完整性。两者都重要，但不是同一机制。
+旧 S1/P1 已归 N01，P4 已归 T02 的输入发现；S2/P2 是历史 human/token 证据限制，保留为 T16 回归要求；S3/S4/P3 是历史来源与措辞问题。没有原始 transcript 时，只标记“历史叙述/用户后续澄清/未验证”，不臆造 prompt。S5 的路由已由本 package 承担。
 
-### S4 · P2 · 证据边界超过引擎能证明的范围
-
-`specs/releases/v0.1.0/decisions.md:678` 写“全部结论都在本机用引擎复核过”。引擎可以证明 Store 中的状态、已接受命令、文件摘要和 stats，不能证明宿主会话中没有被拒命令、没有直接文件操作，也不能证明 prompt 原文。仓库没有保存原始会话记录的位置。
-
-记录应逐项标明来源：引擎、SQLite、文件摘要、宿主 transcript 或用户回忆。缺原始证据的结论写“未验证”或收窄范围。
-
-### S5 · P2 · 发现只写“随下个版本”，没有完成路由
-
-`specs/releases/v0.1.0/decisions.md:695` 只给两条 skill 文案建议，没有对应 Task 或上游合同修订；还遗漏了 `INPUT_MISSING` 孤儿目录和 `.DS_Store` 使 Work 不可读的问题。按 `engineering.md` §7，产品、机制、顺序和实现问题必须进入各自权威文件，不能只留一句未来处理。
-
-本提交只有文档变化，Fowler code smell baseline 不适用。
-
-## Spec
-
-这一轴检查同步提交是否满足 T26、协议与存储合同。结论：4 项 finding，最高 P1。
-
-### P1 · P1 · `work start` 的实现顺序违反协议
-
-真实 CLI 结果分成两个条件：
-
-| 条件 | 结果 |
-| --- | --- |
-| CLI 缺 `--workbook` | Clap 退出 2；runtime 未执行；没有新增 Work 目录或序号 |
-| 已选 `two-step`，缺 `--input topic=...` | 返回 `INPUT_MISSING`；分配 `001`；创建 `works/2026-09-26-001-default/{workbook,inputs}`；数据库没有对应 Work 行 |
-
-根因在 `crates/sheltie-runtime/src/service.rs:106-147`：先 `allocate_seq`、创建最终 Work 目录、复制 Workbook、创建 inputs，最后才调用 core `decide_start` 校验输入键。`specs/contracts/protocol.md:77-82` 定义的顺序相反。
-
-当前真实管理根也有相同证据：`2026-09-26-002-default/` 存在，`works` 表没有 `002`，`work_sequence.last = 5`。
-
-### P2 · P2 · 后续版本仍需补测人审行为和 token 观测
-
-含打回的 Run 3 证明了 back、第二次 Occurrence、独立 review agent 与 main 推进；它没有证明 human executor 的规定行为。token 项只有“未采集成功”，没有 `/cost` 前后值或等效宿主读数。T26 已完成，这两项作为 `v0.2.0` 宿主回归的新增验收条件，不回滚 MVP 状态。
-
-### P3 · P2 · T26 事实记录与用户后续澄清冲突
-
-用户后续明确说明开场没有提供 topic 和 Workbook；`specs/releases/v0.1.0/decisions.md:680` 却写 prompt 指定 article-review 并给了样例路径。仓库没有保存原始 prompt/transcript，无法由代码判断哪一项正确。
-
-记录应按原始宿主证据重写；若无法取得，明确写“用户后续澄清”与“原始 transcript 未保存”，不能保留两个互斥事实。同时，“全部写操作都在 next”应收窄为“成功 start 之后的 Work 推进写操作”，因为 `workbook add` 与首次 `work start` 本来不来自某个 Work 的 next。
-
-### P4 · P2 · 记录给出的 `workbook show` 补救路径不可执行
-
-T26 记录建议用 `workbook show` 查询起始输入键。但当前文本和 JSON 只输出 Flow 的 id、entry、节点 id/title/executor/gate 与边，不输出 `start.<key>`。真实 `workbook show two-step --json` 没有 `topic`。
-
-这不是只改 skill 就能解决的问题。协议和 CLI 必须先公开每张 Flow 的 `start_inputs`，skill 才能在调用 start 前检查并向用户补问。
-
-## 目录与文件组织审查
-
-### `1/0/` 是否必要
-
-两个维度都必要，纯数字命名不必要。
-
-- 第一层 `1` 是 Occurrence：同一 Node 经 back 或 re_review 再次到达时变成 `2`。它保证旧产物不被覆盖。
-- 第二层 `0` 是该 Occurrence 内 Attempt 的 retry 段：首次执行为 `0`，失败重试为 `1`。它保留每次失败与重试的事实。
-
-删掉任一层都会混淆“节点再次到达”和“同一次到达内重试”。适合修改的是目录名，而不是状态模型。
-
-建议映射：
-
-```text
-AttemptId draft#2.1
-→ attempts/draft/occurrence-002/attempt-001/
-```
-
-`occurrence-002` 和 `attempt-001` 能直接对应领域词，同时保持按文件名字典序浏览。外部 AttemptId 继续使用 `draft#2.1`，避免改 CLI 协议。
-
-### 建议的新 Work 目录
-
-```text
-works/<work-id>/
-  status-card.md
-  workbook/                         # 冻结 Workbook；根和子目录均 0555，文件 0444
-  start-inputs/
-    topic
-  attempts/
-    draft/
-      occurrence-001/
-        attempt-000/
-          brief.md
-          engine/
-            stats.json              # 仅声明 engine.stats 时存在
-          outputs/
-            article.md
-      occurrence-002/
-        attempt-000/
-          brief.md
-          outputs/
-            article.md
-```
-
-| 当前名称 | 结论 | 调整理由 |
-| --- | --- | --- |
-| `works/<work-id>/` | 保留 | WorkId 已含日期、序号和可读名称 |
-| `workbook/` | 保留，修权限 | 领域词准确；根目录必须与子目录一样只读，防 Finder 写 `.DS_Store` |
-| `inputs/` | 改为 `start-inputs/` | 当前名称容易与每次 Attempt 的绑定输入混淆；实际只存 `start.<key>` |
-| `attempts/` | 保留 | 与领域词 Attempt 一致 |
-| `<node>/` | 保留 | 按 Node 聚合历史，便于定位 |
-| `<n>/<retry>/` | 改为 `occurrence-NNN/attempt-NNN/` | 两层语义必要，纯数字不可自解释 |
-| `brief.md` | 保留在 Attempt 根 | 每个 Attempt 的主要入口，名称明确 |
-| `stats.json` | 移到 `engine/stats.json` | 标明由引擎生成，并与 worker 输出分开 |
-| 声明输出与 `brief.md` 混放 | 移到 `outputs/` | 提高浏览性，同时消除 `brief.md`、`stats.json` 与声明输出碰撞 |
-| `status-card.md` | 保留 | 它是 Work 的入口投影，名称与词汇表一致 |
-
-目录布局必须由一个 `WorkLayout` module 统一产生。core、runtime、渲染和测试不得继续分别拼字符串。
-
-### 冻结 Workbook 根目录不是只读
-
-`set_tree_readonly` 只把子目录改成 `0555`、文件改成 `0444`，传入的 `workbook/` 根保持 `0755`。注释称 macOS 移动或删除目录需要根目录可写；实测把根改为 `0555` 后，只要父目录可写，rename 仍成功。删除前已有 `make_tree_writable` 可显式恢复权限。
-
-当前真实 `article-review@1.0.0` 已因 `.DS_Store` 变为 `tampered`，`003-local-engine` 的 status 也因此不可读。这不是完整性机制“按设计工作”的全部结论，而是**自动生成的宿主元数据可以破坏一个完成 Work 的可读性**。应修根目录权限，并保留摘要拒绝作为第二道防线；不应简单把 `.DS_Store` 从摘要中忽略。
-
-## 上一轮 finding 的当前状态
-
-同步提交未改产品代码，以下 finding 全部仍为 OPEN：
-
-| 编号 | 问题 |
-| --- | --- |
-| O01 | 输出父目录符号链接可越出 Attempt 根并 chmod 外部文件 |
-| O02 | request-id 没绑定目标 Work，可跨 Work 虚假重放 |
-| O03 | 已装 Workbook load 忽略登记摘要，同版本内容可漂移 |
-| O04 | 重放依赖当前文件和当前状态，不能稳定返回原响应 |
-| O05 | 历史 `stats.json` 用最新状态重建，字节会变化 |
-| O06 | 不存在的管理根无法直接 install/add |
-| O07 | Workbook 目录摘要实现与文档公式不一致 |
-| O08 | Workbook 写操作回显 request-id 但不支持重放 |
-| O09 | `spec-dev` 单任务 verify 使用累计 diff，第二个任务会误报越界 |
-| O10 | `spec-dev` 人工批准条件没有进入后续任务书 |
-| O11 | skill 按 README 安装后，两条合同链接断裂 |
-| O12 | 工作输出可与 `brief.md`、`stats.json` 等引擎文件碰撞 |
-| O13 | JSON 状态卡遗漏 Attempt 失败原因 |
-
-T26 又提供了两个新的 Workbook/skill 证据：
-
-1. `article-review` 的 draft 没有把 `review.verdict` 声明为 optional input；打回意见依靠协调者临时追加，而不是由 Workbook 机械绑定。
-2. 指定 Workbook 未安装时不得静默换用其他 Workbook；用户未指定 Workbook 时必须先问。当前 skill 已写后一条，真实协调者没有遵守，说明需要加入明确反例和宿主回归，而不是只追加一句近义文案。
-
-## 调整后的总评
-
-产品定位与三 crate 架构仍然成立；315 个测试也继续证明既有状态机主路径。准确边界是：
-
-- `v0.1.0` 已发布。
-- T26 真实宿主执行、skill 调用、back 回环和产物链已经发生。
-- MVP 与 T26 已由项目接受为完成；人审动作与 token 观测是记录中的明确限制。
-- T26 暴露的 start 副作用、Workbook 冻结目录、输入发现和目录可读性问题尚未修复。
-- 上一轮 13 项 finding 仍然 OPEN。
-
-因此本次 review 对候选 `31d7dde` 的结论是 **MVP 完成，后续版本需修改**。修复方案当前仍是 proposed/`not_run`；采用时先改上游合同和任务链，再实施代码，不应只修 skill 文案或清理现有孤儿目录。
+`Manifest/FlowDef/NodeDef` 的公开可变字段、测试 helper 暴露、过期注释属于 T14 的接口与维护性修剪。没有实际调用链证据的泛化 smell 不升级为 P1，不要求全仓重写、普遍 newtype 或新的 trait 框架。
