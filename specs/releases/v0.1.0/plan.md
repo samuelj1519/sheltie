@@ -179,7 +179,7 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** `crates/sheltie-core/src/flow/parse.rs`。
 
-**测试。** `parses_three_node_flow`（用 [合同 §3](../../contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_parses_engine_stats_only`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`、`rejects_output_path_brief_md`、`rejects_unknown_edge_kind`。
+**测试。** `parses_three_node_flow`（用 [合同 §3](../../contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_parses_engine_stats_only`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`（原列 rejects_output_path_brief_md：C002-T03 起输出与引擎文件分目录，该拒绝取消，由 C002-T03 的 accepts_output_paths_named_brief_or_stats 覆盖，见 C002 evidence/t03）、`rejects_unknown_edge_kind`。
 
 **实现要点。** `InputSource::from_str` 先按第一个 `.` 切，前缀是 `start` 或 `resource` 走对应分支，否则是 `node.output` 且只允许一个 `.`。`resource.` 后面的路径可以含 `/`。默认值按合同 §3.2 表。
 

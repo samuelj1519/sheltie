@@ -66,7 +66,7 @@
 | C002-T01 勘误 | Owner Codex 的本次纠正提交；基线 `ceadc465` | fmt/check/Clippy/nextest exit 0；nextest 315 passed（1 leaky）；[原始运行](evidence/t01-correction/README.md) | 最终待提交树 docs/specs/check-task 见同目录门禁记录 | `/root/t01_standards` 独立 Standards PASS、`/root/t01_spec` 独立 Spec PASS；仅证明 T01 文档合同一致，后续实现仍 not_run |
 | C002-T14 | Owner Codex 的本次任务提交；基线 `2a37062` | fmt/check/Clippy/nextest exit 0；run ID `88333664-74c1-43da-857a-16076175dba2`，325 passed；[原始运行](evidence/t14/README.md) | 5 个公开 API `compile_fail`、docs/specs/check-tests/core-vocab/check-task 与行校验反例通过；真实 consumer 及证据路径白名单修正见原始记录 | `/root/t14_standards` Standards PASS；`/root/t14_spec` Spec PASS。Workbook remove 同事务仍归 T08，不记为 T14 PASS |
 | C002-T02 | Owner Claude 的本次任务提交；基线 `63d4d48` | fmt/check/Clippy/nextest exit 0；nextest 338 passed；[原始运行](evidence/t02/README.md) | show 双格式 start_inputs、缺/多键、非法名、缺 workbook/flow、新 home 不建库、exit 2 参数反例与同 request-id 补条件重试全部通过；home 比较用路径快照与直连 SQLite 独立 oracle | Owner 按任务卡自查通过；独立 Reviewer 按 plan 由 M1 承担。关闭 N01 与 GF-30 预检；T07 的意图指纹不在本任务 |
-| C002-T03 | not_run | not_run | not_run | not_run |
+| C002-T03 | Owner Claude 的本次任务提交；基线 `df0e120` | fmt/check/Clippy/nextest exit 0；nextest 347 passed；[原始运行](evidence/t03/README.md) | WorkLayout 纯函数与独立手写期望；输出路径可移植字符集、祖先与 ASCII 折叠别名拒绝；`outputs/brief.md` 声明合法并经真实 CLI begin→写输出→submit 提交成功；样例与 spec-dev 回归通过 | Owner 按任务卡自查通过；O12 产品闭环留待 T07（持久 caller 未切换，按 plan 不提前记关闭） |
 | C002-T04 | not_run | not_run | not_run | not_run |
 | C002-T09 | not_run | not_run | not_run | not_run |
 | C002-T05 | not_run | not_run | not_run | not_run |

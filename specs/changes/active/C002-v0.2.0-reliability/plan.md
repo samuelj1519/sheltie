@@ -33,7 +33,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T01 | done | 固定上游合同、兼容性与任务治理；勘误首次提交 | 人采用 |
 | C002-T14 | done | 收紧已校验定义、持久状态验证接口 | T01 |
 | C002-T02 | done | StartRequirements 与无副作用 preflight | T14 |
-| C002-T03 | not_run | 单一 WorkLayout 与输出冲突规则 | T14 |
+| C002-T03 | done | 单一 WorkLayout 与输出冲突规则 | T14 |
 | C002-T04 | not_run | 管理路径、文件句柄、限额和安全原子写 | T03 |
 | C002-T09 | not_run | 无歧义目录摘要与独立向量 | T04 |
 | C002-T05 | not_run | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |

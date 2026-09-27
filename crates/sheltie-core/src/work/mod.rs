@@ -5,6 +5,7 @@
 
 pub mod command;
 pub mod decide;
+pub mod layout;
 pub mod next;
 pub mod render;
 pub mod start;
@@ -12,6 +13,10 @@ pub mod state;
 
 pub use command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 pub use decide::{decide, input_paths_for, output_paths_for};
+pub use layout::{
+    attempt_dir, brief_path, engine_stats_path, output_path, outputs_dir, start_input_path,
+    start_inputs_dir, status_card_path, workbook_copy_dir,
+};
 pub use next::{NextOp, legal_next};
 pub use render::{
     NodeStatsJson, StatsJson, StatusCardJson, render_brief, render_stats, render_stats_json,

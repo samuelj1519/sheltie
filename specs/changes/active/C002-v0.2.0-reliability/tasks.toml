@@ -21,7 +21,10 @@ test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/she
 allow_test_changes = true
 
 [C002-T03]
-files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/releases/v0.1.0/plan.md：T01 修订 workbook 合同 §3.2 后，legacy T04 卡列的
+# rejects_output_path_brief_md 描述的拒绝已取消；按 check-tests 规则把该项改为原位注记，
+# 指向本任务的覆盖测试，不改归档计划的其他内容。
+files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
