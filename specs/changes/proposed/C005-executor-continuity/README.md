@@ -81,6 +81,7 @@ C005 的增量只在这些条件之外：非交互运行、周额度、跨宿主
 2. [spec.md](spec.md)：三级接续、候选能力、承诺合同和受影响的上游条款。
 3. [design.md](design.md)：分层、交接包、执行代次、等待与恢复、额度观测、驱动层 ADR 草案。
 4. [validation.md](validation.md)：两阶段实验与失败路径测试，目前全部为 `not_run`。
+5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 
 ## 采用条件
 

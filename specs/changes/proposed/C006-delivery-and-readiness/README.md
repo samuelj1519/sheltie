@@ -73,6 +73,7 @@ Owner：`待采用时指定`
 2. [spec.md](spec.md)：三个根、候选能力、承诺合同和受影响的上游条款。
 3. [design.md](design.md)：根绑定、交付协议、依赖检查器、ADR-D 草案。
 4. [validation.md](validation.md)：两个单元的探针与失败路径测试，目前全部为 `not_run`。
+5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 
 ## 采用条件
 
