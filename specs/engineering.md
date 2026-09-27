@@ -33,7 +33,7 @@ AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 
 ### 2.2 代码风格
 
-- 每个 crate 根 `#![forbid(unsafe_code)]`；lib crate 另加 `#![deny(clippy::unwrap_used, clippy::expect_used)]`。测试代码可以 `unwrap`。
+- 每个 crate 禁止 `unsafe`；根 `Cargo.toml` 的 `[workspace.lints.rust] unsafe_code = "forbid"` 是实际门禁。lib crate 另禁用 `clippy::unwrap_used` 与 `clippy::expect_used`；测试代码可以 `unwrap`。OS 主体使用 D-036 选定的安全 Rust API，不直接调用 `libc`。
 - 每个 crate 一个 `Error` 枚举，用 `thiserror`。错误携带足够定位的字段（路径、字段名、规则名），CLI 层映射为 [协议](contracts/protocol.md) §7 的错误码。不用 `anyhow` 穿透 crate 边界；`cli` 内部可以用。
 - ID、路径、摘要、有界文本都用 newtype，构造函数校验，字段私有。模块边界不传裸 `String`。
 - 所有 `serde` 结构 `#[serde(deny_unknown_fields)]`。枚举用 `rename_all = "snake_case"`。

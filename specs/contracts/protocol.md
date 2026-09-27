@@ -1,6 +1,6 @@
 # 公开操作、状态卡与错误
 
-本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v2`：写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v2`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
 
 ## 1. 全局约定
 
@@ -12,9 +12,9 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | --- | --- |
 | `--json` | 输出一行 JSON（§5 的响应封装）。不带时输出给人读的文本 |
 | `--home <dir>` | 覆盖管理根。默认取 `SHELTIE_HOME`，再默认 `~/.sheltie` |
-| `--request-id <uuid>` | Work 与 Workbook 写操作可选。不给时引擎生成并在响应里返回。协调者若要安全重试，先记下 id 再调用。**`self` 命令组不支持**：给出即 `INVALID_REQUEST`、退出码 2，查询也不虚构 request-id |
+| `--request-id <uuid>` | 仅 Work 与 Workbook 写操作可选。不给时引擎生成并在响应里返回。协调者若要安全重试，先记下 id 再调用。只读操作和整个 `self` 命令组都不支持：给出即 `INVALID_REQUEST`、退出码 2，查询不虚构 request-id |
 
-**主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
+**主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
 
 **只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改任何状态，不建管理根与任何目录，不刷状态卡。写操作的确定性拒绝同样不建管理根（GF-30）。
 
@@ -28,7 +28,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `self uninstall [--purge]` | 是 | 删 `bin/`；`--purge` 才删整个管理根 |
 | `self version` | 否 | 版本、平台、管理根、`SCHEMA_VERSION` |
 | `workbook add <dir>` | 是 | 校验并复制 Workbook 到管理根 |
-| `workbook list` | 否 | 列出已装 Workbook 的 id、版本、名称，标出每个 id 的最高版本 |
+| `workbook list` | 否 | 列出已装 Workbook 的 id、版本、名称，标出每个 id 的最高版本；待发布版本带 `pending_publish` |
 | `workbook show <id>[@<version>]` | 否 | 打印 manifest、宿主资源声明与每个 Flow 的节点、边、有序起始输入键 |
 | `workbook remove <id>@<version>` | 是 | 删除一个已装版本；有非终态 Work 引用时拒绝 |
 | `workbook verify [<id>@<version>]` | 否 | 重算目录摘要与库中记录对比 |
@@ -42,7 +42,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `attempt fail <work> --attempt <id> --reason <text>` | 是 | 标记尝试失败 |
 | `gate approve <work> --node <node>` | 是 | 真人批准门槛 |
 
-`<work>` 接受完整 `work_id`（如 `2026-09-24-001-article`）或唯一前缀（如 `2026-09-24-001`）。多个匹配报 `INVALID_REQUEST` 并列出候选。`--input k=v` 的 `v` 以 `@` 开头时读文件内容。`--version` 省略时取该 id 已装的最高版本（字面排序）。
+`<work>` 接受完整 `work_id`（如 `2026-09-24-001-article`）或唯一前缀（如 `2026-09-24-001`）。新请求的前缀有多个匹配时报 `INVALID_REQUEST` 并列出候选；已有 `request_id` 的重放先与 `requests.work_id` 中的原目标核对，后来的同前缀 Work 不改变历史请求。`--input k=v` 的 `v` 以 `@` 开头时读文件内容。`--version` 省略时取该 id 已装的最高版本（字面排序）。
 
 ## 3. 各操作细则
 
@@ -60,13 +60,15 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `workbook add <dir>`
 
-按 [Workbook 合同](workbook.md) §1 校验并复制；登记身份与摘要来自复制后的最终副本。成功返回 `{ id, version, digest, flows: [...], requires: [...] }`。`digest` 是 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。支持 `--request-id` 重放语义（GF-15）。
+先按源目录参数构造意图并查 `request_id`，命中时不读取当前源目录；新请求才按 [Workbook 合同](workbook.md) §1 校验并复制。登记身份与摘要来自复制后的最终副本。成功返回 `{ id, version, digest, flows: [...], requires: [...] }`。`digest` 是 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。支持 `--request-id` 重放语义（GF-15）。
+
+已提交但尚未发布的 add 在 `workbook list/show/verify` 中仍可按 [存储合同 §3.3](storage.md) 的同一 pending 原件只读访问；list 的对应项、show 的 `data`、verify 的对应结果均带 `pending_publish: true`，文本标「待发布」。verify 对原件摘要相符时 `status = ok`，不把暂缺最终目录误报为 `missing`。待发布的 `workbook remove` 则由下一次写操作先恢复后继续；只读遇其已删行不重新展示旧版本。
 
 ### `workbook remove <id>@<version>`
 
 1. 版本必须给全，不接受「最高版本」默认，防误删。
-2. 引用检查、删行、审计与请求登记在同一个事务（[存储合同 §5.2](storage.md)）：任何 `status ∈ {active, blocked}` 且 `workbook` 等于该 id 与版本的 Work 存在，报 `WORKBOOK_IN_USE`，`detail.works` 列出它们；`state_json` 解不开的行报 `STORE_CORRUPT`，不跳过。终态 Work 不阻断，它们各有冻结副本。
-3. 提交后把已核归属的目录移入本操作 pending 再删除；失败由效果恢复处理，不静默。支持 `--request-id` 重放语义。
+2. 引用检查、删行、审计与请求登记在同一个事务（[存储合同 §5.2](storage.md)）：先校验全部 `works` 行的 `state_json` 与冗余列，再从已校验状态查非终态引用；有引用时报 `WORKBOOK_IN_USE`，`detail.works` 列出它们。损坏行报 `STORE_CORRUPT`，不得按冗余 `status` 预筛后跳过。终态 Work 不阻断，它们各有冻结副本。
+3. 提交后把已核归属的目录移入本操作 pending 再删除；失败由效果恢复处理，不静默。成功 `data` 为 `{ id, version, replayed }`；支持 `--request-id` 重放语义。
 
 ### `workbook show <id>[@<version>]`
 
@@ -78,18 +80,18 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `work start`
 
-前四步是**无副作用预检**（GF-30）：全部通过才进入分配序号与物化目录；任一步失败时管理根、当日序号、目录、请求登记都与调用前相同（新管理根不因此建库）。
+以下步骤先做**无副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时管理根、当日序号、最终目录、请求登记都与调用前相同（新管理根不因此建库）。
 
-1. 解析全部 `--input`（`@file` 在 CLI 层读，失败退出码 2）；按 `--workbook` 找到已装版本并编译图，缺 Workbook 或 Flow 报 `NOT_FOUND`。
-2. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。
-3. 规范化名字：`--name` 省略时取 `flow` id；去首尾空白，连续空白替换为一个 `-`，转小写。规范化后必须只含小写字母、数字、汉字与单个 `-`（不以 `-` 开头或结尾，无连续 `-`）且 ≤ 48 字节，否则 `INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇` 等 `Han` 脚本的其他码点不接受。
-4. 同 `request_id` 已有记录：意图相同返回原响应（`replayed = true`），不同报 `REQUEST_CONFLICT`。此查只读，先于一切写。
+1. 解析 `--input` 的键和字面值或 `@file` 路径，规范化名字并构造 `RequestIntent`；此时不读 `@file` 内容、不装入 Workbook。名字省略时取 `flow` id；去首尾空白，连续空白替换为一个 `-`，转小写。规范化后必须只含小写字母、数字、汉字与单个 `-`（不以 `-` 开头或结尾，无连续 `-`）且 ≤ 48 字节，否则 `INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇` 等 `Han` 脚本的其他码点不接受。
+2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。
+3. 读取全部 `@file` 内容（失败退出码 2）；按 `--workbook` 找到已装版本并编译图。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
+4. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。
 
 预检通过后进入[存储合同 §2.3](storage.md) 的写路径：
 
 5. 分配 `work_id = <UTC 日期 YYYY-MM-DD>-<当日序号 001..999>-<名字>`。序号按 UTC 日期在 SQLite 事务内递增（[存储合同 §7](storage.md)），同一天第 1000 个 Work 报 `INVALID_REQUEST`。序号之后的失败会留下空号，这是接受的代价；序号之前的失败（上面四步）不烧号。
-6. 在本操作自己的 `pending/<内部 id>/` 里建 Work 目录：复制 Workbook 到 `workbook/` 并对副本重新核验摘要（[存储合同 §5.4](storage.md)），置只读；建 `start-inputs/`，把每个输入值写成文件 `start-inputs/<key>`，记 `ArtifactRef`。这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
-7. `current = entry#1`，`status = active`；COMMIT 后把整个目录 rename 到 `works/<work_id>/` 并写状态卡。
+6. 在本操作自己的 `pending/<内部 id>/payload/` 里建 Work 目录：复制 Workbook 到 `workbook/` 并对副本重新核验摘要（[存储合同 §5.4](storage.md)），置只读；建 `start-inputs/`，把每个输入值写成文件 `start-inputs/<key>`，记 `ArtifactRef`。这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
+7. `current = entry#1`，`status = active`；COMMIT 后把 `payload/` rename 到 `works/<work_id>/` 并刷新状态卡。
 8. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`，全部来自提交时快照。`requires` 是 Workbook 声明的全部宿主资源，按 manifest 声明顺序，每项原样是那条声明 `{ kind, name, version, digest, source }`（没写的字段为 `null`；`digest` 与其他回复一样是裸 64 位十六进制，不带 `sha256:` 前缀），供协调者在开工前自行确认；MVP 的引擎不检查宿主。
 
 例：`sheltie work start --workbook article-review --flow default --name "文章 初稿"` 得到 `2026-09-24-003-文章-初稿`。
@@ -99,17 +101,17 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 1. `node` 必须出现在当前 `next` 里，否则 `ILLEGAL_NEXT`（响应里附上当前 `next`）。
 2. 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`，记下来自哪个 Occurrence 与边类型。重试时沿用上一次的来源。
 3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。来源为 `resource.<path>` 的输入读 Work 的冻结副本，它没有单独记录的摘要，由副本整体摘要覆盖：副本缺失或摘要不符报 `STORE_CORRUPT`（[存储合同 §5.4](storage.md)），不报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
-4. 建 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.retry`），写 `brief.md`（§4）与 `engine.stats` 的 `engine/stats.json`，建 `outputs/` 输出目录。
+4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.retry`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
 5. 返回 `{ attempt_id, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
 
 `inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
-### `attempt submit <work> --attempt <id> --summary <text>`
+### `attempt submit <work> --attempt <id> --summary <text|@file>`
 
 1. Attempt 必须 `running`，否则 `ATTEMPT_NOT_RUNNING`。
 2. `summary` ≤ 4096 字节，否则 `SUMMARY_TOO_LONG`。
 3. 对每个声明输出：文件在 `output_dir/<path>` 存在、是普通文件且非符号链接、硬链接计数为 1（[存储合同 §4](storage.md)）；`required = true` 缺失报 `OUTPUT_MISSING`；大小超 `max_bytes` 报 `OUTPUT_TOO_LARGE`。任一失败则 Attempt 仍 `running`，不改任何状态。
-4. 记录每个输出的 `ArtifactRef`，文件置只读。
+4. 在提交时记录每个输出的 `ArtifactRef`；COMMIT 后按效果登记封存同一文件对象，失败按 §5 返回 `EFFECT_PENDING`。
 5. Attempt → `succeeded`。然后按顺序判断：节点 `gate = true` → Work `blocked(gate)`；节点无出边 → Work `succeeded`；有出边但每条的目标都已达 `max_visits` → Work `blocked(no_legal_edge)`；否则保持 `active`。
 6. 返回 `{ attempt_id, outputs: {name: ArtifactRef}, work_status }` 与 `next`。
 
@@ -145,7 +147,7 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 
 ### `work cancel <work>`
 
-非终态即可。Work → `cancelled`。正在 `running` 的 Attempt 保持原样，不伪造结束。
+非终态即可。Work → `cancelled`。正在 `running` 的 Attempt 保持原样，不伪造结束。返回 `{ work_id, work_status: "cancelled" }` 与空 `next`。
 
 ## 4. 任务书 `brief.md`
 
@@ -218,7 +220,7 @@ Work: <work_id>（<name>）
 }
 ```
 
-写操作的 `data` 附带 `replayed`；全部字段来自提交时的 `ResponseSnapshot`（[存储合同 §1.2](storage.md)），重放只是加 `replayed = true`，历史 `next` 原样保留——它是历史响应的一部分，续接要查当前状态。
+Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `true`；其他业务字段来自提交时的 `ResponseSnapshot`（[存储合同 §1.2](storage.md)），历史 `next` 原样保留——它是历史响应的一部分，续接要查当前状态。`request_id` 在这些写操作成功或返回 `EFFECT_PENDING` 时出现；`revision` 只在已提交的 Work 写操作中出现。只读与 `self` 响应省略不适用字段，`self` 没有请求快照或 `replayed`；所有响应都有 `next` 数组，无合法下一步时为空。
 
 失败：
 
@@ -230,7 +232,7 @@ Work: <work_id>（<name>）
 }
 ```
 
-效果恢复失败（业务已提交、文件未发布完成）时，失败封装额外携带：
+本次 Work/Workbook 写操作已提交，但自己的效果失败时，失败封装额外携带：
 
 ```json
 {
@@ -244,7 +246,19 @@ Work: <work_id>（<name>）
 }
 ```
 
-调用者据此知道业务已提交，用同一 `request_id` 重试触发恢复，不能当成未提交而换新请求。
+调用者据此知道**本次请求**已提交，用同一 `request_id` 重试触发恢复，不能当成未提交而换新请求。示例是 Work 写操作；Workbook 写操作的 `EFFECT_PENDING` 省略 `revision`，仍带 `request_id`、`committed` 与 `original`。
+
+若新请求 B 取得写锁后被旧请求 A 的未完成效果阻断，B 尚未提交。此时仍用 `EFFECT_PENDING`，但返回 `committed = false`、`request_id = B`，且 `error.detail.pending_request_id = A`、`error.detail.pending_original` 是 A 的提交时响应；不在顶层放 B 的 `original` 或 revision。调用者修复 A 的效果后，用 B 原来的 request-id 重试 B。不能把 A 的快照当作 B 的成功结果：
+
+```json
+{
+  "ok": false,
+  "error": { "code": "EFFECT_PENDING", "message": "旧请求的文件效果未完成", "detail": { "pending_request_id": "A", "pending_original": { "ok": true }, "cause": "IO" } },
+  "next": [],
+  "committed": false,
+  "request_id": "B"
+}
+```
 
 `next` 把当前合法下一步列成命令行，每项能直接执行。`next` 项的形状全协议只有一种（与状态卡 `data.next` 完全相同）：`op`、`args`、以及仅在 `attempt begin` 项上的 `edge`、`executor`、`tier`。只读操作也带 `next`。`executor` 与 `tier` 让协调者在派活前就知道该找谁、用什么模型。
 
@@ -252,7 +266,7 @@ Work: <work_id>（<name>）
 
 ## 6. 状态卡 `status-card.md`
 
-每次写操作提交后重写到 `works/<work_id>/status-card.md`，`work status` 打印同样内容。有界，无历史正文，只有指针。
+每次影响该 Work 的写操作提交后，`refresh_status_card` 从最新状态重写 `works/<work_id>/status-card.md`；失败按 §5 返回 `EFFECT_PENDING`。`work status` 直接从已校验的 Store 状态生成同样内容，未发布时按存储合同 §3.3 读取受保护的 pending 原件。有界，无历史正文，只有指针。
 
 ```markdown
 # Work <work_id>（<name>）
@@ -288,11 +302,11 @@ outputs:
 | --- | --- | --- | --- |
 | `INVALID_REQUEST` | 参数格式或取值不对 | 无变化 | 修参数 |
 | `NOT_FOUND` | Workbook、Work、节点或 Attempt 不存在 | 无变化 | 核对 id |
-| `WORKBOOK_INVALID` | manifest 或文件引用不合规，`detail.path` 指出位置 | 未复制任何文件 | 修 Workbook |
-| `FLOW_INVALID` | 图编译失败，`detail.path` 与 `detail.rule` 指出哪条规则 | 未复制任何文件 | 修 Flow |
+| `WORKBOOK_INVALID` | manifest 或文件引用不合规，`detail.path` 指出位置 | 无 Workbook 行或最终目录；可能留本请求私有 pending | 修 Workbook；下次持锁写操作核归属后清理 pending |
+| `FLOW_INVALID` | 图编译失败，`detail.path` 与 `detail.rule` 指出哪条规则 | 无 Workbook 行或最终目录；可能留本请求私有 pending | 修 Flow；下次持锁写操作核归属后清理 pending |
 | `WORKBOOK_EXISTS` | 同 id 同版本已装 | 无变化 | 升版本 |
 | `WORKBOOK_IN_USE` | 有非终态 Work 引用该版本，`detail.works` | 无变化 | 先完成或取消这些 Work |
-| `WORKBOOK_TAMPERED` | 已装目录摘要与记录不符或目录缺失，`detail.results` | 无变化 | 重新 `workbook add`；运行中的 Work 不受影响 |
+| `WORKBOOK_TAMPERED` | 已装目录摘要与记录不符或目录缺失，`detail.results` | 无变化 | 人工核查并恢复已登记版本的原字节；同版本 `add` 不会覆盖，已有 Work 使用各自冻结副本 |
 | `UPDATE_UNAVAILABLE` | 没有当前平台的发布，或网络不可达，`detail.reason` | 无变化 | 稍后重试或手工安装 |
 | `UPDATE_CHECKSUM_MISMATCH` | 下载文件摘要与发布清单不符 | 下载文件已删 | 重试；仍失败则报告 |
 | `INPUT_MISSING` | `work start` 缺起始输入键 | 无变化 | 补 `--input` |
@@ -306,9 +320,9 @@ outputs:
 | `OUTPUT_TOO_LARGE` | 输出超 `max_bytes` | 同上 | 缩小 |
 | `REQUEST_CONFLICT` | 同 `request_id` 不同目标或载荷 | 无变化 | 换新 id |
 | `REVISION_CONFLICT` | 并发写入，`expected_revision` 不符 | 无变化 | 重读状态卡再试 |
-| `EFFECT_PENDING` | 业务已提交，文件发布未完成（恢复失败），携带 `committed = true`、原 revision 与原响应 | 状态已提交；文件待发布 | 用同 `request_id` 重试触发恢复 |
+| `EFFECT_PENDING` | 效果未完成：当前请求已提交时 `committed = true` 并带自己的原响应；旧效果阻断新请求时 `committed = false`、`pending_request_id` 指向旧请求 | 看 `committed`：当前请求已提交或尚未提交；旧效果仍待恢复 | 先恢复 `pending_request_id`（若有），再用本次 `request_id` 重试 |
 | `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 2` 不符（含 schema 1 旧库） | 未打开，拒绝前无任何写入 | 换新管理根；旧记录用旧二进制配旧管理根查 |
-| `STORE_CORRUPT` | 数据库内容解不出合法状态 | 未修改 | 人工处理 |
+| `STORE_CORRUPT` | 数据库内容、持久身份或未提交阶段的受管文件不符合同 | 未提交新业务状态 | 人工核查；已提交效果中的完整性错误由 `EFFECT_PENDING.detail.cause` 指明 |
 | `IO` | 文件系统错误，`detail.path` 与系统错误文本 | 视具体操作，响应说明 | 检查权限与磁盘 |
 
 **重放不是错误。** 同 `request_id` 同意图（目标与用户参数相同）返回原响应，`ok = true`，`data.replayed = true`；观察到的文件变化不影响意图指纹。

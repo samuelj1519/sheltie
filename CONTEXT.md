@@ -8,7 +8,7 @@
 | --- | --- |
 | Sheltie / `sheltie` | 产品名、仓库名、二进制名 |
 | `sheltie-*` | 只用于 Cargo crate 名（`sheltie-core`、`sheltie-runtime`、`sheltie-cli`） |
-| `workbook/v1`、`flow/v1`、`cli-result/v1` | 格式版本串，不加产品前缀 |
+| `workbook/v1`、`flow/v1`、`cli-result/v2` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` 属于 v0.1.0 历史格式 |
 | `workbook.toml` | Workbook manifest 文件名 |
 | `SHELTIE_HOME` | 管理根环境变量，默认 `~/.sheltie` |
 

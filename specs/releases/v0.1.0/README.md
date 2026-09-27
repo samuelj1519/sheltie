@@ -20,6 +20,6 @@ MVP 实现了三个 crate、单一 `sheltie` 二进制、Workbook/Flow、Work �
 - [首次真实运行](decisions.md#首次真实运行) 在 Claude Code 中运行 three Works，包含一次 article-review back 回环。
 - [CHANGELOG](../../../CHANGELOG.md) 固定 v0.1.0 的用户可见变化；MVP 完成由项目在 `31d7dde` 接受。
 
-## 已知限制与后续提案
+## 已知限制与后续修复
 
-T26 后复审发现的可靠性、目录可读性、skill 与 Workbook 问题已归入 [C002 proposed change](../../changes/active/C002-v0.2.0-reliability/README.md)。C002 尚未采用，产品修复为 `not_run`；这些 finding 不改写 v0.1.0 的发布和 MVP 完成事实。
+T26 后复审发现的可靠性、目录可读性、skill 与 Workbook 问题已归入已采用的 [C002 change](../../changes/active/C002-v0.2.0-reliability/README.md)。修复进度只看 C002 的 [plan.md](../../changes/active/C002-v0.2.0-reliability/plan.md)；这些 finding 不改写 v0.1.0 的发布和 MVP 完成事实。

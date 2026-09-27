@@ -142,20 +142,21 @@ core 不做 I/O，但会告诉 runtime 做什么：
 | `WriteBrief { path, content }` | 把任务书写到 Attempt 目录 |
 | `WriteFile { path, content }` | 写引擎生成的输入文件（`engine.stats` 的 `stats.json`）。内容与摘要在 core 里已定 |
 | `SealOutputs { refs }` | 把输出文件置为只读（尽力而为；以记录的 sha256 为准） |
-| `RefreshStatusCard` | 用 `render_status_card` 重写 `status-card.md` |
+| `RefreshStatusCard` | 从最新状态重写 `status-card.md`；失败保留请求效果未完成标记 |
 
-效果在事务提交后执行。效果失败不回滚状态，只记日志；状态卡可随时从状态重新生成。
+效果在事务提交后执行。当前请求自己的效果失败不回滚状态，返回 `EFFECT_PENDING`（`committed = true`，带原响应）；旧效果阻断新请求时，新请求尚未提交，返回 `EFFECT_PENDING`（`committed = false`，带阻断请求 id），按协议 §5 处理。下一次写操作先完成未发布效果。状态卡始终从最新状态重新生成。
 
-runtime 另有一层**发布效果**（目录级），不是 core Effect：`publish_dir`（把 `pending/<内部 id>/` 原子改名为最终目录）、`delete_dir`（把已核归属的目录移入本操作自己的 pending 再删除）。发布效果随请求登记进 `requests.effects_json`，带完成标记；崩溃后由下一次写操作在同一管理根写锁内恢复（[存储合同 §5](contracts/storage.md)）。文件级效果的精确字节同样登记，保证历史任务书与 `stats.json` 按提交时字节恢复，而不是从最新状态重算。
+runtime 另有**目录效果**，不是 core Effect：`publish_dir`（把 `pending/<内部 id>/payload/` 原子改名为最终目录）、`prepare_attempt`（在已提交 Attempt 下安全建 `engine/`、`outputs/` 与输出父目录）、`delete_dir`（把已核归属的目录移入本操作自己的 pending 再删除）。这些效果随请求登记进 `requests.effects_json`，带完成标记；崩溃后由下一次写操作在同一管理根写锁内恢复（[存储合同 §3.2](contracts/storage.md)）。文件级效果的精确字节同样登记，保证历史任务书与 `engine/stats.json` 按提交时字节恢复，而不是从最新状态重算。
 
 ## 4. 一次写操作的流程
 
 写操作分三段：只读预检、持锁执行、提交后发布（[存储合同 §2](contracts/storage.md)）。
 
 ```text
-CLI 解析参数（@file 读取失败在此结束，退出码 2）
- → 只读预检：识别已有 schema、按 request_id 查可重放请求、解析目标、
-   完成全部确定性校验（Workbook/Flow/名字/起始输入键）。不建目录、不建锁、不写 PRAGMA。
+CLI 解析参数（只解析 @file 路径，不读内容）
+ → 只读预检：识别已有 schema、解析目标身份、构造 RequestIntent，先按 request_id
+   查可重放请求；未命中才读 @file、装入 Workbook/Flow 并完成确定性校验。
+   @file 读取失败退出码 2。不建目录、不建锁、不写 PRAGMA。
  → 取得管理根写锁（合法写操作才创建管理根与 .lock；只读命令永远不碰）
  → 锁内：
      重核 schema、request_id 与受并发影响的前置事实
@@ -164,11 +165,11 @@ CLI 解析参数（@file 读取失败在此结束，退出码 2）
      runtime.observe(cmd)             只读观察：输出文件、输入文件当前摘要
      core::decide(state, graph, cmd, ctx)
      store.commit(...)                单个 SQLite 事务：request 去重 + revision CAS + 状态 + 审计 + 效果登记
-     发布效果（rename pending → 最终目录、写 brief/stats、封存、状态卡）并标记完成
+     发布效果（rename pending/payload → 最终目录、写 brief/stats、封存、刷新状态卡）并标记完成
  → CLI 渲染 ResponseSnapshot + next
 ```
 
-同一个 `request_id` 在预检或事务内命中已提交记录：意图相同返回原 `ResponseSnapshot`（`replayed = true`），不同报 `REQUEST_CONFLICT`。这两种情形都不再调用 core。CLI 不再在提交后回读 Store 拼响应——响应字段全部来自提交时快照。
+同一个 `request_id` 在预检或事务内命中已提交记录：意图相同先完成未发布效果，再返回原 `ResponseSnapshot`（`replayed = true`）；不同报 `REQUEST_CONFLICT`。这两种情形都不再调用 core，也不读当前 Workbook、源目录、`@file` 或输出文件来重新决定业务。CLI 不再在提交后回读 Store 拼响应——响应字段全部来自提交时快照。
 
 `work start` 的当日序号在锁内、目录物化之前用独立小事务分配（[存储合同 §7](contracts/storage.md)）。序号一旦分配不回收，`start` 在序号之后的失败会留下一个空号，这是接受的代价；确定性拒绝（缺输入、非法名字、缺 Workbook/Flow）发生在分配之前，不烧号（GF-30）。
 
@@ -182,8 +183,10 @@ CLI 解析参数（@file 读取失败在此结束，退出码 2）
   .lock                             管理根写锁（写操作创建；只读命令不碰）
   bin/sheltie                       当前二进制；bin/sheltie.prev 供回滚
   tmp/                              下载与解包等一次性暂存，可按年龄清理
-  pending/<内部 id>/                Store 拥有的发布暂存：已提交未发布原件、待删除目录。
-                                     永不按年龄清理；只按 Store 登记恢复或清理
+  pending/<内部 id>.owner           先创建的引擎归属侧车；无 Store 引用时用于安全清理
+  pending/<内部 id>.deleted         Workbook 删除完成的持久标记
+  pending/<内部 id>/payload/        发布暂存：未提交准备区、已提交未发布原件、待删除目录。
+                                     永不按年龄清理；只按归属与 Store 引用恢复或清理
   workbooks/<id>/<version>/         workbook add 复制进来的目录，只读（含根）
     workbook.toml
     flows/<flow-id>.toml
@@ -226,7 +229,7 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 | ID | `work_id` 为 `<UTC 日期>-<当日序号>-<名字>`；`request_id` 用 `uuid` v7 | `work_id` 对人可读、目录名即 id；序号在 SQLite 事务内分配（见 [存储合同 §7](contracts/storage.md)） |
 | 摘要 | `sha2` | 产物冻结与 `workbook-digest/v2` |
 | 管理根写锁 | `fs4`（std 文件的排他锁） | 文件生命周期串行化；进程退出由 OS 释放（D-035） |
-| OS 主体 | `libc`（`geteuid` + `getpwuid_r`，仅 unix） | 真实进程身份，不采信 `USER`/`USERNAME`（D-036） |
+| OS 主体 | `users`（effective uid + 账户查询，仅 unix） | 安全 Rust API 取得进程身份，不采信 `USER`/`USERNAME`（D-036） |
 | 错误 | `thiserror` | 每个 crate 一个错误枚举；CLI 映射为错误码与退出码 |
 | 路径 | `camino` | UTF-8 路径，避免 `OsStr` 泛滥 |
 | 测试 | `insta`（状态卡快照）、`assert_cmd` + `tempfile`（CLI 端到端）、`proptest`（图编译） | 测行为，不测私有 helper |

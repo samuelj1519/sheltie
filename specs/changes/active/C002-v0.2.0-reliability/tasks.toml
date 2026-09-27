@@ -4,17 +4,17 @@
 # files / test_files 条目可以是文件或目录（目录作为前缀白名单）。
 
 [C002-T01]
-files = ["specs"]
+files = ["specs", "CONTEXT.md"]
 test_files = []
 allow_test_changes = true
 
 [C002-T14]
-files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store"]
+files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store", "crates/sheltie-runtime/src/workbook_repo.rs"]
 test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests"]
 allow_test_changes = true
 
 [C002-T02]
-files = ["crates/sheltie-core/src/work", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-core/src/flow", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
 test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
@@ -44,7 +44,7 @@ test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T07]
-files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github"]
+files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github", "specs/architecture.md", "specs/contracts", "specs/spec.md"]
 test_files = ["crates"]
 allow_test_changes = true
 
@@ -69,7 +69,7 @@ test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T13]
-files = ["skills", "scripts", "crates", ".github"]
+files = ["skills", "scripts", "crates", ".github", "README.md"]
 test_files = ["crates"]
 allow_test_changes = true
 
