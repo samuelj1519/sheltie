@@ -18,9 +18,14 @@ fn two_step_args() -> StartArgs {
         version: None,
         flow: "default".into(),
         name: None,
-        inputs: [("topic".to_string(), "t".to_string())]
-            .into_iter()
-            .collect(),
+        inputs: [(
+            "topic".to_string(),
+            sheltie_runtime::request::InputValue::Literal {
+                text: "t".to_string(),
+            },
+        )]
+        .into_iter()
+        .collect(),
     }
 }
 
@@ -59,13 +64,13 @@ fn svc_status_repo(home: &Home) -> WorkbookRepo {
 fn remove_refuses_tampered_directory() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let f =
         Path::new(home.workbook_dir("two-step", "1.0.0").as_str()).join("instructions/outline.md");
     std::fs::set_permissions(&f, std::fs::Permissions::from_mode(0o644)).unwrap();
     std::fs::write(&f, "改了").unwrap();
 
-    let err = r.remove("two-step", "1.0.0").unwrap_err();
+    let err = r.remove("two-step", "1.0.0", None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookTampered, "{err:?}");
     // 行还在。
     let store = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
@@ -83,7 +88,7 @@ fn ds_store_rejected_by_name_at_add() {
 
     let (_d, home) = temp_home();
     let r = repo(&home);
-    let err = r.add(&abs(&dst)).unwrap_err();
+    let err = r.add(&abs(&dst), None).unwrap_err();
     let msg = err.to_string();
     assert!(msg.contains(".DS_Store"), "{msg}");
     assert_eq!(r.list().unwrap().len(), 0, "不得留下 Workbook 行");
@@ -160,7 +165,9 @@ fn account_name_oracle() -> String {
 #[test]
 fn audit_principal_ignores_spoofed_user_env() {
     let (_d, home) = temp_home();
-    repo(&home).add(&abs(&example_dir("two-step"))).unwrap();
+    repo(&home)
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
 
     let out = std::process::Command::new(sheltie_bin())
         .env("USER", "spoofed-auditor")
@@ -224,13 +231,15 @@ fn work_readable_after_workbook_removed() {
     svc.submit(
         &wid,
         &sheltie_core::ids::AttemptId::parse("outline#1.0").unwrap(),
-        "完成",
+        &sheltie_runtime::request::InputValue::Literal {
+            text: "完成".to_string(),
+        },
         None,
     )
     .unwrap();
     svc.cancel(&wid, None).unwrap();
 
-    repo(&home).remove("two-step", "1.0.0").unwrap();
+    repo(&home).remove("two-step", "1.0.0", None).unwrap();
     let (card, json) = svc.status(&wid).unwrap();
     assert!(card.contains(&format!("# Work {wid}")));
     assert_eq!(json.status, sheltie_core::work::WorkStatus::Cancelled);

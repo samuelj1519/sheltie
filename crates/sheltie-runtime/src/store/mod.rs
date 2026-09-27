@@ -20,6 +20,49 @@ pub enum OpenMode {
     ReadWrite,
 }
 
+/// 用只读连接核对 `user_version` 与逐表建表语句。旧库拒绝前对文件没有任何写入
+///（不改 journal mode、不写 PRAGMA）。
+fn validate_readonly(path: &AbsPath) -> Result<()> {
+    let conn = rusqlite::Connection::open_with_flags(
+        path.as_str(),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )?;
+    check_schema(&conn)
+}
+
+fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
+    let version: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
+    if version != SCHEMA_VERSION {
+        return Err(Error::StoreSchemaMismatch {
+            detail: format!("user_version 是 {version}，期望 {SCHEMA_VERSION}"),
+        });
+    }
+    for (name, sql) in schema::TABLES {
+        let got: Option<String> = conn
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
+                [name],
+                |r| r.get(0),
+            )
+            .optional()?;
+        match got {
+            None => {
+                return Err(Error::StoreSchemaMismatch {
+                    detail: format!("缺表 {name}"),
+                });
+            }
+            Some(got) => {
+                if schema::normalize_sql(&got) != schema::normalize_sql(sql) {
+                    return Err(Error::StoreSchemaMismatch {
+                        detail: format!("表 {name} 的建表语句与 SCHEMA_VERSION 不符"),
+                    });
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 /// 存储句柄。不持久连接：每个方法开一个连接、用完关掉。
 #[derive(Debug, Clone)]
 pub struct Store {
@@ -30,36 +73,36 @@ pub struct Store {
 impl Store {
     /// 打开（必要时建库），并做结构校验。
     ///
-    /// 顺序（存储合同 §1.1）：库不存在且 `ReadWrite` → 建库、建表、写 `user_version`；
-    /// `ReadOnly` 且不存在 → `Error::NotFound`；`user_version != SCHEMA_VERSION` → `StoreSchemaMismatch`；
-    /// 逐表比对 `sqlite_master.sql` 与 `schema::TABLES`（去掉全部空白后相等）→ 否则 `StoreSchemaMismatch`。
+    /// 顺序（存储合同 §1.1）：库不存在且 `ReadWrite` → 一个事务内建表并写
+    /// `user_version`（无半结构库）；`ReadOnly` 且不存在 → `Error::NotFound`，
+    /// 不建库不建目录（GF-30）。库已存在时**先以只读连接**识别 `user_version` 与
+    /// 建表语句：`user_version ≠ 2`（含 schema 1 旧库）报 `StoreSchemaMismatch`，
+    /// 拒绝之前对库文件没有任何写入——不改 journal mode、不写 PRAGMA、不建表。
     pub fn open(path: &AbsPath, mode: OpenMode) -> Result<Self> {
-        let store = Self {
-            path: path.clone(),
-            mode,
-        };
         if !path.as_path().exists() {
             if mode == OpenMode::ReadOnly {
-                // 只读操作不建库、不建目录（GF-30）。
                 return Err(Error::NotFound {
                     what: path.to_string(),
                 });
             }
-            // 合法写操作可以创建新管理根：先建父目录再建库（O06；建库 DDL 与
-            // user_version 的同事务在 T07 的 schema 2 落地）。
+            // 合法写操作可以创建新管理根：先建父目录再建库（O06）。
             if let Some(parent) = path.as_path().parent() {
                 std::fs::create_dir_all(parent).map_err(|e| Error::io(parent.to_string(), e))?;
             }
+            let store = Self {
+                path: path.clone(),
+                mode,
+            };
             let conn = store.connect()?;
-            let mut script = String::new();
-            for (_, sql) in schema::TABLES {
-                script.push_str(sql);
-                script.push_str(";\n");
-            }
-            script.push_str(&format!("PRAGMA user_version = {SCHEMA_VERSION};\n"));
-            conn.execute_batch(&script)?;
+            conn.execute_batch(&schema::create_script())?;
             return Ok(store);
         }
+        // 只读识别：旧库拒绝前无写。
+        validate_readonly(path)?;
+        let store = Self {
+            path: path.clone(),
+            mode,
+        };
         store.validate()?;
         Ok(store)
     }
@@ -87,38 +130,10 @@ impl Store {
     }
 
     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。
+    /// 结构校验通过的读写连接才设 WAL。
     fn validate(&self) -> Result<()> {
         let conn = self.connect()?;
-        let version: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-        if version != SCHEMA_VERSION {
-            return Err(Error::StoreSchemaMismatch {
-                detail: format!("user_version 是 {version}，期望 {SCHEMA_VERSION}"),
-            });
-        }
-        for (name, sql) in schema::TABLES {
-            let got: Option<String> = conn
-                .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
-                    [name],
-                    |r| r.get(0),
-                )
-                .optional()?;
-            match got {
-                None => {
-                    return Err(Error::StoreSchemaMismatch {
-                        detail: format!("缺表 {name}"),
-                    });
-                }
-                Some(got) => {
-                    if schema::normalize_sql(&got) != schema::normalize_sql(sql) {
-                        return Err(Error::StoreSchemaMismatch {
-                            detail: format!("表 {name} 的建表语句与 SCHEMA_VERSION 不符"),
-                        });
-                    }
-                }
-            }
-        }
-        Ok(())
+        check_schema(&conn)
     }
 
     /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。

@@ -9,7 +9,7 @@ pub mod workbook;
 use sheltie_runtime::store::OpenMode;
 use sheltie_runtime::{Home, Store};
 
-use crate::cli::{Cli, Group};
+use crate::cli::{Cli, Group, WorkCmd, WorkbookCmd};
 use crate::output::{self, Outcome};
 
 /// 一次调用共享的东西。
@@ -36,6 +36,22 @@ pub fn dispatch(cli: Cli) -> i32 {
             return out.exit_code;
         }
     };
+    // 只读操作与整个 self 组不支持 --request-id：给出即参数错误（协议 §1）。
+    let read_only = matches!(
+        cli.group,
+        Group::SelfCmd(_)
+            | Group::Workbook(
+                WorkbookCmd::List | WorkbookCmd::Show { .. } | WorkbookCmd::Verify { .. }
+            )
+            | Group::Work(WorkCmd::List | WorkCmd::Status { .. } | WorkCmd::Stats { .. })
+    );
+    if cli.request_id.is_some() && read_only {
+        let out = crate::output::param_error(
+            "--request-id 只用于 Work 与 Workbook 写操作；只读与 self 命令不支持".to_string(),
+        );
+        output::print(&out, cli.json);
+        return out.exit_code;
+    }
     let ctx = Ctx {
         home,
         json: cli.json,

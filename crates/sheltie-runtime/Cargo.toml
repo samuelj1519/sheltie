@@ -20,6 +20,7 @@ sha2 = { workspace = true }
 sheltie-core = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
+fs4 = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 uzers = { workspace = true }

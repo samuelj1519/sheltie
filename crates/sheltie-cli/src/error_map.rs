@@ -80,6 +80,28 @@ fn detail_of(err: &Error) -> Option<serde_json::Value> {
         Error::RevisionConflict { expected, actual } => {
             json!({ "expected": expected, "actual": actual })
         }
+        Error::EffectPending {
+            committed,
+            request_id,
+            pending_request_id,
+            detail,
+            original,
+        } => {
+            let mut d = json!({
+                "committed": committed,
+                "request_id": request_id,
+                "cause": detail,
+            });
+            if let Some(p) = pending_request_id {
+                d["pending_request_id"] = json!(p);
+            }
+            if let Some(o) = original {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(o) {
+                    d["pending_original"] = v;
+                }
+            }
+            d
+        }
         Error::StoreSchemaMismatch { detail } | Error::StoreCorrupt { detail } => {
             json!({ "detail": detail })
         }

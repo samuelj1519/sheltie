@@ -149,7 +149,7 @@ pub fn render_brief(
         out.push_str(&format!(
             "| {} | {} | {} | {} |\n",
             decl.name,
-            attempt_dir.join(&decl.path),
+            crate::work::layout::output_path(&attempt_dir, &decl.path),
             if decl.required { "是" } else { "否" },
             human_size(decl.max_bytes)
         ));

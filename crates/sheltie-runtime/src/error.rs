@@ -25,8 +25,19 @@ pub enum Error {
     UpdateChecksumMismatch { expected: String, actual: String },
     #[error("{what} 不存在")]
     NotFound { what: String },
-    #[error("请求 {request_id} 已用不同载荷提交过")]
+    #[error("请求 {request_id} 已用不同意图提交过")]
     RequestConflict { request_id: String },
+    /// 效果未完成（协议 §5）：`committed = true` 表示**本次请求**已提交但自己的效果
+    /// 失败，携带原响应；`committed = false` 表示被旧请求的未完成效果阻断，携带
+    /// `pending_request_id` 与其提交时响应。
+    #[error("效果未完成（committed={committed}）：{detail}")]
+    EffectPending {
+        committed: bool,
+        request_id: String,
+        pending_request_id: Option<String>,
+        detail: String,
+        original: Option<String>,
+    },
     #[error("revision 冲突：期望 {expected}，实际 {actual}")]
     RevisionConflict { expected: u64, actual: u64 },
     #[error("数据库结构与 SCHEMA_VERSION 不符：{detail}")]
@@ -54,6 +65,7 @@ impl Error {
             Self::UpdateChecksumMismatch { .. } => ErrorCode::UpdateChecksumMismatch,
             Self::NotFound { .. } => ErrorCode::NotFound,
             Self::RequestConflict { .. } => ErrorCode::RequestConflict,
+            Self::EffectPending { .. } => ErrorCode::EffectPending,
             Self::RevisionConflict { .. } => ErrorCode::RevisionConflict,
             Self::StoreSchemaMismatch { .. } => ErrorCode::StoreSchemaMismatch,
             Self::StoreCorrupt { .. } => ErrorCode::StoreCorrupt,

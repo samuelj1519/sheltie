@@ -12,6 +12,6 @@ fn self_version_works_without_home() {
     // 管理根目录存在但里面什么都没有；self version 不需要 store.db。
     let v = env.ok(&["self", "version"]);
     assert_eq!(v["data"]["version"], env!("CARGO_PKG_VERSION"));
-    assert_eq!(v["data"]["schema_version"], 1);
+    assert_eq!(v["data"]["schema_version"], 2);
     assert!(!env.dir.path().join("store.db").exists());
 }

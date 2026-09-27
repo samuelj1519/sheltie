@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use serde_json::json;
 use sheltie_core::ids::WorkId;
-use sheltie_core::work::{Reply, WorkState};
+use sheltie_core::work::Reply;
 use sheltie_runtime::store::OpenMode;
 use sheltie_runtime::{Response, WorkService};
 
@@ -35,17 +35,6 @@ pub(crate) fn service(ctx: &Ctx, mode: OpenMode) -> Result<WorkService, Outcome>
 /// `<work>` 前缀解析；零个或多个匹配都是错误Outcome。
 pub(crate) fn resolve(svc: &WorkService, work: &str) -> Result<WorkId, Outcome> {
     svc.resolve_work(work)
-        .map_err(|e| crate::error_map::to_outcome(&e))
-}
-
-/// 只读加载某个 Work 的状态（`name`、`workbook`、`flow`、`status` 不在 reply 里）。
-fn load_state(ctx: &Ctx, work: &WorkId) -> Result<WorkState, Outcome> {
-    let store = ctx
-        .store(OpenMode::ReadOnly)
-        .map_err(|e| crate::error_map::to_outcome(&e))?;
-    store
-        .load_work(work)
-        .map(|row| row.state)
         .map_err(|e| crate::error_map::to_outcome(&e))
 }
 
@@ -90,32 +79,16 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let Reply::Started {
-        work_id,
-        work_dir,
-        requires,
-    } = &resp.reply
-    else {
-        return reply_mismatch("Started");
+    // 响应字段全部来自提交时快照（cli-result/v2）：CLI 不再回读 Store 拼数据（O04）。
+    let work_id = match &resp.reply {
+        Reply::Started { work_id, .. } => work_id.clone(),
+        other => return reply_mismatch("Started", other),
     };
-    let state = match load_state(ctx, work_id) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let data = json!({
-        "work_id": work_id.as_str(),
-        "name": state.name.as_str(),
-        "workbook": {
-            "id": state.workbook.id.as_str(),
-            "version": state.workbook.version,
-            "digest": state.workbook.digest.as_str(),
-        },
-        "flow": state.flow.as_str(),
-        "work_dir": work_dir.as_str(),
-        "requires": requires,
-        "replayed": resp.replayed,
-    });
-    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, work_id);
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
+    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, &work_id);
     output::ok_work(
         text,
         Some(resp.request_id),
@@ -208,19 +181,14 @@ fn cancel(ctx: &Ctx, work: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let state = match load_state(ctx, &wid) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
     let mut text = format!("已取消 {wid}\n");
     if resp.next.is_empty() {
         text.push_str("Work 已结束，没有下一步。\n");
     }
-    let data = json!({
-        "work_id": wid.as_str(),
-        "work_status": state.status,
-        "replayed": resp.replayed,
-    });
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
     output::ok_work(
         text,
         Some(resp.request_id),
@@ -248,10 +216,10 @@ pub(crate) fn next_lines(head: String, resp: &Response, work: &WorkId) -> String
 }
 
 /// runtime 保证 reply 与命令对应；对不上说明两端不一致。
-pub(crate) fn reply_mismatch(expected: &str) -> Outcome {
+pub(crate) fn reply_mismatch(expected: &str, got: &Reply) -> Outcome {
     crate::output::err(
         sheltie_core::ErrorCode::StoreCorrupt,
-        format!("响应与命令不匹配（期望 {expected}）"),
+        format!("响应与命令不匹配（期望 {expected}，实际 {got:?}）"),
         None,
         Vec::new(),
     )

@@ -56,7 +56,7 @@ fn work_start_accepts_at_file_input() {
     let f = env.dir.path().join("topic.txt");
     std::fs::write(&f, "来自文件").unwrap();
     let wid = env.start("two-step", &[("topic", &format!("@{}", f.display()))]);
-    let content = std::fs::read_to_string(env.work_dir(&wid).join("inputs/topic")).unwrap();
+    let content = std::fs::read_to_string(env.work_dir(&wid).join("start-inputs/topic")).unwrap();
     assert_eq!(content, "来自文件");
 }
 

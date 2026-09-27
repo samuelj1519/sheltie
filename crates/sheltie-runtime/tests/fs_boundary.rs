@@ -25,6 +25,12 @@ fn snapshot(path: &Path) -> (Vec<u8>, u32) {
     (bytes, mode)
 }
 
+fn lit(s: &str) -> sheltie_runtime::request::InputValue {
+    sheltie_runtime::request::InputValue::Literal {
+        text: s.to_string(),
+    }
+}
+
 fn start_args(inputs: &[(&str, &str)]) -> StartArgs {
     StartArgs {
         workbook_id: "two-step".into(),
@@ -33,7 +39,14 @@ fn start_args(inputs: &[(&str, &str)]) -> StartArgs {
         name: None,
         inputs: inputs
             .iter()
-            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .map(|(k, v)| {
+                (
+                    k.to_string(),
+                    sheltie_runtime::request::InputValue::Literal {
+                        text: v.to_string(),
+                    },
+                )
+            })
             .collect(),
     }
 }
@@ -47,7 +60,9 @@ fn works_parent_symlink_blocks_start_and_keeps_sentinel_untouched() {
     let before = snapshot(&sent);
 
     let (_d, home) = temp_home();
-    repo(&home).add(&abs(&example_dir("two-step"))).unwrap();
+    repo(&home)
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
     // 把 works 换成指向根外的软链。
     let works = home.works_dir();
     std::os::unix::fs::symlink(outside.path(), works.as_path()).unwrap();
@@ -96,7 +111,7 @@ fn leaf_symlink_input_rejected_at_observation() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(start_args(&[("topic", "t")]), None).unwrap());
     // 有人把起始输入换成指向哨兵的软链。
-    let input = Path::new(home.work_dir(&wid).as_str()).join("inputs/topic");
+    let input = Path::new(home.work_dir(&wid).as_str()).join("start-inputs/topic");
     std::fs::remove_file(&input).unwrap();
     std::os::unix::fs::symlink(&sent, &input).unwrap();
 
@@ -207,7 +222,12 @@ fn oversize_declared_output_rejected_at_observation_as_output_too_large() {
     drop(f);
 
     let err = svc
-        .submit(&wid, &AttemptId::parse("outline#1.0").unwrap(), "s", None)
+        .submit(
+            &wid,
+            &AttemptId::parse("outline#1.0").unwrap(),
+            &lit("s"),
+            None,
+        )
         .unwrap_err();
     assert_eq!(
         err.code(),
@@ -240,7 +260,12 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
 
     let before = svc.status(&wid).unwrap();
     let err = svc
-        .submit(&wid, &AttemptId::parse("outline#1.0").unwrap(), "s", None)
+        .submit(
+            &wid,
+            &AttemptId::parse("outline#1.0").unwrap(),
+            &lit("s"),
+            None,
+        )
         .unwrap_err();
     assert!(err.to_string().contains("符号链接"), "{err:?}");
     let after = svc.status(&wid).unwrap();
