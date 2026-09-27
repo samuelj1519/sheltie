@@ -450,7 +450,7 @@ kind = "main"
 
     fn observe(&self, path: &AbsPath) -> Option<ObservedFile> {
         self.files.get(path).map(|bytes| {
-            ObservedFile::for_test(path.clone(), Sha256Hex::of_bytes(bytes), bytes.len() as u64)
+            ObservedFile::new(path.clone(), Sha256Hex::of_bytes(bytes), bytes.len() as u64)
         })
     }
 

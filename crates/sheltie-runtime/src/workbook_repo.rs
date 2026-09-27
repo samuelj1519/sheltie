@@ -40,7 +40,7 @@ pub struct LoadedWorkbook {
 
 impl LoadedWorkbook {
     pub fn flow(&self, id: &str) -> Option<&(FlowDef, Graph)> {
-        self.flows.iter().find(|(f, _)| f.id.as_str() == id)
+        self.flows.iter().find(|(f, _)| f.id().as_str() == id)
     }
 }
 
@@ -88,10 +88,10 @@ impl WorkbookRepo {
         let res = build_resource_index(dir)?;
         let manifest = parse_manifest(&read_utf8(&dir.join(&RelPath::new("workbook.toml")?))?)?;
         let mut flow_defs = Vec::new();
-        for path in &manifest.flows {
+        for path in manifest.flows() {
             let def = parse_flow(&read_utf8(&dir.join(path))?)?;
             let _ = compile(&def, &manifest, &res)?;
-            flow_defs.push(def.id.as_str().to_string());
+            flow_defs.push(def.id().as_str().to_string());
         }
         // 2. staging：先顺手清掉上次崩溃留下的残留。
         let staging_root = self.home.staging_dir();
@@ -118,15 +118,15 @@ impl WorkbookRepo {
         let digest = Self::digest_dir(staging)?;
         let final_dir = self
             .home
-            .workbook_dir(manifest.id.as_str(), &manifest.version);
+            .workbook_dir(manifest.id().as_str(), manifest.version());
         let rel_dir = final_dir
             .as_path()
             .strip_prefix(self.home.root().as_path())
             .map(|p| p.to_string())
             .unwrap_or_else(|_| final_dir.as_str().to_string());
         let row = WorkbookRow {
-            id: manifest.id.as_str().to_string(),
-            version: manifest.version.clone(),
+            id: manifest.id().as_str().to_string(),
+            version: manifest.version().to_string(),
             digest: digest.as_str().to_string(),
             dir: rel_dir,
             added_at: crate::observe::now().as_str().to_string(),
@@ -144,9 +144,9 @@ impl WorkbookRepo {
             digest,
             flows: flow_ids.to_vec(),
             requires: manifest
-                .requires
+                .requires()
                 .iter()
-                .map(|r| format!("{}:{}", r.kind.as_str(), r.name))
+                .map(|r| format!("{}:{}", r.kind().as_str(), r.name()))
                 .collect(),
         })
     }
@@ -160,7 +160,7 @@ impl WorkbookRepo {
         let res = build_resource_index(dir)?;
         let manifest = parse_manifest(&read_utf8(&dir.join(&RelPath::new("workbook.toml")?))?)?;
         let mut flows = Vec::new();
-        for path in &manifest.flows {
+        for path in manifest.flows() {
             let def = parse_flow(&read_utf8(&dir.join(path))?)?;
             let graph = compile(&def, &manifest, &res)?;
             flows.push((def, graph));
@@ -247,23 +247,15 @@ impl WorkbookRepo {
         })
     }
 
-    /// 引用本版本且非终态的 Work。先按 `status` 列过滤，再解 `state_json` 核对。
+    /// 引用本版本且非终态的 Work。先验证全部持久行，不按冗余 status 预筛。
     pub(crate) fn works_referencing(&self, id: &str, version: &str) -> Result<Vec<WorkId>> {
-        let conn = self.store.connect()?;
-        let mut stmt = conn.prepare(
-            "SELECT work_id, state_json FROM works WHERE status IN ('active', 'blocked')",
-        )?;
-        let rows = stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?;
         let mut out = Vec::new();
-        for row in rows {
-            let (_work_id, state_json) = row?;
-            // 冗余列只当索引用；身份以 state_json 里的 workbook 引用为准。
-            let state: sheltie_core::work::WorkState = match serde_json::from_str(&state_json) {
-                Ok(s) => s,
-                Err(_) => continue,
-            };
-            if state.workbook.id.as_str() == id && state.workbook.version == version {
-                out.push(state.work_id);
+        for row in self.store.list_works()? {
+            if !row.state.status.is_terminal()
+                && row.state.workbook.id.as_str() == id
+                && row.state.workbook.version == version
+            {
+                out.push(row.state.work_id);
             }
         }
         Ok(out)

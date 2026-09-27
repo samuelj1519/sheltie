@@ -13,9 +13,9 @@ Active change：[C002](active/C002-v0.2.0-reliability/README.md)
 
 ## Active
 
-| Change | 目标 | 当前任务 | 入口 |
+| Change | 目标 | 实施进度 | 入口 |
 | --- | --- | --- | --- |
-| C002 | v0.2.0 可靠性修复 | T14 | [README](active/C002-v0.2.0-reliability/README.md) |
+| C002 | v0.2.0 可靠性修复 | 见 [plan.md](active/C002-v0.2.0-reliability/plan.md) | [README](active/C002-v0.2.0-reliability/README.md) |
 
 ## Completed
 

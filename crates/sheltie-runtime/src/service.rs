@@ -136,11 +136,11 @@ impl WorkService {
             work_id: work_id.clone(),
             name,
             workbook: WorkbookRef {
-                id: wb.manifest.id.clone(),
-                version: wb.manifest.version.clone(),
+                id: wb.manifest.id().clone(),
+                version: wb.manifest.version().to_string(),
                 digest: wb.digest.clone(),
             },
-            flow: flow.0.id.clone(),
+            flow: flow.0.id().clone(),
             work_dir,
             inputs,
         };
@@ -339,7 +339,7 @@ impl WorkService {
         let res = build_resource_index(frozen).map_err(|e| Error::StoreCorrupt {
             detail: format!("冻结副本读不了：{e}"),
         })?;
-        for path in &manifest.flows {
+        for path in manifest.flows() {
             let text = std::fs::read_to_string(frozen.join(path).as_path()).map_err(|e| {
                 Error::StoreCorrupt {
                     detail: format!("冻结副本的 {path} 读不了：{e}"),
@@ -348,7 +348,7 @@ impl WorkService {
             let def = sheltie_core::flow::parse_flow(&text).map_err(|e| Error::StoreCorrupt {
                 detail: format!("冻结副本的 {path} 解不开：{e}"),
             })?;
-            if def.id == state.flow {
+            if def.id() == &state.flow {
                 return sheltie_core::flow::compile(&def, &manifest, &res).map_err(|e| {
                     Error::StoreCorrupt {
                         detail: format!("冻结副本的图编不过：{e}"),
@@ -578,7 +578,7 @@ fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Resul
     let def = graph.node(node).ok_or_else(|| Error::NotFound {
         what: format!("节点 {node}"),
     })?;
-    match &def.instruction {
+    match def.instruction() {
         sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
         sheltie_core::flow::Instruction::File(rel) => {
             let path = state.workbook_dir().join(rel);

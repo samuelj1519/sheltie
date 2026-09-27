@@ -64,7 +64,7 @@
 | --- | --- | --- | --- | --- |
 | C002-T01 首次提交 | `ceadc465fc2c57aaa52f910e78733da010f890b7` | `not_run`；提交说明沿用旧基线，不能证明本候选 | 该提交原样复跑 `scripts/check-specs.sh` FAIL：`check-specs: 缺 specs/changes/proposed`；`scripts/check-task.sh C002-T01` PASS | 需修改：重放顺序、目录发布、删除引用、效果失败、安全 API 与交接状态；T01 尚未关闭 |
 | C002-T01 勘误 | Owner Codex 的本次纠正提交；基线 `ceadc465` | fmt/check/Clippy/nextest exit 0；nextest 315 passed（1 leaky）；[原始运行](evidence/t01-correction/README.md) | 最终待提交树 docs/specs/check-task 见同目录门禁记录 | `/root/t01_standards` 独立 Standards PASS、`/root/t01_spec` 独立 Spec PASS；仅证明 T01 文档合同一致，后续实现仍 not_run |
-| C002-T14 | not_run | not_run | not_run | not_run |
+| C002-T14 | Owner Codex 的本次任务提交；基线 `2a37062` | fmt/check/Clippy/nextest exit 0；run ID `88333664-74c1-43da-857a-16076175dba2`，325 passed；[原始运行](evidence/t14/README.md) | 5 个公开 API `compile_fail`、docs/specs/check-tests/core-vocab/check-task 与行校验反例通过；真实 consumer 及证据路径白名单修正见原始记录 | `/root/t14_standards` Standards PASS；`/root/t14_spec` Spec PASS。Workbook remove 同事务仍归 T08，不记为 T14 PASS |
 | C002-T02 | not_run | not_run | not_run | not_run |
 | C002-T03 | not_run | not_run | not_run | not_run |
 | C002-T04 | not_run | not_run | not_run | not_run |
@@ -83,6 +83,8 @@
 | C002-T17 | not_run | not_run | not_run | not_run |
 
 T01 勘误的 Rust 门禁与工作树静态检查原始输出见 [evidence/t01-correction/](evidence/t01-correction/README.md)。Rust 源码、fixtures 与 Cargo 输入闭包未改变，后续验证记录文字改动不使这四条运行失效。独立审查首轮发现并关闭：侧车持久顺序、历史 `write_file` 恢复、A 阻断 B 的 `committed = false`、删除结果不明、T09 对 T04 的依赖，以及未发布 Workbook 的只读入口。最终规格复核 PASS 仅覆盖本次文档一致性；Standards 复核 PASS 仅覆盖范围与证据。原始审查问题不从历史记录删除，T02–M1 的代码行为仍 `not_run`。
+
+T14 独立审查首轮发现两项状态校验反例：唯一 running Attempt 可与 current 不一致，以及 `revision = i64::MAX` 的下一次提交会写负数；另指出 `HostRequire` 因 Reply 快照需要反序列化，不能仅删除派生而不校验字段。候选已分别补状态组合校验、整数转换前的安全拒绝、自定义字段校验和单条件反例。`/root/t14_spec` 对修订后的 T14 范围给出 Spec PASS；`/root/t14_standards` 对代码及任务白名单给出 Standards PASS。这个 PASS 不涵盖 T08 的 remove 同事务边界，不把 N03 全项提前关闭。
 
 每个实施候选在本表下另起一个小节，至少填写以下字段；未执行项写 `not_run`，失败项保留原始输出和后续修复候选，不覆盖旧记录：
 

@@ -32,15 +32,6 @@ impl ObservedFile {
         }
     }
 
-    /// 测试用：把一个已有引用当作「当前观察」。
-    pub fn for_test(path: AbsPath, sha256: Sha256Hex, bytes: u64) -> Self {
-        Self {
-            path,
-            sha256,
-            bytes,
-        }
-    }
-
     pub fn into_ref(self) -> ArtifactRef {
         ArtifactRef {
             path: self.path,

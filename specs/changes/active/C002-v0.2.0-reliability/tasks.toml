@@ -2,6 +2,8 @@
 # 与 MVP 填空不同：C002 的测试由各任务自己编写，全部任务 allow_test_changes = true；
 # 期望值必须来自独立 oracle（plan.md §1），review 时核对。
 # files / test_files 条目可以是文件或目录（目录作为前缀白名单）。
+# 每个实施任务还需更新本 package 的 progress、validation 与原始 evidence；
+# 其他 package 文件需经 plan/tasks 白名单勘误后才可修改。
 
 [C002-T01]
 files = ["specs", "CONTEXT.md"]
@@ -9,72 +11,72 @@ test_files = []
 allow_test_changes = true
 
 [C002-T14]
-files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store", "crates/sheltie-runtime/src/workbook_repo.rs"]
-test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests"]
+files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store", "crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-cli/src/commands/workbook.rs", "specs/changes/README.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T02]
-files = ["crates/sheltie-core/src/work", "crates/sheltie-core/src/flow", "crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-core/src/flow", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T03]
-files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock"]
+files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T04]
-files = ["crates/sheltie-runtime/src"]
+files = ["crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests"]
 allow_test_changes = true
 
 [C002-T09]
-files = ["crates/sheltie-core/src/digest.rs", "crates/sheltie-runtime/src"]
+files = ["crates/sheltie-core/src/digest.rs", "crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests"]
 allow_test_changes = true
 
 [C002-T05]
-files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock"]
+files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-core"]
 allow_test_changes = true
 
 [C002-T06]
-files = ["crates/sheltie-core/src/work", "crates/sheltie-cli/src"]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T07]
-files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github", "specs/architecture.md", "specs/contracts", "specs/spec.md"]
+files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github", "specs/architecture.md", "specs/contracts", "specs/spec.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T08]
-files = ["crates/sheltie-runtime/src", "crates/sheltie-cli/src"]
+files = ["crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T10]
-files = ["skills", "crates/sheltie-cli/src", "specs/contracts/protocol.md"]
+files = ["skills", "crates/sheltie-cli/src", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T11]
-files = ["examples/article-review", "crates"]
+files = ["examples/article-review", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T12]
-files = ["workbooks", "crates"]
+files = ["workbooks", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T13]
-files = ["skills", "scripts", "crates", ".github", "README.md"]
+files = ["skills", "scripts", "crates", ".github", "README.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T15]
-files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "rust-toolchain.toml", ".github", "scripts", "README.md", ".pre-commit-config.yaml"]
+files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "rust-toolchain.toml", ".github", "scripts", "README.md", ".pre-commit-config.yaml", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
