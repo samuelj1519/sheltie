@@ -168,13 +168,14 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
             EffectOp::DeleteDir {
                 pending,
                 final_path,
-                owner: _,
-                digest: _,
+                owner,
+                digest,
             } => {
                 if !publish {
                     continue;
                 }
-                delete_dir(home, pending, final_path)?;
+                let _ = owner;
+                delete_dir(home, pending, final_path, digest)?;
             }
             EffectOp::RefreshStatusCard { .. } => {
                 // 状态卡是当前投影：由调用方（持有 Store）从最新 state_json 生成，
@@ -263,11 +264,28 @@ fn verify_owned_digest(dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
     Ok(())
 }
 
-/// `delete_dir`：最终目录仍在 → 核归属与摘要后移入本操作 pending 再删；已移入的
-/// 只删同一对象；删除完成写持久标记。
-fn delete_dir(home: &Home, pending: &str, final_path: &str) -> Result<()> {
+/// `delete_dir`（存储合同 §3.2/§3.3）：最终目录仍在时核身份与摘要——**只有登记的
+/// 那个对象**才移入本操作 pending 并删除；摘要不符说明那是别人的新生命周期对象
+///（同版本重新 add），本操作的删除视为已完成，不碰它。移入后只删同一对象；完成
+/// 后写 `.deleted` 持久标记，两处都缺时只有合法标记才能证明完成。
+fn delete_dir(home: &Home, pending: &str, final_path: &str, digest: &str) -> Result<()> {
     let fin = home.rel(final_path);
     let pen = home.rel(pending);
+    let internal_id = pen
+        .as_path()
+        .file_name()
+        .map(|n| n.to_string())
+        .unwrap_or_default();
+    if fin.as_path().exists() && !digest.is_empty() {
+        let got = crate::workbook_digest::digest_dir_v2(&fin).map_err(|e| Error::StoreCorrupt {
+            detail: format!("删除对象 {fin} 读不了：{e}"),
+        })?;
+        if got.as_str() != digest {
+            // 不是登记要删的对象（新生命周期或外部替换）：不删、不覆盖。
+            write_deleted_marker(home, &internal_id)?;
+            return Ok(());
+        }
+    }
     if fin.as_path().exists() {
         fsx::make_tree_writable(&fin);
         if let Some(parent) = pen.as_path().parent() {
@@ -281,6 +299,26 @@ fn delete_dir(home: &Home, pending: &str, final_path: &str) -> Result<()> {
     if pen.as_path().exists() {
         fsx::remove_tree_no_follow(&pen)?;
     }
+    // 两处都缺时本函数的执行本身就是完成证明：写持久标记（§3.3）。
+    write_deleted_marker(home, &internal_id)?;
+    Ok(())
+}
+
+/// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。
+fn write_deleted_marker(home: &Home, internal_id: &str) -> Result<()> {
+    if internal_id.is_empty() {
+        return Ok(());
+    }
+    let marker = home
+        .pending_dir()
+        .join_segment(&format!("{internal_id}.deleted"));
+    if marker.as_path().exists() {
+        return Ok(());
+    }
+    let content =
+        format!("{{\"format\":\"delete-complete/v1\",\"internal_id\":\"{internal_id}\"}}\n");
+    fsx::write_new_file(&marker, content.as_bytes())?;
+    fsx::fsync_dir(&home.pending_dir());
     Ok(())
 }
 

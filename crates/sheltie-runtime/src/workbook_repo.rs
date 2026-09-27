@@ -3,7 +3,6 @@
 use serde::{Deserialize, Serialize};
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::flow::{FlowDef, Graph, compile, parse_flow};
-use sheltie_core::ids::WorkId;
 use sheltie_core::path::{AbsPath, RelPath};
 use sheltie_core::workbook::Manifest;
 use sheltie_core::workbook::parse_manifest;
@@ -193,6 +192,7 @@ impl WorkbookRepo {
         };
         let input = crate::store::CommitInput {
             work_id: None,
+            workbook_in_use_check: None,
             workbook_insert: Some(WorkbookRow {
                 id: loaded.manifest.id().as_str().to_string(),
                 version: loaded.manifest.version().to_string(),
@@ -398,15 +398,7 @@ impl WorkbookRepo {
         } else {
             registered_digest = String::new();
         }
-        let works = repo.works_referencing(id, version)?;
-        if !works.is_empty() {
-            return Err(Error::WorkbookInUse {
-                id: id.to_string(),
-                version: version.to_string(),
-                works,
-            });
-        }
-        // 删行进事务；目录移动与删除是提交后的效果。
+        // 引用检查与删行在同一个事务（存储合同 §5.2）；损坏引用行在事务内停止。
         let ctx = Context {
             now: crate::observe::now(),
             principal: crate::observe::principal(),
@@ -425,6 +417,7 @@ impl WorkbookRepo {
         let input = crate::store::CommitInput {
             work_id: None,
             workbook_insert: None,
+            workbook_in_use_check: Some((id.to_string(), version.to_string())),
             workbook_delete: Some((id.to_string(), version.to_string())),
             expected_revision: None,
             state: None,
@@ -465,20 +458,6 @@ impl WorkbookRepo {
             }
         }
         Ok(snapshot)
-    }
-
-    /// 引用本版本且非终态的 Work。先验证全部持久行，不按冗余 status 预筛。
-    pub(crate) fn works_referencing(&self, id: &str, version: &str) -> Result<Vec<WorkId>> {
-        let mut out = Vec::new();
-        for row in self.store.list_works()? {
-            if !row.state.status.is_terminal()
-                && row.state.workbook.id.as_str() == id
-                && row.state.workbook.version == version
-            {
-                out.push(row.state.work_id);
-            }
-        }
-        Ok(out)
     }
 
     /// `workbook verify`。`filter` 为 `Some((id, version))` 只核对一个。

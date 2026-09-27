@@ -224,7 +224,12 @@ fn workbook_row_of(r: &rusqlite::Row<'_>) -> rusqlite::Result<WorkbookRow> {
     })
 }
 
-fn decode_row(work_id: &str, revision: i64, status: &str, state_json: &str) -> Result<WorkRow> {
+pub(crate) fn decode_row(
+    work_id: &str,
+    revision: i64,
+    status: &str,
+    state_json: &str,
+) -> Result<WorkRow> {
     let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
         detail: format!("works 行 {work_id:?} 的 work_id 不合法：{e}"),
     })?;
