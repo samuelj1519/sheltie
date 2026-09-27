@@ -42,7 +42,14 @@ sheltie attempt submit <work> --attempt summary#1.0 --summary "按提纲写完�
 sheltie work status <work>          # status: succeeded
 ```
 
-不知道下一步做什么，就看每次响应里的下一步列表（文本模式下是「下一步：」，JSON 模式下是 `next` 数组，每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。在 Claude Code 里可以输入 `/sheltie` 让协调者代劳：把 `skills/sheltie/` 复制到 `~/.claude/skills/` 即可。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
+不知道下一步做什么，就看每次响应里的下一步列表（文本模式下是「下一步：」，JSON 模式下是 `next` 数组，每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。升级用 `sheltie self update`，出问题 `sheltie self rollback`。
+
+在 Claude Code 里可以输入 `/sheltie` 让协调者代劳。装 skill 取发布资产 `sheltie-skill.tar.gz`（发布流程随每版挂出的自包含交付，解压即用，不依赖保留源码目录）：
+
+```bash
+mkdir -p ~/.claude/skills
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-skill.tar.gz | tar xz -C ~/.claude/skills/
+```
 
 ## 开发
 

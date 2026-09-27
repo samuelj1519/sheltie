@@ -5,7 +5,7 @@
 ## 当前位置
 
 - 2026-09-27 用户采用 C002，指示按计划执行到完成。
-- 实施进度只看 [plan.md](plan.md) 状态列；逐任务原始运行在 [evidence/tNN/](evidence/)。T01–T11 已提交，T12 的 spec-dev 交付闭环已提交；下一个实现入口是 T13（skill 安装产物自包含），然后 T15，之后才轮到 M1。
+- 实施进度只看 [plan.md](plan.md) 状态列；逐任务原始运行在 [evidence/tNN/](evidence/)。T01–T12 已提交，T13 的 skill 自包含交付已提交；下一个实现入口是 T15（self 生命周期、CI、MSRV 与发布门禁），之后才轮到 M1。
 - 执行顺序按依赖：T01 → T14 → T02 → T03 → T04 → T09 → T05 → T06 → T07 → T08 → T10 → T11 → T12 → T13 → T15 → M1；T16/T17 需要用户参与。
 
 ## 跨任务事实
@@ -15,3 +15,4 @@
 - Cargo 版本在 T17 发布前保持 `0.1.0`；check-specs 的「当前版本必须有 release record/tag」规则因此在开发期不触发（N11 的检查器修复在 T15）。
 - 测试由各任务自己编写并挂 `// Task: C002-Tnn` 归属；期望值用独立 oracle（手工字节、合同数值、独立计算），不用生产 helper 生成。
 - 提交用 `Change: C002`、`Task: C002-Tnn`、`Agent: <实际提交者>` trailer；通常一个任务一个提交。T01 首次提交审查失败，勘误另记纠正提交。提交前 fmt/check/clippy/nextest 与任务附加 gate 全绿，独立 review 通过。
+- skill 交付是生成物：`scripts/skill-delivery.sh pack|tar|verify` 从 `skills/sheltie` 与 `specs/contracts/` 生成/校验自包含交付（发布资产名 `sheltie-skill.tar.gz`）。仓库内 `skills/sheltie/SKILL.md` 保留指向合同的链接；T16 准备「自包含 skill」用 `pack`，核已装副本用 `check-skill.sh --delivery <dir>`（校验对象要与当前树同源；`storage.md` 类文件不随包发布，是去链接后的文字提法）。
