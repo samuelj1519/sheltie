@@ -168,8 +168,8 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let next = card.next.clone();
-    output::ok_work(text, None, None, json!(card), &next, wid.as_str())
+    // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
+    output::ok_work_next(text, None, None, json!(card), card.next.clone())
 }
 
 /// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。
@@ -182,6 +182,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Ok(w) => w,
         Err(out) => return out,
     };
+    // stats 与 next 用同一次加载的事实视图（GF-29）；next 与状态卡同源同形。
     let (text, stats) = match svc.stats(&wid) {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -190,7 +191,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Ok((_, card)) => card.next,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    output::ok_work(text, None, None, json!(stats), &ops, wid.as_str())
+    output::ok_work_next(text, None, None, json!(stats), ops)
 }
 
 /// `work cancel`。

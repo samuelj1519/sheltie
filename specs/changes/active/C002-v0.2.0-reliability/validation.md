@@ -70,7 +70,7 @@
 | C002-T04 | Owner Claude 的本次任务提交；基线 `429cb1d` | fmt/check/Clippy/nextest exit 0；nextest 370 passed；[原始运行](evidence/t04/README.md) | fsx 受限文件操作贯通五个 caller；works/bin 父软链、叶软链、固定名临时软链、观察后替换、超限（恰好上限/多一字节）反例全部通过，外部哨兵字节与权限逐项比较；根入口规范化与含根只读按合同勘误更新三个既有测试期望（白名单注记见 tasks.toml） | Owner 按任务卡自查通过；关闭 O01 与 N14 读取部分；`pending/` 与 committed 响应形状归 T07 |
 | C002-T09 | Owner Claude 的本次任务提交；基线 `6b40abd98d46b878286bdc531021c6c4bd9dce50` | fmt/check/Clippy/nextest exit 0；nextest 359 passed；[原始运行](evidence/t09/README.md) | python3 独立向量（含 O07 碰撞对分开、字节序排序、一字节之差）；软硬链、恰好 32 MiB/256 MiB 与超限拒绝；实现期间独立向量抓出并修复一次 `of_bytes(finalize())` 双重哈希 | Owner 按任务卡自查通过；O07 产品闭环（生产 caller 切换、schema 2 唯一语义）留待 T07 |
 | C002-T05 | Owner Claude 的本次任务提交；基线 `5196cb1` | fmt/check/Clippy/nextest/deny exit 0；nextest 380 passed；[原始运行](evidence/t05/README.md) | load 核登记摘要、remove 核归属、冻结副本复制后重 parse/compile 与身份/摘要核对、version 保留名、.DS_Store 点名拒绝、新根 self install、只读不建库；USER 伪造子进程反例与 `id -un` 独立 oracle；D-036 勘误 uzers（users 0.11 被 deny 拒绝） | Owner 按任务卡自查通过；关闭 O03/O06/N04/N10/§5.3；复制间源变化的动态竞态注入 not_run（静态实现），uid 回退与 Windows 分支 not_run |
-| C002-T06 | not_run | not_run | not_run | not_run |
+| C002-T06 | Owner Claude 的本次任务提交；基线 `d38b6e1` | fmt/check/Clippy/nextest exit 0；nextest 386 passed；[原始运行](evidence/t06/README.md) | StatusView 单一事实源双渲染；JSON 补 reason/完整 ArtifactRef/blocked/协议形 next；entered_via 保留边类型（文本与结构化）；blocked_count 由转换记录、取消不减少；手写状态与真实转换两路验证 | Owner 按任务卡自查通过；O13/N07 产品闭环（持久 caller 与 cli-result/v2）留待 T07 |
 | C002-T07 | not_run | not_run | not_run | not_run |
 | C002-T08 | not_run | not_run | not_run | not_run |
 | C002-T10 | not_run | not_run | not_run | not_run |
