@@ -47,11 +47,14 @@
 
 “候选快照”“验证结果”“未处置的发现”的来源是 C004 的记录（design.md §3），在 C004 采用并实现后启用。之前交接包不出现这几个字段，只给最近一次输出的指针；不从输出文档里抽取一份平行的发现清单。
 
-`EX-02` **取代运行中的 Attempt。** 现行协议在最新 Attempt 为 `running` 时只开放 `submit`、`fail`、`cancel`；要换人，只能先 `attempt fail`，而它消耗 `max_retries`（protocol `attempt fail`），与 EX-05“业务重试只在内容失败时消耗”冲突，也把中断误记成执行失败。新增一个操作（CLI 候选名 `attempt supersede`），在同一写锁事务内：
+`EX-02` **取代运行中的 Attempt。** 现行协议在最新 Attempt 为 `running` 时只开放 `submit`、`fail`、`cancel`；要换人，只能先 `attempt fail`，而它消耗 `max_retries`（protocol `attempt fail`），与 EX-05“执行者中断不消耗业务重试”冲突，也把中断误记成执行失败。新增一个操作（CLI 候选名 `attempt supersede`），在同一写锁事务内：
 
 - 旧的 `running` Attempt 转为新的终态 `superseded`，记录中断原因与来源（EX-03）；不伪造 `failed`，与 `work cancel` 保留运行中 Attempt 的原则一致；
 - 不计入业务重试，计入切换次数（EX-05）；
-- 同一 Occurrence 内开放 `attempt begin`，新执行者领取新的 Attempt。
+- 同一 Occurrence 内开放 `attempt begin`，新执行者领取新的 Attempt；
+- 切换次数将超过上限时，旧 Attempt 仍转为 `superseded`，Work 进入 `blocked(continuity_exhausted)`，只能 `work cancel`。
+
+取代用于“马上换一个执行者继续”；没有可换的执行者、需要等资源恢复时，用 EX-04 的 `work wait`。
 
 不另设“执行代次”状态。代次就是 Attempt 在 Occurrence 内的顺序，由现有记录派生，只作显示。旧执行者迟到的 `submit`、`fail` 由现有的 `ATTEMPT_NOT_RUNNING` 拒绝；旧提交与取代并发时，写锁保证至多一个被接受。
 
@@ -72,16 +75,23 @@
 
 每个原因都记录来源：提供方通道、宿主通道、人工报告或模型自报。引擎只记录闭集值与来源，不从自然语言推断原因（INV-2）。模型自报的原因可以触发一次保守暂停，但不能作为系统事实（INV-6）：引擎记录的事实是“某个调用者以模型自报为来源请求等待”，不是“额度已耗尽”。
 
-`EX-04` **可恢复的等待。** 原因为“资源不可用”时，Work 进入可恢复的资源等待 `blocked(resource_wait)`，而不是只能取消（修改 GF-14）。状态名不暗示已确认：等待记录带来源，界面按来源显示，来源为模型自报时显示“暂停，未核实”，不显示为“额度耗尽”；只有提供方通道的观测才可称“提供方报告耗尽”。恢复需要新的观测，或一次获准的实际尝试确认可用。第一阶段没有额度观测通道，恢复只接受用户或协调者发起的获准尝试。到达重置时间不等于已经恢复。
+`EX-04` **可恢复的等待。** 原因为“资源不可用”时，Work 进入可恢复的资源等待 `blocked(resource_wait)`，而不是只能取消（修改 GF-14）。进出等待各有一个显式操作（CLI 候选名），完整转换表见 [design.md](design.md) §5：
+
+- `work wait --reason resource_unavailable --source <来源>`：Work 为活动状态时可用。最新 Attempt 为 `running` 时，同一写锁事务内把它转为 `superseded`（记原因与来源），再把 Work 置为 `blocked(resource_wait)`，记录来源与等待开始时间；资源重试计一次。只接受“资源不可用”这一个原因，其他原因仍走现有路径。
+- `work resume --source <来源>`：只在 `blocked(resource_wait)` 时可用，Work 回到活动状态，`next` 在同一 Occurrence 内给出 `attempt begin`；等待时长计入总等待期限。恢复本身不确认资源可用，随后领取的 Attempt 就是那次获准尝试；它再次遇到资源不可用，就再走一次 `work wait`。
+- 资源重试、切换次数或总等待期限任一项将超过上限时，对应操作把 Work 置为 `blocked(continuity_exhausted)`，记录耗尽的是哪一项，只能 `work cancel`。
+- 等待期间旧执行者迟到的 `submit`、`fail` 由 `ATTEMPT_NOT_RUNNING` 拒绝，因为它的 Attempt 已经是 `superseded`。
+
+状态名不暗示已确认：等待记录带来源，界面按来源显示，来源为模型自报时显示“暂停，未核实”，不显示为“额度耗尽”；只有提供方通道的观测才可称“提供方报告耗尽”。恢复的来源只能是新的观测，或用户、协调者发起的获准尝试。第一阶段没有额度观测通道，恢复只接受用户或协调者发起的获准尝试。到达重置时间不等于已经恢复。
 
 `EX-05` **分开计数。** 四种上限各自计数：
 
-- 业务重试：沿用 `max_retries`、`max_visits`，只在内容失败时消耗；
-- 资源重试：资源不可用后的重试次数；
+- 业务重试：沿用 `max_retries`、`max_visits`。`max_retries` 由节点自身的执行失败（`attempt fail`）消耗，包括 C004 验证节点上的验证器故障（快照失败、前提缺失、超时等，C004 VD-05）；`max_visits` 由返工重新到达消耗。执行者中断与资源等待（`attempt supersede`、`work wait`）都不消耗；
+- 资源重试：进入资源等待（`work wait`）的次数；
 - 切换次数：同一 Occurrence 内更换执行者的次数，每次取代（EX-02）计一次；
 - 总等待期限：一个 Occurrence 处于等待状态的累计时长。
 
-任何一项耗尽，Work 停下来找人。这防止执行者反复自报“不可用”，绕开业务上限产生无限重试。
+业务上限耗尽按 GF-14 进入 `blocked(retries_exhausted)`；后三项任一耗尽进入 `blocked(continuity_exhausted)`。两者都只能 `work cancel`。这防止执行者反复自报“不可用”，绕开业务上限产生无限重试。
 
 `EX-06` **两份宿主 skill。** 为 Claude Code 和 Codex 各提供一份 skill，教它们接手一个进行中的 Work：读交接包、领取新 Attempt、遵守原合同。skill 不保存状态、不做推进判断（GF-18）。
 
@@ -107,7 +117,7 @@
 
 `EX-10` **额度观测。** 每条观测记录：对应哪个额度池、何时取得、通过什么通道取得、哪些窗口有数据、是否仍然新鲜。缺失既不能解释成额度为零，也不能解释成额度充足。窗口的种类和时长按实际响应解析，不写死为“5 小时 + 每周”。
 
-`EX-11` **候选过滤与选择。** 只在 Work 执行绑定冻结的候选集合内进行。先机械过滤：符合政策、满足资格（含职责分离）、额度池有新鲜观测且未耗尽、必需依赖就绪（[C008](../C008-dependency-readiness/README.md) 的准入检查，原 C006 单元二）；再按用户给定的固定优先级选择。没有评分算法。共享同一额度池的候选视为同时耗尽。
+`EX-11` **候选过滤与选择。** 只在 Work 执行绑定冻结的候选集合内进行。先机械过滤：符合政策、满足资格（含职责分离）、额度池有新鲜观测且未耗尽、必需依赖就绪（[C008](../C008-dependency-readiness/README.md) 的准入检查，原 C006 单元二）；再按用户给定的固定优先级选择。没有评分算法。C008 未采用时没有依赖就绪这一项过滤：执行记录写明“依赖未检查”，缺失的依赖只会在执行中暴露为执行失败或能力不足，不显示为“依赖已就绪”。共享同一额度池的候选视为同时耗尽。
 
 额度未知不等于可用（EX-10）。额度未知的候选只能作为一次获准探测：计入资源重试和切换次数，执行记录写明“不代表额度确认”；探测失败按资源不可用处理，不因为未知就反复尝试。
 
@@ -142,7 +152,7 @@
 | 被取代的 Attempt 迟到提交不会覆盖新状态 | 取代在写锁内结束旧 Attempt，迟到提交按 `ATTEMPT_NOT_RUNNING` 拒收（EX-02）；前提是提交走 CLI | 正常接口会拒绝 | 第一阶段实现 |
 | 换人不消耗业务重试 | 取代记为 `superseded`，只计切换次数（EX-02、EX-05） | 正常接口会拒绝 | 第一阶段实现 |
 | 旧执行者已经停止 | 需要进程控制或隔离 | 两种强度都不承诺 | 如实声明；分开工作区 |
-| 资源不可用不消耗业务重试，也不会无限重试 | 分开计数（EX-05） | 正常接口会拒绝 | 第一阶段实现 |
+| 资源不可用不消耗业务重试，也不会无限重试 | `work wait` / `work resume` 显式进出等待，分开计数，超限进入 `continuity_exhausted`（EX-04、EX-05） | 正常接口会拒绝 | 第一阶段实现 |
 | 换人不降低标准 | 合同冻结；资格检查（EX-07、EX-11） | 正常接口会拒绝；独立性判定需要 C004 VD-10 | 第一阶段实现；独立性随 C004 启用 |
 | 模型自报的等待不显示为已确认 | 等待记录带来源，按来源显示（EX-03、EX-04） | 正常接口如实显示 | 第一阶段实现 |
 | 执行者身份与实际配置可核对 | 需要受信来源；驱动层只能证明“按某配置发起了执行” | 分项记录声明与观测，不合并为“身份可信” | 第二阶段实现 |
@@ -175,7 +185,7 @@
 
 | 上游 | 条款 | 候选改动 | 阶段 |
 | --- | --- | --- | --- |
-| spec.md | GF-14 | 非门槛 `blocked` 增加“资源不可用”的可恢复等待，恢复条件见 EX-04；C004 新增的 `scope_violation` 与 `retries_exhausted` 仍只能取消，采用时合并措辞 | 一 |
+| spec.md | GF-14 | 非门槛 `blocked` 增加 `resource_wait`（可 `work resume` 或 `work cancel`，EX-04）与 `continuity_exhausted`（只能取消）；C004 新增的 `scope_violation` 与 `retries_exhausted` 仍只能取消，采用时合并措辞 | 一 |
 | spec.md | GF-13 | 业务上限之外增加资源重试、切换次数和总等待期限 | 一 |
 | spec.md | GF-05 | Occurrence 内的 Attempt 顺序作为执行代次显示，不另存状态 | 一 |
 | spec.md | GF-06、GF-10 | 任务书与状态卡加入交接包的指针 | 一 |
@@ -190,7 +200,7 @@
 | constitution.md | INV-6 | 执行记录与额度观测按来源分项记录；自报不得伪装成提供方事实（与 C004 的 INV-6 修订原则一致） | 一、二 |
 | constitution.md | §7 演进方向 | 长期保留项加入执行者替换与接续 | 一 |
 | roadmap.md | §3 档位表 | 加入执行者替换与接续；隔离后端改为“随承诺触发” | 一 |
-| contracts/ | protocol、storage | 新增 `attempt supersede` 与 `blocked(resource_wait)`，`next` 在 `running` 时加入取代；其余字段由 design.md 的选择决定；采用前不预写 | 一、二 |
+| contracts/ | protocol、storage | 新增 `attempt supersede`、`work wait`、`work resume`，以及 `blocked(resource_wait)`、`blocked(continuity_exhausted)`；`next` 在 `running` 时加入取代与等待，在 `resource_wait` 时给出恢复与取消；其余字段由 design.md 的选择决定；采用前不预写 | 一、二 |
 
 ## 7. 后续决策与触发条件
 

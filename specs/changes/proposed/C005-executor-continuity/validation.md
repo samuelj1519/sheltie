@@ -82,12 +82,19 @@ Candidate: `none`
 | 被取代 Attempt 目录中有未提交文件 | 留在旧 Attempt 目录，新 Attempt 看不到 | 并入新 Attempt 输出 |
 | 旧执行者无法确认停止 | 交接包写明风险；新执行者使用分开的工作区 | 静默共用可变工作区 |
 | 资源不可用多次 | 消耗资源重试，不消耗业务重试 | 业务重试被耗尽 |
+| 执行者在 `running` 中额度耗尽，无可换执行者（真实 CLI） | `work wait` 在同一事务内把 Attempt 转为 `superseded`、Work 进入 `resource_wait`；`next` 只给出 `resume` 与 `cancel` | Attempt 仍为 `running`；只能 `attempt fail` 或取消 |
+| `resource_wait` 中 `work resume` 后领取（真实 CLI） | Work 回到活动，同一 Occurrence 内 `attempt begin` 成功；`max_retries`、`max_visits` 不变 | 需要新 Occurrence；消耗业务上限 |
+| `resource_wait` 中旧执行者迟到 `submit` | `ATTEMPT_NOT_RUNNING` 拒收 | 改写等待状态或被接受 |
+| 资源重试、切换次数、总等待期限分别达到上限 | 对应操作把 Work 置为 `continuity_exhausted` 并记录耗尽项，之后只能 `work cancel` | 继续等待或继续换人 |
+| 进程在 `work wait` 事务提交前后被杀 | 重启后要么 Attempt 仍 `running`、Work 活动，要么 Attempt `superseded`、Work `resource_wait`，没有中间状态 | Attempt 已 `superseded` 而 Work 仍活动且无等待记录 |
 | 执行者反复自报“不可用” | 资源重试、切换次数或总等待期限耗尽后找人 | 无限重试 |
 | 模型自报触发资源等待 | 状态卡显示“暂停，未核实”及来源 | 显示为“额度耗尽”或提供方事实 |
 | 第一阶段资源等待中无观测通道 | 只有用户或协调者发起的获准尝试能恢复 | 自动恢复 |
 | 到达重置时间但没有新观测 | 仍在等待 | 自动恢复为可用 |
 | 额度观测缺失 | 记为未知 | 当作零或充足 |
 | 候选额度未知（第二阶段） | 只作一次获准探测，计入资源重试与切换次数，记录“不代表额度确认” | 当作可用反复切换 |
+| C008 未采用时自动选择候选（第二阶段） | 执行记录写“依赖未检查” | 显示“依赖已就绪” |
+| C004 验证节点上验证器超时（两者都采用时） | `attempt fail` 消耗验证节点 `max_retries`，不计资源重试 | 走 `work wait` 或记成执行者中断 |
 | 原因为“权限或数据政策不允许” | 停下来找人 | 换宿主后继续 |
 | 合同要求独立审查，只剩作者可用 | 等待或找人 | 作者自审被当作满足 |
 | 审查者中断后由备选接替（C004 实现后） | 原发现保留（C004 VD-09） | 发现消失或被覆盖 |
