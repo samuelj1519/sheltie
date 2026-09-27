@@ -12,6 +12,8 @@ Active change：无
 | C002 | v0.2.0 可靠性修复 | proposed，产品修复 `not_run` | [README](proposed/C002-v0.2.0-reliability/README.md) |
 | C004 | 面向代码库变更的可验收委派（候选 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C004-verifiable-delegation/README.md) |
 | C005 | 执行者替换与任务接续（第一阶段候选随 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C005-executor-continuity/README.md) |
+| C006 | 成果交付与依赖就绪（两个单元分别采用） | proposed，探针 `not_run` | [README](proposed/C006-delivery-and-readiness/README.md) |
+| C007 | 运行前生成 Workbook（第一阶段只做实验） | proposed，实验 `not_run` | [README](proposed/C007-pre-run-workbook-generation/README.md) |
 
 ## Active
 

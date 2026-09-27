@@ -19,7 +19,7 @@
 1. **共同基础。** 更换执行者，不得自动放宽任务标准、权限范围和证据要求；最终接收依据来自预先授权的验证机制，不能仅凭执行者自报。执行者可以替换，已登记的审查发现不因替换而消失。
 2. **接续分三级。** 人工、辅助、自动，承诺各不相同。skill 和状态卡只能做到“可接续”；自动接替必须有一个仍在运行、模型之外的主体。
 3. **额度池。** 共用同一额度池的备选没有意义；同一 Claude 账号下的各种入口共享计划用量。
-4. **失败分类。** 资源不可用、候选未通过验收、执行环境故障、权限或数据政策不允许、原因未知，五类分开处理；原因来源分提供方通道、宿主通道、人工报告和模型自报。
+4. **失败分类。** 资源不可用、候选未通过验收、执行环境故障、权限或数据政策不允许、原因未知，五类分开处理（路线图讨论后增加“执行者能力不足”，见 §6）；原因来源分提供方通道、宿主通道、人工报告和模型自报。
 5. **分开计数。** 资源不可用不消耗业务重试；资源重试、切换次数和总等待期限各有上限，防止自报“不可用”造成无限重试。
 6. **执行代次。** 旧代次的迟到提交拒收；这只保护经过引擎接口的提交，不停止旧进程。
 7. **可恢复等待。** GF-14 当前只允许非门槛阻塞后取消，需要正式修改。到达重置时间不等于已恢复。
@@ -51,7 +51,29 @@
 | 额度缺失按零或按充足处理 | 两种都会导致错误切换 |
 | 等“手动换工具成为高频抱怨”才研究驱动层 | 用户已明确提出离线推进需求；启动条件改为交接质量稳定 |
 
-## 6. 参考来源
+## 6. 路线图讨论（第十二轮之后）
+
+用户提出路线图：节点级执行者、模型与推理强度及备选链；以 DeepSeek Harness 或任意宿主作协调者；自定义 Work 输出目录；节点级隔离；skill 检查；宽泛 Workbook 加关键检查点；规划 agent 生成临时流程。与本 package 相关的收敛结论：
+
+1. **执行配置分三层**：Workbook 写角色与要求；用户配置映射到具体入口、模型和强度；Work 开始时冻结执行绑定；Attempt 记录实际执行（EX-08、EX-09）。
+2. **冻结允许的选择，不锁死首选**：候选集合内切换不需要新授权；新增候选或转入付费形成新授权版本。“严格复现”改为“配置与执行来源可追溯”。
+3. **自动执行政策**：机器检查和 agent 审查在政策允许时可以自动执行；人工批准不由系统生成；唯一的 `next` 只是必要条件；领取时重新确认（EX-14）。
+4. **政策不允许与能力不足分开**（EX-03）。
+5. **以宿主原生恢复为对照**：分开同宿主恢复、跨宿主替换和换资源；“节点内部交给宿主”是默认做法，不是固定边界。
+6. **宿主失败类别按后端版本映射**（design.md §8）。
+
+**讨论中纠正的本方错误：**
+
+- 说“人工门槛和审查节点永远不自动执行”。agent 审查在政策允许时可以自动执行，只有人工批准不能生成；
+- 说“workflow 限在单个会话里，额度耗尽帮不上忙”。Claude Code 的 workflow 在限定条件下能等额度恢复后继续；
+- 说“策略拒绝就永远不换执行者”。应分为政策不允许（停止）和能力不足（在授权内换）；
+- 说 DeepSeek Harness 的子代理都在父进程的工作目录里运行。ACP 提供方可以按实例覆盖 `cwd`；
+- 把 DeepSeek Harness 的 `limit` 类别理解为订阅额度耗尽；
+- 说“推理强度一定比换模型便宜”。只是待验证的假设；
+- 说“便宜的协调者没什么可判断的”。要测下游返工；
+- 把 Work 级冻结写成锁死首选。
+
+## 7. 参考来源
 
 讨论中已核实：
 
@@ -60,6 +82,8 @@
 - Claude Code 状态栏（`rate_limits`）：<https://code.claude.com/docs/en/statusline>
 - Use the Claude Agent SDK with your Claude plan：<https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan>
 - The New Stack，Anthropic 暂停 Agent SDK 订阅计量变更：<https://thenewstack.io/anthropic-pauses-claude-agent-sdk-subscription-change/>
+- Claude Code 动态 workflow（额度等待的条件、同会话恢复、失败后重跑下游）：<https://code.claude.com/docs/en/workflows>
+- DeepSeek Harness（子代理提供方、失败类别、SAFETY.md）：<https://github.com/deepseek-ai/deepseek-harness>，提交 `477b4f4`
 - Codex app-server `account/rateLimits/read` 说明：<https://iaplabs.itch.io/codexfuse/devlog/1655686/how-to-check-codex-usage-limits-with-app-server-accountratelimitsread>
 
 由讨论者提供、采用前需复核：
