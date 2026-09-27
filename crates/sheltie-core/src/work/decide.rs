@@ -111,6 +111,7 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         visits,
         attempts: Vec::new(),
         approvals: Vec::new(),
+        blocked_count: 0,
         created_at: ctx.now.clone(),
         updated_at: ctx.now.clone(),
     };
@@ -396,6 +397,13 @@ fn decide_submit(
         a.ended_at = Some(ctx.now.clone());
     }
     new_state.status = status_after_success(&new_state, graph, true);
+    // 累计受阻在发生时记录（GF-29）：gate 阻断与 no_legal_edge 各计一次。
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+    ) {
+        new_state.blocked_count += 1;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {
@@ -512,6 +520,7 @@ fn decide_fail(
     }
     if attempt.retry >= max_retries {
         new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+        new_state.blocked_count += 1;
     }
     new_state.updated_at = ctx.now.clone();
 
@@ -552,6 +561,12 @@ fn decide_approve(
         at: ctx.now.clone(),
     });
     new_state.status = status_after_success(&new_state, graph, false);
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+    ) {
+        new_state.blocked_count += 1;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {

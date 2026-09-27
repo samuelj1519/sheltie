@@ -290,6 +290,10 @@ pub struct WorkState {
     pub visits: BTreeMap<NodeId, u32>,
     pub attempts: Vec<Attempt>,
     pub approvals: Vec<Approval>,
+    /// 累计受阻事实（GF-29）：gate 提交成功、重试耗尽、`no_legal_edge` 发生各 +1，
+    /// 由状态转换在发生时记录，取消后不减少。schema 1 的旧 state 没有该字段，
+    /// 读取按「缺字段即拒绝」处理，不用默认值猜历史。
+    pub blocked_count: u32,
     pub created_at: Timestamp,
     pub updated_at: Timestamp,
 }

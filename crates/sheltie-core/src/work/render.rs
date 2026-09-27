@@ -6,7 +6,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::Serialize;
 
 use super::next::{NextOp, legal_next};
-use super::state::{Attempt, AttemptStatus, BlockedReason, Timestamp, WorkState, WorkStatus};
+use super::state::{
+    ArtifactRef, Attempt, AttemptStatus, BlockedReason, Timestamp, WorkState, WorkStatus,
+};
 use crate::flow::{Graph, InputSource};
 use crate::ids::WorkId;
 
@@ -245,8 +247,7 @@ pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
         .join(", ");
     out.push_str(&format!("visits: {visits}\n"));
     if let Some(line) = blocked_line(state) {
-        out.push_str(&line);
-        out.push('\n');
+        out.push_str(&format!("blocked: {line}\n"));
     }
 
     out.push_str("\n## 最近一次尝试\n\n");
@@ -294,8 +295,64 @@ pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
     out
 }
 
-/// `--json` 用的状态卡。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+/// 事实视图（GF-10/GF-29）：文本卡与 JSON 是**同一份事实**的两种渲染，失败原因、
+/// 完整产物引用（路径、摘要、字节数）与 `next` 只在这里装配一次。
+/// T06 交付纯实现与独立测试；持久 caller 与响应封装在 T07 统一接入。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StatusView {
+    pub work_id: WorkId,
+    pub name: String,
+    pub workbook: String,
+    pub flow: String,
+    pub status: WorkStatus,
+    pub current: String,
+    pub done: Vec<String>,
+    pub pending: Vec<String>,
+    pub visits: Vec<(String, String)>,
+    /// 与文本卡相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `None`。
+    pub blocked: Option<String>,
+    pub last_attempt: Option<LastAttemptView>,
+    pub next: Vec<NextOp>,
+}
+
+/// 最近一次尝试的事实：失败原因与完整产物引用都在。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LastAttemptView {
+    pub attempt: String,
+    pub status: AttemptStatus,
+    pub summary: Option<String>,
+    pub reason: Option<String>,
+    pub outputs: BTreeMap<String, ArtifactRef>,
+}
+
+/// 从状态与图装配事实视图。
+pub fn status_view(state: &WorkState, graph: &Graph) -> StatusView {
+    StatusView {
+        work_id: state.work_id.clone(),
+        name: state.name.to_string(),
+        workbook: format!("{}@{}", state.workbook.id, state.workbook.version),
+        flow: state.flow.to_string(),
+        status: state.status,
+        current: state.current.to_string(),
+        done: done_occurrences(state),
+        pending: pending_nodes(state, graph),
+        visits: visit_items(state, graph),
+        blocked: blocked_line(state),
+        last_attempt: state.attempts.last().map(|a| LastAttemptView {
+            attempt: a.id.to_string(),
+            status: a.status,
+            summary: a.summary.as_ref().map(|s| s.as_str().to_string()),
+            reason: a.fail_reason.as_ref().map(|s| s.as_str().to_string()),
+            outputs: a.outputs.clone(),
+        }),
+        next: legal_next(state, graph),
+    }
+}
+
+/// `--json` 用的状态卡：`StatusView` 的结构化渲染。`last_attempt.outputs` 是完整
+/// 产物引用（路径、摘要、字节数），失败时 `reason` 与文本卡同一来源；`next` 与协议
+/// §5 的响应封装完全同形（O13）。
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StatusCardJson {
     pub work_id: WorkId,
     pub name: String,
@@ -306,8 +363,9 @@ pub struct StatusCardJson {
     pub done: Vec<String>,
     pub pending: Vec<String>,
     pub visits: BTreeMap<String, String>,
+    pub blocked: Option<String>,
     pub last_attempt: Option<LastAttemptJson>,
-    pub next: Vec<NextOp>,
+    pub next: Vec<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -315,32 +373,99 @@ pub struct LastAttemptJson {
     pub attempt: String,
     pub status: String,
     pub summary: Option<String>,
-    pub outputs: BTreeMap<String, String>,
+    pub reason: Option<String>,
+    pub outputs: BTreeMap<String, ArtifactRefJson>,
+}
+
+/// 完整产物引用（协议 §6）：与文本卡同样的路径、摘要与大小。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ArtifactRefJson {
+    pub path: String,
+    pub sha256: String,
+    pub bytes: u64,
 }
 
 /// 状态卡的结构化形式。字段与文本卡一致。
 pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
+    let view = status_view(state, graph);
     StatusCardJson {
-        work_id: state.work_id.clone(),
-        name: state.name.to_string(),
-        workbook: format!("{}@{}", state.workbook.id, state.workbook.version),
-        flow: state.flow.to_string(),
-        status: state.status,
-        current: state.current.to_string(),
-        done: done_occurrences(state),
-        pending: pending_nodes(state, graph),
-        visits: visit_items(state, graph).into_iter().collect(),
-        last_attempt: state.attempts.last().map(|a| LastAttemptJson {
-            attempt: a.id.to_string(),
+        work_id: view.work_id,
+        name: view.name,
+        workbook: view.workbook,
+        flow: view.flow,
+        status: view.status,
+        current: view.current,
+        done: view.done,
+        pending: view.pending,
+        visits: view.visits.into_iter().collect(),
+        blocked: view.blocked,
+        last_attempt: view.last_attempt.map(|a| LastAttemptJson {
+            attempt: a.attempt,
             status: a.status.as_str().to_string(),
-            summary: a.summary.as_ref().map(|s| s.as_str().to_string()),
+            summary: a.summary,
+            reason: a.reason,
             outputs: a
                 .outputs
                 .iter()
-                .map(|(name, r)| (name.clone(), r.path.to_string()))
+                .map(|(name, r)| {
+                    (
+                        name.clone(),
+                        ArtifactRefJson {
+                            path: r.path.to_string(),
+                            sha256: r.sha256.as_str().to_string(),
+                            bytes: r.bytes,
+                        },
+                    )
+                })
                 .collect(),
         }),
-        next: legal_next(state, graph),
+        next: view
+            .next
+            .iter()
+            .map(|op| next_item_json(&state.work_id, op))
+            .collect(),
+    }
+}
+
+/// 协议 §5 的 `next` 项：`op`、`args`（含 `work`），以及仅 `attempt begin` 项上的
+/// `edge`、`executor`、`tier`。全协议只有这一种形状（O13）。
+pub fn next_item_json(work_id: &WorkId, op: &NextOp) -> serde_json::Value {
+    match op {
+        NextOp::BeginAttempt {
+            node,
+            edge,
+            executor,
+            tier,
+        } => {
+            let mut v = serde_json::json!({
+                "op": "attempt begin",
+                "args": { "work": work_id.as_str(), "node": node.as_str() },
+            });
+            if let Some(kind) = edge {
+                v["edge"] = serde_json::json!(kind.as_str());
+            }
+            v["executor"] = serde_json::json!(executor.as_str());
+            if let Some(t) = tier {
+                v["tier"] = serde_json::json!(t.as_str());
+            }
+            v
+        }
+        NextOp::SubmitAttempt { attempt } => serde_json::json!({
+            "op": "attempt submit",
+            "args": { "work": work_id.as_str(), "attempt": attempt.to_string() },
+        }),
+        NextOp::FailAttempt { attempt } => serde_json::json!({
+            "op": "attempt fail",
+            "args": { "work": work_id.as_str(), "attempt": attempt.to_string() },
+        }),
+        NextOp::ApproveGate { node } => serde_json::json!({
+            "op": "gate approve",
+            "args": { "work": work_id.as_str(), "node": node.as_str() },
+        }),
+        NextOp::Cancel => serde_json::json!({
+            "op": "work cancel",
+            "args": { "work": work_id.as_str() },
+        }),
     }
 }
 
@@ -382,17 +507,17 @@ fn visit_items(state: &WorkState, graph: &Graph) -> Vec<(String, String)> {
 }
 
 /// `blocked` 行；非 `Blocked` 为 `None`。
+/// `blocked` 说明串（协议 §6：与文本行相同的串，不带 `blocked: ` 前缀）；
+/// 非 `Blocked` 为 `None`。文本卡自行加前缀。
 fn blocked_line(state: &WorkState) -> Option<String> {
     let occ = state.current.to_string();
     match state.status {
-        WorkStatus::Blocked(BlockedReason::Gate) => {
-            Some(format!("blocked: gate: {occ} 需要 gate approve"))
-        }
+        WorkStatus::Blocked(BlockedReason::Gate) => Some(format!("gate: {occ} 需要 gate approve")),
         WorkStatus::Blocked(BlockedReason::RetriesExhausted) => {
-            Some(format!("blocked: retries_exhausted: {occ}"))
+            Some(format!("retries_exhausted: {occ}"))
         }
         WorkStatus::Blocked(BlockedReason::NoLegalEdge) => Some(format!(
-            "blocked: no_legal_edge: {occ} 的全部出边目标已达 max_visits"
+            "no_legal_edge: {occ} 的全部出边目标已达 max_visits"
         )),
         _ => None,
     }
@@ -421,8 +546,18 @@ pub struct NodeStatsJson {
     pub failed: u32,
     /// 已结束 Attempt 的平均秒数；没有则 0。
     pub avg_seconds: u64,
-    /// `"<from>×<n>"` 或 `"entry×<n>"`，按首次出现顺序。
+    /// `"<from>(<edge>)×<n>"` 或 `"entry×<n>"`，按首次出现顺序。
     pub entered_via: Vec<String>,
+    /// 结构化同源数据：`{from, edge, count}`（`from`/`edge` 为 `null` 表示入口）。
+    pub entered_via_json: Vec<EnteredViaJson>,
+}
+
+/// 单条进入来源事实（协议 `work stats` 的 JSON 形状）。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct EnteredViaJson {
+    pub from: Option<String>,
+    pub edge: Option<String>,
+    pub count: u32,
 }
 
 /// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 `Timestamp::unix_secs` 相减得到。
@@ -439,17 +574,21 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
             .filter(|a| a.status == AttemptStatus::Failed)
             .count() as u32;
 
-        // entered_via 按 Occurrence 计（重试沿用同一来源），首次出现顺序。
-        let mut order: Vec<String> = Vec::new();
-        let mut counts: BTreeMap<String, u32> = BTreeMap::new();
+        // entered_via 按 Occurrence 计（重试沿用同一来源），来源是「节点 + 边类型」
+        // 二元组（N07：只记节点会把 main/back 混在一起），按首次出现顺序。
+        let mut order: Vec<(Option<String>, Option<String>)> = Vec::new();
+        let mut counts: BTreeMap<(Option<String>, Option<String>), u32> = BTreeMap::new();
         let mut seen_occ = BTreeSet::new();
         for a in &attempts {
             if !seen_occ.insert(a.id.occurrence) {
                 continue;
             }
             let key = match &a.entered_from {
-                Some((occ, _)) => occ.node.as_str().to_string(),
-                None => "entry".to_string(),
+                Some((occ, kind)) => (
+                    Some(occ.node.as_str().to_string()),
+                    Some(kind.as_str().to_string()),
+                ),
+                None => (None, None),
             };
             if !counts.contains_key(&key) {
                 order.push(key.clone());
@@ -457,8 +596,25 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
             *counts.entry(key).or_insert(0) += 1;
         }
         let entered_via = order
-            .into_iter()
-            .map(|k| format!("{k}×{}", counts[&k]))
+            .iter()
+            .map(|key| {
+                let n = counts.get(key).copied().unwrap_or(0);
+                match key {
+                    (Some(f), Some(e)) => format!("{f}({e})×{n}"),
+                    _ => format!("entry×{n}"),
+                }
+            })
+            .collect();
+        let entered_via_json = order
+            .iter()
+            .map(|(from, edge)| EnteredViaJson {
+                from: from.clone(),
+                edge: edge.clone(),
+                count: counts
+                    .get(&(from.clone(), edge.clone()))
+                    .copied()
+                    .unwrap_or(0),
+            })
             .collect();
 
         let mut ended_secs = 0u64;
@@ -477,39 +633,19 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
             failed,
             avg_seconds: ended_secs.checked_div(ended_n).unwrap_or(0),
             entered_via,
+            entered_via_json,
         });
     }
     StatsJson {
         work_id: state.work_id.clone(),
         status: state.status,
         total_seconds: secs_between(&state.created_at, &state.updated_at),
-        blocked_count: count_blocks(state, graph),
+        // 累计受阻是状态转换记录的事实（GF-29/N07）：取消后不减少，不从当前
+        // status 重推历史。
+        blocked_count: state.blocked_count,
         approvals: state.approvals.len() as u32,
         nodes,
     }
-}
-
-/// 被阻断过的次数：门槛成功、重试耗尽，加上当前 `no_legal_edge`。
-fn count_blocks(state: &WorkState, graph: &Graph) -> u32 {
-    let mut latest: BTreeMap<(crate::ids::NodeId, u32), &Attempt> = BTreeMap::new();
-    for a in &state.attempts {
-        latest.insert((a.id.node.clone(), a.id.occurrence), a);
-    }
-    let mut n = 0u32;
-    for a in latest.values() {
-        let Some(def) = graph.node(&a.id.node) else {
-            continue;
-        };
-        match a.status {
-            AttemptStatus::Succeeded if def.gate => n += 1,
-            AttemptStatus::Failed if a.id.retry >= def.max_retries => n += 1,
-            _ => {}
-        }
-    }
-    if state.status == WorkStatus::Blocked(BlockedReason::NoLegalEdge) {
-        n += 1;
-    }
-    n
 }
 
 /// 时间差，秒，负差算 0。`Timestamp` 构造时已校验格式，这里没有失败路径。
@@ -851,8 +987,9 @@ mod tests {
             ),
             ("draft", 2, 3, 1)
         );
-        assert_eq!(draft.entered_via, vec!["entry×1", "review×1"]);
-        assert_eq!(s.nodes[1].entered_via, vec!["draft×1"]);
+        // 合同（协议 work stats）要求保留边类型：draft(back)×1。
+        assert_eq!(draft.entered_via, vec!["entry×1", "review(back)×1"]);
+        assert_eq!(s.nodes[1].entered_via, vec!["draft(main)×1"]);
         assert_eq!(s.nodes[2].attempts, 0);
         assert_eq!(s.blocked_count, 0);
     }
@@ -971,6 +1108,163 @@ mod tests {
             secs_between(&ts("2026-01-01T00:00:09Z"), &ts("2026-01-01T00:00:00Z")),
             0
         );
+    }
+
+    // ── C002-T06：事实视图与累计受阻（O13/N07） ───────────────────
+
+    // Task: C002-T06
+    #[test]
+    fn blocked_count_survives_cancel_after_no_legal_edge() {
+        // NoLegalEdge 发生记 1；取消是状态转换，不回退已发生的事实（GF-29/N07）。
+        let mut fx = no_legal_edge();
+        assert_eq!(fx.state().blocked_count, 1);
+        fx.cancel().unwrap();
+        assert_eq!(fx.state().blocked_count, 1, "取消不得减少累计受阻");
+        let stats = render_stats_json(fx.state(), &fx.graph);
+        assert_eq!(stats.blocked_count, 1);
+    }
+
+    // Task: C002-T06
+    #[test]
+    fn blocked_count_accumulates_across_kinds_and_keeps_after_approve() {
+        // 重试耗尽 +1。
+        let fx = exhausted_draft();
+        assert_eq!(fx.state().blocked_count, 1);
+        // gate 提交成功 +1；批准后保留。
+        let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
+        fx.begin("notes").unwrap();
+        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        assert_eq!(fx.state().blocked_count, 1);
+        fx.approve("notes").unwrap();
+        assert_eq!(fx.state().blocked_count, 1, "批准不清除已发生的受阻事实");
+        // 普通成功与可重试失败不计。
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "一").unwrap();
+        assert_eq!(fx.state().blocked_count, 0);
+    }
+
+    // Task: C002-T06
+    #[test]
+    fn status_json_carries_reason_and_full_artifact_refs() {
+        // 失败原因进 JSON（O13）：字段缺失或值错都会让本测试失败。
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        fx.fail("draft#1.0", "worker 崩了").unwrap();
+        let card = status_card_json(fx.state(), &fx.graph);
+        let last = card.last_attempt.as_ref().unwrap();
+        assert_eq!(last.reason.as_deref(), Some("worker 崩了"));
+        assert_eq!(last.status, "failed");
+
+        // 成功提交后 outputs 是完整产物引用：路径、sha256、字节数逐一有值。
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        let d = fx.submit_ok("draft#1.0", "完成").unwrap();
+        let sealed = d.state.attempts[0].outputs["article"].clone();
+        let card = status_card_json(&d.state, &fx.graph);
+        let out = &card.last_attempt.as_ref().unwrap().outputs["article"];
+        assert_eq!(out.path, sealed.path.to_string());
+        assert_eq!(out.sha256, sealed.sha256.as_str());
+        assert_eq!(out.bytes, sealed.bytes);
+        // 手写期望值字段必须真实存在（删除 digest/bytes 字段会让上面的相等失败）。
+        assert_eq!(out.sha256.len(), 64);
+        assert!(out.bytes > 0);
+
+        // 受阻说明串两格式同源。
+        let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
+        fx.begin("notes").unwrap();
+        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        let card = status_card_json(fx.state(), &fx.graph);
+        assert_eq!(
+            card.blocked.as_deref(),
+            Some("gate: notes#1 需要 gate approve")
+        );
+    }
+
+    // Task: C002-T06
+    #[test]
+    fn next_items_use_single_protocol_shape() {
+        // 状态卡 data.next 与协议 §5 的顶层 next 同形：op/args/work，begin 项带
+        // edge/executor/tier（O13 的「不同形状」修复）。
+        let mut fx = Fixture::article_review().started();
+        fx.run_to_review_done_not_passing();
+        let card = status_card_json(fx.state(), &fx.graph);
+        let next = &card.next;
+        assert!(next.len() >= 2);
+        for item in next {
+            assert!(item["op"].is_string(), "{item}");
+            assert!(item["args"]["work"].is_string(), "{item}");
+        }
+        let begin = next
+            .iter()
+            .find(|i| i["op"] == "attempt begin" && i["args"]["node"] == "draft")
+            .unwrap();
+        assert_eq!(begin["edge"], "back");
+        assert_eq!(begin["executor"], "agent");
+        assert_eq!(begin["tier"], "standard");
+        // 与文本卡的命令行一致（同一份事实）。
+        let text = render_status_card(fx.state(), &fx.graph);
+        assert!(text.contains("sheltie attempt begin"), "{text}");
+    }
+
+    // Task: C002-T06
+    #[test]
+    fn entered_via_distinguishes_edges_and_entry() {
+        let mut fx = Fixture::article_review().started();
+        fx.run_to_review_done_not_passing();
+        // 打回后再次进入 draft：来自 review#1 的 back 边。
+        fx.begin("draft").unwrap();
+        let stats = render_stats_json(fx.state(), &fx.graph);
+        let draft = &stats.nodes[0];
+        // 文本与结构化同源：entry 无 from/edge，back 有边类型。
+        assert_eq!(draft.entered_via, vec!["entry×1", "review(back)×1"]);
+        assert_eq!(
+            draft.entered_via_json,
+            vec![
+                EnteredViaJson {
+                    from: None,
+                    edge: None,
+                    count: 1
+                },
+                EnteredViaJson {
+                    from: Some("review".to_string()),
+                    edge: Some("back".to_string()),
+                    count: 1,
+                },
+            ]
+        );
+        assert_eq!(
+            stats.nodes[1].entered_via,
+            vec!["draft(main)×1"],
+            "review 经 main 进入，边类型必须保留"
+        );
+    }
+
+    // Task: C002-T06
+    #[test]
+    fn text_and_json_agree_on_hand_written_state() {
+        // 独立手写状态：非零时间、失败原因、多个输出，逐字段断言两种渲染一致。
+        let mut fx = Fixture::article_review().started();
+        fx.begin("draft").unwrap();
+        let mut state = fx.state().clone();
+        let ts = |s: &str| Timestamp::parse(s).unwrap();
+        state.created_at = ts("2026-09-24T01:00:00Z");
+        state.updated_at = ts("2026-09-24T02:30:00Z");
+        state.attempts[0].started_at = ts("2026-09-24T01:10:00Z");
+        state.attempts[0].fail_reason =
+            Some(crate::text::Summary::new("超时退出", "reason").unwrap());
+        state.attempts[0].status = AttemptStatus::Failed;
+        state.attempts[0].ended_at = Some(ts("2026-09-24T01:25:00Z"));
+        state.blocked_count = 2;
+
+        let text = render_status_card(&state, &fx.graph);
+        assert!(text.contains("reason: 超时退出"), "{text}");
+        let stats = render_stats_json(&state, &fx.graph);
+        assert_eq!(stats.total_seconds, 5400);
+        assert_eq!(stats.nodes[0].avg_seconds, 900);
+        assert_eq!(stats.blocked_count, 2);
+        assert!(render_stats(&state, &fx.graph).contains("total: 5400s"));
+        assert!(render_stats(&state, &fx.graph).contains("blocked: 2"));
     }
 
     // Task: T10
