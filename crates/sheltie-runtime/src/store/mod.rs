@@ -40,9 +40,15 @@ impl Store {
         };
         if !path.as_path().exists() {
             if mode == OpenMode::ReadOnly {
+                // 只读操作不建库、不建目录（GF-30）。
                 return Err(Error::NotFound {
                     what: path.to_string(),
                 });
+            }
+            // 合法写操作可以创建新管理根：先建父目录再建库（O06；建库 DDL 与
+            // user_version 的同事务在 T07 的 schema 2 落地）。
+            if let Some(parent) = path.as_path().parent() {
+                std::fs::create_dir_all(parent).map_err(|e| Error::io(parent.to_string(), e))?;
             }
             let conn = store.connect()?;
             let mut script = String::new();

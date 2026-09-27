@@ -21,6 +21,9 @@ sheltie-core = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
 
+[target.'cfg(unix)'.dependencies]
+uzers = { workspace = true }
+
 [dev-dependencies]
 sheltie-core = { workspace = true, features = ["testkit"] }
 tempfile = { workspace = true }

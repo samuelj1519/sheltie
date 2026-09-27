@@ -45,6 +45,11 @@ fn walk_dir(
         let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
         let name = entry.file_name().to_string_lossy().into_owned();
         let path = dir.join_segment(&name);
+        if crate::fsx::HOST_METADATA_FILES.contains(&name.as_str()) {
+            return Err(Error::InvalidRequest {
+                reason: format!("{path} 是宿主元数据文件（如 Finder 生成），先清理再装"),
+            });
+        }
         let ft = entry.file_type().map_err(|e| Error::io(path.as_str(), e))?;
         if ft.is_symlink() {
             return Err(Error::InvalidRequest {
@@ -77,13 +82,26 @@ fn walk_dir(
     Ok(())
 }
 
-/// 当前操作系统用户名，取 `USER` 或 `USERNAME`，都没有则 `unknown`。
-/// 真实 OS 主体来源的替换（D-036）归 C002-T05。
+/// 当前操作主体：发起进程的真实 OS 身份（D-036）。unix 上取 effective uid 对应的
+/// 账户名；查不到账户条目或名称不是 UTF-8 时记 `uid:<数值>`，不落到猜测值。
+/// 依赖是维护中的同 API 分支 `uzers`（见 D-036 勘误）。
+/// 完全不读 `USER`/`USERNAME`——环境变量由调用方任意可设。
 pub fn principal() -> Principal {
-    let name = std::env::var("USER")
-        .or_else(|_| std::env::var("USERNAME"))
-        .unwrap_or_else(|_| "unknown".to_string());
-    Principal(name)
+    #[cfg(unix)]
+    {
+        let uid = uzers::get_effective_uid();
+        match uzers::get_user_by_uid(uid) {
+            Some(user) => match user.name().to_str() {
+                Some(name) => Principal(name.to_string()),
+                None => Principal(format!("uid:{uid}")),
+            },
+            None => Principal(format!("uid:{uid}")),
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        Principal("unknown".to_string())
+    }
 }
 
 /// 当前 UTC 时间，秒精度。格式化在 core 的 `Timestamp::from_unix_secs`。

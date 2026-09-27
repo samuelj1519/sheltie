@@ -42,7 +42,9 @@ test_files = ["crates/sheltie-runtime/tests"]
 allow_test_changes = true
 
 [C002-T05]
-files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/decisions/D-036-os-principal-from-uid.md：users 0.11.0 被 cargo deny 的
+# RUSTSEC advisory 拒绝，按工程规范勘误为同 API 的维护分支 uzers；语义与确认方式不变。
+files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/decisions/D-036-os-principal-from-uid.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-core"]
 allow_test_changes = true
 
