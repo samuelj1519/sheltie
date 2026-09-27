@@ -3,11 +3,11 @@
 ## 读什么
 
 1. `spec`：目标与验收标准。
-2. `plan`：基线提交与门禁。
+2. `plan`：原始基线与门禁。
 3. `tasks`：任务列表。
 4. `report`：审查报告，里面的「建议」要抄进「遗留」。标「尚无」时说明这是止损交付，没有经过整体审查，在交付说明第一行注明。
 5. `escalation`：人的决定。任务书「来自」是 `escalate` 时读它，把它的意见抄进「遗留」，并在「验收标准」逐条里如实写哪些没做。
-6. `project`：进入项目根，`git log <基线>..HEAD --oneline` 拿提交列表；若项目有 `CHANGELOG.md`，在「未发布」一节加一条本次改动的摘要并单独提交一次，提交信息 `docs(changelog): <需求一句话>`，末尾 `Task: deliver`、`Work: <work_id>`、`Agent: <模型名>`。
+6. `project`：进入项目根，`git log <原始基线>..HEAD --oneline` 拿提交列表；若项目有 `CHANGELOG.md`，在「未发布」一节加一条本次改动的摘要并单独提交一次，提交信息 `docs(changelog): <需求一句话>`，末尾 `Task: deliver`、`Work: <work_id>`、`Agent: <模型名>`。
 
 ## 写什么
 

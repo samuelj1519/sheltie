@@ -275,7 +275,7 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** 允许改 `examples/**`（样例本身若有错就改样例）。不改测试。
 
-**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、`spec_dev_compiles_with_eleven_nodes_twenty_four_edges`、`spec_dev_retro_reads_engine_stats`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
+**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、（原列 spec_dev_compiles_with_eleven_nodes_twenty_four_edges：C002-T12 给 spec-dev 补了 escalate→verify 回程边，边数 24→25，该测试改名 spec_dev_compiles_with_eleven_nodes_twenty_five_edges 并由 C002-T12 接管，见 C002 evidence/t12）、`spec_dev_retro_reads_engine_stats`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
 
 **实现要点。** 正常情况下启用测试就全绿。红了先看是样例不合合同（改样例）还是 T03 到 T05 有 bug（按第 9 条卡住，报回对应任务）。
 

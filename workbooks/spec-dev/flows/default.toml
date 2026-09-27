@@ -64,12 +64,14 @@ executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/scaffold.md" }
 inputs = [
-  { name = "spec",     from = "spec.spec" },
-  { name = "plan",     from = "plan.plan" },
-  { name = "tasks",    from = "plan.tasks" },
-  { name = "project",  from = "start.project" },
-  { name = "rules",    from = "resource.resources/checklists/scaffold-rules.md" },
-  { name = "template", from = "resource.resources/templates/scaffold.md" },
+  { name = "spec",       from = "spec.spec" },
+  { name = "plan",       from = "plan.plan" },
+  { name = "tasks",      from = "plan.tasks" },
+  { name = "decision",   from = "plan-review.decision" },
+  { name = "escalation", from = "escalate.decision",    required = false },
+  { name = "project",    from = "start.project" },
+  { name = "rules",      from = "resource.resources/checklists/scaffold-rules.md" },
+  { name = "template",   from = "resource.resources/templates/scaffold.md" },
 ]
 outputs = [{ name = "scaffold", path = "scaffold.md", max_bytes = 65536 }]
 max_visits = 4
@@ -85,11 +87,13 @@ tier = "standard"
 instruction = { file = "instructions/implement.md" }
 inputs = [
   { name = "tasks",      from = "plan.tasks" },
+  { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
   { name = "scaffold",   from = "scaffold.scaffold" },
   { name = "project",    from = "start.project" },
   { name = "rules",      from = "resource.resources/checklists/implementer-rules.md" },
   { name = "report",     from = "verify.report",    required = false },
+  { name = "decision",   from = "plan-review.decision" },
   { name = "escalation", from = "escalate.decision", required = false },
 ]
 outputs = [{ name = "change", path = "change.md", max_bytes = 32768 }]
@@ -104,12 +108,15 @@ tier = "standard"
 instruction = { file = "instructions/verify.md" }
 inputs = [
   { name = "tasks",      from = "plan.tasks" },
+  { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
   { name = "scaffold",   from = "scaffold.scaffold" },
   { name = "change",     from = "implement.change" },
   { name = "fix_change", from = "fix.change", required = false },
   { name = "project",    from = "start.project" },
   { name = "template",   from = "resource.resources/templates/report.md" },
+  { name = "decision",   from = "plan-review.decision" },
+  { name = "escalation", from = "escalate.decision", required = false },
 ]
 outputs = [{ name = "report", path = "report.md", max_bytes = 32768 }]
 max_visits = 32
@@ -308,7 +315,7 @@ from = "verify"
 to = "escalate"
 kind = "branch"
 
-# 人的四种决定（「继续」回到卡住的那一步）
+# 人的四种决定（「继续」回到卡住的那一步：骨架、实现、修复或验证）
 [[edges]]
 from = "escalate"
 to = "scaffold"
@@ -322,6 +329,11 @@ kind = "main"
 [[edges]]
 from = "escalate"
 to = "fix"
+kind = "back"
+
+[[edges]]
+from = "escalate"
+to = "verify"
 kind = "back"
 
 [[edges]]
