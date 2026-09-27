@@ -55,3 +55,7 @@ scripts/check-docs.sh
 ```
 
 工具链由 `rust-toolchain.toml` 固定为 stable（edition 2024，MSRV 1.85）。
+
+## 许可
+
+Sheltie 以 [MIT](LICENSE-MIT) 或 [Apache-2.0](LICENSE-APACHE) 双许可发布，使用者可任选其一。仓库中单独标注许可的第三方文件仍遵循各自的声明。
