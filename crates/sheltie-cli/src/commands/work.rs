@@ -65,9 +65,19 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(v) => v,
         Err(m) => return output::param_error(m),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
+    // 只读打开做预检（GF-30）：新管理根连 store.db 都没有，说明没有任何已装
+    // Workbook，按 NOT_FOUND 拒绝，不为失败的 start 建库；写路径由 runtime 重开读写库。
+    let svc = match ctx.store(OpenMode::ReadOnly) {
+        Ok(store) => WorkService::new(ctx.home.clone(), store),
+        Err(sheltie_runtime::Error::NotFound { .. }) => {
+            return output::err(
+                sheltie_core::ErrorCode::NotFound,
+                format!("Workbook {workbook_id} 不存在：管理根里没有任何已装 Workbook"),
+                Some(json!({ "id": workbook_id })),
+                Vec::new(),
+            );
+        }
+        Err(e) => return crate::error_map::to_outcome(&e),
     };
     let rt_args = sheltie_runtime::StartArgs {
         workbook_id,

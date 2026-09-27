@@ -137,10 +137,14 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
                 .join(", ")
         },
     );
-    for (def, _) in &loaded.flows {
+    for (def, graph) in &loaded.flows {
+        // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
+        // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
+        let start_inputs = sheltie_core::work::start_requirements(graph);
         flows.push(json!({
             "id": def.id().as_str(),
             "entry": def.entry().as_str(),
+            "start_inputs": start_inputs,
             "nodes": def.nodes().iter().map(|n| json!({
                 "id": n.id().as_str(),
                 "title": n.title(),
@@ -154,6 +158,14 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
             })).collect::<Vec<_>>(),
         }));
         text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        text.push_str(&format!(
+            "  起始输入: {}\n",
+            if start_inputs.is_empty() {
+                "无".to_string()
+            } else {
+                start_inputs.join(", ")
+            }
+        ));
         for n in def.nodes() {
             text.push_str(&format!(
                 "  {}  {}  {}{}\n",

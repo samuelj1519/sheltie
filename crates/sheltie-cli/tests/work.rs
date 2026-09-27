@@ -199,3 +199,194 @@ fn work_start_with_chinese_name_creates_matching_directory() {
     assert!(wid.ends_with("-文章-初稿"), "{wid}");
     assert!(env.work_dir(wid).is_dir());
 }
+
+// ── C002-T02：start 的无副作用预检（GF-30） ─────────────────────
+
+/// 独立 oracle：递归列出管理根下的相对路径（跳过 SQLite 的 -wal/-shm，连接关闭时会回收）。
+fn snapshot_tree(root: &std::path::Path) -> Vec<String> {
+    fn walk(dir: &std::path::Path, prefix: &str, out: &mut Vec<String>) {
+        let mut entries: Vec<_> = std::fs::read_dir(dir)
+            .map(|it| it.flatten().collect())
+            .unwrap_or_default();
+        entries.sort_by_key(|e| e.file_name());
+        for entry in entries {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.ends_with("-wal") || name.ends_with("-shm") {
+                continue;
+            }
+            let rel = if prefix.is_empty() {
+                name.clone()
+            } else {
+                format!("{prefix}/{name}")
+            };
+            out.push(rel.clone());
+            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                walk(&entry.path(), &rel, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(root, "", &mut out);
+    out
+}
+
+// Task: C002-T02
+#[test]
+fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let before = snapshot_tree(std::path::Path::new(&env.home()));
+
+    // 缺 topic：INPUT_MISSING，detail 点名缺的键。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INPUT_MISSING");
+    assert_eq!(
+        v["error"]["detail"]["missing"],
+        serde_json::json!(["topic"])
+    );
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 多 key：INPUT_MISSING，detail 点名多的键。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+        "--input",
+        "bonus=y",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INPUT_MISSING");
+    assert_eq!(v["error"]["detail"]["extra"], serde_json::json!(["bonus"]));
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 非法名字：INVALID_REQUEST。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--name",
+        "a/b",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 缺 workbook：NOT_FOUND。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "ghost",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 缺 flow：NOT_FOUND。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "ghost",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 拒绝后只补缺条件即成功；当日序号没有被烧掉，仍是 001。
+    let wid = env.start("two-step", &[("topic", "x")]);
+    assert!(wid.contains("-001-"), "{wid}");
+}
+
+// Task: C002-T02
+#[test]
+fn failed_start_on_new_home_creates_nothing() {
+    let env = Env::new();
+    // 新管理根上没有任何已装 Workbook；失败的 start 不得建 store.db 或任何目录。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    let entries: Vec<_> = std::fs::read_dir(env.dir.path()).unwrap().collect();
+    assert!(entries.is_empty(), "管理根必须为空：{entries:?}");
+
+    // 补上「安装 Workbook」这个条件后同参数成功。
+    env.add_example("two-step");
+    let wid = env.start("two-step", &[("topic", "x")]);
+    assert!(wid.contains("-001-"), "{wid}");
+}
+
+// Task: C002-T02
+#[test]
+fn start_param_errors_exit_2_before_any_storage_access() {
+    let env = Env::new();
+
+    // `--input` 的值不是 k=v：参数错误，退出码 2。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "noequal",
+    ]);
+    assert_eq!(code, 2);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+
+    // `@file` 读不了：退出码 2。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=@/definitely/not/here.txt",
+    ]);
+    assert_eq!(code, 2);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+
+    // 缺 `--workbook` 必填参数：clap 退出码 2。
+    let out = env
+        .cmd(&["work", "start", "--flow", "default", "--input", "topic=x"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+}
