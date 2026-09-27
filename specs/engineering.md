@@ -4,9 +4,9 @@
 
 ## 1. 工作方式：spec 先于代码
 
-1. 动手前找到依据。产品行为 → `spec.md`；类型与模块 → `architecture.md`；字段、命令、表结构 → 对应合同；做哪一步 → `plan.md`。
-2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改合同，顺序问题改 `plan.md`。在提交里同时带上文档改动。合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入（M3 教训 D-30：`axoupdater` 写进合同后核对不可行）。
-3. 文档描述目标，不描述进度。代码进度只看 `plan.md` 每个任务的状态与 git 历史。不得把计划中的能力写成「已支持」。
+1. 动手前找到依据。产品行为 → `spec.md`；类型与模块 → `architecture.md`；字段、命令、表结构 → 对应合同；当前任务与进度 → active change 的 `plan.md`。入口见 [change 索引](changes/README.md)。
+2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改架构或合同，跨任务的重要选择新增 ADR，任务顺序改 active change plan。在提交里同时带上文档改动。合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入（M3 教训 D-30：`axoupdater` 写进合同后核对不可行）。
+3. 文档描述目标，不描述进度。代码进度只看 active change plan 的任务状态与 git 历史。没有 active change 时不得从 proposed package 自行开工。不得把计划中的能力写成「已支持」。
 4. 一个事实只在一处定义，别处链接。`scripts/check-docs.sh` 检查断链与禁用词。
 
 ## 2. Rust 约定
@@ -58,7 +58,9 @@ cargo nextest run --all-features --no-tests=pass
 
 ### 3.1 循环
 
-MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。实现者的循环是：
+MVP 期间测试由 [legacy plan](plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
+
+MVP 填空任务的循环是：
 
 1. 启用本任务的测试（删 `#[ignore = "Tnn"]`），跑 `scripts/task.sh Tnn`，看到全红。编译不过不算红；先让它编译。
 2. 挑一个红的，填对应的 `todo!()`，让它绿。不改签名，不改断言，不改快照。
@@ -90,7 +92,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
 ## 4. 提交
 
-- 一个 `plan.md` 任务 = 一个提交。提交时 §2.3 四条命令全绿。
+- active change plan 的一个任务 = 一个提交。提交时 §2.3 四条命令和 package plan 的附加门禁全绿。MVP legacy task 保持原有映射。
 - 不留编译不过的中间态；不为「先让它编译」加空实现、假成功或长期兼容层。
 - 一次接口变化涉及的全部调用方、fixture、文档在同一提交里改完。
 - 信息格式（本仓库与 `spec-dev` Workbook 共用）：
@@ -100,12 +102,13 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
   <正文：改了什么、为什么、怎么验证。每段一个意思。不复述 diff。>
 
-  Task: T05
+  Change: C002
+  Task: C002-T05
   Work: 2026-09-24-001-xxx
   Agent: Claude
   ```
 
-  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾三行是 git trailer：`Task` 对应 `plan.md` 的任务或 `spec-dev` 的 `Tnn`，`Work` 只在 Sheltie Work 里运行时填 `work_id`，`Agent` 必填，写实际提交者（模型名或人名）。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行，否则 git 不把 `Task`、`Agent` 认作 trailer。
+  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾是 git trailer：新迭代的 `Change` 与 `Task` 对应 active package；`Work` 只在 Sheltie Work 里运行时填 `work_id`；`Agent` 必填，写实际提交者。MVP T01–T26 保留只有 `Task` 的 legacy 格式。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行。
 
   ```text
   feat(core): 把 Flow 编译成校验过的图
@@ -113,7 +116,8 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
   按 contracts/workbook.md §4 实现规则 1 到 9。可达性用 BFS。每条规则一个拒绝测试，
   另有 proptest 证明任意 2 到 8 节点的图编译不会 panic。
 
-  Task: T05
+  Change: C002
+  Task: C002-T05
   Agent: Claude
   ```
 
@@ -140,7 +144,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
 全仓措辞清扫（改名、去翻译腔）不得动 `#[cfg(test)]` 模块：测试是合同，`check-task.sh` 按「测试零改动」核对。非动不可时，由复核者逐处核实改动只是文字，然后重打 `tNN-review` 基准 tag（M1 第三轮 N1）。
 
-MVP 期间逐任务的审查由编译器、测试与 `scripts/check-task.sh` 承担；模型审查只在 [plan.md](plan.md) 的 M1、M2、M3 三个里程碑做，范围是两个里程碑之间的 diff。
+MVP 的逐任务与 M1–M3 审查规则保存在 [legacy plan](plan.md)。后续 change 的逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`。
 
 ## 6. 文档写法
 
@@ -148,16 +152,16 @@ MVP 期间逐任务的审查由编译器、测试与 `scripts/check-task.sh` 承
 - 命令、路径、字段、错误码放代码环境，写真实符号，不写近义描述。
 - 表格用于并列映射，编号列表用于顺序步骤。
 - 「必须」「不得」表示强制与禁止，「可以」表示可选。不用「大概」「尽量」。
-- 每份文档只做一种事：规格讲目标，合同讲字段，计划讲步骤，本文讲方法。不混。
+- 每份文档只做一种事：规格讲目标，合同讲字段，change plan 讲步骤，progress 讲当前交接，validation 讲证据，ADR 讲理由，本文讲方法。不混。
 - 改文档跑 `scripts/check-docs.sh`。
 
 ## 7. 遇到缺口
 
 | 发现 | 去哪 |
 | --- | --- |
-| 产品该不该做某事、边界在哪 | 改 `spec.md`，在 `decisions.md` 追加一条 `D-nn` |
+| 产品该不该做某事、边界在哪 | proposed change 写问题与候选；采用后改 `spec.md`，重要选择新增 `decisions/D-nnn-*.md` |
 | 字段、命令、表结构、状态转换没定义 | 改对应合同 |
-| 任务顺序不对、依赖缺失 | 改 `plan.md` |
+| 任务顺序不对、依赖缺失 | 改 active change 的 `plan.md` |
 | 已定义的东西实现错了 | 直接修，补拒绝例 |
 | 局部写法选择 | 自己定，不用问 |
 

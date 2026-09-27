@@ -25,6 +25,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Check docs
         run: scripts/check-docs.sh
+      - name: Check specs governance
+        run: scripts/check-specs.sh
       - name: Check skill
         run: scripts/check-skill.sh
       - name: Check typos

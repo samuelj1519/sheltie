@@ -26,6 +26,13 @@ repos:
         language: script
         files: \.md$
         pass_filenames: false
+      - id: check-specs
+        name: check specs governance
+        description: Change lifecycle, ADR, release, and agent entry stay consistent.
+        entry: scripts/check-specs.sh
+        language: script
+        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*)
+        pass_filenames: false
       - id: check-skill
         name: check sheltie skill
         description: Skill commands exist in the protocol; no storage internals.

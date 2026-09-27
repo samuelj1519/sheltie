@@ -2,7 +2,7 @@
 
 本文规定产品最终要做成什么样。它是产品语义的唯一出处：架构、合同、计划都从这里推导。原则与不变式见 [宪章](constitution.md)，技术设计见 [架构](architecture.md)，MVP 之后的方向见 [路线图](roadmap.md)。
 
-「必须」表示当前目标合同，不表示代码已经做到。代码进度以 [计划](plan.md) 里每个任务的状态为准。
+「必须」表示当前目标合同，不表示代码已经做到。当前 release、active change 与实施进度入口见 [文档地图](README.md)；MVP 历史见 [legacy plan](plan.md)。
 
 ## 1. 要解决的问题
 
