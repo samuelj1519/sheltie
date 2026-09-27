@@ -18,9 +18,24 @@ for path in \
 	specs/changes/completed \
 	specs/changes/rejected \
 	specs/decisions/README.md \
-	specs/releases/README.md; do
+	specs/releases/README.md \
+	specs/releases/v0.1.0/README.md \
+	specs/releases/v0.1.0/plan.md \
+	specs/releases/v0.1.0/decisions.md \
+	specs/releases/v0.1.0/runbook.md \
+	specs/releases/v0.1.0/tasks.toml; do
 	[ -e "$path" ] || fail "缺 $path"
 done
+
+for legacy_root in specs/plan.md specs/decisions.md specs/t25-t26-runbook.md tasks.toml; do
+	[ ! -e "$legacy_root" ] || fail "MVP 历史仍留在一级目录：$legacy_root"
+done
+
+outdated_release_refs="$(grep -RInE 'releases/(v[0-9]+\.[0-9]+\.[0-9]+|<version>)\.md' specs --include='*.md' || true)"
+if [ -n "$outdated_release_refs" ]; then
+	printf '%s\n' "$outdated_release_refs" >&2
+	fail "文档仍引用旧式 release record 路径"
+fi
 
 packages="$(find specs/changes/proposed specs/changes/active specs/changes/completed specs/changes/rejected \
 	-mindepth 1 -maxdepth 1 -type d -name 'C*' | sort)"
@@ -73,7 +88,7 @@ fi
 
 for package in specs/changes/completed/C*; do
 	[ -d "$package" ] || continue
-	for file in README.md plan.md validation.md review.md; do
+	for file in README.md plan.md validation.md review.md tasks.toml; do
 		[ -f "$package/$file" ] || fail "$package 缺 completed 必需文件 $file"
 	done
 	if [ -f "$package/plan.md" ]; then
@@ -133,8 +148,9 @@ for adr in specs/decisions/D-[0-9][0-9][0-9]-*.md; do
 	fi
 done
 
-for release in specs/releases/v*.md; do
+for release in specs/releases/v*/README.md; do
 	[ -f "$release" ] || continue
+	release_name="$(basename "$(dirname "$release")")"
 	tag="$(sed -n 's/^Git tag：`\([^`]*\)`.*/\1/p' "$release")"
 	release_commit="$(sed -n 's/^Release commit：`\([0-9a-f]*\)`.*/\1/p' "$release")"
 	if [ -z "$tag" ]; then
@@ -144,7 +160,7 @@ for release in specs/releases/v*.md; do
 	elif [ -n "$release_commit" ] && [ "$(git rev-list -n 1 "$tag")" != "$release_commit" ]; then
 		fail "$release 的 Release commit 与 tag $tag 不一致"
 	fi
-	grep -qF "$(basename "$release")" specs/releases/README.md || fail "$release 没登记在 releases/README.md"
+	grep -qF "${release_name}/README.md" specs/releases/README.md || fail "$release 没登记在 releases/README.md"
 	grep -Eq '^Release commit：`[0-9a-f]{40}`' "$release" || fail "$release 缺 Release commit"
 	grep -Eq '^.+闭包：`[0-9a-f]{40}`' "$release" || fail "$release 缺验收闭包 commit"
 	grep -q '^## 验收' "$release" || fail "$release 缺验收证据段"
@@ -179,7 +195,7 @@ elif ! grep -q "^## \[$version\]" CHANGELOG.md; then
 	fail "CHANGELOG.md 没有版本 $version"
 fi
 
-current_release="specs/releases/v${version}.md"
+current_release="specs/releases/v${version}/README.md"
 if [ ! -f "$current_release" ]; then
 	fail "当前 Cargo 版本 $version 缺 release record"
 elif ! grep -q "^Git tag：\`v${version}\`" "$current_release"; then

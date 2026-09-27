@@ -198,4 +198,4 @@ MVP 不提供 `clear`。删除一个 Work 的方法是手工删目录再删行�
 
 `self update` 不改 `store.db`。新版本若带更高的 `SCHEMA_VERSION`，下次任何操作按 §1.1 报 `STORE_SCHEMA_MISMATCH`，提示 `self rollback`。MVP 只有 schema 1。
 
-发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台压缩包、sha256 清单、`install.sh`。`self update` 读发布清单 `dist-manifest.json`，认两种写法：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }`（本地发布目录与测试用，`SHELTIE_RELEASE_BASE` 指向本地目录时不联网），以及 cargo-dist 发布的完整清单（在 `selfmgmt` 里适配成同一形状）。网络下载用系统 `curl`。不引 `axoupdater`：其公开 API 只能执行安装脚本，不暴露清单与 sha256，与本节五步冲突（[decisions.md](../decisions.md) D-30）。二进制只包含 `sheltie` 一个可执行文件。
+发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台压缩包、sha256 清单、`install.sh`。`self update` 读发布清单 `dist-manifest.json`，认两种写法：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }`（本地发布目录与测试用，`SHELTIE_RELEASE_BASE` 指向本地目录时不联网），以及 cargo-dist 发布的完整清单（在 `selfmgmt` 里适配成同一形状）。网络下载用系统 `curl`。不引 `axoupdater`：其公开 API 只能执行安装脚本，不暴露清单与 sha256，与本节五步冲突（[v0.1.0 decision log](../releases/v0.1.0/decisions.md) D-30）。二进制只包含 `sheltie` 一个可执行文件。

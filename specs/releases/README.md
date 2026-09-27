@@ -4,4 +4,4 @@ Release record 保存 tag、候选、验收闭包、纳入的 change 和已知�
 
 | Version | 状态 | 记录 |
 | --- | --- | --- |
-| v0.1.0 | released，MVP accepted | [v0.1.0](v0.1.0.md) |
+| v0.1.0 | released，MVP accepted | [v0.1.0](v0.1.0/README.md) |

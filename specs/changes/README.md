@@ -1,9 +1,9 @@
 # Change 索引
 
-当前 release：[`v0.1.0`](../releases/v0.1.0.md)
+当前 release：[`v0.1.0`](../releases/v0.1.0/README.md)
 Active change：无
 
-没有 active change 时，不得从 proposed 中自行选择方案实施。提案采用、任务开始和发布由人决定。
+只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
 ## Proposed
 
@@ -13,12 +13,15 @@ Active change：无
 
 ## Active
 
-无。
+| Change | 目标 | 当前任务 | 入口 |
+| --- | --- | --- | --- |
+| 无 | — | — | — |
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
 | C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
 
 ## Rejected

@@ -16,7 +16,7 @@
 31d7dde docs(specs): 记录首次真实运行
 ```
 
-变更文件只有 `specs/decisions.md` 与 `specs/plan.md`。产品代码与上一轮全面审查时相同，因此上一轮确认的 13 项代码、Workbook 与交付问题没有因本次同步关闭。
+变更文件只有 `specs/releases/v0.1.0/decisions.md` 与 `specs/releases/v0.1.0/plan.md`。产品代码与上一轮全面审查时相同，因此上一轮确认的 13 项代码、Workbook 与交付问题没有因本次同步关闭。
 
 本轮重新执行：
 
@@ -37,7 +37,7 @@
 
 ### S1 · P1 · 把违反合同的副作用写成已接受代价
 
-`specs/decisions.md:680` 把 `002` 描述为“空目录”，并用存储合同 §7.1 的“序号不回收”解释。实际目录含冻结 Workbook 和 `inputs/`，只是数据库没有 `works` 行。
+`specs/releases/v0.1.0/decisions.md:680` 把 `002` 描述为“空目录”，并用存储合同 §7.1 的“序号不回收”解释。实际目录含冻结 Workbook 和 `inputs/`，只是数据库没有 `works` 行。
 
 协议 `work start` 明确要求先核对起始输入，再分配序号并建目录；错误码表又规定 `INPUT_MISSING` 的结果是“无变化”。§7.1 只允许**已经进入序号分配之后**的失败留下空号，不能覆盖本应在分配前完成的输入校验。
 
@@ -45,23 +45,23 @@
 
 ### S2 · P2 · T26 完成记录没有保存两项原始观测
 
-`specs/plan.md:446` 要求记录宿主 token 观测值，`specs/decisions.md:691` 明确写三轮均未取得。执行手册还要求 human 节点由人写 `final.md` 并自己 submit；记录显示含打回的 Run 3 仍由协调者代执行。
+`specs/releases/v0.1.0/plan.md:446` 要求记录宿主 token 观测值，`specs/releases/v0.1.0/decisions.md:691` 明确写三轮均未取得。执行手册还要求 human 节点由人写 `final.md` 并自己 submit；记录显示含打回的 Run 3 仍由协调者代执行。
 
 真实运行、skill 发现、article-review、back 边和新会话均有叙述证据。项目已经接受 T26 与 MVP 完成；token 未采集、human 节点由协调者代执行仍应作为验收限制保留，并在后续版本的宿主回归中补测，不能改写成已经取得的证据。
 
 ### S3 · P2 · 把 Workbook 副本完整性称为输入冻结
 
-`specs/decisions.md:693` 把 `.DS_Store` 触发的 Workbook 整目录摘要不符称为“输入按字节冻结”。项目词汇中，输入冻结是 `ArtifactRef.sha256` 对起始输入、上游产物和绑定输入的核对；本次验证的是存储合同 §5.1 的 Workbook 冻结副本完整性。两者都重要，但不是同一机制。
+`specs/releases/v0.1.0/decisions.md:693` 把 `.DS_Store` 触发的 Workbook 整目录摘要不符称为“输入按字节冻结”。项目词汇中，输入冻结是 `ArtifactRef.sha256` 对起始输入、上游产物和绑定输入的核对；本次验证的是存储合同 §5.1 的 Workbook 冻结副本完整性。两者都重要，但不是同一机制。
 
 ### S4 · P2 · 证据边界超过引擎能证明的范围
 
-`specs/decisions.md:678` 写“全部结论都在本机用引擎复核过”。引擎可以证明 Store 中的状态、已接受命令、文件摘要和 stats，不能证明宿主会话中没有被拒命令、没有直接文件操作，也不能证明 prompt 原文。仓库没有保存原始会话记录的位置。
+`specs/releases/v0.1.0/decisions.md:678` 写“全部结论都在本机用引擎复核过”。引擎可以证明 Store 中的状态、已接受命令、文件摘要和 stats，不能证明宿主会话中没有被拒命令、没有直接文件操作，也不能证明 prompt 原文。仓库没有保存原始会话记录的位置。
 
 记录应逐项标明来源：引擎、SQLite、文件摘要、宿主 transcript 或用户回忆。缺原始证据的结论写“未验证”或收窄范围。
 
 ### S5 · P2 · 发现只写“随下个版本”，没有完成路由
 
-`specs/decisions.md:695` 只给两条 skill 文案建议，没有对应 Task 或上游合同修订；还遗漏了 `INPUT_MISSING` 孤儿目录和 `.DS_Store` 使 Work 不可读的问题。按 `engineering.md` §7，产品、机制、顺序和实现问题必须进入各自权威文件，不能只留一句未来处理。
+`specs/releases/v0.1.0/decisions.md:695` 只给两条 skill 文案建议，没有对应 Task 或上游合同修订；还遗漏了 `INPUT_MISSING` 孤儿目录和 `.DS_Store` 使 Work 不可读的问题。按 `engineering.md` §7，产品、机制、顺序和实现问题必须进入各自权威文件，不能只留一句未来处理。
 
 本提交只有文档变化，Fowler code smell baseline 不适用。
 
@@ -88,7 +88,7 @@
 
 ### P3 · P2 · T26 事实记录与用户后续澄清冲突
 
-用户后续明确说明开场没有提供 topic 和 Workbook；`specs/decisions.md:680` 却写 prompt 指定 article-review 并给了样例路径。仓库没有保存原始 prompt/transcript，无法由代码判断哪一项正确。
+用户后续明确说明开场没有提供 topic 和 Workbook；`specs/releases/v0.1.0/decisions.md:680` 却写 prompt 指定 article-review 并给了样例路径。仓库没有保存原始 prompt/transcript，无法由代码判断哪一项正确。
 
 记录应按原始宿主证据重写；若无法取得，明确写“用户后续澄清”与“原始 transcript 未保存”，不能保留两个互斥事实。同时，“全部写操作都在 next”应收窄为“成功 start 之后的 Work 推进写操作”，因为 `workbook add` 与首次 `work start` 本来不来自某个 Work 的 next。
 

@@ -2,11 +2,11 @@
 
 ## 当前状态
 
-Released：[`v0.1.0`](releases/v0.1.0.md)，MVP 与 T26 complete
+Released：[`v0.1.0`](releases/v0.1.0/README.md)，MVP 与 T26 complete
 Active change：无
 Proposed：[`C002 v0.2.0 可靠性修复`](changes/proposed/C002-v0.2.0-reliability/README.md)，产品修复 `not_run`
 
-没有 active change 时，不从 proposed package 自行实施。提案采用、任务开始和发布由人决定。
+当前没有已采用的 change。C002 仍是 proposed，尚未授权实施。
 
 ## 权威文档
 
@@ -34,7 +34,7 @@ Proposed：[`C002 v0.2.0 可靠性修复`](changes/proposed/C002-v0.2.0-reliabil
 | [guides/README.md](guides/README.md) | 仍可执行的 how-to 与 runbook |
 | [research/README.md](research/README.md) | 一手来源笔记；不具有项目权威性 |
 
-MVP 历史保留在 [legacy plan](plan.md)、[legacy decision log](decisions.md) 和 [T25/T26 archived runbook](t25-t26-runbook.md)。它们已关闭，不作为后续版本入口。
+MVP 历史统一保存在 [v0.1.0 release archive](releases/v0.1.0/README.md)，不作为后续版本入口。
 
 ## 文档职责
 

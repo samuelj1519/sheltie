@@ -35,7 +35,7 @@ if grep -nE "$blacklist" $files; then
 fi
 
 # 3. 决策编号唯一。同号两条会让「见 D-nn」指向不明。
-dup=$(grep -oE '^## D-[0-9]+' specs/decisions.md | sort | uniq -d || true)
+dup=$(grep -oE '^## D-[0-9]+' specs/releases/v0.1.0/decisions.md | sort | uniq -d || true)
 if [ -n "$dup" ]; then
 	echo "decisions.md 决策编号重复：${dup}"
 	status=1

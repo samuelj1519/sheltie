@@ -20,7 +20,7 @@ Owner：Codex
 2. 每次具体迭代进入一个独立 change package。提案、设计、任务、进度和验证在同一目录闭合。
 3. 发布后用 release record 固定 tag、候选、验收和已知限制；历史目标通过 Git tag 重建，不复制一套可能漂移的规格。
 4. `AGENTS.md` 只做短入口、长期约束和命令地图，不写当前任务编号或临时结论。
-5. 当前 `plan.md`、`decisions.md` 与 T25/T26 runbook 作为 MVP 历史关闭。后续版本不继续向这些大文件追加执行流水。
+5. MVP plan、decision log 与 T25/T26 runbook 作为关闭历史管理。C003 后续把它们统一归档到 `releases/v0.1.0/`；后续版本不继续追加执行流水。
 
 这个结构让“已完成 MVP”和“尚未采用的 review 修复”可以同时成立：前者进入 release record，后者放在 `changes/proposed/`，两者不争用同一个状态列。
 
@@ -80,7 +80,8 @@ specs/
 
   releases/
     README.md                       # release 索引
-    v0.1.0.md                       # tag、release commit、验收闭包、已知限制
+    v0.1.0/
+      README.md                     # tag、release commit、验收闭包、已知限制
 
   guides/                           # how-to/runbook；只有仍可执行的操作手册
   research/                         # 一手来源笔记；无权威性
@@ -101,7 +102,7 @@ specs/
 | 重要设计原因 | `decisions/D-*.md` | architecture 正文、review 流水 |
 | 一次审查发现 | change package 的 `findings.md` 或 `review.md` | ADR、产品 spec |
 | 验证与候选结论 | change package 的 `validation.md` | plan 状态文字、CHANGELOG |
-| 已发布事实 | `releases/<version>.md` 与 Git tag | active plan、roadmap |
+| 已发布事实 | `releases/<version>/README.md` 与 Git tag | active plan、roadmap |
 | 用户可感知变化 | 根 `CHANGELOG.md` | commit log、finding 列表 |
 | agent 长期规则 | `AGENTS.md` | 当前任务进度、历史复盘 |
 
@@ -236,7 +237,7 @@ completed 只说明 change 已完成验证，不说明已经发布。
 
 ### 8.2 Release record
 
-`releases/v0.1.0.md` 只记录：
+`releases/v0.1.0/README.md` 只记录：
 
 ```text
 状态：released + accepted
@@ -256,7 +257,7 @@ acceptance closure：31d7dde...
 
 ## 9. Decision records
 
-MVP 的 `specs/decisions.md` 标记为 closed legacy log，不再追加。新决定一项一文件：
+MVP 的 `specs/releases/v0.1.0/decisions.md` 是 closed legacy log，不再追加。新决定一项一文件：
 
 ```text
 D-032-use-change-packages.md
@@ -363,6 +364,8 @@ Dirty worktree: <paths or clean>
 
 迁移拆成三个独立文档提交，不改产品代码。
 
+后续状态：C001 首先完成 G1–G3 并以原路径关闭历史；C003 再把五份 MVP 文件统一移动到 `releases/v0.1.0/`，不改变本节的职责划分。
+
 ### G1 建立治理骨架
 
 - 接受本提案并新增 D-032。
@@ -372,7 +375,7 @@ Dirty worktree: <paths or clean>
 
 ### G2 收口 MVP
 
-- 新建 `releases/v0.1.0.md`，记录 release/acceptance commit、T25/T26 和已知限制。
+- 新建 `releases/v0.1.0/README.md`，记录 release/acceptance commit、T25/T26 和已知限制。
 - 把 `plan.md` 标为“MVP legacy plan，closed”，停止追加；不在本次大规模移动，避免断链。
 - 把 `decisions.md` 标为“MVP legacy decision/review log，closed”，新决定进入 `decisions/`。
 - 把 `t25-t26-runbook.md` 标记 archived，并由 release record 链接。
