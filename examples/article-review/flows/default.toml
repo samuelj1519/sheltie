@@ -7,7 +7,10 @@ id = "draft"
 title = "写初稿"
 executor = "agent"
 instruction = { file = "instructions/draft.md" }
-inputs  = [{ name = "topic", from = "start.topic" }]
+inputs  = [
+  { name = "topic", from = "start.topic" },
+  { name = "review", from = "review.verdict", required = false },
+]
 outputs = [{ name = "article", path = "article.md", max_bytes = 262144 }]
 max_visits = 3
 

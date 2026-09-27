@@ -41,7 +41,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T07 | done | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
 | C002-T08 | done | Workbook 事务、幂等与发布生命周期 | T05、T07 |
 | C002-T10 | done | 输入发现、授权边界与恢复用法 | T02、T07 |
-| C002-T11 | not_run | article-review 打回意见绑定 | T01 |
+| C002-T11 | done | article-review 打回意见绑定 | T01 |
 | C002-T12 | not_run | spec-dev 单任务与整体交付闭环 | T01 |
 | C002-T13 | not_run | skill 安装产物自包含 | T10 |
 | C002-T15 | not_run | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |

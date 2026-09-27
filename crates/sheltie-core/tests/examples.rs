@@ -63,6 +63,26 @@ fn article_review_has_back_edge_human_publish_and_resource_input() {
     );
 }
 
+// Task: C002-T11
+#[test]
+fn article_review_draft_takes_optional_review_verdict_input() {
+    let g = compile_example("article-review");
+    let draft = g.node(&id("draft")).unwrap();
+    let input = draft
+        .inputs()
+        .iter()
+        .find(|i| i.name() == "review")
+        .unwrap_or_else(|| panic!("draft 应声明 review 输入"));
+    assert_eq!(
+        input.source(),
+        &sheltie_core::flow::InputSource::Node {
+            node: id("review"),
+            output: "verdict".to_string(),
+        }
+    );
+    assert!(!input.required());
+}
+
 // Task: T11
 #[test]
 fn gated_release_first_node_is_gate() {

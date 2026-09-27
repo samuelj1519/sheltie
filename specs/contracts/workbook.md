@@ -75,7 +75,10 @@ id = "draft"
 title = "写初稿"
 executor = "agent"
 instruction = { file = "instructions/draft.md" }
-inputs  = [{ name = "topic", from = "start.topic" }]
+inputs  = [
+  { name = "topic", from = "start.topic" },
+  { name = "review", from = "review.verdict", required = false },
+]
 outputs = [{ name = "article", path = "article.md", max_bytes = 262144 }]
 max_visits = 3
 
@@ -212,7 +215,7 @@ kind = "back"
 | 目录 | 证明什么 |
 | --- | --- |
 | `examples/two-step/` | 两个 `agent` 节点，一条 `main` 边，无审查、无门槛。证明业务无关与最小流程 |
-| `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
+| `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、可选输入接收打回意见、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
 
 另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十四条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。

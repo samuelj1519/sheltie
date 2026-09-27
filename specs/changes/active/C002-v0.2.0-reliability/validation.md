@@ -74,7 +74,7 @@
 | C002-T07 | Owner Claude 的本次任务提交；基线 `85ada77` | fmt/check/Clippy/nextest/deny exit 0；nextest 397 passed；[原始运行](evidence/t07/README.md) | schema 2（建库同事务、schema 1 零写入拒绝且字节不变）、RequestIntent 绑定目标、效果登记与恢复（publish/prepare/write_file 精确字节/seal/delete/card）、fs4 写锁、WorkLayout 与 digest v2 一次切换、快照重放（跨 Work/文件变化/Workbook 删除/cancel 后旧请求/卡不回退/历史文件篡改）全部通过；CLI 数据来自快照、只读与 self 拒 request-id | Owner 按任务卡自查通过；关闭 O02/O04/O05/O07/O08/O12/O13/N01/N03 产品闭环；remove 同事务引用检查与 .deleted 标记归 T08，全窗口 kill 矩阵 not_run（M1） |
 | C002-T08 | Owner Claude 的本次任务提交；基线 `bcfa0e6` | fmt/check/Clippy/nextest exit 0；nextest 405 passed；[原始运行](evidence/t08/README.md) | remove 引用检查与损坏行停止进同一事务；delete_dir 核归属摘要、不删不同对象、写 `.deleted` 标记；并行 add 互不干扰；发布窗口恢复；旧 remove/add 重放不碰新生命周期；请求全局去重；识别连接 WAL 竞态修复（并行测试抓出） | Owner 按任务卡自查通过；关闭 N02 与 O08 产品闭环；并发 kill 注入 not_run（M1） |
 | C002-T10 | Owner Claude 的本次任务提交；基线 `766be2` | fmt/check/Clippy/nextest/check-skill exit 0；nextest 408 passed；[原始运行](evidence/t10/README.md) | skill 更新输入发现/不静默替换/next 边界/request-id 预存与范围/重放查当前/代执行如实记录；协议补 gate 代执行边界句；CLI 反例（只读与 self 的 request-id 退出码 2、未装 Workbook 不替换、重放后 status 为准）通过 | Owner 按任务卡自查通过；宿主实际行为证据归 T16 |
-| C002-T11 | not_run | not_run | not_run | not_run |
+| C002-T11 | Owner Claude 的本次任务提交；基线 `a5b2a05` | fmt/check/Clippy/nextest exit 0；nextest 413 passed、0 skipped；[原始运行](evidence/t11/README.md) | 真实 CLI 首次 draft 标尚无、back 后绑 `review/occurrence-001`、第三轮只改轮次绑 `occurrence-002`、去掉 `required = false` 即 `INPUT_UNAVAILABLE` 四组正反例与静态图确认通过；意见只经绑定路径进任务书，brief 无正文 | 独立 Reviewer（未参与实施的通用 agent）首轮「需修改」：null 断言未固定 key 存在性、证据预填 check-task 退出码；修复后复核「通过」。关闭 N09；宿主交互归 T16 |
 | C002-T12 | not_run | not_run | not_run | not_run |
 | C002-T13 | not_run | not_run | not_run | not_run |
 | C002-T15 | not_run | not_run | not_run | not_run |

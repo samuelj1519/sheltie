@@ -104,7 +104,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.retry`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
 5. 返回 `{ attempt_id, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
 
-`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
+`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。第 3 步未绑定的可选输入仍在 `inputs` 里占一行，值是 `null`，任务书对它标「尚无」。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
 ### `attempt submit <work> --attempt <id> --summary <text|@file>`
 
@@ -312,7 +312,7 @@ outputs:
 | `INPUT_MISSING` | `work start` 缺起始输入键 | 无变化 | 补 `--input` |
 | `WORK_TERMINAL` | Work 已是终态 | 无变化 | 无 |
 | `ILLEGAL_NEXT` | 操作不在当前 `next` 里，`detail.next` 给出合法集合 | 无变化 | 从 `next` 里选 |
-| `INPUT_UNAVAILABLE` | 上游节点还没有成功产出 | 未进入节点 | 先完成上游 |
+| `INPUT_UNAVAILABLE` | 上游节点还没有成功产出，`detail.input` 与 `detail.node` 指出哪条输入 | 未进入节点 | 先完成上游 |
 | `ARTIFACT_MODIFIED` | 输入文件当前摘要与记录不符，`detail.path` | 未进入节点 | 人工核查该文件 |
 | `ATTEMPT_NOT_RUNNING` | 对非 `running` 的 Attempt 提交或标失败 | 无变化 | 看状态卡 |
 | `SUMMARY_TOO_LONG` | 摘要超 4096 字节 | 无变化 | 缩短，细节放文件 |
