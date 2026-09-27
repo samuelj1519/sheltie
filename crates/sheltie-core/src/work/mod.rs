@@ -7,6 +7,7 @@ pub mod command;
 pub mod decide;
 pub mod next;
 pub mod render;
+pub mod start;
 pub mod state;
 
 pub use command::{Command, Context, Decision, Effect, ObservedFile, Reply};
@@ -16,6 +17,7 @@ pub use render::{
     NodeStatsJson, StatsJson, StatusCardJson, render_brief, render_stats, render_stats_json,
     render_status_card, status_card_json,
 };
+pub use start::{start_requirements, validate_start_inputs};
 pub use state::{
     Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, Principal, Timestamp,
     WorkState, WorkStatus, WorkbookRef,

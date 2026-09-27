@@ -107,3 +107,39 @@ fn workbook_verify_exits_1_after_tamper() {
     assert_eq!(code, 1);
     assert_eq!(v["error"]["code"], "WORKBOOK_TAMPERED");
 }
+
+// Task: C002-T02
+#[test]
+fn show_lists_ordered_start_inputs_in_json_and_text() {
+    let env = Env::new();
+    env.add_example("article-review");
+    // article-review 只有 draft 声明 start.topic；协调者不用失败 start 探测。
+    let v = env.ok(&["workbook", "show", "article-review"]);
+    assert_eq!(
+        v["data"]["flows"][0]["start_inputs"],
+        serde_json::json!(["topic"])
+    );
+    let out = env
+        .cmd_text(&["workbook", "show", "article-review"])
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("起始输入: topic"), "{text}");
+
+    // 没有起始输入的 Flow 写「无」。用临时目录造一个无键 Workbook。
+    let src = env.dir.path().join("nokeys");
+    std::fs::create_dir_all(src.join("flows")).unwrap();
+    std::fs::write(
+        src.join("workbook.toml"),
+        "schema = \"workbook/v1\"\nid = \"nokeys\"\nversion = \"1.0.0\"\nname = \"无键\"\nflows = [\"flows/default.toml\"]\n",
+    )
+    .unwrap();
+    std::fs::write(
+        src.join("flows/default.toml"),
+        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做。\" }\n",
+    )
+    .unwrap();
+    env.ok(&["workbook", "add", src.to_str().unwrap()]);
+    let v = env.ok(&["workbook", "show", "nokeys"]);
+    assert_eq!(v["data"]["flows"][0]["start_inputs"], serde_json::json!([]));
+}

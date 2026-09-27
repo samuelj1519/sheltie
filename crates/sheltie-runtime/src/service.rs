@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 use sheltie_core::digest::Sha256Hex;
-use sheltie_core::flow::Graph;
+use sheltie_core::flow::{FlowDef, Graph};
 use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
 use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
@@ -18,7 +18,7 @@ use crate::error::{Error, Result};
 use crate::home::Home;
 use crate::observe::{build_resource_index, now, observe_optional, principal};
 use crate::store::{CommitInput, CommitOutcome, Store};
-use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
+use crate::workbook_repo::{LoadedWorkbook, WorkbookRepo, set_tree_readonly};
 
 /// `work start` 的参数。
 #[derive(Debug, Clone)]
@@ -71,20 +71,16 @@ impl WorkService {
         Self { home, store }
     }
 
-    /// `work start`。比其他写操作多三步前置：查 `requests` 表重放；`allocate_seq` 拼 `work_id`；
-    /// 复制冻结副本（存储合同 §5.1）并写起始输入文件。之后走 `run_command`。
+    /// `work start`。先做无副作用预检（GF-30）：名字规范化、Workbook/Flow 存在性、
+    /// 起始输入键集合的确定性拒绝都发生在当日序号分配与任何目录物化之前；失败后补齐
+    /// 条件用同一参数重试即成功，不烧号。重放查重在装入 Workbook 之前（协议 work start
+    /// 第 2 步）。预检只读；通过后才以读写库进入写路径——合法 start 要求 Workbook 已装，
+    /// store.db 已由 `workbook add` 建好，这里不会为新请求建库。
     pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
-        let wb = self
-            .repo()
-            .load(&args.workbook_id, args.version.as_deref())?;
-        let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
-            what: format!("Flow {}", args.flow),
-        })?;
-        let ctx = Context {
-            now: now(),
-            principal: principal(),
-        };
+        // 名字规范化属于意图构造（协议 work start 第 1 步），先于一切读取；
+        // 规范化值幂等，写路径按同一参数重算。
+        WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
         // 载荷指纹：同一请求重放必须逐字节相同（BTreeMap 保证键序稳定）。
         let payload = serde_json::json!({
             "workbook": args.workbook_id,
@@ -94,7 +90,7 @@ impl WorkService {
             "inputs": args.inputs,
         });
         let payload_hash = hash_json(&payload)?;
-        // 重放预检在分配序号之前（存储合同 §7.1），避免重放烧掉一个新号。
+        // 重放预检在装入 Workbook 与分配序号之前（存储合同 §7.1），重放不烧号。
         if let Some((hash, reply_json)) = self.store.lookup_request(&request_id)? {
             if hash != payload_hash {
                 return Err(Error::RequestConflict {
@@ -103,9 +99,43 @@ impl WorkService {
             }
             return self.replay(None, request_id, reply_json);
         }
+        let wb = self
+            .repo()
+            .load(&args.workbook_id, args.version.as_deref())?;
+        let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
+            what: format!("Flow {}", args.flow),
+        })?;
+        // 起始输入键与 `workbook show` 同源（GF-30）；缺/多都在烧号之前拒绝。
+        sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
+        let ctx = Context {
+            now: now(),
+            principal: principal(),
+        };
+        // 写路径：预检全部通过才以读写重新打开（调用方给 start 的句柄是只读的）。
+        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
+        WorkService::new(self.home.clone(), store).start_write(
+            args,
+            &wb,
+            flow,
+            ctx,
+            request_id,
+            payload_hash,
+        )
+    }
+
+    /// 预检通过后的写路径：分配序号、物化冻结副本与起始输入、提交。
+    fn start_write(
+        &self,
+        args: StartArgs,
+        wb: &LoadedWorkbook,
+        flow: &(FlowDef, Graph),
+        ctx: Context,
+        request_id: String,
+        payload_hash: String,
+    ) -> Result<Response> {
+        let name = WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
         let day = ctx.now.day().to_string();
         let seq = self.store.allocate_seq(&day)?;
-        let name = WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
         let work_id = WorkId::new(&day, seq, &name)?;
         let work_dir = self.home.work_dir(&work_id);
         // 冻结副本：本 Work 之后只读它（存储合同 §5.1）。

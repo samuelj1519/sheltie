@@ -2,11 +2,11 @@
 //! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 use super::next::legal_next;
 use super::render::{render_brief, render_stats_json};
+use super::start::validate_start_inputs;
 use super::state::{
     Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
 };
@@ -87,28 +87,9 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         });
     };
 
-    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等。
-    let mut wanted: BTreeSet<String> = BTreeSet::new();
-    for node in graph.nodes() {
-        for decl in &node.inputs {
-            if let InputSource::Start { key } = &decl.from {
-                wanted.insert(key.clone());
-            }
-        }
-    }
-    let missing: Vec<String> = wanted
-        .iter()
-        .filter(|k| !inputs.contains_key(*k))
-        .cloned()
-        .collect();
-    let extra: Vec<String> = inputs
-        .keys()
-        .filter(|k| !wanted.contains(*k))
-        .cloned()
-        .collect();
-    if !missing.is_empty() || !extra.is_empty() {
-        return Err(Error::InputMissing { missing, extra });
-    }
+    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等（GF-30 的共享校验，
+    // runtime preflight 与 workbook show 用同一份结果，不各自重算）。
+    validate_start_inputs(graph, inputs.keys())?;
 
     let entry = graph.entry().clone();
     let mut visits = BTreeMap::new();
