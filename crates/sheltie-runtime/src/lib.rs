@@ -8,6 +8,7 @@
 
 pub mod error;
 pub mod failpoint;
+pub mod fsx;
 pub mod home;
 pub mod observe;
 pub mod selfmgmt;

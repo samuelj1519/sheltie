@@ -29,8 +29,11 @@ test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T04]
+# crates/sheltie-cli/tests/scenario_article_review.rs：管理根入口规范化（本任务）后，
+# 记录路径成为真实形式（macOS 的 /var → /private/var），该测试的期望前缀需同样
+# canonicalize，只改这一处期望，不改断言语义。
 files = ["crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
-test_files = ["crates/sheltie-runtime/tests"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests/scenario_article_review.rs"]
 allow_test_changes = true
 
 [C002-T09]

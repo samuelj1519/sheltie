@@ -8,9 +8,9 @@ use sheltie_core::flow::{FlowDef, Graph};
 use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
 use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
-    Command, Context, Decision, Effect, NextOp, Reply, StatsJson, StatusCardJson, WorkState,
-    WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_stats, render_stats_json,
-    render_status_card, status_card_json,
+    Command, Context, Decision, Effect, NextOp, ObservedFile, Reply, StatsJson, StatusCardJson,
+    WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_stats,
+    render_stats_json, render_status_card, status_card_json,
 };
 use sheltie_core::workbook::parse_manifest;
 
@@ -18,7 +18,8 @@ use crate::error::{Error, Result};
 use crate::home::Home;
 use crate::observe::{build_resource_index, now, observe_optional, principal};
 use crate::store::{CommitInput, CommitOutcome, Store};
-use crate::workbook_repo::{LoadedWorkbook, WorkbookRepo, set_tree_readonly};
+use crate::workbook_repo::set_tree_readonly;
+use crate::workbook_repo::{LoadedWorkbook, WorkbookRepo};
 
 /// `work start` 的参数。
 #[derive(Debug, Clone)]
@@ -138,21 +139,19 @@ impl WorkService {
         let seq = self.store.allocate_seq(&day)?;
         let work_id = WorkId::new(&day, seq, &name)?;
         let work_dir = self.home.work_dir(&work_id);
-        // 冻结副本：本 Work 之后只读它（存储合同 §5.1）。
-        std::fs::create_dir_all(work_dir.as_path()).map_err(|e| Error::io(work_dir.as_str(), e))?;
+        // 冻结副本：本 Work 之后只读它（存储合同 §5.1）。逐段核对祖先软链后建目录。
+        crate::fsx::ensure_dirs_under(self.home.root(), &work_dir)?;
         let frozen = work_dir.join_segment("workbook");
         WorkbookRepo::copy_confined(&wb.dir, &frozen)?;
         set_tree_readonly(&frozen)?;
-        // 起始输入物化成文件并记 ArtifactRef。
+        // 起始输入物化成文件并记 ArtifactRef；独占创建，不覆盖已有路径。
         let inputs_dir = work_dir.join_segment("inputs");
-        std::fs::create_dir_all(inputs_dir.as_path())
-            .map_err(|e| Error::io(inputs_dir.as_str(), e))?;
+        crate::fsx::ensure_dirs_under(self.home.root(), &inputs_dir)?;
         let mut inputs = BTreeMap::new();
         for (key, value) in &args.inputs {
             // 键来自外部输入，先经 confine 限制在 inputs/ 之下。
             let path = Home::confine(&inputs_dir, key)?;
-            std::fs::write(path.as_path(), value.as_bytes())
-                .map_err(|e| Error::io(path.as_str(), e))?;
+            crate::fsx::write_new_file(&path, value.as_bytes())?;
             inputs.insert(
                 key.clone(),
                 sheltie_core::work::ArtifactRef {
@@ -222,7 +221,8 @@ impl WorkService {
                 let mut observed = BTreeMap::new();
                 for (name, path) in paths {
                     // 缺文件记 None（OUTPUT_MISSING 由 core 报）；软链等观察错误直接拒绝。
-                    observed.insert(name, observe_optional(&path)?);
+                    let obs = observe_output(&name, &path)?;
+                    observed.insert(name, obs);
                 }
                 Ok(Command::SubmitAttempt {
                     attempt: attempt.clone(),
@@ -536,27 +536,47 @@ impl WorkService {
         Ok(resp)
     }
 
-    /// 效果执行。幂等：文件用「写临时再 rename」，置只读可重复，状态卡整份重写。
-    /// 效果失败不回滚状态（存储合同 §3）；这里把 IO 错误往上抛给调用者记录。
+    /// 效果执行。幂等：文件用「独占临时名写 + rename」（`fsx`），封存按记录摘要核对
+    /// 后在同一句柄上置只读，状态卡整份重写。效果失败不回滚状态（存储合同 §3）；
+    /// 错误往上抛给调用者，`committed` 响应形状按协议 §5 由 T07 接入。
     fn apply_effects(&self, state: &WorkState, graph: &Graph, effects: &[Effect]) -> Result<()> {
         for effect in effects {
             match effect {
                 Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {
-                    write_atomic(path, content)?;
+                    crate::fsx::write_exclusive_atomic(self.home.root(), path, content.as_bytes())?;
                 }
                 Effect::SealOutputs { paths } => {
                     for p in paths {
-                        use std::os::unix::fs::PermissionsExt;
-                        // 尽力而为；封存以记录的 sha256 为准，不是只读位。
-                        let _ = std::fs::set_permissions(
-                            p.as_path(),
-                            std::fs::Permissions::from_mode(0o444),
-                        );
+                        // 封存以记录的 sha256 为准（存储合同 §4）：句柄核对身份与摘要，
+                        // 与提交时记录不符说明对象被换过，拒绝在不属于本次提交的对象上 chmod。
+                        let expected = state
+                            .attempts
+                            .iter()
+                            .find_map(|a| a.outputs.values().find(|r| &r.path == p).cloned());
+                        let Some(expected) = expected else {
+                            return Err(Error::StoreCorrupt {
+                                detail: format!("封存目标 {p} 不在任何已记录输出里"),
+                            });
+                        };
+                        let f = crate::fsx::SafeFile::open_regular(p)?;
+                        let (sha256, _) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+                        if sha256 != expected.sha256 {
+                            return Err(Error::StoreCorrupt {
+                                detail: format!(
+                                    "封存目标 {p} 的摘要与提交时记录不符（观察后被替换）"
+                                ),
+                            });
+                        }
+                        f.set_readonly()?;
                     }
                 }
                 Effect::RefreshStatusCard => {
                     let card = render_status_card(state, graph);
-                    write_atomic(&state.status_card_path(), &card)?;
+                    crate::fsx::write_exclusive_atomic(
+                        self.home.root(),
+                        &state.status_card_path(),
+                        card.as_bytes(),
+                    )?;
                 }
             }
         }
@@ -575,9 +595,10 @@ impl WorkService {
                 at,
                 &instruction_text_of(&loaded.state, &loaded.graph, &attempt.node)?,
             );
-            write_atomic(
+            crate::fsx::write_exclusive_atomic(
+                self.home.root(),
                 &loaded.state.attempt_dir(attempt).join_segment("brief.md"),
-                &brief,
+                brief.as_bytes(),
             )?;
             // engine.stats 的 stats.json：只在文件缺失时重算。口径含本次 Attempt（D-29），
             // 库里的状态就是提交时的状态，重算与提交时逐字节一致。
@@ -595,11 +616,19 @@ impl WorkService {
                 .map_err(|e| Error::StoreCorrupt {
                     detail: format!("engine.stats 序列化失败：{e}"),
                 })?;
-                write_atomic(&stats_path, &content)?;
+                crate::fsx::write_exclusive_atomic(
+                    self.home.root(),
+                    &stats_path,
+                    content.as_bytes(),
+                )?;
             }
         }
         let card = render_status_card(&loaded.state, &loaded.graph);
-        write_atomic(&loaded.state.status_card_path(), &card)
+        crate::fsx::write_exclusive_atomic(
+            self.home.root(),
+            &loaded.state.status_card_path(),
+            card.as_bytes(),
+        )
     }
 }
 
@@ -612,20 +641,35 @@ fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Resul
         sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
         sheltie_core::flow::Instruction::File(rel) => {
             let path = state.workbook_dir().join(rel);
-            std::fs::read_to_string(path.as_path()).map_err(|e| Error::io(path.as_str(), e))
+            let f = crate::fsx::SafeFile::open_regular(&path)?;
+            let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+            String::from_utf8(bytes).map_err(|_| {
+                Error::Core(sheltie_core::Error::WorkbookInvalid {
+                    field: path.to_string(),
+                    reason: "说明书不是 UTF-8".to_string(),
+                })
+            })
         }
     }
 }
 
-/// 写临时文件再 rename；父目录不存在就先建（Attempt 目录由这里首次创建）。
-fn write_atomic(path: &AbsPath, content: &str) -> Result<()> {
-    if let Some(parent) = path.as_path().parent() {
-        std::fs::create_dir_all(parent).map_err(|e| Error::io(path.as_str(), e))?;
+/// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的
+/// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按
+/// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。
+fn observe_output(name: &str, path: &AbsPath) -> Result<Option<ObservedFile>> {
+    let Some(f) = crate::fsx::SafeFile::open_optional(path)? else {
+        return Ok(None);
+    };
+    let len = f.metadata().len();
+    if len > crate::fsx::MAX_FILE_BYTES {
+        return Err(Error::Core(sheltie_core::Error::OutputTooLarge {
+            output: name.to_string(),
+            max_bytes: crate::fsx::MAX_FILE_BYTES,
+            actual: len,
+        }));
     }
-    let tmp = path.as_path().with_extension("tmp-pending");
-    std::fs::write(&tmp, content).map_err(|e| Error::io(path.as_str(), e))?;
-    std::fs::rename(&tmp, path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-    Ok(())
+    let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)))
 }
 
 // ── 自由函数与共用小件 ─────────────────────────────────────────

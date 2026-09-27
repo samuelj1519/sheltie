@@ -103,17 +103,23 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
             path_hint: path_hint(home),
         });
     }
-    std::fs::create_dir_all(bin.as_path()).map_err(|e| Error::io(bin.as_str(), e))?;
+    crate::fsx::ensure_dirs_under(home.root(), &bin)?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
     std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
     let staged = tmp.join_segment("sheltie");
-    std::fs::copy(&current, staged.as_path()).map_err(|e| Error::io(staged.as_str(), e))?;
+    // 当前可执行文件是根外对象，只读取观察；落位用独占创建 + fsync + rename。
+    let exe = crate::fsx::SafeFile::open_regular(
+        &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
+    )?;
+    let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    crate::fsx::write_new_file(&staged, &bytes)?;
     make_executable(&staged)?;
     fsync(&staged)?;
     std::fs::rename(staged.as_path(), target.as_path())
         .map_err(|e| Error::io(target.as_str(), e))?;
+    crate::fsx::fsync_dir(&bin);
     let _ = std::fs::remove_dir_all(tmp.as_path());
     if modify_path {
         modify_shell_rc(home)?;
@@ -155,6 +161,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
     std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
+    crate::fsx::ensure_dirs_under(home.root(), &home.tmp_dir())?;
     let downloaded = match download(source, &asset.name, &tmp) {
         Ok(p) => p,
         Err(e) => {
@@ -180,7 +187,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     };
     make_executable(&new_bin)?;
     let bin = home.bin_dir();
-    std::fs::create_dir_all(bin.as_path()).map_err(|e| Error::io(bin.as_str(), e))?;
+    crate::fsx::ensure_dirs_under(home.root(), &bin)?;
     let target = bin.join_segment("sheltie");
     let prev = bin.join_segment("sheltie.prev");
     // 崩溃窗口：第 3 步与第 4 步之间（存储合同 §9 末段）。
@@ -191,6 +198,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     crate::failpoint::maybe_exit("update_between_renames");
     std::fs::rename(new_bin.as_path(), target.as_path())
         .map_err(|e| Error::io(target.as_str(), e))?;
+    crate::fsx::fsync_dir(&bin);
     let _ = std::fs::remove_dir_all(tmp.as_path());
     Ok(UpdateOutcome {
         from: current.to_string(),
@@ -221,6 +229,7 @@ pub fn rollback(home: &Home) -> Result<()> {
             // trash 是文件不是目录；remove_dir_all 对文件报 ENOTDIR，会把它留在 tmp/ 里。
             let _ = std::fs::remove_file(trash.as_path());
         }
+        crate::fsx::fsync_dir(&bin);
     }
     std::fs::rename(prev.as_path(), target.as_path()).map_err(|e| Error::io(target.as_str(), e))?;
     Ok(())
@@ -236,12 +245,11 @@ pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPat
     }
     let bin = home.bin_dir();
     if purge {
-        std::fs::remove_dir_all(home.root().as_path())
-            .map_err(|e| Error::io(home.root().as_str(), e))?;
+        crate::fsx::remove_tree_no_follow(home.root())?;
         return Ok(Vec::new());
     }
     if bin.as_path().exists() {
-        std::fs::remove_dir_all(bin.as_path()).map_err(|e| Error::io(bin.as_str(), e))?;
+        crate::fsx::remove_tree_no_follow(&bin)?;
     }
     let mut kept = Vec::new();
     for name in ["store.db", "workbooks", "works"] {
