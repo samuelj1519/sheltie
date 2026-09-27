@@ -70,6 +70,7 @@ v0.1.0 证明了引擎能记状态、限定合法下一步、守门槛，但产�
 2. [spec.md](spec.md)：候选产品 delta、承诺合同、保证范围和受影响的上游条款。
 3. [design.md](design.md)：分层、本地快照验证器的四个环节、两份 ADR 草案。
 4. [validation.md](validation.md)：采用前的实验方案与失败路径测试，目前全部为 `not_run`。
+5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 
 ## 采用条件
 

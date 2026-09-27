@@ -52,6 +52,7 @@ Owner：`待采用时指定`
 2. [spec.md](spec.md)：生效约束快照、候选能力、承诺合同和受影响的上游条款。
 3. [design.md](design.md)：生成流程、检查器的规则集与边界、ADR-E 草案。
 4. [validation.md](validation.md)：authoring 实验与检查器的失败路径测试，目前全部为 `not_run`。
+5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 
 ## 采用条件
 
