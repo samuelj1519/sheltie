@@ -1,113 +1,111 @@
-# C002 设计
+# C002 候选设计
 
-状态：`proposed`，产品实现 `not_run`
+状态：`proposed`，产品实现 `not_run`。采用后先同步上游合同。此设计替换旧版 C002 的隐式双格式兼容、错误摘要固化和历史状态卡重放方案。
 
-本文只定义候选 interface、顺序和兼容策略。人采用 C002 并同步根规格、架构、合同与 ADR 后，设计才成为实施依据。
+## 1. 保留的结构与版本边界
 
-## 设计决定
+继续使用 `cli → runtime → core`、同步调用、一个 SQLite Store。core 负责合法转换与纯路径/视图；runtime 负责实际文件、主体、事务与效果；CLI 只解析和渲染。新增模块只按这些真实职责拆分，不引入通用框架。
 
-### StartRequirements 是起始输入的唯一事实来源
+Store schema 从 1 升到 2，原子创建表和 user_version。旧 schema 先只读识别并拒绝，在拒绝前不改 journal mode、内容或文件。新版本不写旧格式，不用 `serde(default)` 猜布局，也不在 reply_json 中容纳无标记的新旧两种解释。新响应若改变既有字段结构，采用 `cli-result/v2`；T01 固定完整字段与错误闭集。
 
-在 core 中提供一个纯 interface：
+默认用新管理根开始 v0.2.0，保留旧管理根和旧二进制。仅切换二进制的 rollback 不等于 Store downgrade；旧二进制也必须拒绝 schema 2。安装/更新说明必须包含这一点。迁移只有出现真实续接需求才另行设计，不能用自动清库解决。
 
-```text
-start_requirements(graph) -> 有序 key 集合
-validate_start_inputs(graph, provided_keys) -> Result
-```
+## 2. 用户意图与提交快照
 
-`decide_start`、runtime preflight 与 `workbook show` 都调用同一实现。不要在 CLI、runtime 和 core 各写一遍收集 `start.<key>` 的循环。
+runtime 提供内部 `RequestIntent`：操作种类、完整目标身份、用户参数。Work 前缀先只读解析为完整 WorkId；已有 Work 行即使已终态仍能解析，不能靠读取 Workbook 才解析。request-id 是有界、不作路径的 opaque key；内部 staging ID 由 runtime 随机生成。
 
-`WorkService::start` 的新顺序：
+- Work intent 含完整 WorkId、node/attempt 与 summary/reason 等用户参数，不含重新计算的观察结果、时钟和模型自报事实。
+- start intent 含用户给的 Workbook selector、Flow、规范化名字与起始输入内容。没有显式版本时第一次解析的实际版本进入提交响应；重放先查记录，不重新解释“最新版本”。
+- add intent 含规范化源目录参数和明确操作；相同请求成功后源目录变化不重新安装，返回原结果。新 request-id 才表示新的安装意图；同 id/version 的另一安装遵守冲突规则。
+- remove intent 含完整 id/version。self 收到 request-id 直接参数错误，查询也不虚构 request-id。
 
-```text
-构造 RequestIntent
-→ 请求重放预检
-→ 加载并核对已装 Workbook
-→ 找 Flow
-→ 规范化 WorkName
-→ validate_start_inputs
-→ 分配序号
-→ 在 tmp/starts/<request-id>/ 物化 Workbook 与 start inputs
-→ core decide
-→ 单事务写 Work、audit、StoredOutcome
-→ rename staging 到 works/<work-id>
-→ 写 status-card
-```
+第一次提交保存完整 `ResponseSnapshot`（包括 Work 身份、status、next、批准记录、输出引用与 revision），CLI 不再提交后重新读 Store 拼数据。重放只附 `replayed=true`，其他业务字段不变。历史 next 是历史响应的一部分；skill 在恢复后通过 status 获取当前 next。
 
-前六步以前失败必须“无变化”。分配序号之后发生 I/O 故障或进程崩溃，可以留下不回收的空号；中间文件只能在 `tmp/`，不能出现在 `works/`。COMMIT 后、rename 前崩溃时，同 request-id 重放完成 rename。
+事务内仍复查 request-id 与 revision，解决预检后的竞争。失败且尚未提交的请求不保存成功记录；同 request-id 可在故障排除后重试。
 
-### WorkLayout 集中管理全部路径
+## 3. preflight 与路径
 
-新增 core module `work::layout`。它是 Work 路径的唯一 interface，负责：
+core 共享两个纯函数：`start_requirements(graph)` 和 `validate_start_inputs(graph, provided_keys)`。decide、runtime preflight 与 workbook show 使用同一事实来源。runtime 在任何序号分配/目录物化前核对 Workbook/Flow、名字、输入键；CLI 的 @file 读取失败同样在此前结束。
 
-- 冻结 Workbook 路径。
-- 起始输入路径。
-- Occurrence 与 Attempt 目录。
-- `brief.md`、引擎文件、worker output 目录。
-- `status-card.md`。
-
-新 Work 使用 `readable_v2`：
+一个 `WorkLayout` 集中生成路径，新 Store 只有一种布局：
 
 ```text
 works/<work-id>/
   status-card.md
   workbook/
-  start-inputs/
-    <key>
-  attempts/
-    <node>/
-      occurrence-001/
-        attempt-000/
-          brief.md
-          engine/
-            stats.json
-          outputs/
-            <声明路径>
+  start-inputs/<key>
+  attempts/<node>/occurrence-001/attempt-000/
+    brief.md
+    engine/stats.json
+    outputs/<declared-path>
 ```
 
-两层目录保留，因为 `Occurrence` 表示 Node 再次到达，`Attempt` 表示同一次到达内的执行与重试。数字补零只用于目录排序；CLI AttemptId 保持 `node#occurrence.retry`。
+Occurrence 与 retry 是两个真实维度，均保留。`AttemptId=node#n.retry` 保持原含义；目录标签仅改善浏览。begin 返回前创建输出目录。编译拒绝输出相同、祖先冲突及受支持平台上指向同一文件的别名；测试至少覆盖大小写与 macOS Unicode 归一化。不要把 ASCII lowercase 当完整文件系统等价判断。可选最小合同是将新输出路径限定为可移植字符集并拒绝大小写冲突，T01 必须固定选择与拒绝信息。
 
-`WorkState` 新增 layout version。旧 state 缺字段时默认 `legacy_v1`，所以已有 Work 不重命名、不迁移；新 Work 固定使用 `readable_v2`。core、runtime、渲染、Workbook 说明和测试不得再手工拼目录字面量。
+Home 在入口确定规范根，所有 managed 路径（Store、workbooks、works、pending、tmp、bin 及恢复/删除目标）都从它派生。检查到叶与最近存在祖先；不允许不可信父软链把根重新定义成根外位置。缺祖先与权限错误要区分，不能把任意 canonicalize 失败视为安全。
 
-兼容只覆盖升级前仍完整的 Work。已经因 `.DS_Store` 或人工修改发生摘要不符的冻结副本不能自动修复；修复工具不知道哪组字节才是原件，必须继续报错并交给人处理。
+临时文件用同目录唯一名与独占创建，拒绝软链和意外已有项；写完按持久性合同 sync，再 rename。输出以安全打开的文件句柄检查类型、字节数和摘要，并在同一对象上封存；避免“检查路径、重开另一对象、再 chmod”的窗口。允许用户显式 @file 读管理根外文件，不允许由该例外派生根外写。
 
-### 冻结目录的权限与摘要各管一层
+## 4. 摘要与 Workbook 身份
 
-`set_tree_readonly` 必须把传入根目录设为 `0555`，子目录 `0555`，文件 `0444`。rename 一个目录只要求父目录可写；删除前使用既有 `make_tree_writable` 恢复权限。
-
-Workbook source 含 `.DS_Store`、`Thumbs.db` 等已知宿主元数据时，`workbook add` 明确拒绝并指出路径，不静默忽略。安装目录与冻结副本根只读，防止 Finder 后续写入；目录摘要继续检测显式篡改。
-
-已装 Workbook 只能通过 `WorkbookRepo::load_installed` 读取。它核对数据库行、目录摘要、manifest id/version 和 Flow。`load_dir` 只用于 add 的源目录并降为 crate-private。
-
-### 请求生命周期保存响应和可恢复效果
-
-runtime 新增内部 module `request`：
+新目录摘要命名为 `workbook-digest/v2`，采用下列精确字节流，最后只做一次 SHA256：
 
 ```text
-RequestIntent      用户提交的操作、目标与参数；不含观察结果
-ResponseSnapshot   提交时返回给 CLI 的完整事实；不含 replayed
-DurableEffect      可逐字节恢复的引擎效果
-StoredOutcome      stored-outcome/v1 = snapshot + effects
+ASCII "sheltie-workbook-digest/v2\0"
+BE64(file_count)
+对规范 UTF-8 相对路径按字节序排序的每个普通文件：
+  BE64(path_byte_length) || path_bytes || BE64(content_byte_length) || content_bytes
 ```
 
-请求命中必须发生在加载 Work、读取 Workbook、观察输出之前。目标 Work 是 intent 的一部分；submit intent 使用 `work_id + attempt_id + summary`，不使用重新观察到的输出摘要。
+路径不含 `.`、`..`、NUL 或空段，不作静默 Unicode/大小写转换；拒绝软链、硬链、特殊文件和不可表示路径。空目录不参与摘要，这一点写入合同。用手工拼字节的独立 oracle 验证单次 hash、文件边界与排序。
 
-brief、engine/stats、status-card 的 exact bytes 在 COMMIT 前物化并写入 `StoredOutcome`。重放只能补做保存的效果，不能用当前 WorkState 重算历史文件。worker 输出正文不进 SQLite，WorkState 仍是唯一可推进状态。
+在读取前检查单文件/目录总量，之后用有上限的流式读取和计数避免文件增长绕限。资源索引只为 instruction 检查 UTF-8；不为每个 resource 全文转字符串。一次操作复用同一加载/观察结果，避免 preflight 再完整重复扫描。
 
-沿用现有 `requests.reply_json` 物理列，新记录写版本化封装，不升 `SCHEMA_VERSION`。旧请求只有在能证明相同且效果文件完整时才重放；不能证明时返回明确错误，不猜。
+add 先复制到自己的 pending source，再对这份最终字节集合 parse/compile/digest；登记的 manifest 身份来自该副本。start 先核对 installed 的登记摘要与 id/version，复制后再次核对冻结副本，拒绝校验与复制间的变化。version 必须能作为单个安全目录段，至少拒绝 `.`、`..` 和内部保留名。
 
-`request_id` 只覆盖写 `store.db` 的业务命令。`self` 命令收到 request-id 时参数错误；它们继续按各自文件合同实现幂等。
+Workbook 与冻结副本的文件设 0444、目录含根设 0555；合法移除时只对已核归属树放开权限。权限只是减少误写，摘要仍用于检查。源目录有明确列举的宿主元数据时准确拒绝，不静默忽略字节；Finder 场景必须实测，不能仅以 chmod 成功证明。
 
-### Workbook 摘要保持 v1 兼容
+## 5. 一个 Store 中的请求与文件发布
 
-`v0.1.0` 已持久化当前两阶段目录摘要。`v0.2.0` 把它正式命名为 `workbook-digest/v1`，补独立测试向量，不改变已有字节。未来改算法时必须增加算法版本与迁移，不能复用同一字段静默换含义。
+请求表保存 intent_hash、响应快照和恢复所需效果；具体 SQL 在 T01 固定，所有字段、状态与索引随 schema 2 一次定义。效果记录是 I/O 完成情况，不参与业务选边，不构成第二套 Work 状态。
 
-### T26 是已完成的历史运行，后续版本另做回归
+先以只读方式识别已有 schema、查询可重放请求并完成不需要恢复的确定性 preflight。旧库拒绝、新 home 的失败 start 都发生在创建目录/锁文件或写 PRAGMA 之前。合法写操作才创建管理根并取得锁；锁内重新核对 schema、request-id 与受并发影响的前置事实，再恢复/准备/提交。
 
-保留 `31d7dde` 作为 MVP 与 T26 完成记录，不回滚其状态。修复后的 rc 新增独立宿主回归任务，补充：
+为避免本地多个写进程交错发布/删除，runtime 使用一个管理根级写锁，覆盖锁内重放复查、恢复、准备、事务与效果发布；进程退出由 OS 释放。只读操作不获取写锁，不创建锁文件。self 的写入口也遵守这把锁；purge 持锁删除后，等待者取得旧锁时必须复核管理根/锁对象身份，发现删除或重建就退出重试，不能把旧 inode 当现根的锁。这是文件生命周期串行化；SQLite revision/CAS 保留为事务边界校验，不做自动业务重试框架。锁只针对本地协作进程，不声称约束同用户手工改文件。采用具体锁库前按工程规范核其公开 API。
 
-- 人自己执行 human 节点任务书。
-- 取得 `/cost` 前后值或等效宿主 token 读数。
-- 保存逐条命令与 response 的证据位置。
+start 和 add 的 staging 位于专用 `pending/<internal-id>/`，不是可任意清理的 tmp。先 sync 原件和必要目录，再在一个事务中记录 Work/Workbook、audit、request snapshot 与发布效果，随后 rename 到最终目录、完成效果标记。拒绝在内存中“记住”唯一恢复信息。
 
-历史记录中互斥的开场 prompt 事实按原始 transcript 修正；取不到 transcript 时明确写证据缺失。
+| 窗口 | 行为与恢复 |
+| --- | --- |
+| preflight 失败 | 无序号、业务行、request 或物化目录；不存在的 home 也不为失败 start 建库 |
+| 分配后、COMMIT 前 | 可留下空号和本操作未提交 pending；下次持写锁按“无 Store 引用 + 本引擎归属”清理，不影响其他请求 |
+| COMMIT 后、rename 前 | Store 有提交结果；pending 是唯一原件，不得按年龄删除；下次写操作先按 Store 效果发布，再 load/observe 新命令 |
+| rename 后、效果标记前 | 恢复核对最终对象的归属、摘要与目标；同对象视为已完成，不能覆盖不同对象 |
+| 效果失败 | 不回滚已提交 Work；响应明确 `committed`、revision、request-id 和恢复动作，不能误报“无变化”或诱导换新请求 |
+| 只读查询遇到 pending | 不执行恢复；可从 Store 指向的已提交 pending 冻结定义读取状态，并显式报告文件尚待发布。只读若与 rename 交错，只能按同一个 Store effect 的归属在 pending/final 两个位置有限重读，不能把第一次 NotFound 直接当损坏；超出重试界限报准确的暂时 I/O 错误，不写文件或 fallback 到任意安装版本 |
+
+Workbook remove 的“查非终态引用、删行、写请求/审计/效果”在同一个事务；损坏的引用状态必须报 STORE_CORRUPT，不能跳过。提交后将准确归属的旧目录移入自己的待删除位置再删除。add/remove 在写锁下先完成前序 pending，防止删除与重加交错。
+
+完成的发布/删除/封存效果不会因历史请求重放再次执行。正常已完成 submit 的重放直接返回原 snapshot，不重新观察或 chmod 当前输出；只有尚未完成的 seal 恢复才核对原 ArtifactRef。相同 id/version 的新生命周期不能被旧 add/remove 重放覆盖或删除。发布/删除后的唯一字节若被外部删除，只能明确报缺失，不得臆造恢复；测试需覆盖这一条件。
+
+## 6. 历史文件与当前投影分别恢复
+
+brief 与 engine.stats 的内容在提交前确定，持久保存精确字节及目标身份。重放：缺失则补齐；存在且摘要相同则不写；存在但不同则报完整性错误，不能掩盖修改。尚未完成的 SealOutputs 恢复针对原产物引用；不存在或改变时不重造、不越界 chmod。此时返回明确的恢复错误，携带 committed=true、原 revision/request-id 和 original_response（已保存业务 snapshot），使调用者知道业务已经提交；不得重新执行业务，也不得把恢复错误当成未提交。正常已完成请求没有这个恢复错误，返回原 snapshot。
+
+status-card 是当前 Store 投影，不存为可无条件重放的历史文件。每次恢复在同一写锁下从最新状态生成并发布；旧请求返回旧 snapshot 也不能把卡写回旧 revision。故障测试覆盖新状态已提交、旧请求晚到、两个写者和投影丢失。
+
+## 7. 事实视图、身份与定义边界
+
+core 先生成一个 StatusView，再分别渲染文本与 JSON；失败原因、完整 ArtifactRef 和 next 选择规则只有一份。stats 与 next 在同一加载快照上计算。GF-29 采用累计受阻和来源 node+edge：NoLegalEdge 的发生事实必须保留到 cancel 后，可在唯一 WorkState 中记录受阻计数/历史必要字段，由 core 在转换时更新；不依赖当前 status 猜历史，也不创建第二套推进表。
+
+OS 主体从真实进程身份取得，不采信 USER/USERNAME。无认证时只记录“哪个 OS 用户调用了 approve”，不标记独立真人已验证。上游宪章、规格、协议与 skill 同步该边界。
+
+Raw TOML DTO 私有；已校验定义的公开构造与修改面收口，按实际外部调用者提供只读访问。持久状态读取校验行/JSON 身份、revision、关键状态组合及 managed 路径归属。内部固定常量不重复层层校验；测试 helper 不当作安全边界。
+
+## 8. 协调者、Workbook 与发布
+
+skill 在 start 前通过 show 发现输入；用户已明确指定时不重复询问，未指定或缺实质信息才问；不得静默换 Workbook。human 节点与 gate 遵守已授权范围，代理代执行要如实记录。skill 安装产物的 references 随发布生成并校验，源码合同保持单一权威；不要求用户安装后仍保留仓库路径。
+
+spec-dev 在 Workbook 文档内保存原始整体基线、每任务基线/候选和当前批准条件版本。重规划不重置整体审查范围。条件绑定到有效 plan/spec revision，避免旧批准永久附着新方案；escalate 的去向与输入、说明成套更新。引擎保持业务无关。
+
+self 去掉 modify-path 写宿主模式；stdout 只交付协议内容。update 先固定发布 tag，再下载同 tag 的清单和资产；本地 fixture 与真实发布形状经过同一受限解析路径。release 依赖同一 SHA 的质量 gate，治理 job 显式取得所需历史，check-specs 区分已发布版本和 active 开发/RC。

@@ -1,0 +1,240 @@
+{
+  "root": "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll",
+  "fresh_install": {
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "STORE_CORRUPT",
+        "detail": {
+          "detail": "unable to open database file: /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/missing/home/store.db"
+        },
+        "message": "数据库内容损坏：unable to open database file: /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/missing/home/store.db"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  "digest": {
+    "got": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+    "expected": "59000d5cfb80291fa52a91be7c6b17f24fd773ca12de838ec4b1a9973a7238f5",
+    "double": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d"
+  },
+  "tamper_verify": {
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "WORKBOOK_TAMPERED",
+        "detail": {
+          "results": [
+            {
+              "id": "two-step",
+              "status": "tampered",
+              "version": "1.0.0"
+            }
+          ]
+        },
+        "message": "已装 Workbook 与记录不符"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  "tamper_start": {
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "default",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/digest/works/2026-09-27-001-default",
+        "work_id": "2026-09-27-001-default",
+        "workbook": {
+          "digest": "a504c40b7d498f6b80ef1bdf7f451df21b60d769824d3e4d5af5bb5ad43f3e26",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-default"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-0bdb-711b-978e-5bc63a78c15f",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  "symlink_start": {
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "default",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/escape/works/2026-09-27-001-default",
+        "work_id": "2026-09-27-001-default",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-default"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-0c16-7284-be09-804af38c1f3a",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  "symlink_outside_files": [
+    "2026-09-27-001-default",
+    "2026-09-27-001-default/status-card.md",
+    "2026-09-27-001-default/inputs",
+    "2026-09-27-001-default/workbook",
+    "2026-09-27-001-default/inputs/topic",
+    "2026-09-27-001-default/workbook/instructions",
+    "2026-09-27-001-default/workbook/workbook.toml",
+    "2026-09-27-001-default/workbook/flows",
+    "2026-09-27-001-default/workbook/instructions/outline.md",
+    "2026-09-27-001-default/workbook/instructions/summary.md",
+    "2026-09-27-001-default/workbook/flows/default.toml"
+  ],
+  "pending_write": {
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "replayed": false,
+        "work_id": "2026-09-27-001-default",
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "01a0e107-0c77-7609-bba2-2116008a9c95",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  "pending_target": "# Work 2026-09-27-001-default（default）\n\nworkbook: two-step@1.0.0   flow: default   status: cancelled\ncurrent: outline#1\ndone: 无\npending: summary\nvisits: outline 1/1, summary 0/1\n\n## 最近一次尝试\n\n无\n\n## 合法下一步\n\n- 无\n",
+  "add_rename_failure": {
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "IO",
+        "detail": {
+          "error": "Directory not empty (os error 66)",
+          "path": "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/add-failure/workbooks/two-step/1.0.0"
+        },
+        "message": "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/add-failure/workbooks/two-step/1.0.0：Directory not empty (os error 66)"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  "after_failed_add_list": {
+    "exit": 0,
+    "stdout": {
+      "data": [
+        {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "latest": true,
+          "version": "1.0.0"
+        }
+      ],
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  "after_failed_add_retry": {
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "WORKBOOK_EXISTS",
+        "detail": {
+          "id": "two-step",
+          "version": "1.0.0"
+        },
+        "message": "Workbook two-step@1.0.0 已装"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  "add_request_first": {
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    },
+    "stderr": ""
+  },
+  "add_request_replay": {
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "WORKBOOK_EXISTS",
+        "detail": {
+          "id": "two-step",
+          "version": "1.0.0"
+        },
+        "message": "Workbook two-step@1.0.0 已装"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  "json_modify_path": {
+    "exit": 0,
+    "stdout": "将写入 /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/fake-user-home/.zshrc：export PATH=\"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/json-install/bin:$PATH\"\n\n{\"data\":{\"already_installed\":false,\"installed_to\":\"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/json-install/bin/sheltie\",\"path_hint\":\"把 /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-standards-9dvkg6ll/json-install/bin 加进 PATH\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  }
+}

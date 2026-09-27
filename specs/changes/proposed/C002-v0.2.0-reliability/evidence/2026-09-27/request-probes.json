@@ -1,0 +1,1116 @@
+[
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "a",
+      "--input",
+      "topic=t"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "a",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work/works/2026-09-27-001-a",
+        "work_id": "2026-09-27-001-a",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-a"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-a"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-82e4-7617-a306-5c39ec1a4a51",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "b",
+      "--input",
+      "topic=t"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "b",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work/works/2026-09-27-002-b",
+        "work_id": "2026-09-27-002-b",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-002-b"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-002-b"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-82fe-722a-a5c9-d258066baf09",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "cancel",
+      "2026-09-27-001-a",
+      "--request-id",
+      "67927af2-a8f0-4147-9b28-74bee61a94c0"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "replayed": false,
+        "work_id": "2026-09-27-001-a",
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "67927af2-a8f0-4147-9b28-74bee61a94c0",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "cancel",
+      "2026-09-27-002-b",
+      "--request-id",
+      "67927af2-a8f0-4147-9b28-74bee61a94c0"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "replayed": true,
+        "work_id": "2026-09-27-002-b",
+        "work_status": {
+          "kind": "active"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "67927af2-a8f0-4147-9b28-74bee61a94c0",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "status",
+      "2026-09-27-002-b"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/cross-work",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "current": "outline#1",
+        "done": [],
+        "flow": "default",
+        "last_attempt": null,
+        "name": "b",
+        "next": [
+          {
+            "edge": null,
+            "executor": "agent",
+            "node": "outline",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "op": "work cancel"
+          }
+        ],
+        "pending": [
+          "summary"
+        ],
+        "status": {
+          "kind": "active"
+        },
+        "visits": {
+          "outline": "1/1",
+          "summary": "0/1"
+        },
+        "work_id": "2026-09-27-002-b",
+        "workbook": "two-step@1.0.0"
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-002-b"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-002-b"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "s",
+      "--input",
+      "topic=t"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "s",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s",
+        "work_id": "2026-09-27-001-s",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-s"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-s"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-8350-76e8-9b38-6c3b0ee16d05",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-s",
+      "--node",
+      "outline"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "outline#1.0",
+        "brief_path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s/attempts/outline/1/0/brief.md",
+        "inputs": {
+          "topic": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s/inputs/topic"
+        },
+        "node": "outline",
+        "occurrence": 1,
+        "output_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s/attempts/outline/1/0",
+        "outputs": {
+          "outline": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s/attempts/outline/1/0/outline.md"
+        },
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "outline#1.0",
+            "work": "2026-09-27-001-s"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "outline#1.0",
+            "work": "2026-09-27-001-s"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-s"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-836c-7511-8a94-dfcfe261a69c",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-s",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "done",
+      "--request-id",
+      "e208690e-d5a9-44f3-a7de-cf31267b47e7"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "outline#1.0",
+        "outputs": {
+          "outline": {
+            "bytes": 7,
+            "path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay/works/2026-09-27-001-s/attempts/outline/1/0/outline.md",
+            "sha256": "318678825324247b8176d59f83c30bd94d23d2e3ac5cd4a743b0683ee58b88cd"
+          }
+        },
+        "replayed": false,
+        "work_status": {
+          "kind": "active"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "summary",
+            "work": "2026-09-27-001-s"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-s"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "e208690e-d5a9-44f3-a7de-cf31267b47e7",
+      "revision": 3
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-s",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "done",
+      "--request-id",
+      "e208690e-d5a9-44f3-a7de-cf31267b47e7"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/submit-replay",
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "REQUEST_CONFLICT",
+        "detail": {
+          "request_id": "e208690e-d5a9-44f3-a7de-cf31267b47e7"
+        },
+        "message": "请求 e208690e-d5a9-44f3-a7de-cf31267b47e7 已用不同载荷提交过"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "r",
+      "--input",
+      "topic=t"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "r",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r",
+        "work_id": "2026-09-27-001-r",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-r"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-r"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-83ae-749d-8931-8d284420ffa7",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-r",
+      "--node",
+      "outline"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "outline#1.0",
+        "brief_path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/attempts/outline/1/0/brief.md",
+        "inputs": {
+          "topic": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/inputs/topic"
+        },
+        "node": "outline",
+        "occurrence": 1,
+        "output_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/attempts/outline/1/0",
+        "outputs": {
+          "outline": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/attempts/outline/1/0/outline.md"
+        },
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "outline#1.0",
+            "work": "2026-09-27-001-r"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "outline#1.0",
+            "work": "2026-09-27-001-r"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-r"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-83c9-7577-b32b-70a1c610ec94",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-r",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "done",
+      "--request-id",
+      "99971ca4-2f5e-4e06-9a42-2fff52fa92fc"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "outline#1.0",
+        "outputs": {
+          "outline": {
+            "bytes": 7,
+            "path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/attempts/outline/1/0/outline.md",
+            "sha256": "318678825324247b8176d59f83c30bd94d23d2e3ac5cd4a743b0683ee58b88cd"
+          }
+        },
+        "replayed": false,
+        "work_status": {
+          "kind": "active"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "summary",
+            "work": "2026-09-27-001-r"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-r"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "99971ca4-2f5e-4e06-9a42-2fff52fa92fc",
+      "revision": 3
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "cancel",
+      "2026-09-27-001-r"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "replayed": false,
+        "work_id": "2026-09-27-001-r",
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "01a0e107-83dc-721f-804a-229db2bf0cb9",
+      "revision": 4
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-r",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "done",
+      "--request-id",
+      "99971ca4-2f5e-4e06-9a42-2fff52fa92fc"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "outline#1.0",
+        "outputs": {
+          "outline": {
+            "bytes": 7,
+            "path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/response-replay/works/2026-09-27-001-r/attempts/outline/1/0/outline.md",
+            "sha256": "318678825324247b8176d59f83c30bd94d23d2e3ac5cd4a743b0683ee58b88cd"
+          }
+        },
+        "replayed": true,
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "summary",
+            "work": "2026-09-27-001-r"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-r"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "99971ca4-2f5e-4e06-9a42-2fff52fa92fc",
+      "revision": 3
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "r",
+      "--input",
+      "topic=t",
+      "--request-id",
+      "e54024d7-ac8c-4fd1-8949-af41bdb310a8"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "r",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay/works/2026-09-27-001-r",
+        "work_id": "2026-09-27-001-r",
+        "workbook": {
+          "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+          "id": "two-step",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-09-27-001-r"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-r"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "e54024d7-ac8c-4fd1-8949-af41bdb310a8",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "cancel",
+      "2026-09-27-001-r"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "replayed": false,
+        "work_id": "2026-09-27-001-r",
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "01a0e107-8424-7001-b98d-eac5ec8c3b02",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "remove",
+      "two-step@1.0.0"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "id": "two-step",
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--name",
+      "r",
+      "--input",
+      "topic=t",
+      "--request-id",
+      "e54024d7-ac8c-4fd1-8949-af41bdb310a8"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/start-replay",
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "NOT_FOUND",
+        "detail": {
+          "what": "Workbook two-step"
+        },
+        "message": "Workbook two-step 不存在"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/invalid-start",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "339f0c0ec8ef2a2ea453a1da0371ec3da2e4e03d565883f2ffe8d775cf228c0d",
+        "flows": [
+          "default"
+        ],
+        "id": "two-step",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/invalid-start",
+    "exit": 1,
+    "stdout": {
+      "error": {
+        "code": "INPUT_MISSING",
+        "detail": {
+          "extra": [],
+          "missing": [
+            "topic"
+          ]
+        },
+        "message": "起始输入缺 [\"topic\"]，多 []"
+      },
+      "next": [],
+      "ok": false
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "workbook",
+      "add",
+      "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats-wb"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "digest": "eb14b7228939772f90249f9fa431f257a3827a5d1ec97a93a8f44f95d6206502",
+        "flows": [
+          "default"
+        ],
+        "id": "stats-probe",
+        "requires": [],
+        "version": "1"
+      },
+      "next": [],
+      "ok": true
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "work",
+      "start",
+      "--workbook",
+      "stats-probe",
+      "--flow",
+      "default"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "flow": "default",
+        "name": "default",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default",
+        "work_id": "2026-09-27-001-default",
+        "workbook": {
+          "digest": "eb14b7228939772f90249f9fa431f257a3827a5d1ec97a93a8f44f95d6206502",
+          "id": "stats-probe",
+          "version": "1"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "one",
+            "work": "2026-09-27-001-default"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e107-847a-7238-881a-a0bde6b69862",
+      "revision": 1
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-default",
+      "--node",
+      "one",
+      "--request-id",
+      "72fc676f-5c91-4bd9-a10c-4c0828a6d6ff"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "one#1.0",
+        "brief_path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0/brief.md",
+        "inputs": {
+          "stats": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0/stats.json"
+        },
+        "node": "one",
+        "occurrence": 1,
+        "output_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0",
+        "outputs": {},
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "one#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "one#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "72fc676f-5c91-4bd9-a10c-4c0828a6d6ff",
+      "revision": 2
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-default",
+      "--attempt",
+      "one#1.0",
+      "--summary",
+      "done"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "one#1.0",
+        "outputs": {},
+        "replayed": false,
+        "work_status": {
+          "kind": "succeeded"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "01a0e107-8497-7348-adc2-adf21ff0b3d1",
+      "revision": 3
+    },
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-default",
+      "--node",
+      "one",
+      "--request-id",
+      "72fc676f-5c91-4bd9-a10c-4c0828a6d6ff"
+    ],
+    "home": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats",
+    "exit": 0,
+    "stdout": {
+      "data": {
+        "attempt": "one#1.0",
+        "brief_path": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0/brief.md",
+        "inputs": {
+          "stats": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0/stats.json"
+        },
+        "node": "one",
+        "occurrence": 1,
+        "output_dir": "/tmp/sheltie-review-a664e75/probes-6b9ee7a9/stats/works/2026-09-27-001-default/attempts/one/1/0",
+        "outputs": {},
+        "replayed": true,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "one#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "one#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "72fc676f-5c91-4bd9-a10c-4c0828a6d6ff",
+      "revision": 2
+    },
+    "stderr": ""
+  }
+]

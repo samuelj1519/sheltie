@@ -1,0 +1,474 @@
+[
+  {
+    "args": [
+      "workbook",
+      "add",
+      "/private/tmp/sheltie-stats-probe-4kixkh8m/wb"
+    ],
+    "out": {
+      "data": {
+        "digest": "d4cfcfa343c2c56210ccc762c21c4795bb3217de656da9ffa6dfce886402b412",
+        "flows": [
+          "default"
+        ],
+        "id": "stats-probe",
+        "requires": [],
+        "version": "1.0.0"
+      },
+      "next": [],
+      "ok": true
+    }
+  },
+  {
+    "args": [
+      "work",
+      "start",
+      "--workbook",
+      "stats-probe",
+      "--flow",
+      "default"
+    ],
+    "out": {
+      "data": {
+        "flow": "default",
+        "name": "default",
+        "replayed": false,
+        "requires": [],
+        "work_dir": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default",
+        "work_id": "2026-09-27-001-default",
+        "workbook": {
+          "digest": "d4cfcfa343c2c56210ccc762c21c4795bb3217de656da9ffa6dfce886402b412",
+          "id": "stats-probe",
+          "version": "1.0.0"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "a",
+            "work": "2026-09-27-001-default"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dc87-77c0-abe4-dc13038ba770",
+      "revision": 1
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-default",
+      "--node",
+      "a"
+    ],
+    "out": {
+      "data": {
+        "attempt": "a#1.0",
+        "brief_path": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/a/1/0/brief.md",
+        "inputs": {},
+        "node": "a",
+        "occurrence": 1,
+        "output_dir": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/a/1/0",
+        "outputs": {},
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "a#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "a#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dc9b-77d5-9705-1ad5419e22ab",
+      "revision": 2
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-default",
+      "--attempt",
+      "a#1.0",
+      "--summary",
+      "synthetic traversal"
+    ],
+    "out": {
+      "data": {
+        "attempt": "a#1.0",
+        "outputs": {},
+        "replayed": false,
+        "work_status": {
+          "kind": "active"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "b",
+            "work": "2026-09-27-001-default"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dca4-75d6-a4a1-c7ca391f10ea",
+      "revision": 3
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-default",
+      "--node",
+      "b"
+    ],
+    "out": {
+      "data": {
+        "attempt": "b#1.0",
+        "brief_path": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/b/1/0/brief.md",
+        "inputs": {},
+        "node": "b",
+        "occurrence": 1,
+        "output_dir": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/b/1/0",
+        "outputs": {},
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "b#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "b#1.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dcae-7114-8384-6e66797523e8",
+      "revision": 4
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-default",
+      "--attempt",
+      "b#1.0",
+      "--summary",
+      "synthetic traversal"
+    ],
+    "out": {
+      "data": {
+        "attempt": "b#1.0",
+        "outputs": {},
+        "replayed": false,
+        "work_status": {
+          "kind": "active"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "node": "a",
+            "work": "2026-09-27-001-default"
+          },
+          "edge": "back",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "node": "c",
+            "work": "2026-09-27-001-default"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dcb6-7038-8ded-164c6665ce37",
+      "revision": 5
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "begin",
+      "2026-09-27-001-default",
+      "--node",
+      "a"
+    ],
+    "out": {
+      "data": {
+        "attempt": "a#2.0",
+        "brief_path": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/a/2/0/brief.md",
+        "inputs": {},
+        "node": "a",
+        "occurrence": 2,
+        "output_dir": "/private/tmp/sheltie-stats-probe-4kixkh8m/home/works/2026-09-27-001-default/attempts/a/2/0",
+        "outputs": {},
+        "replayed": false,
+        "requires": [],
+        "retry": 0
+      },
+      "next": [
+        {
+          "args": {
+            "attempt": "a#2.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "a#2.0",
+            "work": "2026-09-27-001-default"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dcbf-72cd-af11-6c979f850354",
+      "revision": 6
+    }
+  },
+  {
+    "args": [
+      "attempt",
+      "submit",
+      "2026-09-27-001-default",
+      "--attempt",
+      "a#2.0",
+      "--summary",
+      "synthetic traversal"
+    ],
+    "out": {
+      "data": {
+        "attempt": "a#2.0",
+        "outputs": {},
+        "replayed": false,
+        "work_status": {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        }
+      },
+      "next": [
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true,
+      "request_id": "01a0e109-dcc7-7513-9adf-9469768c8649",
+      "revision": 7
+    }
+  },
+  {
+    "args": [
+      "work",
+      "stats",
+      "2026-09-27-001-default"
+    ],
+    "out": {
+      "data": {
+        "approvals": 0,
+        "blocked_count": 1,
+        "nodes": [
+          {
+            "attempts": 2,
+            "avg_seconds": 0,
+            "entered_via": [
+              "entry×1",
+              "b×1"
+            ],
+            "failed": 0,
+            "max_visits": 2,
+            "node": "a",
+            "visits": 2
+          },
+          {
+            "attempts": 1,
+            "avg_seconds": 0,
+            "entered_via": [
+              "a×1"
+            ],
+            "failed": 0,
+            "max_visits": 1,
+            "node": "b",
+            "visits": 1
+          },
+          {
+            "attempts": 0,
+            "avg_seconds": 0,
+            "entered_via": [],
+            "failed": 0,
+            "max_visits": 1,
+            "node": "c",
+            "visits": 0
+          }
+        ],
+        "status": {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        "total_seconds": 0,
+        "work_id": "2026-09-27-001-default"
+      },
+      "next": [
+        {
+          "args": {
+            "work": "2026-09-27-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true
+    }
+  },
+  {
+    "args": [
+      "work",
+      "cancel",
+      "2026-09-27-001-default"
+    ],
+    "out": {
+      "data": {
+        "replayed": false,
+        "work_id": "2026-09-27-001-default",
+        "work_status": {
+          "kind": "cancelled"
+        }
+      },
+      "next": [],
+      "ok": true,
+      "request_id": "01a0e109-dcd6-75fe-82ad-47f647773996",
+      "revision": 8
+    }
+  },
+  {
+    "args": [
+      "work",
+      "stats",
+      "2026-09-27-001-default"
+    ],
+    "out": {
+      "data": {
+        "approvals": 0,
+        "blocked_count": 0,
+        "nodes": [
+          {
+            "attempts": 2,
+            "avg_seconds": 0,
+            "entered_via": [
+              "entry×1",
+              "b×1"
+            ],
+            "failed": 0,
+            "max_visits": 2,
+            "node": "a",
+            "visits": 2
+          },
+          {
+            "attempts": 1,
+            "avg_seconds": 0,
+            "entered_via": [
+              "a×1"
+            ],
+            "failed": 0,
+            "max_visits": 1,
+            "node": "b",
+            "visits": 1
+          },
+          {
+            "attempts": 0,
+            "avg_seconds": 0,
+            "entered_via": [],
+            "failed": 0,
+            "max_visits": 1,
+            "node": "c",
+            "visits": 0
+          }
+        ],
+        "status": {
+          "kind": "cancelled"
+        },
+        "total_seconds": 0,
+        "work_id": "2026-09-27-001-default"
+      },
+      "next": [],
+      "ok": true
+    }
+  }
+]

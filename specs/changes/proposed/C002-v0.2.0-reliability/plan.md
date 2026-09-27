@@ -1,331 +1,188 @@
 # C002 实施计划
 
-状态：`proposed`，产品修复 `not_run`
-基准：`31d7ddee18921b4066c7433a752c2000e5110869`
-来源：[T26 同步提交与 Work 目录复审](findings.md)
+状态：`proposed`，全部产品修复 `not_run`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。本计划尚未采用，不是当前任务授权。
 
-产品 delta 见 [spec.md](spec.md)，候选设计见 [design.md](design.md)。
+先读 [spec.md](spec.md) 与 [design.md](design.md)，按 [findings.md](findings.md) 逐项关闭。保留旧 C002 的任务 ID 便于引用，但下列范围、依赖和兼容策略取代旧卡片。
 
-本文是修复提案，不是当前进度权威。采用方案时，先执行 C002-T01，把上游合同与本 package 的 `tasks.toml` 同步后再改代码。
+## 1. 采用与执行规则
 
-## 任务依赖
+采用者指定每个任务的具体 Owner 和独立 Reviewer；下表的角色是职责，不预先绑定模型。T01 建立 tasks.toml 文件白名单、允许测试修改的规则、progress 和验证记录。一个任务一个提交，提交前按工程规范运行 fmt、check、Clippy、nextest 和任务附加 gate，使用 `Change:`、`Task:`、`Agent:` trailer。未通过局部验证不得标 done。
 
-```text
-C002-T01 上游合同与 repair task 治理
- ├─ C002-T02 StartRequirements 与零副作用 preflight
- ├─ C002-T03 WorkLayout readable_v2
- │    └─ C002-T04 受限输出观察与封存
- ├─ C002-T05 Workbook identity、只读根、新管理根与版本路径
- ├─ C002-T06 单一状态投影
- │    └─ C002-T07 Work 请求日志、start staging 与效果恢复
- │         └─ C002-T08 Workbook 写操作请求日志
- ├─ C002-T09 workbook-digest/v1
- ├─ C002-T10 输入发现与协调者 skill 行为
- ├─ C002-T11 article-review 打回意见绑定
- ├─ C002-T12 spec-dev 任务闭包
- ├─ C002-T13 skill 可分发布局
- └─ C002-T14 core 已校验定义收口
+每个行为修复都需要合法例、只改变一个条件的反例、真实 caller 与失败停止路径。摘要、字节、Git 范围和历史响应使用独立 oracle；测试 helper 不得计算自己的期望。开发使用每任务独立临时管理根；不能对真实用户 home 做格式实验。
 
-C002-T04 + C002-T05 + C002-T08 + C002-T10..C002-T14 ── C002-T15 CI、MSRV 与发布门禁
-C002-T02..C002-T15 ── C002-M1 独立全链审查 ── C002-T16 宿主回归 ── C002-T17 发布 v0.2.0
-```
+**格式切换只有一次。** T03 的 WorkLayout、T06 的新事实视图/累计字段、T09 的新摘要、T07 的请求快照/schema 2 属于同一次持久格式切换。T03/T06/T09 先提供纯实现与独立测试，产品调用方在 T07 一次切换，不先把新语义写入 schema 1。T03/T06/T09 完成只表示准备单元完成，O07/O12/O13/N07 的产品闭环仍待 T07/M1。T07 必须同步全部 caller、fixtures、格式标识、旧库拒绝和文档，不能留下混用分支。准备单元只服务这个已采用修复，不作为未来扩展接口。
 
-## 2. 通用执行规则
+## 2. 任务与依赖
 
-C002-T01 要先修改根权威文档与本 package 的 `tasks.toml`，明确 C002-T02 起是 post-MVP repair task。它们允许同一 Owner 修改测试、类型、实现和真实 caller，`allow_test_changes = true`；仍然一个任务一个提交、白名单闭合、每个提交可编译。MVP legacy `specs/releases/v0.1.0/plan.md` 与 `specs/releases/v0.1.0/tasks.toml` 不再追加。
+全部状态为 `not_run`；采用后才创建实施状态表。
 
-每个实现任务必须：
+| ID | 责任角色 | 任务 | 依赖 |
+| --- | --- | --- | --- |
+| C002-T01 | 方案 Owner | 固定上游合同、兼容性与任务治理 | 人采用 |
+| C002-T14 | core Owner | 收紧已校验定义、持久状态验证接口 | T01 |
+| C002-T02 | core/runtime Owner | StartRequirements 与无副作用 preflight | T14 |
+| C002-T03 | core Owner | 单一 WorkLayout 与输出冲突规则 | T14 |
+| C002-T04 | runtime Owner | 管理路径、文件句柄、限额和安全原子写 | T03 |
+| C002-T09 | runtime/core Owner | 无歧义目录摘要与独立向量 | T01 |
+| C002-T05 | runtime Owner | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |
+| C002-T06 | core/CLI Owner | 一致事实视图与统计 | T14 |
+| C002-T07 | runtime/CLI Owner | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
+| C002-T08 | runtime/CLI Owner | Workbook 事务、幂等与发布生命周期 | T05、T07 |
+| C002-T10 | skill/CLI Owner | 输入发现、授权边界与恢复用法 | T02、T07 |
+| C002-T11 | Workbook Owner | article-review 打回意见绑定 | T01 |
+| C002-T12 | Workbook Owner | spec-dev 单任务与整体交付闭环 | T01 |
+| C002-T13 | 交付 Owner | skill 安装产物自包含 | T10 |
+| C002-T15 | runtime/交付 Owner | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
+| C002-M1 | 独立 Reviewer | 固定候选全链审查 | T02–T15 |
+| C002-T16 | Host 验收 Owner 与用户 | rc 真实宿主回归 | M1 |
+| C002-T17 | 发布 Owner 与用户 | 发布 v0.2.0 | M1、T16 |
 
-1. 先增加一个能复现原问题、只改变一个条件的失败测试。
-2. 正例和拒绝例都通过公开 CLI 或 module interface。
-3. expected 不调用生产 helper。摘要、恢复字节和目录树使用手写或独立 oracle。
-4. 完成局部测试后运行受影响调用链与全量门禁。
-5. 提交正文写兼容范围、验证和尚未覆盖的风险；末尾写 `Task:`、`Agent:`。
+## 3. 任务卡
 
-最低门禁：
+### C002-T01 固定合同与采用边界
 
-```bash
-cargo fmt --all -- --check
-cargo check --all-targets --all-features
-cargo clippy --all-targets --all-features -- -D warnings
-cargo nextest run --all-features --no-tests=pass
-cargo deny check
-scripts/check-docs.sh
-scripts/check-core-vocab.sh
-scripts/check-tests.sh
-scripts/check-task.sh C002-Tnn
-```
+文件：宪章、spec、architecture、三份 contracts、engineering、必要 ADR、本 package 与任务白名单。
 
-改 skill 另跑 `scripts/check-skill.sh`；改发布链另跑 `cargo dist plan`；C002-M1 统一跑 mutants。
+固定新 Store/schema、目录、摘要、响应、错误闭集、request-id 支持范围、pending 所有权、写锁与恢复窗口。统一 GF-29；明确 OS 主体不等于独立真人认证；删除写 shell rc 的承诺。确认新管理根与旧数据保留策略，不以“minor”掩盖破坏性变更。历史 T26 只追加有来源的证据更正，不改完成状态，不猜缺失 transcript。
 
-## 1. 任务卡
+验收：每个 O/N finding 映射到任务与验收；每个持久字段、响应和失败结果有唯一合同。负例是旧 Store 被自动迁移/清空、同字段存在未标记双解释、pending 仍可按年龄删除。任一出现，停止后续实现。跑 docs/specs 与人工接口闭环 review。
 
-### C002-T01 上游合同、T26 边界与任务治理
+### C002-T14 定义与状态的可信构造面
 
-**Owner。** 强模型。
-**依赖。** 无。
-**文件。** `specs/{spec,architecture,engineering}.md`、三份 contracts、新 ADR、本 package 的 `README.md`、`plan.md`、`progress.md`、`validation.md` 与 `tasks.toml`。
+文件：core flow/workbook/state/path/ids、runtime decode caller、API tests。
 
-1. 固定 StartRequirements、WorkLayout、请求生命周期、Workbook identity、摘要兼容与 v0.2.0 宿主回归决定。
-2. 协议写清：全部确定性 start 校验在序号前；新目录布局；`workbook show` 的 `start_inputs`；`INPUT_MISSING` 无任何变化。
-3. 存储合同写清 staging、COMMIT/rename 崩溃恢复和 legacy layout。
-4. 在本 package 的 plan/tasks 中登记 C002-T02–C002-T17、C002-M1；T26 历史保持 `done`，C002-T16 依赖 C002-M1 与 rc。
-5. 修正首次真实运行中的事实冲突、机制术语与证据来源，不删除原始失败事实。
+Raw DTO 私有，已校验定义只读；去掉可绕过 parse 的无用途反序列化与测试专用公开入口。对 Store 装入建立身份/revision/关键组合校验接口，错误是可定位的 STORE_CORRUPT；不把所有 String 普遍包装，不引入 trait/typestate 框架。
 
-**停止条件。** 不接受独立宿主回归、legacy layout 或摘要 v1 兼容时先由人裁决；不得由实现者猜。
-**提交。** `docs(specs): 固定 v0.2.0 修复合同与宿主回归边界`
+正例：当前样例和 public caller 仍工作。反例：外部不能把已校验 definition 改成非法图；持久 row 与 state identity 不符明确拒绝；损坏引用行不能在 remove 中被跳过。编译和受影响测试通过后提交。若需在 compile 复制整份 parse 校验才能保住原 public 字段，先修接口方案。
 
-### C002-T02 StartRequirements 与零副作用 preflight
+### C002-T02 StartRequirements 与 preflight
 
-**Owner。** 强模型。
-**依赖。** C002-T01。
-**文件。** core `flow/graph.rs`、`work/decide.rs`，runtime `service.rs`，CLI workbook show，相关 tests。
+文件：core Graph/decide、runtime service、CLI workbook show、相关 tests。
 
-1. 实现共享的 `start_requirements` 与 `validate_start_inputs`。
-2. runtime 在 `allocate_seq` 前完成 Workbook/Flow、WorkName、缺/多输入和输入 key 路径校验。
-3. `decide_start` 复用同一 validator，作为最终不变式检查。
-4. `workbook show` 文本与 JSON 增加每张 Flow 的有序 `start_inputs`。
-5. skill 修复在 C002-T10 完成；本任务只提供可靠 interface。
+共享收集/校验 start keys，show 文本与 JSON 暴露有序 start_inputs。把 Workbook/Flow、WorkName、缺/多 key、@file 错误放在分配序号和物化前；新 home 的失败 start 不建库。
 
-**测试。** 建议新增：
+正例：two-step show 给 topic，完整输入 start 成功。反例：缺 topic、多 key、非法名字、缺 workbook/flow，逐项比较 home、sequence、works、requests 与调用前相同；缺 CLI 必填参数 exit 2。拒绝后只补缺条件再成功。与 T07 的 staging 改动衔接，不能将空号解释为 preflight 可写的理由。
 
-- `missing_start_input_does_not_allocate_sequence_or_create_work_dir`
-- `extra_start_input_has_no_side_effect`
-- `invalid_work_name_has_no_side_effect`
-- `missing_workbook_cli_argument_never_enters_runtime`
-- `workbook_show_lists_required_start_inputs`
+### C002-T03 WorkLayout 与输出合同
 
-**正例。** `show two-step` 返回 `start_inputs: ["topic"]`，完整输入的 start 成功。
-**反例。** 缺 topic 后 `works/`、`work_sequence`、`works`、`requests` 与调用前逐项相同。
-**提交。** `fix(runtime): start 校验先于序号与目录副作用`
+文件：core work/layout、Flow 编译规则、路径/API tests。实际持久 caller 切换归 T07。
 
-### C002-T03 WorkLayout readable_v2
+实现单一目录函数，保留 Occurrence/retry 两维，engine 与 outputs 分离。拒绝重复/祖先/支持平台文件别名；明确输出路径可移植限制。将引擎 stats 与 worker stats 作为不同路径验证。
 
-**Owner。** 强模型。
-**依赖。** C002-T01。
-**文件。** 新增 core `work/layout.rs`；修改 WorkState、decide/render、runtime caller、协议快照、测试与 `spec-dev` 路径说明。
+正例：嵌套合法输出、draft#2.1 映射稳定；新 outputs/brief.md/out 不再与 Attempt 根的 brief.md 冲突，必须能正常写入提交。反例：out 与 out/sub、大小写/Unicode 文件别名。纯路径测试不足以关闭 O12；T07 后必须真实 CLI begin→写输出→submit，且空执行不得把 engine.stats 当产出。不要引入 LegacyV1 与默认布局推断。
 
-1. 实现 `WorkLayoutVersion::{LegacyV1, ReadableV2}` 与 `WorkLayout`。
-2. 旧 state 缺字段时默认 LegacyV1；新 start 使用 ReadableV2。
-3. 使用 `start-inputs`、`occurrence-NNN/attempt-NNN`、`engine/`、`outputs/`。
-4. begin 成功返回前保证 output_dir 存在；brief 位于 Attempt 根。
-5. 拒绝输出之间相同、大小写折叠相同和祖先冲突。
-6. 删除所有 caller 中的手工路径拼接。
+### C002-T04 根内文件操作与限额
 
-**测试。** 建议新增：
+文件：runtime home/observe/service/workbook_repo/selfmgmt 的文件 helper、相关 tests。
 
-- `new_work_uses_readable_v2_tree`
-- `legacy_state_keeps_legacy_paths`
-- `attempt_id_maps_to_labeled_directories`
-- `engine_stats_and_worker_stats_json_are_distinct`
-- `rejects_output_path_ancestor_conflict`
+规范管理根，所有调用者使用受限文件操作；检查父目录、叶文件、普通文件、硬链策略和归属。安全句柄上限额读取/摘要/封存；原子写独占唯一临时名。清理不跟随软链，不按不可信 state 中裸路径直接写。删旧重复 helper 和固定 tmp-pending 路径。
 
-**正例。** `draft#2.1` 稳定映射到 `draft/occurrence-002/attempt-001`。
-**停止条件。** 旧 Work 需要批量 rename 或升数据库 schema 时停止；兼容设计不成立。
-**提交。** `refactor(core): Work 目录改为可解释的版本化布局`
+正例：正常嵌套输出与显式 @file 读可用。反例：works/bin/pending 父软链、叶软链、状态卡临时软链、观察后替换、超限文件；外部哨兵字节和权限完全不变。COMMIT 前的观察拒绝保持 Store 不变；COMMIT 后的封存/投影失败保留已提交状态，并按 T07 返回 committed=true 与恢复信息。大小测试恰好上限/多一字节。目标平台各验证文件 API；不能仅再次 canonicalize 后重新开路径来宣称无竞争。
 
-### C002-T04 受限输出观察与封存
+### C002-T09 目录摘要 v2
 
-**Owner。** 强模型。
-**依赖。** C002-T03。
-**文件。** runtime `home.rs`、`observe.rs`、`service.rs`，runtime/CLI artifact tests。
+文件：runtime Workbook 摘要单元、core 摘要构造接口、独立 tests；T07 才切换持久 caller。
 
-1. submit 使用 `observe_confined_file(output_dir, declared_rel, max_bytes)`。
-2. canonicalize 完整已存在路径并核对 output_dir；缺文件返回 None，软链、目录与越界准确拒绝。
-3. 先看 metadata 和大小，再有上限地读取与摘要。
-4. chmod 前再次 confinement 与摘要核对，不能修改目录外文件。
+严格实现 design §4 的 domain prefix、BE64 数量/长度、路径排序与单 SHA256。流式读取，准确计数。保留旧两目录碰撞作为负例，不以生产 digest helper 生成 expected。
 
-**测试。** 父目录软链、叶软链、观察后替换、合法嵌套输出四组正反例。
-**停止条件。** 任何路径可绕过 WorkLayout 或只能靠吞错误通过时停止。
-**提交。** `fix(runtime): 输出观察和封存限制在声明目录内`
+正例：手工字节流的已知向量。反例：za/zb 两种边界结果不同；顺序重排摘要不变；路径或正文改一字节摘要变化；非法文件和超限拒绝。若实现仍是 Sha256Hex::of_bytes(finalize())，任务失败。旧算法不保留为生产 fallback。
 
-### C002-T05 Workbook identity、只读根与本机生命周期
+### C002-T05 Workbook 身份与本机边界
 
-**Owner。** 强模型。
-**依赖。** C002-T01。
-**文件。** core manifest/version 类型，runtime `home.rs`、`workbook_repo.rs`、store read，CLI 与 tests。
+文件：WorkbookRepo、Home、Store 初始化入口、OS principal、CLI 与集成测试。
 
-1. `WorkbookRepo::load_installed` 核对数据库摘要、manifest id/version 和 Flow；start/show 只走该 interface。
-2. `set_tree_readonly` 最后把传入根设为 `0555`。安装副本和 Work 冻结副本使用同一实现。
-3. add 遇到 `.DS_Store`、`Thumbs.db` 等合同列出的宿主元数据时拒绝，不复制、不登记。
-4. 引入 `WorkbookVersion`，在写库前拒绝 `.`、`..` 与以点开头的版本路径。
-5. ReadWrite 操作可创建不存在的 SHELTIE_HOME；ReadOnly 不创建。
+load 核登记 digest/id/version；复制后重新 parse/compile 并核最终副本。接入时遵守 T07 格式切换规则：T07 前旧生产入口仍按当前算法核对，不能写新摘要到旧库；T07 切到 v2 时删旧路径。version 拒绝点段/内部保留名。只读根最后设权限；清理前核归属。合法写操作可创建新 home，只读不创建。主体取真实 OS 身份，忽略可伪造 USER。
 
-**测试。** 建议新增：
+正例：合法安装、冻结、终态查询、删除后 Work 可读。反例：verify tampered 后 start 不得接受；复制间源变化、manifest 身份不符、version 点段准确拒绝。假 USER 不改变 audit 主体；只读不存在 home 无写。Finder 与源元数据规则分别验证。不能以同用户 chmod 可改来宣称权限无用，也不能宣称只读位不可绕过。
 
-- `installed_workbook_root_is_readonly`
-- `readonly_root_can_be_renamed_by_writable_parent`
-- `add_rejects_host_metadata_files`
-- `start_rejects_registered_workbook_digest_drift`
-- `dotdot_version_leaves_no_row_or_directory`
-- `install_and_add_create_missing_home`
+### C002-T06 状态与统计视图
 
-**正例。** 正常冻结副本可 status；目录根不能自动写 `.DS_Store`。
-**反例。** 修改已装 Flow 后 start 返回 `WORKBOOK_TAMPERED`，不创建 Work。
-**提交。** `fix(runtime): Workbook 按登记身份冻结并锁定目录根`
+文件：core render/state、CLI work/attempt/gate、快照与 tests。
 
-### C002-T06 单一状态投影
+先完成一个纯事实视图及状态转换实现和独立测试；实际持久字段、CLI 响应/caller 在 T07 统一接入。以事实视图生成文本和 JSON，包含 fail_reason、完整 ArtifactRef 与统一 next。stats/next 用同一次加载，来源保留 node+edge。累计受阻的必要事实由 core 状态转换记录；新字段接入与 T07 schema 切换一起完成，不在旧 state 上默认猜值。
 
-**Owner。** 强模型。
-**依赖。** C002-T01。
-**文件。** core render/state、CLI status、快照与测试。
+正例：非零时间/次数/失败原因两格式一致。反例：NoLegalEdge→cancel 计数不减少；相同来源不同边可区分；删除输出 digest/bytes 或 reason 时真实 JSON 测试失败。本任务用独立手写状态验证；T07 切换后再跑终态、失败和 NoLegalEdge→cancel 的真实 CLI，完成前不关闭 O13/N07。避免用两个 render 函数互相当 oracle。
 
-文本状态卡与 JSON 状态卡先生成同一个 `StatusView`；`last_attempt` 同时表达 summary 与 fail_reason。两种输出的信息选择规则只有一份。
+### C002-T07 请求、schema 2 与 Work 恢复
 
-**测试。** fail 后文本与 JSON 的 reason 一致；删掉任一投影字段时一致性测试失败。
-**提交。** `refactor(core): 状态卡文本与 JSON 共用事实投影`
+文件：runtime request/service/store、core 新持久字段与 layout caller、CLI 成功/错误响应、全部受影响 fixtures/replay/crash tests。
 
-### C002-T07 Work 请求日志、start staging 与效果恢复
+一次接入 T03/T06/T09 的新格式，创建完整 schema 2；所有 caller 同步，只接受新格式。Store 建库 DDL 与 user_version 原子，首次并发建库串行；旧库拒绝前无写。按 design 实现管理根写锁、RequestIntent、完整 ResponseSnapshot、受 Store 保护 pending、效果归属与完成标记。命中先于 load/observe，事务内再查重。CLI 不再读取当前 Store 拼历史 reply。
 
-**Owner。** 强模型。
-**依赖。** C002-T02、C002-T03、C002-T06。
-**文件。** 新增 runtime `request.rs`；修改 service、store commit/read、CLI 写响应、replay/crash tests。
+正例：正常 start/begin/submit/gate/fail/cancel；与旧快照逐字段比较重放。反例：跨 Work request-id、文件变化后 submit 重放、Workbook 删除后 start 重放、cancel 后旧 submit、后续状态下 stats 缺失恢复、已存在历史文件摘要不符、旧请求不能回退 status-card、两个写者竞争。每种意图覆盖 COMMIT 前/后、发布前/后窗口，真实子进程退出并以同请求恢复。
 
-1. 实现 RequestIntent、ResponseSnapshot、DurableEffect、StoredOutcome。
-2. CLI 写响应不再提交后读 Store；snapshot 包含提交时 status、next、批准记录与身份字段。
-3. 请求命中先于 load/observe；intent 含目标 Work，不含当前文件观察。
-4. brief、engine/stats、status-card 保存 exact bytes；重放只补做保存效果。
-5. start 在 `tmp/starts/<request-id>` 物化，状态提交后 rename 到最终 Work 目录；效果可重放。
-6. legacy 请求不能精确恢复时明确失败，不用当前状态猜。
+验证 schema 1 只读拒绝且旧文件字节不变；schema 2 只包含一种布局/摘要/outcome。不得保留旧 hash_command、legacy request 猜测或隐式默认字段。效果错误必须能证明已提交/未提交边界。任一历史字节被重算、pending 被 tmp 清理或新目录先于提交暴露，停止任务。
 
-**测试。** 覆盖跨 Work request-id、文件变化后 submit 重放、Workbook 删除后 start 重放、cancel 后旧响应稳定、后续 fail 后 stats 原字节恢复、start COMMIT/rename 崩溃窗口。
+### C002-T08 Workbook 事务与生命周期
 
-**停止条件。** 新请求仍使用 `hash_command` 或历史效果由当前 WorkState 重算时任务未完成。
-**提交。** `fix(runtime): 请求按用户意图提交并恢复原始效果`
+文件：WorkbookRepo、Store request/commit/read、CLI workbook、failpoints/tests。
 
-### C002-T08 Workbook 写操作接入请求日志
+add/remove 的状态行、审计、请求与效果同事务；remove 引用检查也在事务内。每次 add 只操作自己的 pending；写锁覆盖发布，恢复未完成效果后才执行后续写。完成效果不会因旧 request-id 重放重新执行。
 
-**Owner。** 强模型。
-**依赖。** C002-T05、C002-T07。
-**文件。** workbook_repo、request、store commit/read、CLI workbook/self、failpoint 与 tests。
-
-add/remove 的数据库变更、audit 与 StoredOutcome 在同一事务。staging 按请求独占，rename/delete 是 durable effect；并行 add 不能清掉对方 staging。Workbook 写操作自动生成并返回 request-id；self 命令显式拒绝 request-id。
-
-**测试。** add/remove 同 id 重放、不同 intent 冲突、COMMIT 后崩溃恢复、并行 staging、self 参数拒绝。
-**提交。** `fix(runtime): Workbook 写操作接入事务化请求日志`
-
-### C002-T09 固定 workbook-digest/v1
-
-**Owner。** 标准模型。
-**依赖。** C002-T01。
-
-把当前算法命名为 `digest_dir_v1`，合同写出真实两阶段 hash，使用独立手写向量和 v0.1.0 fixture。结果字节必须保持不变。若决定改成单次 hash，本任务停止并另写完整数据迁移方案。
-
-**提交。** `fix(runtime): 固定 Workbook 摘要 v1 并加入独立向量`
+正例：add/remove 重放返回原 snapshot。反例：并行 add 不删对方 staging；提交后 rename 失败可恢复；先 remove 再新请求 add 同版本，重放旧 remove 不得删除新对象；重放旧 add 不得覆盖新生命周期。损坏引用行必须停止。请求空载荷/重复/冲突与 Work 共用全局去重。给出状态、数据库、原件字节和目录归属四类 oracle。
 
 ### C002-T10 输入发现与协调者行为
 
-**Owner。** 强模型。
-**依赖。** C002-T02。
-**文件。** `skills/sheltie/SKILL.md`、协议、CLI workbook show tests、本 package 的宿主回归说明与 validation。
+文件：skill、CLI show、协议使用说明、宿主验收案例。
 
-1. skill 在 start 前读取 `workbook show --json` 的 `start_inputs`，缺值就问用户。
-2. 用户未指定 Workbook/Flow 时必须问；指定但未安装时报告缺失并请求来源，不得替换成其他 Workbook。
-3. “只做 next”收窄为成功 start 后的推进写操作；只读发现命令与 add/start 的入口流程单独说明。
-4. human executor 默认把任务书交给人。只有用户明确授权代执行时，协调者才可代写/submit，并在记录中标注。
-5. 增加宿主回归 prompt：未指定、指定未安装、缺 topic、human 节点四种反例。
+展示 start_inputs；用户已给的信息直接使用，未指定/缺输入才询问，不用失败 start 探测。只做 next 限定于 Work 推进；发现命令、add/start 有独立入口。已指定但未装 Workbook 不静默替换。说明 request-id 应预先保存、支持范围、重放后查当前 status；human/gate 遵守实际授权并如实记录代执行。
 
-**提交。** `fix(skill): start 前发现输入并禁止静默替换 Workbook`
+正例：完整意图自动开工、重放后从当前 next 继续。反例：缺输入、指定未安装、用户已授权仍重复问、把历史 next 当当前状态、把 OS 身份当真人证明。离线文案/CLI 验证和 T16 宿主行为分开记录。
 
-### C002-T11 article-review 机械绑定打回意见
+### C002-T11 article-review 回环
 
-**Owner。** 标准模型。
-**依赖。** C002-T01。
-**文件。** `examples/article-review/`、core example tests、CLI scenario test。
+文件：样例 Flow、draft 说明与场景测试。
 
-draft 增加 optional `review.verdict` 输入；第一次到达显示尚无，back 后 draft#2 的 brief 必须绑定 review#1 输出。draft 说明书要求有 feedback 时逐条处理。测试不得由协调者手工追加意见来伪造绑定。
+draft 增加 optional review.verdict；首次尚无，back 后绑定最近成功 review 的产物并按意见修改。只传路径，不内联全部历史。真实 begin 返回和 brief 均验证输入来源；不能手工追加聊天当作测试通过。
 
-**提交。** `fix(example): article-review 打回时绑定上一轮审查意见`
+### C002-T12 spec-dev 交付闭环
 
-### C002-T12 修复 spec-dev 任务闭包
+文件：spec-dev Flow、说明、模板、checklists，以及独立临时 Git/CLI 回归。
 
-**Owner。** 强模型。
-**依赖。** C002-T01。
+固定原始整体基线、每任务基线/候选两种职责；改方案不能缩小最终全链 review。verify 仅核当前任务范围与本任务占位，允许合法的未来占位。plan-review 条件要对应获批 plan/spec 版本并交给需要它的节点；修订方案后不得沿用旧批准。escalate→scaffold 与 verify 返回的输入/边/说明成套修复。
 
-1. plan-review decision 绑定到 scaffold、implement、verify、review、deliver。
-2. change/report 携带当前任务基线与候选提交；verify 比较该基线到候选，不比较骨架到全部 HEAD。
-3. 增加 `escalate -> verify` 合法边并更新“继续”映射。
-4. 用两任务临时 Git 场景和人工条件进入后续 brief 的场景验证。
+五组闭环：两任务分别改不同文件；两任务共用文件且留未来占位；有条件批准进入 scaffold/implement/verify；verify/scaffold 升级后按人意见继续；完成任务 1 后改方案，最终 review 仍覆盖任务 1。正反例用 Git 提交/文件集合与 brief 绑定独立验证，另在 T16 取真实 agent 执行证据。不要给引擎增加 Spec/Plan/Git 状态。
 
-**提交。** `fix(workbook): 修复 spec-dev 验证范围与人工条件交接`
+### C002-T13 自包含 skill 交付
 
-### C002-T13 让 skill 安装产物自包含
+文件：skills/sheltie、交付生成脚本、README、check-skill 与安装 fixture。
 
-**Owner。** 标准模型。
-**依赖。** C002-T01。
+单一权威合同生成发布 references；安装结果全部是可读取文件，脱离源码树仍能导航。可以在仓库使用符号链接配构建时解引用，但发布物必须实测，不能要求用户记住 cp 的隐藏前提。覆盖合同漂移检查，避免手工维护两份规则。
 
-在 `skills/sheltie/references/` 使用指向权威合同的仓库内符号链接；README 使用 `cp -RL` 安装，使目标目录得到普通文件。检查脚本在临时宿主目录验证全部链接、命令和引用均脱离源码树可用。
+正例：隔离目标目录可解析全部本地链接与命令。反例：移动/移除源码路径后不存在断链；忘记同步 references 时 gate 失败。不访问真实宿主配置。
 
-**提交。** `fix(skill): 交付自包含的 Sheltie 协调者说明`
+### C002-T15 self、CI 与发布质量
 
-### C002-T14 收紧 core 已校验定义的 interface
+文件：selfmgmt、CLI self、Cargo/toolchain/deny、build/release workflow、check-specs、README 与集成测试。
 
-**Owner。** 强模型。
-**依赖。** C002-T03、C002-T05。
+删除 modify-path 写 rc 路径，所有 --json stdout 只有协议 JSON；self 拒绝 request-id。按固定 tag 解析 --version/清单/资产，检查下载、解包与回滚窗口。所有 managed self 路径使用 T04 边界和同一管理根写锁。purge 持锁；等待者获锁后复核根与锁对象身份，根已删除/重建时退出重试，不能沿旧 inode 继续写。加入 self/Work 并发和 purge 等待者测试。更新前说明 Store 不兼容及旧数据保留方法。
 
-Raw TOML DTO 保持私有；Manifest、FlowDef、NodeDef 对外只读；parse 是公开构造入口；compile 不再接收可被外部改成非法状态的 public fields。移除不需要的 Deserialize，持久化输入继续拒绝未知字段。
+治理 job 获取历史 tags/commits；check-specs 分别接受已发布 release 和 active target/RC，不能要求开发中的版本先发布。release 明确依赖同一 SHA 的质量 job。新增实际 MSRV 1.85 locked gate，若不满足则通过证据决定修依赖还是提高声明，不把 stable 当替代。
 
-**停止条件。** 不得在 compile 里复制 parse 的全部校验来维持公开可变字段。
-**提交。** `refactor(core): 已校验 Workbook 与 Flow 定义只读化`
+正例：本地 release fixture 的指定版本/最新/rollback；clean home two-step；浅克隆补齐所需历史后 gate 通过；active RC 在无 tag 时合法。反例：校验失败旧二进制不变，latest 变化不混包，伪造路径不能越界，质量失败不能发布，缺失历史给准确诊断。`cargo dist plan` 加真实发布形状 fixture，不能仅测自制瘦格式。已发表的四平台产物取证归 T17。
 
-### C002-T15 CI、MSRV 与发布门禁
+## 4. C002-M1 固定候选全链 review
 
-**Owner。** 强模型。
-**依赖。** C002-T04、C002-T05、C002-T08、C002-T10–C002-T14。
+未参与实施的 Reviewer 审查完整候选与 v0.1.0 的变化，对 O01–O13/N01–N14 建关闭矩阵；未关闭项不能靠 task done 或测试数量代替。逐条保留 finding、修复 commit、反例、结果及原始 run。
 
-build 与 release 复用同一质量 workflow；release plan 依赖质量 job。stable 检查之外增加 `cargo +1.85.0 check --locked --all-targets --all-features`。release candidate 测试包含缺输入无副作用、legacy/new layout、干净 home、skill 安装布局与 v0.1.0 Store fixture。
+运行全仓 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV、dist plan。真正并发测试先批量启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节使用独立 oracle。补 Work/Workbook 发布与恢复故障窗口。core/runtime 突变结果按能力处置，不把全部存活体一概当必须加测试。
 
-**提交。** `ci(release): 发布候选复用质量门禁并验证 MSRV`
+修复代码候选冻结后审查；审查修改影响输入闭包时，按受影响链重验并记录新 hash。结果只有“通过 / 需修改 / 阻断”。M1 通过只证明源码与离线闭环，不证明 Host 或发布完成。
 
-## 2. C002-M1 独立全链审查
+## 5. C002-T16 rc 真实宿主回归
 
-**Owner。** 未参与 C002-T02–C002-T15 的强模型。
+使用绑定 M1 候选的 rc 二进制、独立管理根和自包含 skill。用户/Host Owner 执行只有他们能完成的动作；未执行写 not_run，不能用合成图替代。
 
-1. 审查 `v0.1.0..HEAD`，逐项关闭复审中的 O01–O13 和新增 finding。
-2. 重跑本次真实 CLI 探针；`INPUT_MISSING` 前后目录、序号、works、requests 必须完全相同。
-3. 从 v0.1.0 fixture 升级，旧 Work 保持 legacy 路径，新 Work 使用 readable_v2。
-4. 重跑 COMMIT 前、COMMIT 后/效果前、start rename 前、Workbook add rename 前故障窗口。
-5. 运行全量门禁、core/runtime mutants、MSRV check 与 `cargo dist plan`。
-6. 结论只用“通过 / 需修改 / 阻断”。结构 PASS 不等于真实宿主 PASS。
+- 未指定/未安装 Workbook、缺输入时正确交互；已给信息不重复问。
+- two-step、article-review back、gated-release；人工节点由人执行并记录，gate 展示产物后取得实际批准。
+- 关闭并重开会话，仅通过状态查询继续；错误请求后正确恢复，无第二套进度。
+- spec-dev 完成至少两个任务、一次人工条件与一次改方案，最终覆盖整个原始需求。
+- 实测 Finder 与完整性；记录逐命令响应、人工操作、产物摘要、宿主 usage、耗时及质量结果。usage 不可得就记录缺失，不能记成 0。
 
-C002-M1 PASS 后才打 `v0.2.0-rc`。
+若要声称节省成本，另做同任务直接 agent/skill/Sheltie 对照；没有对照只报告绝对观测，不阻塞可靠性修复的客观结果。宿主失败回到对应 Owner 修复，不用一句“模型没遵守”关闭问题。
 
-## 1. C002-T16 v0.2.0 宿主回归
+## 6. C002-T17 发布
 
-使用 release candidate，不用开发 target：
+发布需用户授权，依赖 M1 与 T16 的全部必需项通过。更新 CHANGELOG，确认四平台资产/manifest/checksum/quality 对应同一 commit；全新根安装、指定版本更新与回滚实测。schema 1 数据保持原样；回滚按旧 binary+旧 home 验证，新 home 不能被旧二进制误写。
 
-1. 全新 SHELTIE_HOME 和全新 Claude Code 会话安装 skill。
-2. 不指定 Workbook，确认协调者先问；指定未安装 Workbook，确认不替换；缺 topic 时确认先问、不执行 start。
-3. article-review 完成一次 back；draft#2 必须从任务书绑定 review#1，而非聊天补充。
-4. publish 由人自己写 final 并执行任务书 submit。
-5. 关闭会话后新开会话，仅靠 `work status --json` 继续。
-6. 记录 `/cost` 前后值或等效 token 读数、逐条 CLI/response、人工介入与耗时。
-7. Finder 打开 frozen workbook 后，目录摘要和 status 仍正常；显式修改文件仍报错。
-8. 把回归证据写入本 change package 的 validation/review；T26 历史记录不改写。
-
-## 2. C002-T17 发布 v0.2.0
-
-**Owner。** 人。
-**依赖。** C002-M1 与 C002-T16 PASS。
-
-生成 CHANGELOG；从 v0.1.0 与 rc 各走 update/rollback；确认四平台产物、manifest、checksum 与 quality job 指向同一 commit；在全新管理根用 release installer 完成 two-step smoke。
-
-## 1. 完成判据
-
-修复完成当且仅当：
-
-1. C002-T01–C002-T17、C002-M1 与 C002-T16 在当前 change plan 中有真实状态与证据；MVP/T26 历史状态保持完成。
-2. O01–O13 和本轮 finding 各有合法例、单条件拒绝例与真实 caller 验证。
-3. 缺 topic 不消耗序号、不创建最终目录；start 的其他失败只允许留下可回收 staging 和合同允许的空号。
-4. 新目录可从名称区分 Occurrence 与 Attempt；旧 Work 无迁移可读。
-5. Workbook 根目录不可被 Finder 自动写入；登记摘要漂移在新建 Work 前被拒绝。
-6. 同请求重放返回提交时 snapshot 与 exact engine effects。
-7. C002-T16 保存 human 动作、token 与逐条宿主证据。
-8. 没有引入第二套 Work 状态、第二套路由器、业务判断或宿主安装逻辑。
-
-## 2. 不阻断 v0.2.0 的后续工作
-
-- 提供只读 `work tree`/`work inspect` 视图，避免用户必须直接浏览管理根。
-- 为已有孤儿目录提供只报告、不自动删除的 doctor 命令；清理必须核对数据库无行和目录归属。
-- 对 Workbook 全目录采用流式摘要，降低大资源的峰值内存。
-- 用同一任务比较直接 agent、skill、skill + Sheltie 的质量、token 和人工介入；没有对照数据前不承诺节省比例。
+release record 记录候选、门禁、Host 证据、兼容限制与已知问题，再按治理流程完成 package。发布失败不标 completed；不把这份 proposed 计划或本次 review 写成修复成功。
