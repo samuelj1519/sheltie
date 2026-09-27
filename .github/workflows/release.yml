@@ -285,6 +285,12 @@ jobs:
         run: |
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
+      # 自定义步骤（dist 不生成，重新跑 dist init 会丢掉，需照此补回）：打包自包含
+      # skill 交付并挂成发布资产。资产名 sheltie-skill.tar.gz 与 README「装 skill」的
+      # 下载地址一一对应；打包与校验规则的单一事实源是 scripts/skill-delivery.sh。
+      - name: Pack sheltie skill
+        shell: bash
+        run: scripts/skill-delivery.sh tar artifacts/sheltie-skill.tar.gz
       - name: Create GitHub Release
         env:
           PRERELEASE_FLAG: "${{ fromJson(needs.host.outputs.val).announcement_is_prerelease && '--prerelease' || '' }}"
