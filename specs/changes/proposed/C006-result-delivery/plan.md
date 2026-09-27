@@ -28,9 +28,9 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 写给做填空任务的人或模型。每条都是硬规则，多数由 `scripts/check-task.sh` 机械核对。
 
-1. **只读三样东西。** 本文 §0、你的任务卡、卡上「文件」与「测试」列出的代码。任务卡点名某合同某节时，只读那一节。
+1. **先按仓库入口开工，再聚焦任务。** 先读 `CONTEXT.md`、`specs/README.md`、`specs/changes/README.md`、本 active package 入口和 `specs/engineering.md`（AGENTS.md「开工入口」）；随后重点读本文 §0、自己的任务卡、卡上列出的文件与合同章节。遇到调用链超出卡片时继续追到真实使用者，不以“只读卡片”为由跳过。
 2. **先看到红。** 运行 `scripts/task.sh C006-Tnn`（禁用的测试也会跑），确认本任务测试全红；然后删掉这些测试上的 `#[ignore = "C006-Tnn"]`。编译错误不算红。
-3. **只填 `todo!("C006-Tnn")`。** 不改签名、类型、`pub` 可见性，不加依赖，不新建文件。同文件内新增私有辅助函数可以，但不得改变任何公开项的行为边界。文档注释就是函数要做的事。
+3. **填空任务只填 `todo!("C006-Tnn")`。** 不改签名、类型、`pub` 可见性，不加依赖，不新建文件。同文件内新增私有辅助函数可以，但不得改变任何公开项的行为边界。文档注释就是函数要做的事。T17 是单独的跨文件自管理改造，由强模型按 T01 已审定的合同完成，不套用填空限制；改动仍受白名单、测试和独立复核约束。
 4. **不改测试，不改快照。** 测试红了改实现。快照不一致改渲染代码，不运行 `cargo insta accept`。
 5. **一次一个测试。** 让一个红测试变绿，再做下一个。
 6. **绿了跑门禁。** `scripts/task.sh C006-Tnn` 全绿后，把 §1 表中本任务状态改为 `done`，运行 [engineering.md §2.3](../../../engineering.md) 的四条命令与 `scripts/check-task.sh C006-Tnn --staged`。
@@ -48,19 +48,19 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 - **命名与归属。** 测试名写“条件 → 行为”，不带任务编号。归属写在紧贴 `#[test]` 上方的一行注释里：`// Task: C006-Tnn`，再加 `#[ignore = "C006-Tnn"]`。采用后 `scripts/check-tests.sh` 会解析本文每张卡的「**测试。**」行：行内每个反引号里的小写标识符都必须是真实存在、且归属本任务的测试。所以这一行只写测试名，说明放在全角括号（…）里。
 - **基准 tag。** T02 提交后打 tag `c006-t02-skeleton`；审查者补测试后打 `c006-tNN-review`。实现者的测试零改动检查以最近一个 `c006-t*` tag 为基准。截至本文写作，`check-task.sh` 对 `Cnnn-Tnn` 默认取 README 的基线提交，这个默认基准会把整份骨架都算作“测试改动”。T02 必须先修好这一点；如果别的 package（C004、C005、C007）已先修过，就直接复用。
 - **命令。** `scripts/task.sh C006-Tnn` 只跑本任务测试；`scripts/check-tests.sh` 核对命名与任务卡；`scripts/check-task.sh C006-Tnn [base] [--staged]` 核对改动范围、占位清零、测试零改动、状态与 trailer；`scripts/mutants.sh <crate>` 供里程碑审查使用；`scripts/check-core-vocab.sh` 确保 core 与 runtime 不出现业务词汇（GF-01）；`scripts/check-skill.sh` 核对 skill。
-- **文件系统。** 填空任务不写 `unsafe`，不直接调用 `libc`，不用 `std::fs` 的路径字符串接口打开目标根里的东西；只用骨架在 `sys` 模块里给出的封装（目录句柄、`openat` 式相对打开、独占创建、「不替换」改名、原子交换、设备号与 inode）。需要的封装不存在，按 §0.2 第 9 条停下。
+- **文件系统。** 填空任务不写 `unsafe`，不直接调用 `libc`，不用 `std::fs` 的路径字符串接口打开目标根里的东西；只用骨架在 `sys` 模块里给出的封装（目录句柄、`openat` 式相对打开、独占创建、「不替换」改名、设备号与 inode）。需要的封装不存在，按 §0.2 第 9 条停下。
 - **竞态注入。** “检查之后、改名之前”这类窗口由骨架提供的具名注入点触发（测试打开注入点，注入点里执行替换目录、创建同名文件或改写旧文件）。测试不用 sleep，不用多线程赌时序。注入点只在测试构建中存在，发布构建里没有。
 - **根外哨兵。** 所有“拒绝写到根外”的测试都在目标根外放哨兵文件，断言测试前后哨兵的字节、权限与修改时间不变。helper 由骨架完整实现。
-- **两个平台。** CI 在 Linux 与 macOS 上各跑一遍全部测试。与平台有关的测试不用 `#[cfg]` 静默跳过：平台不支持时，测试断言的是“拒绝提供”这一行为（例如没有原子交换时只提供 `refuse`）。
+- **两个平台。** CI 在 Linux 与 macOS 上各跑一遍全部测试。与平台有关的测试不用 `#[cfg]` 静默跳过：平台没有等价的原子“不替换”操作时，测试断言“拒绝提供导出”。
 - **只读 `$HOME`。** runtime 与 cli 的交付测试在只读的假 `$HOME` 下运行（`SHELTIE_HOME` 指向其下可写的临时目录），证明 `sheltie` 除管理根外不写任何地方。helper 由骨架完整实现。
 - **测试分层。** 按 [engineering.md §3.2](../../../engineering.md) 放置：core 用模块内单元测试加 `insta` 快照；两个新 crate 用 crate 内集成测试；runtime 用临时 `SHELTIE_HOME` 的集成测试；CLI 与端到端用 `assert_cmd` 驱动两个真实二进制；崩溃用 fail-point 加子进程。
 - **独立 oracle。** 摘要、状态和 JSON 字段的期望值由测试直接写出，或由测试自己用标准库重新计算。测试 helper 不得复用被测函数来计算期望值。
 
 ### 0.4 复核与里程碑记录
 
-- 逐任务不安排模型复核；由 `check-task.sh`、门禁和测试完成机械审查。
+- 每个填空任务在提交前由未参与该任务实现的复核者核对任务卡、合同、受影响调用链与本任务正反例；`check-task.sh`、门禁和测试负责机械检查。里程碑再做整组调用链、故障窗口与突变审查，不为每个小任务重复跑突变。
 - 里程碑审查者没有参与本组实现。审查中发现缺陷时，审查者补禁用测试、打 `c006-tNN-review`，并把对应任务改回 `doing`；实现者修复后再提交一次，写被退回任务的 `Task:`，不写 `Task: C006-Mn`。审查者自己补测试的提交写 `Task: C006-Mn`。
-- 缺陷涉及签名、数据结构或 `sys` 封装、会让全仓夹具一起变红时，由审查者（骨架作者）直接修改，并在报告中记录。
+- 缺陷涉及签名、数据结构或 `sys` 封装、会让全仓夹具一起变红时，交回骨架作者修复并记录；未编写该修复的审查者再审修复 diff 与受影响调用链。里程碑审查者不得审自己写的骨架或修复。
 - 里程碑报告写入本 package 的 `milestones.md`（M1 创建此文件；`review.md` 是提案讨论记录，不混写）。报告包含：检查表逐项结论、存活突变体的数量与处置、validation.md §3 的行与测试名对照、每一次工具改动的复核结论、退回清单，以及一节「流程教训」（每条写明证据与落点）。结论只用“通过 / 需修改 / 阻断”。validation.md 的执行状态表由里程碑审查者填写：写命令、原始输出路径、退出码、平台和输入闭包，不只写 PASS。
 
 ### 0.5 成本
@@ -91,7 +91,7 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 | C006-T07 | todo | 初级 | T04 | core 来源清单与证据摘要投影 | 可重生成；只用根绑定加相对路径；只给指针 |
 | C006-M1 | todo | 强模型 | T03–T07 | 里程碑审查：core | 送达状态与回执核对逐条正反例；`scripts/mutants.sh sheltie-core`；GF-01 词汇 |
 | C006-T08 | todo | 初级 | M1 | 根文件操作：重叠、根身份与逐段打开 | 与管理根重叠时拒绝；根身份不符拒绝；逐段不跟随链接 |
-| C006-T09 | todo | 初级 | T08 | 根文件操作：临时文件与两种原子替换 | `refuse` 用「不替换」改名；`replace-own-unmodified` 交换后核对、不符换回 |
+| C006-T09 | todo | 初级 | T08 | 根文件操作：临时文件与原子发布 | 用「不替换」改名；目标在检查后出现也不能覆盖 |
 | C006-T10 | todo | 初级 | T08 | 根文件操作：不跟随链接的读回摘要 | 缺失、不可访问、根身份不符分开报告；摘要编码与 core 一致 |
 | C006-M2 | todo | 强模型 | T08–T10 | 里程碑审查：根文件操作 | Linux 与 macOS 两个平台逐条验证；哨兵；突变测试；`sys` 封装复核 |
 | C006-T11 | todo | 初级 | M2 | runtime 交付记录存储 | 根绑定、请求、回执、观测、组件报告落库；请求行不可更新；旧库被拒 |
@@ -101,7 +101,7 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 | C006-T14 | todo | 初级 | M3 | 导出组件：读请求与核对源文件 | 只经 `sheltie` 公开命令读请求；只读打开源文件并核对摘要 |
 | C006-T15 | todo | 初级 | T14 | 导出组件：写入与恢复 | 按 DL-06 恢复表逐文件处理；来源清单最后写；清单外文件不动 |
 | C006-T16 | todo | 初级 | T15 | 导出组件：读回与回执提交 | 逐个读回后经 `sheltie` 提交回执或报告冲突、失败；从不写管理根 |
-| C006-T17 | todo | 初级 | T16 | `self` 分发第二个二进制（T01 第 5 项选“是”时保留） | 两个二进制同版本安装、更新与回滚 |
+| C006-T17 | todo | 强模型 | T16 | `self` 分发第二个二进制 | 旧布局安全迁移；两个二进制同版本安装、更新与回滚；以单个版本指针切换 |
 | C006-T18 | todo | 初级 | T17 | 场景：交付、恢复与拒绝 | 两个真实二进制走完 validation.md §3 各行 |
 | C006-T19 | todo | 强模型 | T18 | skill 交付一节 | 协调者何时调用导出组件、怎样读送达状态；`scripts/check-skill.sh` 通过 |
 | C006-M4 | todo | 强模型 | T14–T19 | 里程碑审查：导出组件与端到端 | validation.md §3 逐行对到测试；spec.md §3 承诺逐行正反例；两个平台 |
@@ -120,13 +120,13 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 **必须写定的决定。** 括号里是本计划的建议：
 
-1. 命令与参数（建议：`work start --result-root <位置> [--overwrite refuse|replace-own-unmodified]` 授权；`delivery retarget <work> <位置>` 形成新绑定版本；`delivery request <work>` 生成请求；`delivery cancel <request>` 取消未送达的请求；`delivery show <request> --json` 只读，供导出组件读取；`delivery receipt <request>` 从标准输入读组件陈述；`delivery report <request> --outcome conflict|failed` 记组件报告；`delivery check <work>` 只读核对目标并追加观测；`delivery claim <work>` 记协调者自报；`delivery status <work>` 只读）。
+1. 命令与参数（建议：`work start --result-root <位置>` 授权；`delivery retarget <work> <位置>` 形成新绑定版本；`delivery request <work>` 生成请求；`delivery cancel <request>` 取消未送达的请求；`delivery show <request> --json` 只读，供导出组件读取；`delivery receipt <request>` 从标准输入读组件陈述；`delivery report <request> --outcome conflict|failed` 记组件报告；`delivery check <work>` 只读核对目标并追加观测；`delivery claim <work>` 记协调者自报；`delivery status <work>` 只读）。首版没有覆盖参数；已有不同字节的目标文件一律冲突。
 2. 交付请求由显式命令生成，还是在 Work 成功的事务里自动生成（建议显式命令：不改动现有成功事务；副本丢失后重新导出、取消后重新请求走同一路径）。
 3. 默认交付位置（design.md §5 第 1 问；建议管理根之外的用户级目录下按 Work 标识分子目录，不默认放进项目目录，避开 DL-10 的 `.gitignore` 问题）；授权时若不给 `--result-root` 是否允许创建 Work（建议允许，取默认位置并在状态卡写明）。
-4. 证据摘要是否包含日志片段（第 2 问；建议只给指针）；来源清单是否作为 `export/v1`（第 3 问；建议先用 package 内的 `provenance/v0`，不占用 `export/v1`）。
-5. 导出二进制是否由 `self` 与 `sheltie` 一起分发与回滚（第 4 问；建议是，同一版本号，缺一个就拒绝安装）。选“否”时删去 T17，T21 写明分发方式。
+4. 证据摘要是否包含日志片段（第 2 问；建议只给指针）；来源清单是否作为 `export/v1`（第 3 问；建议先用 package 内的 `provenance/v0`，不占用 `export/v1`）。同时写定两份元数据的有界字节格式、每请求独立的相对路径和大小上限：请求创建时生成完整字节并存入不可变请求，`delivery show` 经公开协议交给导出组件；运行时不得按当前时钟重生成。
+5. 导出二进制随 `self` 与 `sheltie` 一起分发与回滚：两者同一版本，缺一个就拒绝安装。必须先写定从现行 `bin/sheltie` 布局迁到版本目录与单个原子指针的过程、稳定入口如何解析该指针、切换前后崩溃恢复和旧版本回滚；导出组件调用 `sheltie` 时必须选同一版本目录中的同伴，不能在更新窗口重新从 `PATH` 找到另一版本。不可用逐个文件改名冒充“两者一步切换”。
 6. 受限文件操作的归属（第 5 问；建议新建无业务词汇的 crate `sheltie-rootfs`，runtime 读回回执与导出组件写入都用它，保证“以与写入相同的方式读回”；C002 T04 的管理根实现是否迁入另行决定，本 package 不迁）。
-7. 首批支持的平台（第 6 问；建议 Linux 与 macOS；Linux 上 `renameat2` 返回“不支持”时只提供 `refuse`；Windows 不提供导出命令）。
+7. 首批支持的平台（第 6 问；建议 Linux 与 macOS；任何平台没有等价的原子“不替换”操作时不提供导出；Windows 不提供导出命令）。
 8. 导出组件对 `sheltie-core` 的依赖（建议只依赖 core 的摘要编码与导出清单路径校验这两个纯函数模块，不依赖 `sheltie-runtime`；用测试核对依赖图）。
 9. 组件报告的冲突与失败怎样记（建议作为“导出组件陈述”单独保存，写入方式标「导出组件」；送达状态由它派生为送达冲突或送达失败，但不当作系统核对过的事实）。
 10. 修改结果根（retarget）在终态 Work 上是否允许（建议允许，属于只追加的交付记录）。
@@ -143,13 +143,13 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T02 骨架、全部测试与工具
 
-**执行者。** 强模型。这是唯一做代码设计的任务。
+**执行者。** 强模型。这里写定交付协议的主要接口与测试；T17 的自管理布局改造由另一张强模型任务卡负责。
 
 **结果。** 全仓可编译；新增类型、签名和文档注释齐全，函数体是 `todo!("C006-Tnn")`；平台封装、竞态注入点与测试 helper 完整实现；本文每张卡列出的测试全部写好，挂 `// Task:` 注释并禁用；快照预写；CI 在 Linux 与 macOS 上全绿。`scripts/task.sh C006-T03` 退出非零，并列出 T03 的测试名。
 
 **文件（暂定，按实施起点代码定死）。**
 
-- core：新增 `delivery/` 模块：`request.rs`（交付条件、导出清单、覆盖策略）、`state.rs`（送达状态闭集与派生、交付命令、终态例外）、`receipt.rs`（回执核对）、`observe.rs`（观测闭集）、`render.rs`（状态卡交付一节）、`provenance.rs`（来源清单与证据摘要）；`error.rs` 加新错误码。
+- core：新增 `delivery/` 模块：`request.rs`（交付条件与导出清单）、`state.rs`（送达状态闭集与派生、交付命令、终态例外）、`receipt.rs`（回执核对）、`observe.rs`（观测闭集）、`render.rs`（状态卡交付一节）、`provenance.rs`（来源清单与证据摘要）；`error.rs` 加新错误码。
 - 新 crate `crates/sheltie-rootfs`：`sys.rs`（Linux 与 macOS 的系统调用薄封装，**完整实现**）、`overlap.rs`、`walk.rs`、`write.rs`、`read.rs`、`inject.rs`（测试构建的竞态注入点，**完整实现**）。
 - 新 crate `crates/sheltie-deliver`（二进制 `sheltie-deliver`）：`main.rs`、`cli.rs`（命令行，**完整实现**）、`sheltie.rs`（调用 `sheltie` 公开命令的子进程封装，**完整实现**）、`request.rs`、`source.rs`、`export.rs`、`recover.rs`、`receipt.rs`。
 - runtime：`store/{schema,commit,read}.rs` 加交付表；`service.rs` 加授权、请求、回执、观测的服务入口；`failpoint.rs` 加回执事务前后的 fail-point。
@@ -175,11 +175,11 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T03 core 交付条件与交付请求
 
-**结果。** 只在 Work `succeeded` 时允许生成交付请求；Work 活动（包括终点 Attempt 已成功但门槛未批准）、`blocked`、`cancelled` 都拒绝。导出清单每项的目标相对路径拒绝绝对路径、`..`、空段、平台保留名和重复目标。请求记录每项的期望摘要、当前有效的结果根绑定版本、覆盖策略（闭集）和请求标识。
+**结果。** 只在 Work `succeeded` 时允许生成交付请求；Work 活动（包括终点 Attempt 已成功但门槛未批准）、`blocked`、`cancelled` 都拒绝。导出清单每项的目标相对路径拒绝绝对路径、`..`、空段、平台保留名和重复目标。core 接收已生成的有界元数据字节，校验摘要与路径后组装不可变请求；元数据的实际生成由 T07 提供，T12 才把两者接到请求命令。请求记录每项产物或元数据的期望摘要、当前有效的结果根绑定版本和请求标识；证据摘要与来源清单使用由请求标识确定的独立路径，来源清单不包含自身摘要；首版没有覆盖策略字段。
 
 **文件。** `crates/sheltie-core/src/delivery/request.rs`。
 
-**测试。** `request_allowed_when_work_succeeded`、`request_rejected_when_work_active`、`request_rejected_when_terminal_attempt_succeeded_but_gate_unapproved`、`request_rejected_when_work_blocked_or_cancelled`、`manifest_rejects_absolute_path`、`manifest_rejects_dotdot_segment`、`manifest_rejects_empty_segment`、`manifest_rejects_platform_reserved_name`、`manifest_rejects_duplicate_target_path`、`request_binds_current_result_root_version`、`request_records_expected_digest_per_entry`、`overwrite_policy_accepts_only_closed_set`
+**测试。** `request_allowed_when_work_succeeded`、`request_rejected_when_work_active`、`request_rejected_when_terminal_attempt_succeeded_but_gate_unapproved`、`request_rejected_when_work_blocked_or_cancelled`、`manifest_rejects_absolute_path`、`manifest_rejects_dotdot_segment`、`manifest_rejects_empty_segment`、`manifest_rejects_platform_reserved_name`、`manifest_rejects_duplicate_target_path`、`request_binds_current_result_root_version`、`request_records_expected_digest_per_entry`、`request_metadata_paths_unique_per_request`、`request_has_no_overwrite_option`
 
 **实现要点。** 交付条件只看 Work 状态，不看 Attempt 或门槛的细节（GF-14 已经保证 `succeeded` 蕴含无未批准门槛）。路径校验逐段做，不用字符串包含判断。保留名清单是骨架给的常量。
 
@@ -231,13 +231,13 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T07 core 来源清单与证据摘要投影
 
-**结果。** 来源清单列出 Work 标识、Workbook 版本与摘要、每个文件的摘要、结果根绑定版本、请求标识与生成时间；位置只写根绑定加相对路径，不出现绝对路径。证据摘要在未采用 C004 时只说明“流程完成”，不给质量结论；只给指针，不含原始日志。同一状态两次渲染字节相等。
+**结果。** 来源清单列出 Work 标识、Workbook 版本与摘要、每个交付产物及证据摘要的摘要（不含清单自身）、结果根绑定版本、请求标识与请求创建时间；位置只写根绑定加相对路径，不出现绝对路径。证据摘要在未采用 C004 时只说明“流程完成”，不给质量结论；只给指针，不含原始日志。同一请求两次渲染字节相等，新请求使用不同元数据路径。
 
 **文件。** `crates/sheltie-core/src/delivery/provenance.rs`。
 
-**测试。** `provenance_lists_work_workbook_digests_binding_and_request`、`provenance_uses_binding_and_relative_paths_not_absolute`、`provenance_regenerates_byte_equal_from_same_state`、`evidence_summary_without_c004_states_flow_completed_only`、`evidence_summary_gives_pointers_not_raw_logs`
+**测试。** `provenance_lists_work_workbook_digests_binding_and_request`、`provenance_uses_binding_and_relative_paths_not_absolute`、`provenance_regenerates_byte_equal_from_same_request`、`provenance_omits_own_digest`、`new_request_uses_new_metadata_paths`、`evidence_summary_without_c004_states_flow_completed_only`、`evidence_summary_gives_pointers_not_raw_logs`
 
-**实现要点。** 纯函数：输入是状态和记录，生成时间作为参数传入。格式按 T01 第 4 项写定的版本号。
+**实现要点。** 纯函数：输入是请求创建时的冻结状态、原始证据记录、预分配的请求标识和请求创建时间，不读本次运行时钟。格式按 T01 第 4 项写定的版本号；先生成证据摘要，再生成只列产物及证据摘要的来源清单，避免清单引用自己的摘要。T12 在请求写入 Store 前调用本函数。
 
 **停止条件。** 需要读文件内容。
 
@@ -271,19 +271,19 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 **提交。** `feat(rootfs): 根重叠、根身份与逐段不跟随链接的打开`
 
-### C006-T09 根文件操作：临时文件与两种原子替换
+### C006-T09 根文件操作：临时文件与原子发布
 
-**结果。** 在最终父目录句柄内以独占方式创建带请求标识的临时名，写入后 `sync_all`。`refuse`：用「不替换」改名；目标已存在或在检查后出现时改名失败，报冲突，对方文件字节不变，临时名清掉。`replace-own-unmodified`：原子交换后读取换出的字节，与旧回执摘要一致才删除换出项，否则再交换一次换回原状并报冲突。替换的是目录项，目标文件的其他硬链接不被写穿。清理只删本请求标识的临时名。平台没有原子交换时只提供 `refuse`。
+**结果。** 在最终父目录句柄内以独占方式创建带请求标识的临时名，写入后 `sync_all`，以原子「不替换」改名发布；目标已存在或在检查后出现时改名失败，报冲突，对方文件字节不变，临时名清掉。已有且摘要相同的文件在上层恢复流程中跳过，不调用发布操作。目标文件的其他硬链接不被写穿。清理只删本请求标识的临时名。平台没有等价操作时不提供导出。
 
 **文件。** `crates/sheltie-rootfs/src/write.rs`。
 
-**测试。** `temp_name_carries_request_id_and_is_created_exclusively`、`refuse_writes_when_target_absent`、`refuse_conflicts_when_target_exists`、`refuse_conflicts_when_target_appears_after_check_and_other_bytes_unchanged`、`replace_own_unmodified_swaps_when_old_matches_receipt`、`replace_own_unmodified_swaps_back_when_old_modified_after_check`、`replace_changes_directory_entry_not_hardlinked_file`、`cleanup_removes_only_this_request_temp_names`、`platform_without_atomic_exchange_offers_refuse_only`
+**测试。** `temp_name_carries_request_id_and_is_created_exclusively`、`publish_writes_when_target_absent`、`publish_conflicts_when_target_exists`、`publish_conflicts_when_target_appears_after_check_and_other_bytes_unchanged`、`publish_does_not_write_through_existing_hardlink`、`cleanup_removes_only_this_request_temp_names`、`platform_without_atomic_no_replace_refuses_export`
 
-**实现要点。** 顺序：独占创建 → 写入 → `sync_all` → 原子改名或交换 → 同步目录。不存在“先检查目标是否存在再普通改名”的分支。交换后比对失败时，换回原状是第一件事，报错在其后。
+**实现要点。** 顺序：独占创建 → 写入 → `sync_all` → 原子「不替换」改名 → 同步目录。不存在“先检查目标是否存在再普通改名”的分支，也没有交换后补偿回退。
 
 **停止条件。** 需要普通改名才能让测试通过。
 
-**提交。** `feat(rootfs): 独占临时文件与不依赖先检查的原子替换`
+**提交。** `feat(rootfs): 独占临时文件与原子不替换发布`
 
 ### C006-T10 根文件操作：不跟随链接的读回摘要
 
@@ -307,7 +307,7 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 1. 读 `git diff <M1 结束提交>..HEAD -- crates/sheltie-rootfs`，逐项核对检查表；重点审 `sys` 封装的每个系统调用的标志位与错误翻译（包括骨架作者自己写的部分）。
 2. 确认 CI 在 Linux 与 macOS 上都跑了本组全部测试，没有一条靠 `#[cfg]` 跳过；把两个平台的运行记录写进报告。
-3. 运行 `scripts/mutants.sh sheltie-rootfs`，重点看标志位（`O_NOFOLLOW`、`O_EXCL`、「不替换」与交换标志）被删掉后是否有测试变红。
+3. 运行 `scripts/mutants.sh sheltie-rootfs`，重点看 `O_NOFOLLOW`、`O_EXCL` 与「不替换」标志被删掉后是否有测试变红。
 4. 每条拒绝测试都核对哨兵断言确实存在且覆盖字节、权限与修改时间。
 5. 对照 design.md §3.3 六步，逐步写出实现位置与测试名；复核本组的每一次工具改动。
 
@@ -315,7 +315,7 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T11 runtime 交付记录存储
 
-**结果。** Store 能存取根绑定（用途、位置、身份、版本、授权来源）、交付请求（导出清单、期望摘要、绑定版本、覆盖策略、请求标识）、回执（引擎摘要、读取时间、组件陈述）、送达观测、组件报告与自报。所有字段往返一致。请求行写入后不能更新。遇到旧结构版本的库时拒绝打开，并且不写入。
+**结果。** Store 能存取根绑定（用途、位置、身份、版本、授权来源）、交付请求（导出清单、期望摘要、绑定版本、请求标识）、回执（引擎摘要、读取时间、组件陈述）、送达观测、组件报告与自报。所有字段往返一致。请求行写入后不能更新。遇到旧结构版本的库时拒绝打开，并且不写入。
 
 **文件。** `crates/sheltie-runtime/src/store/{schema,commit,read}.rs`（只填标 `C006-T11` 的函数）。
 
@@ -329,11 +329,11 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T12 runtime 服务、读回与崩溃窗口
 
-**结果。** `work start` 时授权结果根，记录绑定版本 1，与管理根重叠时拒绝。请求、回执、观测、修改结果根各在一个写锁事务内完成。回执服务在写事务之前按绑定只读打开结果根，用 `sheltie-rootfs` 读回每个清单文件，把结果交给 core 核对，再在一个事务里写入。结果根从不以写方式打开。`delivery check` 只读核对并追加观测；管理根原件缺失报 `STORE_CORRUPT`。进程在回执事务提交前后被杀，重启后没有中间状态，回执至多一份。全部测试在只读假 `$HOME` 下通过。
+**结果。** `work start` 时授权结果根，记录绑定版本 1，与管理根重叠时拒绝。请求、回执、观测、修改结果根各在一个写锁事务内完成。创建请求时预分配请求标识与时间，调用 T07 生成元数据字节，再交给 T03 校验并作为同一不可变请求提交；失败时不留下半份请求。回执服务在写事务之前按绑定只读打开结果根，用 `sheltie-rootfs` 读回每个清单文件，把结果交给 core 核对，再在一个事务里写入。结果根从不以写方式打开。`delivery check` 只读核对并追加观测；管理根原件缺失报 `STORE_CORRUPT`。进程在回执事务提交前后被杀，重启后没有中间状态，回执至多一份。全部测试在只读假 `$HOME` 下通过。
 
 **文件。** `crates/sheltie-runtime/src/service.rs`、`crates/sheltie-runtime/src/failpoint.rs`（只填标 `C006-T12` 的函数）。
 
-**测试。** `service_work_start_authorizes_result_root_with_binding_v1`、`service_authorization_rejects_overlap_with_management_root`、`service_request_on_succeeded_work_commits_once`、`service_receipt_reads_back_target_and_commits`、`service_receipt_rejects_when_target_changed_before_read_back`、`service_receipt_never_opens_result_root_for_write`、`service_check_appends_missing_copy_and_inaccessible`、`service_check_reports_store_corrupt_when_original_missing`、`service_retarget_appends_new_binding_version`、`crash_before_receipt_commit_leaves_request_undelivered`、`crash_after_receipt_commit_keeps_single_receipt`、`delivery_services_write_nothing_outside_sheltie_home`
+**测试。** `service_work_start_authorizes_result_root_with_binding_v1`、`service_authorization_rejects_overlap_with_management_root`、`service_request_on_succeeded_work_commits_once`、`service_request_freezes_generated_metadata_bytes_and_paths`、`service_receipt_reads_back_target_and_commits`、`service_receipt_rejects_when_target_changed_before_read_back`、`service_receipt_never_opens_result_root_for_write`、`service_check_appends_missing_copy_and_inaccessible`、`service_check_reports_store_corrupt_when_original_missing`、`service_retarget_appends_new_binding_version`、`crash_before_receipt_commit_leaves_request_undelivered`、`crash_after_receipt_commit_keeps_single_receipt`、`delivery_services_write_nothing_outside_sheltie_home`
 
 **实现要点。** 判断全部来自 core，runtime 只做读回、存取与事务（INV-2）。读回放在写锁之外，读回结果和读取时间一起交给 core。崩溃测试用骨架给出的 fail-point 名，不自己加 sleep。
 
@@ -343,11 +343,11 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T13 cli 交付命令与输出
 
-**结果。** `work start` 接受结果根与覆盖策略参数；`delivery` 命令组按 T01 第 1 项可用，`--json` 输出与协议一致；只读命令（`show`、`status`）不改变任何状态；缺参数、状态不合法、回执不符时给出协议规定的错误码与退出码。
+**结果。** `work start` 接受结果根参数、不接受覆盖参数；`delivery` 命令组按 T01 第 1 项可用，`--json` 输出与协议一致；只读命令（`show`、`status`）不改变任何状态；缺参数、状态不合法、回执不符时给出协议规定的错误码与退出码。
 
 **文件。** `crates/sheltie-cli/src/commands/{work,delivery}.rs`、`crates/sheltie-cli/src/{output,error_map}.rs`（只填标 `C006-T13` 的函数）。
 
-**测试。** `cli_work_start_accepts_result_root_and_overwrite_policy`、`cli_work_start_rejects_result_root_overlapping_home`、`cli_delivery_request_json_lists_manifest_and_binding`、`cli_delivery_request_rejected_before_success`、`cli_delivery_show_is_read_only`、`cli_delivery_receipt_accepts_matching_statement`、`cli_delivery_receipt_duplicate_rejected`、`cli_delivery_report_records_conflict_and_failure`、`cli_delivery_status_separates_state_and_observations`、`cli_delivery_claim_recorded_as_self_report`、`cli_error_codes_for_delivery_rejections_match_protocol`
+**测试。** `cli_work_start_accepts_result_root_without_overwrite_option`、`cli_work_start_rejects_result_root_overlapping_home`、`cli_delivery_request_json_lists_manifest_and_binding`、`cli_delivery_request_rejected_before_success`、`cli_delivery_show_is_read_only`、`cli_delivery_receipt_accepts_matching_statement`、`cli_delivery_receipt_duplicate_rejected`、`cli_delivery_report_records_conflict_and_failure`、`cli_delivery_status_separates_state_and_observations`、`cli_delivery_claim_recorded_as_self_report`、`cli_error_codes_for_delivery_rejections_match_protocol`
 
 **实现要点。** 命令树在骨架中定死，这里只填处理函数。输出不自己加字段。
 
@@ -371,11 +371,11 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T14 导出组件：读请求与核对源文件
 
-**结果。** 导出组件只经 `sheltie delivery show <request> --json` 读请求；`sheltie` 报请求不存在、已取消或已送达时不做任何写入。对管理根里的源文件只读打开，逐个核对摘要；源文件缺失或摘要不符记为送达失败，不写目标。
+**结果。** 导出组件只经同版本的 `sheltie delivery show <request> --json` 读请求；`sheltie` 报请求不存在、已取消或已送达时不做任何写入。对产物条目，在管理根里只读打开冻结源文件并逐个核对摘要；对证据摘要和来源清单条目，使用请求给出的有界完整字节并核对期望摘要，不把它们伪装成源文件。源文件缺失或任一摘要不符记为送达失败，不写目标。
 
 **文件。** `crates/sheltie-deliver/src/request.rs`、`crates/sheltie-deliver/src/source.rs`。
 
-**测试。** `reads_request_through_sheltie_json_command`、`stops_without_writing_when_request_not_open`、`opens_source_files_read_only`、`source_digest_mismatch_is_delivery_failure`、`source_missing_reported_without_writing_target`
+**测试。** `reads_request_through_sheltie_json_command`、`deliver_uses_sibling_sheltie_version_during_update`、`stops_without_writing_when_request_not_open`、`opens_source_files_read_only`、`source_digest_mismatch_is_delivery_failure`、`source_missing_reported_without_writing_target`、`generated_metadata_bytes_must_match_request_digest`
 
 **实现要点。** 调用 `sheltie` 用骨架给出的子进程封装，不自己拼命令行、不直接读 Store。源文件的摘要用 core 的编码。
 
@@ -385,11 +385,11 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T15 导出组件：写入与恢复
 
-**结果。** 每次导出前重新检查目标根与管理根不重叠、根身份一致。对导出清单逐文件按 DL-06 处理：存在且摘要一致的不重写；不存在的清理本请求临时名后补写；存在但摘要不一致的记为送达冲突并停下（`replace-own-unmodified` 只覆盖本 Work 以前送达、摘要仍与当时回执一致的文件）。来源清单只在全部文件一致后写，恢复判断不看它是否存在。清单之外的文件不动。平台不支持时不提供导出。
+**结果。** 每次导出前重新检查目标根与管理根不重叠、根身份一致。对交付产物与证据摘要按 DL-06 处理：存在且摘要一致的不重写；不存在的清理本请求临时名后以原子“不替换”方式补写；存在但摘要不一致的记为送达冲突并停下，用户可另选结果根。上述文件一致后处理本请求独立路径下的来源清单：缺失则新增、相同则跳过、不同则冲突。恢复判断不以来源清单为依据。清单之外的文件不动。平台不支持时不提供导出。
 
 **文件。** `crates/sheltie-deliver/src/export.rs`、`crates/sheltie-deliver/src/recover.rs`。
 
-**测试。** `fresh_export_writes_all_entries_then_provenance_last`、`recover_skips_matching_files_without_rewrite`、`recover_writes_only_missing_files_after_cleaning_own_temp`、`recover_conflicts_on_modified_file_even_if_provenance_present`、`recover_does_not_treat_missing_provenance_as_unwritten`、`files_outside_manifest_untouched`、`refuse_policy_conflicts_on_existing_different_file`、`replace_own_unmodified_only_touches_previously_delivered_files`、`overlap_and_root_identity_rechecked_before_every_export`、`unsupported_platform_offers_no_export`
+**测试。** `fresh_export_writes_all_entries_then_provenance_last`、`recover_skips_matching_files_without_rewrite`、`recover_writes_only_missing_files_after_cleaning_own_temp`、`recover_conflicts_on_modified_file_even_if_provenance_present`、`recover_does_not_treat_missing_provenance_as_unwritten`、`repeat_request_skips_identical_provenance_bytes`、`new_request_does_not_overwrite_old_provenance`、`modified_provenance_for_same_request_conflicts`、`files_outside_manifest_untouched`、`existing_different_file_conflicts_without_overwrite`、`retarget_after_conflict_keeps_original_target_bytes`、`overlap_and_root_identity_rechecked_before_every_export`、`unsupported_platform_offers_no_export`
 
 **实现要点。** 第一次导出和恢复走同一段代码：没有“首次”与“恢复”两套逻辑，只有按实际字节分三种情况。文件写入全部经 `sheltie-rootfs`。
 
@@ -399,13 +399,13 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T16 导出组件：读回与回执提交
 
-**结果。** 全部文件处理完后，逐个读回目标文件的实际字节并计算摘要，经 `sheltie delivery receipt` 提交；遇到冲突或失败时经 `sheltie delivery report` 报告。已有回执时再次运行不重复提交、不重写。整个运行过程中管理根的字节不变。
+**结果。** 全部文件处理完后，逐个读回目标文件的实际字节并计算摘要，经 `sheltie delivery receipt` 提交；遇到冲突或失败时经 `sheltie delivery report` 报告。已有回执时再次运行不重复提交、不重写。导出组件不直接写管理根；`sheltie` 命令可在 Store 中追加预期的回执或报告，管理根中的冻结原件保持不变。
 
 **文件。** `crates/sheltie-deliver/src/receipt.rs`。
 
-**测试。** `reads_back_each_target_before_submitting_receipt`、`submits_receipt_through_sheltie_command`、`reports_conflict_and_failure_through_sheltie_command`、`rerun_after_receipt_does_not_resubmit_or_rewrite`、`export_run_leaves_management_root_bytes_unchanged`、`deliver_crate_does_not_depend_on_sheltie_runtime`
+**测试。** `reads_back_each_target_before_submitting_receipt`、`submits_receipt_through_sheltie_command`、`reports_conflict_and_failure_through_sheltie_command`、`rerun_after_receipt_does_not_resubmit_or_rewrite`、`export_run_preserves_frozen_sources_and_adds_only_expected_store_record`、`deliver_crate_does_not_depend_on_sheltie_runtime`
 
-**实现要点。** 组件陈述的摘要只是陈述，`sheltie` 会自己读回；这里不要试图“跳过读回以提速”。“管理根不变”由测试在运行前后对整个管理根做字节快照比对。
+**实现要点。** 组件陈述的摘要只是陈述，`sheltie` 会自己读回；这里不要试图“跳过读回以提速”。测试逐字节核对冻结原件，并经公开命令核对 Store 只新增与本请求对应的记录；不能要求整个管理根字节不变。
 
 **停止条件。** 需要直接写 Store 或管理根里的任何文件。
 
@@ -413,15 +413,13 @@ C006 不以 C004、C005、C008 采用为前提（README「采用条件」）。�
 
 ### C006-T17 `self` 分发第二个二进制
 
-T01 第 5 项选“否”时，T01 删去本卡与 tasks.toml 中的对应条目。
+**结果。** `self install`、`self update`、`self rollback` 把 `sheltie` 与 `sheltie-deliver` 当作同一版本处理：两个都在才安装；更新时版本不一致就拒绝；回滚同时恢复两个。先把两个已核对的二进制放进同一不可变版本目录，再原子切换一个当前版本指针；稳定入口都经该指针解析，不逐个替换两个二进制。旧的单文件布局迁移、指针切换前后崩溃与回滚按 T01 写定的合同处理。仍只写 `~/.sheltie`（GF-27、INV-3）。
 
-**结果。** `self install`、`self update`、`self rollback` 把 `sheltie` 与 `sheltie-deliver` 当作同一版本处理：两个都在才安装；更新时版本不一致就拒绝；回滚同时恢复两个。仍只写 `~/.sheltie`（GF-27、INV-3）。
+**文件。** `crates/sheltie-runtime/src/selfmgmt.rs`、`crates/sheltie-cli/src/`、根 `Cargo.toml` 与 `crates/sheltie-deliver/Cargo.toml`，只改自管理入口、版本布局与发布资产所需部分；最终路径在 T02 按 T01 合同定死并同步 tasks.toml。
 
-**文件。** `crates/sheltie-runtime/src/selfmgmt.rs`（只填标 `C006-T17` 的函数）。
+**测试。** `self_install_places_both_binaries_same_version`、`self_install_rejects_release_missing_deliver_binary`、`self_update_rejects_mismatched_deliver_version`、`self_migrates_legacy_binary_without_deleting_original_before_switch`、`self_switch_pointer_before_crash_keeps_old_pair`、`self_switch_pointer_after_crash_keeps_new_pair`、`self_rollback_after_migration_restores_old_binary`、`self_rollback_restores_both_binaries`
 
-**测试。** `self_install_places_both_binaries_same_version`、`self_install_rejects_release_missing_deliver_binary`、`self_update_rejects_mismatched_deliver_version`、`self_rollback_restores_both_binaries`
-
-**实现要点。** 两个二进制的放置与切换在同一步完成，不能出现一新一旧的中间状态；沿用现有的切换写法。
+**实现要点。** 两个二进制先放在同一版本目录并逐个核对，只有一个指针参与可见版本切换。现有 `bin/sheltie` 的逐文件改名写法不能直接复用；迁移与回滚必须保留原二进制，不能在切换前删掉旧版本。静态检查真实发布包内的两个二进制及其版本，动态测试分别在迁移、指针切换前后注入中断。
 
 **停止条件。** 需要写 `~/.sheltie` 之外的位置。
 
@@ -429,11 +427,11 @@ T01 第 5 项选“否”时，T01 删去本卡与 tasks.toml 中的对应条目
 
 ### C006-T18 场景：交付、恢复与拒绝
 
-**结果。** 全程用 `sheltie` 与 `sheltie-deliver` 两个真实二进制，覆盖 validation.md §3 中不依赖 C004、C005 的各行：写完文件、回执前被杀后恢复不重写；部分写入且来源清单缺失时只补缺失；来源清单在但文件被改时冲突；回执后被改只追加观测；组件谎报摘要被拒；符号链接段与目标根被替换被拒且哨兵不变；目标根与管理根重叠被拒；门槛未批准不生成请求；终态只接受交付记录；副本删除后重新导出；修改结果根后旧记录按旧绑定解析；导出全程管理根只被读取。
+**结果。** 全程用 `sheltie` 与 `sheltie-deliver` 两个真实二进制，覆盖 validation.md §3 中不依赖 C004、C005 的各行：写完文件、回执前被杀后恢复不重写；部分写入且来源清单缺失时只补缺失；来源清单在但文件被改时冲突；回执后被改只追加观测；组件谎报摘要被拒；符号链接段与目标根被替换被拒且哨兵不变；目标根与管理根重叠被拒；门槛未批准不生成请求；终态只接受交付记录；副本删除后重新导出；修改结果根后旧记录按旧绑定解析；导出组件不直接写管理根，`sheltie` 只追加本请求的交付记录。
 
 **文件。** 无生产文件（场景测试只验证已有实现）。
 
-**测试。** `scenario_killed_after_write_before_receipt_recovers_without_rewrite`、`scenario_partial_write_without_provenance_completes_missing_only`、`scenario_modified_target_with_provenance_present_conflicts`、`scenario_target_modified_after_receipt_adds_observation`、`scenario_component_misreports_digest_receipt_rejected`、`scenario_symlink_segment_rejected_sentinel_unchanged`、`scenario_replaced_root_rejected`、`scenario_target_overlapping_management_root_rejected`、`scenario_unapproved_gate_produces_no_request`、`scenario_terminal_work_accepts_only_delivery_records`、`scenario_deleted_copy_reexported_with_new_request`、`scenario_retarget_old_records_resolve_old_binding`、`scenario_management_root_only_read_during_export`
+**测试。** `scenario_killed_after_write_before_receipt_recovers_without_rewrite`、`scenario_partial_write_without_provenance_completes_missing_only`、`scenario_modified_target_with_provenance_present_conflicts`、`scenario_target_modified_after_receipt_adds_observation`、`scenario_component_misreports_digest_receipt_rejected`、`scenario_symlink_segment_rejected_sentinel_unchanged`、`scenario_replaced_root_rejected`、`scenario_target_overlapping_management_root_rejected`、`scenario_unapproved_gate_produces_no_request`、`scenario_terminal_work_accepts_only_delivery_records`、`scenario_deleted_copy_reexported_with_new_request`、`scenario_retarget_old_records_resolve_old_binding`、`scenario_component_does_not_write_management_root_directly`
 
 **实现要点。** 本任务只删 `#[ignore`，让已写好的场景变绿。任一场景红，说明前面某个任务有缺陷：记下测试名和失败输出，把状态改为 `blocked`，交给审查者，不改生产代码。
 

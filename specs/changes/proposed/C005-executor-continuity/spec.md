@@ -58,6 +58,8 @@
 
 不另设“执行代次”状态。代次就是 Attempt 在 Occurrence 内的顺序，由现有记录派生，只作显示。旧执行者迟到的 `submit`、`fail` 由现有的 `ATTEMPT_NOT_RUNNING` 拒绝；旧提交与取代并发时，写锁保证至多一个被接受。
 
+现行 Attempt id 的 `<node>#<n>.<retry>` 后缀同时充当编号与业务重试次数；加入 `superseded` 后两者必须分开。候选合同保持 `node#n.number` 的可见形状，但把后缀和 core 字段命名为 Attempt 顺序号：在 Occurrence 内从 0 开始、每次 `begin` 都递增，不再叫 `retry`。业务失败次数从该 Occurrence 中状态为 `failed` 的 Attempt 计算，不另存第二份计数。`max_retries = k` 表示第 `k + 1` 次业务失败使 Work 阻塞；取代或等待产生的新 Attempt 可以使顺序号超过 `k`，但不因此耗尽业务重试。采用时同步 CONTEXT、架构、协议和 Store 格式，不能沿用现行以 `retry == max_retries` 判耗尽的条件。
+
 这只保护经过引擎接口的正式提交：它不会停止旧进程，也不会阻止同权限程序直接改库。Store 内每个 Attempt 的输出目录已经分开；旧进程对共享 Git 工作区的写入在引擎之外（INV-3），引擎无法保证。取代时交接包写明“旧执行者是否确认停止、是否共用工作区”，作为交接条件显示给用户；无法确认停止时，新执行者使用分开的工作区。
 
 `EX-03` **中断原因分类与来源。** 原因只取闭集：
@@ -187,7 +189,7 @@
 | --- | --- | --- | --- |
 | spec.md | GF-14 | 非门槛 `blocked` 增加 `resource_wait`（可 `work resume` 或 `work cancel`，EX-04）与 `continuity_exhausted`（只能取消）；C004 新增的 `scope_violation` 与 `retries_exhausted` 仍只能取消，采用时合并措辞 | 一 |
 | spec.md | GF-13 | 业务上限之外增加资源重试、切换次数和总等待期限 | 一 |
-| spec.md | GF-05 | Occurrence 内的 Attempt 顺序作为执行代次显示，不另存状态 | 一 |
+| spec.md | GF-05 | Attempt id 后缀改为 Occurrence 内唯一顺序号；执行代次从顺序派生，业务失败次数从 `failed` Attempt 派生 | 一 |
 | spec.md | GF-06、GF-10 | 任务书与状态卡加入交接包的指针 | 一 |
 | spec.md | GF-11 | Attempt 执行事实闭集扩为 `running \| succeeded \| failed \| superseded`；中断原因闭集及来源，与执行事实分开 | 一 |
 | spec.md | GF-04 | 补充：自动执行在领取时重新确认授权、资源、依赖与执行者要求（EX-14） | 二 |
@@ -200,7 +202,7 @@
 | constitution.md | INV-6 | 执行记录与额度观测按来源分项记录；自报不得伪装成提供方事实（与 C004 的 INV-6 修订原则一致） | 一、二 |
 | constitution.md | §7 演进方向 | 长期保留项加入执行者替换与接续 | 一 |
 | roadmap.md | §3 档位表 | 加入执行者替换与接续；隔离后端改为“随承诺触发” | 一 |
-| contracts/ | protocol、storage | 新增 `attempt supersede`、`work wait`、`work resume`，以及 `blocked(resource_wait)`、`blocked(continuity_exhausted)`；`next` 在 `running` 时加入取代与等待，在 `resource_wait` 时给出恢复与取消；其余字段由 design.md 的选择决定；采用前不预写 | 一、二 |
+| architecture.md、contracts/ | Attempt 与 protocol、storage | Attempt id 后缀与业务失败计数解耦；新增 `attempt supersede`、`work wait`、`work resume`，以及 `blocked(resource_wait)`、`blocked(continuity_exhausted)`；`next` 在 `running` 时加入取代与等待，在 `resource_wait` 时给出恢复与取消；采用前不预写 | 一、二 |
 
 ## 7. 后续决策与触发条件
 

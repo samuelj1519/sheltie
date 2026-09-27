@@ -4,7 +4,7 @@
 
 本计划只把**第一阶段（生成、检查、确认，走现有安装路径）**拆成任务。第二阶段（临时启动入口、检查器产品化、`work start` 核对锁定文件）由第一阶段实验结果触发，另行采用，§4 只列入口条件和候选分组。
 
-第一阶段**不改产品代码**（README「范围约束」「采用条件」）。本计划把这条写成机械约束：检查器是仓库里的独立程序 `sheltie-plan-check`，放在 `crates/sheltie-plan-check`（workspace 成员，`publish = false`，不进发布资产，不由 `self` 分发）；它不依赖任何 `sheltie-*` crate，只通过子进程调用 `sheltie` 公开命令；[tasks.toml](tasks.toml) 中每个代码任务的白名单都不含三个产品 crate 与 `skills/`，`scripts/check-task.sh` 会拒绝任何改动它们的提交。design.md 说的“外部脚本”，本计划理解为“引擎之外、不随 Sheltie 发布的独立程序”；用 Rust 写，是为了让检查器享有与产品代码同样的测试、门禁和骨架填空方法，第二阶段产品化（WG-10）时也不必重写。T01 在 ADR-E 里写明这一点。
+第一阶段**不改产品代码**（README「范围约束」「采用条件」）。本计划把这条写成机械约束：检查器是仓库里的独立程序 `sheltie-plan-check`，放在 `crates/sheltie-plan-check`（workspace 成员，`publish = false`，不进发布资产，不由 `self` 分发）；它不依赖任何 `sheltie-*` crate，只通过子进程调用 `sheltie` 公开命令；[tasks.toml](tasks.toml) 中每个代码任务的白名单都不含三个产品 crate 与 `skills/`，`scripts/check-task.sh` 会拒绝任何改动它们的提交。实验只承诺测量 validation.md 的人工时间、结构缺陷与输入类错误；第二阶段是否维护并分发检查器由 T18 根据结果另定，不因第一阶段用了 Rust 就自动产品化。
 
 C007 不以 C004、C005 采用为前提。主线（T01–T18）只用现有 Workbook 能表达的门槛、图、上限与 `requires`；“证据绑定”规则在主线中固定报告“不适用”。依赖 C004 验收合同、C005 执行绑定的规则放在 §3 的增量组。
 
@@ -30,7 +30,7 @@ authoring 实验与第一阶段收尾由人主持（C007-T17、C007-T18）。
 
 写给做填空任务的人或模型。每条都是硬规则，多数由 `scripts/check-task.sh` 机械核对。
 
-1. **只读三样东西。** 本文 §0、你的任务卡、卡上「文件」与「测试」列出的代码。任务卡点名某合同某节时，只读那一节。
+1. **先按仓库入口开工，再聚焦任务。** 先读 `CONTEXT.md`、`specs/README.md`、`specs/changes/README.md`、本 active package 入口和 `specs/engineering.md`（AGENTS.md「开工入口」）；随后重点读本文 §0、自己的任务卡、卡上列出的文件与合同章节。遇到调用链超出卡片时继续追到真实使用者，不以“只读卡片”为由跳过。
 2. **先看到红。** 运行 `scripts/task.sh C007-Tnn`（禁用的测试也会跑），确认本任务测试全红；然后删掉这些测试上的 `#[ignore = "C007-Tnn"]`。编译错误不算红。
 3. **只填 `todo!("C007-Tnn")`。** 不改签名、类型、`pub` 可见性，不加依赖，不新建文件。同文件内新增私有辅助函数可以，但不得改变任何公开项的行为边界。文档注释就是函数要做的事。
 4. **不改测试，不改快照。** 测试红了改实现。快照不一致改渲染代码，不运行 `cargo insta accept`。
@@ -52,7 +52,7 @@ authoring 实验与第一阶段收尾由人主持（C007-T17、C007-T18）。
 - **产品代码零改动。** 检查器放在 `crates/sheltie-plan-check`（放在 `crates/` 下是为了让现有脚本不改扫描范围就能覆盖它）。[tasks.toml](tasks.toml) 中 T03 起每个任务的白名单都只含这个目录；T02 的白名单也不含 `crates/sheltie-core`、`crates/sheltie-runtime`、`crates/sheltie-cli` 与 `skills/`。任何任务需要改这些地方，都按 §0.2 第 9 条停下：那说明第一阶段的前提不成立，要回到人的决定。
 - **检查器是黑盒调用者。** 检查器不依赖任何 `sheltie-*` crate。图结构（入口、节点、`gate`、四种边、`requires`）只取自引擎在临时管理根里给出的 `sheltie --json workbook show` 输出；Workbook 摘要只取自引擎的 `workbook add` 返回值。`workbook show` 不输出的 `max_visits`、`max_retries` 由检查器按 [contracts/workbook.md](../../../contracts/workbook.md) 的字段表从 flow 文件读取，缺省值取合同默认值，节点集合必须与 `show` 输出一致，不一致即输入错误。填空任务不得自己写 Workbook 装入校验、不得自己算 Workbook 目录摘要：这两件事只有引擎能说了算。
 - **临时管理根。** 每次装入都在系统临时目录下新建一个 `SHELTIE_HOME`，用完即删，失败时也删。检查器从不读写调用者环境里的 `SHELTIE_HOME` 或 `~/.sheltie`；唯一的例外是 `verify-install`，它以只读命令 `workbook show` 读取正式管理根。创建、调用、清理临时管理根的子进程封装 `engine.rs` 由骨架**完整实现**。
-- **测试中的 `sheltie`。** 检查器的测试调用真实的 `sheltie` 二进制。定位它的 helper 由骨架完整实现：取与测试二进制同一 `target/<profile>/` 下的 `sheltie`，不存在时 panic 并提示先构建 `sheltie-cli`；`scripts/task.sh` 在运行本 package 的任务前先构建它。测试不 mock 引擎。
+- **测试中的 `sheltie`。** 检查器的测试调用真实的 `sheltie` 二进制。`scripts/task.sh` 先运行 `cargo build -p sheltie-cli --bin sheltie --message-format=json`，只取 `compiler-artifact` 中目标名为 `sheltie`、种类为 `bin` 的非空 `executable`；必须恰有一条，绝对路径传给测试，helper 缺失时报告配置错误。不猜 target 目录，也不 mock 引擎（engineering.md §3.2）。
 - **正式管理根哨兵。** 所有调用引擎的测试都把环境里的 `SHELTIE_HOME` 指向一个预先装好一个 Workbook 的“正式管理根”，断言测试前后它的 `store.db` 字节与目录清单不变。helper 由骨架完整实现。
 - **不调用模型。** 检查器与全部测试都不调模型、不联网（validation.md §5）。规划者起草草案不在本计划的自动测试里，只在 T17 的人工实验里出现。
 - **测试分层。** 纯规则（约束、映射、图、各条规则、判定、报告）用模块内单元测试，报告用 `insta` 快照；调用引擎的部分（装入、摘要、锁定文件、安装核对）用 crate 内集成测试加临时目录；命令行与场景用 `assert_cmd` 驱动 `sheltie-plan-check` 和 `sheltie` 两个真实二进制。
@@ -61,9 +61,9 @@ authoring 实验与第一阶段收尾由人主持（C007-T17、C007-T18）。
 
 ### 0.4 复核与里程碑记录
 
-- 逐任务不安排模型复核；由 `check-task.sh`、门禁和测试完成机械审查。
+- 每个填空任务在提交前由未参与该任务实现的复核者核对任务卡、合同、受影响调用链与本任务正反例；`check-task.sh`、门禁和测试负责机械检查。里程碑再做整组调用链、故障窗口与突变审查，不为每个小任务重复跑突变。
 - 里程碑审查者没有参与本组实现。审查中发现缺陷时，审查者补禁用测试、打 `c007-tNN-review`，并把对应任务改回 `doing`；实现者修复后再提交一次，写被退回任务的 `Task:`，不写 `Task: C007-Mn`。审查者自己补测试的提交写 `Task: C007-Mn`。
-- 缺陷涉及签名、数据结构、`engine.rs` 或夹具、会让大量测试一起变红时，由审查者（骨架作者）直接修改，并在报告中记录。
+- 缺陷涉及签名、数据结构、`engine.rs` 或夹具、会让大量测试一起变红时，交回骨架作者修复并记录；未编写该修复的审查者再审修复 diff 与受影响调用链。里程碑审查者不得审自己写的骨架或修复。
 - 里程碑报告写入本 package 的 `milestones.md`（M1 创建此文件；`review.md` 是提案讨论记录，不混写）。报告包含：检查表逐项结论、存活突变体的数量与处置、validation.md §5 的行与测试名对照、每一次工具改动的复核结论、退回清单，以及一节「流程教训」（每条写明证据与落点）。结论只用“通过 / 需修改 / 阻断”。validation.md 的执行状态表由里程碑审查者填写：写命令、原始输出路径、退出码和输入闭包，不只写 PASS。
 
 ### 0.5 成本
@@ -87,7 +87,7 @@ C007 第一阶段不以 C004、C005 采用为前提，也不需要等待 C006。
 
 | ID | 状态 | 执行者 | 依赖 | 标题 | 结果 |
 | --- | --- | --- | --- | --- | --- |
-| C007-T01 | todo | 人 + 强模型 | 采用 | 实施前决定与 ADR-E | 约束快照、映射、锁定文件的格式与位置写定；检查器命令与退出码写定；ADR-E 编号；README 的“外部脚本”说法改为本计划的形态 |
+| C007-T01 | todo | 人 + 强模型 | 采用实验 | 实施前决定与 ADR-E | 约束快照、映射、锁定文件的实验格式与位置写定；检查器命令与退出码写定；ADR-E 编号；确认本阶段不改产品合同 |
 | C007-T02 | todo | 强模型 | T01 | 骨架、全部测试、夹具与工具 | `sheltie-plan-check` 可编译；`engine.rs` 与测试 helper 完整；全部测试存在且禁用；缺陷草案夹具齐全；tag `c007-t02-skeleton` |
 | C007-T03 | todo | 初级 | T02 | 约束快照：解析与合成 | `constraints/v0` 闭集校验；项目默认与本次差异合成，每项保留来源；放宽与加严逐条标出 |
 | C007-T04 | todo | 初级 | T03 | 约束映射、图模型与候选生产集合 | 映射解析；从 `workbook show` 输出与 flow 文件建图；\(P\) 默认全选、显式排除 |
@@ -117,7 +117,7 @@ C007 第一阶段不以 C004、C005 采用为前提，也不需要等待 C006。
 
 **执行者。** 人审定，强模型起草。
 
-**结果。** ADR-E 移入 `specs/decisions/` 并编号，写明第一阶段检查器的形态：仓库内不发布的独立程序 `sheltie-plan-check`（workspace 成员，`publish = false`，不进发布资产，不由 `self` 分发），只通过 `sheltie` 公开命令与引擎交互，不依赖任何 `sheltie-*` crate。本 package 的 README、design.md 中“外部脚本”的说法改为这一形态，并写明它仍满足“第一阶段不改产品代码”：`sheltie` 二进制、三个产品 crate 与 `skills/` 零改动。`specs/roadmap.md` 登记 C007 第一阶段为进行中的实验。第一阶段不改 `specs/spec.md`、`constitution.md` 与 `contracts/`（spec.md §6 的上游修订属于第二阶段）。README 的 `基线：` 改为实施起点提交。
+**结果。** ADR-E 移入 `specs/decisions/` 并编号，写明第一阶段检查器的形态：仓库内不发布的独立程序 `sheltie-plan-check`（workspace 成员，`publish = false`，不进发布资产，不由 `self` 分发），只通过 `sheltie` 公开命令与引擎交互，不依赖任何 `sheltie-*` crate。核对 README、design.md 与 spec.md §6 均按实验口径写定，并写明“第一阶段不改产品代码”：`sheltie` 二进制、三个产品 crate 与 `skills/` 零改动。`specs/roadmap.md` 登记 C007 第一阶段为进行中的实验。第一阶段不改 `specs/spec.md`、`constitution.md` 与 `contracts/`；产品合同修订属于第二阶段。README 的 `基线：` 改为实施起点提交。
 
 **必须写定的决定。** 括号里是本计划的建议，写进 design.md 对应章节：
 
@@ -126,7 +126,7 @@ C007 第一阶段不以 C004、C005 采用为前提，也不需要等待 C006。
 3. 约束映射格式（建议 `mapping/v0`：`flow` 写 Flow id；`[map]` 表写条件 id → 节点列表；`not_candidate_producers` 写 \(P\) 的排除清单，放在顶层，不与条件 id 共用命名空间；`[[suggest]]` 写规划者的差异说明，只展示、不参与判定）。
 4. 草稿有多个 Flow 时怎么办（建议：第一阶段只接受恰好一个 Flow 的草稿，否则输入错误；生成场景一次只为一个任务起草一个 Flow）。
 5. 锁定文件路径与格式（design.md §4，第 2 问；建议 `resources/plan.lock.toml`、`plan-lock/v0`，字段同 design.md §4，`[mapping]` 表照抄映射的 `[map]` 与 `not_candidate_producers`；第一阶段不要求 `contracts/workbook.md` 保留这个名字，第二阶段再定）。
-6. 三个摘要怎样算（建议：`plan_digest` 与 `draft_load_digest` 都取引擎 `workbook add` 对去掉锁定文件的目录返回的 `digest`，所以锁定时两者相等，分开保留是因为前者在安装前重算、后者记录检查时装入了什么；`constraints_digest` 与 `mapping_digest` 是生效快照与映射的规范 JSON（键排序、条目按 id 排序、UTF-8、无多余空白）的 SHA-256）。
+6. 三个摘要怎样算（建议：`plan_digest` 取引擎 `workbook add` 对去掉锁定文件的目录返回的 `digest`，既是检查时装入的草稿身份，也是安装前重算的对象；不另存同值的 `draft_load_digest`。`constraints_digest` 与 `mapping_digest` 是生效快照与映射的规范 JSON（键排序、条目按 id 排序、UTF-8、无多余空白）的 SHA-256）。
 7. 检查器的命令与退出码（建议：`check`、`lock --confirm <口令>`、`preinstall`、`verify-install --expected <D> <id>@<version>`；退出码 `0` 通过、`1` 规则不通过或核对不一致、`2` 输入错误、`3` 需要重新确认项目默认要求、`4` 引擎调用失败；`--json` 输出字段写进 design.md；`--sheltie <路径>` 指定引擎，缺省从 `PATH` 找）。
 8. 确认口令（建议：`check` 输出一个口令，等于约束摘要、映射摘要与计划摘要拼接后的摘要前 12 位；`lock` 重新计算，不同就拒绝写。这样“看到的”与“锁定的”必须是同一组输入）。
 9. 项目默认要求的确认记录（design.md §2 输入闭包，第 1 问第一阶段部分；建议：记录文件放在用户配置目录下，不在仓库、不在 `~/.sheltie`；按默认要求文件的绝对路径记最近一次确认的摘要；不一致或没有记录时 `check` 返回退出码 `3`，`lock --reconfirm-defaults` 更新记录）。
@@ -157,7 +157,7 @@ C007 第一阶段不以 C004、C005 采用为前提，也不需要等待 C006。
 - `src/report.rs`（T13）；
 - `skill/SKILL.md`（T16 写，骨架只放标题）；
 - 测试：模块内单元测试与快照；`tests/{load,digest,lock,install,cli,scenario_check,skill}.rs`；`tests/fixtures/`；`tests/support/`（定位 `sheltie`、正式管理根哨兵、临时草稿复制、暴力路径 oracle、随机小图生成，**完整实现，不留填空**）。
-- 工具：`scripts/check-task.sh` 的 tag 基准（如尚未修）；`scripts/task.sh` 在运行 `C007-*` 任务前构建 `sheltie`；根 `Cargo.toml` 加 workspace 成员；`deny.toml` 按需更新；CI 覆盖新 crate。
+- 工具：`scripts/check-task.sh` 的 tag 基准（如尚未修）；`scripts/task.sh` 在运行 `C007-*` 任务前构建 `sheltie`、解析 Cargo JSON 中的 `executable` 并把路径传给测试；根 `Cargo.toml` 加 workspace 成员；`deny.toml` 按需更新；CI 覆盖新 crate。
 
 **骨架的写法。** 类型逐字段对照 T01 写定的格式。每个公开项的文档注释，第一行写对应的出处（WG-nn、design.md §n 或 validation.md §5 的行），第二行写返回的错误或报告项。每条规则是一个函数，输入是图、生效快照与映射，输出是本规则的结果（通过，或不通过加上涉及的条件、节点与见证路径），不读文件、不调引擎。报告与判定用的类型里，规则判定与未决清单是两个字段，类型上就不能合并。
 
@@ -299,7 +299,7 @@ C007 第一阶段不以 C004、C005 采用为前提，也不需要等待 C006。
 
 ### C007-T11 写锁定文件与确认口令
 
-**结果。** `lock` 重新运行全部检查，重新计算确认口令；口令与 `--confirm` 给的不同就拒绝写。只有规则判定为 `pass` 时才写 `resources/plan.lock.toml`（`resources/` 不存在时创建）；草稿里已有锁定文件时拒绝，提示先删除再确认。写入的内容含检查器版本、四个摘要、规则判定、未决清单和映射。草稿里的其他文件不变。
+**结果。** `lock` 重新运行全部检查，重新计算确认口令；口令与 `--confirm` 给的不同就拒绝写。只有规则判定为 `pass` 时才写 `resources/plan.lock.toml`（`resources/` 不存在时创建）；草稿里已有锁定文件时拒绝，提示先删除再确认。写入的内容含检查器版本、三个摘要、规则判定、未决清单和映射。草稿里的其他文件不变。
 
 **文件。** `PC/src/lock.rs`。
 

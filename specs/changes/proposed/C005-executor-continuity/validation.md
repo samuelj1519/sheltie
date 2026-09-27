@@ -79,6 +79,7 @@ Candidate: `none`
 | 被取代的 Attempt 在新 Attempt 开始后提交 | `ATTEMPT_NOT_RUNNING` 拒收并记录 | 覆盖新状态 |
 | 旧 Attempt 的 `submit` 与 `attempt supersede` 并发（真实 CLI） | 至多一个被接受；重启后从 Store 重建同一结果 | 两个都生效，或恢复后结果不同 |
 | 换人（取代） | 旧 Attempt 记为 `superseded`，切换次数 +1，`max_retries` 不变 | 记为 `failed` 或消耗业务重试 |
+| `max_retries = 0` 时取代后重新领取，随后第一次执行失败 | 新 Attempt id 顺序号唯一；取代不阻塞；第一次 `fail` 才进入 `retries_exhausted` | 因顺序号超过 0 拒绝领取，或取代被算作业务失败 |
 | 被取代 Attempt 目录中有未提交文件 | 留在旧 Attempt 目录，新 Attempt 看不到 | 并入新 Attempt 输出 |
 | 旧执行者无法确认停止 | 交接包写明风险；新执行者使用分开的工作区 | 静默共用可变工作区 |
 | 资源不可用多次 | 消耗资源重试，不消耗业务重试 | 业务重试被耗尽 |

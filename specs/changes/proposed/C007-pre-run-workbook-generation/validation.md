@@ -56,7 +56,7 @@ Candidate: `none`
 
 ## 5. 失败路径测试（与用户价值分开报告）
 
-检查器的测试全部可以用程序完成，不需要调用模型；第一阶段检查器是外部脚本时即可执行。
+检查器的测试全部可以用程序完成，不需要调用模型；第一阶段的仓库内独立程序即可执行。
 
 | 场景 | 应观察到 | 不能出现 |
 | --- | --- | --- |
@@ -89,7 +89,7 @@ Candidate: `none`
 | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | 第一阶段 authoring 实验 | not_run | — | — | — | — |
-| 检查器失败路径测试 | not_run | 外部脚本实现 design.md §3 后执行；输入为固定草稿、约束快照、映射与临时 `SHELTIE_HOME` | — | — | — |
+| 检查器失败路径测试 | not_run | 独立程序实现 design.md §3 后执行；输入为固定草稿、约束快照、映射与临时 `SHELTIE_HOME` | — | — | — |
 | 输入类缺陷的发现情况 | not_run | 与 authoring 实验同批执行；不计入检查器测试 | — | — | — |
 
 `executed/reused/covered` 是模式，不是 PASS。`not_run` 必须保留，不能改写为覆盖或通过。
