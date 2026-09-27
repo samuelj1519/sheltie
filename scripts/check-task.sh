@@ -1,24 +1,25 @@
 #!/usr/bin/env bash
-# 提交前核对一个填空任务没有越界。用法：scripts/check-task.sh Tnn [基准提交] [--staged]
-# 基准默认取最近一个 tNN-* tag：t01-skeleton 是骨架；复核者补测试后打 tNN-review，成为新基准。
+# 提交前核对一个任务没有越界。用法：scripts/check-task.sh <task> [基准提交] [--staged]
+# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn 默认取 active package README 的基线。
 #
 # 检查：
-#   1. 改动范围是并集：基准以来提交说明含 `Task: Tnn` 的提交的改动 ∪ 未提交改动。
-#      每条都要在 tasks.toml 本任务的 files 或 test_files 里（plan.md、tasks.toml 始终允许）。
-#   2. files 里没有本任务的 todo!("Tnn") 与不带标签的 todo!()。#[allow(unused_variables)]
+#   1. 改动范围是并集：基准以来提交说明含当前 `Task:` 的提交改动 ∪ 未提交改动。
+#      每条都要在任务表的 files 或 test_files 里（package plan、tasks.toml 始终允许）。
+#   2. files 里没有本任务的 todo!("<task>") 与不带标签的 todo!()。#[allow(unused_variables)]
 #      只准留在还有 todo!() 的函数上；别的任务的占位按 plan.md 规则 8 原样保留。
 #      files 条目可以是文件或目录（目录是检查 1 的白名单前缀）；目录只取其中的 .rs，
 #      文档会引用 todo!() 字样。
-#   3. 仓库里没有残留 #[ignore = "Tnn"]。
+#   3. 仓库里没有残留 #[ignore = "<task>"]。
 #   4. test_files 相对基准的测试代码零改动，只允许删 #[ignore 行（allow_test_changes = true 的任务除外）。
 #      与 files 重叠的是混合源文件：实现填充必须动文件，改查 #[cfg(test)] 起的测试模块。快照零改动。
 #   5. plan.md 本任务状态为 done。
-#   6. 最近一次提交信息含 `Task: Tnn` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
+#   6. 最近一次提交信息含当前 `Task:` 与 `Agent:` 两行（工作树干净时才检查，--staged 跳过）。
 set -euo pipefail
 
 task=""
 # 默认基准：最近一个 tNN-* tag（t01-skeleton，或复核者补测试后打的 tNN-review）。
 base="$(git describe --tags --abbrev=0 --match 't[0-9]*' 2>/dev/null || echo t01-skeleton)"
+base_given=0
 staged=0
 for arg in "$@"; do
 	case "$arg" in
@@ -32,33 +33,62 @@ for arg in "$@"; do
 				task="$arg"
 			else
 				base="$arg"
+				base_given=1
 			fi
 			;;
 	esac
 done
 if [ -z "$task" ]; then
-	echo "用法: scripts/check-task.sh Tnn [base] [--staged]" >&2
+	echo "用法: scripts/check-task.sh <task> [base] [--staged]" >&2
 	exit 2
 fi
 cd "$(dirname "$0")/.."
 
+task_table="tasks.toml"
+plan_file="specs/plan.md"
+case "$task" in
+C[0-9][0-9][0-9]-T[0-9][0-9])
+	change_id="${task%%-*}"
+	active_dir="$(find specs/changes/active -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
+	if [ -z "$active_dir" ] || [ "$(printf '%s\n' "$active_dir" | grep -c .)" -ne 1 ]; then
+		echo "check-task: active change $change_id 不存在或不唯一" >&2
+		exit 2
+	fi
+	task_table="$active_dir/tasks.toml"
+	plan_file="$active_dir/plan.md"
+	for required in "$task_table" "$plan_file"; do
+		[ -f "$required" ] || {
+			echo "check-task: 缺 $required" >&2
+			exit 2
+		}
+	done
+	if [ "$base_given" -eq 0 ]; then
+		base="$(sed -n 's/^基线：`\([^`]*\)`.*/\1/p' "$active_dir/README.md")"
+		[ -n "$base" ] || {
+			echo "check-task: $active_dir/README.md 缺基线" >&2
+			exit 2
+		}
+	fi
+	;;
+esac
+
 status=0
 fail() { echo "check-task: $*"; status=1; }
 
-# 读 tasks.toml 里本任务的数组字段（简单 TOML，一行一个数组）。
+# 读任务表里本任务的数组字段（简单 TOML，一行一个数组）。
 field() {
 	awk -v t="[$task]" -v f="$1" '
 		$0 == t { inside = 1; next }
 		/^\[/ { inside = 0 }
 		inside && index($0, f " =") == 1 { print; exit }
-	' tasks.toml | sed -E 's/^[a-z_]+ = \[(.*)\]$/\1/; s/"//g; s/, */\n/g'
+	' "$task_table" | sed -E 's/^[a-z_]+ = \[(.*)\]$/\1/; s/"//g; s/, */\n/g'
 }
 scalar() {
 	awk -v t="[$task]" -v f="$1" '
 		$0 == t { inside = 1; next }
 		/^\[/ { inside = 0 }
 		inside && index($0, f " =") == 1 { print $3; exit }
-	' tasks.toml | tr -d '"'
+	' "$task_table" | tr -d '"'
 }
 
 # macOS 自带 bash 3.2 没有 mapfile，用 while read 填数组。
@@ -69,13 +99,13 @@ while IFS= read -r line; do [ -n "$line" ] && test_files+=("$line"); done < <(fi
 allow_test_changes="$(scalar allow_test_changes)"
 
 if [ "${#files[@]}" -eq 0 ]; then
-	fail "tasks.toml 里没有 $task"
+	fail "$task_table 里没有 $task"
 	exit 1
 fi
 
 in_list() {
 	local path="$1"; shift
-	for allowed in "$@" specs/plan.md tasks.toml; do
+	for allowed in "$@" "$plan_file" "$task_table"; do
 		case "$path" in
 			"$allowed" | "$allowed"/*) return 0 ;;
 		esac
@@ -83,7 +113,7 @@ in_list() {
 	return 1
 }
 
-# 本次提交的范围：未提交改动 ∪ 基准以来提交说明含 `Task: Tnn` 的提交的改动。
+# 本次提交的范围：未提交改动 ∪ 基准以来提交说明含当前 `Task:` 的提交改动。
 # 两条路径是并集：工作树有脏文件也不能掩盖已提交的越界改动。
 changed_paths() {
 	git diff --name-only --cached
@@ -176,8 +206,8 @@ if [ "$allow_test_changes" != "true" ]; then
 fi
 
 # 5. 计划状态
-if ! grep -qE "^\| $task \| done \|" specs/plan.md; then
-	fail "specs/plan.md 里 $task 的状态不是 done"
+if ! grep -qE "^\| $task \| done \|" "$plan_file"; then
+	fail "$plan_file 里 $task 的状态不是 done"
 fi
 
 # 6. 提交信息（提交前工作树不干净，跳过；--staged 也跳过）

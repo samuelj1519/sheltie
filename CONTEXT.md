@@ -39,4 +39,4 @@
 
 ## 仓库现状
 
-代码是绿场脚手架。目标与进度见 [specs/README.md](specs/README.md)。文档描述目标，不表示已实现；进度只看 [specs/plan.md](specs/plan.md) 的状态列。
+当前 release、active change、proposed change 与实施入口只在 [specs/README.md](specs/README.md) 定义。
