@@ -56,6 +56,7 @@ Owner：`待采用时指定`
 4. [validation.md](validation.md)：探针与失败路径测试，目前全部为 `not_run`。
 5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 6. [review-response-2026-09-27.md](review-response-2026-09-27.md)：对独立审阅的逐条答复与本轮修订位置。
+7. [plan.md](plan.md)：采用后的实施计划草案，做法同 C004；平台系统调用封装与竞态注入点由骨架完整实现，根文件操作单设一次双平台里程碑审查；含 C004、C005 增量组。配套 [tasks.toml](tasks.toml)（逐任务改动白名单）与 [progress.md](progress.md)（交接）。
 
 ## 采用条件
 

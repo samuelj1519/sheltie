@@ -72,6 +72,7 @@ v0.1.0 证明了引擎能记状态、限定合法下一步、守门槛，但产�
 4. [validation.md](validation.md)：采用前的实验方案与失败路径测试，目前全部为 `not_run`。
 5. [independent-review-2026-09-27.md](independent-review-2026-09-27.md)：独立方案审阅、采用前需修订项与推进建议。
 6. [review-response-2026-09-27.md](review-response-2026-09-27.md)：对独立审阅的逐条答复与本轮修订位置。
+7. [plan.md](plan.md)：采用后的实施计划草案：强模型先搭骨架与全部测试，初级实现者逐任务填空，每组里程碑由强模型审查；含 VD-09、VD-11 的条件任务组。配套 [tasks.toml](tasks.toml)（逐任务改动白名单）与 [progress.md](progress.md)（交接）。
 
 ## 采用条件
 
