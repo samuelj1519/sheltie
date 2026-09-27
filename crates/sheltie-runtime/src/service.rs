@@ -139,10 +139,41 @@ impl WorkService {
         let seq = self.store.allocate_seq(&day)?;
         let work_id = WorkId::new(&day, seq, &name)?;
         let work_dir = self.home.work_dir(&work_id);
-        // 冻结副本：本 Work 之后只读它（存储合同 §5.1）。逐段核对祖先软链后建目录。
+        // 冻结副本：本 Work 之后只读它（存储合同 §5.4）。逐段核对祖先软链后建目录。
         crate::fsx::ensure_dirs_under(self.home.root(), &work_dir)?;
         let frozen = work_dir.join_segment("workbook");
         WorkbookRepo::copy_confined(&wb.dir, &frozen)?;
+        // 复制后对**最终副本**重新 parse/compile 并核对身份与摘要（GF-17）：复制间源
+        // 目录变化或副本身份与登记不符都报 STORE_CORRUPT，不把不可信字节当冻结定义。
+        let copied = self.repo().load_dir(&frozen)?;
+        if copied.manifest.id() != wb.manifest.id()
+            || copied.manifest.version() != wb.manifest.version()
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "冻结副本的 manifest 身份 {}@{} 与登记 {}@{} 不符",
+                    copied.manifest.id(),
+                    copied.manifest.version(),
+                    wb.manifest.id(),
+                    wb.manifest.version(),
+                ),
+            });
+        }
+        if copied.digest != wb.digest {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "冻结副本摘要 {} 与登记 {} 不符（复制期间源目录变化）",
+                    copied.digest.as_str(),
+                    wb.digest.as_str(),
+                ),
+            });
+        }
+        // 提交给 core 的图来自这份最终副本的字节。
+        let frozen_flow = copied
+            .flow(flow.0.id().as_str())
+            .ok_or_else(|| Error::NotFound {
+                what: format!("Flow {}", args.flow),
+            })?;
         set_tree_readonly(&frozen)?;
         // 起始输入物化成文件并记 ArtifactRef；独占创建，不覆盖已有路径。
         let inputs_dir = work_dir.join_segment("inputs");
@@ -167,13 +198,13 @@ impl WorkService {
             workbook: WorkbookRef {
                 id: wb.manifest.id().clone(),
                 version: wb.manifest.version().to_string(),
-                digest: wb.digest.clone(),
+                digest: copied.digest.clone(),
             },
             flow: flow.0.id().clone(),
             work_dir,
             inputs,
         };
-        self.commit_one(None, &flow.1, &cmd, &ctx, request_id, payload_hash)
+        self.commit_one(None, &frozen_flow.1, &cmd, &ctx, request_id, payload_hash)
     }
 
     pub fn begin(

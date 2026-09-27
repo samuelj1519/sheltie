@@ -16,6 +16,9 @@ use crate::error::{Error, Result};
 pub const MAX_FILE_BYTES: u64 = 33_554_432;
 /// 目录总量上限 256 MiB。
 pub const MAX_TOTAL_BYTES: u64 = 268_435_456;
+/// 明确列举的宿主元数据文件（存储合同 §5.3）：Finder 一类工具生成，不属于 Workbook
+/// 字节。复制与读取都**准确拒绝并点名文件**，不静默忽略字节。
+pub const HOST_METADATA_FILES: &[&str] = &[".DS_Store"];
 
 /// 安全打开的叶文件句柄。
 ///
@@ -277,6 +280,11 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
         let name = entry.file_name().to_string_lossy().into_owned();
         let s = src.join_segment(&name);
         let d = dst.join_segment(&name);
+        if HOST_METADATA_FILES.contains(&name.as_str()) {
+            return Err(Error::InvalidRequest {
+                reason: format!("{s} 是宿主元数据文件（如 Finder 生成），先清理再装"),
+            });
+        }
         let ft = entry.file_type().map_err(|e| Error::io(s.as_str(), e))?;
         if ft.is_symlink() {
             return Err(Error::InvalidRequest {

@@ -178,6 +178,8 @@ impl WorkbookRepo {
     }
 
     /// 按 `id` 与版本加载；`version` 为 `None` 取字面最高版本。不存在报 `NotFound`。
+    /// 加载即核对登记身份：重算目录摘要与 `workbooks.digest` 比较，不符报
+    /// `WORKBOOK_TAMPERED`（GF-32；O03：verify 发现的篡改不能被 start 静默接受）。
     pub fn load(&self, id: &str, version: Option<&str>) -> Result<LoadedWorkbook> {
         let rows = self.store.workbook_versions(id)?;
         let row = match version {
@@ -196,7 +198,17 @@ impl WorkbookRepo {
                     what: format!("Workbook {id}"),
                 })?,
         };
-        self.load_dir(&self.home.workbook_dir(id, &row.version))
+        let loaded = self.load_dir(&self.home.workbook_dir(id, &row.version))?;
+        if loaded.digest.as_str() != row.digest {
+            return Err(Error::WorkbookTampered {
+                results: vec![VerifyRow {
+                    id: row.id,
+                    version: row.version,
+                    status: VerifyStatus::Tampered,
+                }],
+            });
+        }
+        Ok(loaded)
     }
 
     /// 目录摘要：全部文件按相对路径排序，拼 `路径\0内容` 后对字节流 sha256 再对摘要
@@ -244,6 +256,29 @@ impl WorkbookRepo {
             return Err(Error::InvalidRequest {
                 reason: "remove 必须给全版本，不接受「最高版本」默认".to_string(),
             });
+        }
+        // 清理前核归属：目录当前摘要必须仍与登记值相符（GF-32），不符拒绝删除，
+        // 不把被人动过的树当成自己的对象移走。
+        let dir = self.home.workbook_dir(id, version);
+        if dir.as_path().exists() {
+            let registered = self
+                .store
+                .workbook_versions(id)?
+                .into_iter()
+                .find(|r| r.version == version)
+                .ok_or_else(|| Error::NotFound {
+                    what: format!("Workbook {id}@{version}"),
+                })?;
+            let current = Self::digest_dir(&dir)?;
+            if current.as_str() != registered.digest {
+                return Err(Error::WorkbookTampered {
+                    results: vec![VerifyRow {
+                        id: id.to_string(),
+                        version: version.to_string(),
+                        status: VerifyStatus::Tampered,
+                    }],
+                });
+            }
         }
         let works = self.works_referencing(id, version)?;
         if !works.is_empty() {
