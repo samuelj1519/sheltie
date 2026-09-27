@@ -5,6 +5,35 @@ use sheltie_core::path::{AbsPath, RelPath};
 
 use crate::error::{Error, Result};
 
+/// 把路径规范化到「最深已存在祖先的真实位置 + 余下原样段」。
+/// 全路径已存在时等价于 `canonicalize`；尚不存在的尾部保持词法形式。
+fn canonicalize_deepest(path: &camino::Utf8Path) -> camino::Utf8PathBuf {
+    let mut probe = path.to_path_buf();
+    let mut tail: Vec<String> = Vec::new();
+    loop {
+        match std::fs::canonicalize(&probe) {
+            Ok(real) => {
+                let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());
+                for seg in tail.iter().rev() {
+                    out = out.join(seg);
+                }
+                return out;
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                let Some(name) = probe.file_name().map(|n| n.to_string()) else {
+                    return path.to_path_buf();
+                };
+                tail.push(name);
+                let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {
+                    return path.to_path_buf();
+                };
+                probe = parent;
+            }
+            Err(_) => return path.to_path_buf(),
+        }
+    }
+}
+
 /// 管理根。只有 runtime 能在它下面写东西。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Home {
@@ -14,6 +43,10 @@ pub struct Home {
 impl Home {
     /// 解析管理根：`cli` 参数 > 环境变量 `SHELTIE_HOME` > `$HOME/.sheltie`。
     /// 相对路径按当前目录转成绝对路径。不建目录。
+    ///
+    /// 根在入口一次规范化：对最深已存在祖先做 `canonicalize`，再拼回余下段。
+    /// 之后所有 managed 路径都从这个规范根派生，祖先软链（如 `/tmp` 一类）不会
+    /// 让派生路径与 `confine` 的前缀比较失真（架构 §5）。
     pub fn resolve(cli: Option<&str>) -> Result<Self> {
         let given = match cli.map(str::to_string) {
             Some(p) => p,
@@ -24,12 +57,14 @@ impl Home {
                 })?,
         };
         let root = if camino::Utf8Path::new(&given).is_absolute() {
-            AbsPath::new(given)?
+            camino::Utf8PathBuf::from(given)
         } else {
             let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
-            AbsPath::new(cwd.join(&given).to_string_lossy().into_owned())?
+            camino::Utf8PathBuf::from(cwd.join(&given).to_string_lossy().into_owned())
         };
-        Ok(Self { root })
+        Ok(Self {
+            root: AbsPath::new(canonicalize_deepest(&root).to_string())?,
+        })
     }
 
     /// 直接用一个绝对路径当根（测试用）。

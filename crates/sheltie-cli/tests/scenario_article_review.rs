@@ -124,9 +124,12 @@ fn review_brief_lists_checklist_resource_with_frozen_path() {
     let s = env.submit_all(&wid, &b, "初稿");
     let r = env.follow_begin(&s, "review");
     let checklist = r["data"]["inputs"]["checklist"].as_str().unwrap();
+    // T04 起管理根在入口规范化：macOS 的 /var 是 /private/var 的软链，记录的路径
+    // 是真实形式，期望值同样 canonicalize（cwd/tmp 目录由此经过软链解析）。
     let frozen = env
         .work_dir(&wid)
         .join("workbook/resources/review-checklist.md");
+    let frozen = std::fs::canonicalize(&frozen).unwrap();
     assert_eq!(Path::new(checklist), frozen);
     let repo_copy = env
         .workbook_dir("article-review", "1.0.0")

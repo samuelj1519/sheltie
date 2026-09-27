@@ -370,6 +370,8 @@ fn verify_reports_missing_when_directory_gone() {
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step"))).unwrap();
     let dir = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str());
+    // T04 起整棵含根置只读（0555）；删除前把根本身也放开。
+    std::fs::set_permissions(&dir, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
     for entry in walk(&dir) {
         // 目录保留可遍历的 0755（同本文件 `make_writable` 的约定），否则 remove_dir_all 进不了子目录。
         let mode = if entry.is_dir() { 0o755 } else { 0o644 };

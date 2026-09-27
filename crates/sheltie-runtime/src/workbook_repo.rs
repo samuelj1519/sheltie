@@ -93,15 +93,14 @@ impl WorkbookRepo {
             let _ = compile(&def, &manifest, &res)?;
             flow_defs.push(def.id().as_str().to_string());
         }
-        // 2. staging：先顺手清掉上次崩溃留下的残留。
+        // 2. staging：先顺手清掉上次崩溃留下的残留（不跟随软链）。
         let staging_root = self.home.staging_dir();
-        let _ = std::fs::remove_dir_all(staging_root.as_path());
-        std::fs::create_dir_all(staging_root.as_path())
-            .map_err(|e| Error::io(staging_root.as_str(), e))?;
+        let _ = crate::fsx::remove_tree_no_follow(&staging_root);
+        crate::fsx::ensure_dirs_under(self.home.root(), &staging_root)?;
         let staging = staging_root.join_segment(&uuid::Uuid::now_v7().to_string());
         let added = self.add_via_staging(dir, &staging, &manifest, &flow_defs);
         if added.is_err() {
-            let _ = std::fs::remove_dir_all(staging.as_path());
+            let _ = crate::fsx::remove_tree_no_follow(&staging);
         }
         added
     }
@@ -133,10 +132,14 @@ impl WorkbookRepo {
         };
         self.store.insert_workbook(&row)?;
         if let Some(parent) = final_dir.as_path().parent() {
-            std::fs::create_dir_all(parent).map_err(|e| Error::io(final_dir.as_str(), e))?;
+            crate::fsx::ensure_dirs_under(
+                self.home.root(),
+                &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
+            )?;
         }
         std::fs::rename(staging.as_path(), final_dir.as_path())
             .map_err(|e| Error::io(final_dir.as_str(), e))?;
+        crate::fsx::fsync_dir(&final_dir);
         set_tree_readonly(&final_dir)?;
         Ok(Added {
             id: row.id,
@@ -196,16 +199,41 @@ impl WorkbookRepo {
         self.load_dir(&self.home.workbook_dir(id, &row.version))
     }
 
-    /// 目录摘要：全部文件按相对路径排序，拼 `路径\0内容` 后 sha256（协议 `workbook add`）。
+    /// 目录摘要：全部文件按相对路径排序，拼 `路径\0内容` 后对字节流 sha256 再对摘要
+    /// 十六进制串做一次 sha256——这是 schema 1 已登记的旧算法（含 O07 的双重哈希与
+    /// `path\0content` 定界歧义），流式化只改读取方式、不改字节语义，已装目录的记录
+    /// 才能继续对上。C002-T07 切到 `workbook_digest::digest_dir_v2` 后本函数删除。
     pub fn digest_dir(dir: &AbsPath) -> Result<Sha256Hex> {
         let mut files = Vec::new();
-        collect_file_bytes(dir, dir, &mut files)?;
+        collect_file_meta(dir, dir, &mut files)?;
+        // 限额在读取前核对（存储合同 §5.2）；读取经句柄计数，增长绕不过。
+        let mut total = 0u64;
+        for (rel, size) in &files {
+            if *size > MAX_FILE_BYTES {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{dir} 下 {rel} 超过 {MAX_FILE_BYTES} 字节"),
+                });
+            }
+            total = total
+                .checked_add(*size)
+                .ok_or_else(|| Error::InvalidRequest {
+                    reason: format!("{dir} 总量超出上限"),
+                })?;
+            if total > MAX_TOTAL_BYTES {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{dir} 总量超过 {MAX_TOTAL_BYTES} 字节"),
+                });
+            }
+        }
         files.sort_by(|a, b| a.0.cmp(&b.0));
         let mut hasher = sha2::Sha256::new();
-        for (path, content) in files {
-            hasher.update(path.as_bytes());
+        for (rel, _) in files {
+            let full = dir.join(&RelPath::new(rel.clone()).map_err(Error::Core)?);
+            let f = crate::fsx::SafeFile::open_regular(&full)?;
+            let bytes = f.read_bounded(MAX_FILE_BYTES)?;
+            hasher.update(rel.as_bytes());
             hasher.update([0u8]);
-            hasher.update(&content);
+            hasher.update(&bytes);
         }
         Ok(Sha256Hex::of_bytes(&hasher.finalize()))
     }
@@ -226,19 +254,18 @@ impl WorkbookRepo {
             });
         }
         self.store.delete_workbook(id, version)?;
-        // 提交后把目录挪到 tmp/ 再删；失败只影响磁盘，不影响库。
+        // 提交后把目录挪到 tmp/ 再删；失败只影响磁盘，不影响库。删除不跟随软链。
         let dir = self.home.workbook_dir(id, version);
         if dir.as_path().exists() {
-            std::fs::create_dir_all(self.home.tmp_dir().as_path())
-                .map_err(|e| Error::io(self.home.tmp_dir().as_str(), e))?;
+            crate::fsx::ensure_dirs_under(self.home.root(), &self.home.tmp_dir())?;
             let tmp = self
                 .home
                 .tmp_dir()
                 .join_segment(&uuid::Uuid::now_v7().to_string());
             // macOS 上挪动目录本身要写权限（会更新 ..），先放开再挪。
-            make_tree_writable(&dir);
+            crate::fsx::make_tree_writable(&dir);
             if std::fs::rename(dir.as_path(), tmp.as_path()).is_ok() {
-                let _ = std::fs::remove_dir_all(tmp.as_path());
+                let _ = crate::fsx::remove_tree_no_follow(&tmp);
             }
         }
         Ok(Removed {
@@ -297,84 +324,33 @@ impl WorkbookRepo {
         Ok(out)
     }
 
-    /// 受限复制：拒绝软链、硬链、非普通文件、含 `..`、单文件超 32 MiB、总量超 256 MiB。
-    /// 返回复制的总字节数。每个文件写完即 fsync。
+    /// 受限复制：拒绝软链、硬链、非普通文件、单文件超 32 MiB、总量超 256 MiB。
+    /// 逐文件句柄复制、独占创建目标并 fsync（`fsx`）。
     pub(crate) fn copy_confined(src: &AbsPath, dst: &AbsPath) -> Result<u64> {
-        let mut total = 0u64;
-        copy_tree_confined(src, dst, &mut total)?;
-        Ok(total)
+        crate::fsx::copy_tree_confined(src, dst)
     }
 }
 
-/// 读一个必须存在的 UTF-8 文本文件，失败按 `WORKBOOK_INVALID` 报。
+/// 读一个必须存在的 UTF-8 文本文件：句柄核对身份并限额读取，失败按 `WORKBOOK_INVALID` 报。
 fn read_utf8(path: &AbsPath) -> Result<String> {
-    std::fs::read_to_string(path.as_path()).map_err(|e| {
+    let f = crate::fsx::SafeFile::open_regular(path)?;
+    let bytes = f.read_bounded(MAX_FILE_BYTES).map_err(|e| {
         Error::Core(sheltie_core::Error::WorkbookInvalid {
             field: path.to_string(),
-            reason: format!("读不了或不是 UTF-8：{e}"),
+            reason: e.to_string(),
+        })
+    })?;
+    String::from_utf8(bytes).map_err(|_| {
+        Error::Core(sheltie_core::Error::WorkbookInvalid {
+            field: path.to_string(),
+            reason: "不是 UTF-8".to_string(),
         })
     })
 }
 
-fn copy_tree_confined(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
-    std::fs::create_dir_all(dst.as_path()).map_err(|e| Error::io(dst.as_str(), e))?;
-    for entry in std::fs::read_dir(src.as_path()).map_err(|e| Error::io(src.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(src.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let s = src.join_segment(&name);
-        let d = dst.join_segment(&name);
-        let ft = entry.file_type().map_err(|e| Error::io(s.as_str(), e))?;
-        if ft.is_symlink() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 是符号链接"),
-            });
-        }
-        if ft.is_dir() {
-            copy_tree_confined(&s, &d, total)?;
-            continue;
-        }
-        if !ft.is_file() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 不是普通文件"),
-            });
-        }
-        let meta = entry.metadata().map_err(|e| Error::io(s.as_str(), e))?;
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::MetadataExt as _;
-            if meta.nlink() > 1 {
-                return Err(Error::InvalidRequest {
-                    reason: format!("{s} 是硬链接"),
-                });
-            }
-        }
-        if meta.len() > MAX_FILE_BYTES {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 超过 {MAX_FILE_BYTES} 字节"),
-            });
-        }
-        if total
-            .checked_add(meta.len())
-            .is_none_or(|t| t > MAX_TOTAL_BYTES)
-        {
-            return Err(Error::InvalidRequest {
-                reason: format!("{src} 总量超过 {MAX_TOTAL_BYTES} 字节"),
-            });
-        }
-        std::fs::copy(s.as_path(), d.as_path()).map_err(|e| Error::io(d.as_str(), e))?;
-        let f = std::fs::File::open(d.as_path()).map_err(|e| Error::io(d.as_str(), e))?;
-        f.sync_all().map_err(|e| Error::io(d.as_str(), e))?;
-        *total += meta.len();
-    }
-    Ok(())
-}
-
-/// 收集 `dir` 下全部普通文件的 `(相对路径, 内容)`。拒绝软链。
-fn collect_file_bytes(
-    root: &AbsPath,
-    dir: &AbsPath,
-    out: &mut Vec<(String, Vec<u8>)>,
-) -> Result<()> {
+/// 收集 `dir` 下全部普通文件的 `(相对路径, 声明字节数)`。拒绝软链；跳过非常规文件
+/// （与旧摘要的语义一致）。字节内容在摘要阶段经句柄流式读取。
+fn collect_file_meta(root: &AbsPath, dir: &AbsPath, out: &mut Vec<(String, u64)>) -> Result<()> {
     for entry in std::fs::read_dir(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))? {
         let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
         let name = entry.file_name().to_string_lossy().into_owned();
@@ -386,7 +362,7 @@ fn collect_file_bytes(
             });
         }
         if ft.is_dir() {
-            collect_file_bytes(root, &path, out)?;
+            collect_file_meta(root, &path, out)?;
             continue;
         }
         if !ft.is_file() {
@@ -397,51 +373,14 @@ fn collect_file_bytes(
             .strip_prefix(root.as_path())
             .map_err(|e| Error::io(root.as_str(), std::io::Error::other(e.to_string())))?
             .to_string();
-        let bytes = std::fs::read(path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-        out.push((rel, bytes));
+        let meta = entry.metadata().map_err(|e| Error::io(path.as_str(), e))?;
+        out.push((rel, meta.len()));
     }
     Ok(())
 }
 
-/// 内容置只读：子目录 0555、文件 0444。传入的目录本身保持原样——macOS 挪动或
-/// 删除目录需要它可写；防篡改靠文件只读位加 `verify` 的摘要核对。
-/// `work start` 的冻结副本也用它。
+/// 整棵含根置只读（目录 0555、文件 0444；存储合同 §5.2）。句柄核对身份后 fchmod，
+/// 拒绝软链；`work start` 的冻结副本也用它。挪动/删除前的放开用 `make_tree_writable`。
 pub(crate) fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
-    use std::os::unix::fs::PermissionsExt;
-    for entry in std::fs::read_dir(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let path = dir.join_segment(&name);
-        if entry
-            .file_type()
-            .map_err(|e| Error::io(path.as_str(), e))?
-            .is_dir()
-        {
-            std::fs::set_permissions(path.as_path(), std::fs::Permissions::from_mode(0o555))
-                .map_err(|e| Error::io(path.as_str(), e))?;
-            set_tree_readonly(&path)?;
-        } else {
-            std::fs::set_permissions(path.as_path(), std::fs::Permissions::from_mode(0o444))
-                .map_err(|e| Error::io(path.as_str(), e))?;
-        }
-    }
-    Ok(())
-}
-
-/// 整棵放开写权限：文件 0644，目录 0755。删除只读目录前用；尽力而为。
-pub(crate) fn make_tree_writable(dir: &AbsPath) {
-    use std::os::unix::fs::PermissionsExt;
-    let Ok(meta) = std::fs::metadata(dir.as_path()) else {
-        return;
-    };
-    let mode = if meta.is_dir() { 0o755 } else { 0o644 };
-    let _ = std::fs::set_permissions(dir.as_path(), std::fs::Permissions::from_mode(mode));
-    if meta.is_dir() {
-        if let Ok(entries) = std::fs::read_dir(dir.as_path()) {
-            for entry in entries.flatten() {
-                let name = entry.file_name().to_string_lossy().into_owned();
-                make_tree_writable(&dir.join_segment(&name));
-            }
-        }
-    }
+    crate::fsx::set_tree_readonly_confined(dir)
 }

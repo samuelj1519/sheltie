@@ -369,10 +369,13 @@ fn install_modify_path_appends_export_line_to_shell_rc() {
         String::from_utf8_lossy(&out.stderr)
     );
     let rc = std::fs::read_to_string(fake_home.join(".zshrc")).unwrap();
+    // T04 起管理根为真实形式；期望与 bin_dir 同源即可（它随 root 一起规范化）。
     assert!(
         rc.contains(&format!(
             "export PATH=\"{}:$PATH\"",
-            home.bin_dir().as_str()
+            std::fs::canonicalize(home.bin_dir().as_path())
+                .map(|p| p.to_string_lossy().into_owned())
+                .unwrap_or_else(|_| home.bin_dir().as_str().to_string())
         )),
         ".zshrc 里没有 PATH 行：{rc}"
     );
