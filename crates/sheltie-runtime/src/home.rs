@@ -67,9 +67,12 @@ impl Home {
         })
     }
 
-    /// 直接用一个绝对路径当根（测试用）。
+    /// 直接用一个绝对路径当根（测试用）。与 `resolve` 一样把根规范化到真实形式，
+    /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。
     pub fn at(root: AbsPath) -> Self {
-        Self { root }
+        Self {
+            root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),
+        }
     }
 
     pub fn root(&self) -> &AbsPath {
@@ -94,6 +97,37 @@ impl Home {
 
     pub fn tmp_dir(&self) -> AbsPath {
         self.root.join_segment("tmp")
+    }
+
+    /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。
+    pub fn lock_path(&self) -> AbsPath {
+        self.root.join_segment(".lock")
+    }
+
+    /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。
+    pub fn pending_dir(&self) -> AbsPath {
+        self.root.join_segment("pending")
+    }
+
+    /// 把相对管理根的路径拼回绝对路径。效果登记里的路径都是相对形式；
+    /// 拼回后仍受 `ensure_dirs_under` 一类的根内检查约束。
+    pub fn rel(&self, rel: &str) -> AbsPath {
+        AbsPath::new(format!(
+            "{}/{}",
+            self.root.as_str().trim_end_matches('/'),
+            rel
+        ))
+        .unwrap_or_else(|_| self.root.clone())
+    }
+
+    /// 绝对路径相对管理根的形式；不在根内时报错。
+    pub fn to_rel(&self, path: &AbsPath) -> Result<String> {
+        path.as_path()
+            .strip_prefix(self.root.as_path())
+            .map(|p| p.to_string())
+            .map_err(|_| Error::InvalidRequest {
+                reason: format!("{path} 不在管理根 {} 之内", self.root),
+            })
     }
 
     pub fn bin_dir(&self) -> AbsPath {
@@ -142,5 +176,31 @@ impl Home {
             }));
         }
         Ok(joined)
+    }
+}
+
+/// 管理根写锁的守卫（存储合同 §2.2，D-035 的 `fs4`）。取得锁前只创建管理根与
+/// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。
+pub struct HomeLock {
+    _file: std::fs::File,
+}
+
+impl Home {
+    /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时先建根与 `.lock`。
+    pub fn acquire_lock(&self) -> Result<HomeLock> {
+        crate::fsx::ensure_dirs_under(&self.root, &self.root)?;
+        let lock_path = self.lock_path();
+        // 锁文件内容无关紧要（存在即锁对象），不得截断已存在的文件。
+        #[allow(clippy::suspicious_open_options)]
+        let file = std::fs::OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .open(lock_path.as_path())
+            .map_err(|e| Error::io(lock_path.as_str(), e))?;
+        fs4::fs_std::FileExt::lock_exclusive(&file)
+            .map_err(|e| Error::io(lock_path.as_str(), e))?;
+        crate::fsx::fsync_dir(&self.root);
+        Ok(HomeLock { _file: file })
     }
 }

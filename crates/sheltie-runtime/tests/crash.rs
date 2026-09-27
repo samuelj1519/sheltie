@@ -81,7 +81,10 @@ fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
     );
     assert_eq!(
         out.status.code(),
-        Some(sheltie_runtime::failpoint::EXIT_CODE)
+        Some(sheltie_runtime::failpoint::EXIT_CODE),
+        "子进程输出：{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
     );
     let (_, json) = svc.status(&wid).unwrap();
     assert!(json.last_attempt.is_none(), "提交前被杀，状态不变");
@@ -115,10 +118,13 @@ fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and
     );
     assert_eq!(
         out.status.code(),
-        Some(sheltie_runtime::failpoint::EXIT_CODE)
+        Some(sheltie_runtime::failpoint::EXIT_CODE),
+        "子进程输出：{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
     );
     let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
-        .join("attempts/outline/1/0/brief.md");
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
     assert!(!brief.exists(), "效果前被杀，任务书还没写");
     let (_, json) = svc.status(&wid).unwrap();
     assert_eq!(json.last_attempt.as_ref().unwrap().attempt, "outline#1.0");
@@ -162,7 +168,10 @@ fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
         .unwrap();
     assert_eq!(
         out.status.code(),
-        Some(sheltie_runtime::failpoint::EXIT_CODE)
+        Some(sheltie_runtime::failpoint::EXIT_CODE),
+        "子进程输出：{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
     );
     assert!(bin.join("sheltie.prev").exists());
     assert!(!bin.join("sheltie").exists());

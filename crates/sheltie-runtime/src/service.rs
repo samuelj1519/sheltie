@@ -1,45 +1,50 @@
-//! Work 服务：每个写操作走「加载 → 观察 → 决定 → 提交 → 效果」（架构 §4）。
+//! Work 服务：每个写操作走「无锁预检 → 管理根写锁 → 恢复 → 决定 → 一个事务 →
+//! 发布效果」（架构 §4、存储合同 §2）。响应字段全部来自提交时快照（cli-result/v2）。
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 use sheltie_core::digest::Sha256Hex;
-use sheltie_core::flow::{FlowDef, Graph};
+use sheltie_core::flow::Graph;
 use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
 use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
     Command, Context, Decision, Effect, NextOp, ObservedFile, Reply, StatsJson, StatusCardJson,
-    WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_brief, render_stats,
-    render_stats_json, render_status_card, status_card_json,
+    WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_stats, render_stats_json,
+    render_status_card, status_card_json,
 };
 use sheltie_core::workbook::parse_manifest;
 
+use crate::effects::{EffectOp, RefJson, decode_effects, encode_effects, execute};
 use crate::error::{Error, Result};
 use crate::home::Home;
 use crate::observe::{build_resource_index, now, observe_optional, principal};
+use crate::request::{InputValue, RequestIntent};
 use crate::store::{CommitInput, CommitOutcome, Store};
-use crate::workbook_repo::set_tree_readonly;
-use crate::workbook_repo::{LoadedWorkbook, WorkbookRepo};
+use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
 
-/// `work start` 的参数。
+/// `work start` 的参数。输入值此时还只是字面量或 `@file` 路径；内容在无锁预检的
+/// 重放查重**之后**才读取（存储合同 §2.1）。
 #[derive(Debug, Clone)]
 pub struct StartArgs {
     pub workbook_id: String,
     pub version: Option<String>,
     pub flow: String,
     pub name: Option<String>,
-    /// 起始输入的键与值（`@file` 已由 CLI 读成内容）。
-    pub inputs: BTreeMap<String, String>,
+    pub inputs: BTreeMap<String, InputValue>,
 }
 
-/// 写操作的统一响应，对应协议 §5 的响应封装。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// 提交时的完整响应快照（GF-15）。`data` 是协议的数据载荷；重放逐字段返回原值。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Response {
     pub request_id: String,
     pub revision: u64,
+    #[serde(default)]
     pub replayed: bool,
     pub reply: Reply,
+    #[serde(default)]
+    pub data: serde_json::Value,
     pub next: Vec<NextOp>,
 }
 
@@ -67,85 +72,135 @@ struct Loaded {
     graph: Graph,
 }
 
+/// pending 侧车与暂存目录的创建（存储合同 §3.3）：先独占创建并 fsync 侧车，
+/// 再 fsync `pending/` 使目录项持久，最后独占创建 payload。
+pub(crate) fn stage_pending(
+    home: &Home,
+    internal_id: &str,
+    request_id: &str,
+    op: &str,
+) -> Result<AbsPath> {
+    let pending_root = home.pending_dir();
+    crate::fsx::ensure_dirs_under(home.root(), &pending_root)?;
+    let sidecar = pending_root.join_segment(&format!("{internal_id}.owner"));
+    let content = format!(
+        "{{\"format\":\"pending/v1\",\"internal_id\":\"{internal_id}\",\"request_id\":\"{request_id}\",\"op\":\"{op}\"}}\n"
+    );
+    crate::fsx::write_new_file(&sidecar, content.as_bytes())?;
+    crate::fsx::fsync_dir(&pending_root);
+    let payload = pending_root
+        .join_segment(internal_id)
+        .join_segment("payload");
+    crate::fsx::ensure_dirs_under(home.root(), &payload)?;
+    Ok(payload)
+}
+
 impl WorkService {
     pub fn new(home: Home, store: Store) -> Self {
         Self { home, store }
     }
 
-    /// `work start`。先做无副作用预检（GF-30）：名字规范化、Workbook/Flow 存在性、
-    /// 起始输入键集合的确定性拒绝都发生在当日序号分配与任何目录物化之前；失败后补齐
-    /// 条件用同一参数重试即成功，不烧号。重放查重在装入 Workbook 之前（协议 work start
-    /// 第 2 步）。预检只读；通过后才以读写库进入写路径——合法 start 要求 Workbook 已装，
-    /// store.db 已由 `workbook add` 建好，这里不会为新请求建库。
+    fn rw(&self) -> Result<Store> {
+        Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)
+    }
+
+    /// `work start`（协议 §3）。无副作用预检（GF-30，T02）之后进入写路径：
+    /// 锁内 staging → 复制核验 → 序号 → decide → 事务 → 发布。
     pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
-        // 名字规范化属于意图构造（协议 work start 第 1 步），先于一切读取；
-        // 规范化值幂等，写路径按同一参数重算。
+        // 意图构造先于一切读取：名字规范化、输入值与选择器原样进意图。
         WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
-        // 载荷指纹：同一请求重放必须逐字节相同（BTreeMap 保证键序稳定）。
-        let payload = serde_json::json!({
-            "workbook": args.workbook_id,
-            "version": args.version,
-            "flow": args.flow,
-            "name": args.name,
-            "inputs": args.inputs,
-        });
-        let payload_hash = hash_json(&payload)?;
-        // 重放预检在装入 Workbook 与分配序号之前（存储合同 §7.1），重放不烧号。
-        if let Some((hash, reply_json)) = self.store.lookup_request(&request_id)? {
-            if hash != payload_hash {
+        let intent = RequestIntent::StartWork {
+            workbook: args.workbook_id.clone(),
+            version: args.version.clone(),
+            flow: args.flow.clone(),
+            name: args.name.clone(),
+            inputs: args.inputs.clone(),
+        };
+
+        // ── 无锁预检：只读识别已有 Store，查可重放请求 ──
+        let mut inputs: Option<BTreeMap<String, String>> = None;
+        let mut replay_hit = false;
+        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
+            if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
+                if hash != intent.hash().as_str() {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.clone(),
+                    });
+                }
+                // 命中：不读取当前 Workbook / @file（O04），效果核对在写锁内做。
+                replay_hit = true;
+            }
+        }
+
+        if !replay_hit {
+            // 预检继续：装入 Workbook（含登记摘要核对）与 Flow，校验起始输入键。
+            let ro_store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly)
+                .map(|s| WorkService::new(self.home.clone(), s))
+                .map_err(|_| Error::NotFound {
+                    what: format!("Workbook {}", args.workbook_id),
+                })?;
+            let wb = ro_store
+                .repo()
+                .load(&args.workbook_id, args.version.as_deref())?;
+            let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
+                what: format!("Flow {}", args.flow),
+            })?;
+            // @file 内容在重放查重之后读取（协议 work start 第 3 步），写路径复用
+            // 同一份观察，不读第二次。
+            let values = materialize_inputs(&args.inputs)?;
+            sheltie_core::work::validate_start_inputs(&flow.1, values.keys())?;
+            inputs = Some(values);
+        }
+
+        // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
+        let _lock = self.home.acquire_lock()?;
+        let store = self.rw()?;
+        let svc = Self::new(self.home.clone(), store);
+        svc.recover()?;
+        // 锁内重核请求表（预检后可能有并发写者）。
+        if let Some(row) = svc.store.inspect_request(&request_id)? {
+            if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
             }
-            return self.replay(None, request_id, reply_json);
+            return self.replay(request_id, row.reply_json);
         }
-        let wb = self
+        let wb = svc
             .repo()
             .load(&args.workbook_id, args.version.as_deref())?;
         let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
             what: format!("Flow {}", args.flow),
         })?;
-        // 起始输入键与 `workbook show` 同源（GF-30）；缺/多都在烧号之前拒绝。
-        sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
+        // 锁内重核输入键（受并发影响的前置事实）。
+        let inputs = match inputs {
+            Some(values) => values,
+            None => materialize_inputs(&args.inputs)?,
+        };
+        sheltie_core::work::validate_start_inputs(&flow.1, inputs.keys())?;
+
         let ctx = Context {
             now: now(),
             principal: principal(),
         };
-        // 写路径：预检全部通过才以读写重新打开（调用方给 start 的句柄是只读的）。
-        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
-        WorkService::new(self.home.clone(), store).start_write(
-            args,
-            &wb,
-            flow,
-            ctx,
-            request_id,
-            payload_hash,
-        )
-    }
+        // works/ 的祖先软链在序号分配与任何物化之前核对（O01）：软链把根重定义到
+        // 根外时，这里拒绝而不是等到发布效果。
+        crate::fsx::ensure_dirs_under(self.home.root(), &self.home.works_dir())?;
+        let internal_id = uuid::Uuid::now_v7().simple().to_string();
+        let payload = stage_pending(&self.home, &internal_id, &request_id, "start_work")?;
 
-    /// 预检通过后的写路径：分配序号、物化冻结副本与起始输入、提交。
-    fn start_write(
-        &self,
-        args: StartArgs,
-        wb: &LoadedWorkbook,
-        flow: &(FlowDef, Graph),
-        ctx: Context,
-        request_id: String,
-        payload_hash: String,
-    ) -> Result<Response> {
-        let name = WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
         let day = ctx.now.day().to_string();
-        let seq = self.store.allocate_seq(&day)?;
+        let seq = svc.store.allocate_seq(&day)?;
+        let name = WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
         let work_id = WorkId::new(&day, seq, &name)?;
         let work_dir = self.home.work_dir(&work_id);
-        // 冻结副本：本 Work 之后只读它（存储合同 §5.4）。逐段核对祖先软链后建目录。
-        crate::fsx::ensure_dirs_under(self.home.root(), &work_dir)?;
-        let frozen = work_dir.join_segment("workbook");
+
+        // payload/workbook：本 Work 的冻结定义。复制后对最终副本重新 parse/compile
+        // 并核对身份与摘要（GF-17；存储合同 §5.4）。
+        let frozen = payload.join_segment("workbook");
         WorkbookRepo::copy_confined(&wb.dir, &frozen)?;
-        // 复制后对**最终副本**重新 parse/compile 并核对身份与摘要（GF-17）：复制间源
-        // 目录变化或副本身份与登记不符都报 STORE_CORRUPT，不把不可信字节当冻结定义。
-        let copied = self.repo().load_dir(&frozen)?;
+        let copied = svc.repo().load_dir(&frozen)?;
         if copied.manifest.id() != wb.manifest.id()
             || copied.manifest.version() != wb.manifest.version()
         {
@@ -161,37 +216,34 @@ impl WorkService {
         }
         if copied.digest != wb.digest {
             return Err(Error::StoreCorrupt {
-                detail: format!(
-                    "冻结副本摘要 {} 与登记 {} 不符（复制期间源目录变化）",
-                    copied.digest.as_str(),
-                    wb.digest.as_str(),
-                ),
+                detail: "冻结副本摘要与登记不符（复制期间源目录变化）".to_string(),
             });
         }
-        // 提交给 core 的图来自这份最终副本的字节。
         let frozen_flow = copied
             .flow(flow.0.id().as_str())
             .ok_or_else(|| Error::NotFound {
                 what: format!("Flow {}", args.flow),
             })?;
         set_tree_readonly(&frozen)?;
-        // 起始输入物化成文件并记 ArtifactRef；独占创建，不覆盖已有路径。
-        let inputs_dir = work_dir.join_segment("inputs");
+
+        // payload/start-inputs/<key>：物化在 pending，**记录最终路径**（发布后生效）。
+        let inputs_dir = payload.join_segment("start-inputs");
         crate::fsx::ensure_dirs_under(self.home.root(), &inputs_dir)?;
-        let mut inputs = BTreeMap::new();
-        for (key, value) in &args.inputs {
-            // 键来自外部输入，先经 confine 限制在 inputs/ 之下。
-            let path = Home::confine(&inputs_dir, key)?;
-            crate::fsx::write_new_file(&path, value.as_bytes())?;
-            inputs.insert(
+        let mut input_refs = BTreeMap::new();
+        for (key, value) in &inputs {
+            let staged = Home::confine(&inputs_dir, key)?;
+            crate::fsx::write_new_file(&staged, value.as_bytes())?;
+            let final_path = sheltie_core::work::start_input_path(&work_dir, key);
+            input_refs.insert(
                 key.clone(),
                 sheltie_core::work::ArtifactRef {
                     sha256: Sha256Hex::of_bytes(value.as_bytes()),
                     bytes: value.len() as u64,
-                    path,
+                    path: final_path,
                 },
             );
         }
+
         let cmd = Command::Start {
             work_id: work_id.clone(),
             name,
@@ -202,9 +254,34 @@ impl WorkService {
             },
             flow: flow.0.id().clone(),
             work_dir,
-            inputs,
+            inputs: input_refs,
         };
-        self.commit_one(None, &frozen_flow.1, &cmd, &ctx, request_id, payload_hash)
+        let decision = decide(None, &frozen_flow.1, &cmd, &ctx)?;
+        let effects = vec![
+            EffectOp::PublishDir {
+                pending: self.home.to_rel(&payload)?,
+                final_path: format!("works/{work_id}"),
+                owner: format!("work:{work_id}"),
+                digest: copied.digest.as_str().to_string(),
+                digest_root: "workbook".to_string(),
+            },
+            EffectOp::RefreshStatusCard {
+                work_id: work_id.as_str().to_string(),
+            },
+        ];
+        let resp = svc.commit(
+            decision,
+            &frozen_flow.1,
+            &request_id,
+            intent.hash().as_str().to_string(),
+            None,
+            effects,
+            &ctx,
+            &cmd,
+        )?;
+        // COMMIT 后发布；随后清理本操作的空容器与侧车。
+        svc.finish_request(&request_id)?;
+        Ok(resp)
     }
 
     pub fn begin(
@@ -213,75 +290,79 @@ impl WorkService {
         node: &NodeId,
         request_id: Option<String>,
     ) -> Result<Response> {
-        self.run_command(
-            work,
-            &|loaded| {
-                let paths =
-                    sheltie_core::work::input_paths_for(&loaded.state, &loaded.graph, node)?;
-                let mut observed = BTreeMap::new();
-                for (name, path) in paths {
-                    // 缺文件记 None，由 core 按合同的 required 决定拒绝还是留空。
-                    let obs = match path {
-                        Some(p) => observe_optional(&p)?,
-                        None => None,
-                    };
-                    observed.insert(name, obs);
-                }
-                Ok(Command::BeginAttempt {
-                    node: node.clone(),
-                    observed_inputs: observed,
-                    instruction_text: instruction_text_of(&loaded.state, &loaded.graph, node)?,
-                })
-            },
-            request_id,
-        )
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::BeginAttempt {
+            work: work.clone(),
+            node: node.clone(),
+        };
+        self.run_command(work, &intent, request_id, &|loaded| {
+            let paths = sheltie_core::work::input_paths_for(&loaded.state, &loaded.graph, node)?;
+            let mut observed = BTreeMap::new();
+            for (name, path) in paths {
+                let obs = match path {
+                    Some(p) => observe_optional(&p)?,
+                    None => None,
+                };
+                observed.insert(name, obs);
+            }
+            Ok(Command::BeginAttempt {
+                node: node.clone(),
+                observed_inputs: observed,
+                instruction_text: instruction_text_of(&loaded.state, &loaded.graph, node)?,
+            })
+        })
     }
 
     pub fn submit(
         &self,
         work: &WorkId,
         attempt: &AttemptId,
-        summary: &str,
+        summary: &InputValue,
         request_id: Option<String>,
     ) -> Result<Response> {
-        self.run_command(
-            work,
-            &|loaded| {
-                let paths =
-                    sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
-                let mut observed = BTreeMap::new();
-                for (name, path) in paths {
-                    // 缺文件记 None（OUTPUT_MISSING 由 core 报）；软链等观察错误直接拒绝。
-                    let obs = observe_output(&name, &path)?;
-                    observed.insert(name, obs);
-                }
-                Ok(Command::SubmitAttempt {
-                    attempt: attempt.clone(),
-                    summary: summary.to_string(),
-                    observed_outputs: observed,
-                })
-            },
-            request_id,
-        )
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::SubmitAttempt {
+            work: work.clone(),
+            attempt: attempt.clone(),
+            summary: summary.clone(),
+        };
+        let summary_text = materialize_summary(summary)?;
+        self.run_command(work, &intent, request_id, &|loaded| {
+            let paths =
+                sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
+            let mut observed = BTreeMap::new();
+            for (name, path) in paths {
+                let obs = observe_output(&name, &path)?;
+                observed.insert(name, obs);
+            }
+            Ok(Command::SubmitAttempt {
+                attempt: attempt.clone(),
+                summary: summary_text.clone(),
+                observed_outputs: observed,
+            })
+        })
     }
 
     pub fn fail(
         &self,
         work: &WorkId,
         attempt: &AttemptId,
-        reason: &str,
+        reason: &InputValue,
         request_id: Option<String>,
     ) -> Result<Response> {
-        self.run_command(
-            work,
-            &|_| {
-                Ok(Command::FailAttempt {
-                    attempt: attempt.clone(),
-                    reason: reason.to_string(),
-                })
-            },
-            request_id,
-        )
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::FailAttempt {
+            work: work.clone(),
+            attempt: attempt.clone(),
+            reason: reason.clone(),
+        };
+        let reason_text = materialize_summary(reason)?;
+        self.run_command(work, &intent, request_id, &|_| {
+            Ok(Command::FailAttempt {
+                attempt: attempt.clone(),
+                reason: reason_text.clone(),
+            })
+        })
     }
 
     pub fn approve(
@@ -290,15 +371,20 @@ impl WorkService {
         node: &NodeId,
         request_id: Option<String>,
     ) -> Result<Response> {
-        self.run_command(
-            work,
-            &|_| Ok(Command::ApproveGate { node: node.clone() }),
-            request_id,
-        )
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::ApproveGate {
+            work: work.clone(),
+            node: node.clone(),
+        };
+        self.run_command(work, &intent, request_id, &|_| {
+            Ok(Command::ApproveGate { node: node.clone() })
+        })
     }
 
     pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
-        self.run_command(work, &|_| Ok(Command::Cancel), request_id)
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::CancelWork { work: work.clone() };
+        self.run_command(work, &intent, request_id, &|_| Ok(Command::Cancel))
     }
 
     /// 只读：状态卡文本与结构化形式。
@@ -363,18 +449,25 @@ impl WorkService {
         WorkbookRepo::new(self.home.clone(), self.store.clone())
     }
 
-    /// 从冻结副本加载状态与图。副本缺失或摘要不符报 `StoreCorrupt`。
+    /// 从冻结副本加载状态与图。副本缺失或摘要不符报 `StoreCorrupt`；未发布的 Work
+    /// 从受 Store 保护的 pending 原件读取（存储合同 §3.3）。
     fn load(&self, work: &WorkId) -> Result<Loaded> {
         let row = self.store.load_work(work)?;
         let frozen = row.state.workbook_dir();
+        let frozen = if frozen.as_path().exists() {
+            frozen
+        } else {
+            self.pending_workbook(work)?.unwrap_or(frozen)
+        };
         if !frozen.as_path().exists() {
             return Err(Error::StoreCorrupt {
                 detail: format!("Work {work} 的冻结副本 {} 缺失", frozen),
             });
         }
-        let digest = WorkbookRepo::digest_dir(&frozen).map_err(|e| Error::StoreCorrupt {
-            detail: format!("冻结副本 {} 读不了：{e}", frozen),
-        })?;
+        let digest =
+            crate::workbook_digest::digest_dir_v2(&frozen).map_err(|e| Error::StoreCorrupt {
+                detail: format!("冻结副本 {} 读不了：{e}", frozen),
+            })?;
         if digest != row.state.workbook.digest {
             return Err(Error::StoreCorrupt {
                 detail: format!("冻结副本 {} 的摘要 {} 与记录不符", frozen, digest.as_str()),
@@ -388,12 +481,37 @@ impl WorkService {
         })
     }
 
+    /// 未发布 Work 的冻结副本位置：本 Work 的 `publish_dir` 效果指向的 pending 原件。
+    fn pending_workbook(&self, work: &WorkId) -> Result<Option<AbsPath>> {
+        for (_, effects_json) in self.store.unpublished_requests()? {
+            for op in decode_effects(&effects_json)? {
+                if let EffectOp::PublishDir {
+                    pending,
+                    owner,
+                    digest_root,
+                    ..
+                } = op
+                {
+                    if owner == format!("work:{work}") {
+                        let base = self.home.rel(&pending).join_segment(&digest_root);
+                        if base.as_path().exists() {
+                            return Ok(Some(base));
+                        }
+                    }
+                }
+            }
+        }
+        Ok(None)
+    }
+
     /// 从冻结副本解析 manifest 与 Flow，取出本 Work 的图。
     fn compile_frozen(&self, frozen: &AbsPath, state: &WorkState) -> Result<Graph> {
-        let manifest_text = std::fs::read_to_string(frozen.join_segment("workbook.toml").as_path())
-            .map_err(|e| Error::StoreCorrupt {
-                detail: format!("冻结副本的 workbook.toml 读不了：{e}"),
-            })?;
+        let manifest_text =
+            crate::fsx::SafeFile::open_regular(&frozen.join_segment("workbook.toml"))?
+                .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+        let manifest_text = String::from_utf8(manifest_text).map_err(|_| Error::StoreCorrupt {
+            detail: "冻结副本的 workbook.toml 不是 UTF-8".to_string(),
+        })?;
         let manifest = parse_manifest(&manifest_text).map_err(|e| Error::StoreCorrupt {
             detail: format!("冻结副本的 workbook.toml 解不开：{e}"),
         })?;
@@ -401,10 +519,10 @@ impl WorkService {
             detail: format!("冻结副本读不了：{e}"),
         })?;
         for path in manifest.flows() {
-            let text = std::fs::read_to_string(frozen.join(path).as_path()).map_err(|e| {
-                Error::StoreCorrupt {
-                    detail: format!("冻结副本的 {path} 读不了：{e}"),
-                }
+            let text = crate::fsx::SafeFile::open_regular(&frozen.join(path))?
+                .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+            let text = String::from_utf8(text).map_err(|_| Error::StoreCorrupt {
+                detail: format!("冻结副本的 {path} 不是 UTF-8"),
             })?;
             let def = sheltie_core::flow::parse_flow(&text).map_err(|e| Error::StoreCorrupt {
                 detail: format!("冻结副本的 {path} 解不开：{e}"),
@@ -422,36 +540,43 @@ impl WorkService {
         })
     }
 
-    /// 所有写操作的公共流程：
-    ///
-    /// 1. `load`。
-    /// 2. 观察：`BeginAttempt` 用 `input_paths_for` 观察输入并读说明书；`SubmitAttempt` 用 `output_paths_for` 观察输出。
-    /// 3. `sheltie_core::work::decide`。
-    /// 4. `store.commit`（`REVISION_CONFLICT` 时从第 1 步重来，最多 3 次）。
-    /// 5. 效果：写任务书与引擎生成的输入文件（临时文件再 rename）、置只读、重写状态卡。全部幂等。
-    ///
-    /// 重放（`Replayed`）时不做第 3 步以后，但仍补做效果，保证崩溃后任务书与状态卡齐全。
+    /// Work 写操作的公共流程：无锁预检查重 → 锁 → 恢复 → 锁内重核 → load → 观察 →
+    /// decide → 事务 → 发布。重放命中先于 load/observe（协议 §2）。
     fn run_command(
         &self,
         work: &WorkId,
+        intent: &RequestIntent,
+        request_id: String,
         build: &dyn Fn(&Loaded) -> Result<Command>,
-        request_id: Option<String>,
     ) -> Result<Response> {
-        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
-        // 重放预检：decide 在状态已推进后会拒绝同一命令，必须先于 decide 查 requests。
+        // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
+        // 前缀；效果未完成的请求不在这里恢复，交给写路径。
         {
-            let loaded = self.load(work)?;
-            let cmd = build(&loaded)?;
-            let payload_hash = hash_command(&cmd)?;
-            if let Some((hash, reply_json)) = self.store.lookup_request(&request_id)? {
-                if hash != payload_hash {
+            let ro = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly)?;
+            if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
+                if hash != intent.hash().as_str() {
                     return Err(Error::RequestConflict {
                         request_id: request_id.clone(),
                     });
                 }
-                return self.replay(Some(work), request_id, reply_json);
+                // 效果核对（含 write_file 的缺失补齐）在写锁内做，不在这里早退。
             }
         }
+
+        // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
+        let _lock = self.home.acquire_lock()?;
+        let store = self.rw()?;
+        let svc = Self::new(self.home.clone(), store);
+        svc.recover()?;
+        if let Some(row) = svc.store.inspect_request(&request_id)? {
+            if row.intent_hash != intent.hash().as_str() {
+                return Err(Error::RequestConflict {
+                    request_id: request_id.clone(),
+                });
+            }
+            return svc.replay(request_id, row.reply_json);
+        }
+
         let ctx = Context {
             now: now(),
             principal: principal(),
@@ -461,17 +586,24 @@ impl WorkService {
             actual: 0,
         };
         for _ in 0..3 {
-            let loaded = self.load(work)?;
+            let loaded = svc.load(work)?;
             let cmd = build(&loaded)?;
-            match self.commit_one(
-                Some((&loaded.state, loaded.revision)),
+            let decision = decide(Some(&loaded.state), &loaded.graph, &cmd, &ctx)?;
+            let effects = core_effects_to_ops(&svc.home, &decision, &cmd)?;
+            match svc.commit(
+                decision,
                 &loaded.graph,
-                &cmd,
+                &request_id,
+                intent.hash().as_str().to_string(),
+                Some(loaded.revision),
+                effects,
                 &ctx,
-                request_id.clone(),
-                hash_command(&cmd)?,
+                &cmd,
             ) {
-                Ok(resp) => return Ok(resp),
+                Ok(resp) => {
+                    svc.finish_request(&request_id)?;
+                    return Ok(resp);
+                }
                 Err(Error::RevisionConflict { expected, actual }) => {
                     last_conflict = Error::RevisionConflict { expected, actual };
                     continue;
@@ -482,184 +614,374 @@ impl WorkService {
         Err(last_conflict)
     }
 
-    /// `decide` + `commit` + 效果。`pre` 是「提交前的状态与 revision」；`None` 只出现在
-    /// `start`（新 Work，插入 revision 1 的行）。
-    fn commit_one(
-        &self,
-        pre: Option<(&WorkState, u64)>,
-        graph: &Graph,
-        cmd: &Command,
-        ctx: &Context,
-        request_id: String,
-        payload_hash: String,
-    ) -> Result<Response> {
-        let decision: Decision = decide(pre.map(|(s, _)| s), graph, cmd, ctx)?;
-        let next = legal_next(&decision.state, graph);
-        let reply_json = serde_json::to_string(&Response {
-            request_id: request_id.clone(),
-            revision: pre.map_or(1, |(_, r)| r + 1),
-            replayed: false,
-            reply: decision.reply.clone(),
-            next: next.clone(),
-        })
-        .map_err(|e| Error::StoreCorrupt {
-            detail: format!("序列化响应失败：{e}"),
-        })?;
-        let input = CommitInput {
-            work_id: Some(decision.state.work_id.clone()),
-            expected_revision: pre.map(|(_, r)| r),
-            state: Some(decision.state.clone()),
-            request_id: request_id.clone(),
-            payload_hash,
-            reply_json,
-            principal: ctx.principal.clone(),
-            command_json: audit_json(cmd)?,
-            at: ctx.now.clone(),
-        };
-        match self.store.commit(input)? {
-            CommitOutcome::Committed { revision } => {
-                // 崩溃窗口：COMMIT 之后、效果之前（存储合同 §3 第二行）。
-                crate::failpoint::maybe_exit("after_commit_before_effects");
-                self.apply_effects(&decision.state, graph, &decision.effects)?;
-                Ok(Response {
-                    request_id,
-                    revision,
-                    replayed: false,
-                    reply: decision.reply,
-                    next,
-                })
-            }
-            CommitOutcome::Replayed { reply_json } => {
-                self.replay(Some(&decision.state.work_id), request_id, reply_json)
-            }
-        }
-    }
-
-    /// 重放：返回原响应（`replayed = true`）并补做效果。崩溃可能发生在 `COMMIT` 之后、
-    /// 效果之前，任务书与状态卡靠这里补齐（存储合同 §3）。`work_hint` 是调用方已知的
-    /// work_id；start 的重放发生在 work_id 分配之前，从 `Reply::Started` 里取。
-    fn replay(
-        &self,
-        work_hint: Option<&WorkId>,
-        request_id: String,
-        reply_json: String,
-    ) -> Result<Response> {
-        let mut resp: Response =
-            serde_json::from_str(&reply_json).map_err(|e| Error::StoreCorrupt {
-                detail: format!("requests 表里的响应解不开：{e}"),
-            })?;
-        resp.request_id = request_id;
-        resp.replayed = true;
-        let work = match work_hint.cloned().or_else(|| match &resp.reply {
-            Reply::Started { work_id, .. } => Some(work_id.clone()),
-            _ => None,
-        }) {
-            Some(w) => w,
-            None => {
-                return Err(Error::StoreCorrupt {
-                    detail: "重放响应里没有 work_id".to_string(),
+    /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
+    /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
+    fn recover(&self) -> Result<()> {
+        for (request_id, effects_json) in self.store.unpublished_requests()? {
+            let ops = decode_effects(&effects_json)?;
+            if let Err(e) = execute(&self.home, &ops, true) {
+                return Err(Error::EffectPending {
+                    committed: false,
+                    request_id: String::new(),
+                    pending_request_id: Some(request_id),
+                    detail: e.to_string(),
+                    original: None,
                 });
             }
-        };
-        // 能走到重放说明原事务已提交，works 行一定在。
-        let loaded = self.load(&work)?;
-        self.replay_effects(&loaded, &resp.reply)?;
-        Ok(resp)
+            self.refresh_cards_of(&ops)?;
+            self.store.mark_published(&request_id)?;
+        }
+        Ok(())
     }
 
-    /// 效果执行。幂等：文件用「独占临时名写 + rename」（`fsx`），封存按记录摘要核对
-    /// 后在同一句柄上置只读，状态卡整份重写。效果失败不回滚状态（存储合同 §3）；
-    /// 错误往上抛给调用者，`committed` 响应形状按协议 §5 由 T07 接入。
-    fn apply_effects(&self, state: &WorkState, graph: &Graph, effects: &[Effect]) -> Result<()> {
-        for effect in effects {
-            match effect {
-                Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {
-                    crate::fsx::write_exclusive_atomic(self.home.root(), path, content.as_bytes())?;
-                }
-                Effect::SealOutputs { paths } => {
-                    for p in paths {
-                        // 封存以记录的 sha256 为准（存储合同 §4）：句柄核对身份与摘要，
-                        // 与提交时记录不符说明对象被换过，拒绝在不属于本次提交的对象上 chmod。
-                        let expected = state
-                            .attempts
-                            .iter()
-                            .find_map(|a| a.outputs.values().find(|r| &r.path == p).cloned());
-                        let Some(expected) = expected else {
-                            return Err(Error::StoreCorrupt {
-                                detail: format!("封存目标 {p} 不在任何已记录输出里"),
-                            });
-                        };
-                        let f = crate::fsx::SafeFile::open_regular(p)?;
-                        let (sha256, _) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
-                        if sha256 != expected.sha256 {
-                            return Err(Error::StoreCorrupt {
-                                detail: format!(
-                                    "封存目标 {p} 的摘要与提交时记录不符（观察后被替换）"
-                                ),
-                            });
-                        }
-                        f.set_readonly()?;
-                    }
-                }
-                Effect::RefreshStatusCard => {
-                    let card = render_status_card(state, graph);
-                    crate::fsx::write_exclusive_atomic(
-                        self.home.root(),
-                        &state.status_card_path(),
-                        card.as_bytes(),
-                    )?;
-                }
+    /// 效果涉及的状态卡从**最新**状态重生成（不回退历史版本，§6）。
+    fn refresh_cards_of(&self, ops: &[EffectOp]) -> Result<()> {
+        for op in ops {
+            if let EffectOp::RefreshStatusCard { work_id } = op {
+                let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
+                    detail: format!("效果里的 work_id {work_id} 不合法：{e}"),
+                })?;
+                let loaded = self.load(&id)?;
+                let card = render_status_card(&loaded.state, &loaded.graph);
+                crate::fsx::write_exclusive_atomic(
+                    self.home.root(),
+                    &loaded.state.status_card_path(),
+                    card.as_bytes(),
+                )?;
             }
         }
         Ok(())
     }
 
-    /// 重放时的效果补齐：状态已在库里，按回复重建任务书与状态卡。
-    fn replay_effects(&self, loaded: &Loaded, reply: &Reply) -> Result<()> {
-        if let Reply::AttemptBegun { attempt, .. } = reply {
-            let Some(at) = loaded.state.attempt(attempt) else {
-                return Ok(());
-            };
-            let brief = render_brief(
-                &loaded.state,
-                &loaded.graph,
-                at,
-                &instruction_text_of(&loaded.state, &loaded.graph, &attempt.node)?,
-            );
-            crate::fsx::write_exclusive_atomic(
-                self.home.root(),
-                &loaded.state.attempt_dir(attempt).join_segment("brief.md"),
-                brief.as_bytes(),
-            )?;
-            // engine.stats 的 stats.json：只在文件缺失时重算。口径含本次 Attempt（D-29），
-            // 库里的状态就是提交时的状态，重算与提交时逐字节一致。
-            let stats_path = loaded.state.attempt_dir(attempt).join_segment("stats.json");
-            if at
-                .inputs
-                .values()
-                .any(|r| r.as_ref().is_some_and(|a| a.path == stats_path))
-                && !stats_path.as_path().exists()
-            {
-                let content = serde_json::to_string(&sheltie_core::work::render_stats_json(
-                    &loaded.state,
-                    &loaded.graph,
-                ))
-                .map_err(|e| Error::StoreCorrupt {
-                    detail: format!("engine.stats 序列化失败：{e}"),
-                })?;
-                crate::fsx::write_exclusive_atomic(
-                    self.home.root(),
-                    &stats_path,
-                    content.as_bytes(),
-                )?;
+    /// COMMIT 与效果发布之间被杀的请求由 `recover` 兜底；正常路径在这里发布并标记。
+    fn finish_request(&self, request_id: &str) -> Result<()> {
+        if let Some(row) = self.store.inspect_request(request_id)? {
+            let ops = decode_effects(&row.effects_json)?;
+            if !row.published {
+                if let Err(e) = execute(&self.home, &ops, true) {
+                    return Err(Error::EffectPending {
+                        committed: true,
+                        request_id: request_id.to_string(),
+                        pending_request_id: None,
+                        detail: e.to_string(),
+                        original: None,
+                    });
+                }
+                self.refresh_cards_of(&ops)?;
+                self.store.mark_published(request_id)?;
+            } else {
+                // 已完成的请求显式重放：只核对历史文件（write_file），不重做发布。
+                execute(&self.home, &ops, false)?;
             }
         }
-        let card = render_status_card(&loaded.state, &loaded.graph);
-        crate::fsx::write_exclusive_atomic(
-            self.home.root(),
-            &loaded.state.status_card_path(),
-            card.as_bytes(),
-        )
+        Ok(())
+    }
+
+    /// `decide` + 单事务提交 + 快照。`data` 在提交前组装，重放原样返回（GF-15）。
+    #[allow(clippy::too_many_arguments)]
+    fn commit(
+        &self,
+        decision: Decision,
+        graph: &Graph,
+        request_id: &str,
+        intent_hash: String,
+        expected_revision: Option<u64>,
+        effects: Vec<EffectOp>,
+        ctx: &Context,
+        cmd: &Command,
+    ) -> Result<Response> {
+        let revision = expected_revision.map_or(1, |r| r + 1);
+        let next = legal_next(&decision.state, graph);
+        let data = snapshot_data(&decision, &next);
+        let snapshot = Response {
+            request_id: request_id.to_string(),
+            revision,
+            replayed: false,
+            reply: decision.reply.clone(),
+            data: data.clone(),
+            next: next.clone(),
+        };
+        let reply_json = serde_json::to_string(&snapshot).map_err(|e| Error::StoreCorrupt {
+            detail: format!("序列化响应失败：{e}"),
+        })?;
+        let input = CommitInput {
+            work_id: Some(decision.state.work_id.clone()),
+            workbook_insert: None,
+            workbook_delete: None,
+            expected_revision,
+            state: Some(decision.state.clone()),
+            request_id: request_id.to_string(),
+            intent_hash,
+            reply_json,
+            effects_json: encode_effects(&effects),
+            principal: ctx.principal.clone(),
+            command_json: audit_json(cmd)?,
+            at: ctx.now.clone(),
+        };
+        match self.store.commit(input)? {
+            CommitOutcome::Committed { revision: rev } => {
+                // 崩溃窗口：COMMIT 之后、效果发布之前（存储合同 §3 第四行）。
+                crate::failpoint::maybe_exit("after_commit_before_effects");
+                Ok(Response {
+                    request_id: request_id.to_string(),
+                    revision: rev,
+                    replayed: false,
+                    reply: decision.reply,
+                    data,
+                    next,
+                })
+            }
+            CommitOutcome::Replayed { reply_json, .. } => {
+                self.replay(request_id.to_string(), reply_json)
+            }
+        }
+    }
+
+    /// 重放：返回原快照（`replayed = true`），先完成未发布效果；历史 `next` 是历史
+    /// 事实，续接一律查当前状态。
+    fn replay(&self, request_id: String, reply_json: String) -> Result<Response> {
+        let mut resp: Response =
+            serde_json::from_str(&reply_json).map_err(|e| Error::StoreCorrupt {
+                detail: format!("requests 表里的响应解不开：{e}"),
+            })?;
+        resp.request_id = request_id.clone();
+        resp.replayed = true;
+        // 完成未发布效果（若有）；已完成的只核对历史文件。
+        if let Some(row) = self.store.inspect_request(&request_id)? {
+            let ops = decode_effects(&row.effects_json)?;
+            if !row.published {
+                if let Err(e) = execute(&self.home, &ops, true) {
+                    return Err(Error::EffectPending {
+                        committed: true,
+                        request_id,
+                        pending_request_id: None,
+                        detail: e.to_string(),
+                        original: Some(reply_json),
+                    });
+                }
+                self.refresh_cards_of(&ops)?;
+                self.store.mark_published(&request_id)?;
+            } else {
+                execute(&self.home, &ops, false)?;
+            }
+        }
+        Ok(resp)
+    }
+}
+
+/// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。
+fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {
+    let mut out = BTreeMap::new();
+    for (key, value) in inputs {
+        out.insert(key.clone(), materialize_summary(value)?);
+    }
+    Ok(out)
+}
+
+fn materialize_summary(value: &InputValue) -> Result<String> {
+    match value {
+        InputValue::Literal { text } => Ok(text.clone()),
+        InputValue::AtFile { path } => {
+            let f = crate::fsx::SafeFile::open_regular(
+                &AbsPath::new(path.clone()).map_err(Error::Core)?,
+            )?;
+            let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+            String::from_utf8(bytes).map_err(|_| Error::InvalidRequest {
+                reason: format!("读不了 {path}：不是 UTF-8"),
+            })
+        }
+    }
+}
+
+/// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。
+fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {
+    let state = &decision.state;
+    let mut ops = Vec::new();
+    // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。
+    if let Reply::AttemptBegun {
+        attempt,
+        brief_path,
+        output_dir,
+        outputs,
+        ..
+    } = &decision.reply
+    {
+        let _ = brief_path;
+        let mut dirs: Vec<String> = Vec::new();
+        let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| {
+            let rel = home.to_rel(abs).unwrap_or_default();
+            let mut acc = String::new();
+            for seg in rel.split('/') {
+                if seg.is_empty() {
+                    continue;
+                }
+                acc = if acc.is_empty() {
+                    seg.to_string()
+                } else {
+                    format!("{acc}/{seg}")
+                };
+                dirs.push(acc.clone());
+            }
+        };
+        push_chain(output_dir, &mut dirs);
+        for p in outputs.values() {
+            if let Some(parent) = p.as_path().parent() {
+                push_chain(
+                    &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
+                    &mut dirs,
+                );
+            }
+        }
+        // 引擎生成文件（brief.md、engine/stats.json）的父目录也在骨架里。
+        for effect in &decision.effects {
+            if let Effect::WriteBrief { path, .. } | Effect::WriteFile { path, .. } = effect {
+                if let Some(parent) = path.as_path().parent() {
+                    push_chain(
+                        &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
+                        &mut dirs,
+                    );
+                }
+            }
+        }
+        dirs.sort();
+        dirs.dedup();
+        ops.push(EffectOp::PrepareAttempt {
+            work_id: state.work_id.as_str().to_string(),
+            attempt_id: attempt.to_string(),
+            dirs,
+        });
+    }
+    for effect in &decision.effects {
+        match effect {
+            Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {
+                ops.push(EffectOp::WriteFile {
+                    path: home.to_rel(path)?,
+                    sha256: Sha256Hex::of_bytes(content.as_bytes()).as_str().to_string(),
+                    content: content.clone(),
+                });
+            }
+            Effect::SealOutputs { .. } => {
+                // refs 从提交后的状态取（含精确 ArtifactRef）。
+                let attempt = state.attempts.last().ok_or_else(|| Error::StoreCorrupt {
+                    detail: "封存效果没有对应 Attempt".to_string(),
+                })?;
+                let mut refs = Vec::new();
+                for r in attempt.outputs.values() {
+                    refs.push(RefJson {
+                        path: home.to_rel(&r.path)?,
+                        sha256: r.sha256.as_str().to_string(),
+                        bytes: r.bytes,
+                    });
+                }
+                ops.push(EffectOp::SealOutputs { refs });
+            }
+            Effect::RefreshStatusCard => {
+                ops.push(EffectOp::RefreshStatusCard {
+                    work_id: state.work_id.as_str().to_string(),
+                });
+            }
+        }
+    }
+    Ok(ops)
+}
+
+/// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。
+fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {
+    let state = &decision.state;
+    let _ = next;
+    match &decision.reply {
+        Reply::Started {
+            work_id,
+            work_dir,
+            requires,
+        } => serde_json::json!({
+            "work_id": work_id.as_str(),
+            "name": state.name.as_str(),
+            "workbook": {
+                "id": state.workbook.id.as_str(),
+                "version": state.workbook.version,
+                "digest": state.workbook.digest.as_str(),
+            },
+            "flow": state.flow.as_str(),
+            "work_dir": work_dir.as_str(),
+            "requires": requires,
+        }),
+        Reply::AttemptBegun {
+            attempt,
+            brief_path,
+            output_dir,
+            inputs,
+            outputs,
+            requires,
+        } => {
+            let inputs: serde_json::Map<String, serde_json::Value> = inputs
+                .iter()
+                .map(|(k, v)| {
+                    (
+                        k.clone(),
+                        v.as_ref()
+                            .map_or(serde_json::Value::Null, |p| serde_json::json!(p.as_str())),
+                    )
+                })
+                .collect();
+            let outputs: serde_json::Map<String, serde_json::Value> = outputs
+                .iter()
+                .map(|(k, p)| (k.clone(), serde_json::json!(p.as_str())))
+                .collect();
+            serde_json::json!({
+                "attempt": attempt.to_string(),
+                "node": attempt.node.as_str(),
+                "occurrence": attempt.occurrence,
+                "retry": attempt.retry,
+                "brief_path": brief_path.as_str(),
+                "output_dir": output_dir.as_str(),
+                "inputs": inputs,
+                "outputs": outputs,
+                "requires": requires,
+            })
+        }
+        Reply::AttemptSubmitted { attempt, outputs } => {
+            let outs: serde_json::Map<String, serde_json::Value> = outputs
+                .iter()
+                .map(|(k, r)| {
+                    (
+                        k.clone(),
+                        serde_json::json!({
+                            "path": r.path.as_str(),
+                            "sha256": r.sha256.as_str(),
+                            "bytes": r.bytes,
+                        }),
+                    )
+                })
+                .collect();
+            serde_json::json!({
+                "attempt": attempt.to_string(),
+                "outputs": outs,
+                "work_status": state.status,
+            })
+        }
+        Reply::AttemptFailed { attempt } => serde_json::json!({
+            "attempt": attempt.to_string(),
+            "work_status": state.status,
+        }),
+        Reply::GateApproved { node, occurrence } => {
+            let approval = state
+                .approvals
+                .last()
+                .cloned()
+                .unwrap_or_else(|| unreachable!("批准回复必有批准记录"));
+            serde_json::json!({
+                "node": node.as_str(),
+                "occurrence": occurrence,
+                "by": approval.by.0,
+                "at": approval.at.as_str(),
+                "work_status": state.status,
+            })
+        }
+        Reply::Cancelled => serde_json::json!({
+            "work_id": state.work_id.as_str(),
+            "work_status": state.status,
+        }),
     }
 }
 
@@ -703,26 +1025,6 @@ fn observe_output(name: &str, path: &AbsPath) -> Result<Option<ObservedFile>> {
     Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)))
 }
 
-// ── 自由函数与共用小件 ─────────────────────────────────────────
-
-/// start 的载荷指纹。
-fn hash_json(value: &serde_json::Value) -> Result<String> {
-    serde_json::to_string(value)
-        .map(|s| Sha256Hex::of_bytes(s.as_bytes()).as_str().to_string())
-        .map_err(|e| Error::StoreCorrupt {
-            detail: format!("序列化载荷失败：{e}"),
-        })
-}
-
-/// 命令的载荷指纹：同一 request_id 换载荷必须在这里露出差别。
-fn hash_command(cmd: &Command) -> Result<String> {
-    serde_json::to_string(cmd)
-        .map(|s| Sha256Hex::of_bytes(s.as_bytes()).as_str().to_string())
-        .map_err(|e| Error::StoreCorrupt {
-            detail: format!("序列化命令失败：{e}"),
-        })
-}
-
 /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。
 fn audit_json(cmd: &Command) -> Result<String> {
     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {
@@ -732,6 +1034,18 @@ fn audit_json(cmd: &Command) -> Result<String> {
         if let Some(text) = map.get("instruction_text").and_then(|v| v.as_str()) {
             map.insert(
                 "instruction_text".to_string(),
+                serde_json::Value::String(format!("<{} 字节>", text.len())),
+            );
+        }
+        if let Some(text) = map.get("summary").and_then(|v| v.as_str()) {
+            map.insert(
+                "summary".to_string(),
+                serde_json::Value::String(format!("<{} 字节>", text.len())),
+            );
+        }
+        if let Some(text) = map.get("reason").and_then(|v| v.as_str()) {
+            map.insert(
+                "reason".to_string(),
                 serde_json::Value::String(format!("<{} 字节>", text.len())),
             );
         }

@@ -30,7 +30,14 @@ fn start_args(inputs: &[(&str, &str)]) -> StartArgs {
         name: None,
         inputs: inputs
             .iter()
-            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .map(|(k, v)| {
+                (
+                    k.to_string(),
+                    sheltie_runtime::request::InputValue::Literal {
+                        text: v.to_string(),
+                    },
+                )
+            })
             .collect(),
     }
 }

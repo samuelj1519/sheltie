@@ -17,6 +17,16 @@ pub struct WorkbookRow {
     pub added_at: String,
 }
 
+/// `requests` 表一行的重核视图。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RequestRow {
+    pub intent_hash: String,
+    pub reply_json: String,
+    pub effects_json: String,
+    pub published: bool,
+    pub work_id: Option<String>,
+}
+
 /// `works` 表一行（`state_json` 已解码）。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkRow {
@@ -148,16 +158,59 @@ impl Store {
         Ok(())
     }
 
-    /// 查一个请求的 `(payload_hash, reply_json)`。`work start` 的重放预检用。
+    /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。
     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {
         let conn = self.connect()?;
         Ok(conn
             .query_row(
-                "SELECT payload_hash, reply_json FROM requests WHERE request_id = ?1",
+                "SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1",
                 [request_id],
                 |r| Ok((r.get(0)?, r.get(1)?)),
             )
             .optional()?)
+    }
+
+    /// 锁内重核请求。
+    pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT intent_hash, reply_json, effects_json, published, work_id
+                 FROM requests WHERE request_id = ?1",
+                [request_id],
+                |r| {
+                    Ok(RequestRow {
+                        intent_hash: r.get(0)?,
+                        reply_json: r.get(1)?,
+                        effects_json: r.get(2)?,
+                        published: r.get::<_, i64>(3)? != 0,
+                        work_id: r.get(4)?,
+                    })
+                },
+            )
+            .optional()?)
+    }
+
+    /// 未完成效果的请求，按提交先后（`audit.seq` 递增）。恢复按这个顺序执行。
+    pub(crate) fn unpublished_requests(&self) -> Result<Vec<(String, String)>> {
+        let conn = self.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT r.request_id, r.effects_json FROM requests r
+             JOIN audit a ON a.request_id = r.request_id
+             WHERE r.published = 0 ORDER BY a.seq",
+        )?;
+        let rows = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    /// 效果全部完成后置 `published = 1`。
+    pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {
+        let conn = self.connect()?;
+        conn.execute(
+            "UPDATE requests SET published = 1 WHERE request_id = ?1",
+            [request_id],
+        )?;
+        Ok(())
     }
 }
 

@@ -405,18 +405,15 @@ impl WorkState {
         self.work_dir.join_segment("workbook")
     }
 
-    /// Attempt 目录 `work_dir/attempts/<node>/<n>/<retry>`。
+    /// Attempt 目录：单一 `WorkLayout`（架构 §5）。
+    /// `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`。
     pub fn attempt_dir(&self, id: &AttemptId) -> AbsPath {
-        self.work_dir
-            .join_segment("attempts")
-            .join_segment(id.node.as_str())
-            .join_segment(&id.occurrence.to_string())
-            .join_segment(&id.retry.to_string())
+        crate::work::layout::attempt_dir(&self.work_dir, id)
     }
 
-    /// 状态卡路径 `work_dir/status-card.md`。
+    /// 状态卡路径 `work_dir/status-card.md`（当前投影）。
     pub fn status_card_path(&self) -> AbsPath {
-        self.work_dir.join_segment("status-card.md")
+        crate::work::layout::status_card_path(&self.work_dir)
     }
 
     pub fn attempt(&self, id: &AttemptId) -> Option<&Attempt> {

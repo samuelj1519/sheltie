@@ -146,10 +146,11 @@ impl SafeFile {
         Ok((Sha256Hex::of_bytes(&bytes), n))
     }
 
-    /// 在同一句柄上置只读（0444）。封存以记录的 sha256 为准，只读位只是减少误写。
+    /// 把句柄对应的路径置只读（0444）。摘要已在**同一句柄**上核对（调用方先
+    /// `sha256_bounded` 比对记录），chmod 按路径执行：macOS 的 fchmod 要求句柄可写，
+    /// 而已只读的文件无法再以写方式打开，幂等重封会失败；路径 chmod 只要求属主。
     pub fn set_readonly(&self) -> Result<()> {
-        self.file
-            .set_permissions(std::fs::Permissions::from_mode(0o444))
+        std::fs::set_permissions(self.path.as_path(), std::fs::Permissions::from_mode(0o444))
             .map_err(|e| Error::io(self.path.as_str(), e))
     }
 }
@@ -273,7 +274,18 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
             reason: format!("{src} 不是目录"),
         });
     }
-    std::fs::create_dir(dst.as_path()).map_err(|e| Error::io(dst.as_str(), e))?;
+    // 目标可以已存在（staging 先建好的空目录），但必须是目录。
+    match std::fs::symlink_metadata(dst.as_path()) {
+        Ok(m) if m.is_dir() => {}
+        Ok(_) => {
+            return Err(Error::InvalidRequest {
+                reason: format!("{dst} 不是目录"),
+            });
+        }
+        Err(_) => {
+            std::fs::create_dir(dst.as_path()).map_err(|e| Error::io(dst.as_str(), e))?;
+        }
+    }
     fsync_dir(dst);
     for entry in std::fs::read_dir(src.as_path()).map_err(|e| Error::io(src.as_str(), e))? {
         let entry = entry.map_err(|e| Error::io(src.as_str(), e))?;

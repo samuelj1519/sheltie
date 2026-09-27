@@ -20,9 +20,14 @@ fn is_readonly(p: &Path) -> bool {
 #[test]
 fn add_two_step_example_copies_and_marks_readonly() {
     let (_d, home) = temp_home();
-    let added = repo(&home).add(&abs(&example_dir("two-step"))).unwrap();
+    let added = repo(&home)
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
     assert_eq!(
-        (added.id.as_str(), added.version.as_str()),
+        (
+            added.data["id"].as_str().unwrap(),
+            added.data["version"].as_str().unwrap()
+        ),
         ("two-step", "1.0.0")
     );
     let dir =
@@ -30,7 +35,10 @@ fn add_two_step_example_copies_and_marks_readonly() {
     assert!(dir.join("workbook.toml").exists());
     assert!(dir.join("instructions/outline.md").exists());
     assert!(is_readonly(&dir.join("workbook.toml")));
-    assert_eq!(added.digest, WorkbookRepo::digest_dir(&abs(&dir)).unwrap());
+    assert_eq!(
+        added.data["digest"].as_str().unwrap(),
+        WorkbookRepo::digest_dir(&abs(&dir)).unwrap().as_str()
+    );
 }
 
 // Task: T14
@@ -38,9 +46,9 @@ fn add_two_step_example_copies_and_marks_readonly() {
 fn add_rejects_duplicate_id_version_with_workbook_exists() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     assert!(matches!(
-        r.add(&abs(&example_dir("two-step"))),
+        r.add(&abs(&example_dir("two-step")), None),
         Err(Error::WorkbookExists { .. })
     ));
 }
@@ -51,7 +59,7 @@ fn add_rejects_symlink_inside_workbook() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
     std::os::unix::fs::symlink("/etc/hosts", src.join("instructions/evil.md")).unwrap();
-    assert!(repo(&home).add(&abs(&src)).is_err());
+    assert!(repo(&home).add(&abs(&src), None).is_err());
     assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
 }
 
@@ -62,7 +70,7 @@ fn add_rejects_file_over_32mib() {
     let src = copy_example("two-step", d.path());
     let big = std::fs::File::create(src.join("instructions/big.bin")).unwrap();
     big.set_len(33_554_433).unwrap();
-    assert!(repo(&home).add(&abs(&src)).is_err());
+    assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
 // Task: T14
@@ -75,7 +83,7 @@ fn add_rejects_non_regular_file() {
         .status()
         .unwrap();
     assert!(status.success());
-    assert!(repo(&home).add(&abs(&src)).is_err());
+    assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
 // Task: T14
@@ -85,7 +93,7 @@ fn add_failure_leaves_no_staging_and_no_row() {
     let src = copy_example("two-step", d.path());
     std::fs::write(src.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
     let r = repo(&home);
-    assert!(r.add(&abs(&src)).is_err());
+    assert!(r.add(&abs(&src), None).is_err());
     let staging = std::path::PathBuf::from(home.staging_dir().as_str());
     assert!(!staging.exists() || std::fs::read_dir(staging).unwrap().next().is_none());
     assert!(r.list().unwrap().is_empty());
@@ -97,7 +105,7 @@ fn add_rejects_hard_link_inside_workbook() {
     let (d, home) = temp_home();
     let src = copy_example("two-step", d.path());
     std::fs::hard_link(src.join("workbook.toml"), src.join("instructions/hard.md")).unwrap();
-    assert!(repo(&home).add(&abs(&src)).is_err());
+    assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
 /// 一个最小的合法 Workbook，用来凑文件大小边界。
@@ -146,7 +154,7 @@ fn add_accepts_files_at_exact_limits() {
         .unwrap()
         .set_len(last)
         .unwrap();
-    repo(&home).add(&abs(&src)).unwrap();
+    repo(&home).add(&abs(&src), None).unwrap();
 }
 
 // Task: T14
@@ -169,7 +177,7 @@ fn add_rejects_when_total_over_256mib() {
         .unwrap()
         .set_len(max_total - 7 * max_file - small + 1)
         .unwrap();
-    assert!(repo(&home).add(&abs(&src)).is_err());
+    assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
 // Task: T14
@@ -177,13 +185,13 @@ fn add_rejects_when_total_over_256mib() {
 fn load_with_explicit_version_picks_that_version() {
     let (d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let src = copy_example("two-step", d.path());
     let m = std::fs::read_to_string(src.join("workbook.toml"))
         .unwrap()
         .replace("1.0.0", "1.1.0");
     std::fs::write(src.join("workbook.toml"), m).unwrap();
-    r.add(&abs(&src)).unwrap();
+    r.add(&abs(&src), None).unwrap();
     assert_eq!(
         r.load("two-step", Some("1.0.0"))
             .unwrap()
@@ -202,7 +210,7 @@ fn load_with_explicit_version_picks_that_version() {
 fn load_recompiles_graph_from_installed_copy() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("article-review"))).unwrap();
+    r.add(&abs(&example_dir("article-review")), None).unwrap();
     let loaded = r.load("article-review", None).unwrap();
     assert_eq!(loaded.flows.len(), 1);
     assert_eq!(loaded.flow("default").unwrap().1.node_count(), 3);
@@ -214,14 +222,14 @@ fn load_recompiles_graph_from_installed_copy() {
 fn list_orders_by_id_then_version() {
     let (d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let src = copy_example("two-step", d.path());
     let m = std::fs::read_to_string(src.join("workbook.toml"))
         .unwrap()
         .replace("1.0.0", "1.1.0");
     std::fs::write(src.join("workbook.toml"), m).unwrap();
-    r.add(&abs(&src)).unwrap();
-    r.add(&abs(&example_dir("article-review"))).unwrap();
+    r.add(&abs(&src), None).unwrap();
+    r.add(&abs(&example_dir("article-review")), None).unwrap();
     let rows: Vec<(String, String)> = r
         .list()
         .unwrap()
@@ -245,8 +253,8 @@ fn list_orders_by_id_then_version() {
 fn remove_deletes_row_and_directory() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
-    r.remove("two-step", "1.0.0").unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
+    r.remove("two-step", "1.0.0", None).unwrap();
     assert!(r.list().unwrap().is_empty());
     assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
 }
@@ -256,9 +264,9 @@ fn remove_deletes_row_and_directory() {
 fn remove_requires_explicit_version() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     assert!(matches!(
-        r.remove("two-step", ""),
+        r.remove("two-step", "", None),
         Err(Error::InvalidRequest { .. })
     ));
 }
@@ -268,7 +276,7 @@ fn remove_requires_explicit_version() {
 fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
     let (_dir, home) = temp_home();
     let repo = repo(&home);
-    repo.add(&abs(&example_dir("two-step"))).unwrap();
+    repo.add(&abs(&example_dir("two-step")), None).unwrap();
     let state = Fixture::two_step()
         .started_with(&[("topic", "t")])
         .state()
@@ -285,7 +293,7 @@ fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
         ],
     )
     .unwrap();
-    let error = repo.remove("two-step", "1.0.0").unwrap_err();
+    let error = repo.remove("two-step", "1.0.0", None).unwrap_err();
     assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
     assert_eq!(repo.list().unwrap().len(), 1);
     assert!(std::path::Path::new(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
@@ -296,7 +304,7 @@ fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
 fn remove_rejects_when_active_work_references_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
-    let err = repo(&home).remove("two-step", "1.0.0").unwrap_err();
+    let err = repo(&home).remove("two-step", "1.0.0", None).unwrap_err();
     match err {
         Error::WorkbookInUse { works, .. } => assert_eq!(works, vec![work_id_of(&resp)]),
         other => panic!("{other:?}"),
@@ -309,7 +317,7 @@ fn remove_allows_when_only_terminal_works_reference_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
     svc.cancel(&work_id_of(&resp), None).unwrap();
-    repo(&home).remove("two-step", "1.0.0").unwrap();
+    repo(&home).remove("two-step", "1.0.0", None).unwrap();
 }
 
 // Task: T15
@@ -318,9 +326,9 @@ fn remove_allows_when_other_workbook_shares_version() {
     // 活跃 Work 引用 two-step@1.0.0；同号的 article-review@1.0.0 不受牵连。
     let (_d, home, svc) = home_with_example("two-step");
     let r = repo(&home);
-    r.add(&abs(&example_dir("article-review"))).unwrap();
+    r.add(&abs(&example_dir("article-review")), None).unwrap();
     let _ = start_two_step(&svc);
-    r.remove("article-review", "1.0.0").unwrap();
+    r.remove("article-review", "1.0.0", None).unwrap();
     assert!(matches!(
         r.load("article-review", None),
         Err(Error::NotFound { .. })
@@ -333,8 +341,8 @@ fn remove_moves_dir_to_tmp_before_delete() {
     // 观察不到中间态就看结果：目录消失、tmp 下无残留。
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
-    r.remove("two-step", "1.0.0").unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
+    r.remove("two-step", "1.0.0", None).unwrap();
     let tmp = std::path::PathBuf::from(home.tmp_dir().as_str());
     assert!(!tmp.exists() || std::fs::read_dir(tmp).unwrap().next().is_none());
 }
@@ -344,7 +352,7 @@ fn remove_moves_dir_to_tmp_before_delete() {
 fn verify_reports_ok_for_untouched_install() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let rows = r.verify(Some(("two-step", "1.0.0"))).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].status, VerifyStatus::Ok);
@@ -355,7 +363,7 @@ fn verify_reports_ok_for_untouched_install() {
 fn verify_reports_tampered_after_byte_change() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let f = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str())
         .join("instructions/outline.md");
     std::fs::set_permissions(&f, std::os::unix::fs::PermissionsExt::from_mode(0o644)).unwrap();
@@ -368,7 +376,7 @@ fn verify_reports_tampered_after_byte_change() {
 fn verify_reports_missing_when_directory_gone() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
     let dir = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str());
     // T04 起整棵含根置只读（0555）；删除前把根本身也放开。
     std::fs::set_permissions(&dir, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
@@ -387,8 +395,8 @@ fn verify_reports_missing_when_directory_gone() {
 fn verify_all_when_filter_omitted() {
     let (_d, home) = temp_home();
     let r = repo(&home);
-    r.add(&abs(&example_dir("two-step"))).unwrap();
-    r.add(&abs(&example_dir("gated-release"))).unwrap();
+    r.add(&abs(&example_dir("two-step")), None).unwrap();
+    r.add(&abs(&example_dir("gated-release")), None).unwrap();
     assert_eq!(r.verify(None).unwrap().len(), 2);
 }
 

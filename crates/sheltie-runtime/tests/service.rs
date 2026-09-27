@@ -9,7 +9,18 @@ use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::work::WorkStatus;
+use sheltie_runtime::request::InputValue;
 use sheltie_runtime::{Error, StartArgs};
+
+fn lit(s: &str) -> InputValue {
+    InputValue::Literal {
+        text: s.to_string(),
+    }
+}
+
+fn inputs_lit(pairs: &[(&str, &str)]) -> std::collections::BTreeMap<String, InputValue> {
+    pairs.iter().map(|(k, v)| (k.to_string(), lit(v))).collect()
+}
 
 fn node(s: &str) -> NodeId {
     NodeId::new(s).unwrap()
@@ -40,20 +51,20 @@ fn two_step_runs_to_succeeded() {
 
     let b1 = svc.begin(&wid, &node("outline"), None).unwrap();
     write_output(&output_dir_of(&b1), "outline.md", "# 提纲\n- 一\n- 二\n");
-    svc.submit(&wid, &attempt("outline#1.0"), "两个要点", None)
+    svc.submit(&wid, &attempt("outline#1.0"), &lit("两个要点"), None)
         .unwrap();
 
     let b2 = svc.begin(&wid, &node("summary"), None).unwrap();
     write_output(&output_dir_of(&b2), "summary.md", "摘要正文。");
     let done = svc
-        .submit(&wid, &attempt("summary#1.0"), "写完了", None)
+        .submit(&wid, &attempt("summary#1.0"), &lit("写完了"), None)
         .unwrap();
 
     let (_card, json) = svc.status(&wid).unwrap();
     assert_eq!(json.status, WorkStatus::Succeeded);
     assert!(done.next.is_empty());
     let outline = std::path::PathBuf::from(home.work_dir(&wid).as_str())
-        .join("attempts/outline/1/0/outline.md");
+        .join("attempts/outline/occurrence-001/attempt-000/outputs/outline.md");
     assert!(
         outline.metadata().unwrap().permissions().readonly(),
         "产物只读"
@@ -79,9 +90,7 @@ fn start_replay_returns_same_work_id_without_new_seq() {
         version: None,
         flow: "default".into(),
         name: Some("重放".into()),
-        inputs: [("topic".to_string(), "x".to_string())]
-            .into_iter()
-            .collect(),
+        inputs: inputs_lit(&[("topic", "x")]),
     };
     let a = svc.start(args.clone(), Some("req-1".into())).unwrap();
     let b = svc.start(args, Some("req-1".into())).unwrap();
@@ -115,8 +124,13 @@ fn begin_loads_graph_from_frozen_copy_not_repository() {
     .unwrap();
     std::fs::write(&repo_instr, "被改过的说明").unwrap();
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
-    let brief =
-        std::fs::read_to_string(Path::new(output_dir_of(&b).as_str()).join("brief.md")).unwrap();
+    let brief = {
+        let brief_path = match &b.reply {
+            sheltie_core::work::Reply::AttemptBegun { brief_path, .. } => brief_path.clone(),
+            other => panic!("{other:?}"),
+        };
+        std::fs::read_to_string(brief_path.as_str()).unwrap()
+    };
     assert!(brief.contains("列一份提纲"));
     assert!(!brief.contains("被改过的说明"));
 }
@@ -127,7 +141,7 @@ fn status_works_after_workbook_removed() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     svc.cancel(&wid, None).unwrap();
-    repo(&home).remove("two-step", "1.0.0").unwrap();
+    repo(&home).remove("two-step", "1.0.0", None).unwrap();
     let (card, json) = svc.status(&wid).unwrap();
     assert_eq!(json.status, WorkStatus::Cancelled);
     assert!(card.contains("status: cancelled"));
@@ -139,9 +153,17 @@ fn begin_writes_brief_md_with_absolute_input_paths() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
-    let brief =
-        std::fs::read_to_string(Path::new(output_dir_of(&b).as_str()).join("brief.md")).unwrap();
-    assert!(brief.contains(&format!("| topic | {}/inputs/topic |", home.work_dir(&wid))));
+    let brief = {
+        let brief_path = match &b.reply {
+            sheltie_core::work::Reply::AttemptBegun { brief_path, .. } => brief_path.clone(),
+            other => panic!("{other:?}"),
+        };
+        std::fs::read_to_string(brief_path.as_str()).unwrap()
+    };
+    assert!(brief.contains(&format!(
+        "| topic | {}/start-inputs/topic |",
+        home.work_dir(&wid)
+    )));
 }
 
 // Task: T16
@@ -155,9 +177,7 @@ fn begin_binds_resource_input_to_frozen_copy_path() {
                 version: None,
                 flow: "default".into(),
                 name: None,
-                inputs: [("topic".to_string(), "x".to_string())]
-                    .into_iter()
-                    .collect(),
+                inputs: inputs_lit(&[("topic", "x")]),
             },
             None,
         )
@@ -165,10 +185,14 @@ fn begin_binds_resource_input_to_frozen_copy_path() {
     let wid = work_id_of(&started);
     let b = svc.begin(&wid, &node("draft"), None).unwrap();
     write_output(&output_dir_of(&b), "article.md", "文章");
-    svc.submit(&wid, &attempt("draft#1.0"), "ok", None).unwrap();
+    svc.submit(&wid, &attempt("draft#1.0"), &lit("ok"), None)
+        .unwrap();
     let r = svc.begin(&wid, &node("review"), None).unwrap();
-    let brief =
-        std::fs::read_to_string(Path::new(output_dir_of(&r).as_str()).join("brief.md")).unwrap();
+    let brief_path = match &r.reply {
+        sheltie_core::work::Reply::AttemptBegun { brief_path, .. } => brief_path.clone(),
+        other => panic!("{other:?}"),
+    };
+    let brief = std::fs::read_to_string(brief_path.as_str()).unwrap();
     assert!(brief.contains(&format!(
         "{}/workbook/resources/review-checklist.md",
         home.work_dir(&wid)
@@ -206,7 +230,9 @@ fn concurrent_writers_one_gets_revision_conflict() {
         .map(|_| {
             let svc = svc.clone();
             let wid = wid.clone();
-            std::thread::spawn(move || svc.submit(&wid, &attempt("outline#1.0"), "并发", None))
+            std::thread::spawn(move || {
+                svc.submit(&wid, &attempt("outline#1.0"), &lit("并发"), None)
+            })
         })
         .map(|h| h.join().unwrap())
         .collect();
@@ -251,7 +277,7 @@ fn response_revision_increments_with_each_commit() {
     assert_eq!(b.revision, 2);
     write_output(&output_dir_of(&b), "outline.md", "x");
     let s = svc
-        .submit(&wid, &attempt("outline#1.0"), "ok", None)
+        .submit(&wid, &attempt("outline#1.0"), &lit("ok"), None)
         .unwrap();
     assert_eq!(s.revision, 3);
 }
@@ -264,8 +290,13 @@ fn begin_replay_returns_original_reply_and_rewrites_brief() {
     let first = svc
         .begin(&wid, &node("outline"), Some("r-begin".into()))
         .unwrap();
-    let dir = output_dir_of(&first);
-    let brief = Path::new(dir.as_str()).join("brief.md");
+    let brief = std::path::PathBuf::from(
+        match &first.reply {
+            sheltie_core::work::Reply::AttemptBegun { brief_path, .. } => brief_path.clone(),
+            other => panic!("{other:?}"),
+        }
+        .as_str(),
+    );
     std::fs::remove_file(&brief).unwrap();
     let again = svc
         .begin(&wid, &node("outline"), Some("r-begin".into()))
@@ -275,7 +306,7 @@ fn begin_replay_returns_original_reply_and_rewrites_brief() {
     assert_eq!(again.reply, first.reply, "重放返回原响应");
     assert!(brief.exists(), "重放补写任务书");
     assert!(
-        !Path::new(dir.as_str()).join("stats.json").exists(),
+        !brief.parent().unwrap().join("engine/stats.json").exists(),
         "没有 engine.stats 输入的 Attempt 不生成 stats.json"
     );
 }
@@ -302,13 +333,16 @@ fn start_same_request_id_different_inputs_is_request_conflict() {
         version: None,
         flow: "default".into(),
         name: None,
-        inputs: [("topic".to_string(), "x".to_string())]
-            .into_iter()
-            .collect(),
+        inputs: inputs_lit(&[("topic", "x")]),
     };
     svc.start(args(), Some("req-9".into())).unwrap();
     let mut changed = args();
-    changed.inputs.insert("topic".to_string(), "y".to_string());
+    changed.inputs.insert(
+        "topic".to_string(),
+        InputValue::Literal {
+            text: "y".to_string(),
+        },
+    );
     assert!(matches!(
         svc.start(changed, Some("req-9".into())),
         Err(Error::RequestConflict { .. })
@@ -350,7 +384,7 @@ fn begin_replay_regenerates_missing_stats_json() {
     )
     .unwrap();
     let r = repo(&home);
-    r.add(&abs(&src)).unwrap();
+    r.add(&abs(&src), None).unwrap();
     let svc = service(&home);
     let started = svc
         .start(
@@ -367,10 +401,17 @@ fn begin_replay_regenerates_missing_stats_json() {
     let wid = work_id_of(&started);
     let begin_a = svc.begin(&wid, &node("a"), None).unwrap();
     write_output(&output_dir_of(&begin_a), "x.md", "x");
-    svc.submit(&wid, &attempt("a#1.0"), "ok", None).unwrap();
+    svc.submit(&wid, &attempt("a#1.0"), &lit("ok"), None)
+        .unwrap();
     let begin_b = svc.begin(&wid, &node("b"), Some("r-b".into())).unwrap();
-    let dir = output_dir_of(&begin_b);
-    let stats = Path::new(dir.as_str()).join("stats.json");
+    // engine/stats.json 在 Attempt 目录的 engine/ 之下（T07 布局）。
+    let stats = match &begin_b.reply {
+        sheltie_core::work::Reply::AttemptBegun { inputs, .. } => {
+            inputs["stats"].as_ref().unwrap().clone()
+        }
+        other => panic!("{other:?}"),
+    };
+    let stats = std::path::PathBuf::from(stats.as_str());
     let original = std::fs::read(&stats).unwrap();
     std::fs::remove_file(&stats).unwrap();
     let replay = svc.begin(&wid, &node("b"), Some("r-b".into())).unwrap();
@@ -422,9 +463,7 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
                 version: None,
                 flow: "default".into(),
                 name: None,
-                inputs: [("topic".to_string(), "x".to_string())]
-                    .into_iter()
-                    .collect(),
+                inputs: inputs_lit(&[("topic", "x")]),
             },
             None,
         )
@@ -432,7 +471,8 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
     let wid = work_id_of(&started);
     let b = svc.begin(&wid, &node("draft"), None).unwrap();
     write_output(&output_dir_of(&b), "article.md", "文章");
-    svc.submit(&wid, &attempt("draft#1.0"), "ok", None).unwrap();
+    svc.submit(&wid, &attempt("draft#1.0"), &lit("ok"), None)
+        .unwrap();
     // `resource.<path>` 输入没有单独记录的摘要，由副本整体摘要覆盖。
     let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
     make_writable(&copy);

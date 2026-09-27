@@ -1,7 +1,6 @@
 //! Workbook 仓库：`add / list / load / remove / verify`。规则见 `specs/contracts/storage.md` §5 与协议 §3。
 
-use serde::Serialize;
-use sha2::Digest as _;
+use serde::{Deserialize, Serialize};
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::flow::{FlowDef, Graph, compile, parse_flow};
 use sheltie_core::ids::WorkId;
@@ -9,15 +8,57 @@ use sheltie_core::path::{AbsPath, RelPath};
 use sheltie_core::workbook::Manifest;
 use sheltie_core::workbook::parse_manifest;
 
+use crate::effects::{EffectOp, decode_effects, encode_effects, execute};
 use crate::error::{Error, Result};
 use crate::home::Home;
 use crate::observe::build_resource_index;
-use crate::store::{Store, WorkbookRow};
+use crate::request::{RequestIntent, lexical_abs};
+use crate::service::stage_pending;
+use crate::store::{CommitOutcome, Store, WorkbookRow};
+use sheltie_core::work::Context;
 
 /// 单文件上限 32 MiB。
 pub const MAX_FILE_BYTES: u64 = 33_554_432;
 /// 目录总量上限 256 MiB。
 pub const MAX_TOTAL_BYTES: u64 = 268_435_456;
+
+/// `workbook add` 的提交时快照（GF-15）。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AddedSnapshot {
+    pub request_id: String,
+    pub replayed: bool,
+    pub data: serde_json::Value,
+}
+
+/// `workbook remove` 的提交时快照。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RemovedSnapshot {
+    pub request_id: String,
+    pub replayed: bool,
+    pub data: serde_json::Value,
+}
+
+fn decode_added_snapshot(request_id: &str, reply_json: &str) -> Result<AddedSnapshot> {
+    let mut s: AddedSnapshot =
+        serde_json::from_str(reply_json).map_err(|e| Error::StoreCorrupt {
+            detail: format!("requests 表里的响应解不开：{e}"),
+        })?;
+    s.request_id = request_id.to_string();
+    s.replayed = true;
+    Ok(s)
+}
+
+fn decode_removed_snapshot(request_id: &str, reply_json: &str) -> Result<RemovedSnapshot> {
+    let mut s: RemovedSnapshot =
+        serde_json::from_str(reply_json).map_err(|e| Error::StoreCorrupt {
+            detail: format!("requests 表里的响应解不开：{e}"),
+        })?;
+    s.request_id = request_id.to_string();
+    s.replayed = true;
+    Ok(s)
+}
 
 /// `workbook add` 的返回。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -77,81 +118,153 @@ impl WorkbookRepo {
         Self { home, store }
     }
 
-    /// `workbook add <dir>`（存储合同 §5 四步）。
-    ///
-    /// 1. 校验：`build_resource_index`、`parse_manifest`、每个 Flow `parse_flow` + `compile`。
-    /// 2. 复制到 `staging/<uuid>/`（`copy_confined`），fsync，算 `digest_dir`。
-    /// 3. `store.insert_workbook`；冲突则删 staging 并报 `WorkbookExists`。
-    /// 4. rename 到 `workbooks/<id>/<version>/`，整棵置只读。
-    pub fn add(&self, dir: &AbsPath) -> Result<Added> {
-        // 1. 校验全部通过才碰管理根（合同 §1：任一步失败则整体拒绝，不落任何文件）。
-        let res = build_resource_index(dir)?;
-        let manifest = parse_manifest(&read_utf8(&dir.join(&RelPath::new("workbook.toml")?))?)?;
-        let mut flow_defs = Vec::new();
-        for path in manifest.flows() {
-            let def = parse_flow(&read_utf8(&dir.join(path))?)?;
-            let _ = compile(&def, &manifest, &res)?;
-            flow_defs.push(def.id().as_str().to_string());
+    /// `workbook add <dir>`（存储合同 §5.2）。走与 Work 相同的写路径：
+    /// 无锁预检查重 → 管理根写锁 → 恢复 → pending staging → 只对最终副本
+    /// parse/compile/digest → 一个事务（requests + workbooks + audit）→ 发布。
+    /// 相同 request-id 的重放返回原快照；源目录变化不重新安装（§2.1）。
+    pub fn add(&self, dir: &AbsPath, request_id: Option<String>) -> Result<AddedSnapshot> {
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::AddWorkbook {
+            source: lexical_abs(dir.as_str()),
+        };
+        // 无锁预检：命中已提交请求直接按快照重放（发布完成状态下不再读源目录）。
+        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
+            if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+                if hash != intent.hash().as_str() {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.clone(),
+                    });
+                }
+                return decode_added_snapshot(&request_id, &reply_json);
+            }
         }
-        // 2. staging：先顺手清掉上次崩溃留下的残留（不跟随软链）。
-        let staging_root = self.home.staging_dir();
-        let _ = crate::fsx::remove_tree_no_follow(&staging_root);
-        crate::fsx::ensure_dirs_under(self.home.root(), &staging_root)?;
-        let staging = staging_root.join_segment(&uuid::Uuid::now_v7().to_string());
-        let added = self.add_via_staging(dir, &staging, &manifest, &flow_defs);
-        if added.is_err() {
-            let _ = crate::fsx::remove_tree_no_follow(&staging);
-        }
-        added
-    }
 
-    /// 四步的后三步：staging 里有东西之后的路径，任何失败都把 staging 清掉。
-    fn add_via_staging(
-        &self,
-        dir: &AbsPath,
-        staging: &AbsPath,
-        manifest: &Manifest,
-        flow_ids: &[String],
-    ) -> Result<Added> {
-        Self::copy_confined(dir, staging)?;
-        let digest = Self::digest_dir(staging)?;
+        let _lock = self.home.acquire_lock()?;
+        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
+        let repo = Self::new(self.home.clone(), store);
+        repo.recover_workbook_effects()?;
+        if let Some(row) = repo.store.inspect_request(&request_id)? {
+            if row.intent_hash != intent.hash().as_str() {
+                return Err(Error::RequestConflict {
+                    request_id: request_id.clone(),
+                });
+            }
+            // 恢复步已补完效果；这里统一按快照返回。
+            return decode_added_snapshot(&request_id, &row.reply_json);
+        }
+
+        // 源目录粗检（§5.2 第 1 步）：可读、拒绝软链与宿主元数据。
+        let _ = build_resource_index(dir)?;
+        let internal_id = uuid::Uuid::now_v7().simple().to_string();
+        let payload = stage_pending(&self.home, &internal_id, &request_id, "add_workbook")?;
+
+        // 只对最终副本 parse/compile/digest（§5.2 第 3 步）。
+        Self::copy_confined(dir, &payload)?;
+        let loaded = repo.load_dir(&payload)?;
+        let flow_ids: Vec<String> = loaded
+            .flows
+            .iter()
+            .map(|(def, _)| def.id().as_str().to_string())
+            .collect();
         let final_dir = self
             .home
-            .workbook_dir(manifest.id().as_str(), manifest.version());
-        let rel_dir = final_dir
-            .as_path()
-            .strip_prefix(self.home.root().as_path())
-            .map(|p| p.to_string())
-            .unwrap_or_else(|_| final_dir.as_str().to_string());
-        let row = WorkbookRow {
-            id: manifest.id().as_str().to_string(),
-            version: manifest.version().to_string(),
-            digest: digest.as_str().to_string(),
-            dir: rel_dir,
-            added_at: crate::observe::now().as_str().to_string(),
+            .workbook_dir(loaded.manifest.id().as_str(), loaded.manifest.version());
+        let rel_dir = self.home.to_rel(&final_dir)?;
+        let ctx = Context {
+            now: crate::observe::now(),
+            principal: crate::observe::principal(),
         };
-        self.store.insert_workbook(&row)?;
-        if let Some(parent) = final_dir.as_path().parent() {
-            crate::fsx::ensure_dirs_under(
-                self.home.root(),
-                &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
-            )?;
-        }
-        std::fs::rename(staging.as_path(), final_dir.as_path())
-            .map_err(|e| Error::io(final_dir.as_str(), e))?;
-        crate::fsx::fsync_dir(&final_dir);
-        set_tree_readonly(&final_dir)?;
-        Ok(Added {
-            id: row.id,
-            version: row.version,
-            digest,
-            flows: flow_ids.to_vec(),
-            requires: manifest
+        let added = Added {
+            id: loaded.manifest.id().as_str().to_string(),
+            version: loaded.manifest.version().to_string(),
+            digest: loaded.digest.clone(),
+            flows: flow_ids,
+            requires: loaded
+                .manifest
                 .requires()
                 .iter()
                 .map(|r| format!("{}:{}", r.kind().as_str(), r.name()))
                 .collect(),
-        })
+        };
+        let snapshot = AddedSnapshot {
+            request_id: request_id.clone(),
+            replayed: false,
+            data: serde_json::to_value(&added).unwrap_or(serde_json::Value::Null),
+        };
+        let input = crate::store::CommitInput {
+            work_id: None,
+            workbook_insert: Some(WorkbookRow {
+                id: loaded.manifest.id().as_str().to_string(),
+                version: loaded.manifest.version().to_string(),
+                digest: loaded.digest.as_str().to_string(),
+                dir: rel_dir.clone(),
+                added_at: ctx.now.as_str().to_string(),
+            }),
+            workbook_delete: None,
+            expected_revision: None,
+            state: None,
+            request_id: request_id.clone(),
+            intent_hash: intent.hash().as_str().to_string(),
+            reply_json: serde_json::to_string(&snapshot).unwrap_or_default(),
+            effects_json: encode_effects(&[EffectOp::PublishDir {
+                pending: self.home.to_rel(&payload)?,
+                final_path: rel_dir,
+                owner: format!(
+                    "workbook:{}@{}",
+                    loaded.manifest.id(),
+                    loaded.manifest.version()
+                ),
+                digest: loaded.digest.as_str().to_string(),
+                digest_root: String::new(),
+            }]),
+            principal: ctx.principal,
+            command_json: format!(
+                "{{\"intent\":\"add_workbook\",\"source\":{:?}}}",
+                intent.hash().as_str()
+            ),
+            at: ctx.now,
+        };
+        match repo.store.commit(input)? {
+            CommitOutcome::Committed { .. } => {}
+            CommitOutcome::Replayed { reply_json, .. } => {
+                return decode_added_snapshot(&request_id, &reply_json);
+            }
+        }
+        // 发布效果；失败返回 committed=true 的 EFFECT_PENDING（协议 §5）。
+        if let Some(row) = repo.store.inspect_request(&request_id)? {
+            if !row.published {
+                let ops = decode_effects(&row.effects_json)?;
+                if let Err(e) = execute(&self.home, &ops, true) {
+                    return Err(Error::EffectPending {
+                        committed: true,
+                        request_id,
+                        pending_request_id: None,
+                        detail: e.to_string(),
+                        original: None,
+                    });
+                }
+                repo.store.mark_published(&request_id)?;
+            }
+        }
+        Ok(snapshot)
+    }
+
+    /// 锁内恢复未完成的 Workbook 效果（先于新命令，存储合同 §3.2）。
+    fn recover_workbook_effects(&self) -> Result<()> {
+        for (request_id, effects_json) in self.store.unpublished_requests()? {
+            let ops = decode_effects(&effects_json)?;
+            if let Err(e) = execute(&self.home, &ops, true) {
+                return Err(Error::EffectPending {
+                    committed: false,
+                    request_id: String::new(),
+                    pending_request_id: Some(request_id),
+                    detail: e.to_string(),
+                    original: None,
+                });
+            }
+            self.store.mark_published(&request_id)?;
+        }
+        Ok(())
     }
 
     pub fn list(&self) -> Result<Vec<WorkbookRow>> {
@@ -211,57 +324,59 @@ impl WorkbookRepo {
         Ok(loaded)
     }
 
-    /// 目录摘要：全部文件按相对路径排序，拼 `路径\0内容` 后对字节流 sha256 再对摘要
-    /// 十六进制串做一次 sha256——这是 schema 1 已登记的旧算法（含 O07 的双重哈希与
-    /// `path\0content` 定界歧义），流式化只改读取方式、不改字节语义，已装目录的记录
-    /// 才能继续对上。C002-T07 切到 `workbook_digest::digest_dir_v2` 后本函数删除。
+    /// 目录摘要 `workbook-digest/v2`（存储合同 §5.1）。schema 2 的唯一摘要口径，
+    /// add/load/verify/冻结副本核验与发布效果全部用它。
     pub fn digest_dir(dir: &AbsPath) -> Result<Sha256Hex> {
-        let mut files = Vec::new();
-        collect_file_meta(dir, dir, &mut files)?;
-        // 限额在读取前核对（存储合同 §5.2）；读取经句柄计数，增长绕不过。
-        let mut total = 0u64;
-        for (rel, size) in &files {
-            if *size > MAX_FILE_BYTES {
-                return Err(Error::InvalidRequest {
-                    reason: format!("{dir} 下 {rel} 超过 {MAX_FILE_BYTES} 字节"),
-                });
-            }
-            total = total
-                .checked_add(*size)
-                .ok_or_else(|| Error::InvalidRequest {
-                    reason: format!("{dir} 总量超出上限"),
-                })?;
-            if total > MAX_TOTAL_BYTES {
-                return Err(Error::InvalidRequest {
-                    reason: format!("{dir} 总量超过 {MAX_TOTAL_BYTES} 字节"),
-                });
-            }
-        }
-        files.sort_by(|a, b| a.0.cmp(&b.0));
-        let mut hasher = sha2::Sha256::new();
-        for (rel, _) in files {
-            let full = dir.join(&RelPath::new(rel.clone()).map_err(Error::Core)?);
-            let f = crate::fsx::SafeFile::open_regular(&full)?;
-            let bytes = f.read_bounded(MAX_FILE_BYTES)?;
-            hasher.update(rel.as_bytes());
-            hasher.update([0u8]);
-            hasher.update(&bytes);
-        }
-        Ok(Sha256Hex::of_bytes(&hasher.finalize()))
+        crate::workbook_digest::digest_dir_v2(dir)
     }
 
-    /// `workbook remove <id>@<version>`（协议细则三步）。
-    pub fn remove(&self, id: &str, version: &str) -> Result<Removed> {
+    /// `workbook remove <id>@<version>`（协议细则；引用检查的事务化归 T08）。
+    /// 同样走写锁与请求表：相同 request-id 重放返回原快照，不重复删除。
+    pub fn remove(
+        &self,
+        id: &str,
+        version: &str,
+        request_id: Option<String>,
+    ) -> Result<RemovedSnapshot> {
         if version.is_empty() {
             return Err(Error::InvalidRequest {
                 reason: "remove 必须给全版本，不接受「最高版本」默认".to_string(),
             });
         }
-        // 清理前核归属：目录当前摘要必须仍与登记值相符（GF-32），不符拒绝删除，
-        // 不把被人动过的树当成自己的对象移走。
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::RemoveWorkbook {
+            id: id.to_string(),
+            version: version.to_string(),
+        };
+        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
+            if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+                if hash != intent.hash().as_str() {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.clone(),
+                    });
+                }
+                return decode_removed_snapshot(&request_id, &reply_json);
+            }
+        }
+
+        let _lock = self.home.acquire_lock()?;
+        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
+        let repo = Self::new(self.home.clone(), store);
+        repo.recover_workbook_effects()?;
+        if let Some(row) = repo.store.inspect_request(&request_id)? {
+            if row.intent_hash != intent.hash().as_str() {
+                return Err(Error::RequestConflict {
+                    request_id: request_id.clone(),
+                });
+            }
+            return decode_removed_snapshot(&request_id, &row.reply_json);
+        }
+
+        // 清理前核归属（T05）：目录当前摘要必须仍与登记值相符。
         let dir = self.home.workbook_dir(id, version);
+        let registered_digest;
         if dir.as_path().exists() {
-            let registered = self
+            let registered = repo
                 .store
                 .workbook_versions(id)?
                 .into_iter()
@@ -269,6 +384,7 @@ impl WorkbookRepo {
                 .ok_or_else(|| Error::NotFound {
                     what: format!("Workbook {id}@{version}"),
                 })?;
+            registered_digest = registered.digest.clone();
             let current = Self::digest_dir(&dir)?;
             if current.as_str() != registered.digest {
                 return Err(Error::WorkbookTampered {
@@ -279,8 +395,10 @@ impl WorkbookRepo {
                     }],
                 });
             }
+        } else {
+            registered_digest = String::new();
         }
-        let works = self.works_referencing(id, version)?;
+        let works = repo.works_referencing(id, version)?;
         if !works.is_empty() {
             return Err(Error::WorkbookInUse {
                 id: id.to_string(),
@@ -288,25 +406,65 @@ impl WorkbookRepo {
                 works,
             });
         }
-        self.store.delete_workbook(id, version)?;
-        // 提交后把目录挪到 tmp/ 再删；失败只影响磁盘，不影响库。删除不跟随软链。
-        let dir = self.home.workbook_dir(id, version);
-        if dir.as_path().exists() {
-            crate::fsx::ensure_dirs_under(self.home.root(), &self.home.tmp_dir())?;
-            let tmp = self
-                .home
-                .tmp_dir()
-                .join_segment(&uuid::Uuid::now_v7().to_string());
-            // macOS 上挪动目录本身要写权限（会更新 ..），先放开再挪。
-            crate::fsx::make_tree_writable(&dir);
-            if std::fs::rename(dir.as_path(), tmp.as_path()).is_ok() {
-                let _ = crate::fsx::remove_tree_no_follow(&tmp);
+        // 删行进事务；目录移动与删除是提交后的效果。
+        let ctx = Context {
+            now: crate::observe::now(),
+            principal: crate::observe::principal(),
+        };
+        let internal_id = uuid::Uuid::now_v7().simple().to_string();
+        let payload = stage_pending(&self.home, &internal_id, &request_id, "remove_workbook")?;
+        let snapshot = RemovedSnapshot {
+            request_id: request_id.clone(),
+            replayed: false,
+            data: serde_json::to_value(&Removed {
+                id: id.to_string(),
+                version: version.to_string(),
+            })
+            .unwrap_or(serde_json::Value::Null),
+        };
+        let input = crate::store::CommitInput {
+            work_id: None,
+            workbook_insert: None,
+            workbook_delete: Some((id.to_string(), version.to_string())),
+            expected_revision: None,
+            state: None,
+            request_id: request_id.clone(),
+            intent_hash: intent.hash().as_str().to_string(),
+            reply_json: serde_json::to_string(&snapshot).unwrap_or_default(),
+            effects_json: encode_effects(&[EffectOp::DeleteDir {
+                pending: self.home.to_rel(&payload)?,
+                final_path: self.home.to_rel(&dir)?,
+                owner: format!("workbook:{id}@{version}"),
+                digest: registered_digest,
+            }]),
+            principal: ctx.principal,
+            command_json: format!(
+                "{{\"intent\":\"remove_workbook\",\"target\":\"{id}@{version}\"}}"
+            ),
+            at: ctx.now,
+        };
+        match repo.store.commit(input)? {
+            CommitOutcome::Committed { .. } => {}
+            CommitOutcome::Replayed { reply_json, .. } => {
+                return decode_removed_snapshot(&request_id, &reply_json);
             }
         }
-        Ok(Removed {
-            id: id.to_string(),
-            version: version.to_string(),
-        })
+        if let Some(row) = repo.store.inspect_request(&request_id)? {
+            if !row.published {
+                let ops = decode_effects(&row.effects_json)?;
+                if let Err(e) = execute(&self.home, &ops, true) {
+                    return Err(Error::EffectPending {
+                        committed: true,
+                        request_id,
+                        pending_request_id: None,
+                        detail: e.to_string(),
+                        original: None,
+                    });
+                }
+                repo.store.mark_published(&request_id)?;
+            }
+        }
+        Ok(snapshot)
     }
 
     /// 引用本版本且非终态的 Work。先验证全部持久行，不按冗余 status 预筛。
@@ -381,37 +539,6 @@ fn read_utf8(path: &AbsPath) -> Result<String> {
             reason: "不是 UTF-8".to_string(),
         })
     })
-}
-
-/// 收集 `dir` 下全部普通文件的 `(相对路径, 声明字节数)`。拒绝软链；跳过非常规文件
-/// （与旧摘要的语义一致）。字节内容在摘要阶段经句柄流式读取。
-fn collect_file_meta(root: &AbsPath, dir: &AbsPath, out: &mut Vec<(String, u64)>) -> Result<()> {
-    for entry in std::fs::read_dir(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let path = dir.join_segment(&name);
-        let ft = entry.file_type().map_err(|e| Error::io(path.as_str(), e))?;
-        if ft.is_symlink() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 是符号链接"),
-            });
-        }
-        if ft.is_dir() {
-            collect_file_meta(root, &path, out)?;
-            continue;
-        }
-        if !ft.is_file() {
-            continue;
-        }
-        let rel = path
-            .as_path()
-            .strip_prefix(root.as_path())
-            .map_err(|e| Error::io(root.as_str(), std::io::Error::other(e.to_string())))?
-            .to_string();
-        let meta = entry.metadata().map_err(|e| Error::io(path.as_str(), e))?;
-        out.push((rel, meta.len()));
-    }
-    Ok(())
 }
 
 /// 整棵含根置只读（目录 0555、文件 0444；存储合同 §5.2）。句柄核对身份后 fchmod，

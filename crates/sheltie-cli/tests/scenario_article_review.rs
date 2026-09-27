@@ -110,7 +110,7 @@ fn downstream_binds_latest_succeeded_occurrence_output() {
     let p = env.follow_begin(&s3, "publish");
     let article = p["data"]["inputs"]["article"].as_str().unwrap();
     assert!(
-        article.contains("/attempts/draft/2/0/article.md"),
+        article.contains("/attempts/draft/occurrence-002/attempt-000/outputs/article.md"),
         "{article}"
     );
 }

@@ -63,7 +63,7 @@ pub fn service(home: &Home) -> WorkService {
 /// 装好一个样例并返回服务。
 pub fn home_with_example(name: &str) -> (TempDir, Home, WorkService) {
     let (dir, home) = temp_home();
-    repo(&home).add(&abs(&example_dir(name))).unwrap();
+    repo(&home).add(&abs(&example_dir(name)), None).unwrap();
     let svc = service(&home);
     (dir, home, svc)
 }
@@ -75,9 +75,14 @@ pub fn start_two_step(svc: &WorkService) -> sheltie_runtime::Response {
             version: None,
             flow: "default".into(),
             name: None,
-            inputs: [("topic".to_string(), "给新人介绍 Sheltie".to_string())]
-                .into_iter()
-                .collect(),
+            inputs: [(
+                "topic".to_string(),
+                sheltie_runtime::request::InputValue::Literal {
+                    text: "给新人介绍 Sheltie".to_string(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         },
         None,
     )

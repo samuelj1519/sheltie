@@ -24,13 +24,16 @@ fn input(
 ) -> CommitInput {
     CommitInput {
         work_id: Some(work.work_id.clone()),
+        workbook_insert: None,
+        workbook_delete: None,
         expected_revision: expected,
         state: Some(work.clone()),
         request_id: request_id.to_string(),
-        payload_hash: sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes())
+        intent_hash: sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes())
             .as_str()
             .to_string(),
         reply_json: format!("{{\"reply\":\"{payload}\"}}"),
+        effects_json: "[]".to_string(),
         principal: Principal("tester".into()),
         command_json: "{}".into(),
         at: Timestamp::parse("2026-09-24T03:00:00Z").unwrap(),
@@ -68,7 +71,8 @@ fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    conn.pragma_update(None, "user_version", 2).unwrap();
+    // schema 2 是当前版本：模拟 schema 1 旧库（拒绝且文件字节不变）。
+    conn.pragma_update(None, "user_version", 1).unwrap();
     drop(conn);
     assert!(matches!(
         Store::open(&home.store_path(), OpenMode::ReadWrite),
@@ -183,7 +187,9 @@ fn commit_replays_same_request_id_and_payload() {
     assert_eq!(
         out,
         CommitOutcome::Replayed {
-            reply_json: "{\"reply\":\"p1\"}".into()
+            reply_json: "{\"reply\":\"p1\"}".into(),
+            effects_json: "[]".into(),
+            published: false,
         }
     );
     assert_eq!(
