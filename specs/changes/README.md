@@ -10,6 +10,8 @@ Active change：无
 | Change | 目标 | 状态 | 入口 |
 | --- | --- | --- | --- |
 | C002 | v0.2.0 可靠性修复 | proposed，产品修复 `not_run` | [README](proposed/C002-v0.2.0-reliability/README.md) |
+| C004 | 面向代码库变更的可验收委派（候选 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C004-verifiable-delegation/README.md) |
+| C005 | 执行者替换与任务接续（第一阶段候选随 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C005-executor-continuity/README.md) |
 
 ## Active
 
