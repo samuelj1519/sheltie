@@ -12,7 +12,7 @@
 - [MVP 实现计划](../releases/v0.1.0/plan.md) 已关闭；T01 至 T26、M1 至 M3 均为 `done`。
 - [路线图](../roadmap.md) 保存 MVP 之后的产品愿景。条目只有满足立项条件后，才应长出独立 spec 与 plan。
 - [MVP 决策记录](../releases/v0.1.0/decisions.md) 同时承载产品决定、里程碑复核记录与首次真实运行记录，现已归档。
-- [T26 后复审](../changes/proposed/C002-v0.2.0-reliability/findings.md) 固定候选与证据；[v0.2.0 根因修复方案](../changes/proposed/C002-v0.2.0-reliability/README.md) 明确声明自己是未采用提案。二者都不是进度权威。
+- [T26 后复审](../changes/active/C002-v0.2.0-reliability/findings.md) 固定候选与证据；[v0.2.0 根因修复方案](../changes/active/C002-v0.2.0-reliability/README.md) 明确声明自己是未采用提案。二者都不是进度权威。
 
 当前结构已经区分目标、进度、未来愿景和时点性证据。待设计的问题是：如何让长期稳定指令、按需文档、进行中状态、版本计划、提案、决定和归档各有单一职责，并让 agent 能低成本找到正确入口。
 

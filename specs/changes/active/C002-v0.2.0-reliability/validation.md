@@ -1,6 +1,6 @@
 # C002 审查证据与修复验证状态
 
-审查候选：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。开始时工作区干净。日期：2026-09-27。审查与方案整合已执行；**产品修复、M1 修复验收、Host 和发布均为 `not_run`**，C002 仍 proposed。
+审查候选：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。开始时工作区干净。日期：2026-09-27。§1–§3 是审查与方案整合的证据（已完成）；§4 起是实施验证记录，未执行的任务保持 `not_run`，不填 PASS。
 
 ## 1. 本次代码审查验证
 
@@ -55,3 +55,28 @@
 采用后每任务记录：候选 hash、输入闭包、执行命令/raw run、正反例结果、实际 caller、Reviewer、剩余问题。复用旧验证只在输入闭包相同时成立。M1 关闭 O01–O13/N01–N14；T16/T17 单独报告 Host、usage、产物与发布。未执行不填 PASS，合成输出不填真人批准。
 
 重跑方法及原始证据映射见 [evidence/2026-09-27/README.md](evidence/2026-09-27/README.md)。只读审查结论不能作为采用、开始任务、迁移旧数据或对外发布的授权。
+
+## 5. 实施验证记录（T01 起）
+
+每任务一行：候选 hash（提交）、门禁命令与结果、任务附加验证、覆盖的 finding。全仓四条门禁（fmt/check/clippy/nextest）每任务必跑，结果写在「门禁」列，不逐条展开；任务附加 gate 单独列出。未执行写 `not_run`。
+
+| 任务 | 候选 | 门禁 | 任务附加验证 | findings |
+| --- | --- | --- | --- | --- |
+| C002-T01 | 本提交 | fmt/check/clippy/nextest（无代码改动未重跑）/deny PASS | `scripts/check-docs.sh` PASS（89 文件）、`scripts/check-specs.sh` PASS（1 active）；storage/protocol/workbook 三合同逐字段闭环复查（schema 2、workbook-digest/v2、WorkLayout、RequestIntent/ResponseSnapshot、效果登记与恢复、错误闭集含 EFFECT_PENDING）；D-033–D-036 ADR 登记 | 治理面（全部任务的依据） |
+| C002-T14 | not_run | not_run | not_run | not_run |
+| C002-T02 | not_run | not_run | not_run | not_run |
+| C002-T03 | not_run | not_run | not_run | not_run |
+| C002-T04 | not_run | not_run | not_run | not_run |
+| C002-T09 | not_run | not_run | not_run | not_run |
+| C002-T05 | not_run | not_run | not_run | not_run |
+| C002-T06 | not_run | not_run | not_run | not_run |
+| C002-T07 | not_run | not_run | not_run | not_run |
+| C002-T08 | not_run | not_run | not_run | not_run |
+| C002-T10 | not_run | not_run | not_run | not_run |
+| C002-T11 | not_run | not_run | not_run | not_run |
+| C002-T12 | not_run | not_run | not_run | not_run |
+| C002-T13 | not_run | not_run | not_run | not_run |
+| C002-T15 | not_run | not_run | not_run | not_run |
+| C002-M1 | not_run | not_run | not_run | not_run |
+| C002-T16 | not_run | not_run | not_run | not_run |
+| C002-T17 | not_run | not_run | not_run | not_run |

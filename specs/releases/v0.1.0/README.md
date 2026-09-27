@@ -22,4 +22,4 @@ MVP 实现了三个 crate、单一 `sheltie` 二进制、Workbook/Flow、Work �
 
 ## 已知限制与后续提案
 
-T26 后复审发现的可靠性、目录可读性、skill 与 Workbook 问题已归入 [C002 proposed change](../../changes/proposed/C002-v0.2.0-reliability/README.md)。C002 尚未采用，产品修复为 `not_run`；这些 finding 不改写 v0.1.0 的发布和 MVP 完成事实。
+T26 后复审发现的可靠性、目录可读性、skill 与 Workbook 问题已归入 [C002 proposed change](../../changes/active/C002-v0.2.0-reliability/README.md)。C002 尚未采用，产品修复为 `not_run`；这些 finding 不改写 v0.1.0 的发布和 MVP 完成事实。

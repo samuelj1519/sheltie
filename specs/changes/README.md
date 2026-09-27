@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.1.0`](../releases/v0.1.0/README.md)
-Active change：无
+Active change：[C002](active/C002-v0.2.0-reliability/README.md)
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -9,13 +9,13 @@ Active change：无
 
 | Change | 目标 | 状态 | 入口 |
 | --- | --- | --- | --- |
-| C002 | v0.2.0 可靠性修复 | proposed，产品修复 `not_run` | [README](proposed/C002-v0.2.0-reliability/README.md) |
+| 无 | — | — | — |
 
 ## Active
 
 | Change | 目标 | 当前任务 | 入口 |
 | --- | --- | --- | --- |
-| 无 | — | — | — |
+| C002 | v0.2.0 可靠性修复 | T14 | [README](active/C002-v0.2.0-reliability/README.md) |
 
 ## Completed
 
