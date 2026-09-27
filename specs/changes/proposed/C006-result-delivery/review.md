@@ -2,6 +2,8 @@
 
 结论：建议起草“成果交付与依赖就绪”，两个单元分别采用。本文件记录方向讨论的依据。它不是实现后的独立 review。
 
+后续：按独立审阅第 2 条，依赖就绪已拆到 [C008](../C008-dependency-readiness/README.md)，本 package 只保留成果交付；本轮修订见 [review-response-2026-09-27.md](review-response-2026-09-27.md)。下文保留讨论当时的原貌。
+
 基准：`186ebd75d744fc2db83a72b715d36d05dd923883`。日期：2026-09-27。参与者：用户、Claude Code，以及外部讨论者的书面意见。
 
 ## 1. 起点
@@ -28,7 +30,7 @@
 
 ## 3. 讨论中纠正的本方错误
 
-- 说宪章 INV-3 的条文写着“引擎只写 `~/.sheltie`”。条文只说不写宿主配置、不安装；“只写 `SHELTIE_HOME`”在 architecture.md 的 INV-3 实现行、storage.md §6、AGENTS.md 和 CONTEXT.md；
+- 说宪章 INV-3 的条文写着“引擎只写 `~/.sheltie`”。条文只说不写宿主配置、不安装；“只写 `SHELTIE_HOME`”在 architecture.md §6 的 INV-3 实现行、AGENTS.md、CONTEXT.md 和 GF-27（本条原先误写为 storage.md §6，已在 2026-09-27 答复中更正）；
 - 说 skill 检查默认只警告。必需依赖不满足或未知时应当不开始；
 - 把导出组件独立当作可以省去交付合同；
 - 用一个 `kind + name` 当作依赖身份。
