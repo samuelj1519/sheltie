@@ -68,7 +68,7 @@
 | C002-T02 | Owner Claude 的本次任务提交；基线 `63d4d48` | fmt/check/Clippy/nextest exit 0；nextest 338 passed；[原始运行](evidence/t02/README.md) | show 双格式 start_inputs、缺/多键、非法名、缺 workbook/flow、新 home 不建库、exit 2 参数反例与同 request-id 补条件重试全部通过；home 比较用路径快照与直连 SQLite 独立 oracle | Owner 按任务卡自查通过；独立 Reviewer 按 plan 由 M1 承担。关闭 N01 与 GF-30 预检；T07 的意图指纹不在本任务 |
 | C002-T03 | Owner Claude 的本次任务提交；基线 `df0e120` | fmt/check/Clippy/nextest exit 0；nextest 347 passed；[原始运行](evidence/t03/README.md) | WorkLayout 纯函数与独立手写期望；输出路径可移植字符集、祖先与 ASCII 折叠别名拒绝；`outputs/brief.md` 声明合法并经真实 CLI begin→写输出→submit 提交成功；样例与 spec-dev 回归通过 | Owner 按任务卡自查通过；O12 产品闭环留待 T07（持久 caller 未切换，按 plan 不提前记关闭） |
 | C002-T04 | not_run | not_run | not_run | not_run |
-| C002-T09 | not_run | not_run | not_run | not_run |
+| C002-T09 | Owner Claude 的本次任务提交；基线 `6b40abd98d46b878286bdc531021c6c4bd9dce50` | fmt/check/Clippy/nextest exit 0；nextest 359 passed；[原始运行](evidence/t09/README.md) | python3 独立向量（含 O07 碰撞对分开、字节序排序、一字节之差）；软硬链、恰好 32 MiB/256 MiB 与超限拒绝；实现期间独立向量抓出并修复一次 `of_bytes(finalize())` 双重哈希 | Owner 按任务卡自查通过；O07 产品闭环（生产 caller 切换、schema 2 唯一语义）留待 T07 |
 | C002-T05 | not_run | not_run | not_run | not_run |
 | C002-T06 | not_run | not_run | not_run | not_run |
 | C002-T07 | not_run | not_run | not_run | not_run |
