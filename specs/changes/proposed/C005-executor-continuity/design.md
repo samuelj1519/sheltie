@@ -6,7 +6,7 @@
 
 | 层 | 知道什么 | 不知道什么 |
 | --- | --- | --- |
-| sheltie-core | Attempt 取代与 `superseded` 终态、中断原因闭集、原因来源闭集、四种计数与上限、资源等待的状态转换 | 执行者是 Claude 还是 Codex；额度窗口是什么 |
+| sheltie-core | Attempt 取代与 `superseded` 终态、中断原因闭集、原因来源闭集、四种计数与上限、资源等待的状态转换（§5 转换表） | 执行者是 Claude 还是 Codex；额度窗口是什么 |
 | sheltie-runtime | 存取执行记录、额度观测、交接包投影、事务 | 观测值是否准确 |
 | 外围（skill、驱动层、额度观测器） | 执行入口怎样调用；宿主和提供方的额度通道怎样读取 | Work 状态怎样推进（只能通过 CLI） |
 
@@ -67,11 +67,29 @@ Claude Code 交互式 CLI 在额度恢复后可以自动继续，这正是迟到
 ## 5. 可恢复的等待
 
 ```text
-active ──资源不可用（带来源）──▶ blocked(resource_wait) ──新观测或获准尝试确认可用──▶ active
-                              │
-                              ├── 资源重试、切换次数或总等待期限耗尽 ──▶ blocked(需要人)
-                              └── work cancel
+active ──work wait（资源不可用，带来源）──▶ blocked(resource_wait) ──work resume（新观测或获准尝试）──▶ active
+  │                                        │
+  │                                        ├── 总等待期限已过时 resume ──▶ blocked(continuity_exhausted)
+  │                                        └── work cancel
+  ├── attempt supersede（换执行者，Work 仍 active）
+  └── 资源重试或切换次数将超限 ──▶ blocked(continuity_exhausted) ── 只能 work cancel
 ```
+
+每个操作在一个写锁事务内完成，执行前按 Store 当前状态核对前提：
+
+| 当前状态 | 操作 | 前提 | 结果 | 计数 |
+| --- | --- | --- | --- | --- |
+| Work 活动，最新 Attempt `running` | `attempt supersede --reason --source` | 切换次数未超限 | Attempt → `superseded`；Work 仍活动；`next` 给出同一 Occurrence 的 `attempt begin` | 切换 +1 |
+| 同上 | 同上 | 本次将超过切换上限 | Attempt → `superseded`；Work → `blocked(continuity_exhausted)` | 切换 +1，记录耗尽项 |
+| Work 活动，最新 Attempt `running` 或尚未领取 | `work wait --reason resource_unavailable --source` | 资源重试未超限 | 若有 `running` Attempt，转为 `superseded`；Work → `blocked(resource_wait)`，记来源与开始时间 | 资源重试 +1 |
+| 同上 | 同上 | 本次将超过资源重试上限 | 同上，但 Work → `blocked(continuity_exhausted)` | 资源重试 +1，记录耗尽项 |
+| `blocked(resource_wait)` | `work resume --source` | 累计等待未超过总等待期限 | Work → 活动；`next` 给出同一 Occurrence 的 `attempt begin` | 本次等待时长计入累计 |
+| `blocked(resource_wait)` | `work resume --source` | 累计等待已超过期限 | Work → `blocked(continuity_exhausted)` | 记录耗尽项 |
+| `blocked(resource_wait)` | `work cancel` | — | Work → `cancelled` | — |
+| `blocked(resource_wait)` | 旧执行者 `attempt submit` / `attempt fail` | — | 拒绝，`ATTEMPT_NOT_RUNNING` | — |
+| `blocked(continuity_exhausted)` | `work cancel` | — | Work → `cancelled`；其他操作都拒绝 | — |
+
+`next` 按这张表给出合法下一步：`running` 时在现有 `submit`、`fail`、`cancel` 之外加入 `supersede` 与 `wait`；`resource_wait` 时只给出 `resume` 与 `cancel`。恢复时声明换执行者的，计一次切换，超限同样进入 `continuity_exhausted`。Occurrence 不变，`max_visits`、`max_retries` 都不受影响。
 
 - 只有原因为“资源不可用”的阻塞可以恢复；其他非门槛原因仍按 GF-14 只能取消；
 - 状态名 `resource_wait` 只表示“在等资源”，不表示已确认耗尽。显示按来源区分：模型自报显示“暂停，未核实”；人工报告显示“用户报告不可用”；提供方通道显示“提供方报告耗尽”；

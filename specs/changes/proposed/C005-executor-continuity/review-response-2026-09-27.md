@@ -60,3 +60,37 @@
 ## 推进建议答复
 
 同意：C002 恢复闭合后先做两宿主人工接续探针，分别报告同宿主恢复与跨宿主替换。“旧提交迟到”“驱动被杀”“缺额度观测”等反例已在 validation §5，本轮新增“旧 submit 与取代并发”“取代不消耗业务重试”“自报等待的显示”“额度未知探测”四条。自动驱动的立项条件按第 5 条修订。
+
+## 复审（e87eb07）答复
+
+复审对象：上述修订后的提案（提交 e87eb07）。复审没有写入文件，意见以对话形式给出；本节按原编号记录与 C005 相关的条目。
+
+### Spec3. 进入和离开资源等待没有操作（高）
+
+**判断：采纳。** e87eb07 只新增了 `attempt supersede`，用于立即换执行者。但 EX-04 的 `blocked(resource_wait)` 没有进入它的操作，也没有离开它的操作：执行者在 `running` 中额度耗尽、又没有可换的人时，只能 `attempt fail`（消耗业务重试）或取消，恰好是本 package 要消除的情况。design.md §5 的状态图只画了箭头，没有命令、前提和计数。
+
+**处理：**
+
+- `attempt supersede` 保留，只用于“马上换人”；切换超限时旧 Attempt 仍转为 `superseded`，Work 进入 `blocked(continuity_exhausted)`。
+- 新增 `work wait --reason resource_unavailable --source`：同一事务内把 `running` Attempt 转为 `superseded`，Work 进入 `resource_wait`，资源重试 +1。
+- 新增 `work resume --source`：回到活动状态，同一 Occurrence 内领取新 Attempt。恢复本身不确认资源可用。
+- 资源重试、切换次数、总等待期限任一超限，进入 `blocked(continuity_exhausted)`，只能取消。
+- design.md §5 给出完整转换表和 `next` 的形状。
+
+**修改位置：** spec.md EX-02、EX-04、EX-05、§4 承诺表、§6 上游表（GF-14、contracts）；design.md §1、§5；README.md 采用后成功标准；validation.md §5 新增五行（运行中等待、恢复后领取、等待中迟到提交、三种上限耗尽、`work wait` 事务前后崩溃）。
+
+### Spec6a. 业务重试的计数口径与 C004 对齐（中）
+
+**判断：采纳。** EX-05“只在内容失败时消耗”与 C004 让验证器故障消耗 `max_retries` 冲突，也与现行 `attempt fail` 的语义不符：执行失败不一定是内容失败。
+
+**处理：** EX-05 改为：`max_retries` 由节点自身的执行失败（`attempt fail`）消耗，包括 C004 验证节点上的验证器故障；`max_visits` 由返工消耗；`attempt supersede` 与 `work wait` 都不消耗。“资源重试”明确为进入 `work wait` 的次数。EX-02 中引用旧口径的句子同步修改。
+
+**修改位置：** spec.md EX-02、EX-05；validation.md §5 新增“验证器超时不计资源重试”。
+
+### Spec6b. C008 未采用时第二阶段的依赖过滤（中）
+
+**判断：采纳。** EX-11 把 C008 的准入检查列为过滤条件之一，但第二阶段的采用条件没有写 C008 未采用时怎么办。
+
+**处理：** C008 未采用时第二阶段仍可采用：过滤没有依赖就绪这一项，执行记录写“依赖未检查”；缺失的依赖只在执行中暴露为执行失败或能力不足，不显示为“依赖已就绪”。
+
+**修改位置：** spec.md EX-11；README.md 第二阶段采用条件；validation.md §5 新增一行。
