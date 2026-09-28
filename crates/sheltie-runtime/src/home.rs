@@ -196,6 +196,10 @@ fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {
 }
 
 impl HomeLock {
+    pub(crate) fn locked_identity(&self) -> (u64, u64) {
+        self.locked_ident
+    }
+
     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。
     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。
     pub fn identity_still_valid(&self) -> bool {

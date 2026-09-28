@@ -1,0 +1,18 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+────────────
+ Nextest run ID 5206d173-c4da-457c-8a2a-1cabecfd07bc with nextest profile: default
+    Starting 12 tests across 32 binaries (516 tests skipped)
+        PASS [   0.014s] ( 1/12) sheltie-runtime::selfmgmt rollback_rejects_bin_parent_symlink_and_preserves_external_binaries
+        PASS [   0.019s] ( 2/12) sheltie-runtime selfmgmt::tests::bounded_child_limits_stderr_as_well_as_stdout
+        PASS [   0.022s] ( 3/12) sheltie-runtime::selfmgmt install_rejects_tmp_parent_symlink_and_preserves_external_sentinel
+        PASS [   0.027s] ( 4/12) sheltie-runtime selfmgmt::tests::bounded_child_accepts_exact_stdout_limit_and_rejects_one_more
+        PASS [   0.105s] ( 5/12) sheltie-runtime::selfmgmt purge_reports_partial_progress_if_locked_inode_is_unlinked
+        PASS [   0.121s] ( 6/12) sheltie-runtime::selfmgmt purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock
+        PASS [   0.155s] ( 7/12) sheltie-runtime::selfmgmt update_rejects_symlink_in_archive_without_chmodding_its_target
+        PASS [   0.283s] ( 8/12) sheltie-runtime::selfmgmt purge_removes_frozen_work_and_binary_but_preserves_same_root_lock
+        PASS [   0.292s] ( 9/12) sheltie-runtime::selfmgmt purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed
+        PASS [   0.292s] (10/12) sheltie-runtime::selfmgmt update_stops_if_verified_candidate_bytes_change_before_any_replacement
+        PASS [   0.600s] (11/12) sheltie-cli::self_cmd self_update_resolves_relative_release_base_from_command_directory
+        PASS [   0.607s] (12/12) sheltie-cli::self_cmd purge_reports_the_retained_root_and_lock
+────────────
+     Summary [   0.608s] 12 tests run: 12 passed, 516 skipped

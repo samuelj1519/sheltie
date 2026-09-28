@@ -1,12 +1,21 @@
 //! 二进制自管理：`self install | update | rollback | uninstall | version`。
 //! 规则见 `specs/contracts/storage.md` §9 与协议 `self` 组。
 
+use std::io::{Read as _, Write as _};
+use std::process::Stdio;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
+
 use serde::Deserialize;
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::path::AbsPath;
 
 use crate::error::{Error, Result};
+use crate::fsx::ManagedRelPath;
 use crate::home::Home;
+
+const MAX_TOOL_STDERR_BYTES: u64 = 1024 * 1024;
 
 /// 发布清单的来源。默认 GitHub Releases；测试用环境变量 `SHELTIE_RELEASE_BASE` 指向本地目录。
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -108,38 +117,67 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
         &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
     )?;
     let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-    // 已存在且字节相同就不动（幂等）。目标同样走 T04 边界读；读不出（缺失、软链、被替换）
-    // 都当成不同，走落位覆盖。
-    if crate::fsx::open_managed_optional(home, &target)?
-        .and_then(|old| old.read_bounded(crate::fsx::MAX_FILE_BYTES).ok())
-        .map(|old| old == bytes)
-        .unwrap_or(false)
-    {
-        return Ok(InstallOutcome {
-            installed_to: target,
-            already_installed: true,
-            path_hint: path_hint(home),
-        });
-    }
+    // 缺失走独占新建；已存在对象必须是受管普通单链接文件，不能把软链当成
+    // “不同版本”覆盖。相同字节保持幂等。
+    let old = crate::fsx::open_managed_optional(home, &target)?;
+    let replace = if let Some(file) = &old {
+        if file.read_bounded(crate::fsx::MAX_FILE_BYTES)? == bytes {
+            return Ok(InstallOutcome {
+                installed_to: target,
+                already_installed: true,
+                path_hint: path_hint(home),
+            });
+        }
+        true
+    } else {
+        false
+    };
     crate::fsx::ensure_dirs_under(home, &lock, &bin)?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
-    std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
     let staged = tmp.join_segment("sheltie");
-    // 落位用独占创建 + fsync + rename。
-    crate::fsx::write_new_file(home, &lock, &staged, &bytes)?;
-    make_executable(&staged)?;
-    fsync(&staged)?;
-    std::fs::rename(staged.as_path(), target.as_path())
-        .map_err(|e| Error::io(target.as_str(), e))?;
-    crate::fsx::fsync_dir(home, &lock, &bin)?;
-    let _ = std::fs::remove_dir_all(tmp.as_path());
+    crate::fsx::ensure_dirs_under(home, &lock, &tmp)?;
+    let install_result = (|| {
+        crate::fsx::write_new_file(home, &lock, &staged, &bytes)?;
+        let staged_file =
+            crate::fsx::verify_and_make_executable_confined(home, &lock, &staged, &bytes)?;
+        if replace {
+            crate::fsx::replace_verified_managed_file(home, &lock, &staged_file, &target, &bytes)?;
+        } else {
+            crate::fsx::rename_verified_managed_file(home, &lock, &staged_file, &target, &bytes)?;
+        }
+        Ok::<_, Error>(())
+    })();
+    if let Err(error) = install_result {
+        return Err(cleanup_self_tmp(home, &lock, &tmp, error));
+    }
+    crate::fsx::remove_tree_no_follow(home, &lock, &tmp)?;
     Ok(InstallOutcome {
         installed_to: target,
         already_installed: false,
         path_hint: path_hint(home),
     })
+}
+
+fn cleanup_self_tmp(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    tmp: &AbsPath,
+    original: Error,
+) -> Error {
+    if matches!(original, Error::RecoveryRequired { .. }) {
+        return original;
+    }
+    match crate::fsx::remove_tree_no_follow(home, lock, tmp) {
+        Ok(()) => original,
+        Err(cleanup) => Error::io(
+            tmp.as_str(),
+            std::io::Error::other(format!(
+                "self操作失败：{original}；临时目录清理也失败：{cleanup}"
+            )),
+        ),
+    }
 }
 
 /// `self update`（存储合同 §9 六步）。`version` 为 `None` 时按 latest 固定出的版本更新。
@@ -171,77 +209,149 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     };
     // 资产名要能安全拼进 tmp/<uuid>/；伪造的清单不能把路径带出管理根。
     let name = checked_asset_name(&asset.name)?;
-    // 步 3：下载到 tmp/<uuid>/，核对摘要，必要时解包。
+    // 步 3：在受管 tmp 中下载、核对摘要，并安全读取压缩包候选。
     crate::fsx::ensure_dirs_under(home, &lock, &home.tmp_dir())?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
-    std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
-    let downloaded = match download(source, &tag, &name, &tmp) {
-        Ok(p) => p,
-        Err(e) => {
-            let _ = std::fs::remove_dir_all(tmp.as_path());
-            return Err(e);
-        }
-    };
-    // 核对发布包文件的摘要（限额读取同一对象）；不符删掉下载文件。
-    let bytes = match crate::fsx::open_managed_regular(home, &downloaded)
-        .and_then(|f| f.read_bounded(crate::fsx::MAX_FILE_BYTES))
-    {
-        Ok(b) => b,
-        Err(e) => {
-            let _ = std::fs::remove_dir_all(tmp.as_path());
-            return Err(Error::UpdateUnavailable {
-                reason: format!("读不了发布包 {name}：{e}"),
-            });
-        }
-    };
-    let got = Sha256Hex::of_bytes(&bytes);
-    if got.as_str() != asset.sha256 {
-        let _ = std::fs::remove_dir_all(tmp.as_path());
-        return Err(Error::UpdateChecksumMismatch {
-            expected: asset.sha256.clone(),
-            actual: got.as_str().to_string(),
-        });
-    }
-    // 压缩包解包取包内的 sheltie 二进制；瘦格式的资产就是二进制本身。
-    // 解包失败同样删 tmp/<uuid>/——失败窗口里不留半成品（存储合同 §9 步 3）。
-    let new_bin = match unpack_if_archive(&downloaded, &tmp) {
-        Ok(Some(bin)) => bin,
-        Ok(None) => downloaded,
-        Err(e) => {
-            let _ = std::fs::remove_dir_all(tmp.as_path());
-            return Err(e);
-        }
-    };
-    if let Err(e) = make_executable(&new_bin) {
-        let _ = std::fs::remove_dir_all(tmp.as_path());
-        return Err(e);
-    }
     let bin = home.bin_dir();
     crate::fsx::ensure_dirs_under(home, &lock, &bin)?;
     let target = bin.join_segment("sheltie");
     let prev = bin.join_segment("sheltie.prev");
-    // 崩溃窗口：第 4 步与第 5 步之间（存储合同 §9 末段）。
-    if target.as_path().exists() {
-        if let Err(e) = std::fs::rename(target.as_path(), prev.as_path()) {
-            // rename 失败同样清 tmp——失败窗口不留半成品（§9 步 3 的口径延伸到替换步）。
-            let _ = std::fs::remove_dir_all(tmp.as_path());
-            return Err(Error::io(prev.as_str(), e));
+    crate::fsx::ensure_dirs_under(home, &lock, &tmp)?;
+    let result = (|| {
+        let downloaded = download(home, &lock, source, &tag, &name, &tmp)?;
+        let bytes = crate::fsx::open_managed_regular(home, &downloaded)?
+            .read_bounded(crate::fsx::MAX_FILE_BYTES)
+            .map_err(|error| Error::UpdateUnavailable {
+                reason: format!("读不了发布包 {name}：{error}"),
+            })?;
+        let got = Sha256Hex::of_bytes(&bytes);
+        if got.as_str() != asset.sha256 {
+            return Err(Error::UpdateChecksumMismatch {
+                expected: asset.sha256.clone(),
+                actual: got.as_str().to_string(),
+            });
         }
+        let (new_bin, candidate_bytes) = unpack_if_archive(home, &lock, &name, &bytes, &tmp)?;
+        let candidate_handle = crate::fsx::verify_and_make_executable_confined(
+            home,
+            &lock,
+            &new_bin,
+            &candidate_bytes,
+        )?;
+        crate::failpoint::rendezvous("update_after_candidate_verify", home.root().as_str())
+            .map_err(|error| Error::io(home.root().as_str(), error))?;
+
+        let current_binary = crate::fsx::open_managed_optional(home, &target)?;
+        let old_prev = if current_binary.is_some() {
+            crate::fsx::open_managed_optional(home, &prev)?
+        } else {
+            None
+        };
+        let displaced_prev = tmp.join_segment("previous-sheltie.prev");
+        if current_binary.is_some() {
+            if old_prev.is_some() {
+                // 原子交换后 current 已到 .prev；旧 .prev 暂留在 tmp，直到新 binary 到位。
+                crate::fsx::replace_managed_regular_file(
+                    home,
+                    &lock,
+                    &home.to_rel(&prev)?,
+                    &home.to_rel(&target)?,
+                )?;
+                if let Err(error) = crate::fsx::rename_managed_new(
+                    home,
+                    &lock,
+                    &home.to_rel(&target)?,
+                    &home.to_rel(&displaced_prev)?,
+                ) {
+                    if matches!(error, Error::RecoveryRequired { .. }) {
+                        return Err(error);
+                    }
+                    let restore = crate::fsx::replace_managed_regular_file(
+                        home,
+                        &lock,
+                        &home.to_rel(&prev)?,
+                        &home.to_rel(&target)?,
+                    );
+                    return Err(match restore {
+                        Ok(()) => error,
+                        Err(restore_error) => Error::RecoveryRequired {
+                            path: target.to_string(),
+                            detail: format!(
+                                "更新移动旧 .prev 失败：{error}；目标、prev 与临时备份状态未能恢复，均保留：{restore_error}"
+                            ),
+                        },
+                    });
+                }
+            } else {
+                crate::fsx::rename_managed_new(
+                    home,
+                    &lock,
+                    &home.to_rel(&target)?,
+                    &home.to_rel(&prev)?,
+                )?;
+            }
+        }
+
+        // 既有 crash test 在此验证：目标可缺失，但 .prev 是原当前 binary。
+        crate::failpoint::maybe_exit("update_between_renames");
+        if let Err(error) = crate::fsx::rename_verified_managed_file(
+            home,
+            &lock,
+            &candidate_handle,
+            &target,
+            &candidate_bytes,
+        ) {
+            if matches!(error, Error::RecoveryRequired { .. }) {
+                return Err(error);
+            }
+            if current_binary.is_some() {
+                let restore_current = crate::fsx::rename_managed_new(
+                    home,
+                    &lock,
+                    &home.to_rel(&prev)?,
+                    &home.to_rel(&target)?,
+                );
+                if let Err(restore_error) = restore_current {
+                    return Err(Error::RecoveryRequired {
+                        path: target.to_string(),
+                        detail: format!(
+                            "安装新binary失败：{error}；原binary端点未能确认恢复，保留prev与临时目录：{restore_error}"
+                        ),
+                    });
+                }
+                if old_prev.is_some() {
+                    if let Err(restore_error) = crate::fsx::rename_managed_new(
+                        home,
+                        &lock,
+                        &home.to_rel(&displaced_prev)?,
+                        &home.to_rel(&prev)?,
+                    ) {
+                        return Err(Error::RecoveryRequired {
+                            path: prev.to_string(),
+                            detail: format!(
+                                "原binary已恢复；旧 .prev 位于 {displaced_prev}，保留临时目录：{restore_error}"
+                            ),
+                        });
+                    }
+                }
+            }
+            return Err(error);
+        }
+        Ok(UpdateOutcome {
+            from: current.to_string(),
+            to: manifest.version.clone(),
+            up_to_date: false,
+        })
+    })();
+    match result {
+        Ok(outcome) => {
+            crate::fsx::remove_tree_no_follow(home, &lock, &tmp)?;
+            Ok(outcome)
+        }
+        Err(error) => Err(cleanup_self_tmp(home, &lock, &tmp, error)),
     }
-    crate::failpoint::maybe_exit("update_between_renames");
-    if let Err(e) = std::fs::rename(new_bin.as_path(), target.as_path()) {
-        let _ = std::fs::remove_dir_all(tmp.as_path());
-        return Err(Error::io(target.as_str(), e));
-    }
-    crate::fsx::fsync_dir(home, &lock, &bin)?;
-    let _ = std::fs::remove_dir_all(tmp.as_path());
-    Ok(UpdateOutcome {
-        from: current.to_string(),
-        to: manifest.version,
-        up_to_date: false,
-    })
 }
 
 /// `self rollback`：`sheltie.prev` 换回来；`bin/sheltie` 缺失时直接挪回。没有 `.prev` 报 `NotFound`。
@@ -250,27 +360,46 @@ pub fn rollback(home: &Home) -> Result<()> {
     let bin = home.bin_dir();
     let prev = bin.join_segment("sheltie.prev");
     let target = bin.join_segment("sheltie");
-    if !prev.as_path().exists() {
-        return Err(Error::NotFound {
-            what: prev.to_string(),
-        });
-    }
-    if target.as_path().exists() {
-        // 只保留一级：现在的 sheltie 丢弃，不变成新的 .prev。
-        let trash = home
+    let _previous = crate::fsx::open_managed_regular(home, &prev)?;
+    let current = crate::fsx::open_managed_optional(home, &target)?;
+    if current.is_some() {
+        crate::fsx::ensure_dirs_under(home, &lock, &home.tmp_dir())?;
+        let tmp = home
             .tmp_dir()
             .join_segment(&uuid::Uuid::now_v7().to_string());
-        if let Some(parent) = trash.as_path().parent() {
-            let _ = std::fs::create_dir_all(parent);
+        crate::fsx::ensure_dirs_under(home, &lock, &tmp)?;
+        let saved_current = tmp.join_segment("current-sheltie");
+        crate::fsx::rename_managed_new(
+            home,
+            &lock,
+            &home.to_rel(&target)?,
+            &home.to_rel(&saved_current)?,
+        )?;
+        match crate::fsx::rename_managed_new(
+            home,
+            &lock,
+            &home.to_rel(&prev)?,
+            &home.to_rel(&target)?,
+        ) {
+            Ok(()) => crate::fsx::remove_tree_no_follow(home, &lock, &tmp),
+            Err(error) => match crate::fsx::rename_managed_new(
+                home,
+                &lock,
+                &home.to_rel(&saved_current)?,
+                &home.to_rel(&target)?,
+            ) {
+                Ok(()) => Err(cleanup_self_tmp(home, &lock, &tmp, error)),
+                Err(restore) => Err(Error::RecoveryRequired {
+                    path: target.to_string(),
+                    detail: format!(
+                        "rollback替换失败：{error}；当前binary位于 {saved_current}，恢复失败：{restore}"
+                    ),
+                }),
+            },
         }
-        if std::fs::rename(target.as_path(), trash.as_path()).is_ok() {
-            // trash 是文件不是目录；remove_dir_all 对文件报 ENOTDIR，会把它留在 tmp/ 里。
-            let _ = std::fs::remove_file(trash.as_path());
-        }
-        crate::fsx::fsync_dir(home, &lock, &bin)?;
+    } else {
+        crate::fsx::rename_managed_new(home, &lock, &home.to_rel(&prev)?, &home.to_rel(&target)?)
     }
-    std::fs::rename(prev.as_path(), target.as_path()).map_err(|e| Error::io(target.as_str(), e))?;
-    Ok(())
 }
 
 /// `self uninstall`：默认只删 `bin/`；`purge` 清理管理数据但保留管理根和同一 `.lock`。
@@ -286,7 +415,7 @@ pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPat
     let bin = home.bin_dir();
     if purge {
         crate::fsx::remove_tree_no_follow(home, &lock, home.root())?;
-        return Ok(Vec::new());
+        return Ok(vec![home.root().clone(), home.lock_path()]);
     }
     if bin.as_path().exists() {
         crate::fsx::remove_tree_no_follow(home, &lock, &bin)?;
@@ -387,8 +516,19 @@ struct ReleaseManifest {
 fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
     let url = source.manifest_url(tag);
     let text = if source.is_local() {
-        std::fs::read_to_string(&url).map_err(|e| Error::UpdateUnavailable {
-            reason: format!("读不了发布清单 {url}：{e}"),
+        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
+        let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
+            Error::UpdateUnavailable {
+                reason: format!("读不了发布清单 {url}：{error}"),
+            }
+        })?;
+        let bytes = file
+            .read_bounded(crate::fsx::MAX_FILE_BYTES)
+            .map_err(|error| Error::UpdateUnavailable {
+                reason: format!("发布清单 {url} 超过读取限额：{error}"),
+            })?;
+        String::from_utf8(bytes).map_err(|error| Error::UpdateUnavailable {
+            reason: format!("发布清单 {url} 不是UTF-8：{error}"),
         })?
     } else {
         curl(&url).map_err(|reason| Error::UpdateUnavailable { reason })?
@@ -475,25 +615,72 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
 }
 
 /// 下载固定 tag 的发布包到 `tmp/<name>`。本地发布目录直接复制；远端用系统 `curl`。
-fn download(source: &ReleaseSource, tag: &str, name: &str, tmp: &AbsPath) -> Result<AbsPath> {
+fn download(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    source: &ReleaseSource,
+    tag: &str,
+    name: &str,
+    tmp: &AbsPath,
+) -> Result<AbsPath> {
     let url = source.asset_url(tag, name);
     let dst = tmp.join_segment(name);
-    if source.is_local() {
-        std::fs::copy(&url, dst.as_path()).map_err(|e| Error::UpdateUnavailable {
-            reason: format!("读不了发布包 {url}：{e}"),
+    let bytes = if source.is_local() {
+        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
+        let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
+            Error::UpdateUnavailable {
+                reason: format!("读不了发布包 {url}：{error}"),
+            }
         })?;
+        file.read_bounded(crate::fsx::MAX_FILE_BYTES)
+            .map_err(|error| Error::UpdateUnavailable {
+                reason: format!("发布包 {url} 超过读取限额：{error}"),
+            })?
     } else {
-        curl_to(&url, &dst).map_err(|reason| Error::UpdateUnavailable { reason })?;
-    }
+        let mut command = std::process::Command::new("curl");
+        command.args(["-fsSL", &url]);
+        let output = run_child_bounded(
+            &mut command,
+            None,
+            &format!("下载 {url}"),
+            crate::fsx::MAX_FILE_BYTES,
+            MAX_TOOL_STDERR_BYTES,
+        )?;
+        if !output.status.success() {
+            return Err(Error::UpdateUnavailable {
+                reason: format!(
+                    "下载 {url} 失败（curl 退出 {}）：{}",
+                    output
+                        .status
+                        .code()
+                        .map_or_else(|| "?".to_string(), |code| code.to_string()),
+                    String::from_utf8_lossy(&output.stderr)
+                ),
+            });
+        }
+        if output.stdout.len() as u64 > crate::fsx::MAX_FILE_BYTES {
+            return Err(Error::UpdateUnavailable {
+                reason: format!("发布包 {url} 超过读取限额"),
+            });
+        }
+        output.stdout
+    };
+    crate::fsx::write_new_file(home, lock, &dst, &bytes)?;
     Ok(dst)
 }
 
 /// `curl -fsSL <url>` 取文本。
 fn curl(url: &str) -> std::result::Result<String, String> {
-    let out = std::process::Command::new("curl")
-        .args(["-fsSL", url])
-        .output()
-        .map_err(|e| format!("起不了 curl：{e}"))?;
+    let mut command = std::process::Command::new("curl");
+    command.args(["-fsSL", url]);
+    let out = run_child_bounded(
+        &mut command,
+        None,
+        &format!("取清单 {url}"),
+        crate::fsx::MAX_FILE_BYTES,
+        MAX_TOOL_STDERR_BYTES,
+    )
+    .map_err(|error| error.to_string())?;
     if !out.status.success() {
         return Err(format!(
             "curl 退出 {}：{}",
@@ -507,82 +694,234 @@ fn curl(url: &str) -> std::result::Result<String, String> {
 }
 
 /// `curl -fsSL <url> -o <dst>` 取文件。
-fn curl_to(url: &str, dst: &AbsPath) -> std::result::Result<(), String> {
-    let out = std::process::Command::new("curl")
-        .args(["-fsSL", url, "-o", dst.as_str()])
-        .output()
-        .map_err(|e| format!("起不了 curl：{e}"))?;
-    if !out.status.success() {
-        return Err(format!(
-            "下载 {url} 失败（curl 退出 {}）：{}",
-            out.status
-                .code()
-                .map_or_else(|| "?".to_string(), |c| c.to_string()),
-            String::from_utf8_lossy(&out.stderr)
-        ));
-    }
-    Ok(())
-}
-
-/// 压缩包解包，返回包内唯一名为 `sheltie` 的普通文件；不是压缩包返回 `None`。
-fn unpack_if_archive(asset: &AbsPath, tmp: &AbsPath) -> Result<Option<AbsPath>> {
-    let name = asset
-        .as_path()
-        .file_name()
-        .map(|n| n.to_string())
-        .unwrap_or_default();
+/// 读取压缩包索引并只把唯一普通 `sheltie` 成员写入受管 tmp；从不让 tar 在管理根解包。
+fn unpack_if_archive(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    name: &str,
+    archive: &[u8],
+    tmp: &AbsPath,
+) -> Result<(AbsPath, Vec<u8>)> {
     if !(name.ends_with(".tar.gz") || name.ends_with(".tgz") || name.ends_with(".tar.xz")) {
-        return Ok(None);
+        let candidate = tmp.join_segment("sheltie-candidate");
+        crate::fsx::write_new_file(home, lock, &candidate, archive)?;
+        return Ok((candidate, archive.to_vec()));
     }
-    let dir = tmp.join_segment("unpacked");
-    std::fs::create_dir_all(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))?;
-    let out = std::process::Command::new("tar")
-        .args(["-xf", asset.as_str(), "-C", dir.as_str()])
-        .output()
-        .map_err(|e| Error::io(asset.as_str(), e))?;
-    if !out.status.success() {
+    let listed = run_tar_stdout(&["-tf", "-"], archive, crate::fsx::MAX_TOTAL_BYTES)?;
+    let verbose = run_tar_stdout(&["-tvf", "-"], archive, crate::fsx::MAX_TOTAL_BYTES)?;
+    let names = std::str::from_utf8(&listed).map_err(|error| Error::UpdateUnavailable {
+        reason: format!("压缩包 {name} 的索引不是UTF-8：{error}"),
+    })?;
+    let details = std::str::from_utf8(&verbose).map_err(|error| Error::UpdateUnavailable {
+        reason: format!("压缩包 {name} 的详细索引不是UTF-8：{error}"),
+    })?;
+    let entries = names.lines().collect::<Vec<_>>();
+    let detail_lines = details.lines().collect::<Vec<_>>();
+    if entries.len() != detail_lines.len() {
         return Err(Error::UpdateUnavailable {
-            reason: format!("解包 {name} 失败：{}", String::from_utf8_lossy(&out.stderr)),
+            reason: format!("压缩包 {name} 的索引格式不一致"),
         });
     }
-    // cargo-dist 0.32 的包内布局是 <产物名去掉扩展>/sheltie（二进制在内层目录根部，
-    // T25 用 dist build 的真实产出核过）；旧假设 sheltie/bin/sheltie 也接受：
-    // 在解包目录里找恰好一个名为 sheltie 的普通文件。
-    let mut found = Vec::new();
-    find_named_file(dir.as_path().as_std_path(), "sheltie", 3, &mut found);
-    if found.len() == 1 {
-        return Ok(found.into_iter().next());
+    let mut binary = None;
+    for (entry, detail) in entries.into_iter().zip(detail_lines) {
+        let kind = detail.as_bytes().first().copied();
+        if !matches!(kind, Some(b'-' | b'd')) {
+            return Err(Error::UpdateUnavailable {
+                reason: format!("压缩包 {name} 含链接或特殊对象，拒绝解包"),
+            });
+        }
+        let entry = entry.trim_end_matches('/');
+        let rel =
+            ManagedRelPath::new(entry.to_string()).map_err(|error| Error::UpdateUnavailable {
+                reason: format!("压缩包成员路径 {entry:?} 不安全：{error}"),
+            })?;
+        if kind == Some(b'-')
+            && entry.rsplit('/').next() == Some("sheltie")
+            && binary.replace(rel).is_some()
+        {
+            return Err(Error::UpdateUnavailable {
+                reason: format!("解包 {name} 后找到多个 sheltie 二进制"),
+            });
+        }
     }
-    let detail = if found.is_empty() {
-        "找不到"
-    } else {
-        "找到多个"
-    };
-    Err(Error::UpdateUnavailable {
-        reason: format!("解包 {name} 后{detail} sheltie 二进制"),
+    let binary = binary.ok_or_else(|| Error::UpdateUnavailable {
+        reason: format!("解包 {name} 后找不到普通 sheltie 二进制"),
+    })?;
+    let binary = run_tar_stdout(
+        &["-xOf", "-", "--", binary.as_str()],
+        archive,
+        crate::fsx::MAX_FILE_BYTES,
+    )?;
+    let extracted = tmp.join_segment("sheltie-unpacked");
+    crate::fsx::write_new_file(home, lock, &extracted, &binary)?;
+    Ok((extracted, binary))
+}
+
+fn run_tar_stdout(args: &[&str], archive: &[u8], max_bytes: u64) -> Result<Vec<u8>> {
+    let mut child = std::process::Command::new("tar")
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|error| Error::UpdateUnavailable {
+            reason: format!("启动tar失败：{error}"),
+        })?;
+    let output = wait_bounded_child(&mut child, Some(archive), max_bytes, MAX_TOOL_STDERR_BYTES)
+        .map_err(|error| Error::UpdateUnavailable {
+            reason: format!("tar执行失败：{error}"),
+        })?;
+    if !output.status.success() {
+        return Err(Error::UpdateUnavailable {
+            reason: format!("tar失败：{}", String::from_utf8_lossy(&output.stderr)),
+        });
+    }
+    Ok(output.stdout)
+}
+
+fn run_child_bounded(
+    command: &mut std::process::Command,
+    input: Option<&[u8]>,
+    label: &str,
+    max_stdout: u64,
+    max_stderr: u64,
+) -> Result<std::process::Output> {
+    command
+        .stdin(if input.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    let mut child = command.spawn().map_err(|error| Error::UpdateUnavailable {
+        reason: format!("启动{label}失败：{error}"),
+    })?;
+    wait_bounded_child(&mut child, input, max_stdout, max_stderr).map_err(|error| {
+        Error::UpdateUnavailable {
+            reason: format!("{label}失败：{error}"),
+        }
     })
 }
 
-/// 递归收集 `dir` 下名为 `name` 的普通文件，最多下潜 `depth` 层；读不了的目录跳过。
-fn find_named_file(dir: &std::path::Path, name: &str, depth: u8, out: &mut Vec<AbsPath>) {
-    if depth == 0 {
-        return;
-    }
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let Ok(meta) = entry.metadata() else {
-            continue;
-        };
-        if meta.is_dir() {
-            find_named_file(&entry.path(), name, depth - 1, out);
-        } else if meta.is_file() && entry.file_name() == name {
-            if let Ok(p) = AbsPath::new(entry.path().to_string_lossy().into_owned()) {
-                out.push(p);
+fn wait_bounded_child(
+    child: &mut std::process::Child,
+    input: Option<&[u8]>,
+    max_stdout: u64,
+    max_stderr: u64,
+) -> std::io::Result<std::process::Output> {
+    let stop = Arc::new(AtomicBool::new(false));
+    let stdout_stop = Arc::clone(&stop);
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| std::io::Error::other("missing child stdout pipe"))?;
+    let stdout_limit = usize::try_from(max_stdout.saturating_add(1)).unwrap_or(usize::MAX);
+    let stdout_thread = std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        if let Err(error) = stdout.take(stdout_limit as u64).read_to_end(&mut bytes) {
+            stdout_stop.store(true, Ordering::Release);
+            return Err(error);
+        }
+        if bytes.len() > stdout_limit.saturating_sub(1) {
+            stdout_stop.store(true, Ordering::Release);
+        }
+        Ok::<_, std::io::Error>(bytes)
+    });
+    let stderr_stop = Arc::clone(&stop);
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| std::io::Error::other("missing child stderr pipe"))?;
+    let stderr_limit = usize::try_from(max_stderr.saturating_add(1)).unwrap_or(usize::MAX);
+    let stderr_thread = std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        if let Err(error) = stderr.take(stderr_limit as u64).read_to_end(&mut bytes) {
+            stderr_stop.store(true, Ordering::Release);
+            return Err(error);
+        }
+        if bytes.len() > stderr_limit.saturating_sub(1) {
+            stderr_stop.store(true, Ordering::Release);
+        }
+        Ok::<_, std::io::Error>(bytes)
+    });
+    let input_thread = input.map(|bytes| {
+        let mut stdin = child.stdin.take();
+        let bytes = bytes.to_vec();
+        let input_stop = Arc::clone(&stop);
+        std::thread::spawn(move || {
+            let result = stdin
+                .take()
+                .ok_or_else(|| std::io::Error::other("missing child stdin pipe"))?
+                .write_all(&bytes);
+            if result.is_err() {
+                input_stop.store(true, Ordering::Release);
+            }
+            result
+        })
+    });
+    let mut wait_error = None;
+    let status = loop {
+        if stop.load(Ordering::Acquire) {
+            let _ = child.kill();
+            match child.wait() {
+                Ok(status) => break Some(status),
+                Err(error) => {
+                    wait_error = Some(error);
+                    break None;
+                }
             }
         }
+        match child.try_wait() {
+            Ok(Some(status)) => break Some(status),
+            Ok(None) => std::thread::sleep(Duration::from_millis(5)),
+            Err(error) => {
+                let _ = child.kill();
+                wait_error = Some(match child.wait() {
+                    Ok(_) => error,
+                    Err(wait_error) => std::io::Error::other(format!(
+                        "child try_wait 失败：{error}；kill后wait也失败：{wait_error}"
+                    )),
+                });
+                break None;
+            }
+        }
+    };
+    let stdout_result = match stdout_thread.join() {
+        Ok(result) => result,
+        Err(_) => Err(std::io::Error::other("stdout reader panicked")),
+    };
+    let stderr_result = match stderr_thread.join() {
+        Ok(result) => result,
+        Err(_) => Err(std::io::Error::other("stderr reader panicked")),
+    };
+    let input_result = input_thread.map(|thread| match thread.join() {
+        Ok(result) => result,
+        Err(_) => Err(std::io::Error::other("stdin writer panicked")),
+    });
+    if let Some(error) = wait_error {
+        return Err(error);
     }
+    let stdout = stdout_result?;
+    let stderr = stderr_result?;
+    if let Some(input_result) = input_result {
+        input_result?;
+    }
+    if stdout.len() as u64 > max_stdout {
+        return Err(std::io::Error::other(
+            "child stdout exceeded configured limit",
+        ));
+    }
+    if stderr.len() as u64 > max_stderr {
+        return Err(std::io::Error::other(
+            "child stderr exceeded configured limit",
+        ));
+    }
+    Ok(std::process::Output {
+        status: status.ok_or_else(|| std::io::Error::other("child status unavailable"))?,
+        stdout,
+        stderr,
+    })
 }
 
 // ── 小件 ──────────────────────────────────────────────────────
@@ -591,14 +930,30 @@ fn path_hint(home: &Home) -> String {
     format!("把 {} 加进 PATH", home.bin_dir())
 }
 
-fn make_executable(path: &AbsPath) -> Result<()> {
-    use std::os::unix::fs::PermissionsExt;
-    std::fs::set_permissions(path.as_path(), std::fs::Permissions::from_mode(0o755))
-        .map_err(|e| Error::io(path.as_str(), e))
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-fn fsync(path: &AbsPath) -> Result<()> {
-    let f = std::fs::File::open(path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-    f.sync_all().map_err(|e| Error::io(path.as_str(), e))?;
-    Ok(())
+    // Task: C002-T23
+    #[test]
+    fn bounded_child_accepts_exact_stdout_limit_and_rejects_one_more() {
+        let mut exact = std::process::Command::new("sh");
+        exact.args(["-c", "printf 1234"]);
+        let output = run_child_bounded(&mut exact, None, "测试子进程", 4, 16).unwrap();
+        assert_eq!(output.stdout, b"1234");
+
+        let mut oversized = std::process::Command::new("sh");
+        oversized.args(["-c", "printf 12345"]);
+        let error = run_child_bounded(&mut oversized, None, "测试子进程", 4, 16).unwrap_err();
+        assert!(error.to_string().contains("stdout"));
+    }
+
+    // Task: C002-T23
+    #[test]
+    fn bounded_child_limits_stderr_as_well_as_stdout() {
+        let mut oversized = std::process::Command::new("sh");
+        oversized.args(["-c", "printf 1234 >&2"]);
+        let error = run_child_bounded(&mut oversized, None, "测试子进程", 16, 3).unwrap_err();
+        assert!(error.to_string().contains("stderr"));
+    }
 }

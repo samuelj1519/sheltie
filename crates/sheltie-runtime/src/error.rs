@@ -50,6 +50,9 @@ pub enum Error {
         #[source]
         source: std::io::Error,
     },
+    /// 文件系统调用可能已经移动对象；调用方必须保留恢复现场，不得清理相关路径。
+    #[error("{path}：文件系统状态需要恢复：{detail}")]
+    RecoveryRequired { path: String, detail: String },
     #[error("{reason}")]
     InvalidRequest { reason: String },
 }
@@ -70,6 +73,7 @@ impl Error {
             Self::StoreSchemaMismatch { .. } => ErrorCode::StoreSchemaMismatch,
             Self::StoreCorrupt { .. } => ErrorCode::StoreCorrupt,
             Self::Io { .. } => ErrorCode::Io,
+            Self::RecoveryRequired { .. } => ErrorCode::Io,
             Self::InvalidRequest { .. } => ErrorCode::InvalidRequest,
         }
     }

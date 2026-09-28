@@ -1,0 +1,15 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.72s
+────────────
+ Nextest run ID 42e505d8-d38e-4344-977a-ee0c31ca1e18 with nextest profile: default
+    Starting 7 tests across 1 binary
+        PASS [   0.505s] (1/7) sheltie-cli::self_cmd self_version_works_without_home
+        PASS [   0.507s] (2/7) sheltie-cli::self_cmd self_update_text_prompt_explains_schema2_and_rollback_limit
+        PASS [   0.508s] (3/7) sheltie-cli::self_cmd self_update_json_stdout_is_single_document
+        PASS [   0.513s] (4/7) sheltie-cli::self_cmd purge_reports_the_retained_root_and_lock
+        PASS [   0.570s] (5/7) sheltie-cli::self_cmd self_install_json_stdout_is_single_document
+        PASS [   0.570s] (6/7) sheltie-cli::self_cmd self_install_text_prompt_explains_schema2_and_rollback_limit
+        PASS [   0.597s] (7/7) sheltie-cli::self_cmd self_update_version_flag_pins_tag
+────────────
+     Summary [   0.597s] 7 tests run: 7 passed, 0 skipped

@@ -472,6 +472,184 @@ impl ManagedFs {
         self.rename_new_unlocked(from, to)
     }
 
+    pub fn rename_verified_new(
+        &self,
+        lock: &crate::home::HomeLock,
+        file: &SafeFile,
+        to: &ManagedRelPath,
+        expected: &[u8],
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {
+            reason: format!("{} 不是管理根内的候选文件", file.path),
+        })?;
+        if origin.root != self.root || origin.root_ident != self.root_ident {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的候选句柄属于另一管理根", file.path),
+            });
+        }
+        verify_candidate_handle(file, expected)?;
+        let (source_parent, source_leaf) = self.open_parent(&origin.rel)?;
+        let (target_parent, target_leaf) = self.open_parent(to)?;
+        verify_path_matches_handle(&source_parent, &source_leaf, file)?;
+        renameat_with(
+            &source_parent,
+            &source_leaf,
+            &target_parent,
+            &target_leaf,
+            RenameFlags::NOREPLACE,
+        )
+        .map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        if let Err(error) = verify_path_matches_handle(&target_parent, &target_leaf, file) {
+            return Err(Error::RecoveryRequired {
+                path: self.display_path(to),
+                detail: format!("候选移动后身份核验失败，目标和其他端点已保留：{error}"),
+            });
+        }
+        verify_candidate_handle(file, expected).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(to),
+            detail: format!("候选移动后字节复核失败，目标和其他端点已保留：{error}"),
+        })?;
+        fsync(&source_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(&origin.rel),
+            detail: format!("候选已移动但源目录同步失败：{e}"),
+        })?;
+        fsync(&target_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(to),
+            detail: format!("候选已移动但目标目录同步失败：{e}"),
+        })
+    }
+
+    pub fn replace_verified_regular_file(
+        &self,
+        lock: &crate::home::HomeLock,
+        file: &SafeFile,
+        to: &ManagedRelPath,
+        expected: &[u8],
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {
+            reason: format!("{} 不是管理根内的候选文件", file.path),
+        })?;
+        if origin.root != self.root || origin.root_ident != self.root_ident {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的候选句柄属于另一管理根", file.path),
+            });
+        }
+        verify_candidate_handle(file, expected)?;
+        let (source_parent, source_leaf) = self.open_parent(&origin.rel)?;
+        let (target_parent, target_leaf) = self.open_parent(to)?;
+        verify_path_matches_handle(&source_parent, &source_leaf, file)?;
+        let old_target = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        check_regular_stat(&self.display_path(to), &old_target)?;
+        renameat_with(
+            &source_parent,
+            &source_leaf,
+            &target_parent,
+            &target_leaf,
+            RenameFlags::EXCHANGE,
+        )
+        .map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        let source_after = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| Error::RecoveryRequired {
+                path: self.display_path(&origin.rel),
+                detail: format!("候选交换后源端点无法观察：{e}"),
+            })?;
+        let target_after = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| Error::RecoveryRequired {
+                path: self.display_path(to),
+                detail: format!("候选交换后目标端点无法观察：{e}"),
+            })?;
+        if !stat_matches_handle(&target_after, file)
+            || source_after.st_dev != old_target.st_dev
+            || source_after.st_ino != old_target.st_ino
+        {
+            return Err(Error::RecoveryRequired {
+                path: self.display_path(to),
+                detail: "候选交换后端点身份不符；候选、原文件和目标均保留".into(),
+            });
+        }
+        verify_candidate_handle(file, expected).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(to),
+            detail: format!("候选交换后字节复核失败；两个端点均保留：{error}"),
+        })?;
+        fsync(&source_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(&origin.rel),
+            detail: format!("候选交换已生效但源目录同步失败：{e}"),
+        })?;
+        fsync(&target_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(to),
+            detail: format!("候选交换已生效但目标目录同步失败：{e}"),
+        })
+    }
+
+    /// Atomically exchange two already-owned regular files. This is used to replace the current
+    /// executable without opening a path-based overwrite window; the old object lands at `from`.
+    pub fn replace_regular_file(
+        &self,
+        lock: &crate::home::HomeLock,
+        from: &ManagedRelPath,
+        to: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let (src_parent, src_leaf) = self.open_parent(from)?;
+        let (dst_parent, dst_leaf) = self.open_parent(to)?;
+        let src_path = self.display_path(from);
+        let dst_path = self.display_path(to);
+        let src_before = statat(&src_parent, &src_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(&src_path, e))?;
+        check_regular_stat(&src_path, &src_before)?;
+        let dst_before = statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(&dst_path, e))?;
+        check_regular_stat(&dst_path, &dst_before)?;
+        renameat_with(
+            &src_parent,
+            &src_leaf,
+            &dst_parent,
+            &dst_leaf,
+            RenameFlags::EXCHANGE,
+        )
+        .map_err(|e| map_fs_error(&dst_path, e))?;
+        let source_after =
+            statat(&src_parent, &src_leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| {
+                Error::RecoveryRequired {
+                    path: src_path.clone(),
+                    detail: format!("交换已执行但无法观察源端点；请保留两个端点：{e}"),
+                }
+            })?;
+        let target_after =
+            statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| {
+                Error::RecoveryRequired {
+                    path: dst_path.clone(),
+                    detail: format!("交换已执行但无法观察目标端点；请保留两个端点：{e}"),
+                }
+            })?;
+        if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile
+            || source_after.st_nlink != 1
+            || source_after.st_dev != dst_before.st_dev
+            || source_after.st_ino != dst_before.st_ino
+            || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile
+            || target_after.st_nlink != 1
+            || target_after.st_dev != src_before.st_dev
+            || target_after.st_ino != src_before.st_ino
+        {
+            return Err(Error::RecoveryRequired {
+                path: dst_path,
+                detail: "原子交换后端点身份或链接数不符；保留两个端点以便恢复".into(),
+            });
+        }
+        fsync(&src_parent).map_err(|e| Error::RecoveryRequired {
+            path: src_path.clone(),
+            detail: format!("原子交换已生效但目录同步失败：{e}"),
+        })?;
+        fsync(&dst_parent).map_err(|e| Error::RecoveryRequired {
+            path: dst_path.clone(),
+            detail: format!("原子交换已生效但目录同步失败：{e}"),
+        })?;
+        Ok(())
+    }
+
     fn rename_new_unlocked(&self, from: &ManagedRelPath, to: &ManagedRelPath) -> Result<()> {
         let (src_parent, src_leaf) = self.open_parent(from)?;
         let (dst_parent, dst_leaf) = self.open_parent(to)?;
@@ -484,8 +662,14 @@ impl ManagedFs {
             RenameFlags::NOREPLACE,
         )
         .map_err(|e| map_fs_error(&self.display_path(to), e))?;
-        fsync(&src_parent).map_err(|e| map_fs_error(&self.display_path(from), e))?;
-        fsync(&dst_parent).map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        fsync(&src_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(from),
+            detail: format!("rename已生效但源目录同步失败：{e}"),
+        })?;
+        fsync(&dst_parent).map_err(|e| Error::RecoveryRequired {
+            path: self.display_path(to),
+            detail: format!("rename已生效但目标目录同步失败：{e}"),
+        })?;
         Ok(())
     }
 
@@ -504,32 +688,165 @@ impl ManagedFs {
     /// Purge explicitly requested data while retaining the management root and its lock inode.
     pub fn purge_contents(&self, lock: &crate::home::HomeLock) -> Result<()> {
         self.check_lock(lock)?;
+        let locked_ident = lock.locked_identity();
+        let mut names = directory_entry_names(&self.root_dir, self.root.as_str())?
+            .into_iter()
+            .filter(|name| name != "." && name != "..")
+            .filter_map(
+                |name| match statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW) {
+                    Ok(stat) if (stat.st_dev as u64, stat.st_ino) == locked_ident => None,
+                    Ok(_) => Some(Ok(name)),
+                    Err(error) => Some(Err(map_fs_error(&format!("{}/{name}", self.root), error))),
+                },
+            )
+            .collect::<Result<Vec<_>>>()?;
+        names.sort_by(|a, b| {
+            purge_priority(a)
+                .cmp(&purge_priority(b))
+                .then_with(|| a.as_bytes().cmp(b.as_bytes()))
+        });
+
+        // Validate every top-level tree before changing permissions or deleting any data.
+        for name in &names {
+            preflight_remove_at(&self.root_dir, name, &format!("{}/{name}", self.root))?;
+        }
         fchmod(&self.root_dir, Mode::from_raw_mode(0o700))
             .map_err(|e| map_fs_error(self.root.as_str(), e))?;
-        let entries =
-            Dir::read_from(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))?;
-        let names = entries
-            .map(|entry| {
-                entry
-                    .map(|entry| entry.file_name().to_bytes().to_vec())
-                    .map_err(|e| Error::io(self.root.as_str(), e.into()))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        for bytes in names {
-            if bytes == b"." || bytes == b".." || bytes == b".lock" {
-                continue;
-            }
-            let name = std::str::from_utf8(&bytes).map_err(|_| Error::InvalidRequest {
-                reason: format!("{} 下有非UTF-8名称，拒绝清理", self.root),
-            })?;
+        if let Err(error) = names.iter().try_for_each(|name| {
             let stat = statat(&self.root_dir, name, AtFlags::SYMLINK_NOFOLLOW)
-                .map_err(|e| map_fs_error(&self.root.to_string(), e))?;
+                .map_err(|e| map_fs_error(&format!("{}/{name}", self.root), e))?;
             if FileType::from_raw_mode(stat.st_mode) == FileType::Directory {
-                make_directories_writable(&self.root_dir, name, &self.root.to_string())?;
+                make_directories_writable(&self.root_dir, name, &format!("{}/{name}", self.root))?;
             }
-            remove_at(&self.root_dir, name, &format!("{}/{name}", self.root))?;
+            Ok::<_, Error>(())
+        }) {
+            return Err(Error::io(
+                self.root.as_str(),
+                std::io::Error::other(format!(
+                    "purge删除前权限预检未完成，尚未删除数据；请检查并可重试：{error}"
+                )),
+            ));
         }
-        fsync(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))
+
+        let mut removed_roots = Vec::new();
+        for name in &names {
+            let display = format!("{}/{name}", self.root);
+            if let Err(error) = remove_at(&self.root_dir, name, &display) {
+                return Err(partial_purge_error(&self.root, name, &removed_roots, error));
+            }
+            removed_roots.push(name.clone());
+            if let Err(error) =
+                crate::failpoint::rendezvous("purge_after_top_level_delete", self.root.as_str())
+            {
+                return Err(partial_purge_error(
+                    &self.root,
+                    name,
+                    &removed_roots,
+                    Error::io(self.root.as_str(), error),
+                ));
+            }
+        }
+        crate::failpoint::rendezvous("purge_before_final_rescan", self.root.as_str()).map_err(
+            |error| {
+                partial_purge_error(
+                    &self.root,
+                    ".",
+                    &removed_roots,
+                    Error::io(self.root.as_str(), error),
+                )
+            },
+        )?;
+        // Read-only SQLite may create store.db-shm without HomeLock (D-039). It can appear
+        // after the initial listing, so re-scan once the main Store was removed. No other new
+        // root entry is expected; preserve it and report a partial purge instead of guessing.
+        for _ in 0..3 {
+            let extras = directory_entry_names(&self.root_dir, self.root.as_str())
+                .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?
+                .into_iter()
+                .filter(|name| name != "." && name != "..")
+                .filter_map(
+                    |name| match statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW) {
+                        Ok(stat) if (stat.st_dev as u64, stat.st_ino) == locked_ident => None,
+                        Ok(_) => Some(Ok(name)),
+                        Err(error) => {
+                            Some(Err(map_fs_error(&format!("{}/{name}", self.root), error)))
+                        }
+                    },
+                )
+                .collect::<Result<Vec<_>>>()
+                .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?;
+            if extras.is_empty() {
+                break;
+            }
+            for name in extras {
+                if !name.eq_ignore_ascii_case("store.db-shm") {
+                    return Err(partial_purge_error(
+                        &self.root,
+                        &name,
+                        &removed_roots,
+                        Error::StoreCorrupt {
+                            detail: format!("purge最终复核发现未登记对象 {name}"),
+                        },
+                    ));
+                }
+                let display = format!("{}/{name}", self.root);
+                preflight_remove_at(&self.root_dir, &name, &display).map_err(|error| {
+                    partial_purge_error(&self.root, &name, &removed_roots, error)
+                })?;
+                if let Err(error) = remove_at(&self.root_dir, &name, &display) {
+                    return Err(partial_purge_error(
+                        &self.root,
+                        &name,
+                        &removed_roots,
+                        error,
+                    ));
+                }
+                removed_roots.push(name);
+                fsync(&self.root_dir).map_err(|error| {
+                    partial_purge_error(
+                        &self.root,
+                        "store.db-shm",
+                        &removed_roots,
+                        map_fs_error(self.root.as_str(), error),
+                    )
+                })?;
+            }
+        }
+        let remaining = directory_entry_names(&self.root_dir, self.root.as_str())
+            .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?
+            .into_iter()
+            .filter(|name| name != "." && name != "..")
+            .filter_map(
+                |name| match statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW) {
+                    Ok(stat) if (stat.st_dev as u64, stat.st_ino) == locked_ident => None,
+                    Ok(_) => Some(Ok(name)),
+                    Err(error) => Some(Err(map_fs_error(&format!("{}/{name}", self.root), error))),
+                },
+            )
+            .collect::<Result<Vec<_>>>()
+            .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?;
+        self.check_lock(lock)
+            .map_err(|error| partial_purge_error(&self.root, ".lock", &removed_roots, error))?;
+        if let Some(name) = remaining.first() {
+            return Err(partial_purge_error(
+                &self.root,
+                name,
+                &removed_roots,
+                Error::StoreCorrupt {
+                    detail: format!("purge完成后根内仍有对象 {name}"),
+                },
+            ));
+        }
+        fsync(&self.root_dir).map_err(|e| {
+            partial_purge_error(
+                &self.root,
+                ".",
+                &removed_roots,
+                map_fs_error(self.root.as_str(), e),
+            )
+        })?;
+        self.check_lock(lock)
+            .map_err(|error| partial_purge_error(&self.root, ".lock", &removed_roots, error))
     }
 
     pub fn sync_dir_locked(
@@ -543,6 +860,20 @@ impl ManagedFs {
     }
 
     pub fn set_readonly(&self, lock: &crate::home::HomeLock, file: &SafeFile) -> Result<()> {
+        self.set_mode(lock, file, 0o444, "封存")
+    }
+
+    pub fn set_executable(&self, lock: &crate::home::HomeLock, file: &SafeFile) -> Result<()> {
+        self.set_mode(lock, file, 0o755, "设为可执行")
+    }
+
+    fn set_mode(
+        &self,
+        lock: &crate::home::HomeLock,
+        file: &SafeFile,
+        mode: u16,
+        operation: &str,
+    ) -> Result<()> {
         self.check_lock(lock)?;
         let Some(origin) = &file.managed else {
             return Err(Error::InvalidRequest {
@@ -561,11 +892,11 @@ impl ManagedFs {
                 reason: format!("{} 的句柄身份已改变", file.path),
             });
         }
-        file.set_readonly()?;
+        file.set_mode(mode)?;
         let current = self.open_regular(&origin.rel)?;
         if file.meta.dev() != current.meta.dev() || file.meta.ino() != current.meta.ino() {
             return Err(Error::InvalidRequest {
-                reason: format!("{} 在封存期间被替换", file.path),
+                reason: format!("{} 在{operation}期间被替换", file.path),
             });
         }
         Ok(())
@@ -596,6 +927,20 @@ impl ManagedFs {
             .map_err(|e| map_fs_error(&self.display_path(path), e))?;
         fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
     }
+}
+
+fn directory_entry_names(directory: &std::fs::File, display: &str) -> Result<Vec<String>> {
+    Dir::read_from(directory)
+        .map_err(|e| map_fs_error(display, e))?
+        .map(|entry| {
+            let entry = entry.map_err(|e| Error::io(display, e.into()))?;
+            std::str::from_utf8(entry.file_name().to_bytes())
+                .map(str::to_string)
+                .map_err(|_| Error::InvalidRequest {
+                    reason: format!("{display} 下有非UTF-8名称，拒绝清理"),
+                })
+        })
+        .collect()
 }
 
 fn check_rename_source(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
@@ -1178,6 +1523,36 @@ fn check_regular_stat(path: &str, stat: &rustix::fs::Stat) -> Result<()> {
     Ok(())
 }
 
+fn stat_matches_handle(stat: &rustix::fs::Stat, file: &SafeFile) -> bool {
+    use std::os::unix::fs::MetadataExt as _;
+    FileType::from_raw_mode(stat.st_mode) == FileType::RegularFile
+        && stat.st_nlink == 1
+        && stat.st_dev as u64 == file.meta.dev()
+        && stat.st_ino == file.meta.ino()
+}
+
+fn verify_path_matches_handle(parent: &std::fs::File, leaf: &str, file: &SafeFile) -> Result<()> {
+    let stat = statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW)
+        .map_err(|e| map_fs_error(file.path.as_str(), e))?;
+    if !stat_matches_handle(&stat, file) {
+        return Err(Error::InvalidRequest {
+            reason: format!("{} 与已验证候选句柄不是同一对象", file.path),
+        });
+    }
+    Ok(())
+}
+
+fn verify_candidate_handle(file: &SafeFile, expected: &[u8]) -> Result<()> {
+    let stat = fstat(&file.file).map_err(|e| map_fs_error(file.path.as_str(), e))?;
+    check_regular_stat(file.path.as_str(), &stat)?;
+    if !stat_matches_handle(&stat, file) || file.read_bounded(MAX_FILE_BYTES)? != expected {
+        return Err(Error::InvalidRequest {
+            reason: format!("{} 与摘要校验过的候选内容或身份不符", file.path),
+        });
+    }
+    Ok(())
+}
+
 fn map_std_error(path: &str, error: std::io::Error) -> Error {
     if error.kind() == std::io::ErrorKind::NotFound {
         Error::NotFound {
@@ -1303,6 +1678,73 @@ fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
     Ok(())
 }
 
+fn preflight_remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
+    let stat =
+        statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+    match FileType::from_raw_mode(stat.st_mode) {
+        FileType::Symlink => Ok(()),
+        FileType::RegularFile if stat.st_nlink == 1 => Ok(()),
+        FileType::RegularFile => Err(Error::InvalidRequest {
+            reason: format!(
+                "{display} 是硬链接（nlink = {}），拒绝 purge",
+                stat.st_nlink
+            ),
+        }),
+        FileType::Directory => {
+            let directory = open_directory_at(parent, leaf, display)?;
+            let entries = Dir::read_from(&directory).map_err(|e| map_fs_error(display, e))?;
+            for entry in entries {
+                let entry = entry.map_err(|e| Error::io(display, e.into()))?;
+                let bytes = entry.file_name().to_bytes();
+                if bytes == b"." || bytes == b".." {
+                    continue;
+                }
+                let child = std::str::from_utf8(bytes).map_err(|_| Error::InvalidRequest {
+                    reason: format!("{display} 下有非UTF-8名称，拒绝 purge"),
+                })?;
+                preflight_remove_at(&directory, child, &format!("{display}/{child}"))?;
+            }
+            Ok(())
+        }
+        _ => Err(Error::InvalidRequest {
+            reason: format!("{display} 是特殊文件，拒绝 purge"),
+        }),
+    }
+}
+
+fn purge_priority(name: &str) -> u8 {
+    if name.eq_ignore_ascii_case("store.db") {
+        5
+    } else if ["store.db-wal", "store.db-shm", "store.db-journal"]
+        .iter()
+        .any(|control| name.eq_ignore_ascii_case(control))
+    {
+        4
+    } else if name == "pending" {
+        1
+    } else if name == "tmp" {
+        2
+    } else if name == "bin" {
+        3
+    } else {
+        0
+    }
+}
+
+fn partial_purge_error(root: &AbsPath, failed: &str, removed: &[String], error: Error) -> Error {
+    let removed = if removed.is_empty() {
+        "无".to_string()
+    } else {
+        removed.join(", ")
+    };
+    Error::io(
+        format!("{root}/{failed}"),
+        std::io::Error::other(format!(
+            "purge部分清理失败；已完整删除顶层对象：{removed}；当前顶层对象 {failed} 可能已部分清理；错误：{error}；修复问题后可重试"
+        )),
+    )
+}
+
 /// 从受管目录句柄打开的普通文件。路径后续替换不会改变此句柄指向的对象。
 #[derive(Debug)]
 pub struct SafeFile {
@@ -1408,8 +1850,8 @@ impl SafeFile {
     }
 
     /// 在已打开的同一文件对象上置只读并同步。调用方先用同一句柄核验摘要。
-    fn set_readonly(&self) -> Result<()> {
-        fchmod(&self.file, Mode::from_raw_mode(0o444))
+    fn set_mode(&self, mode: u16) -> Result<()> {
+        fchmod(&self.file, Mode::from_raw_mode(mode))
             .map_err(|e| map_fs_error(self.path.as_str(), e))?;
         fsync(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))
     }
@@ -1460,6 +1902,52 @@ pub(crate) fn rename_managed_new(
     let from = ManagedRelPath::new(from)?;
     let to = ManagedRelPath::new(to)?;
     ManagedFs::open_existing(home)?.rename_new(lock, &from, &to)
+}
+
+pub(crate) fn replace_managed_regular_file(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    from: &str,
+    to: &str,
+) -> Result<()> {
+    let from = ManagedRelPath::new(from)?;
+    let to = ManagedRelPath::new(to)?;
+    ManagedFs::open_existing(home)?.replace_regular_file(lock, &from, &to)
+}
+
+pub(crate) fn verify_and_make_executable_confined(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    expected: &[u8],
+) -> Result<SafeFile> {
+    let file = open_managed_regular(home, path)?;
+    verify_candidate_handle(&file, expected)?;
+    ManagedFs::open_existing(home)?.set_executable(lock, &file)?;
+    verify_candidate_handle(&file, expected)?;
+    Ok(file)
+}
+
+pub(crate) fn rename_verified_managed_file(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    file: &SafeFile,
+    to: &AbsPath,
+    expected: &[u8],
+) -> Result<()> {
+    let to = ManagedRelPath::new(home.to_rel(to)?)?;
+    ManagedFs::open_existing(home)?.rename_verified_new(lock, file, &to, expected)
+}
+
+pub(crate) fn replace_verified_managed_file(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    file: &SafeFile,
+    to: &AbsPath,
+    expected: &[u8],
+) -> Result<()> {
+    let to = ManagedRelPath::new(home.to_rel(to)?)?;
+    ManagedFs::open_existing(home)?.replace_verified_regular_file(lock, file, &to, expected)
 }
 
 /// 复制外部目录到管理根内的目标；源读取只读，目标创建经ManagedFs句柄。
