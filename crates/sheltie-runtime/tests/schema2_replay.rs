@@ -123,6 +123,49 @@ fn submit_replay_after_output_change_returns_original_snapshot() {
     assert_eq!(again.data, first.data);
 }
 
+// Task: C002-T22
+#[test]
+fn completed_submit_replay_does_not_seal_or_rewrite_the_output_again() {
+    let (_d, _home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let begun = svc
+        .begin(&wid, &NodeId::new("outline").unwrap(), None)
+        .unwrap();
+    let output_dir = output_dir_of(&begun);
+    write_output(&output_dir, "outline.md", "committed output");
+    let request_id = Some("t22-completed-submit".to_string());
+    let first = svc
+        .submit(
+            &wid,
+            &AttemptId::parse("outline#1.0").unwrap(),
+            &lit("done"),
+            request_id.clone(),
+        )
+        .unwrap();
+    let output = Path::new(output_dir.as_str()).join("outline.md");
+    let mut permissions = std::fs::metadata(&output).unwrap().permissions();
+    permissions.set_mode(0o644);
+    std::fs::set_permissions(&output, permissions).unwrap();
+    std::fs::write(&output, "later bytes").unwrap();
+    let mode = std::fs::metadata(&output).unwrap().permissions().mode();
+
+    let replay = svc
+        .submit(
+            &wid,
+            &AttemptId::parse("outline#1.0").unwrap(),
+            &lit("done"),
+            request_id,
+        )
+        .unwrap();
+    assert!(replay.replayed);
+    assert_eq!(replay.revision, first.revision);
+    assert_eq!(std::fs::read(&output).unwrap(), b"later bytes");
+    assert_eq!(
+        std::fs::metadata(output).unwrap().permissions().mode(),
+        mode
+    );
+}
+
 /// Workbook 删除后的 start 重放：不重读仓库版本，返回原快照（O04）。
 // Task: C002-T07
 #[test]

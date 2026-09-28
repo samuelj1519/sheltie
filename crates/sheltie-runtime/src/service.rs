@@ -76,6 +76,20 @@ struct Loaded {
     instructions: BTreeMap<sheltie_core::path::RelPath, String>,
 }
 
+struct PreparedCommand {
+    command: Command,
+    observed_outputs: BTreeMap<String, crate::fsx::SafeFile>,
+}
+
+impl PreparedCommand {
+    fn plain(command: Command) -> Self {
+        Self {
+            command,
+            observed_outputs: BTreeMap::new(),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PersistedResponse {
@@ -388,11 +402,11 @@ impl WorkService {
                 };
                 observed.insert(name, obs);
             }
-            Ok(Command::BeginAttempt {
+            Ok(PreparedCommand::plain(Command::BeginAttempt {
                 node: node.clone(),
                 observed_inputs: observed,
                 instruction_text: instruction_text_of(loaded, node)?,
-            })
+            }))
         })
     }
 
@@ -414,14 +428,21 @@ impl WorkService {
             let paths =
                 sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
             let mut observed = BTreeMap::new();
+            let mut safe_files = BTreeMap::new();
             for (name, path) in paths {
-                let obs = observe_output(&self.home, &name, &path)?;
+                let (obs, safe_file) = observe_output(&self.home, &name, &path)?;
+                if let Some(file) = safe_file {
+                    safe_files.insert(path.as_str().to_string(), file);
+                }
                 observed.insert(name, obs);
             }
-            Ok(Command::SubmitAttempt {
-                attempt: attempt.clone(),
-                summary: summary_text.clone(),
-                observed_outputs: observed,
+            Ok(PreparedCommand {
+                command: Command::SubmitAttempt {
+                    attempt: attempt.clone(),
+                    summary: summary_text.clone(),
+                    observed_outputs: observed,
+                },
+                observed_outputs: safe_files,
             })
         })
     }
@@ -441,10 +462,10 @@ impl WorkService {
         };
         let reason_text = materialize_summary(reason)?;
         self.run_command(work, &intent, request_id, &|_| {
-            Ok(Command::FailAttempt {
+            Ok(PreparedCommand::plain(Command::FailAttempt {
                 attempt: attempt.clone(),
                 reason: reason_text.clone(),
-            })
+            }))
         })
     }
 
@@ -460,14 +481,18 @@ impl WorkService {
             node: node.clone(),
         };
         self.run_command(work, &intent, request_id, &|_| {
-            Ok(Command::ApproveGate { node: node.clone() })
+            Ok(PreparedCommand::plain(Command::ApproveGate {
+                node: node.clone(),
+            }))
         })
     }
 
     pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
         let intent = RequestIntent::CancelWork { work: work.clone() };
-        self.run_command(work, &intent, request_id, &|_| Ok(Command::Cancel))
+        self.run_command(work, &intent, request_id, &|_| {
+            Ok(PreparedCommand::plain(Command::Cancel))
+        })
     }
 
     /// 只读：状态卡文本与结构化形式。
@@ -722,7 +747,7 @@ impl WorkService {
         work: &WorkId,
         intent: &RequestIntent,
         request_id: String,
-        build: &dyn Fn(&Loaded) -> Result<Command>,
+        build: &dyn Fn(&Loaded) -> Result<PreparedCommand>,
     ) -> Result<Response> {
         // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
         // 前缀；效果未完成的请求不在这里恢复，交给写路径。
@@ -762,9 +787,10 @@ impl WorkService {
         };
         for _ in 0..3 {
             let loaded = svc.load(work)?;
-            let cmd = build(&loaded)?;
-            let decision = decide(Some(&loaded.state), &loaded.graph, &cmd, &ctx)?;
-            let effects = core_effects_to_ops(&svc.home, &decision, &cmd)?;
+            let prepared = build(&loaded)?;
+            let cmd = &prepared.command;
+            let decision = decide(Some(&loaded.state), &loaded.graph, cmd, &ctx)?;
+            let effects = core_effects_to_ops(&svc.home, &decision, cmd)?;
             match svc.commit(
                 decision,
                 &loaded.graph,
@@ -773,11 +799,22 @@ impl WorkService {
                 Some(loaded.revision),
                 effects,
                 &ctx,
-                &cmd,
+                cmd,
                 &lock,
             ) {
                 Ok(resp) => {
-                    svc.finish_request(&request_id, &lock)?;
+                    if matches!(cmd, Command::SubmitAttempt { .. }) {
+                        crate::failpoint::rendezvous(
+                            "submit_after_commit_before_seal",
+                            &request_id,
+                        )
+                        .map_err(|error| Error::io("submit sync point", error))?;
+                    }
+                    svc.finish_request_with_observed(
+                        &request_id,
+                        &lock,
+                        &prepared.observed_outputs,
+                    )?;
                     return Ok(resp);
                 }
                 Err(Error::RevisionConflict { expected, actual }) => {
@@ -842,10 +879,25 @@ impl WorkService {
 
     /// COMMIT 与效果发布之间被杀的请求由 `recover` 兜底；正常路径在这里发布并标记。
     fn finish_request(&self, request_id: &str, lock: &crate::home::HomeLock) -> Result<()> {
+        self.finish_request_with_observed(request_id, lock, &BTreeMap::new())
+    }
+
+    fn finish_request_with_observed(
+        &self,
+        request_id: &str,
+        lock: &crate::home::HomeLock,
+        observed: &BTreeMap<String, crate::fsx::SafeFile>,
+    ) -> Result<()> {
         if self.store.inspect_request(request_id)?.is_some() {
             let (row, _, ops) = self.load_checked_request(request_id)?;
             if !row.published {
-                if let Err(e) = execute(&self.home, lock, &ops, true) {
+                if let Err(e) = crate::effects::execute_with_observed_outputs(
+                    &self.home,
+                    lock,
+                    &ops,
+                    true,
+                    Some(observed),
+                ) {
                     return Err(Error::EffectPending {
                         committed: true,
                         request_id: request_id.to_string(),
@@ -1624,9 +1676,13 @@ fn observe_loaded_input(
 /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的
 /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按
 /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。
-fn observe_output(home: &Home, name: &str, path: &AbsPath) -> Result<Option<ObservedFile>> {
+fn observe_output(
+    home: &Home,
+    name: &str,
+    path: &AbsPath,
+) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {
     let Some(f) = crate::fsx::open_managed_optional(home, path)? else {
-        return Ok(None);
+        return Ok((None, None));
     };
     let len = f.metadata().len();
     if len > crate::fsx::MAX_FILE_BYTES {
@@ -1637,7 +1693,10 @@ fn observe_output(home: &Home, name: &str, path: &AbsPath) -> Result<Option<Obse
         }));
     }
     let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
-    Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)))
+    Ok((
+        Some(ObservedFile::new(path.clone(), sha256, bytes)),
+        Some(f),
+    ))
 }
 
 /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。

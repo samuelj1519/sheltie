@@ -12,6 +12,8 @@ use sheltie_core::work::WorkStatus;
 use sheltie_runtime::request::InputValue;
 use sheltie_runtime::{Error, StartArgs};
 
+static POST_COMMIT_SYNC_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn lit(s: &str) -> InputValue {
     InputValue::Literal {
         text: s.to_string(),
@@ -1017,4 +1019,327 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
     std::fs::write(copy.join("resources/review-checklist.md"), "被改过的清单").unwrap();
     let err = svc.begin(&wid, &node("review"), None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
+}
+
+fn committed_unpublished_submit() -> (
+    tempfile::TempDir,
+    sheltie_runtime::Home,
+    sheltie_core::ids::WorkId,
+    std::path::PathBuf,
+    String,
+) {
+    let (dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let output = std::path::PathBuf::from(output_dir_of(&begun).as_str()).join("outline.md");
+    std::fs::write(&output, b"committed bytes").unwrap();
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o644)).unwrap();
+    let request_id = "t22-submit-recovery".to_string();
+    svc.submit(
+        &wid,
+        &attempt("outline#1.0"),
+        &lit("ok"),
+        Some(request_id.clone()),
+    )
+    .unwrap();
+    drop(svc);
+    (dir, home, wid, output, request_id)
+}
+
+fn mark_submit_unpublished(home: &sheltie_runtime::Home, request_id: &str) {
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [request_id],
+    )
+    .unwrap();
+}
+
+fn recover_submit_stops_and_keeps_unpublished(
+    home: &sheltie_runtime::Home,
+    wid: &sheltie_core::ids::WorkId,
+    request_id: &str,
+) {
+    let err = service(home)
+        .begin(wid, &node("summary"), None)
+        .unwrap_err();
+    assert!(matches!(err, Error::EffectPending { .. }), "{err:?}");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 0, "失败的seal不得标记已发布");
+}
+
+#[cfg(feature = "failpoint")]
+fn submit_at_seal_sync_point(
+    mutate: impl FnOnce(&Path),
+) -> (
+    tempfile::TempDir,
+    sheltie_runtime::Home,
+    sheltie_core::ids::WorkId,
+    std::path::PathBuf,
+    String,
+    u64,
+    std::result::Result<sheltie_runtime::Response, Error>,
+) {
+    use std::time::{Duration, Instant};
+
+    let (dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let output = std::path::PathBuf::from(output_dir_of(&begun).as_str()).join("outline.md");
+    std::fs::write(&output, b"committed bytes").unwrap();
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o644)).unwrap();
+    let base_revision = begun.revision;
+    drop(svc);
+
+    let request_id = format!("t22-seal-{}", wid.as_str());
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "submit_after_commit_before_seal",
+        &request_id,
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct SyncGuard;
+    impl Drop for SyncGuard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = SyncGuard;
+
+    let submit_home = home.clone();
+    let submit_work = wid.clone();
+    let submit_request = request_id.clone();
+    let child = std::thread::spawn(move || {
+        service(&submit_home).submit(
+            &submit_work,
+            &attempt("outline#1.0"),
+            &lit("ok"),
+            Some(submit_request),
+        )
+    });
+    let release_path = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !rendezvous.path().join("reached").exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !rendezvous.path().join("reached").exists() {
+        let _ = std::fs::write(&release_path, b"release");
+        let _ = child.join();
+        panic!("submit 未到达 COMMIT 后、seal 前的同步点");
+    }
+    struct ReleaseGuard(std::path::PathBuf);
+    impl Drop for ReleaseGuard {
+        fn drop(&mut self) {
+            let _ = std::fs::write(&self.0, b"release");
+        }
+    }
+    let _release = ReleaseGuard(release_path.clone());
+    mutate(&output);
+    std::fs::write(&release_path, b"release").unwrap();
+    let result = child.join().unwrap();
+    (dir, home, wid, output, request_id, base_revision, result)
+}
+
+fn assert_post_commit_seal_failure(
+    home: &sheltie_runtime::Home,
+    wid: &sheltie_core::ids::WorkId,
+    request_id: &str,
+    output_path: &Path,
+    base_revision: u64,
+    result: std::result::Result<sheltie_runtime::Response, Error>,
+) {
+    match result.unwrap_err() {
+        Error::EffectPending {
+            committed: true,
+            request_id: actual,
+            ..
+        } => assert_eq!(actual, request_id),
+        other => panic!("COMMIT后的seal失败须保留已提交归属：{other:?}"),
+    }
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let (revision, published): (u64, i64) = conn
+        .query_row(
+            "SELECT w.revision, r.published FROM works w JOIN requests r USING(work_id) WHERE r.request_id = ?1",
+            [request_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(revision, base_revision + 1, "Store必须保留已提交revision");
+    assert_eq!(published, 0, "封存失败不得标记效果完成");
+    let (owned_work, state_json, effects_json): (String, String, String) = conn
+        .query_row(
+            "SELECT r.work_id, w.state_json, r.effects_json FROM requests r JOIN works w USING(work_id) WHERE r.request_id = ?1",
+            [request_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(owned_work, wid.as_str());
+    let state: sheltie_core::work::WorkState = serde_json::from_str(&state_json).unwrap();
+    let attempt = state
+        .attempt(&AttemptId::parse("outline#1.0").unwrap())
+        .unwrap();
+    let committed = attempt.outputs.get("outline").unwrap();
+    assert_eq!(committed.path.as_path(), output_path);
+    assert_eq!(
+        committed.sha256.as_str(),
+        "bd9d61af8c2082b7b8073f3fe347543aefba3dbddb0d6de46638f85ae7040717"
+    );
+    assert_eq!(committed.bytes, 15);
+    let effects: Vec<sheltie_runtime::effects::EffectOp> =
+        serde_json::from_str(&effects_json).unwrap();
+    let [
+        sheltie_runtime::effects::EffectOp::SealOutputs { refs },
+        sheltie_runtime::effects::EffectOp::RefreshStatusCard { .. },
+    ] = effects.as_slice()
+    else {
+        panic!("已提交效果须保留原SealOutputs引用：{effects:?}");
+    };
+    assert_eq!(refs.len(), 1);
+    assert_eq!(refs[0].path, home.to_rel(&abs(output_path)).unwrap());
+    assert_eq!(refs[0].sha256, committed.sha256.as_str());
+    assert_eq!(refs[0].bytes, committed.bytes);
+}
+
+// Task: C002-T22
+#[cfg(feature = "failpoint")]
+#[test]
+fn real_submit_path_swap_after_commit_seals_original_and_preserves_external_target() {
+    use std::os::unix::fs::{PermissionsExt as _, symlink};
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("sentinel");
+    std::fs::write(&sentinel, b"external sentinel").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let sentinel_mode = std::fs::metadata(&sentinel).unwrap().permissions();
+    let (dir, home, wid, output, request_id, revision, result) =
+        submit_at_seal_sync_point(|path| {
+            let original = outside.path().join("observed-original");
+            std::fs::rename(path, &original).unwrap();
+            symlink(&sentinel, path).unwrap();
+        });
+    let original = outside.path().join("observed-original");
+    assert_post_commit_seal_failure(&home, &wid, &request_id, &output, revision, result);
+    assert_eq!(
+        std::fs::metadata(original).unwrap().permissions().mode() & 0o777,
+        0o444
+    );
+    assert_eq!(std::fs::read(&sentinel).unwrap(), b"external sentinel");
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions(),
+        sentinel_mode
+    );
+    assert!(
+        std::fs::symlink_metadata(output)
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+    drop(dir);
+}
+
+// Task: C002-T22
+#[cfg(feature = "failpoint")]
+#[test]
+fn real_submit_same_inode_byte_change_after_commit_stops_before_chmod() {
+    use std::os::unix::fs::PermissionsExt as _;
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+
+    let mut output_mode = None;
+    let (dir, home, wid, output, request_id, revision, result) =
+        submit_at_seal_sync_point(|path| {
+            output_mode = Some(std::fs::metadata(path).unwrap().permissions().mode());
+            std::fs::write(path, b"tampered bytes!").unwrap();
+        });
+    assert_post_commit_seal_failure(&home, &wid, &request_id, &output, revision, result);
+    assert_eq!(std::fs::read(&output).unwrap(), b"tampered bytes!");
+    assert_eq!(
+        std::fs::metadata(&output).unwrap().permissions().mode(),
+        output_mode.unwrap()
+    );
+    drop(dir);
+}
+
+// Task: C002-T22
+#[cfg(feature = "failpoint")]
+#[test]
+fn real_submit_hardlink_added_after_commit_stops_before_chmod() {
+    use std::os::unix::fs::PermissionsExt as _;
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+
+    let outside = tempfile::tempdir().unwrap();
+    let alias = outside.path().join("alias");
+    let alias_mode = std::cell::RefCell::new(None);
+    let (dir, home, wid, output, request_id, revision, result) =
+        submit_at_seal_sync_point(|path| {
+            std::fs::hard_link(path, &alias).unwrap();
+            *alias_mode.borrow_mut() = Some(std::fs::metadata(&alias).unwrap().permissions());
+        });
+    assert_post_commit_seal_failure(&home, &wid, &request_id, &output, revision, result);
+    assert_ne!(
+        std::fs::metadata(&output).unwrap().permissions().mode() & 0o222,
+        0
+    );
+    assert_eq!(
+        std::fs::metadata(&alias).unwrap().permissions(),
+        alias_mode.into_inner().unwrap()
+    );
+    drop(dir);
+}
+
+// Task: C002-T22
+#[test]
+fn recovery_refuses_same_inode_output_changed_after_submit() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let (_dir, home, wid, output, request_id) = committed_unpublished_submit();
+    std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o644)).unwrap();
+    std::fs::write(&output, b"tampered bytes!").unwrap();
+    mark_submit_unpublished(&home, &request_id);
+
+    recover_submit_stops_and_keeps_unpublished(&home, &wid, &request_id);
+    assert_eq!(std::fs::read(output).unwrap(), b"tampered bytes!");
+}
+
+// Task: C002-T22
+#[test]
+fn recovery_refuses_hardlink_added_to_submitted_output() {
+    let (dir, home, wid, output, request_id) = committed_unpublished_submit();
+    let alias = dir.path().join("output-alias");
+    std::fs::hard_link(&output, &alias).unwrap();
+    let alias_mode = std::fs::metadata(&alias).unwrap().permissions();
+    mark_submit_unpublished(&home, &request_id);
+
+    recover_submit_stops_and_keeps_unpublished(&home, &wid, &request_id);
+    assert_eq!(std::fs::metadata(alias).unwrap().permissions(), alias_mode);
+}
+
+// Task: C002-T22
+#[test]
+fn recovery_refuses_output_replaced_by_external_symlink() {
+    use std::os::unix::fs::{PermissionsExt as _, symlink};
+
+    let (_dir, home, wid, output, request_id) = committed_unpublished_submit();
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("sentinel");
+    std::fs::write(&sentinel, b"external sentinel").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let before = std::fs::metadata(&sentinel).unwrap().permissions();
+    std::fs::remove_file(&output).unwrap();
+    symlink(&sentinel, &output).unwrap();
+    mark_submit_unpublished(&home, &request_id);
+
+    recover_submit_stops_and_keeps_unpublished(&home, &wid, &request_id);
+    assert_eq!(std::fs::read(&sentinel).unwrap(), b"external sentinel");
+    assert_eq!(std::fs::metadata(&sentinel).unwrap().permissions(), before);
 }

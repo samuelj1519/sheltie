@@ -49,6 +49,35 @@ fn submit_without_required_output_is_output_missing_and_attempt_stays_running() 
     );
 }
 
+// Task: C002-T22
+#[test]
+fn successful_submit_seals_the_observed_output() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let env = Env::new();
+    env.add_example("two-step");
+    let work = env.start("two-step", &[("topic", "x")]);
+    let begun = env.begin(&work, "outline");
+    let output = Path::new(begun["data"]["outputs"]["outline"].as_str().unwrap());
+    std::fs::create_dir_all(output.parent().unwrap()).unwrap();
+    std::fs::write(output, b"committed output\n").unwrap();
+
+    env.ok(&[
+        "attempt",
+        "submit",
+        &work,
+        "--attempt",
+        "outline#1.0",
+        "--summary",
+        "ok",
+    ]);
+    assert_eq!(
+        std::fs::metadata(output).unwrap().permissions().mode() & 0o777,
+        0o444
+    );
+    assert_eq!(std::fs::read(output).unwrap(), b"committed output\n");
+}
+
 // Task: T22
 #[test]
 fn submit_oversize_output_is_output_too_large() {

@@ -53,7 +53,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T19 | done | 受管路径、目录句柄与安全文件原语 | T18 done；Linux运行豁免且not_run；[macOS门禁与双轴独立review](evidence/t19-managed-fs-2026-09-28/README.md) |
 | C002-T20 | done | 持久路径与效果的可信装入 | T19 done；[macOS门禁与双轴独立review](evidence/t20-trusted-load-2026-09-28/README.md) |
 | C002-T21 | done | 受限目录枚举、摘要和复制 | T19；[macOS全树观察与复制](evidence/repairs/t21/README.md)，Linux `not_run` |
-| C002-T22 | not_run | 同句柄输出观察与封存 | T19、T20 |
+| C002-T22 | done | 同句柄输出观察与封存 | T19、T20、T21；[macOS真实COMMIT至封存窗口](evidence/repairs/t22/README.md)，Linux `not_run` |
 | C002-T23 | not_run | self文件链与purge锁生命周期 | T19、T21、T18合同采用 |
 | C002-T24 | not_run | 请求解析、历史目标与锁内建库 | T20、T21 |
 | C002-T25 | not_run | 统一恢复与准确提交错误 | T20、T21、T22、T24 |
