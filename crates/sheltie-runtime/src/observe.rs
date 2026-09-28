@@ -8,12 +8,12 @@ use sheltie_core::path::{AbsPath, RelPath};
 use sheltie_core::work::{ObservedFile, Principal, Timestamp};
 
 use crate::error::{Error, Result};
-use crate::fsx::{MAX_FILE_BYTES, SafeFile};
+use crate::fsx::{ExternalReadFile, MAX_FILE_BYTES};
 
 /// 观察一个文件：`SafeFile` 句柄核对身份（拒绝软链、目录、硬链），再在句柄上
 /// 限额读取并算 sha256 与字节数。不存在返回 `Error::NotFound`。
 pub fn observe_file(path: &AbsPath) -> Result<ObservedFile> {
-    let f = SafeFile::open_regular(path)?;
+    let f = ExternalReadFile::open_regular(path)?;
     let (sha256, bytes) = f.sha256_bounded(MAX_FILE_BYTES)?;
     Ok(ObservedFile::new(path.clone(), sha256, bytes))
 }
@@ -63,7 +63,7 @@ fn walk_dir(
         if !ft.is_file() {
             continue;
         }
-        let f = SafeFile::open_regular(&path)?;
+        let f = ExternalReadFile::open_regular(&path)?;
         let bytes = f.read_bounded(MAX_FILE_BYTES)?;
         let rel = RelPath::new(
             path.as_path()

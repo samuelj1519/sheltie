@@ -29,6 +29,36 @@ fn home_prefers_cli_then_env_then_default() {
     assert!(rel.root().as_str().ends_with("/rel-home"));
 }
 
+// Task: C002-T19
+#[test]
+fn home_rel_rejects_invalid_paths_instead_of_falling_back_to_root() {
+    let (_d, home) = temp_home();
+    assert!(home.rel("works/w1/status-card.md").is_ok());
+    for bad in ["", "../outside", "a/../outside", "/outside", "a//b", "a\0b"] {
+        assert!(home.rel(bad).is_err(), "must reject {bad:?}");
+    }
+}
+
+// Task: C002-T19
+#[test]
+fn home_lock_rejects_symlink_and_hardlink_leaf_without_touching_target() {
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("lock-target");
+    std::fs::write(&sentinel, b"keep lock target").unwrap();
+    let before = std::fs::read(&sentinel).unwrap();
+
+    let (_d, home) = temp_home();
+    std::os::unix::fs::symlink(&sentinel, home.lock_path().as_path()).unwrap();
+    assert!(home.acquire_lock().is_err());
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+    std::fs::remove_file(home.lock_path().as_path()).unwrap();
+
+    let (_d2, hardlink_home) = temp_home();
+    std::fs::hard_link(&sentinel, hardlink_home.lock_path().as_path()).unwrap();
+    assert!(hardlink_home.acquire_lock().is_err());
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+}
+
 // Task: T12
 #[test]
 fn confine_rejects_dotdot_absolute_and_empty_segment() {

@@ -96,7 +96,7 @@ pub fn version_info(home: &Home) -> VersionInfo {
 /// 已存在且字节相同 → `already_installed = true`。不写任何 shell 配置，PATH 提示
 /// 只是输出文本（存储合同 §9、协议 §3）。写动词持管理根写锁（§2.2）。
 pub fn install(home: &Home) -> Result<InstallOutcome> {
-    let _lock = home.acquire_lock()?;
+    let lock = home.acquire_lock()?;
     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
     let bin = home.bin_dir();
     let target = bin.join_segment("sheltie");
@@ -104,14 +104,14 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
     // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
     crate::store::Store::open(&home.store_path(), crate::store::OpenMode::ReadWrite)?;
     // 当前可执行文件是根外对象，只读取观察；限额读一次，幂等比较与落位都用这份字节。
-    let exe = crate::fsx::SafeFile::open_regular(
+    let exe = crate::fsx::ExternalReadFile::open_regular(
         &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
     )?;
     let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
     // 已存在且字节相同就不动（幂等）。目标同样走 T04 边界读；读不出（缺失、软链、被替换）
     // 都当成不同，走落位覆盖。
-    if crate::fsx::SafeFile::open_regular(&target)
-        .and_then(|old| old.read_bounded(crate::fsx::MAX_FILE_BYTES))
+    if crate::fsx::open_managed_optional(home, &target)?
+        .and_then(|old| old.read_bounded(crate::fsx::MAX_FILE_BYTES).ok())
         .map(|old| old == bytes)
         .unwrap_or(false)
     {
@@ -121,19 +121,19 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
             path_hint: path_hint(home),
         });
     }
-    crate::fsx::ensure_dirs_under(home.root(), &bin)?;
+    crate::fsx::ensure_dirs_under(home, &lock, &bin)?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
     std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
     let staged = tmp.join_segment("sheltie");
     // 落位用独占创建 + fsync + rename。
-    crate::fsx::write_new_file(&staged, &bytes)?;
+    crate::fsx::write_new_file(home, &lock, &staged, &bytes)?;
     make_executable(&staged)?;
     fsync(&staged)?;
     std::fs::rename(staged.as_path(), target.as_path())
         .map_err(|e| Error::io(target.as_str(), e))?;
-    crate::fsx::fsync_dir(&bin);
+    crate::fsx::fsync_dir(home, &lock, &bin)?;
     let _ = std::fs::remove_dir_all(tmp.as_path());
     Ok(InstallOutcome {
         installed_to: target,
@@ -144,7 +144,7 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
 
 /// `self update`（存储合同 §9 六步）。`version` 为 `None` 时按 latest 固定出的版本更新。
 pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Result<UpdateOutcome> {
-    let _lock = home.acquire_lock()?;
+    let lock = home.acquire_lock()?;
     // 步 1：解析发布身份，一次固定到 tag；清单与资产都从同一 tag 取，不混用两次解析。
     let tag = resolve_tag(source, version)?;
     // 步 2：读该 tag 的清单，找当前平台的包与 sha256。
@@ -172,7 +172,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     // 资产名要能安全拼进 tmp/<uuid>/；伪造的清单不能把路径带出管理根。
     let name = checked_asset_name(&asset.name)?;
     // 步 3：下载到 tmp/<uuid>/，核对摘要，必要时解包。
-    crate::fsx::ensure_dirs_under(home.root(), &home.tmp_dir())?;
+    crate::fsx::ensure_dirs_under(home, &lock, &home.tmp_dir())?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
@@ -185,7 +185,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         }
     };
     // 核对发布包文件的摘要（限额读取同一对象）；不符删掉下载文件。
-    let bytes = match crate::fsx::SafeFile::open_regular(&downloaded)
+    let bytes = match crate::fsx::open_managed_regular(home, &downloaded)
         .and_then(|f| f.read_bounded(crate::fsx::MAX_FILE_BYTES))
     {
         Ok(b) => b,
@@ -219,7 +219,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         return Err(e);
     }
     let bin = home.bin_dir();
-    crate::fsx::ensure_dirs_under(home.root(), &bin)?;
+    crate::fsx::ensure_dirs_under(home, &lock, &bin)?;
     let target = bin.join_segment("sheltie");
     let prev = bin.join_segment("sheltie.prev");
     // 崩溃窗口：第 4 步与第 5 步之间（存储合同 §9 末段）。
@@ -235,7 +235,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         let _ = std::fs::remove_dir_all(tmp.as_path());
         return Err(Error::io(target.as_str(), e));
     }
-    crate::fsx::fsync_dir(&bin);
+    crate::fsx::fsync_dir(home, &lock, &bin)?;
     let _ = std::fs::remove_dir_all(tmp.as_path());
     Ok(UpdateOutcome {
         from: current.to_string(),
@@ -246,7 +246,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
 
 /// `self rollback`：`sheltie.prev` 换回来；`bin/sheltie` 缺失时直接挪回。没有 `.prev` 报 `NotFound`。
 pub fn rollback(home: &Home) -> Result<()> {
-    let _lock = home.acquire_lock()?;
+    let lock = home.acquire_lock()?;
     let bin = home.bin_dir();
     let prev = bin.join_segment("sheltie.prev");
     let target = bin.join_segment("sheltie");
@@ -267,29 +267,29 @@ pub fn rollback(home: &Home) -> Result<()> {
             // trash 是文件不是目录；remove_dir_all 对文件报 ENOTDIR，会把它留在 tmp/ 里。
             let _ = std::fs::remove_file(trash.as_path());
         }
-        crate::fsx::fsync_dir(&bin);
+        crate::fsx::fsync_dir(home, &lock, &bin)?;
     }
     std::fs::rename(prev.as_path(), target.as_path()).map_err(|e| Error::io(target.as_str(), e))?;
     Ok(())
 }
 
-/// `self uninstall`：默认只删 `bin/`；`purge` 时删整个管理根，`confirmed` 为假则报 `InvalidRequest`。
-/// 返回保留下来的路径（`--purge` 时为空）。写动词持管理根写锁；purge 持锁删根（§2.2），
-/// 等待者获锁后复核根与 `.lock` 身份，见 [`crate::home::HomeLock::identity_still_valid`]。
+/// `self uninstall`：默认只删 `bin/`；`purge` 清理管理数据但保留管理根和同一 `.lock`。
+/// `confirmed` 为假时报 `InvalidRequest`。返回保留下来的用户数据路径；purge 成功时为空。
+/// 写动词持管理根写锁；等待者获锁后复核根与 `.lock` 身份。
 pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPath>> {
     if purge && !confirmed {
         return Err(Error::InvalidRequest {
             reason: "卸载并清空管理根需要确认（交互模式输入 yes，--json 模式给 --yes）".to_string(),
         });
     }
-    let _lock = home.acquire_lock()?;
+    let lock = home.acquire_lock()?;
     let bin = home.bin_dir();
     if purge {
-        crate::fsx::remove_tree_no_follow(home.root())?;
+        crate::fsx::remove_tree_no_follow(home, &lock, home.root())?;
         return Ok(Vec::new());
     }
     if bin.as_path().exists() {
-        crate::fsx::remove_tree_no_follow(&bin)?;
+        crate::fsx::remove_tree_no_follow(home, &lock, &bin)?;
     }
     let mut kept = Vec::new();
     for name in ["store.db", "workbooks", "works"] {

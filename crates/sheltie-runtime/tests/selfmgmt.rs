@@ -178,12 +178,23 @@ fn uninstall_keeps_store_and_works() {
 fn uninstall_purge_requires_yes() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
+    let lock_path = std::path::PathBuf::from(home.lock_path().as_str());
+    let lock_before = std::fs::metadata(&lock_path).unwrap();
+    use std::os::unix::fs::MetadataExt;
     assert!(matches!(
         selfmgmt::uninstall(&home, true, false),
         Err(Error::InvalidRequest { .. })
     ));
     selfmgmt::uninstall(&home, true, true).unwrap();
-    assert!(!std::path::PathBuf::from(home.root().as_str()).exists());
+    assert!(std::path::PathBuf::from(home.root().as_str()).is_dir());
+    let lock_after = std::fs::metadata(&lock_path).unwrap();
+    assert_eq!(
+        (lock_before.dev(), lock_before.ino()),
+        (lock_after.dev(), lock_after.ino())
+    );
+    let entries: Vec<_> = std::fs::read_dir(home.root().as_path()).unwrap().collect();
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].as_ref().unwrap().file_name(), ".lock");
 }
 
 // ── M3 里程碑审查补测：发布链与 install 语义（挂 T20） ─────────────────────
@@ -972,33 +983,11 @@ fn home_lock_identity_detects_replaced_root() {
     let (_d, home) = temp_home();
     let guard = home.acquire_lock().unwrap();
     assert!(guard.identity_still_valid());
-    sheltie_runtime::fsx::remove_tree_no_follow(home.root()).unwrap();
+    // 该用例模拟同用户锁外替换，测试夹具清理由std处理；产品路径删除走runtime句柄API。
+    std::fs::remove_dir_all(home.root().as_path()).unwrap();
     std::fs::create_dir_all(home.root().as_str()).unwrap();
     std::fs::write(home.lock_path().as_str(), b"replaced").unwrap();
     assert!(!guard.identity_still_valid());
-}
-
-// Task: C002-T15
-#[test]
-fn purge_waiter_reacquires_on_fresh_root() {
-    // purge 持锁删根（§2.2）：等待者获锁后复核根与 `.lock` 身份，根已删就释放旧锁、
-    // 在新根上整体重试。终态是完整的全新管理根，不是沿旧 inode 写出来的半状态。
-    let (_d, home) = temp_home();
-    selfmgmt::install(&home).unwrap();
-    let guard = home.acquire_lock().unwrap();
-    let home_b = home.clone();
-    let waiter = std::thread::spawn(move || selfmgmt::install(&home_b));
-    // 短窗口让等待者进到取锁；随后在锁内删根（uninstall --purge 的核心动作）。
-    std::thread::sleep(std::time::Duration::from_millis(100));
-    sheltie_runtime::fsx::remove_tree_no_follow(home.root()).unwrap();
-    drop(guard);
-    waiter.join().unwrap().unwrap();
-    let root = std::path::PathBuf::from(home.root().as_str());
-    assert!(root.join("store.db").exists(), "等待者没在新根上重建库");
-    assert!(
-        root.join("bin").join("sheltie").exists(),
-        "等待者没在新根上装二进制"
-    );
 }
 
 // Task: C002-T15

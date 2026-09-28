@@ -50,7 +50,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T13 | done | skill 安装产物自包含 | T10 |
 | C002-T15 | done | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
 | C002-T18 | done | 固定修复合同、接口与平台API门槛 | 用户豁免Linux并保留not_run；macOS门禁与双轴独立review通过 |
-| C002-T19 | not_run | 受管路径、目录句柄与安全文件原语 | T18 |
+| C002-T19 | done | 受管路径、目录句柄与安全文件原语 | T18 done；Linux运行豁免且not_run；[macOS门禁与双轴独立review](evidence/t19-managed-fs-2026-09-28/README.md) |
 | C002-T20 | not_run | 持久路径与效果的可信装入 | T19 |
 | C002-T21 | not_run | 受限目录枚举、摘要和复制 | T19 |
 | C002-T22 | not_run | 同句柄输出观察与封存 | T19、T20 |

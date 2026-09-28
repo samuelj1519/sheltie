@@ -5,7 +5,12 @@
 //! 同一个打开的文件对象上；不能「检查路径、重开另一对象、再 chmod」。
 
 use std::io::{Read, Seek, Write};
-use std::os::unix::fs::{MetadataExt, PermissionsExt};
+use std::os::unix::fs::MetadataExt;
+
+use rustix::fs::{
+    AtFlags, Dir, FileType, Mode, OFlags, RenameFlags, fchmod, fstat, fsync, mkdirat, openat,
+    renameat_with, statat, unlinkat,
+};
 
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::path::AbsPath;
@@ -20,75 +25,828 @@ pub const MAX_TOTAL_BYTES: u64 = 268_435_456;
 /// 字节。复制与读取都**准确拒绝并点名文件**，不静默忽略字节。
 pub const HOST_METADATA_FILES: &[&str] = &[".DS_Store"];
 
-/// 安全打开的叶文件句柄。
-///
-/// 打开即核对身份：`symlink_metadata` 拒绝软链与非常规文件并核对硬链计数，随后
-/// 打开并在**句柄上** `metadata()` 比对 dev/ino——只有打开到的就是刚才核对的那个
-/// 对象才可用。之后的大小、读取、摘要与置只读全部用同一句柄；路径上再怎么替换，
-/// 读到的仍是核对过的对象（GF-32 的「同一观测对象」）。
+/// 已验证的管理根内路径。每段都独立校验，构造后不再接受裸绝对路径。
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ManagedRelPath {
+    value: String,
+    segments: Vec<String>,
+}
+
+impl ManagedRelPath {
+    pub fn new(value: impl Into<String>) -> Result<Self> {
+        let value = value.into();
+        if value.as_bytes().contains(&0) {
+            return Err(Error::InvalidRequest {
+                reason: "管理路径不能包含NUL".to_string(),
+            });
+        }
+        let parsed = sheltie_core::path::RelPath::new(value.clone()).map_err(Error::Core)?;
+        let segments = parsed
+            .as_str()
+            .split('/')
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        Ok(Self { value, segments })
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.value
+    }
+
+    fn leaf(&self) -> Result<&str> {
+        self.segments
+            .last()
+            .map(String::as_str)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "管理路径不能是空路径".to_string(),
+            })
+    }
+
+    fn parent(&self) -> Option<Self> {
+        (self.segments.len() > 1).then(|| {
+            let segments = self.segments[..self.segments.len() - 1].to_vec();
+            Self {
+                value: segments.join("/"),
+                segments,
+            }
+        })
+    }
+}
+
+/// 根目录句柄锚定的管理文件系统。根内路径只按目录句柄逐段解析。
+#[derive(Debug)]
+pub struct ManagedFs {
+    root: AbsPath,
+    root_dir: std::fs::File,
+    root_ident: (u64, u64),
+}
+
+/// 从已核验的根目录句柄逐段打开的子目录。
+#[derive(Debug)]
+pub struct ManagedDir {
+    file: std::fs::File,
+    root: AbsPath,
+    root_ident: (u64, u64),
+    path: ManagedRelPath,
+}
+
+impl ManagedDir {
+    pub fn path(&self) -> &ManagedRelPath {
+        &self.path
+    }
+
+    pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {
+        self.check_lock(lock)?;
+        let leaf = self.leaf(leaf)?;
+        let display = format!("{}/{}", self.path.as_str(), leaf);
+        let fd = openat(
+            &self.file,
+            &leaf,
+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::from_raw_mode(0o600),
+        )
+        .map_err(|e| map_fs_error(&display, e))?;
+        let mut file = std::fs::File::from(fd);
+        file.write_all(bytes).map_err(|e| Error::io(&display, e))?;
+        file.sync_all().map_err(|e| Error::io(&display, e))?;
+        fsync(&self.file).map_err(|e| map_fs_error(&display, e))
+    }
+
+    pub fn rename_new(&self, lock: &crate::home::HomeLock, from: &str, to: &str) -> Result<()> {
+        self.check_lock(lock)?;
+        let from = self.leaf(from)?;
+        let to = self.leaf(to)?;
+        let display = format!("{}/{}", self.path.as_str(), to);
+        check_rename_source(&self.file, &from, &display)?;
+        renameat_with(&self.file, &from, &self.file, &to, RenameFlags::NOREPLACE)
+            .map_err(|e| map_fs_error(&display, e))?;
+        fsync(&self.file).map_err(|e| map_fs_error(&display, e))
+    }
+
+    fn leaf(&self, value: &str) -> Result<String> {
+        let path = ManagedRelPath::new(value)?;
+        if path.segments.len() != 1 {
+            return Err(Error::InvalidRequest {
+                reason: "ManagedDir操作只接受单个叶名称".to_string(),
+            });
+        }
+        Ok(path.value)
+    }
+
+    fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {
+        if !lock.matches_root(&self.root, self.root_ident) {
+            return Err(Error::InvalidRequest {
+                reason: "写锁与目录句柄的管理根不是同一对象".to_string(),
+            });
+        }
+        Ok(())
+    }
+}
+
+impl ManagedFs {
+    /// 打开已存在的真实管理根。每一段都拒绝符号链接；Home.resolve已处理系统根别名。
+    pub fn open_existing(home: &crate::home::Home) -> Result<Self> {
+        Self::open_root(home.root())
+    }
+
+    pub(crate) fn open_root(root: &AbsPath) -> Result<Self> {
+        let slash = std::fs::File::open("/").map_err(|e| Error::io("/", e))?;
+        Self::traverse_root(root, slash, false)
+    }
+
+    pub(crate) fn create_root(root: &AbsPath) -> Result<Self> {
+        let slash = std::fs::File::open("/").map_err(|e| Error::io("/", e))?;
+        Self::traverse_root(root, slash, true)
+    }
+
+    fn traverse_root(root: &AbsPath, slash: std::fs::File, create_missing: bool) -> Result<Self> {
+        if root.as_str().as_bytes().contains(&0) {
+            return Err(Error::InvalidRequest {
+                reason: "管理根不能包含NUL".to_string(),
+            });
+        }
+        let mut current = slash;
+        let absolute = root.as_str().trim_start_matches('/');
+        let mut path_segments = Vec::new();
+        for segment in absolute.split('/') {
+            if segment.is_empty() {
+                continue;
+            }
+            if segment == "." || segment == ".." {
+                return Err(Error::InvalidRequest {
+                    reason: format!("管理根包含未规范化路径段 {segment}"),
+                });
+            }
+            path_segments.push(segment.to_string());
+            let display = format!("/{}", path_segments.join("/"));
+            let next = match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+                Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("管理根段 {display} 是符号链接"),
+                    });
+                }
+                Ok(stat) if FileType::from_raw_mode(stat.st_mode) != FileType::Directory => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("管理根段 {display} 不是目录"),
+                    });
+                }
+                Ok(_) => open_directory_at(&current, segment, &display)?,
+                Err(rustix::io::Errno::NOENT) if create_missing => {
+                    match mkdirat(&current, segment, Mode::from_raw_mode(0o700)) {
+                        Ok(()) | Err(rustix::io::Errno::EXIST) => {
+                            fsync(&current).map_err(|e| map_fs_error(&display, e))?;
+                        }
+                        Err(error) => return Err(map_fs_error(&display, error)),
+                    }
+                    open_directory_at(&current, segment, &display)?
+                }
+                Err(error) => return Err(map_fs_error(&display, error)),
+            };
+            current = next;
+        }
+        let meta = current
+            .metadata()
+            .map_err(|e| Error::io(root.as_str(), e))?;
+        if !meta.is_dir() {
+            return Err(Error::InvalidRequest {
+                reason: format!("管理根 {root} 不是目录"),
+            });
+        }
+        Ok(Self {
+            root: root.clone(),
+            root_ident: (meta.dev(), meta.ino()),
+            root_dir: current,
+        })
+    }
+
+    pub fn root(&self) -> &AbsPath {
+        &self.root
+    }
+
+    pub(crate) fn open_lock_file(&self) -> Result<std::fs::File> {
+        let lock_path = self.root.join_segment(".lock");
+        let fd = openat(
+            &self.root_dir,
+            ".lock",
+            OFlags::RDWR | OFlags::CREATE | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+            Mode::from_raw_mode(0o600),
+        )
+        .map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+        let file = std::fs::File::from(fd);
+        let stat = fstat(&file).map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile || stat.st_nlink != 1 {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 必须是普通单链接锁文件", lock_path),
+            });
+        }
+        fsync(&file).map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+        fsync(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))?;
+        Ok(file)
+    }
+
+    pub(crate) fn identity(&self) -> (u64, u64) {
+        self.root_ident
+    }
+
+    fn absolute(&self, rel: &ManagedRelPath) -> Result<AbsPath> {
+        AbsPath::new(format!(
+            "{}/{}",
+            self.root.as_str().trim_end_matches('/'),
+            rel.as_str()
+        ))
+        .map_err(Error::Core)
+    }
+
+    fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {
+        if !lock.matches_root(&self.root, self.root_ident) {
+            return Err(Error::InvalidRequest {
+                reason: "写锁与管理根句柄不是同一对象".to_string(),
+            });
+        }
+        Ok(())
+    }
+
+    fn open_dir(&self, rel: Option<&ManagedRelPath>) -> Result<std::fs::File> {
+        let Some(rel) = rel else {
+            return self
+                .root_dir
+                .try_clone()
+                .map_err(|e| Error::io(self.root.as_str(), e));
+        };
+        let mut current = self
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        for segment in &rel.segments {
+            current = open_directory_at(&current, segment, &self.display_path(rel))?;
+        }
+        Ok(current)
+    }
+
+    fn open_parent(&self, rel: &ManagedRelPath) -> Result<(std::fs::File, String)> {
+        let leaf = rel.leaf()?.to_string();
+        let parent = rel.parent();
+        Ok((self.open_dir(parent.as_ref())?, leaf))
+    }
+
+    fn display_path(&self, rel: &ManagedRelPath) -> String {
+        format!(
+            "{}/{}",
+            self.root.as_str().trim_end_matches('/'),
+            rel.as_str()
+        )
+    }
+
+    /// 持锁安全建立路径中的所有目录段，并对新目录项同步父目录。
+    pub fn ensure_dir(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<ManagedDir> {
+        self.check_lock(lock)?;
+        self.ensure_dir_unlocked(path)?;
+        Ok(ManagedDir {
+            file: self.open_dir(Some(path))?,
+            root: self.root.clone(),
+            root_ident: self.root_ident,
+            path: path.clone(),
+        })
+    }
+
+    fn ensure_dir_unlocked(&self, path: &ManagedRelPath) -> Result<()> {
+        let mut current = self
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        let mut prefix = Vec::new();
+        for segment in &path.segments {
+            prefix.push(segment.clone());
+            let rel = ManagedRelPath {
+                value: prefix.join("/"),
+                segments: prefix.clone(),
+            };
+            match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+                Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{} 是符号链接，不能作为管理目录", self.display_path(&rel)),
+                    });
+                }
+                Ok(stat) if FileType::from_raw_mode(stat.st_mode) != FileType::Directory => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{} 不是目录", self.display_path(&rel)),
+                    });
+                }
+                Ok(stat) => {
+                    let opened = open_directory_at(&current, segment, &self.display_path(&rel))?;
+                    let after =
+                        fstat(&opened).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    if after.st_dev != stat.st_dev || after.st_ino != stat.st_ino {
+                        return Err(Error::InvalidRequest {
+                            reason: format!("{} 在建立期间被替换", self.display_path(&rel)),
+                        });
+                    }
+                    current = opened;
+                }
+                Err(rustix::io::Errno::NOENT) => {
+                    mkdirat(&current, segment, Mode::from_raw_mode(0o700))
+                        .map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    fsync(&current).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    let fd = openat(
+                        &current,
+                        segment,
+                        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+                        Mode::empty(),
+                    )
+                    .map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    current = std::fs::File::from(fd);
+                }
+                Err(e) => return Err(map_fs_error(&self.display_path(&rel), e)),
+            }
+        }
+        Ok(())
+    }
+
+    /// 以目录句柄逐段打开普通、单链接文件，并核对打开前后的dev/inode。
+    pub fn open_regular(&self, path: &ManagedRelPath) -> Result<SafeFile> {
+        let (parent, leaf) = self.open_parent(path)?;
+        let mut file = open_regular_at(
+            &parent,
+            &leaf,
+            &self.display_path(path),
+            self.absolute(path)?,
+        )?;
+        file.managed = Some(ManagedOrigin {
+            root: self.root.clone(),
+            root_ident: self.root_ident,
+            rel: path.clone(),
+        });
+        Ok(file)
+    }
+
+    pub fn open_optional(&self, path: &ManagedRelPath) -> Result<Option<SafeFile>> {
+        match self.open_regular(path) {
+            Ok(file) => Ok(Some(file)),
+            Err(Error::NotFound { .. }) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+
+    /// 持锁独占创建普通文件，写完并同步文件及其父目录。
+    pub fn write_new(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        bytes: &[u8],
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.write_new_unlocked(path, bytes)
+    }
+
+    fn write_new_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<()> {
+        let (parent, leaf) = self.open_parent(path)?;
+        let display = self.display_path(path);
+        let fd = openat(
+            &parent,
+            &leaf,
+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::from_raw_mode(0o600),
+        )
+        .map_err(|e| map_fs_error(&display, e))?;
+        let mut file = std::fs::File::from(fd);
+        file.write_all(bytes).map_err(|e| Error::io(&display, e))?;
+        file.sync_all().map_err(|e| Error::io(&display, e))?;
+        fsync(&parent).map_err(|e| map_fs_error(&display, e))?;
+        Ok(())
+    }
+
+    /// 持锁以同目录临时对象原子替换投影文件；目标叶不跟随符号链接。
+    pub fn write_atomic(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        bytes: &[u8],
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.write_atomic_unlocked(path, bytes)
+    }
+
+    fn write_atomic_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<()> {
+        if let Some(parent_path) = path.parent() {
+            self.ensure_dir_unlocked(&parent_path)?;
+        }
+        let (parent, leaf) = self.open_parent(path)?;
+        let display = self.display_path(path);
+        let tmp = format!(".{leaf}.tmp-{}", uuid::Uuid::now_v7().simple());
+        let fd = openat(
+            &parent,
+            &tmp,
+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::from_raw_mode(0o600),
+        )
+        .map_err(|e| map_fs_error(&display, e))?;
+        let mut file = std::fs::File::from(fd);
+        if let Err(e) = file.write_all(bytes).and_then(|()| file.sync_all()) {
+            let _ = unlinkat(&parent, &tmp, AtFlags::empty());
+            return Err(Error::io(&display, e));
+        }
+        drop(file);
+        if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, RenameFlags::empty()) {
+            let _ = unlinkat(&parent, &tmp, AtFlags::empty());
+            return Err(map_fs_error(&display, e));
+        }
+        fsync(&parent).map_err(|e| map_fs_error(&display, e))
+    }
+
+    /// 持锁将对象移动到不存在的新目标，两个端点都以父目录句柄定位。
+    pub fn rename_new(
+        &self,
+        lock: &crate::home::HomeLock,
+        from: &ManagedRelPath,
+        to: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.rename_new_unlocked(from, to)
+    }
+
+    fn rename_new_unlocked(&self, from: &ManagedRelPath, to: &ManagedRelPath) -> Result<()> {
+        let (src_parent, src_leaf) = self.open_parent(from)?;
+        let (dst_parent, dst_leaf) = self.open_parent(to)?;
+        check_rename_source(&src_parent, &src_leaf, &self.display_path(from))?;
+        renameat_with(
+            &src_parent,
+            &src_leaf,
+            &dst_parent,
+            &dst_leaf,
+            RenameFlags::NOREPLACE,
+        )
+        .map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        fsync(&src_parent).map_err(|e| map_fs_error(&self.display_path(from), e))?;
+        fsync(&dst_parent).map_err(|e| map_fs_error(&self.display_path(to), e))?;
+        Ok(())
+    }
+
+    /// 持锁安全删除本管理根下的对象；目录逐层由句柄枚举，叶链接只unlink自身。
+    pub fn remove_owned_tree(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let (parent, leaf) = self.open_parent(path)?;
+        remove_at(&parent, &leaf, &self.display_path(path))?;
+        fsync(&parent).map_err(|e| map_fs_error(&self.display_path(path), e))
+    }
+
+    /// Purge explicitly requested data while retaining the management root and its lock inode.
+    pub fn purge_contents(&self, lock: &crate::home::HomeLock) -> Result<()> {
+        self.check_lock(lock)?;
+        fchmod(&self.root_dir, Mode::from_raw_mode(0o700))
+            .map_err(|e| map_fs_error(self.root.as_str(), e))?;
+        let entries =
+            Dir::read_from(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))?;
+        let names = entries
+            .map(|entry| {
+                entry
+                    .map(|entry| entry.file_name().to_bytes().to_vec())
+                    .map_err(|e| Error::io(self.root.as_str(), e.into()))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        for bytes in names {
+            if bytes == b"." || bytes == b".." || bytes == b".lock" {
+                continue;
+            }
+            let name = std::str::from_utf8(&bytes).map_err(|_| Error::InvalidRequest {
+                reason: format!("{} 下有非UTF-8名称，拒绝清理", self.root),
+            })?;
+            let stat = statat(&self.root_dir, name, AtFlags::SYMLINK_NOFOLLOW)
+                .map_err(|e| map_fs_error(&self.root.to_string(), e))?;
+            if FileType::from_raw_mode(stat.st_mode) == FileType::Directory {
+                make_directories_writable(&self.root_dir, name, &self.root.to_string())?;
+            }
+            remove_at(&self.root_dir, name, &format!("{}/{name}", self.root))?;
+        }
+        fsync(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))
+    }
+
+    pub fn sync_dir_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let dir = self.open_dir(Some(path))?;
+        fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
+    }
+
+    pub fn set_readonly(&self, lock: &crate::home::HomeLock, file: &SafeFile) -> Result<()> {
+        self.check_lock(lock)?;
+        let Some(origin) = &file.managed else {
+            return Err(Error::InvalidRequest {
+                reason: "不能修改外部只读文件的权限".to_string(),
+            });
+        };
+        if origin.root != self.root || origin.root_ident != self.root_ident {
+            return Err(Error::InvalidRequest {
+                reason: "文件句柄不属于此管理根".to_string(),
+            });
+        }
+        let current = fstat(&file.file).map_err(|e| map_fs_error(file.path.as_str(), e))?;
+        check_regular_stat(file.path.as_str(), &current)?;
+        if current.st_dev as u64 != file.meta.dev() || current.st_ino as u64 != file.meta.ino() {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的句柄身份已改变", file.path),
+            });
+        }
+        file.set_readonly()?;
+        let current = self.open_regular(&origin.rel)?;
+        if file.meta.dev() != current.meta.dev() || file.meta.ino() != current.meta.ino() {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 在封存期间被替换", file.path),
+            });
+        }
+        Ok(())
+    }
+
+    pub fn set_tree_readonly(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let dir = self.open_dir(Some(path))?;
+        set_dir_tree_mode(&dir, &self.display_path(path), 0o444, 0o555)?;
+        fchmod(&dir, Mode::from_raw_mode(0o555))
+            .map_err(|e| map_fs_error(&self.display_path(path), e))?;
+        fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
+    }
+
+    pub fn make_tree_writable(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let dir = self.open_dir(Some(path))?;
+        set_dir_tree_mode(&dir, &self.display_path(path), 0o644, 0o755)?;
+        fchmod(&dir, Mode::from_raw_mode(0o755))
+            .map_err(|e| map_fs_error(&self.display_path(path), e))?;
+        fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
+    }
+}
+
+fn check_rename_source(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
+    let stat =
+        statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+    let kind = FileType::from_raw_mode(stat.st_mode);
+    if kind == FileType::Symlink
+        || (kind == FileType::RegularFile && stat.st_nlink != 1)
+        || !matches!(kind, FileType::RegularFile | FileType::Directory)
+    {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 不是可受管移动对象"),
+        });
+    }
+    Ok(())
+}
+
+/// 用户显式来源路径的只读句柄。它不提供写入、删除或改权限的方法。
+#[derive(Debug)]
+pub struct ExternalReadFile(SafeFile);
+
+impl ExternalReadFile {
+    pub fn open_regular(path: &AbsPath) -> Result<Self> {
+        let parent = path
+            .as_path()
+            .parent()
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: format!("{path} 没有父目录"),
+            })?;
+        let canonical_parent =
+            std::fs::canonicalize(parent).map_err(|e| map_std_error(path.as_str(), e))?;
+        let parent =
+            AbsPath::new(canonical_parent.to_string_lossy().into_owned()).map_err(Error::Core)?;
+        let fs = ManagedFs::open_root(&parent)?;
+        let leaf = path
+            .as_path()
+            .file_name()
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: format!("{path} 没有文件名"),
+            })?;
+        Ok(Self(open_regular_at(
+            &fs.root_dir,
+            leaf,
+            path.as_str(),
+            path.clone(),
+        )?))
+    }
+
+    pub fn open_optional(path: &AbsPath) -> Result<Option<Self>> {
+        match Self::open_regular(path) {
+            Ok(file) => Ok(Some(file)),
+            Err(Error::NotFound { .. }) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+
+    pub fn read_bounded(&self, max_bytes: u64) -> Result<Vec<u8>> {
+        self.0.read_bounded(max_bytes)
+    }
+
+    pub fn sha256_bounded(&self, max_bytes: u64) -> Result<(Sha256Hex, u64)> {
+        self.0.sha256_bounded(max_bytes)
+    }
+
+    pub fn metadata(&self) -> &std::fs::Metadata {
+        self.0.metadata()
+    }
+}
+
+pub(crate) fn open_managed_regular(home: &crate::home::Home, path: &AbsPath) -> Result<SafeFile> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.open_regular(&rel)
+}
+
+pub(crate) fn open_managed_optional(
+    home: &crate::home::Home,
+    path: &AbsPath,
+) -> Result<Option<SafeFile>> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.open_optional(&rel)
+}
+
+fn map_fs_error(path: &str, errno: rustix::io::Errno) -> Error {
+    let error = std::io::Error::from(errno);
+    if error.kind() == std::io::ErrorKind::NotFound {
+        Error::NotFound {
+            what: path.to_string(),
+        }
+    } else {
+        Error::io(path, error)
+    }
+}
+
+fn check_regular_stat(path: &str, stat: &rustix::fs::Stat) -> Result<()> {
+    let file_type = FileType::from_raw_mode(stat.st_mode);
+    if file_type == FileType::Symlink {
+        return Err(Error::InvalidRequest {
+            reason: format!("{path} 是符号链接"),
+        });
+    }
+    if file_type != FileType::RegularFile {
+        return Err(Error::InvalidRequest {
+            reason: format!("{path} 不是普通文件"),
+        });
+    }
+    if stat.st_nlink != 1 {
+        return Err(Error::InvalidRequest {
+            reason: format!("{path} 是硬链接（nlink = {}）", stat.st_nlink),
+        });
+    }
+    Ok(())
+}
+
+fn map_std_error(path: &str, error: std::io::Error) -> Error {
+    if error.kind() == std::io::ErrorKind::NotFound {
+        Error::NotFound {
+            what: path.to_string(),
+        }
+    } else {
+        Error::io(path, error)
+    }
+}
+
+fn open_regular_at(
+    parent: &std::fs::File,
+    leaf: &str,
+    display: &str,
+    path: AbsPath,
+) -> Result<SafeFile> {
+    let before =
+        statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+    check_regular_stat(display, &before)?;
+    let fd = openat(
+        parent,
+        leaf,
+        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|e| map_fs_error(display, e))?;
+    let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
+    check_regular_stat(display, &after)?;
+    if before.st_dev != after.st_dev || before.st_ino != after.st_ino {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 在打开期间被替换"),
+        });
+    }
+    let file = std::fs::File::from(fd);
+    let meta = file.metadata().map_err(|e| Error::io(display, e))?;
+    Ok(SafeFile {
+        file,
+        path,
+        meta,
+        managed: None,
+    })
+}
+
+fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Result<std::fs::File> {
+    let before =
+        statat(parent, name, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+    if FileType::from_raw_mode(before.st_mode) == FileType::Symlink {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 是符号链接"),
+        });
+    }
+    if FileType::from_raw_mode(before.st_mode) != FileType::Directory {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 不是目录"),
+        });
+    }
+    let fd = openat(
+        parent,
+        name,
+        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|e| map_fs_error(display, e))?;
+    let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
+    if after.st_dev != before.st_dev || after.st_ino != before.st_ino {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 在打开期间被替换"),
+        });
+    }
+    Ok(std::fs::File::from(fd))
+}
+
+fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
+    let stat =
+        statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+    let ty = FileType::from_raw_mode(stat.st_mode);
+    if ty == FileType::Symlink {
+        unlinkat(parent, leaf, AtFlags::empty()).map_err(|e| map_fs_error(display, e))?;
+        return Ok(());
+    }
+    if ty == FileType::RegularFile {
+        if stat.st_nlink != 1 {
+            return Err(Error::InvalidRequest {
+                reason: format!("{display} 是硬链接（nlink = {}）", stat.st_nlink),
+            });
+        }
+        unlinkat(parent, leaf, AtFlags::empty()).map_err(|e| map_fs_error(display, e))?;
+        return Ok(());
+    }
+    if ty != FileType::Directory {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 是特殊文件，拒绝删除"),
+        });
+    }
+    let fd = openat(
+        parent,
+        leaf,
+        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|e| map_fs_error(display, e))?;
+    let dir = std::fs::File::from(fd);
+    let opened = fstat(&dir).map_err(|e| map_fs_error(display, e))?;
+    if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 在删除期间被替换"),
+        });
+    }
+    let entries = Dir::read_from(&dir).map_err(|e| map_fs_error(display, e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| map_fs_error(display, e))?;
+        let name = entry.file_name().to_bytes();
+        if name == b"." || name == b".." {
+            continue;
+        }
+        let name = std::str::from_utf8(name).map_err(|_| Error::InvalidRequest {
+            reason: format!("{display} 下有非UTF-8文件名，拒绝删除"),
+        })?;
+        remove_at(&dir, name, &format!("{display}/{name}"))?;
+    }
+    drop(dir);
+    unlinkat(parent, leaf, AtFlags::REMOVEDIR).map_err(|e| map_fs_error(display, e))?;
+    Ok(())
+}
+
+/// 从受管目录句柄打开的普通文件。路径后续替换不会改变此句柄指向的对象。
 #[derive(Debug)]
 pub struct SafeFile {
     file: std::fs::File,
     path: AbsPath,
     meta: std::fs::Metadata,
+    managed: Option<ManagedOrigin>,
+}
+
+#[derive(Debug)]
+struct ManagedOrigin {
+    root: AbsPath,
+    root_ident: (u64, u64),
+    rel: ManagedRelPath,
 }
 
 impl SafeFile {
-    /// 打开并核对一个普通文件。不存在返回 `Err(NotFound)`。
-    pub fn open_regular(path: &AbsPath) -> Result<Self> {
-        let stat = std::fs::symlink_metadata(path.as_path()).map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => Error::NotFound {
-                what: path.to_string(),
-            },
-            _ => Error::io(path.as_str(), e),
-        })?;
-        let ft = stat.file_type();
-        if ft.is_symlink() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 是符号链接"),
-            });
-        }
-        if ft.is_dir() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 是目录"),
-            });
-        }
-        if !ft.is_file() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 不是普通文件"),
-            });
-        }
-        #[cfg(unix)]
-        if stat.nlink() > 1 {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 是硬链接（nlink = {}）", stat.nlink()),
-            });
-        }
-        let file = std::fs::File::open(path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-        // 句柄上的事实；与打开前的 stat 比对身份，堵住 stat→open 之间的替换窗口。
-        let meta = file.metadata().map_err(|e| Error::io(path.as_str(), e))?;
-        #[cfg(unix)]
-        if meta.dev() != stat.dev() || meta.ino() != stat.ino() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 在打开期间被替换（对象身份不符）"),
-            });
-        }
-        Ok(Self {
-            file,
-            path: path.clone(),
-            meta,
-        })
-    }
-
-    /// 不存在返回 `Ok(None)`，其他错误照常。
-    pub fn open_optional(path: &AbsPath) -> Result<Option<Self>> {
-        match Self::open_regular(path) {
-            Ok(f) => Ok(Some(f)),
-            Err(Error::NotFound { .. }) => Ok(None),
-            Err(e) => Err(e),
-        }
-    }
-
     /// 句柄元数据（句柄上的事实，不是路径上的）。
     pub fn metadata(&self) -> &std::fs::Metadata {
         &self.meta
@@ -146,123 +904,83 @@ impl SafeFile {
         Ok((Sha256Hex::of_bytes(&bytes), n))
     }
 
-    /// 把句柄对应的路径置只读（0444）。摘要已在**同一句柄**上核对（调用方先
-    /// `sha256_bounded` 比对记录），chmod 按路径执行：macOS 的 fchmod 要求句柄可写，
-    /// 而已只读的文件无法再以写方式打开，幂等重封会失败；路径 chmod 只要求属主。
-    pub fn set_readonly(&self) -> Result<()> {
-        std::fs::set_permissions(self.path.as_path(), std::fs::Permissions::from_mode(0o444))
-            .map_err(|e| Error::io(self.path.as_str(), e))
+    /// 在已打开的同一文件对象上置只读并同步。调用方先用同一句柄核验摘要。
+    fn set_readonly(&self) -> Result<()> {
+        fchmod(&self.file, Mode::from_raw_mode(0o444))
+            .map_err(|e| map_fs_error(self.path.as_str(), e))?;
+        fsync(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))
     }
 }
 
-/// 确保从管理根 `root` 到 `dir` 的路径可用：根本身（连同缺失的宿主祖先）可以创建
-/// ——宿主层的软链不归引擎管，`Home` 已在入口把根规范到真实形式；根**以下**已存在的
-/// 段必须是真实目录（软链拒绝），缺失的段逐段 `create_dir`。这样 `works`、`bin`、
-/// `pending` 之类的管理子目录被换成软链时，引擎不会沿它写到根外（O01）。
-pub fn ensure_dirs_under(root: &AbsPath, dir: &AbsPath) -> Result<()> {
-    if dir.as_path() != root.as_path() && !dir.as_path().starts_with(root.as_path()) {
-        return Err(Error::InvalidRequest {
-            reason: format!("{dir} 不在管理根 {root} 之下"),
-        });
-    }
-    if !root.as_path().exists() {
-        std::fs::create_dir_all(root.as_path()).map_err(|e| Error::io(root.as_str(), e))?;
-    }
-    let rel = dir
-        .as_path()
-        .strip_prefix(root.as_path())
-        .map_err(|e| Error::io(root.as_str(), std::io::Error::other(e.to_string())))?;
-    let mut current = root.as_path().to_path_buf();
-    for segment in rel.components() {
-        let camino::Utf8Component::Normal(name) = segment else {
-            continue;
-        };
-        current = current.join(name);
-        match std::fs::symlink_metadata(&current) {
-            Ok(meta) => {
-                if meta.file_type().is_symlink() {
-                    return Err(Error::InvalidRequest {
-                        reason: format!("{current} 是符号链接，不能作为管理目录"),
-                    });
-                }
-                if !meta.is_dir() {
-                    return Err(Error::InvalidRequest {
-                        reason: format!("{current} 不是目录"),
-                    });
-                }
-            }
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                std::fs::create_dir(&current).map_err(|e| Error::io(current.as_str(), e))?;
-            }
-            Err(e) => return Err(Error::io(current.as_str(), e)),
-        }
-    }
-    Ok(())
+/// 确保根内目录存在。根以目录句柄逐段解析，写入目标不跟随软链。
+pub(crate) fn ensure_dirs_under(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    dir: &AbsPath,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
+    ManagedFs::open_existing(home)?
+        .ensure_dir(lock, &rel)
+        .map(|_| ())
 }
 
 /// 原子写：在目标同目录**独占创建**唯一临时名（已存在或软链都直接失败，不跟随），
 /// 写入并 `fsync` 临时文件，`rename` 到目标，再 `fsync` 父目录使目录项持久。
 /// 临时名是随机 UUID，不在路径上可预测，也不保留固定后缀（O01 的 tmp-pending 缺口）。
 /// `base` 是可信基点（管理根或其下已验证的目录）；目标父目录在基点之下逐段核对。
-pub fn write_exclusive_atomic(base: &AbsPath, path: &AbsPath, content: &[u8]) -> Result<()> {
-    let parent = path
-        .as_path()
-        .parent()
-        .map(|p| p.to_path_buf())
-        .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("{path} 没有父目录"),
-        })?;
-    let parent = AbsPath::new(parent.to_string()).map_err(Error::Core)?;
-    ensure_dirs_under(base, &parent)?;
-    let tmp = parent
-        .as_path()
-        .join(format!(".{}.tmp", uuid::Uuid::now_v7().simple()));
-    let mut file = match std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&tmp)
-    {
-        Ok(f) => f,
-        Err(e) => {
-            let _ = std::fs::remove_file(&tmp);
-            return Err(Error::io(tmp.to_string(), e));
-        }
-    };
-    if let Err(e) = file.write_all(content) {
-        let _ = std::fs::remove_file(&tmp);
-        return Err(Error::io(tmp.to_string(), e));
-    }
-    if let Err(e) = file.sync_all() {
-        let _ = std::fs::remove_file(&tmp);
-        return Err(Error::io(tmp.to_string(), e));
-    }
-    drop(file);
-    if let Err(e) = std::fs::rename(&tmp, path.as_path()) {
-        let _ = std::fs::remove_file(&tmp);
-        return Err(Error::io(path.as_str(), e));
-    }
-    fsync_dir(&parent);
-    Ok(())
+pub(crate) fn write_exclusive_atomic(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    content: &[u8],
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.write_atomic(lock, &rel, content)
 }
 
-/// fsync 一个目录（让 rename/create 的目录项持久）。尽力而为：不支持的平台或权限
-/// 不足不阻断主流程。
-pub fn fsync_dir(dir: &AbsPath) {
-    if let Ok(f) = std::fs::File::open(dir.as_path()) {
-        let _ = f.sync_all();
-    }
+/// 同步目录句柄；失败向caller传播，不能把未持久化的目录项报告为已完成。
+pub(crate) fn fsync_dir(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    dir: &AbsPath,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
+    ManagedFs::open_existing(home)?.sync_dir_locked(lock, &rel)
 }
 
-/// 受限复制一棵树到 `dst`（`dst` 尚不存在）：拒绝软链、硬链与非常规文件，
-/// 每个文件经 `SafeFile` 句柄复制、独占创建目标并 `fsync`；单文件与总量上限
-/// 在复制前按句柄元数据核对，读到的字节数再核对一次。
-pub fn copy_tree_confined(src: &AbsPath, dst: &AbsPath) -> Result<u64> {
+pub(crate) fn rename_managed_new(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    from: &str,
+    to: &str,
+) -> Result<()> {
+    let from = ManagedRelPath::new(from)?;
+    let to = ManagedRelPath::new(to)?;
+    ManagedFs::open_existing(home)?.rename_new(lock, &from, &to)
+}
+
+/// 复制外部目录到管理根内的目标；源读取只读，目标创建经ManagedFs句柄。
+pub(crate) fn copy_tree_confined(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    src: &AbsPath,
+    dst: &AbsPath,
+) -> Result<u64> {
+    let fs = ManagedFs::open_existing(home)?;
+    let dst = ManagedRelPath::new(home.to_rel(dst)?)?;
+    fs.ensure_dir(lock, &dst)?;
     let mut total = 0u64;
-    copy_tree_into(src, dst, &mut total)?;
+    copy_tree_into(&fs, lock, src, &dst, &mut total)?;
     Ok(total)
 }
 
-fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
+fn copy_tree_into(
+    fs: &ManagedFs,
+    lock: &crate::home::HomeLock,
+    src: &AbsPath,
+    dst: &ManagedRelPath,
+    total: &mut u64,
+) -> Result<()> {
     let stat = std::fs::symlink_metadata(src.as_path()).map_err(|e| Error::io(src.as_str(), e))?;
     if stat.file_type().is_symlink() {
         return Err(Error::InvalidRequest {
@@ -274,24 +992,11 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
             reason: format!("{src} 不是目录"),
         });
     }
-    // 目标可以已存在（staging 先建好的空目录），但必须是目录。
-    match std::fs::symlink_metadata(dst.as_path()) {
-        Ok(m) if m.is_dir() => {}
-        Ok(_) => {
-            return Err(Error::InvalidRequest {
-                reason: format!("{dst} 不是目录"),
-            });
-        }
-        Err(_) => {
-            std::fs::create_dir(dst.as_path()).map_err(|e| Error::io(dst.as_str(), e))?;
-        }
-    }
-    fsync_dir(dst);
     for entry in std::fs::read_dir(src.as_path()).map_err(|e| Error::io(src.as_str(), e))? {
         let entry = entry.map_err(|e| Error::io(src.as_str(), e))?;
         let name = entry.file_name().to_string_lossy().into_owned();
         let s = src.join_segment(&name);
-        let d = dst.join_segment(&name);
+        let d = ManagedRelPath::new(format!("{}/{name}", dst.as_str()))?;
         if HOST_METADATA_FILES.contains(&name.as_str()) {
             return Err(Error::InvalidRequest {
                 reason: format!("{s} 是宿主元数据文件（如 Finder 生成），先清理再装"),
@@ -304,7 +1009,8 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
             });
         }
         if ft.is_dir() {
-            copy_tree_into(&s, &d, total)?;
+            fs.ensure_dir(lock, &d)?;
+            copy_tree_into(fs, lock, &s, &d, total)?;
             continue;
         }
         if !ft.is_file() {
@@ -312,7 +1018,7 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
                 reason: format!("{s} 不是普通文件"),
             });
         }
-        let from = SafeFile::open_regular(&s)?;
+        let from = ExternalReadFile::open_regular(&s)?;
         let bytes = from.metadata().len();
         if bytes > MAX_FILE_BYTES {
             return Err(Error::InvalidRequest {
@@ -330,103 +1036,164 @@ fn copy_tree_into(src: &AbsPath, dst: &AbsPath, total: &mut u64) -> Result<()> {
             });
         }
         let content = from.read_bounded(MAX_FILE_BYTES)?;
-        write_new_file(&d, &content)?;
+        fs.write_new(lock, &d, &content)?;
     }
     Ok(())
 }
 
 /// 独占创建一个新文件并写入、fsync。目标已存在（含软链占位）即失败。
-pub fn write_new_file(path: &AbsPath, content: &[u8]) -> Result<()> {
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(path.as_path())
-        .map_err(|e| Error::io(path.as_str(), e))?;
-    file.write_all(content)
-        .map_err(|e| Error::io(path.as_str(), e))?;
-    file.sync_all().map_err(|e| Error::io(path.as_str(), e))?;
-    Ok(())
+pub(crate) fn write_new_file(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    content: &[u8],
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.write_new(lock, &rel, content)
 }
 
 /// 不跟随软链的删除：叶子是软链时只删链接本身，目录才递归。清理不得沿链接
 /// 删到根外（存储合同 §3.3 的 tmp 清理语义）。
-pub fn remove_tree_no_follow(path: &AbsPath) -> Result<()> {
-    let stat = match std::fs::symlink_metadata(path.as_path()) {
-        Ok(stat) => stat,
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
-        Err(e) => return Err(Error::io(path.as_str(), e)),
-    };
-    if stat.file_type().is_symlink() || stat.is_file() {
-        std::fs::remove_file(path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-        return Ok(());
+pub(crate) fn remove_tree_no_follow(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+) -> Result<()> {
+    if path == home.root() {
+        return ManagedFs::open_existing(home)?.purge_contents(lock);
     }
-    if !stat.is_dir() {
-        return Err(Error::InvalidRequest {
-            reason: format!("{path} 不是目录或链接"),
-        });
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    let fs = ManagedFs::open_existing(home)?;
+    match fs.remove_owned_tree(lock, &rel) {
+        Ok(()) | Err(Error::NotFound { .. }) => Ok(()),
+        Err(error) => Err(error),
     }
-    for entry in std::fs::read_dir(path.as_path()).map_err(|e| Error::io(path.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(path.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        remove_tree_no_follow(&path.join_segment(&name))?;
+}
+
+fn make_directories_writable(parent: &std::fs::File, name: &str, display: &str) -> Result<()> {
+    let fd = openat(
+        parent,
+        name,
+        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    )
+    .map_err(|e| map_fs_error(display, e))?;
+    let directory = std::fs::File::from(fd);
+    let entries = Dir::read_from(&directory).map_err(|e| map_fs_error(display, e))?;
+    let names = entries
+        .map(|entry| {
+            entry
+                .map(|entry| entry.file_name().to_bytes().to_vec())
+                .map_err(|e| Error::io(display, e.into()))
+        })
+        .collect::<Result<Vec<_>>>()?;
+    for bytes in names {
+        if bytes == b"." || bytes == b".." {
+            continue;
+        }
+        let child = std::str::from_utf8(&bytes).map_err(|_| Error::InvalidRequest {
+            reason: format!("{display} 下有非UTF-8名称，拒绝清理"),
+        })?;
+        let stat = statat(&directory, child, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(display, e))?;
+        if FileType::from_raw_mode(stat.st_mode) == FileType::Directory {
+            make_directories_writable(&directory, child, &format!("{display}/{child}"))?;
+        }
     }
-    std::fs::remove_dir(path.as_path()).map_err(|e| Error::io(path.as_str(), e))?;
-    Ok(())
+    fchmod(&directory, Mode::from_raw_mode(0o700)).map_err(|e| map_fs_error(display, e))?;
+    fsync(&directory).map_err(|e| map_fs_error(display, e))
 }
 
 /// 整棵置只读：目录 0555、文件 0444，含传入根本身。先拒软链，再对每个文件用
 /// `SafeFile` 句柄核对身份后 fchmod；目录在内容处理完后最后置只读。
-pub fn set_tree_readonly_confined(dir: &AbsPath) -> Result<()> {
-    let stat = std::fs::symlink_metadata(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))?;
-    if stat.file_type().is_symlink() {
-        return Err(Error::InvalidRequest {
-            reason: format!("{dir} 是符号链接"),
-        });
-    }
-    if !stat.is_dir() {
-        return Err(Error::InvalidRequest {
-            reason: format!("{dir} 不是目录"),
-        });
-    }
-    for entry in std::fs::read_dir(dir.as_path()).map_err(|e| Error::io(dir.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(dir.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let path = dir.join_segment(&name);
-        let ft = entry.file_type().map_err(|e| Error::io(path.as_str(), e))?;
-        if ft.is_symlink() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{path} 是符号链接"),
-            });
-        }
-        if ft.is_dir() {
-            set_tree_readonly_confined(&path)?;
-        } else {
-            SafeFile::open_regular(&path)?.set_readonly()?;
-        }
-    }
-    std::fs::set_permissions(dir.as_path(), std::fs::Permissions::from_mode(0o555))
-        .map_err(|e| Error::io(dir.as_str(), e))?;
-    Ok(())
+pub(crate) fn set_tree_readonly_confined(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    dir: &AbsPath,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
+    ManagedFs::open_existing(home)?.set_tree_readonly(lock, &rel)
 }
 
-/// 整棵放开写权限：文件 0644、目录 0755（含根）。删除只读目录前用；尽力而为，
-/// 因为它可能要先把父目录放开才能继续列目录。
-pub fn make_tree_writable(dir: &AbsPath) {
-    use std::fs::Permissions;
-    let Ok(meta) = std::fs::symlink_metadata(dir.as_path()) else {
-        return;
-    };
-    if meta.file_type().is_symlink() {
-        return;
-    }
-    let mode = if meta.is_dir() { 0o755 } else { 0o644 };
-    let _ = std::fs::set_permissions(dir.as_path(), Permissions::from_mode(mode));
-    if meta.is_dir() {
-        if let Ok(entries) = std::fs::read_dir(dir.as_path()) {
-            for entry in entries.flatten() {
-                let name = entry.file_name().to_string_lossy().into_owned();
-                make_tree_writable(&dir.join_segment(&name));
+/// 在句柄上整棵放开写权限：文件 0644、目录 0755（含根）。任何检查或权限错误都传播。
+pub(crate) fn make_tree_writable(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    dir: &AbsPath,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
+    ManagedFs::open_existing(home)?.make_tree_writable(lock, &rel)
+}
+
+fn set_dir_tree_mode(
+    directory: &std::fs::File,
+    display: &str,
+    file_mode: u16,
+    directory_mode: u16,
+) -> Result<()> {
+    let entries = Dir::read_from(directory).map_err(|e| map_fs_error(display, e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| Error::io(display, e.into()))?;
+        let bytes = entry.file_name().to_bytes();
+        if bytes == b"." || bytes == b".." {
+            continue;
+        }
+        let name = std::str::from_utf8(bytes).map_err(|_| Error::InvalidRequest {
+            reason: format!("{display} 下有非UTF-8文件名"),
+        })?;
+        let child_display = format!("{display}/{name}");
+        let stat = statat(directory, name, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(&child_display, e))?;
+        let file_type = FileType::from_raw_mode(stat.st_mode);
+        if file_type == FileType::Symlink {
+            return Err(Error::InvalidRequest {
+                reason: format!("{child_display} 是符号链接"),
+            });
+        }
+        if file_type == FileType::Directory {
+            let fd = openat(
+                directory,
+                name,
+                OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+                Mode::empty(),
+            )
+            .map_err(|e| map_fs_error(&child_display, e))?;
+            let child = std::fs::File::from(fd);
+            let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;
+            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{child_display} 在遍历期间被替换"),
+                });
             }
+            set_dir_tree_mode(&child, &child_display, file_mode, directory_mode)?;
+            fchmod(&child, Mode::from_raw_mode(directory_mode))
+                .map_err(|e| map_fs_error(&child_display, e))?;
+            fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;
+        } else if file_type == FileType::RegularFile {
+            check_regular_stat(&child_display, &stat)?;
+            let fd = openat(
+                directory,
+                name,
+                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+                Mode::empty(),
+            )
+            .map_err(|e| map_fs_error(&child_display, e))?;
+            let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;
+            check_regular_stat(&child_display, &opened)?;
+            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{child_display} 在封存期间被替换"),
+                });
+            }
+            let file = std::fs::File::from(fd);
+            fchmod(&file, Mode::from_raw_mode(file_mode))
+                .map_err(|e| map_fs_error(&child_display, e))?;
+            fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;
+        } else {
+            return Err(Error::InvalidRequest {
+                reason: format!("{child_display} 是特殊文件"),
+            });
         }
     }
+    Ok(())
 }

@@ -143,7 +143,11 @@ fn add_publish_window_recovered_by_next_write() {
         .to_string();
     // 已发布的树是只读的（0555/0444）：模拟撤回先放开权限（同生产 delete_dir）。
     make_writable(std::path::Path::new(final_dir.as_str()));
-    std::fs::rename(final_dir.as_path(), home.rel(&pending_rel).as_path()).unwrap();
+    std::fs::rename(
+        final_dir.as_path(),
+        home.rel(&pending_rel).unwrap().as_path(),
+    )
+    .unwrap();
     assert!(!final_dir.as_path().exists());
 
     // 下一个写操作先恢复：目录回到最终位置、只读、行 published。

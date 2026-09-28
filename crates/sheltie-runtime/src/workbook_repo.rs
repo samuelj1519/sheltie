@@ -138,10 +138,10 @@ impl WorkbookRepo {
             }
         }
 
-        let _lock = self.home.acquire_lock()?;
+        let lock = self.home.acquire_lock()?;
         let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
         let repo = Self::new(self.home.clone(), store);
-        repo.recover_workbook_effects()?;
+        repo.recover_workbook_effects(&lock)?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -155,10 +155,10 @@ impl WorkbookRepo {
         // 源目录粗检（§5.2 第 1 步）：可读、拒绝软链与宿主元数据。
         let _ = build_resource_index(dir)?;
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
-        let payload = stage_pending(&self.home, &internal_id, &request_id, "add_workbook")?;
+        let payload = stage_pending(&self.home, &lock, &internal_id, &request_id, "add_workbook")?;
 
         // 只对最终副本 parse/compile/digest（§5.2 第 3 步）。
-        Self::copy_confined(dir, &payload)?;
+        Self::copy_confined(&self.home, &lock, dir, &payload)?;
         let loaded = repo.load_dir(&payload)?;
         let flow_ids: Vec<String> = loaded
             .flows
@@ -234,7 +234,7 @@ impl WorkbookRepo {
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if !row.published {
                 let ops = decode_effects(&row.effects_json)?;
-                if let Err(e) = execute(&self.home, &ops, true) {
+                if let Err(e) = execute(&self.home, &lock, &ops, true) {
                     return Err(Error::EffectPending {
                         committed: true,
                         request_id,
@@ -250,10 +250,10 @@ impl WorkbookRepo {
     }
 
     /// 锁内恢复未完成的 Workbook 效果（先于新命令，存储合同 §3.2）。
-    fn recover_workbook_effects(&self) -> Result<()> {
+    fn recover_workbook_effects(&self, lock: &crate::home::HomeLock) -> Result<()> {
         for (request_id, effects_json) in self.store.unpublished_requests()? {
             let ops = decode_effects(&effects_json)?;
-            if let Err(e) = execute(&self.home, &ops, true) {
+            if let Err(e) = execute(&self.home, lock, &ops, true) {
                 return Err(Error::EffectPending {
                     committed: false,
                     request_id: String::new(),
@@ -359,10 +359,10 @@ impl WorkbookRepo {
             }
         }
 
-        let _lock = self.home.acquire_lock()?;
+        let lock = self.home.acquire_lock()?;
         let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
         let repo = Self::new(self.home.clone(), store);
-        repo.recover_workbook_effects()?;
+        repo.recover_workbook_effects(&lock)?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -404,7 +404,13 @@ impl WorkbookRepo {
             principal: crate::observe::principal(),
         };
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
-        let payload = stage_pending(&self.home, &internal_id, &request_id, "remove_workbook")?;
+        let payload = stage_pending(
+            &self.home,
+            &lock,
+            &internal_id,
+            &request_id,
+            "remove_workbook",
+        )?;
         let snapshot = RemovedSnapshot {
             request_id: request_id.clone(),
             replayed: false,
@@ -445,7 +451,7 @@ impl WorkbookRepo {
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if !row.published {
                 let ops = decode_effects(&row.effects_json)?;
-                if let Err(e) = execute(&self.home, &ops, true) {
+                if let Err(e) = execute(&self.home, &lock, &ops, true) {
                     return Err(Error::EffectPending {
                         committed: true,
                         request_id,
@@ -498,14 +504,19 @@ impl WorkbookRepo {
 
     /// 受限复制：拒绝软链、硬链、非普通文件、单文件超 32 MiB、总量超 256 MiB。
     /// 逐文件句柄复制、独占创建目标并 fsync（`fsx`）。
-    pub(crate) fn copy_confined(src: &AbsPath, dst: &AbsPath) -> Result<u64> {
-        crate::fsx::copy_tree_confined(src, dst)
+    pub(crate) fn copy_confined(
+        home: &Home,
+        lock: &crate::home::HomeLock,
+        src: &AbsPath,
+        dst: &AbsPath,
+    ) -> Result<u64> {
+        crate::fsx::copy_tree_confined(home, lock, src, dst)
     }
 }
 
 /// 读一个必须存在的 UTF-8 文本文件：句柄核对身份并限额读取，失败按 `WORKBOOK_INVALID` 报。
 fn read_utf8(path: &AbsPath) -> Result<String> {
-    let f = crate::fsx::SafeFile::open_regular(path)?;
+    let f = crate::fsx::ExternalReadFile::open_regular(path)?;
     let bytes = f.read_bounded(MAX_FILE_BYTES).map_err(|e| {
         Error::Core(sheltie_core::Error::WorkbookInvalid {
             field: path.to_string(),
@@ -518,10 +529,4 @@ fn read_utf8(path: &AbsPath) -> Result<String> {
             reason: "不是 UTF-8".to_string(),
         })
     })
-}
-
-/// 整棵含根置只读（目录 0555、文件 0444；存储合同 §5.2）。句柄核对身份后 fchmod，
-/// 拒绝软链；`work start` 的冻结副本也用它。挪动/删除前的放开用 `make_tree_writable`。
-pub(crate) fn set_tree_readonly(dir: &AbsPath) -> Result<()> {
-    crate::fsx::set_tree_readonly_confined(dir)
 }

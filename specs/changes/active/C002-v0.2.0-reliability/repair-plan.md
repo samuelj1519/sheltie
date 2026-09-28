@@ -151,8 +151,9 @@ Owner：runtime fsx/Home；依赖T18。完成现象：真实helper不再靠路�
 2. 实现逐段openat、NOFOLLOW、fstat类型/nlink/身份检查；目录枚举复用打开句柄。明确外部只读文件入口与受管入口，@file没有写权限方法。
 3. 实现独占临时创建、write+file sync、原子替换投影、NOREPLACE发布新目标及父目录sync。必要sync返回Result，传播到全部现有caller；不留忽略Result的包装。
 4. 让HomeLock从同一根句柄打开/校验普通单链接`.lock`，保留既有purge身份复核；代码不把根外system祖先的合法别名当子目录软链例外。
-5. 迁移既有fsx/Home helper及所有签名受影响caller，在这一个任务里编译、更新fixture和真实目录测试；后续任务再收掉各产品caller自行调用std::fs的遗漏。
+5. 迁移既有fsx/Home helper及所有签名受影响caller，在这一个任务里编译、更新fixture和真实目录测试；后续任务再收掉各产品caller自行调用std::fs的遗漏。若typos hook误将rustix API常量`WRONLY`改成无效拼写，只将该精确API词条加入根`_typos.toml`并扩展本任务白名单，不排除整个源码文件。
 6. 开发跑fs_boundary/home_observe和本任务归属用例，稳定后执行公共门禁、依赖deny/MSRV、独立review与check-task。
+7. 移除历史T15的`sleep(100ms)` + purge删根 waiter 用例：它断言的旧生命周期已被T18采纳的D-038取代，且没有同步点。T15原始evidence保留；正常同锁purge等待者由T23/T31按V11确定性重写；锁外根或`.lock`被替换后的等待者身份复核与重试由T31独立验证，二者不能合并成一个测试，也不能把旧测试改成Linux豁免理由。
 
 **验收。** 本任务执行V01/V02、V04的锁/文件类型子条件、V07的SafeFile句柄权限子条件；用真实底层入口和已迁移helper确认嵌套文件、stat/open替换、链接、FIFO、占位与exact/+1。V04“真实CLI锁前不建库”留T24，V07“submit同句柄封存”留T22，原FAIL保留，不把整条V先标PASS。停止：哨兵bytes/mode变化、sync被吞、加unsafe/路径fallback。交接：接口与已迁移caller清单，剩余产品caller分别归T20–T24；不标对应R全链关闭。
 
