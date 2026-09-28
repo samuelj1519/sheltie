@@ -390,6 +390,228 @@ fn verify_reports_missing_when_directory_gone() {
     assert_eq!(r.verify(None).unwrap()[0].status, VerifyStatus::Missing);
 }
 
+// Task: C002-T20
+#[test]
+fn corrupted_workbook_row_path_is_rejected_before_verify_or_remove_io() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let (_d, home) = temp_home();
+    let workbooks = repo(&home);
+    workbooks.add(&abs(&example_dir("two-step")), None).unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("external-workbook");
+    std::fs::write(&sentinel, b"external data").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let before = std::fs::read(&sentinel).unwrap();
+    let mode_before = std::fs::metadata(&sentinel).unwrap().permissions().mode();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE workbooks SET dir = ?1 WHERE id = 'two-step' AND version = '1.0.0'",
+        [outside.path().to_string_lossy().as_ref()],
+    )
+    .unwrap();
+    drop(conn);
+
+    assert_eq!(
+        workbooks
+            .verify(Some(("two-step", "1.0.0")))
+            .unwrap_err()
+            .code(),
+        sheltie_core::ErrorCode::StoreCorrupt
+    );
+    assert_eq!(
+        workbooks
+            .remove("two-step", "1.0.0", Some("remove-corrupt-row".to_string()))
+            .unwrap_err()
+            .code(),
+        sheltie_core::ErrorCode::StoreCorrupt
+    );
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions().mode(),
+        mode_before
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn workbook_row_version_must_be_one_manifest_compatible_path_segment() {
+    let (_d, home) = temp_home();
+    let workbooks = repo(&home);
+    workbooks.add(&abs(&example_dir("two-step")), None).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE workbooks SET version = '1.0.0/nested', dir = 'workbooks/two-step/1.0.0/nested' WHERE id = 'two-step' AND version = '1.0.0'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = workbooks.verify(None).unwrap_err();
+    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+}
+
+// Task: C002-T20
+#[test]
+fn empty_remove_digest_blocks_later_workbook_write() {
+    let (_d, home) = temp_home();
+    let workbooks = repo(&home);
+    workbooks.add(&abs(&example_dir("two-step")), None).unwrap();
+    let request_id = "remove-before-corruption";
+    workbooks
+        .remove("two-step", "1.0.0", Some(request_id.to_string()))
+        .unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects_json: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut effects: serde_json::Value = serde_json::from_str(&effects_json).unwrap();
+    effects[0]["digest"] = serde_json::Value::String(String::new());
+    conn.execute(
+        "UPDATE requests SET effects_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&effects).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = workbooks
+        .add(
+            &abs(&example_dir("two-step")),
+            Some("must-not-commit".to_string()),
+        )
+        .unwrap_err();
+    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = 'must-not-commit'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn workbook_publish_requires_digest_root_before_recovery_io() {
+    let (_d, home) = temp_home();
+    let workbooks = repo(&home);
+    let request_id = "publish-requires-digest-root";
+    workbooks
+        .add(&abs(&example_dir("two-step")), Some(request_id.to_string()))
+        .unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let intent_hash: String = conn
+        .query_row(
+            "SELECT intent_hash FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    conn.execute(
+        "UPDATE audit SET command_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![
+            format!("{{\"intent\":\"add_workbook\",\"source\":\"{intent_hash}\"}}"),
+            request_id
+        ],
+    )
+    .unwrap();
+    let effects_json: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut effects: serde_json::Value = serde_json::from_str(&effects_json).unwrap();
+    effects[0].as_object_mut().unwrap().remove("digest_root");
+    conn.execute(
+        "UPDATE requests SET effects_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&effects).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = workbooks
+        .remove(
+            "two-step",
+            "1.0.0",
+            Some("remove-after-missing-field".to_string()),
+        )
+        .unwrap_err();
+    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = 'remove-after-missing-field'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn unpublished_workbook_add_requires_its_owner_sidecar() {
+    let (_d, home) = temp_home();
+    let workbooks = repo(&home);
+    let request_id = "missing-add-owner";
+    workbooks
+        .add(&abs(&example_dir("two-step")), Some(request_id.to_string()))
+        .unwrap();
+    let sidecar = std::fs::read_dir(home.pending_dir().as_path())
+        .unwrap()
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .find(|path| {
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.ends_with(".owner"))
+                && serde_json::from_slice::<serde_json::Value>(&std::fs::read(path).unwrap())
+                    .is_ok_and(|owner| owner["request_id"] == request_id)
+        })
+        .unwrap();
+    std::fs::remove_file(sidecar).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = workbooks
+        .remove(
+            "two-step",
+            "1.0.0",
+            Some("remove-without-owner".to_string()),
+        )
+        .unwrap_err();
+    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = 'remove-without-owner'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+}
+
 // Task: T15
 #[test]
 fn verify_all_when_filter_omitted() {

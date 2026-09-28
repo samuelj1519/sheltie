@@ -11,6 +11,7 @@ pub mod error;
 pub mod failpoint;
 pub mod fsx;
 pub mod home;
+mod load;
 pub mod observe;
 pub mod request;
 pub mod selfmgmt;

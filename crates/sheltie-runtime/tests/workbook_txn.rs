@@ -213,6 +213,70 @@ fn old_remove_replay_does_not_delete_readded_workbook() {
     assert_eq!(rows.len(), 1);
 }
 
+// Task: C002-T20
+#[test]
+fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
+    let (_d, home) = temp_home();
+    let repo = repo(&home);
+    let source = abs(&example_dir("two-step"));
+    let add_request = "schema2-add-wire";
+    repo.add(&source, Some(add_request.to_string())).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let add_hash: String = conn
+        .query_row(
+            "SELECT intent_hash FROM requests WHERE request_id = ?1",
+            [add_request],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let original_add_audit = format!("{{\"intent\":\"add_workbook\",\"source\":\"{add_hash}\"}}");
+    conn.execute(
+        "UPDATE audit SET command_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![original_add_audit, add_request],
+    )
+    .unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [add_request],
+    )
+    .unwrap();
+    drop(conn);
+
+    let remove_request = "schema2-remove-wire";
+    repo.remove("two-step", "1.0.0", Some(remove_request.to_string()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE audit SET command_json = '{\"intent\":\"remove_workbook\",\"target\":\"two-step@1.0.0\"}' WHERE request_id = ?1",
+        [remove_request],
+    )
+    .unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [remove_request],
+    )
+    .unwrap();
+    drop(conn);
+
+    let readded = repo
+        .add(&source, Some("schema2-readd-after-remove".to_string()))
+        .unwrap();
+    assert_eq!(readded.data["id"], "two-step");
+    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    for request in [add_request, remove_request] {
+        let published: i64 = conn
+            .query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [request],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(published, 1, "旧schema2效果请求 {request} 应被恢复");
+    }
+}
+
 /// 删除完成标记：remove 完成后 `pending/<id>.deleted` 存在（§3.3）。
 // Task: C002-T08
 #[test]

@@ -452,6 +452,544 @@ fn missing_frozen_copy_is_store_corrupt_for_begin_and_status() {
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
 }
 
+// Task: C002-T20
+#[test]
+fn tampered_work_dir_is_rejected_before_reading_outside_paths() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("status-card.md");
+    std::fs::write(&sentinel, b"external owner data").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let before_bytes = std::fs::read(&sentinel).unwrap();
+    let before_mode = std::fs::metadata(&sentinel).unwrap().permissions().mode();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let state_json: String = conn
+        .query_row(
+            "SELECT state_json FROM works WHERE work_id = ?1",
+            [wid.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut state: serde_json::Value = serde_json::from_str(&state_json).unwrap();
+    state["work_dir"] = serde_json::Value::String(outside.path().to_string_lossy().into_owned());
+    conn.execute(
+        "UPDATE works SET state_json = ?1 WHERE work_id = ?2",
+        rusqlite::params![serde_json::to_string(&state).unwrap(), wid.as_str()],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.status(&wid).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before_bytes);
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions().mode(),
+        before_mode
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn invalid_later_effect_is_rejected_before_any_effect_runs() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let request_id = begun.request_id.clone();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    std::fs::remove_file(&brief).unwrap();
+
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("outside.md");
+    std::fs::write(&sentinel, b"outside sentinel").unwrap();
+    let before = std::fs::read(&sentinel).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects_json: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut effects: serde_json::Value = serde_json::from_str(&effects_json).unwrap();
+    let writes = effects
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|effect| effect["kind"] == "write_file")
+        .collect::<Vec<_>>();
+    let mut invalid_later_write = (*writes[0]).clone();
+    invalid_later_write["path"] = serde_json::Value::String("../outside.md".to_string());
+    effects.as_array_mut().unwrap().push(invalid_later_write);
+    conn.execute(
+        "UPDATE requests SET effects_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&effects).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(!brief.exists(), "首个合法效果也必须在批次校验后才执行");
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+}
+
+// Task: C002-T20
+#[test]
+fn tampered_artifact_path_is_rejected_before_observing_external_file() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    write_output(
+        &output_dir_of(&begun),
+        "outline.md",
+        "same registered bytes",
+    );
+    svc.submit(&wid, &attempt("outline#1.0"), &lit("outline"), None)
+        .unwrap();
+
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("external-outline.md");
+    std::fs::write(&sentinel, b"same registered bytes").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let before = std::fs::read(&sentinel).unwrap();
+    let mode_before = std::fs::metadata(&sentinel).unwrap().permissions().mode();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let state_json: String = conn
+        .query_row(
+            "SELECT state_json FROM works WHERE work_id = ?1",
+            [wid.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut state: serde_json::Value = serde_json::from_str(&state_json).unwrap();
+    state["attempts"][0]["outputs"]["outline"]["path"] =
+        serde_json::Value::String(sentinel.to_string_lossy().into_owned());
+    conn.execute(
+        "UPDATE works SET state_json = ?1 WHERE work_id = ?2",
+        rusqlite::params![serde_json::to_string(&state).unwrap(), wid.as_str()],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.begin(&wid, &node("summary"), None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions().mode(),
+        mode_before
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn engine_stats_effect_must_match_its_bound_artifact_reference() {
+    let (_d, home) = temp_home();
+    let source = Path::new(_d.path()).join("stats-wb");
+    std::fs::create_dir_all(source.join("flows")).unwrap();
+    std::fs::write(
+        source.join("workbook.toml"),
+        "schema = \"workbook/v1\"\nid = \"stats-wb\"\nversion = \"1.0.0\"\nname = \"stats\"\nflows = [\"flows/default.toml\"]\n",
+    )
+    .unwrap();
+    std::fs::write(
+        source.join("flows/default.toml"),
+        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"A\"\nexecutor = \"agent\"\ninstruction = { text = \"A\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n\n[[nodes]]\nid = \"b\"\ntitle = \"B\"\nexecutor = \"agent\"\ninstruction = { text = \"B\" }\ninputs = [{ name = \"stats\", from = \"engine.stats\" }, { name = \"x\", from = \"a.x\" }]\noutputs = [{ name = \"y\", path = \"y.md\", max_bytes = 65536 }]\n\n[[edges]]\nfrom = \"a\"\nto = \"b\"\nkind = \"main\"\n",
+    )
+    .unwrap();
+    repo(&home).add(&abs(&source), None).unwrap();
+    let svc = service(&home);
+    let started = svc
+        .start(
+            StartArgs {
+                workbook_id: "stats-wb".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: Default::default(),
+            },
+            None,
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
+    let begun = svc.begin(&wid, &node("a"), None).unwrap();
+    write_output(&output_dir_of(&begun), "x.md", "x");
+    svc.submit(&wid, &attempt("a#1.0"), &lit("ok"), None)
+        .unwrap();
+    let begin_b = svc.begin(&wid, &node("b"), Some("stats-b".into())).unwrap();
+    let stats_path = match &begin_b.reply {
+        sheltie_core::work::Reply::AttemptBegun { inputs, .. } => {
+            inputs["stats"].as_ref().unwrap().clone()
+        }
+        other => panic!("{other:?}"),
+    };
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let state_json: String = conn
+        .query_row(
+            "SELECT state_json FROM works WHERE work_id = ?1",
+            [wid.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut state: serde_json::Value = serde_json::from_str(&state_json).unwrap();
+    state["attempts"][1]["inputs"]["stats"]["bytes"] = serde_json::json!(
+        state["attempts"][1]["inputs"]["stats"]["bytes"]
+            .as_u64()
+            .unwrap()
+            + 1
+    );
+    conn.execute(
+        "UPDATE works SET state_json = ?1 WHERE work_id = ?2",
+        rusqlite::params![serde_json::to_string(&state).unwrap(), wid.as_str()],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc
+        .begin(&wid, &node("b"), Some("stats-b".into()))
+        .unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(std::path::Path::new(stats_path.as_str()).exists());
+}
+
+// Task: C002-T20
+#[test]
+fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = outside.path().join("task-brief.md");
+    std::fs::write(&sentinel, b"external data").unwrap();
+    std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let before = std::fs::read(&sentinel).unwrap();
+    let mode_before = std::fs::metadata(&sentinel).unwrap().permissions().mode();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply_json: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [&begun.request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply_json).unwrap();
+    snapshot["data"]["brief_path"] =
+        serde_json::Value::String(sentinel.to_string_lossy().into_owned());
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), begun.request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc
+        .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
+        .unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    snapshot.as_object_mut().unwrap().remove("data");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), begun.request_id],
+    )
+    .unwrap();
+    drop(conn);
+    let missing_data = svc
+        .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
+        .unwrap_err();
+    assert_eq!(
+        missing_data.code(),
+        ErrorCode::StoreCorrupt,
+        "{missing_data:?}"
+    );
+    let mut unknown_reply = serde_json::to_value(&begun).unwrap();
+    unknown_reply["reply"]["unrecognized"] = serde_json::json!("outside path");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![
+            serde_json::to_string(&unknown_reply).unwrap(),
+            begun.request_id
+        ],
+    )
+    .unwrap();
+    drop(conn);
+    let unknown_reply_error = svc
+        .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
+        .unwrap_err();
+    assert_eq!(
+        unknown_reply_error.code(),
+        ErrorCode::StoreCorrupt,
+        "{unknown_reply_error:?}"
+    );
+
+    let mut unknown_next = serde_json::to_value(&begun).unwrap();
+    unknown_next["next"][0]["unrecognized"] = serde_json::json!("extra command data");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![
+            serde_json::to_string(&unknown_next).unwrap(),
+            begun.request_id
+        ],
+    )
+    .unwrap();
+    drop(conn);
+    let unknown_next_error = svc
+        .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
+        .unwrap_err();
+    assert_eq!(
+        unknown_next_error.code(),
+        ErrorCode::StoreCorrupt,
+        "{unknown_next_error:?}"
+    );
+    assert_eq!(std::fs::read(&sentinel).unwrap(), before);
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions().mode(),
+        mode_before
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn duplicate_audit_owner_is_rejected_before_recovery_io() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let request_id = begun.request_id.clone();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    std::fs::remove_file(&brief).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let audit: (String, i64, String, String) = conn
+        .query_row(
+            "SELECT work_id, revision, principal, command_json FROM audit WHERE request_id = ?1",
+            [&request_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+        )
+        .unwrap();
+    let at: String = conn
+        .query_row(
+            "SELECT at FROM audit WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    conn.execute(
+        "INSERT INTO audit (work_id, revision, request_id, principal, command_json, at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        rusqlite::params![audit.0, audit.1, request_id, audit.2, audit.3, at],
+    )
+    .unwrap();
+    conn.execute("UPDATE requests SET published = 0", [])
+        .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(!brief.exists(), "重复audit归属时不得执行第一条效果");
+}
+
+// Task: C002-T20
+#[test]
+fn invalid_published_flag_is_not_treated_as_completed() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let request_id = begun.request_id.clone();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    std::fs::remove_file(&brief).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 2 WHERE request_id = ?1",
+        [&request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(!brief.exists(), "非0/1的published不能跳过效果校验");
+}
+
+// Task: C002-T20
+#[test]
+fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let request_id = begun.request_id.clone();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    std::fs::remove_file(&brief).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [&request_id],
+    )
+    .unwrap();
+    conn.execute("DELETE FROM audit WHERE request_id = ?1", [&request_id])
+        .unwrap();
+    let other_requests_before: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id != ?1 AND work_id = ?2",
+            rusqlite::params![request_id, wid.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(!brief.exists());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 0, "缺少唯一audit时不能标记效果完成");
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id != ?1 AND work_id = ?2",
+            rusqlite::params![request_id, wid.as_str()],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        other_requests_before,
+        "恢复失败不能提交新的cancel请求"
+    );
+}
+
+// Task: C002-T20
+#[test]
+fn empty_effect_batch_is_rejected_without_marking_published() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc.begin(&wid, &node("outline"), None).unwrap();
+    let request_id = begun.request_id.clone();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    std::fs::remove_file(&brief).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET effects_json = '[]', published = 0 WHERE request_id = ?1",
+        [&request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(!brief.exists());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 0, "缺少必需效果时不得记录已完成");
+}
+
+// Task: C002-T20
+#[test]
+fn pending_owner_json_roundtrips_opaque_request_id() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let request_id = "opaque\"request\nline";
+    svc.start(
+        StartArgs {
+            workbook_id: "two-step".to_string(),
+            version: None,
+            flow: "default".to_string(),
+            name: None,
+            inputs: inputs_lit(&[("topic", "owner-json")]),
+        },
+        Some(request_id.to_string()),
+    )
+    .unwrap();
+
+    let sidecars = std::fs::read_dir(home.pending_dir().as_path())
+        .unwrap()
+        .filter_map(|entry| {
+            let path = entry.ok()?.path();
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.ends_with(".owner"))
+                .then_some(path)
+        })
+        .collect::<Vec<_>>();
+    let owners = sidecars
+        .iter()
+        .map(|path| {
+            serde_json::from_slice::<serde_json::Value>(&std::fs::read(path).unwrap()).unwrap()
+        })
+        .collect::<Vec<_>>();
+    assert!(owners.iter().any(|owner| {
+        owner["request_id"] == request_id
+            && owner["format"] == "pending/v1"
+            && owner["op"] == "start_work"
+    }));
+}
+
+// Task: C002-T20
+#[test]
+fn unpublished_work_start_requires_its_owner_sidecar() {
+    let (_d, home, svc) = home_with_example("two-step");
+    let started = svc
+        .start(
+            StartArgs {
+                workbook_id: "two-step".to_string(),
+                version: None,
+                flow: "default".to_string(),
+                name: None,
+                inputs: inputs_lit(&[("topic", "owner-required")]),
+            },
+            Some("start-owner-required".to_string()),
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
+    let sidecar = std::fs::read_dir(home.pending_dir().as_path())
+        .unwrap()
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .find(|path| {
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.ends_with(".owner"))
+                && serde_json::from_slice::<serde_json::Value>(&std::fs::read(path).unwrap())
+                    .is_ok_and(|owner| owner["request_id"] == "start-owner-required")
+        })
+        .unwrap();
+    std::fs::remove_file(sidecar).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = 'start-owner-required'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+
+    let err = svc.cancel(&wid, None).unwrap_err();
+    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert!(home.work_dir(&wid).as_path().join("workbook").is_dir());
+}
+
 // Task: T16
 #[test]
 fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {

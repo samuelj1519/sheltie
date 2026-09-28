@@ -164,12 +164,11 @@ Owner：Store/load/effects归属；依赖T19。完成现象：损坏state/effect
 **定位。** `store/read.rs::decode_row/inspect_request`，`WorkState::validate_persisted`，`service.rs::load/pending_workbook/core_effects_to_ops`，`effects.rs::decode_effects/RefJson`。新增 `load.rs` 与必要Raw/Checked内存类型，按方案 §3。
 
 1. 保留纯core的状态组合校验，在runtime补Home/WorkId/WorkLayout精确路径归属；key/node/output使用已校验定义，不能仅用starts_with。
-2. 读取请求时一并装入audit/快照/对应Work，检查audit唯一且归属一致；缺失/损坏均携带请求或row定位。
-3. 将Raw效果批次完整校验为内部Checked对象：kind闭集、paths合法、digest合法、contenthash相符、Attempt存在、目录/输出属于同一请求。整批校验完成前不得执行第一个效果。
-4. 把冻结图装入提到load.rs，Work状态卡/观察使用实际定位的冻结根；迁移Service与Workbook caller，避免将来recovery依赖service形成环。
-   同时核Workbook行id/version/digest/added_at及dir绑定，复用既有纯合法构造；坏行不能借load/verify/remove把文件操作引到其他对象。
-5. 用合法真实请求构造V03；仅改一个path/owner/摘要字段。另在第二效果放坏路径，断言第一效果也没执行，证明不是边执行边发现损坏。
-6. 跑store/schema2_replay/fs_boundary与本任务用例；记录每条非法字段定位、Store/哨兵原值。Review确认不存在无校验执行入口。
+2. 读取请求时一并装入audit/快照/对应Work，检查audit唯一且归属一致；缺失、重复、损坏均携带请求或row定位。恢复枚举必须先从requests取全量未完成行，再查audit；不能用INNER JOIN把缺audit的请求过滤掉。
+3. 将Raw效果批次完整校验为内部Checked对象：每个命令有固定效果种类、数量与顺序；paths、digest、contenthash、Attempt和目录/输出归属都与同一请求绑定。`Reply`、`NextOp`、persisted response与Workbook snapshot严格拒未知/缺字段；原schema 2 audit字节保持不变（add.source仍是intent hash，remove仍是id@version target）。整批校验完成前不得执行第一个效果，缺必需效果也不得标published。
+4. 把Work的冻结图装入提到`load.rs`；Work根、start inputs、每次Attempt输入/输出、状态卡和WorkBook路径均与WorkId、WorkLayout及冻结定义精确比较。WorkBook行id/version/digest/added_at/dir与最终manifest identity一致。迁移Service与Workbook真实caller，Raw效果不再有直达execute入口。
+5. pending owner侧车由`deny_unknown_fields` DTO解析，stage也用serde序列化；request-id含引号/换行仍能往返。每个EngineStats引用的hash/bytes与同次begin登记的唯一WriteFile相同。补合法真实请求及单字段path/owner/hash/bytes/audit/reply错例；第二效果坏路径要断言第一个历史文件仍缺、哨兵bytes/mode不变。
+6. 跑store/schema2_replay/workbook_repo/fs_boundary与本任务用例；记录每条非法字段定位、Store/哨兵原值。Review确认没有未经Checked校验的effects执行入口。持久字段或schema不得重编码、迁移或加默认猜测。
 
 **停止与交接。** 异常值被自动纠正、绝对路径流进file caller、RawDTO仍可直接execute都停止。交T25已校验请求/效果批次接口，交T26发布/删除所需闭包；持久JSON字段不重新编码或迁移。
 

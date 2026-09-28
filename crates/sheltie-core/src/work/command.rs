@@ -47,7 +47,7 @@ impl ObservedFile {
 
 /// 协调者能做的全部写操作。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "command")]
+#[serde(rename_all = "snake_case", tag = "command", deny_unknown_fields)]
 pub enum Command {
     /// 创建 Work。`inputs` 已由 runtime 写成文件并算好摘要。
     Start {
@@ -123,7 +123,7 @@ pub enum Effect {
 
 /// 命令成功后的回复数据，对应协议 §3 各操作的返回。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "reply")]
+#[serde(rename_all = "snake_case", tag = "reply", deny_unknown_fields)]
 pub enum Reply {
     Started {
         work_id: WorkId,

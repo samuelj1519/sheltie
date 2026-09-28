@@ -6,13 +6,13 @@
 
 - 2026-09-27 用户采用 C002，指示按计划执行到完成。
 - 实施进度只看 [plan.md](plan.md) 状态列；历史逐任务原始运行在 [evidence/tNN/](evidence/)。候选e1a8126的 [M1独立审查](review-m1-2026-09-28.md) 为“需修改”；追加修复的开工入口是 [repair-plan.md](repair-plan.md) 的T18，先固定上游调整/API门槛，再按T19–T31依赖修复与验证。
-- 修复后重新固定M1候选，Reviewer不得参与被审代码实施；T16/T17继续需要真实宿主操作者和发布授权。新任务证据写到各任务专属 `evidence/tNN-*`，保留旧M1失败原文，不覆盖历史运行。T19代码与文档已完成双轴独立review和macOS全门禁；待显式暂存、`check-task`、提交与提交后核对，再进入T20。
+- 修复后重新固定M1候选，Reviewer不得参与被审代码实施；T16/T17继续需要真实宿主操作者和发布授权。新任务证据写到各任务专属 `evidence/tNN-*`，保留旧M1失败原文，不覆盖历史运行。T19已由`ee78118`提交并通过钩子；T20实现、双轴独立review和macOS全门禁已通过，待暂存、`check-task`与单任务提交后进入T21。
 
 ## 跨任务事实
 
 - 格式切换只有一次：T03/T06/T09 只交付纯实现与独立测试；T07 统一接入 schema 2、新布局、新摘要与 `cli-result/v2`，删除全部旧路径。T03–T09 期间产品行为不变。
 - 当前写锁使用`fs4`（D-035），OS主体使用D-036勘误后的`uzers`。追加文件方案选当前依赖闭包已有rustix1.1.4的安全fs API，T18完成macOS/MSRV1.85探针；用户豁免Linux运行，Linux留`not_run`，T19才加runtime直接依赖。输出路径仍限定可移植ASCII，别名仅ASCII折叠。
-- 用户于2026-09-28授权按修复方案执行，并明确豁免本修复线的Linux验证。Linux结果全程保留`not_run`且不作为跨平台PASS；其余门禁在macOS执行。purge保留根/.lock、remove不预建payload、维护告警写stderr、SQLite共享内存控制文件只读例外已写入上游合同。T18由`69710aa`完成，包含macOS arm64/Rust 1.85.0探针、完整仓库门禁和独立Spec/Standards复核；T19已在macOS完成API迁移、门禁和Spec/Standards复核，证据在[evidence/t19-managed-fs-2026-09-28](evidence/t19-managed-fs-2026-09-28/README.md)，当前仅待提交。spec-dev交接采用不同节点的被审副本和累计verify报告，不放宽core禁止自来源规则。修复不改schema2/摘要格式、不迁移或清空旧记录。
+- 用户于2026-09-28授权按修复方案执行，并明确豁免本修复线的Linux验证。Linux结果全程保留`not_run`且不作为跨平台PASS；其余门禁在macOS执行。purge保留根/.lock、remove不预建payload、维护告警写stderr、SQLite共享内存控制文件只读例外已写入上游合同。T18由`69710aa`完成，包含macOS arm64/Rust 1.85.0探针、完整仓库门禁和独立Spec/Standards复核；T19由`ee78118`提交。T20已通过信任闭包负例、双轴review和macOS全门禁，证据在[evidence/t20-trusted-load-2026-09-28](evidence/t20-trusted-load-2026-09-28/README.md)，待提交。保持schema2与已有Workbook audit JSON字节格式，不迁移或清空旧记录。spec-dev交接采用不同节点的被审副本和累计verify报告，不放宽core禁止自来源规则。
 - Cargo 版本在 T17 发布前保持 `0.1.0`。check-specs 的版本规则（N11，T15 修复）分开验证：有 release record 的版本按已发布核 tag 与 Release commit；开发中的版本等于 active 目标版本或其 RC 就行，不要求已有 tag，CHANGELOG 允许先写 `[Unreleased]`。取不到 tag/commit 时浅克隆报「缺历史」，历史完整报「未创建或未推送」。
 - release.yml 是 dist 生成文件：skill 打包一步与 `quality` 质量 job 都是自定义步骤，`dist init` 重新生成会丢掉，注释写明照此补回；`[workspace.metadata.dist]` 因此加了 `allow-dirty = ["ci"]`。announce 只在 `quality`（同一 SHA）成功时建 Release；MSRV 1.85 locked 门禁在 build.yml 的 `msrv` job 与 release.yml 的 `quality` job 各跑一份，stable 通过不能代替。
 - 测试由各任务自己编写并挂 `// Task: C002-Tnn` 归属；期望值用独立 oracle（手工字节、合同数值、独立计算），不用生产 helper 生成。

@@ -8,7 +8,7 @@ use crate::ids::{AttemptId, NodeId, WorkId};
 
 /// 一项可执行的下一步。能直接拼成命令行（协议 §5 的 `next` 项）。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "op")]
+#[serde(rename_all = "snake_case", tag = "op", deny_unknown_fields)]
 pub enum NextOp {
     /// `attempt begin`。进入另一节点时带 `edge`；同节点重试或首次开工时为 `None`。
     #[serde(rename = "attempt begin")]
