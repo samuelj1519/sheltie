@@ -42,12 +42,8 @@ pub enum Group {
 
 #[derive(Debug, Subcommand)]
 pub enum SelfCmd {
-    /// 把当前二进制装到 ~/.sheltie/bin，建管理根。
-    Install {
-        /// 往 shell rc 文件追加 PATH。默认只打印提示。
-        #[arg(long)]
-        modify_path: bool,
-    },
+    /// 把当前二进制装到 ~/.sheltie/bin，建管理根。不写 shell 配置，只打印 PATH 提示。
+    Install,
     /// 下载新版本，校验，原子替换。
     Update {
         #[arg(long, value_name = "VERSION")]

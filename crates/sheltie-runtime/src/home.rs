@@ -180,14 +180,83 @@ impl Home {
 }
 
 /// 管理根写锁的守卫（存储合同 §2.2，D-035 的 `fs4`）。取得锁前只创建管理根与
-/// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。
+/// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。守卫记下取得锁时的管理根与
+/// 锁对象身份（dev/inode），供获锁后的 §2.2 复核用。
 pub struct HomeLock {
     _file: std::fs::File,
+    root: AbsPath,
+    lock_path: AbsPath,
+    locked_ident: (u64, u64),
+    root_ident: (u64, u64),
+}
+
+/// 文件/目录身份（dev/inode）。取不到身份就没有身份可核。
+fn path_ident(path: &camino::Utf8Path) -> Option<(u64, u64)> {
+    use std::os::unix::fs::MetadataExt as _;
+    std::fs::metadata(path).ok().map(|m| (m.dev(), m.ino()))
+}
+
+fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {
+    use std::os::unix::fs::MetadataExt as _;
+    file.metadata().ok().map(|m| (m.dev(), m.ino()))
+}
+
+impl HomeLock {
+    /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。
+    /// 根在等待期间被 `purge` 删掉或重建时返回 false——调用方必须释放旧锁并整体重试，
+    /// 不沿旧 inode 继续写。
+    pub fn identity_still_valid(&self) -> bool {
+        match (
+            path_ident(self.lock_path.as_path()),
+            path_ident(self.root.as_path()),
+        ) {
+            (Some(lock_now), Some(root_now)) => {
+                lock_now == self.locked_ident && root_now == self.root_ident
+            }
+            _ => false,
+        }
+    }
 }
 
 impl Home {
     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时先建根与 `.lock`。
+    /// 获锁后复核根与锁对象身份（§2.2）：等待期间 `self uninstall --purge` 可能持锁
+    /// 删掉整个根，锁落到旧 inode 上；发现身份变了就释放旧锁、整体重试。
     pub fn acquire_lock(&self) -> Result<HomeLock> {
+        const RETRY_LIMIT: u32 = 16;
+        let mut last_miss = None;
+        for _ in 0..RETRY_LIMIT {
+            match self.acquire_lock_once() {
+                Ok(guard) => {
+                    if guard.identity_still_valid() {
+                        return Ok(guard);
+                    }
+                    // drop(guard)：释放落在旧 inode 上的锁，下一轮在新根上重建 .lock。
+                }
+                Err(e) => {
+                    // 建根/建 .lock 的窗口里 purge 把根删了同样是「根已删」（§2.2）：
+                    // 整体重试，不把并发删根报成普通 I/O 失败。
+                    let gone = matches!(
+                        &e,
+                        Error::Io { source, .. } if source.kind() == std::io::ErrorKind::NotFound
+                    );
+                    if !gone {
+                        return Err(e);
+                    }
+                    last_miss = Some(e);
+                }
+            }
+        }
+        Err(Error::io(
+            self.lock_path().as_str(),
+            std::io::Error::other(match last_miss {
+                Some(e) => format!("取管理根写锁连续被并发 purge 打断（{e}）"),
+                None => "复核管理根写锁身份连续失败（并发 purge 在反复删根？）".to_string(),
+            }),
+        ))
+    }
+
+    fn acquire_lock_once(&self) -> Result<HomeLock> {
         crate::fsx::ensure_dirs_under(&self.root, &self.root)?;
         let lock_path = self.lock_path();
         // 锁文件内容无关紧要（存在即锁对象），不得截断已存在的文件。
@@ -198,9 +267,36 @@ impl Home {
             .write(true)
             .open(lock_path.as_path())
             .map_err(|e| Error::io(lock_path.as_str(), e))?;
+        // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。
+        // 取不到身份说明这个瞬间路径不是可 stat 的对象（根或 .lock 正被拆掉）：报
+        // NotFound 走「根已删」整体重试分支，open 与记身份之间的窗口同样覆盖（§2.2）。
+        let Some(locked_ident) = file_ident(&file) else {
+            return Err(Error::io(
+                lock_path.as_str(),
+                std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "取不到 .lock 的文件身份（根在记身份时消失？）",
+                ),
+            ));
+        };
+        let Some(root_ident) = path_ident(self.root.as_path()) else {
+            return Err(Error::io(
+                self.root.as_str(),
+                std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "取不到管理根的目录身份（根在记身份时消失？）",
+                ),
+            ));
+        };
         fs4::fs_std::FileExt::lock_exclusive(&file)
             .map_err(|e| Error::io(lock_path.as_str(), e))?;
         crate::fsx::fsync_dir(&self.root);
-        Ok(HomeLock { _file: file })
+        Ok(HomeLock {
+            _file: file,
+            root: self.root.clone(),
+            lock_path,
+            locked_ident,
+            root_ident,
+        })
     }
 }

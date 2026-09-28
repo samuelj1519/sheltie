@@ -93,7 +93,7 @@ fn bin_parent_symlink_blocks_install_and_keeps_sentinel_untouched() {
     let (_d, home) = temp_home();
     std::os::unix::fs::symlink(outside.path(), home.bin_dir().as_path()).unwrap();
 
-    let err = sheltie_runtime::selfmgmt::install(&home, false).unwrap_err();
+    let err = sheltie_runtime::selfmgmt::install(&home).unwrap_err();
     assert!(err.to_string().contains("符号链接"), "{err:?}");
     assert_eq!(snapshot(&sent), before);
     let entries: Vec<_> = std::fs::read_dir(outside.path()).unwrap().collect();

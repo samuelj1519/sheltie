@@ -22,7 +22,11 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
+      # 治理检查要解析历史 tags/commits（release record 记的 tag 与 commit），
+      # 默认浅检出取不到老 tag，check-specs 只能报缺历史。
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Check docs
         run: scripts/check-docs.sh
       - name: Check specs governance
@@ -60,3 +64,15 @@ jobs:
         run: scripts/check-core-vocab.sh
       - name: Check test names and owners
         run: scripts/check-tests.sh
+
+  # MSRV 1.85 locked gate（C002-T15）：stable 通过不能代替；失败时用证据决定
+  # 修依赖还是提高声明，不能默默跳过。
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install MSRV toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal
+      - uses: Swatinem/rust-cache@v2.9.2
+      - name: Check workspace at MSRV with locked deps
+        run: cargo +1.85.0 check --workspace --all-targets --all-features --locked

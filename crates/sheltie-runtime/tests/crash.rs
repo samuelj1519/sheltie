@@ -160,6 +160,7 @@ fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
     let bin = std::path::PathBuf::from(home.bin_dir().as_str());
     std::fs::create_dir_all(&bin).unwrap();
     std::fs::copy(sheltie_bin(), bin.join("sheltie")).unwrap();
+    let old_bytes = std::fs::read(bin.join("sheltie")).unwrap();
     let out = Command::new(bin.join("sheltie"))
         .env("SHELTIE_FAILPOINT", "update_between_renames")
         .env("SHELTIE_RELEASE_BASE", release.to_str().unwrap())
@@ -173,14 +174,24 @@ fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
-    assert!(bin.join("sheltie.prev").exists());
+    // 替换窗口的终态（存储合同 §9）：目标没了，`.prev` 就是替换前的旧二进制。
+    assert_eq!(
+        std::fs::read(bin.join("sheltie.prev")).unwrap(),
+        old_bytes,
+        ".prev 不是替换前的旧二进制"
+    );
     assert!(!bin.join("sheltie").exists());
     sheltie_runtime::selfmgmt::rollback(&home).unwrap();
-    assert!(bin.join("sheltie").exists());
+    assert_eq!(
+        std::fs::read(bin.join("sheltie")).unwrap(),
+        old_bytes,
+        "rollback 恢复的不是旧二进制字节"
+    );
     assert!(!bin.join("sheltie.prev").exists());
 }
 
-/// 造一个本地「发布目录」：`dist-manifest.json` 与对应平台的包。T20 定义精确格式并让本 helper 与之一致。
+/// 造一个本地「发布目录」：tag 布局的 `dist-manifest.json` 与对应平台的包。
+/// T20 定义精确格式、T15 改成 `latest/` + `v<version>/` 布局，本 helper 与之一致。
 mod sheltie_runtime_test_release {
     use std::path::Path;
 
@@ -189,12 +200,19 @@ mod sheltie_runtime_test_release {
         let platform = sheltie_runtime::selfmgmt::platform();
         let payload = format!("fake sheltie {version} for {platform}");
         let asset = format!("sheltie-{version}-{platform}");
-        std::fs::write(dir.join(&asset), &payload).unwrap();
         let digest = sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes());
         let manifest = serde_json::json!({
             "version": version,
             "assets": [{ "platform": platform, "name": asset, "sha256": digest.as_str() }]
-        });
-        std::fs::write(dir.join("dist-manifest.json"), manifest.to_string()).unwrap();
+        })
+        .to_string();
+        for tag in ["latest".to_string(), format!("v{version}")] {
+            let tag_dir = dir.join(&tag);
+            std::fs::create_dir_all(&tag_dir).unwrap();
+            std::fs::write(tag_dir.join("dist-manifest.json"), &manifest).unwrap();
+            if tag != "latest" {
+                std::fs::write(tag_dir.join(&asset), &payload).unwrap();
+            }
+        }
     }
 }

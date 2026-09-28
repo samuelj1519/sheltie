@@ -25,19 +25,25 @@ impl ReleaseSource {
         !self.base.starts_with("http://") && !self.base.starts_with("https://")
     }
 
-    fn manifest_url(&self) -> String {
+    /// 发布身份目录下的清单 URL。`tag` 是 `latest` 或 `v<version>`（存储合同 §9 步 1）。
+    /// 本地目录按 tag 布局镜像远端；远端 latest 是移动别名，固定 tag 走 download 路径。
+    fn manifest_url(&self, tag: &str) -> String {
         if self.is_local() {
-            format!("{}/dist-manifest.json", self.base)
-        } else {
+            format!("{}/{tag}/dist-manifest.json", self.base)
+        } else if tag == "latest" {
             format!("{}/latest/download/dist-manifest.json", self.base)
+        } else {
+            format!("{}/download/{tag}/dist-manifest.json", self.base)
         }
     }
 
-    fn asset_url(&self, name: &str) -> String {
+    fn asset_url(&self, tag: &str, name: &str) -> String {
         if self.is_local() {
-            format!("{}/{name}", self.base)
-        } else {
+            format!("{}/{tag}/{name}", self.base)
+        } else if tag == "latest" {
             format!("{}/latest/download/{name}", self.base)
+        } else {
+            format!("{}/download/{tag}/{name}", self.base)
         }
     }
 }
@@ -87,16 +93,28 @@ pub fn version_info(home: &Home) -> VersionInfo {
 }
 
 /// `self install`：把当前可执行文件复制到 `bin/sheltie`（先写 `tmp/` 再 rename）。
-/// 已存在且字节相同 → `already_installed = true`。`modify_path = false` 时只返回提示，不写 rc。
-pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
+/// 已存在且字节相同 → `already_installed = true`。不写任何 shell 配置，PATH 提示
+/// 只是输出文本（存储合同 §9、协议 §3）。写动词持管理根写锁（§2.2）。
+pub fn install(home: &Home) -> Result<InstallOutcome> {
+    let _lock = home.acquire_lock()?;
     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
     let bin = home.bin_dir();
     let target = bin.join_segment("sheltie");
     // 建管理根的 store.db（协议 self install：复制之外还要建库）；
     // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
     crate::store::Store::open(&home.store_path(), crate::store::OpenMode::ReadWrite)?;
-    // 已存在且字节相同就不动（幂等）。
-    if target.as_path().exists() && same_bytes(&current, target.as_path().as_std_path()) {
+    // 当前可执行文件是根外对象，只读取观察；限额读一次，幂等比较与落位都用这份字节。
+    let exe = crate::fsx::SafeFile::open_regular(
+        &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
+    )?;
+    let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    // 已存在且字节相同就不动（幂等）。目标同样走 T04 边界读；读不出（缺失、软链、被替换）
+    // 都当成不同，走落位覆盖。
+    if crate::fsx::SafeFile::open_regular(&target)
+        .and_then(|old| old.read_bounded(crate::fsx::MAX_FILE_BYTES))
+        .map(|old| old == bytes)
+        .unwrap_or(false)
+    {
         return Ok(InstallOutcome {
             installed_to: target,
             already_installed: true,
@@ -109,11 +127,7 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
         .join_segment(&uuid::Uuid::now_v7().to_string());
     std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
     let staged = tmp.join_segment("sheltie");
-    // 当前可执行文件是根外对象，只读取观察；落位用独占创建 + fsync + rename。
-    let exe = crate::fsx::SafeFile::open_regular(
-        &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
-    )?;
-    let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    // 落位用独占创建 + fsync + rename。
     crate::fsx::write_new_file(&staged, &bytes)?;
     make_executable(&staged)?;
     fsync(&staged)?;
@@ -121,9 +135,6 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
         .map_err(|e| Error::io(target.as_str(), e))?;
     crate::fsx::fsync_dir(&bin);
     let _ = std::fs::remove_dir_all(tmp.as_path());
-    if modify_path {
-        modify_shell_rc(home)?;
-    }
     Ok(InstallOutcome {
         installed_to: target,
         already_installed: false,
@@ -131,22 +142,18 @@ pub fn install(home: &Home, modify_path: bool) -> Result<InstallOutcome> {
     })
 }
 
-/// `self update`（存储合同 §9 五步）。`version` 为 `None` 取最新。
+/// `self update`（存储合同 §9 六步）。`version` 为 `None` 时按 latest 固定出的版本更新。
 pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Result<UpdateOutcome> {
-    let manifest = read_manifest(source)?;
-    let platform_str = platform();
-    let asset = manifest.assets.iter().find(|a| a.platform == platform_str);
-    let Some(asset) = asset else {
+    let _lock = home.acquire_lock()?;
+    // 步 1：解析发布身份，一次固定到 tag；清单与资产都从同一 tag 取，不混用两次解析。
+    let tag = resolve_tag(source, version)?;
+    // 步 2：读该 tag 的清单，找当前平台的包与 sha256。
+    let manifest = read_manifest(source, &tag)?;
+    let pinned = tag_version(&tag);
+    if manifest.version != pinned {
         return Err(Error::UpdateUnavailable {
-            reason: format!("发布清单里没有 {platform_str} 的包"),
+            reason: format!("tag {tag} 的清单写着版本 {}，与 tag 不符", manifest.version),
         });
-    };
-    if let Some(want) = version {
-        if want != manifest.version {
-            return Err(Error::UpdateUnavailable {
-                reason: format!("发布清单是 {}，没有 {want}", manifest.version),
-            });
-        }
     }
     let current = env!("CARGO_PKG_VERSION");
     if manifest.version == current {
@@ -156,22 +163,39 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
             up_to_date: true,
         });
     }
-    // 下载到 tmp/<uuid>/。
+    let platform_str = platform();
+    let Some(asset) = manifest.assets.iter().find(|a| a.platform == platform_str) else {
+        return Err(Error::UpdateUnavailable {
+            reason: format!("发布清单里没有 {platform_str} 的包"),
+        });
+    };
+    // 资产名要能安全拼进 tmp/<uuid>/；伪造的清单不能把路径带出管理根。
+    let name = checked_asset_name(&asset.name)?;
+    // 步 3：下载到 tmp/<uuid>/，核对摘要，必要时解包。
+    crate::fsx::ensure_dirs_under(home.root(), &home.tmp_dir())?;
     let tmp = home
         .tmp_dir()
         .join_segment(&uuid::Uuid::now_v7().to_string());
     std::fs::create_dir_all(tmp.as_path()).map_err(|e| Error::io(tmp.as_str(), e))?;
-    crate::fsx::ensure_dirs_under(home.root(), &home.tmp_dir())?;
-    let downloaded = match download(source, &asset.name, &tmp) {
+    let downloaded = match download(source, &tag, &name, &tmp) {
         Ok(p) => p,
         Err(e) => {
             let _ = std::fs::remove_dir_all(tmp.as_path());
             return Err(e);
         }
     };
-    // 核对发布包文件的摘要；不符删掉下载文件。
-    let bytes =
-        std::fs::read(downloaded.as_path()).map_err(|e| Error::io(downloaded.as_str(), e))?;
+    // 核对发布包文件的摘要（限额读取同一对象）；不符删掉下载文件。
+    let bytes = match crate::fsx::SafeFile::open_regular(&downloaded)
+        .and_then(|f| f.read_bounded(crate::fsx::MAX_FILE_BYTES))
+    {
+        Ok(b) => b,
+        Err(e) => {
+            let _ = std::fs::remove_dir_all(tmp.as_path());
+            return Err(Error::UpdateUnavailable {
+                reason: format!("读不了发布包 {name}：{e}"),
+            });
+        }
+    };
     let got = Sha256Hex::of_bytes(&bytes);
     if got.as_str() != asset.sha256 {
         let _ = std::fs::remove_dir_all(tmp.as_path());
@@ -181,23 +205,36 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         });
     }
     // 压缩包解包取包内的 sheltie 二进制；瘦格式的资产就是二进制本身。
-    let new_bin = match unpack_if_archive(&downloaded, &tmp)? {
-        Some(bin) => bin,
-        None => downloaded,
+    // 解包失败同样删 tmp/<uuid>/——失败窗口里不留半成品（存储合同 §9 步 3）。
+    let new_bin = match unpack_if_archive(&downloaded, &tmp) {
+        Ok(Some(bin)) => bin,
+        Ok(None) => downloaded,
+        Err(e) => {
+            let _ = std::fs::remove_dir_all(tmp.as_path());
+            return Err(e);
+        }
     };
-    make_executable(&new_bin)?;
+    if let Err(e) = make_executable(&new_bin) {
+        let _ = std::fs::remove_dir_all(tmp.as_path());
+        return Err(e);
+    }
     let bin = home.bin_dir();
     crate::fsx::ensure_dirs_under(home.root(), &bin)?;
     let target = bin.join_segment("sheltie");
     let prev = bin.join_segment("sheltie.prev");
-    // 崩溃窗口：第 3 步与第 4 步之间（存储合同 §9 末段）。
+    // 崩溃窗口：第 4 步与第 5 步之间（存储合同 §9 末段）。
     if target.as_path().exists() {
-        std::fs::rename(target.as_path(), prev.as_path())
-            .map_err(|e| Error::io(prev.as_str(), e))?;
+        if let Err(e) = std::fs::rename(target.as_path(), prev.as_path()) {
+            // rename 失败同样清 tmp——失败窗口不留半成品（§9 步 3 的口径延伸到替换步）。
+            let _ = std::fs::remove_dir_all(tmp.as_path());
+            return Err(Error::io(prev.as_str(), e));
+        }
     }
     crate::failpoint::maybe_exit("update_between_renames");
-    std::fs::rename(new_bin.as_path(), target.as_path())
-        .map_err(|e| Error::io(target.as_str(), e))?;
+    if let Err(e) = std::fs::rename(new_bin.as_path(), target.as_path()) {
+        let _ = std::fs::remove_dir_all(tmp.as_path());
+        return Err(Error::io(target.as_str(), e));
+    }
     crate::fsx::fsync_dir(&bin);
     let _ = std::fs::remove_dir_all(tmp.as_path());
     Ok(UpdateOutcome {
@@ -209,6 +246,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
 
 /// `self rollback`：`sheltie.prev` 换回来；`bin/sheltie` 缺失时直接挪回。没有 `.prev` 报 `NotFound`。
 pub fn rollback(home: &Home) -> Result<()> {
+    let _lock = home.acquire_lock()?;
     let bin = home.bin_dir();
     let prev = bin.join_segment("sheltie.prev");
     let target = bin.join_segment("sheltie");
@@ -236,13 +274,15 @@ pub fn rollback(home: &Home) -> Result<()> {
 }
 
 /// `self uninstall`：默认只删 `bin/`；`purge` 时删整个管理根，`confirmed` 为假则报 `InvalidRequest`。
-/// 返回保留下来的路径（`--purge` 时为空）。
+/// 返回保留下来的路径（`--purge` 时为空）。写动词持管理根写锁；purge 持锁删根（§2.2），
+/// 等待者获锁后复核根与 `.lock` 身份，见 [`crate::home::HomeLock::identity_still_valid`]。
 pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPath>> {
     if purge && !confirmed {
         return Err(Error::InvalidRequest {
             reason: "卸载并清空管理根需要确认（交互模式输入 yes，--json 模式给 --yes）".to_string(),
         });
     }
+    let _lock = home.acquire_lock()?;
     let bin = home.bin_dir();
     if purge {
         crate::fsx::remove_tree_no_follow(home.root())?;
@@ -259,6 +299,63 @@ pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPat
         }
     }
     Ok(kept)
+}
+
+// ── 发布身份（存储合同 §9 步 1） ────────────────────────────────
+
+/// 解析发布身份，一次固定到 tag：给了 `--version` 就是 `v<version>`；没给则读
+/// `latest` 的清单学出版本号，再固定到 `v<版本>`。之后清单与资产都从这个 tag 取
+/// ——latest 是移动别名，两次解析之间可能已经换发布，混用会把新旧包拼在一起。
+fn resolve_tag(source: &ReleaseSource, version: Option<&str>) -> Result<String> {
+    match version {
+        Some(want) => {
+            let v = checked_version(want)?;
+            Ok(format!("v{v}"))
+        }
+        None => {
+            let latest = read_manifest(source, "latest")?;
+            let v = checked_version(&latest.version)?;
+            Ok(format!("v{v}"))
+        }
+    }
+}
+
+/// tag `v<version>` 去掉 `v` 前缀就是版本号。
+fn tag_version(tag: &str) -> String {
+    tag.strip_prefix('v').unwrap_or(tag).to_string()
+}
+
+/// 版本号只允许一个路径段（无 `/`、`..`、`.`、NUL），防止伪造的版本把 URL/路径带出发布目录。
+fn checked_version(raw: &str) -> Result<String> {
+    let v = raw.strip_prefix('v').unwrap_or(raw);
+    if v.is_empty()
+        || v == "."
+        || v == ".."
+        || v.contains('/')
+        || v.contains('\\')
+        || v.contains('\0')
+    {
+        return Err(Error::UpdateUnavailable {
+            reason: format!("版本 {raw} 不是合法的版本号"),
+        });
+    }
+    Ok(v.to_string())
+}
+
+/// 资产名同理：只接受单个文件名，`..`、分隔符一概拒绝（伪造路径不越界）。
+fn checked_asset_name(raw: &str) -> Result<String> {
+    if raw.is_empty()
+        || raw == "."
+        || raw == ".."
+        || raw.contains('/')
+        || raw.contains('\\')
+        || raw.contains('\0')
+    {
+        return Err(Error::UpdateUnavailable {
+            reason: format!("发布包名 {raw} 不是合法的文件名"),
+        });
+    }
+    Ok(raw.to_string())
 }
 
 // ── 发布清单 ──────────────────────────────────────────────────
@@ -285,10 +382,10 @@ struct ReleaseManifest {
     assets: Vec<SlimAsset>,
 }
 
-/// 读发布清单。先按瘦格式解析；失败再按 cargo-dist 的完整 `dist-manifest.json` 适配。
+/// 读固定 tag 的发布清单。先按瘦格式解析；失败再按 cargo-dist 的完整 `dist-manifest.json` 适配。
 /// 完整格式的字段没有自动化测试，T25 真实升级时人工核对（D-30）。
-fn read_manifest(source: &ReleaseSource) -> Result<ReleaseManifest> {
-    let url = source.manifest_url();
+fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
+    let url = source.manifest_url(tag);
     let text = if source.is_local() {
         std::fs::read_to_string(&url).map_err(|e| Error::UpdateUnavailable {
             reason: format!("读不了发布清单 {url}：{e}"),
@@ -377,9 +474,9 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
     Ok(ReleaseManifest { version, assets })
 }
 
-/// 下载发布包到 `tmp/<name>`。本地发布目录直接复制；远端用系统 `curl`。
-fn download(source: &ReleaseSource, name: &str, tmp: &AbsPath) -> Result<AbsPath> {
-    let url = source.asset_url(name);
+/// 下载固定 tag 的发布包到 `tmp/<name>`。本地发布目录直接复制；远端用系统 `curl`。
+fn download(source: &ReleaseSource, tag: &str, name: &str, tmp: &AbsPath) -> Result<AbsPath> {
+    let url = source.asset_url(tag, name);
     let dst = tmp.join_segment(name);
     if source.is_local() {
         std::fs::copy(&url, dst.as_path()).map_err(|e| Error::UpdateUnavailable {
@@ -492,38 +589,6 @@ fn find_named_file(dir: &std::path::Path, name: &str, depth: u8, out: &mut Vec<A
 
 fn path_hint(home: &Home) -> String {
     format!("把 {} 加进 PATH", home.bin_dir())
-}
-
-/// PATH 提示对应的 rc 追加。`--modify-path` 才会走到；先打印将写入的文件与内容。
-fn modify_shell_rc(home: &Home) -> Result<()> {
-    let home_dir = std::env::var("HOME").map_err(|_| Error::InvalidRequest {
-        reason: "取不到 $HOME，不知道往哪个 rc 写".to_string(),
-    })?;
-    let shell = std::env::var("SHELL").unwrap_or_default();
-    let rc_name = if shell.contains("zsh") {
-        ".zshrc"
-    } else {
-        ".bashrc"
-    };
-    let rc = std::path::Path::new(&home_dir).join(rc_name);
-    let line = format!("export PATH=\"{}:$PATH\"\n", home.bin_dir());
-    println!("将写入 {}：{line}", rc.display());
-    use std::io::Write as _;
-    let mut f = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&rc)
-        .map_err(|e| Error::io(rc.to_string_lossy(), e))?;
-    f.write_all(line.as_bytes())
-        .map_err(|e| Error::io(rc.to_string_lossy(), e))?;
-    Ok(())
-}
-
-fn same_bytes(a: &std::path::Path, b: &std::path::Path) -> bool {
-    let (Ok(a), Ok(b)) = (std::fs::read(a), std::fs::read(b)) else {
-        return false;
-    };
-    a == b
 }
 
 fn make_executable(path: &AbsPath) -> Result<()> {

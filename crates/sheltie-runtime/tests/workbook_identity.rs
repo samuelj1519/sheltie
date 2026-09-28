@@ -100,11 +100,11 @@ fn ds_store_rejected_by_name_at_add() {
 #[test]
 fn self_install_on_new_home_creates_root_store_and_bin() {
     let (_d, home) = temp_home();
-    sheltie_runtime::selfmgmt::install(&home, false).unwrap();
+    sheltie_runtime::selfmgmt::install(&home).unwrap();
     assert!(home.store_path().as_path().exists());
     assert!(home.bin_dir().join_segment("sheltie").as_path().exists());
     // 幂等：再来一次返回 already_installed。
-    let again = sheltie_runtime::selfmgmt::install(&home, false).unwrap();
+    let again = sheltie_runtime::selfmgmt::install(&home).unwrap();
     assert!(again.already_installed);
 }
 
