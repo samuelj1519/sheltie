@@ -109,15 +109,15 @@ impl Home {
         self.root.join_segment("pending")
     }
 
-    /// 把相对管理根的路径拼回绝对路径。效果登记里的路径都是相对形式；
-    /// 拼回后仍受 `ensure_dirs_under` 一类的根内检查约束。
-    pub fn rel(&self, rel: &str) -> AbsPath {
+    /// 把经过校验的根内路径拼回绝对路径。非法登记路径必须报错，不能退回管理根。
+    pub fn rel(&self, rel: &str) -> Result<AbsPath> {
+        let rel = crate::fsx::ManagedRelPath::new(rel)?;
         AbsPath::new(format!(
             "{}/{}",
             self.root.as_str().trim_end_matches('/'),
-            rel
+            rel.as_str()
         ))
-        .unwrap_or_else(|_| self.root.clone())
+        .map_err(Error::Core)
     }
 
     /// 绝对路径相对管理根的形式；不在根内时报错。
@@ -190,12 +190,6 @@ pub struct HomeLock {
     root_ident: (u64, u64),
 }
 
-/// 文件/目录身份（dev/inode）。取不到身份就没有身份可核。
-fn path_ident(path: &camino::Utf8Path) -> Option<(u64, u64)> {
-    use std::os::unix::fs::MetadataExt as _;
-    std::fs::metadata(path).ok().map(|m| (m.dev(), m.ino()))
-}
-
 fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {
     use std::os::unix::fs::MetadataExt as _;
     file.metadata().ok().map(|m| (m.dev(), m.ino()))
@@ -203,25 +197,30 @@ fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {
 
 impl HomeLock {
     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。
-    /// 根在等待期间被 `purge` 删掉或重建时返回 false——调用方必须释放旧锁并整体重试，
-    /// 不沿旧 inode 继续写。
+    /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。
     pub fn identity_still_valid(&self) -> bool {
-        match (
-            path_ident(self.lock_path.as_path()),
-            path_ident(self.root.as_path()),
-        ) {
-            (Some(lock_now), Some(root_now)) => {
-                lock_now == self.locked_ident && root_now == self.root_ident
-            }
-            _ => false,
-        }
+        use std::os::unix::fs::MetadataExt as _;
+        let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {
+            return false;
+        };
+        let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {
+            return false;
+        };
+        lock.file_type().is_file()
+            && lock.nlink() == 1
+            && (lock.dev(), lock.ino()) == self.locked_ident
+            && root.file_type().is_dir()
+            && (root.dev(), root.ino()) == self.root_ident
+    }
+
+    pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {
+        self.root == *root && self.root_ident == ident && self.identity_still_valid()
     }
 }
 
 impl Home {
-    /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时先建根与 `.lock`。
-    /// 获锁后复核根与锁对象身份（§2.2）：等待期间 `self uninstall --purge` 可能持锁
-    /// 删掉整个根，锁落到旧 inode 上；发现身份变了就释放旧锁、整体重试。
+    /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。
+    /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。
     pub fn acquire_lock(&self) -> Result<HomeLock> {
         const RETRY_LIMIT: u32 = 16;
         let mut last_miss = None;
@@ -234,12 +233,9 @@ impl Home {
                     // drop(guard)：释放落在旧 inode 上的锁，下一轮在新根上重建 .lock。
                 }
                 Err(e) => {
-                    // 建根/建 .lock 的窗口里 purge 把根删了同样是「根已删」（§2.2）：
-                    // 整体重试，不把并发删根报成普通 I/O 失败。
-                    let gone = matches!(
-                        &e,
-                        Error::Io { source, .. } if source.kind() == std::io::ErrorKind::NotFound
-                    );
+                    // 建根/建 .lock 的窗口里根被锁外移除同样需要整体重试；
+                    // 不把锁外替换/移除误报成普通 I/O 失败。
+                    let gone = self.is_lock_setup_path_missing(&e);
                     if !gone {
                         return Err(e);
                     }
@@ -250,26 +246,19 @@ impl Home {
         Err(Error::io(
             self.lock_path().as_str(),
             std::io::Error::other(match last_miss {
-                Some(e) => format!("取管理根写锁连续被并发 purge 打断（{e}）"),
-                None => "复核管理根写锁身份连续失败（并发 purge 在反复删根？）".to_string(),
+                Some(e) => format!("取管理根写锁连续被锁外替换打断（{e}）"),
+                None => "复核管理根写锁身份连续失败（根或.lock可能正被锁外替换）".to_string(),
             }),
         ))
     }
 
     fn acquire_lock_once(&self) -> Result<HomeLock> {
-        crate::fsx::ensure_dirs_under(&self.root, &self.root)?;
         let lock_path = self.lock_path();
-        // 锁文件内容无关紧要（存在即锁对象），不得截断已存在的文件。
-        #[allow(clippy::suspicious_open_options)]
-        let file = std::fs::OpenOptions::new()
-            .create(true)
-            .read(true)
-            .write(true)
-            .open(lock_path.as_path())
-            .map_err(|e| Error::io(lock_path.as_str(), e))?;
+        let managed = crate::fsx::ManagedFs::create_root(&self.root)?;
+        // 不跟随叶链接、不接受FIFO或多链接；不得截断已存在的锁文件。
+        let file = managed.open_lock_file()?;
         // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。
-        // 取不到身份说明这个瞬间路径不是可 stat 的对象（根或 .lock 正被拆掉）：报
-        // NotFound 走「根已删」整体重试分支，open 与记身份之间的窗口同样覆盖（§2.2）。
+        // 取不到身份说明根或锁在打开窗口中消失，整体重试（§2.2）。
         let Some(locked_ident) = file_ident(&file) else {
             return Err(Error::io(
                 lock_path.as_str(),
@@ -279,18 +268,9 @@ impl Home {
                 ),
             ));
         };
-        let Some(root_ident) = path_ident(self.root.as_path()) else {
-            return Err(Error::io(
-                self.root.as_str(),
-                std::io::Error::new(
-                    std::io::ErrorKind::NotFound,
-                    "取不到管理根的目录身份（根在记身份时消失？）",
-                ),
-            ));
-        };
+        let root_ident = managed.identity();
         fs4::fs_std::FileExt::lock_exclusive(&file)
             .map_err(|e| Error::io(lock_path.as_str(), e))?;
-        crate::fsx::fsync_dir(&self.root);
         Ok(HomeLock {
             _file: file,
             root: self.root.clone(),
@@ -298,5 +278,47 @@ impl Home {
             locked_ident,
             root_ident,
         })
+    }
+
+    fn is_lock_setup_path_missing(&self, error: &Error) -> bool {
+        let under_root =
+            |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());
+        match error {
+            Error::NotFound { what } => under_root(what),
+            Error::Io { path, source } => {
+                under_root(path) && source.kind() == std::io::ErrorKind::NotFound
+            }
+            _ => false,
+        }
+    }
+}
+
+#[cfg(test)]
+mod lock_retry_tests {
+    use super::Home;
+    use crate::error::Error;
+    use sheltie_core::path::AbsPath;
+
+    // Task: C002-T19
+    #[test]
+    fn lock_setup_retries_structured_missing_path_under_managed_root() {
+        let temp = tempfile::tempdir().unwrap();
+        let parent = AbsPath::new(
+            std::fs::canonicalize(temp.path())
+                .unwrap()
+                .to_string_lossy()
+                .into_owned(),
+        )
+        .unwrap();
+        let home = Home::at(parent.join_segment("sheltie-test-home"));
+        assert!(home.is_lock_setup_path_missing(&Error::NotFound {
+            what: home.lock_path().to_string(),
+        }));
+        assert!(!home.is_lock_setup_path_missing(&Error::NotFound {
+            what: format!("{}-old/.lock", home.root()),
+        }));
+        assert!(!home.is_lock_setup_path_missing(&Error::InvalidRequest {
+            reason: "不是瞬时缺失".to_string(),
+        }));
     }
 }

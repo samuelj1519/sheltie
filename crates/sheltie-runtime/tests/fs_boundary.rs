@@ -10,7 +10,7 @@ use std::path::Path;
 use common::*;
 use sheltie_core::ids::AttemptId;
 use sheltie_runtime::Error;
-use sheltie_runtime::fsx::{SafeFile, ensure_dirs_under, write_exclusive_atomic};
+use sheltie_runtime::fsx::{ExternalReadFile, ManagedFs, ManagedRelPath};
 use sheltie_runtime::{StartArgs, WorkService};
 
 fn sentinel(dir: &Path, name: &str) -> std::path::PathBuf {
@@ -23,6 +23,10 @@ fn snapshot(path: &Path) -> (Vec<u8>, u32) {
     let bytes = std::fs::read(path).unwrap();
     let mode = std::fs::metadata(path).unwrap().permissions().mode();
     (bytes, mode)
+}
+
+fn canonical_abs(path: &Path) -> sheltie_core::path::AbsPath {
+    abs(&std::fs::canonicalize(path).unwrap())
 }
 
 fn lit(s: &str) -> sheltie_runtime::request::InputValue {
@@ -155,7 +159,7 @@ fn safe_handle_pins_observed_object_across_path_swap() {
     let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("f");
     std::fs::write(&p, b"original").unwrap();
-    let f = SafeFile::open_regular(&abs(&p)).unwrap();
+    let f = ExternalReadFile::open_regular(&abs(&p)).unwrap();
     let (sha1, n1) = f.sha256_bounded(1024).unwrap();
     assert_eq!(n1, 8);
 
@@ -170,7 +174,7 @@ fn safe_handle_pins_observed_object_across_path_swap() {
     );
 
     // 新句柄观察到新内容：换过的对象不会冒充原对象通过封存核对。
-    let g = SafeFile::open_regular(&abs(&p)).unwrap();
+    let g = ExternalReadFile::open_regular(&abs(&p)).unwrap();
     let (sha3, n3) = g.sha256_bounded(1024).unwrap();
     assert_ne!((sha3, n3), (sha1, n1));
 }
@@ -186,14 +190,14 @@ fn bounded_read_accepts_exactly_cap_and_rejects_one_more() {
     f.set_len(32 * 1024 * 1024).unwrap();
     drop(f);
     let cap = sheltie_runtime::fsx::MAX_FILE_BYTES;
-    let at = SafeFile::open_regular(&abs(&p)).unwrap();
+    let at = ExternalReadFile::open_regular(&abs(&p)).unwrap();
     assert!(at.read_bounded(cap).is_ok());
 
     let over = dir.path().join("big2");
     let f = std::fs::File::create(&over).unwrap();
     f.set_len(cap + 1).unwrap();
     drop(f);
-    let at = SafeFile::open_regular(&abs(&over)).unwrap();
+    let at = ExternalReadFile::open_regular(&abs(&over)).unwrap();
     match at.read_bounded(cap) {
         Err(Error::InvalidRequest { reason }) => assert!(reason.contains("超过"), "{reason}"),
         other => panic!("超限应当拒绝：{other:?}"),
@@ -281,19 +285,106 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
 #[test]
 fn exclusive_atomic_write_creates_and_replaces_target_only() {
     let dir = tempfile::tempdir().unwrap();
-    let base = abs(dir.path());
-    let target = base.join_segment("card.md");
-    write_exclusive_atomic(&base, &target, b"v1").unwrap();
-    assert_eq!(std::fs::read(target.as_path()).unwrap(), b"v1");
+    let base = canonical_abs(dir.path());
+    let home = sheltie_runtime::Home::at(base);
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let target = ManagedRelPath::new("card.md").unwrap();
+    fs.write_atomic(&lock, &target, b"v1").unwrap();
+    assert_eq!(
+        std::fs::read(home.root().as_path().join("card.md")).unwrap(),
+        b"v1"
+    );
     // 同名重写走 rename 替换；目录里不留临时文件。
-    write_exclusive_atomic(&base, &target, b"v2").unwrap();
-    assert_eq!(std::fs::read(target.as_path()).unwrap(), b"v2");
-    let leftovers: Vec<_> = std::fs::read_dir(dir.path())
+    fs.write_atomic(&lock, &target, b"v2").unwrap();
+    assert_eq!(
+        std::fs::read(home.root().as_path().join("card.md")).unwrap(),
+        b"v2"
+    );
+    let leftovers: Vec<_> = std::fs::read_dir(home.root().as_path())
         .unwrap()
         .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
-        .filter(|n| n.ends_with(".tmp"))
+        .filter(|n| n.starts_with(".card.md.tmp-"))
         .collect();
     assert!(leftovers.is_empty(), "不留临时文件：{leftovers:?}");
+}
+
+// Task: C002-T19
+#[test]
+fn directory_handle_remains_anchored_after_parent_path_is_replaced() {
+    let dir = tempfile::tempdir().unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = sentinel(outside.path(), "outside");
+    let before = snapshot(&sentinel);
+    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let held = fs
+        .ensure_dir(&lock, &ManagedRelPath::new("works/slot").unwrap())
+        .unwrap();
+
+    std::fs::rename(
+        home.root().as_path().join("works/slot"),
+        home.root().as_path().join("works/held"),
+    )
+    .unwrap();
+    std::os::unix::fs::symlink(outside.path(), home.root().as_path().join("works/slot")).unwrap();
+
+    held.write_new(&lock, "proof.txt", b"anchored").unwrap();
+    held.rename_new(&lock, "proof.txt", "renamed.txt").unwrap();
+
+    assert_eq!(snapshot(&sentinel), before);
+    assert_eq!(
+        std::fs::read(home.root().as_path().join("works/held/renamed.txt")).unwrap(),
+        b"anchored"
+    );
+    assert!(
+        std::fs::symlink_metadata(home.root().as_path().join("works/slot"))
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+}
+
+// Task: C002-T19
+#[test]
+fn managed_operations_reject_a_lock_from_another_home() {
+    let first = tempfile::tempdir().unwrap();
+    let second = tempfile::tempdir().unwrap();
+    let home = sheltie_runtime::Home::at(canonical_abs(first.path()));
+    let other = sheltie_runtime::Home::at(canonical_abs(second.path()));
+    let wrong_lock = other.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let target = ManagedRelPath::new("never-created").unwrap();
+
+    assert!(
+        fs.write_new(&wrong_lock, &target, b"must not write")
+            .is_err()
+    );
+    assert!(!home.root().as_path().join("never-created").exists());
+}
+
+// Task: C002-T19
+#[test]
+fn readonly_rechecks_hardlink_count_before_chmod() {
+    let dir = tempfile::tempdir().unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let rel = ManagedRelPath::new("payload").unwrap();
+    fs.write_new(&lock, &rel, b"preserve").unwrap();
+    let held = fs.open_regular(&rel).unwrap();
+    let external_alias = outside.path().join("alias");
+    std::fs::hard_link(home.root().as_path().join("payload"), &external_alias).unwrap();
+    let original = snapshot(home.root().as_path().join("payload").as_std_path());
+
+    assert!(fs.set_readonly(&lock, &held).is_err());
+    assert_eq!(
+        snapshot(home.root().as_path().join("payload").as_std_path()),
+        original
+    );
+    assert_eq!(snapshot(&external_alias), original);
 }
 
 /// ensure_dirs_under 的单元反例：根下的软链段与文件占位段都拒绝。
@@ -301,35 +392,33 @@ fn exclusive_atomic_write_creates_and_replaces_target_only() {
 #[test]
 fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
     let dir = tempfile::tempdir().unwrap();
-    let root = abs(dir.path());
+    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
     // 软链段。
     let outside = tempfile::tempdir().unwrap();
-    std::os::unix::fs::symlink(outside.path(), dir.path().join("works")).unwrap();
-    match ensure_dirs_under(&root, &root.join_segment("works").join_segment("w1")) {
+    std::os::unix::fs::symlink(outside.path(), home.root().as_path().join("works")).unwrap();
+    match fs.ensure_dir(&lock, &ManagedRelPath::new("works/w1").unwrap()) {
         Err(Error::InvalidRequest { reason }) => assert!(reason.contains("符号链接"), "{reason}"),
         other => panic!("软链段应当拒绝：{other:?}"),
     }
     // 文件占位段。
     let dir2 = tempfile::tempdir().unwrap();
-    let root2 = abs(dir2.path());
-    std::fs::write(dir2.path().join("bin"), b"not a dir").unwrap();
-    match ensure_dirs_under(&root2, &root2.join_segment("bin").join_segment("sheltie")) {
+    let home2 = sheltie_runtime::Home::at(canonical_abs(dir2.path()));
+    let lock2 = home2.acquire_lock().unwrap();
+    let fs2 = ManagedFs::open_existing(&home2).unwrap();
+    std::fs::write(home2.root().as_path().join("bin"), b"not a dir").unwrap();
+    match fs2.ensure_dir(&lock2, &ManagedRelPath::new("bin/sheltie").unwrap()) {
         Err(Error::InvalidRequest { reason }) => assert!(reason.contains("不是目录"), "{reason}"),
         other => panic!("文件占位段应当拒绝：{other:?}"),
     }
     // 根外的目标拒绝。
     let elsewhere = tempfile::tempdir().unwrap();
-    assert!(ensure_dirs_under(&root, &abs(elsewhere.path())).is_err());
+    assert!(home.to_rel(&abs(elsewhere.path())).is_err());
     // 合法嵌套创建。
-    ensure_dirs_under(
-        &root2,
-        &root2
-            .join_segment("works")
-            .join_segment("a")
-            .join_segment("b"),
-    )
-    .unwrap();
-    assert!(dir2.path().join("works/a/b").is_dir());
+    fs2.ensure_dir(&lock2, &ManagedRelPath::new("works/a/b").unwrap())
+        .unwrap();
+    assert!(home2.root().as_path().join("works/a/b").is_dir());
 }
 
 /// 正常链路回归：嵌套输出、显式 @file 由 CLI 层覆盖；这里覆盖嵌套目录下的原子写。
@@ -337,16 +426,149 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
 #[test]
 fn exclusive_atomic_write_creates_nested_parents() {
     let dir = tempfile::tempdir().unwrap();
-    let base = abs(dir.path());
-    let target = base
-        .join_segment("works")
-        .join_segment("w")
-        .join_segment("attempts")
-        .join_segment("d")
-        .join_segment("0")
-        .join_segment("brief.md");
-    write_exclusive_atomic(&base, &target, "嵌套".as_bytes()).unwrap();
-    assert_eq!(std::fs::read(target.as_path()).unwrap(), "嵌套".as_bytes());
+    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let target = ManagedRelPath::new("works/w/attempts/d/0/brief.md").unwrap();
+    fs.write_atomic(&lock, &target, "嵌套".as_bytes()).unwrap();
+    assert_eq!(
+        std::fs::read(home.root().as_path().join(target.as_str())).unwrap(),
+        "嵌套".as_bytes()
+    );
+}
+
+// Task: C002-T19
+#[test]
+fn managed_relative_path_rejects_escaping_and_nul_segments() {
+    for bad in ["", "/abs", "../x", "a/../b", "a//b", "./a", "a\0b"] {
+        assert!(ManagedRelPath::new(bad).is_err(), "must reject {bad:?}");
+    }
+    assert_eq!(
+        ManagedRelPath::new("works/w1/status-card.md")
+            .unwrap()
+            .as_str(),
+        "works/w1/status-card.md"
+    );
+}
+
+// Task: C002-T19
+#[test]
+fn managed_fs_anchors_open_and_rejects_leaf_symlink_and_fifo() {
+    let (_d, home) = temp_home();
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let target = ManagedRelPath::new("works/w1/output.md").unwrap();
+    fs.ensure_dir(&lock, &ManagedRelPath::new("works/w1").unwrap())
+        .unwrap();
+    fs.write_new(&lock, &target, b"owned bytes").unwrap();
+    assert!(fs.write_new(&lock, &target, b"replacement").is_err());
+    let opened = fs.open_regular(&target).unwrap();
+    assert_eq!(opened.read_bounded(128).unwrap(), b"owned bytes");
+    fs.set_readonly(&lock, &opened).unwrap();
+    assert_eq!(
+        std::fs::metadata(home.root().as_path().join("works/w1/output.md"))
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777,
+        0o444
+    );
+
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel = sentinel(outside.path(), "outside-managed");
+    let before = snapshot(&sentinel);
+    std::fs::remove_file(home.root().as_path().join("works/w1/output.md")).unwrap();
+    std::os::unix::fs::symlink(&sentinel, home.root().as_path().join("works/w1/output.md"))
+        .unwrap();
+    assert!(fs.open_regular(&target).is_err());
+    assert_eq!(snapshot(&sentinel), before);
+
+    let fifo_path = home.root().as_path().join("works/w1/input.fifo");
+    assert!(
+        std::process::Command::new("mkfifo")
+            .arg(&fifo_path)
+            .status()
+            .unwrap()
+            .success()
+    );
+    let fifo = ManagedRelPath::new("works/w1/input.fifo").unwrap();
+    assert!(fs.open_regular(&fifo).is_err());
+}
+
+// Task: C002-T19
+#[test]
+fn managed_rename_no_replace_and_remove_tree_stay_under_root() {
+    let (_d, home) = temp_home();
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let parent = ManagedRelPath::new("pending/test/payload").unwrap();
+    fs.ensure_dir(&lock, &parent).unwrap();
+    let source = ManagedRelPath::new("pending/test/payload/source").unwrap();
+    let target = ManagedRelPath::new("pending/test/payload/target").unwrap();
+    fs.write_new(&lock, &source, b"source").unwrap();
+    fs.write_new(&lock, &target, b"target").unwrap();
+    assert!(fs.rename_new(&lock, &source, &target).is_err());
+    assert_eq!(
+        fs.open_regular(&source).unwrap().read_bounded(32).unwrap(),
+        b"source"
+    );
+    assert_eq!(
+        fs.open_regular(&target).unwrap().read_bounded(32).unwrap(),
+        b"target"
+    );
+    fs.write_atomic(&lock, &target, b"replacement").unwrap();
+    assert_eq!(
+        fs.open_regular(&target).unwrap().read_bounded(32).unwrap(),
+        b"replacement"
+    );
+
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel_path = sentinel(outside.path(), "atomic-target");
+    let sentinel_before = snapshot(&sentinel_path);
+    std::fs::remove_file(home.root().as_path().join("pending/test/payload/target")).unwrap();
+    std::os::unix::fs::symlink(
+        &sentinel_path,
+        home.root().as_path().join("pending/test/payload/target"),
+    )
+    .unwrap();
+    fs.write_atomic(&lock, &target, b"replaced symlink entry")
+        .unwrap();
+    assert_eq!(snapshot(&sentinel_path), sentinel_before);
+    assert_eq!(
+        fs.open_regular(&target).unwrap().read_bounded(64).unwrap(),
+        b"replaced symlink entry"
+    );
+
+    fs.remove_owned_tree(&lock, &ManagedRelPath::new("pending/test").unwrap())
+        .unwrap();
+    assert!(fs.open_regular(&source).is_err());
+}
+
+// Task: C002-T19
+#[test]
+fn managed_rename_rejects_symlink_source_without_moving_or_touching_target() {
+    let outside = tempfile::tempdir().unwrap();
+    let sentinel_path = sentinel(outside.path(), "rename-source");
+    let sentinel_before = snapshot(&sentinel_path);
+    let (_d, home) = temp_home();
+    let lock = home.acquire_lock().unwrap();
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let directory = ManagedRelPath::new("pending/rename-test").unwrap();
+    fs.ensure_dir(&lock, &directory).unwrap();
+    let source = ManagedRelPath::new("pending/rename-test/source").unwrap();
+    let target = ManagedRelPath::new("pending/rename-test/target").unwrap();
+    std::os::unix::fs::symlink(&sentinel_path, home.root().as_path().join(source.as_str()))
+        .unwrap();
+
+    assert!(fs.rename_new(&lock, &source, &target).is_err());
+    assert!(
+        std::fs::symlink_metadata(home.root().as_path().join(source.as_str()))
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+    assert!(!home.root().as_path().join(target.as_str()).exists());
+    assert_eq!(snapshot(&sentinel_path), sentinel_before);
 }
 
 // 引用 WorkService 避免未使用告警的兜底（service 在多个用例中使用）。

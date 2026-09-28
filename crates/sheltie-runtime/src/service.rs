@@ -17,11 +17,12 @@ use sheltie_core::workbook::parse_manifest;
 
 use crate::effects::{EffectOp, RefJson, decode_effects, encode_effects, execute};
 use crate::error::{Error, Result};
+use crate::fsx::ManagedRelPath;
 use crate::home::Home;
 use crate::observe::{build_resource_index, now, observe_optional, principal};
 use crate::request::{InputValue, RequestIntent};
 use crate::store::{CommitInput, CommitOutcome, Store};
-use crate::workbook_repo::{WorkbookRepo, set_tree_readonly};
+use crate::workbook_repo::WorkbookRepo;
 
 /// `work start` 的参数。输入值此时还只是字面量或 `@file` 路径；内容在无锁预检的
 /// 重放查重**之后**才读取（存储合同 §2.1）。
@@ -72,27 +73,40 @@ struct Loaded {
     graph: Graph,
 }
 
-/// pending 侧车与暂存目录的创建（存储合同 §3.3）：先独占创建并 fsync 侧车，
-/// 再 fsync `pending/` 使目录项持久，最后独占创建 payload。
+/// pending 侧车与暂存容器的创建（存储合同 §3.3）。start/add再建立payload；remove只
+/// 建容器，提交后核验final身份才把它移入payload。
 pub(crate) fn stage_pending(
     home: &Home,
+    lock: &crate::home::HomeLock,
     internal_id: &str,
     request_id: &str,
     op: &str,
 ) -> Result<AbsPath> {
-    let pending_root = home.pending_dir();
-    crate::fsx::ensure_dirs_under(home.root(), &pending_root)?;
-    let sidecar = pending_root.join_segment(&format!("{internal_id}.owner"));
+    let create_payload = match op {
+        "start_work" | "add_workbook" => true,
+        "remove_workbook" => false,
+        _ => {
+            return Err(Error::StoreCorrupt {
+                detail: format!("未知pending操作 {op}"),
+            });
+        }
+    };
+    let pending_root = ManagedRelPath::new("pending")?;
+    let container = ManagedRelPath::new(format!("pending/{internal_id}"))?;
+    let sidecar = ManagedRelPath::new(format!("pending/{internal_id}.owner"))?;
     let content = format!(
         "{{\"format\":\"pending/v1\",\"internal_id\":\"{internal_id}\",\"request_id\":\"{request_id}\",\"op\":\"{op}\"}}\n"
     );
-    crate::fsx::write_new_file(&sidecar, content.as_bytes())?;
-    crate::fsx::fsync_dir(&pending_root);
-    let payload = pending_root
-        .join_segment(internal_id)
-        .join_segment("payload");
-    crate::fsx::ensure_dirs_under(home.root(), &payload)?;
-    Ok(payload)
+    let fs = crate::fsx::ManagedFs::open_existing(home)?;
+    fs.ensure_dir(lock, &pending_root)?;
+    fs.write_new(lock, &sidecar, content.as_bytes())?;
+    fs.sync_dir_locked(lock, &pending_root)?;
+    fs.ensure_dir(lock, &container)?;
+    let payload = ManagedRelPath::new(format!("pending/{internal_id}/payload"))?;
+    if create_payload {
+        fs.ensure_dir(lock, &payload)?;
+    }
+    home.rel(payload.as_str())
 }
 
 impl WorkService {
@@ -154,10 +168,10 @@ impl WorkService {
         }
 
         // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
-        let _lock = self.home.acquire_lock()?;
+        let lock = self.home.acquire_lock()?;
         let store = self.rw()?;
         let svc = Self::new(self.home.clone(), store);
-        svc.recover()?;
+        svc.recover(&lock)?;
         // 锁内重核请求表（预检后可能有并发写者）。
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
@@ -165,7 +179,7 @@ impl WorkService {
                     request_id: request_id.clone(),
                 });
             }
-            return self.replay(request_id, row.reply_json);
+            return svc.replay(request_id, row.reply_json, &lock);
         }
         let wb = svc
             .repo()
@@ -186,9 +200,9 @@ impl WorkService {
         };
         // works/ 的祖先软链在序号分配与任何物化之前核对（O01）：软链把根重定义到
         // 根外时，这里拒绝而不是等到发布效果。
-        crate::fsx::ensure_dirs_under(self.home.root(), &self.home.works_dir())?;
+        crate::fsx::ensure_dirs_under(&self.home, &lock, &self.home.works_dir())?;
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
-        let payload = stage_pending(&self.home, &internal_id, &request_id, "start_work")?;
+        let payload = stage_pending(&self.home, &lock, &internal_id, &request_id, "start_work")?;
 
         let day = ctx.now.day().to_string();
         let seq = svc.store.allocate_seq(&day)?;
@@ -199,7 +213,7 @@ impl WorkService {
         // payload/workbook：本 Work 的冻结定义。复制后对最终副本重新 parse/compile
         // 并核对身份与摘要（GF-17；存储合同 §5.4）。
         let frozen = payload.join_segment("workbook");
-        WorkbookRepo::copy_confined(&wb.dir, &frozen)?;
+        WorkbookRepo::copy_confined(&self.home, &lock, &wb.dir, &frozen)?;
         let copied = svc.repo().load_dir(&frozen)?;
         if copied.manifest.id() != wb.manifest.id()
             || copied.manifest.version() != wb.manifest.version()
@@ -224,15 +238,15 @@ impl WorkService {
             .ok_or_else(|| Error::NotFound {
                 what: format!("Flow {}", args.flow),
             })?;
-        set_tree_readonly(&frozen)?;
+        crate::fsx::set_tree_readonly_confined(&self.home, &lock, &frozen)?;
 
         // payload/start-inputs/<key>：物化在 pending，**记录最终路径**（发布后生效）。
         let inputs_dir = payload.join_segment("start-inputs");
-        crate::fsx::ensure_dirs_under(self.home.root(), &inputs_dir)?;
+        crate::fsx::ensure_dirs_under(&self.home, &lock, &inputs_dir)?;
         let mut input_refs = BTreeMap::new();
         for (key, value) in &inputs {
             let staged = Home::confine(&inputs_dir, key)?;
-            crate::fsx::write_new_file(&staged, value.as_bytes())?;
+            crate::fsx::write_new_file(&self.home, &lock, &staged, value.as_bytes())?;
             let final_path = sheltie_core::work::start_input_path(&work_dir, key);
             input_refs.insert(
                 key.clone(),
@@ -278,9 +292,10 @@ impl WorkService {
             effects,
             &ctx,
             &cmd,
+            &lock,
         )?;
         // COMMIT 后发布；随后清理本操作的空容器与侧车。
-        svc.finish_request(&request_id)?;
+        svc.finish_request(&request_id, &lock)?;
         Ok(resp)
     }
 
@@ -308,7 +323,12 @@ impl WorkService {
             Ok(Command::BeginAttempt {
                 node: node.clone(),
                 observed_inputs: observed,
-                instruction_text: instruction_text_of(&loaded.state, &loaded.graph, node)?,
+                instruction_text: instruction_text_of(
+                    &self.home,
+                    &loaded.state,
+                    &loaded.graph,
+                    node,
+                )?,
             })
         })
     }
@@ -332,7 +352,7 @@ impl WorkService {
                 sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
             let mut observed = BTreeMap::new();
             for (name, path) in paths {
-                let obs = observe_output(&name, &path)?;
+                let obs = observe_output(&self.home, &name, &path)?;
                 observed.insert(name, obs);
             }
             Ok(Command::SubmitAttempt {
@@ -493,7 +513,7 @@ impl WorkService {
                 } = op
                 {
                     if owner == format!("work:{work}") {
-                        let base = self.home.rel(&pending).join_segment(&digest_root);
+                        let base = self.home.rel(&pending)?.join_segment(&digest_root);
                         if base.as_path().exists() {
                             return Ok(Some(base));
                         }
@@ -507,7 +527,7 @@ impl WorkService {
     /// 从冻结副本解析 manifest 与 Flow，取出本 Work 的图。
     fn compile_frozen(&self, frozen: &AbsPath, state: &WorkState) -> Result<Graph> {
         let manifest_text =
-            crate::fsx::SafeFile::open_regular(&frozen.join_segment("workbook.toml"))?
+            crate::fsx::open_managed_regular(&self.home, &frozen.join_segment("workbook.toml"))?
                 .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
         let manifest_text = String::from_utf8(manifest_text).map_err(|_| Error::StoreCorrupt {
             detail: "冻结副本的 workbook.toml 不是 UTF-8".to_string(),
@@ -519,7 +539,7 @@ impl WorkService {
             detail: format!("冻结副本读不了：{e}"),
         })?;
         for path in manifest.flows() {
-            let text = crate::fsx::SafeFile::open_regular(&frozen.join(path))?
+            let text = crate::fsx::open_managed_regular(&self.home, &frozen.join(path))?
                 .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
             let text = String::from_utf8(text).map_err(|_| Error::StoreCorrupt {
                 detail: format!("冻结副本的 {path} 不是 UTF-8"),
@@ -564,17 +584,17 @@ impl WorkService {
         }
 
         // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
-        let _lock = self.home.acquire_lock()?;
+        let lock = self.home.acquire_lock()?;
         let store = self.rw()?;
         let svc = Self::new(self.home.clone(), store);
-        svc.recover()?;
+        svc.recover(&lock)?;
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
             }
-            return svc.replay(request_id, row.reply_json);
+            return svc.replay(request_id, row.reply_json, &lock);
         }
 
         let ctx = Context {
@@ -599,9 +619,10 @@ impl WorkService {
                 effects,
                 &ctx,
                 &cmd,
+                &lock,
             ) {
                 Ok(resp) => {
-                    svc.finish_request(&request_id)?;
+                    svc.finish_request(&request_id, &lock)?;
                     return Ok(resp);
                 }
                 Err(Error::RevisionConflict { expected, actual }) => {
@@ -616,10 +637,10 @@ impl WorkService {
 
     /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
     /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
-    fn recover(&self) -> Result<()> {
+    fn recover(&self, lock: &crate::home::HomeLock) -> Result<()> {
         for (request_id, effects_json) in self.store.unpublished_requests()? {
             let ops = decode_effects(&effects_json)?;
-            if let Err(e) = execute(&self.home, &ops, true) {
+            if let Err(e) = execute(&self.home, lock, &ops, true) {
                 return Err(Error::EffectPending {
                     committed: false,
                     request_id: String::new(),
@@ -628,14 +649,14 @@ impl WorkService {
                     original: None,
                 });
             }
-            self.refresh_cards_of(&ops)?;
+            self.refresh_cards_of(&ops, lock)?;
             self.store.mark_published(&request_id)?;
         }
         Ok(())
     }
 
     /// 效果涉及的状态卡从**最新**状态重生成（不回退历史版本，§6）。
-    fn refresh_cards_of(&self, ops: &[EffectOp]) -> Result<()> {
+    fn refresh_cards_of(&self, ops: &[EffectOp], lock: &crate::home::HomeLock) -> Result<()> {
         for op in ops {
             if let EffectOp::RefreshStatusCard { work_id } = op {
                 let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
@@ -644,7 +665,8 @@ impl WorkService {
                 let loaded = self.load(&id)?;
                 let card = render_status_card(&loaded.state, &loaded.graph);
                 crate::fsx::write_exclusive_atomic(
-                    self.home.root(),
+                    &self.home,
+                    lock,
                     &loaded.state.status_card_path(),
                     card.as_bytes(),
                 )?;
@@ -654,11 +676,11 @@ impl WorkService {
     }
 
     /// COMMIT 与效果发布之间被杀的请求由 `recover` 兜底；正常路径在这里发布并标记。
-    fn finish_request(&self, request_id: &str) -> Result<()> {
+    fn finish_request(&self, request_id: &str, lock: &crate::home::HomeLock) -> Result<()> {
         if let Some(row) = self.store.inspect_request(request_id)? {
             let ops = decode_effects(&row.effects_json)?;
             if !row.published {
-                if let Err(e) = execute(&self.home, &ops, true) {
+                if let Err(e) = execute(&self.home, lock, &ops, true) {
                     return Err(Error::EffectPending {
                         committed: true,
                         request_id: request_id.to_string(),
@@ -667,11 +689,11 @@ impl WorkService {
                         original: None,
                     });
                 }
-                self.refresh_cards_of(&ops)?;
+                self.refresh_cards_of(&ops, lock)?;
                 self.store.mark_published(request_id)?;
             } else {
                 // 已完成的请求显式重放：只核对历史文件（write_file），不重做发布。
-                execute(&self.home, &ops, false)?;
+                execute(&self.home, lock, &ops, false)?;
             }
         }
         Ok(())
@@ -689,6 +711,7 @@ impl WorkService {
         effects: Vec<EffectOp>,
         ctx: &Context,
         cmd: &Command,
+        lock: &crate::home::HomeLock,
     ) -> Result<Response> {
         let revision = expected_revision.map_or(1, |r| r + 1);
         let next = legal_next(&decision.state, graph);
@@ -733,14 +756,19 @@ impl WorkService {
                 })
             }
             CommitOutcome::Replayed { reply_json, .. } => {
-                self.replay(request_id.to_string(), reply_json)
+                self.replay(request_id.to_string(), reply_json, lock)
             }
         }
     }
 
     /// 重放：返回原快照（`replayed = true`），先完成未发布效果；历史 `next` 是历史
     /// 事实，续接一律查当前状态。
-    fn replay(&self, request_id: String, reply_json: String) -> Result<Response> {
+    fn replay(
+        &self,
+        request_id: String,
+        reply_json: String,
+        lock: &crate::home::HomeLock,
+    ) -> Result<Response> {
         let mut resp: Response =
             serde_json::from_str(&reply_json).map_err(|e| Error::StoreCorrupt {
                 detail: format!("requests 表里的响应解不开：{e}"),
@@ -751,7 +779,7 @@ impl WorkService {
         if let Some(row) = self.store.inspect_request(&request_id)? {
             let ops = decode_effects(&row.effects_json)?;
             if !row.published {
-                if let Err(e) = execute(&self.home, &ops, true) {
+                if let Err(e) = execute(&self.home, lock, &ops, true) {
                     return Err(Error::EffectPending {
                         committed: true,
                         request_id,
@@ -760,10 +788,10 @@ impl WorkService {
                         original: Some(reply_json),
                     });
                 }
-                self.refresh_cards_of(&ops)?;
+                self.refresh_cards_of(&ops, lock)?;
                 self.store.mark_published(&request_id)?;
             } else {
-                execute(&self.home, &ops, false)?;
+                execute(&self.home, lock, &ops, false)?;
             }
         }
         Ok(resp)
@@ -783,7 +811,7 @@ fn materialize_summary(value: &InputValue) -> Result<String> {
     match value {
         InputValue::Literal { text } => Ok(text.clone()),
         InputValue::AtFile { path } => {
-            let f = crate::fsx::SafeFile::open_regular(
+            let f = crate::fsx::ExternalReadFile::open_regular(
                 &AbsPath::new(path.clone()).map_err(Error::Core)?,
             )?;
             let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
@@ -987,7 +1015,12 @@ fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {
 }
 
 /// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。
-fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Result<String> {
+fn instruction_text_of(
+    home: &Home,
+    state: &WorkState,
+    graph: &Graph,
+    node: &NodeId,
+) -> Result<String> {
     let def = graph.node(node).ok_or_else(|| Error::NotFound {
         what: format!("节点 {node}"),
     })?;
@@ -995,7 +1028,7 @@ fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Resul
         sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
         sheltie_core::flow::Instruction::File(rel) => {
             let path = state.workbook_dir().join(rel);
-            let f = crate::fsx::SafeFile::open_regular(&path)?;
+            let f = crate::fsx::open_managed_regular(home, &path)?;
             let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
             String::from_utf8(bytes).map_err(|_| {
                 Error::Core(sheltie_core::Error::WorkbookInvalid {
@@ -1010,8 +1043,8 @@ fn instruction_text_of(state: &WorkState, graph: &Graph, node: &NodeId) -> Resul
 /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的
 /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按
 /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。
-fn observe_output(name: &str, path: &AbsPath) -> Result<Option<ObservedFile>> {
-    let Some(f) = crate::fsx::SafeFile::open_optional(path)? else {
+fn observe_output(home: &Home, name: &str, path: &AbsPath) -> Result<Option<ObservedFile>> {
+    let Some(f) = crate::fsx::open_managed_optional(home, path)? else {
         return Ok(None);
     };
     let len = f.metadata().len();
@@ -1054,4 +1087,47 @@ fn audit_json(cmd: &Command) -> Result<String> {
     serde_json::to_string(&value).map_err(|e| Error::StoreCorrupt {
         detail: format!("序列化命令失败：{e}"),
     })
+}
+
+#[cfg(test)]
+mod pending_stage_tests {
+    use super::stage_pending;
+    use crate::home::Home;
+    use sheltie_core::path::AbsPath;
+
+    // Task: C002-T19
+    #[test]
+    fn remove_stage_persists_owner_and_container_without_payload() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
+        let lock = home.acquire_lock().unwrap();
+        let payload =
+            stage_pending(&home, &lock, "internal-1", "request-1", "remove_workbook").unwrap();
+        let container = temp.path().join("pending/internal-1");
+        let owner = temp.path().join("pending/internal-1.owner");
+
+        assert!(container.is_dir());
+        assert!(!container.join("payload").exists());
+        assert_eq!(
+            std::fs::read_to_string(owner).unwrap(),
+            "{\"format\":\"pending/v1\",\"internal_id\":\"internal-1\",\"request_id\":\"request-1\",\"op\":\"remove_workbook\"}\n"
+        );
+        assert_eq!(
+            payload,
+            home.root()
+                .join_segment("pending")
+                .join_segment("internal-1")
+                .join_segment("payload")
+        );
+    }
+
+    // Task: C002-T19
+    #[test]
+    fn publish_stage_persists_owner_container_and_payload() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
+        let lock = home.acquire_lock().unwrap();
+        let payload = stage_pending(&home, &lock, "internal-2", "request-2", "start_work").unwrap();
+        assert!(std::path::Path::new(payload.as_str()).is_dir());
+    }
 }

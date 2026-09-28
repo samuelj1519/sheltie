@@ -24,6 +24,7 @@ toml = "0.9"
 uuid = { version = "1", features = ["v7"] }
 fs4 = "0.13"
 uzers = "0.12"
+rustix = { version = "=1.1.4", features = ["fs"] }
 
 assert_cmd = "2"
 insta = { version = "1", features = ["json"] }

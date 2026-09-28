@@ -84,7 +84,12 @@ pub fn encode_effects(ops: &[EffectOp]) -> String {
 ///
 /// `publish` 是发布动作的开关：已 `published = 1` 的请求重放只核对 `write_file`，
 /// 不重做发布/封存/删除（存储合同 §3.2 末段）。
-pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
+pub(crate) fn execute(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    ops: &[EffectOp],
+    publish: bool,
+) -> Result<()> {
     for op in ops {
         match op {
             EffectOp::PublishDir {
@@ -97,14 +102,14 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                 if !publish {
                     continue;
                 }
-                publish_dir(home, pending, final_path, owner, digest, digest_root)?;
+                publish_dir(home, lock, pending, final_path, owner, digest, digest_root)?;
             }
             EffectOp::PrepareAttempt { dirs, .. } => {
                 if !publish {
                     continue;
                 }
                 for rel in dirs {
-                    fsx::ensure_dirs_under(home.root(), &home.rel(rel))?;
+                    fsx::ensure_dirs_under(home, lock, &home.rel(rel)?)?;
                 }
             }
             EffectOp::WriteFile {
@@ -112,10 +117,10 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                 sha256,
                 content,
             } => {
-                let target = home.rel(path);
+                let target = home.rel(path)?;
                 if target.as_path().exists() {
                     // 存在且摘要相同不写；不同是完整性错误，不掩盖修改。
-                    let f = fsx::SafeFile::open_regular(&target)?;
+                    let f = fsx::open_managed_regular(home, &target)?;
                     let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
@@ -136,8 +141,8 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                             detail: format!("历史文件 {path} 的父目录缺失，不能恢复"),
                         });
                     }
-                    fsx::write_exclusive_atomic(home.root(), &target, content.as_bytes())?;
-                    let f = fsx::SafeFile::open_regular(&target)?;
+                    fsx::write_exclusive_atomic(home, lock, &target, content.as_bytes())?;
+                    let f = fsx::open_managed_regular(home, &target)?;
                     let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
@@ -151,8 +156,8 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                     continue;
                 }
                 for r in refs {
-                    let target = home.rel(&r.path);
-                    let f = fsx::SafeFile::open_regular(&target)?;
+                    let target = home.rel(&r.path)?;
+                    let f = fsx::open_managed_regular(home, &target)?;
                     let (got, bytes) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
                     if got.as_str() != r.sha256 || bytes != r.bytes {
                         return Err(Error::StoreCorrupt {
@@ -162,7 +167,7 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                             ),
                         });
                     }
-                    f.set_readonly()?;
+                    fsx::ManagedFs::open_existing(home)?.set_readonly(lock, &f)?;
                 }
             }
             EffectOp::DeleteDir {
@@ -175,7 +180,7 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
                     continue;
                 }
                 let _ = owner;
-                delete_dir(home, pending, final_path, digest)?;
+                delete_dir(home, lock, pending, final_path, digest)?;
             }
             EffectOp::RefreshStatusCard { .. } => {
                 // 状态卡是当前投影：由调用方（持有 Store）从最新 state_json 生成，
@@ -190,6 +195,7 @@ pub fn execute(home: &Home, ops: &[EffectOp], publish: bool) -> Result<()> {
 /// 只读；仅 `final` 在 → 核归属与摘要后视为完成；两者都在或内容不符 → 停止。
 fn publish_dir(
     home: &Home,
+    lock: &crate::home::HomeLock,
     pending: &str,
     final_path: &str,
     owner: &str,
@@ -198,30 +204,30 @@ fn publish_dir(
 ) -> Result<()> {
     // 摘要核算的是原件的某个子路径（Work 的 payload 含 workbook/ 与 start-inputs/，
     // 摘要只核 workbook/，存储合同 §3.2）；发布动作移动的是**整个 payload**。
-    let payload = home.rel(pending);
+    let payload = home.rel(pending)?;
     let verify_at = if digest_root.is_empty() {
         payload.clone()
     } else {
         payload.join_segment(digest_root)
     };
-    let dst = home.rel(final_path);
+    let dst = home.rel(final_path)?;
     match (payload.as_path().exists(), dst.as_path().exists()) {
         (true, false) => {
             verify_owned_digest(&verify_at, owner, digest)?;
             if let Some(parent) = dst.as_path().parent() {
                 fsx::ensure_dirs_under(
-                    home.root(),
+                    home,
+                    lock,
                     &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
                 )?;
             }
-            std::fs::rename(payload.as_path(), dst.as_path())
-                .map_err(|e| Error::io(dst.as_str(), e))?;
-            fsx::fsync_dir(&dst);
+            fsx::rename_managed_new(home, lock, pending, final_path)?;
+            fsx::fsync_dir(home, lock, &dst)?;
             // 只读化只属于 Workbook 目录（合同 §5.2：目录含根 0555、文件 0444）。
             // Work 目录要保持可写——状态卡与 Attempt 目录随后还要写入；冻结副本
             // `workbook/` 子树已在提交前置只读（§5.4）。
             if owner.starts_with("workbook:") {
-                fsx::set_tree_readonly_confined(&dst)?;
+                fsx::set_tree_readonly_confined(home, lock, &dst)?;
             }
             Ok(())
         }
@@ -268,9 +274,15 @@ fn verify_owned_digest(dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
 /// 那个对象**才移入本操作 pending 并删除；摘要不符说明那是别人的新生命周期对象
 ///（同版本重新 add），本操作的删除视为已完成，不碰它。移入后只删同一对象；完成
 /// 后写 `.deleted` 持久标记，两处都缺时只有合法标记才能证明完成。
-fn delete_dir(home: &Home, pending: &str, final_path: &str, digest: &str) -> Result<()> {
-    let fin = home.rel(final_path);
-    let pen = home.rel(pending);
+fn delete_dir(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    pending: &str,
+    final_path: &str,
+    digest: &str,
+) -> Result<()> {
+    let fin = home.rel(final_path)?;
+    let pen = home.rel(pending)?;
     let internal_id = pen
         .as_path()
         .file_name()
@@ -282,30 +294,35 @@ fn delete_dir(home: &Home, pending: &str, final_path: &str, digest: &str) -> Res
         })?;
         if got.as_str() != digest {
             // 不是登记要删的对象（新生命周期或外部替换）：不删、不覆盖。
-            write_deleted_marker(home, &internal_id)?;
+            write_deleted_marker(home, lock, &internal_id)?;
             return Ok(());
         }
     }
     if fin.as_path().exists() {
-        fsx::make_tree_writable(&fin);
+        fsx::make_tree_writable(home, lock, &fin)?;
         if let Some(parent) = pen.as_path().parent() {
             fsx::ensure_dirs_under(
-                home.root(),
+                home,
+                lock,
                 &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
             )?;
         }
-        std::fs::rename(fin.as_path(), pen.as_path()).map_err(|e| Error::io(fin.as_str(), e))?;
+        fsx::rename_managed_new(home, lock, final_path, pending)?;
     }
     if pen.as_path().exists() {
-        fsx::remove_tree_no_follow(&pen)?;
+        fsx::remove_tree_no_follow(home, lock, &pen)?;
     }
     // 两处都缺时本函数的执行本身就是完成证明：写持久标记（§3.3）。
-    write_deleted_marker(home, &internal_id)?;
+    write_deleted_marker(home, lock, &internal_id)?;
     Ok(())
 }
 
 /// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。
-fn write_deleted_marker(home: &Home, internal_id: &str) -> Result<()> {
+fn write_deleted_marker(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    internal_id: &str,
+) -> Result<()> {
     if internal_id.is_empty() {
         return Ok(());
     }
@@ -317,8 +334,8 @@ fn write_deleted_marker(home: &Home, internal_id: &str) -> Result<()> {
     }
     let content =
         format!("{{\"format\":\"delete-complete/v1\",\"internal_id\":\"{internal_id}\"}}\n");
-    fsx::write_new_file(&marker, content.as_bytes())?;
-    fsx::fsync_dir(&home.pending_dir());
+    fsx::write_new_file(home, lock, &marker, content.as_bytes())?;
+    fsx::fsync_dir(home, lock, &home.pending_dir())?;
     Ok(())
 }
 
