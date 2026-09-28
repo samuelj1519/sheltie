@@ -563,6 +563,16 @@ pub(crate) fn execute(
     ops: &CheckedEffects,
     publish: bool,
 ) -> Result<()> {
+    execute_with_observed_outputs(home, lock, ops, publish, None)
+}
+
+pub(crate) fn execute_with_observed_outputs(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    ops: &CheckedEffects,
+    publish: bool,
+    observed: Option<&BTreeMap<String, fsx::SafeFile>>,
+) -> Result<()> {
     for op in ops.as_slice() {
         match op {
             EffectOp::PublishDir {
@@ -630,17 +640,23 @@ pub(crate) fn execute(
                 }
                 for r in refs {
                     let target = home.rel(&r.path)?;
-                    let f = fsx::open_managed_regular(home, &target)?;
-                    let (got, bytes) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
-                    if got.as_str() != r.sha256 || bytes != r.bytes {
-                        return Err(Error::StoreCorrupt {
-                            detail: format!(
-                                "封存目标 {} 与提交时引用不符（不存在或被改变）",
-                                r.path
-                            ),
-                        });
+                    if let Some(observed) = observed {
+                        let file =
+                            observed
+                                .get(target.as_str())
+                                .ok_or_else(|| Error::StoreCorrupt {
+                                    detail: format!("正常submit缺少输出 {} 的观察句柄", r.path),
+                                })?;
+                        if file.path() != &target {
+                            return Err(Error::StoreCorrupt {
+                                detail: format!("封存句柄 {} 与效果路径不一致", r.path),
+                            });
+                        }
+                        seal_output(home, lock, &target, file, r)?;
+                    } else {
+                        let file = fsx::open_managed_regular(home, &target)?;
+                        seal_output(home, lock, &target, &file, r)?;
                     }
-                    fsx::ManagedFs::open_existing(home)?.set_readonly(lock, &f)?;
                 }
             }
             EffectOp::DeleteDir {
@@ -662,6 +678,32 @@ pub(crate) fn execute(
         }
     }
     Ok(())
+}
+
+fn seal_output(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    target: &AbsPath,
+    file: &fsx::SafeFile,
+    reference: &RefJson,
+) -> Result<()> {
+    file.verify_seal_reference(&reference.sha256, reference.bytes)
+        .map_err(|error| classify_seal_integrity_error(target, error))?;
+    fsx::ManagedFs::open_existing(home)?
+        .set_readonly(lock, file)
+        .map_err(|error| classify_seal_integrity_error(target, error))
+}
+
+fn classify_seal_integrity_error(target: &AbsPath, error: Error) -> Error {
+    match error {
+        Error::InvalidRequest { reason } => Error::StoreCorrupt {
+            detail: format!("封存路径 {target} 的对象身份或类型不符：{reason}"),
+        },
+        Error::NotFound { what } => Error::StoreCorrupt {
+            detail: format!("封存路径 {target} 在完成前消失：{what}"),
+        },
+        other => other,
+    }
 }
 
 /// `publish_dir`：`final` 不存在且 `pending` 在 → 核原件归属与摘要后 rename 并置
@@ -819,4 +861,149 @@ fn write_deleted_marker(
 /// 独立校验一个 sha256 串。
 pub fn valid_digest(s: &str) -> bool {
     Sha256Hex::new(s).is_ok()
+}
+
+#[cfg(test)]
+mod seal_output_tests {
+    use super::*;
+    use crate::fsx::{ManagedFs, SafeFile};
+    use std::os::unix::fs::{MetadataExt as _, PermissionsExt as _};
+
+    fn checked_submit(path: &ManagedRelPath, sha256: &str, bytes: u64) -> CheckedEffects {
+        CheckedEffects(vec![
+            EffectOp::SealOutputs {
+                refs: vec![RefJson {
+                    path: path.as_str().to_string(),
+                    sha256: sha256.to_string(),
+                    bytes,
+                }],
+            },
+            EffectOp::RefreshStatusCard {
+                work_id: "w20260929-001".to_string(),
+            },
+        ])
+    }
+
+    fn observed_file() -> (
+        tempfile::TempDir,
+        Home,
+        crate::home::HomeLock,
+        ManagedFs,
+        ManagedRelPath,
+        SafeFile,
+        Sha256Hex,
+        u64,
+    ) {
+        let dir = tempfile::tempdir().unwrap();
+        let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let path = ManagedRelPath::new(
+            "works/w20260929-001/attempts/n/occurrence-001/attempt-000/outputs/out.md",
+        )
+        .unwrap();
+        fs.ensure_dir(
+            &lock,
+            &ManagedRelPath::new(
+                "works/w20260929-001/attempts/n/occurrence-001/attempt-000/outputs",
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        fs.write_new(&lock, &path, b"committed bytes").unwrap();
+        let file = fs.open_regular(&path).unwrap();
+        let (digest, bytes) = file.sha256_bounded(fsx::MAX_FILE_BYTES).unwrap();
+        (dir, home, lock, fs, path, file, digest, bytes)
+    }
+
+    fn file_set(path: &AbsPath, file: SafeFile) -> BTreeMap<String, SafeFile> {
+        BTreeMap::from([(path.as_str().to_string(), file)])
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn same_inode_byte_change_stops_before_permission_change() {
+        let (_dir, home, lock, _fs, relative, held, expected, bytes) = observed_file();
+        let absolute = home.rel(relative.as_str()).unwrap();
+        std::fs::write(absolute.as_path(), b"tampered bytes!").unwrap();
+        let metadata = std::fs::metadata(absolute.as_path()).unwrap();
+        assert_eq!(metadata.ino(), held.metadata().ino());
+        assert_eq!(metadata.len(), bytes);
+        let effects = checked_submit(&relative, expected.as_str(), bytes);
+
+        assert!(
+            execute_with_observed_outputs(
+                &home,
+                &lock,
+                &effects,
+                true,
+                Some(&file_set(&absolute, held)),
+            )
+            .is_err()
+        );
+        assert_ne!(
+            std::fs::metadata(absolute.as_path())
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o222,
+            0,
+            "摘要变化时必须在chmod前停止"
+        );
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn path_replacement_seals_observed_object_and_leaves_new_target_untouched() {
+        let (_dir, home, lock, _fs, relative, held, expected, bytes) = observed_file();
+        let target = home.rel(relative.as_str()).unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        let replacement = outside.path().join("sentinel");
+        let moved_original = outside.path().join("observed-original");
+        std::fs::rename(target.as_path(), &moved_original).unwrap();
+        std::fs::write(&replacement, b"outside sentinel").unwrap();
+        let replacement_mode = replacement.metadata().unwrap().permissions().mode();
+        std::os::unix::fs::symlink(&replacement, target.as_path()).unwrap();
+        let effects = checked_submit(&relative, expected.as_str(), bytes);
+
+        assert!(
+            execute_with_observed_outputs(
+                &home,
+                &lock,
+                &effects,
+                true,
+                Some(&file_set(&target, held)),
+            )
+            .is_err()
+        );
+        assert_eq!(
+            moved_original.metadata().unwrap().permissions().mode() & 0o777,
+            0o444
+        );
+        assert_eq!(std::fs::read(&replacement).unwrap(), b"outside sentinel");
+        assert_eq!(
+            replacement.metadata().unwrap().permissions().mode(),
+            replacement_mode
+        );
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn normal_submit_requires_every_committed_ref_to_have_its_observed_handle() {
+        let (_dir, home, lock, _fs, relative, _held, expected, bytes) = observed_file();
+        let effects = checked_submit(&relative, expected.as_str(), bytes);
+
+        assert!(matches!(
+            execute_with_observed_outputs(&home, &lock, &effects, true, Some(&BTreeMap::new())),
+            Err(Error::StoreCorrupt { detail }) if detail.contains("缺少输出")
+        ));
+        assert_ne!(
+            std::fs::metadata(home.rel(relative.as_str()).unwrap().as_path())
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o222,
+            0
+        );
+    }
 }

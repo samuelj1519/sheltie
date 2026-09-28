@@ -1034,6 +1034,106 @@ mod tree_tests {
     }
 }
 
+#[cfg(test)]
+mod seal_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt as _;
+
+    fn managed_file() -> (
+        tempfile::TempDir,
+        crate::home::Home,
+        crate::home::HomeLock,
+        ManagedFs,
+        ManagedRelPath,
+        SafeFile,
+    ) {
+        let dir = tempfile::tempdir().unwrap();
+        let root = AbsPath::new(dir.path().to_str().unwrap()).unwrap();
+        let home = crate::home::Home::at(root);
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let path = ManagedRelPath::new("works/w1/output.md").unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("works/w1").unwrap())
+            .unwrap();
+        fs.write_new(&lock, &path, b"committed bytes").unwrap();
+        let file = fs.open_regular(&path).unwrap();
+        (dir, home, lock, fs, path, file)
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn seal_refuses_same_inode_content_change_before_chmod() {
+        let (_dir, home, _lock, _fs, path, held) = managed_file();
+        let (expected, bytes) = held.sha256_bounded(MAX_FILE_BYTES).unwrap();
+        let absolute = home.root().as_path().join(path.as_str());
+        std::fs::write(&absolute, b"tampered bytes!").unwrap();
+        let changed = std::fs::metadata(&absolute).unwrap();
+        assert_eq!(changed.ino(), held.meta.ino(), "仍是原inode");
+        assert_eq!(changed.len(), bytes, "仍是原长度");
+
+        assert!(
+            held.verify_seal_reference(expected.as_str(), bytes)
+                .is_err()
+        );
+        assert_ne!(
+            std::fs::metadata(absolute).unwrap().permissions().mode() & 0o222,
+            0,
+            "内容不符必须在fchmod前停止"
+        );
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn seal_refuses_hardlink_added_after_observation() {
+        let (_dir, home, _lock, _fs, path, held) = managed_file();
+        let (expected, bytes) = held.sha256_bounded(MAX_FILE_BYTES).unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        let alias = outside.path().join("alias");
+        std::fs::hard_link(home.root().as_path().join(path.as_str()), &alias).unwrap();
+        let before_mode = std::fs::metadata(&alias).unwrap().permissions().mode();
+
+        assert!(
+            held.verify_seal_reference(expected.as_str(), bytes)
+                .is_err()
+        );
+        assert_eq!(
+            std::fs::metadata(&alias).unwrap().permissions().mode(),
+            before_mode,
+            "发现硬链接后不得改变任何别名的权限"
+        );
+    }
+
+    // Task: C002-T22
+    #[test]
+    fn path_replacement_seals_observed_object_and_leaves_replacement_untouched() {
+        let (_dir, home, lock, fs, path, held) = managed_file();
+        let (expected, bytes) = held.sha256_bounded(MAX_FILE_BYTES).unwrap();
+        let target = home.root().as_path().join(path.as_str());
+        let outside = tempfile::tempdir().unwrap();
+        let replacement = outside.path().join("replacement");
+        let moved_original = outside.path().join("observed-original");
+        std::fs::rename(&target, &moved_original).unwrap();
+        std::fs::write(&replacement, b"outside sentinel").unwrap();
+        let replacement_before = replacement.metadata().unwrap().permissions().mode();
+        std::os::unix::fs::symlink(&replacement, &target).unwrap();
+
+        assert!(fs.set_readonly(&lock, &held).is_err());
+        assert_eq!(
+            moved_original.metadata().unwrap().permissions().mode() & 0o777,
+            0o444
+        );
+        assert_eq!(std::fs::read(&replacement).unwrap(), b"outside sentinel");
+        assert_eq!(
+            replacement.metadata().unwrap().permissions().mode(),
+            replacement_before
+        );
+        assert_eq!(
+            held.sha256_bounded(MAX_FILE_BYTES).unwrap(),
+            (expected, bytes)
+        );
+    }
+}
+
 pub(crate) fn open_managed_regular(home: &crate::home::Home, path: &AbsPath) -> Result<SafeFile> {
     let rel = ManagedRelPath::new(home.to_rel(path)?)?;
     ManagedFs::open_existing(home)?.open_regular(&rel)
@@ -1275,6 +1375,36 @@ impl SafeFile {
         let bytes = self.read_bounded(max_bytes)?;
         let n = bytes.len() as u64;
         Ok((Sha256Hex::of_bytes(&bytes), n))
+    }
+
+    pub(crate) fn verify_seal_reference(&self, sha256: &str, bytes: u64) -> Result<()> {
+        let before = fstat(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))?;
+        check_regular_stat(self.path.as_str(), &before)?;
+        if before.st_dev as u64 != self.meta.dev()
+            || before.st_ino as u64 != self.meta.ino()
+            || before.st_size as u64 != bytes
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("封存句柄 {} 的对象身份或长度已改变", self.path),
+            });
+        }
+        let (actual, actual_bytes) = self.sha256_bounded(MAX_FILE_BYTES)?;
+        if actual.as_str() != sha256 || actual_bytes != bytes {
+            return Err(Error::StoreCorrupt {
+                detail: format!("封存句柄 {} 的内容与提交引用不符", self.path),
+            });
+        }
+        let after = fstat(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))?;
+        check_regular_stat(self.path.as_str(), &after)?;
+        if after.st_dev != before.st_dev
+            || after.st_ino != before.st_ino
+            || after.st_size as u64 != bytes
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("封存句柄 {} 在校验期间改变", self.path),
+            });
+        }
+        Ok(())
     }
 
     /// 在已打开的同一文件对象上置只读并同步。调用方先用同一句柄核验摘要。

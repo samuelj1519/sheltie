@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+────────────
+ Nextest run ID f3c1a700-8279-466a-b79f-6ab10a560d91 with nextest profile: default
+    Starting 14 tests across 32 binaries (502 tests skipped)
+        PASS [   0.045s] ( 1/14) sheltie-runtime fsx::seal_tests::seal_refuses_hardlink_added_after_observation
+        PASS [   0.045s] ( 2/14) sheltie-runtime fsx::seal_tests::path_replacement_seals_observed_object_and_leaves_replacement_untouched
+        PASS [   0.046s] ( 3/14) sheltie-runtime effects::seal_output_tests::normal_submit_requires_every_committed_ref_to_have_its_observed_handle
+        PASS [   0.046s] ( 4/14) sheltie-runtime effects::seal_output_tests::same_inode_byte_change_stops_before_permission_change
+        PASS [   0.050s] ( 5/14) sheltie-runtime fsx::seal_tests::seal_refuses_same_inode_content_change_before_chmod
+        PASS [   0.050s] ( 6/14) sheltie-runtime effects::seal_output_tests::path_replacement_seals_observed_object_and_leaves_new_target_untouched
+        PASS [   0.520s] ( 7/14) sheltie-runtime::service real_submit_path_swap_after_commit_seals_original_and_preserves_external_target
+        PASS [   0.524s] ( 8/14) sheltie-runtime::service real_submit_same_inode_byte_change_after_commit_stops_before_chmod
+        PASS [   0.525s] ( 9/14) sheltie-runtime::service real_submit_hardlink_added_after_commit_stops_before_chmod
+        PASS [   0.531s] (10/14) sheltie-runtime::schema2_replay completed_submit_replay_does_not_seal_or_rewrite_the_output_again
+        PASS [   0.534s] (11/14) sheltie-runtime::service recovery_refuses_same_inode_output_changed_after_submit
+        PASS [   0.534s] (12/14) sheltie-runtime::service recovery_refuses_hardlink_added_to_submitted_output
+        PASS [   0.535s] (13/14) sheltie-runtime::service recovery_refuses_output_replaced_by_external_symlink
+        PASS [   0.651s] (14/14) sheltie-cli::scenario_artifacts successful_submit_seals_the_observed_output
+────────────
+     Summary [   0.652s] 14 tests run: 14 passed, 502 skipped

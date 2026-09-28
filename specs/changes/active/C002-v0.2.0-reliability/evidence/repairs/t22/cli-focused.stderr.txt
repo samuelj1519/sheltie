@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+────────────
+ Nextest run ID 12835a29-9b7e-49d9-8929-d852b4bb225d with nextest profile: default
+    Starting 5 tests across 1 binary
+        PASS [   0.797s] (1/5) sheltie-cli::scenario_artifacts submit_with_symlink_output_is_rejected
+        PASS [   0.799s] (2/5) sheltie-cli::scenario_artifacts submit_oversize_output_is_output_too_large
+        PASS [   0.813s] (3/5) sheltie-cli::scenario_artifacts submit_without_required_output_is_output_missing_and_attempt_stays_running
+        PASS [   0.815s] (4/5) sheltie-cli::scenario_artifacts successful_submit_seals_the_observed_output
+        PASS [   0.826s] (5/5) sheltie-cli::scenario_artifacts modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified
+────────────
+     Summary [   0.826s] 5 tests run: 5 passed, 0 skipped
