@@ -1,0 +1,87 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.07s
+────────────
+ Nextest run ID 2671d44c-7587-4d06-b857-c8fcc1628614 with nextest profile: default
+    Starting 80 tests across 4 binaries
+        PASS [   1.093s] ( 1/80) sheltie-runtime::service begin_on_tampered_frozen_copy_is_store_corrupt
+        PASS [   1.164s] ( 2/80) sheltie-runtime::service missing_frozen_copy_is_store_corrupt_for_begin_and_status
+        PASS [   1.251s] ( 3/80) sheltie-runtime::service begin_writes_brief_md_with_absolute_input_paths
+        PASS [   1.323s] ( 4/80) sheltie-runtime::service begin_same_request_id_different_node_is_request_conflict
+        PASS [   1.324s] ( 5/80) sheltie-runtime::service audit_stores_command_with_instruction_text_redacted
+        PASS [   1.350s] ( 6/80) sheltie-runtime::service begin_loads_graph_from_frozen_copy_not_repository
+        PASS [   1.395s] ( 7/80) sheltie-runtime::service invalid_published_flag_is_not_treated_as_completed
+        PASS [   1.432s] ( 8/80) sheltie-runtime::service begin_replay_returns_original_reply_and_rewrites_brief
+        PASS [   1.433s] ( 9/80) sheltie-runtime::service empty_effect_batch_is_rejected_without_marking_published
+        PASS [   1.465s] (10/80) sheltie-runtime::service invalid_later_effect_is_rejected_before_any_effect_runs
+        PASS [   1.569s] (11/80) sheltie-runtime::service missing_audit_does_not_hide_unpublished_request_from_recovery
+        PASS [   1.639s] (12/80) sheltie-runtime::service concurrent_writers_one_gets_revision_conflict
+        PASS [   1.709s] (13/80) sheltie-runtime::service duplicate_audit_owner_is_rejected_before_recovery_io
+        PASS [   0.754s] (14/80) sheltie-runtime::service pending_owner_json_roundtrips_opaque_request_id
+        PASS [   2.026s] (15/80) sheltie-runtime::service begin_replay_regenerates_missing_stats_json
+        PASS [   2.027s] (16/80) sheltie-runtime::service begin_binds_resource_input_to_frozen_copy_path
+        PASS [   0.879s] (17/80) sheltie-runtime::service resolve_work_rejects_unknown_prefix
+        PASS [   2.074s] (18/80) sheltie-runtime::service engine_stats_effect_must_match_its_bound_artifact_reference
+        PASS [   0.054s] (19/80) sheltie-runtime::workbook_digest digest_matches_independent_vectors_on_disk
+        PASS [   0.072s] (20/80) sheltie-runtime::workbook_digest framing_collision_pair_now_yields_two_different_digests
+        PASS [   0.849s] (21/80) sheltie-runtime::service start_allocates_work_id_with_today_and_seq_001
+        PASS [   0.923s] (22/80) sheltie-runtime::service resolve_work_unique_prefix_resolves
+        PASS [   0.035s] (23/80) sheltie-runtime::workbook_digest hardlink_in_tree_is_rejected
+        PASS [   0.040s] (24/80) sheltie-runtime::workbook_digest paths_sort_by_raw_bytes_not_by_locale
+        PASS [   0.036s] (25/80) sheltie-runtime::workbook_digest symlink_in_tree_is_rejected
+        PASS [   0.026s] (26/80) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_parent_directory
+        PASS [   0.928s] (27/80) sheltie-runtime::service start_copies_workbook_into_work_dir_readonly
+        PASS [   0.112s] (28/80) sheltie-runtime::workbook_digest insertion_order_is_irrelevant_but_bytes_and_paths_matter
+        PASS [   0.034s] (29/80) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_root
+        PASS [   0.992s] (30/80) sheltie-runtime::service start_same_request_id_different_inputs_is_request_conflict
+        PASS [   0.022s] (31/80) sheltie-runtime::workbook_identity principal_matches_id_un_oracle
+        PASS [   0.184s] (32/80) sheltie-runtime::workbook_identity ds_store_rejected_by_name_at_add
+        PASS [   0.013s] (33/80) sheltie-runtime::workbook_identity readonly_open_never_creates_home
+        PASS [   1.137s] (34/80) sheltie-runtime::service start_replay_returns_same_work_id_without_new_seq
+        PASS [   1.337s] (35/80) sheltie-runtime::service response_revision_increments_with_each_commit
+        PASS [   1.235s] (36/80) sheltie-runtime::service status_card_regenerated_after_each_commit
+        PASS [   0.144s] (37/80) sheltie-runtime::workbook_identity self_install_on_new_home_creates_root_store_and_bin
+        PASS [   0.444s] (38/80) sheltie-runtime::workbook_identity load_rejects_tampered_registered_digest
+        PASS [   0.913s] (39/80) sheltie-runtime::service tampered_work_dir_is_rejected_before_reading_outside_paths
+        PASS [   1.367s] (40/80) sheltie-runtime::service status_works_after_workbook_removed
+        PASS [   0.176s] (41/80) sheltie-runtime::workbook_repo add_failure_leaves_no_staging_and_no_row
+        PASS [   0.829s] (42/80) sheltie-runtime::service unpublished_work_start_requires_its_owner_sidecar
+        PASS [   0.115s] (43/80) sheltie-runtime::workbook_repo add_rejects_file_over_32mib
+        PASS [   0.384s] (44/80) sheltie-runtime::workbook_identity remove_refuses_tampered_directory
+        PASS [   0.110s] (45/80) sheltie-runtime::workbook_repo add_rejects_hard_link_inside_workbook
+        PASS [   0.096s] (46/80) sheltie-runtime::workbook_repo add_rejects_symlink_inside_workbook
+        PASS [   0.098s] (47/80) sheltie-runtime::workbook_repo add_rejects_non_regular_file
+        PASS [   1.398s] (48/80) sheltie-runtime::service tampered_artifact_path_is_rejected_before_observing_external_file
+        PASS [   0.094s] (49/80) sheltie-runtime::workbook_repo add_rejects_when_total_over_256mib
+        PASS [   1.318s] (50/80) sheltie-runtime::service tampered_resource_input_is_store_corrupt_not_artifact_modified
+        PASS [   0.285s] (51/80) sheltie-runtime::workbook_repo add_rejects_duplicate_id_version_with_workbook_exists
+        PASS [   1.410s] (52/80) sheltie-runtime::service tampered_begin_snapshot_path_is_rejected_on_historical_replay
+        PASS [   0.266s] (53/80) sheltie-runtime::workbook_repo add_two_step_example_copies_and_marks_readonly
+        PASS [   0.732s] (54/80) sheltie-runtime::workbook_identity readonly_bits_reduce_accidents_but_digest_is_the_guard
+        PASS [   0.338s] (55/80) sheltie-runtime::workbook_repo load_recompiles_graph_from_installed_copy
+        PASS [   0.378s] (56/80) sheltie-runtime::workbook_repo corrupted_workbook_row_path_is_rejected_before_verify_or_remove_io
+        PASS [   1.479s] (57/80) sheltie-runtime::service two_step_runs_to_succeeded
+        PASS [   0.571s] (58/80) sheltie-runtime::workbook_repo empty_remove_digest_blocks_later_workbook_write
+        PASS [   0.556s] (59/80) sheltie-runtime::workbook_repo load_with_explicit_version_picks_that_version
+        PASS [   0.278s] (60/80) sheltie-runtime::workbook_repo remove_requires_explicit_version
+        PASS [   0.532s] (61/80) sheltie-runtime::workbook_repo remove_deletes_row_and_directory
+        PASS [   0.294s] (62/80) sheltie-runtime::workbook_repo remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal
+        PASS [   0.468s] (63/80) sheltie-runtime::workbook_repo remove_moves_dir_to_tmp_before_delete
+        PASS [   0.176s] (64/80) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files
+        PASS [   0.777s] (65/80) sheltie-runtime::workbook_repo list_orders_by_id_then_version
+        PASS [   1.631s] (66/80) sheltie-runtime::workbook_identity audit_principal_ignores_spoofed_user_env
+        PASS [   0.325s] (67/80) sheltie-runtime::workbook_repo verify_reports_ok_for_untouched_install
+        PASS [   0.342s] (68/80) sheltie-runtime::workbook_repo verify_reports_missing_when_directory_gone
+        PASS [   0.441s] (69/80) sheltie-runtime::workbook_repo unpublished_workbook_add_requires_its_owner_sidecar
+        PASS [   0.345s] (70/80) sheltie-runtime::workbook_repo verify_reports_tampered_after_byte_change
+        PASS [   0.784s] (71/80) sheltie-runtime::workbook_repo remove_rejects_when_active_work_references_version
+        PASS [   0.283s] (72/80) sheltie-runtime::workbook_repo workbook_row_version_must_be_one_manifest_compatible_path_segment
+        PASS [   0.353s] (73/80) sheltie-runtime::workbook_repo workbook_publish_requires_digest_root_before_recovery_io
+        PASS [   0.467s] (74/80) sheltie-runtime::workbook_repo verify_all_when_filter_omitted
+        PASS [   0.979s] (75/80) sheltie-runtime::workbook_repo remove_allows_when_only_terminal_works_reference_version
+        PASS [   0.967s] (76/80) sheltie-runtime::workbook_repo remove_allows_when_other_workbook_shares_version
+        PASS [   1.348s] (77/80) sheltie-runtime::workbook_identity work_readable_after_workbook_removed
+        PASS [   2.316s] (78/80) sheltie-runtime::workbook_digest file_size_limit_is_exactly_32_mib
+        PASS [  17.793s] (79/80) sheltie-runtime::workbook_digest total_size_limit_is_exactly_256_mib
+        PASS [  52.886s] (80/80) sheltie-runtime::workbook_repo add_accepts_files_at_exact_limits
+────────────
+     Summary [  55.555s] 80 tests run: 80 passed, 0 skipped

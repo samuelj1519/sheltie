@@ -181,3 +181,35 @@ fn total_size_limit_is_exactly_256_mib() {
         other => panic!("总量超限应当拒绝：{other:?}"),
     }
 }
+
+// Task: C002-T21
+#[test]
+fn tree_reader_rejects_symlinked_root() {
+    let outer = tempfile::tempdir().unwrap();
+    let real = outer.path().join("real");
+    std::fs::create_dir(&real).unwrap();
+    write(&real, "workbook.toml", b"content");
+    let root_link = outer.path().join("root-link");
+    std::os::unix::fs::symlink(&real, &root_link).unwrap();
+    assert!(matches!(
+        digest_dir_v2(&abs(&root_link)),
+        Err(Error::InvalidRequest { .. })
+    ));
+}
+
+// Task: C002-T21
+#[test]
+fn tree_reader_rejects_symlinked_parent_directory() {
+    let dir = tempfile::tempdir().unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    write(outside.path(), "sentinel.txt", b"unchanged");
+    std::os::unix::fs::symlink(outside.path(), dir.path().join("linked-parent")).unwrap();
+    match digest_dir_v2(&abs(dir.path())) {
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("符号链接"), "{reason}"),
+        other => panic!("应当拒绝目录内的父软链：{other:?}"),
+    }
+    assert_eq!(
+        std::fs::read(outside.path().join("sentinel.txt")).unwrap(),
+        b"unchanged"
+    );
+}

@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+────────────
+ Nextest run ID d7f8c42d-a6ea-4c97-a86f-9987d2af3a65 with nextest profile: default
+    Starting 10 tests across 32 binaries (492 tests skipped)
+        PASS [   0.009s] ( 1/10) sheltie-runtime fsx::tree_tests::alias_normalization_is_limited_to_os_temp_roots
+        PASS [   0.009s] ( 2/10) sheltie-runtime workbook_digest::tree_snapshot_tests::utf8_checker_handles_chunk_boundaries_and_rejects_bad_or_truncated_sequences
+        PASS [   0.009s] ( 3/10) sheltie-runtime fsx::tree_tests::directory_reader_rejects_non_utf8_entry_names
+        PASS [   0.010s] ( 4/10) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_root
+        PASS [   0.010s] ( 5/10) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_parent_directory
+        PASS [   0.011s] ( 6/10) sheltie-runtime workbook_digest::tree_snapshot_tests::digest_and_resource_facts_use_the_bytes_consumed_by_each_reader
+        PASS [   0.019s] ( 7/10) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files
+        PASS [   0.508s] ( 8/10) sheltie-cli::scenario_workbook_lifecycle workbook_add_accepts_current_directory_dot_path
+        PASS [   0.517s] ( 9/10) sheltie-cli::scenario_workbook_lifecycle verify_rejects_installed_workbook_root_symlink
+        PASS [   0.521s] (10/10) sheltie-cli::scenario_workbook_lifecycle start_rejects_installed_workbook_parent_symlink
+────────────
+     Summary [   0.522s] 10 tests run: 10 passed, 492 skipped

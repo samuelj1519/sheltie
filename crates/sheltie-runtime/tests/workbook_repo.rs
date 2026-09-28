@@ -180,6 +180,37 @@ fn add_rejects_when_total_over_256mib() {
     assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
+// Task: C002-T21
+#[test]
+fn total_limit_rejects_before_staging_or_registering_source_files() {
+    let (d, home) = temp_home();
+    let src = d.path().join("over-limit");
+    write_minimal_workbook(&src);
+    let small = small_files_bytes(&src);
+    let max_file = sheltie_runtime::workbook_repo::MAX_FILE_BYTES;
+    let max_total = sheltie_runtime::workbook_repo::MAX_TOTAL_BYTES;
+    for i in 0..7 {
+        std::fs::File::create(src.join(format!("large-{i}.bin")))
+            .unwrap()
+            .set_len(max_file)
+            .unwrap();
+    }
+    let unreadable = src.join("large-0.bin");
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(&unreadable, std::fs::Permissions::from_mode(0o000)).unwrap();
+    std::fs::File::create(src.join("last.bin"))
+        .unwrap()
+        .set_len(max_total - 7 * max_file - small + 1)
+        .unwrap();
+
+    let repo = repo(&home);
+    let result = repo.add(&abs(&src), None);
+    std::fs::set_permissions(&unreadable, std::fs::Permissions::from_mode(0o600)).unwrap();
+    assert!(matches!(result, Err(Error::InvalidRequest { reason }) if reason.contains("总量")));
+    assert!(repo.list().unwrap().is_empty());
+    assert!(!home.pending_dir().as_path().exists());
+}
+
 // Task: T14
 #[test]
 fn load_with_explicit_version_picks_that_version() {

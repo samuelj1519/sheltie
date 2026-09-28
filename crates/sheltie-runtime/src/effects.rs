@@ -686,7 +686,7 @@ fn publish_dir(
     let dst = home.rel(final_path)?;
     match (payload.as_path().exists(), dst.as_path().exists()) {
         (true, false) => {
-            verify_owned_digest(&verify_at, owner, digest)?;
+            verify_owned_digest(home, &verify_at, owner, digest)?;
             if let Some(parent) = dst.as_path().parent() {
                 fsx::ensure_dirs_under(
                     home,
@@ -712,7 +712,7 @@ fn publish_dir(
             } else {
                 dst.join_segment(digest_root)
             };
-            verify_owned_digest(&final_verify, owner, digest)?;
+            verify_owned_digest(home, &final_verify, owner, digest)?;
             Ok(())
         }
         (false, false) => Err(Error::StoreCorrupt {
@@ -725,9 +725,11 @@ fn publish_dir(
 }
 
 /// 核对目录摘要与归属标记（侧车）；不符报 `STORE_CORRUPT`。
-fn verify_owned_digest(dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
-    let got = crate::workbook_digest::digest_dir_v2(dir).map_err(|e| Error::StoreCorrupt {
-        detail: format!("发布原件 {dir} 读不了：{e}"),
+fn verify_owned_digest(home: &Home, dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
+    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir).map_err(|e| {
+        Error::StoreCorrupt {
+            detail: format!("发布原件 {dir} 读不了：{e}"),
+        }
     })?;
     if got.as_str() != digest {
         return Err(Error::StoreCorrupt {
@@ -762,8 +764,10 @@ fn delete_dir(
         .map(|n| n.to_string())
         .unwrap_or_default();
     if fin.as_path().exists() && !digest.is_empty() {
-        let got = crate::workbook_digest::digest_dir_v2(&fin).map_err(|e| Error::StoreCorrupt {
-            detail: format!("删除对象 {fin} 读不了：{e}"),
+        let got = crate::workbook_digest::digest_managed_dir_v2(home, &fin).map_err(|e| {
+            Error::StoreCorrupt {
+                detail: format!("删除对象 {fin} 读不了：{e}"),
+            }
         })?;
         if got.as_str() != digest {
             // 不是登记要删的对象（新生命周期或外部替换）：不删、不覆盖。

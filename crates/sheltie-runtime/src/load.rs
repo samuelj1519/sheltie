@@ -11,8 +11,6 @@ use sheltie_core::work::{
 use crate::error::{Error, Result};
 use crate::fsx::ManagedRelPath;
 use crate::home::Home;
-use crate::observe::build_resource_index;
-use sheltie_core::workbook::parse_manifest;
 
 /// Check path-bearing Work fields against the Work identity before opening any referenced file.
 pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPath> {
@@ -238,16 +236,14 @@ pub(crate) fn compile_frozen_workbook(
     home: &Home,
     frozen: &AbsPath,
     state: &WorkState,
-) -> Result<Graph> {
-    let manifest_text =
-        crate::fsx::open_managed_regular(home, &frozen.join_segment("workbook.toml"))?
-            .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-    let manifest_text = String::from_utf8(manifest_text).map_err(|_| Error::StoreCorrupt {
-        detail: "冻结副本的 workbook.toml 不是 UTF-8".to_string(),
-    })?;
-    let manifest = parse_manifest(&manifest_text).map_err(|error| Error::StoreCorrupt {
-        detail: format!("冻结副本的 workbook.toml 解不开：{error}"),
-    })?;
+) -> Result<crate::workbook_repo::LoadedWorkbook> {
+    let workbook =
+        crate::workbook_repo::WorkbookRepo::load_managed_dir(home, frozen).map_err(|error| {
+            Error::StoreCorrupt {
+                detail: format!("冻结副本读不了：{error}"),
+            }
+        })?;
+    let manifest = &workbook.manifest;
     if manifest.id().as_str() != state.workbook.id.as_str()
         || manifest.version() != state.workbook.version
     {
@@ -255,30 +251,12 @@ pub(crate) fn compile_frozen_workbook(
             detail: "冻结副本manifest身份与WorkState不一致".to_string(),
         });
     }
-    let resources = build_resource_index(frozen).map_err(|error| Error::StoreCorrupt {
-        detail: format!("冻结副本读不了：{error}"),
-    })?;
-    for path in manifest.flows() {
-        let bytes = crate::fsx::open_managed_regular(home, &frozen.join(path))?
-            .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-        let text = String::from_utf8(bytes).map_err(|_| Error::StoreCorrupt {
-            detail: format!("冻结副本的 {path} 不是 UTF-8"),
-        })?;
-        let definition =
-            sheltie_core::flow::parse_flow(&text).map_err(|error| Error::StoreCorrupt {
-                detail: format!("冻结副本的 {path} 解不开：{error}"),
-            })?;
-        if definition.id() == &state.flow {
-            return sheltie_core::flow::compile(&definition, &manifest, &resources).map_err(
-                |error| Error::StoreCorrupt {
-                    detail: format!("冻结副本的图编不过：{error}"),
-                },
-            );
-        }
+    if workbook.flow(state.flow.as_str()).is_none() {
+        return Err(Error::StoreCorrupt {
+            detail: format!("冻结副本里没有Flow {}", state.flow),
+        });
     }
-    Err(Error::StoreCorrupt {
-        detail: format!("冻结副本里没有Flow {}", state.flow),
-    })
+    Ok(workbook)
 }
 
 fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath) -> Result<()> {

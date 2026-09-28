@@ -13,7 +13,7 @@ use rustix::fs::{
 };
 
 use sheltie_core::digest::Sha256Hex;
-use sheltie_core::path::AbsPath;
+use sheltie_core::path::{AbsPath, RelPath};
 
 use crate::error::{Error, Result};
 
@@ -281,6 +281,10 @@ impl ManagedFs {
             current = open_directory_at(&current, segment, &self.display_path(rel))?;
         }
         Ok(current)
+    }
+
+    fn open_tree_root(&self, rel: &ManagedRelPath) -> Result<std::fs::File> {
+        self.open_dir(Some(rel))
     }
 
     fn open_parent(&self, rel: &ManagedRelPath) -> Result<(std::fs::File, String)> {
@@ -661,6 +665,375 @@ impl ExternalReadFile {
     }
 }
 
+/// A directory tree pinned to a no-follow root handle. The first pass records only names and
+/// object identities; content is opened and read only when a caller consumes each entry.
+#[derive(Debug)]
+pub(crate) struct ExternalReadTree {
+    root: AbsPath,
+    root_dir: std::fs::File,
+    directories: std::collections::BTreeMap<String, (u64, u64)>,
+    files: Vec<ExternalTreeFile>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ExternalTreeFileHandle(std::fs::File);
+
+impl Read for ExternalTreeFileHandle {
+    fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+        self.0.read(buffer)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExternalTreeFile {
+    pub(crate) relative: RelPath,
+    pub(crate) bytes: u64,
+    parent: String,
+    name: String,
+    device: u64,
+    inode: u64,
+}
+
+impl ExternalReadTree {
+    pub(crate) fn open(root: &AbsPath) -> Result<Self> {
+        let canonical_root = canonical_external_root(root)?;
+        let fs = ManagedFs::open_root(&canonical_root)?;
+        Self::from_root(canonical_root, fs.root_dir)
+    }
+
+    pub(crate) fn open_managed(home: &crate::home::Home, root: &AbsPath) -> Result<Self> {
+        let relative = ManagedRelPath::new(home.to_rel(root)?)?;
+        let fs = ManagedFs::open_existing(home)?;
+        let root_dir = fs.open_tree_root(&relative)?;
+        Self::from_root(root.clone(), root_dir)
+    }
+
+    fn from_root(root: AbsPath, root_dir: std::fs::File) -> Result<Self> {
+        let meta = root_dir
+            .metadata()
+            .map_err(|e| Error::io(root.as_str(), e))?;
+        let mut tree = Self {
+            root: root.clone(),
+            root_dir,
+            directories: std::collections::BTreeMap::from([(
+                "".to_string(),
+                (meta.dev(), meta.ino()),
+            )]),
+            files: Vec::new(),
+        };
+        let root_fd = tree
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(root.as_str(), e))?;
+        tree.collect(&root_fd, "")?;
+        tree.files.sort_by(|a, b| {
+            a.relative
+                .as_str()
+                .as_bytes()
+                .cmp(b.relative.as_str().as_bytes())
+        });
+        Ok(tree)
+    }
+
+    pub(crate) fn files(&self) -> &[ExternalTreeFile] {
+        &self.files
+    }
+
+    pub(crate) fn validate_sizes(&self) -> Result<u64> {
+        let mut total = 0u64;
+        for file in &self.files {
+            if file.bytes > MAX_FILE_BYTES {
+                return Err(Error::InvalidRequest {
+                    reason: format!(
+                        "{} 下 {} 超过 {MAX_FILE_BYTES} 字节",
+                        self.root, file.relative
+                    ),
+                });
+            }
+            total = total
+                .checked_add(file.bytes)
+                .filter(|sum| *sum <= MAX_TOTAL_BYTES)
+                .ok_or_else(|| Error::InvalidRequest {
+                    reason: format!("{} 总量超过 {MAX_TOTAL_BYTES} 字节", self.root),
+                })?;
+        }
+        Ok(total)
+    }
+
+    pub(crate) fn root(&self) -> &AbsPath {
+        &self.root
+    }
+
+    pub(crate) fn directories(&self) -> impl Iterator<Item = &str> {
+        self.directories
+            .keys()
+            .filter(|path| !path.is_empty())
+            .map(String::as_str)
+    }
+
+    pub(crate) fn validate_unchanged(&self) -> Result<()> {
+        let root_dir = self
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        let mut current = Self {
+            root: self.root.clone(),
+            root_dir,
+            directories: std::collections::BTreeMap::new(),
+            files: Vec::new(),
+        };
+        let root_meta = current
+            .root_dir
+            .metadata()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        current
+            .directories
+            .insert(String::new(), (root_meta.dev(), root_meta.ino()));
+        let current_root = current
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        current.collect(&current_root, "")?;
+        current.files.sort_by(|a, b| {
+            a.relative
+                .as_str()
+                .as_bytes()
+                .cmp(b.relative.as_str().as_bytes())
+        });
+        if current.directories != self.directories || current.files != self.files {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 在读取期间目录项或对象身份改变", self.root),
+            });
+        }
+        Ok(())
+    }
+
+    pub(crate) fn open_file(&self, entry: &ExternalTreeFile) -> Result<ExternalTreeFileHandle> {
+        let index = self.files.binary_search_by(|file| {
+            file.relative
+                .as_str()
+                .as_bytes()
+                .cmp(entry.relative.as_str().as_bytes())
+        });
+        if !index.is_ok_and(|index| self.files[index] == *entry) {
+            return Err(Error::InvalidRequest {
+                reason: "目录树条目不属于此快照".to_string(),
+            });
+        }
+        let mut current = self
+            .root_dir
+            .try_clone()
+            .map_err(|e| Error::io(self.root.as_str(), e))?;
+        let mut prefix = String::new();
+        if !entry.parent.is_empty() {
+            for segment in entry.parent.split('/') {
+                prefix = if prefix.is_empty() {
+                    segment.to_string()
+                } else {
+                    format!("{prefix}/{segment}")
+                };
+                let child =
+                    open_directory_at(&current, segment, &format!("{}/{prefix}", self.root))?;
+                let meta = child
+                    .metadata()
+                    .map_err(|e| Error::io(format!("{}/{prefix}", self.root), e))?;
+                if self.directories.get(&prefix) != Some(&(meta.dev(), meta.ino())) {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{}/{prefix} 在遍历期间被替换", self.root),
+                    });
+                }
+                current = child;
+            }
+        }
+        let display = format!("{}/{}", self.root, entry.relative);
+        let stat = statat(&current, &entry.name, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|e| map_fs_error(&display, e))?;
+        check_regular_stat(&display, &stat)?;
+        if stat.st_dev as u64 != entry.device
+            || stat.st_ino != entry.inode
+            || stat.st_size as u64 != entry.bytes
+        {
+            return Err(Error::InvalidRequest {
+                reason: format!("{display} 在读取前被替换或改变"),
+            });
+        }
+        let fd = openat(
+            &current,
+            &entry.name,
+            OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+            Mode::empty(),
+        )
+        .map_err(|e| map_fs_error(&display, e))?;
+        let opened = fstat(&fd).map_err(|e| map_fs_error(&display, e))?;
+        check_regular_stat(&display, &opened)?;
+        if opened.st_dev as u64 != entry.device
+            || opened.st_ino != entry.inode
+            || opened.st_size as u64 != entry.bytes
+        {
+            return Err(Error::InvalidRequest {
+                reason: format!("{display} 在打开期间被替换或改变"),
+            });
+        }
+        Ok(ExternalTreeFileHandle(std::fs::File::from(fd)))
+    }
+
+    pub(crate) fn read_file(&self, relative: &RelPath, max_bytes: u64) -> Result<Vec<u8>> {
+        let index = self.files.binary_search_by(|file| {
+            file.relative
+                .as_str()
+                .as_bytes()
+                .cmp(relative.as_str().as_bytes())
+        });
+        let entry = index
+            .ok()
+            .and_then(|index| self.files.get(index))
+            .filter(|entry| entry.relative == *relative)
+            .ok_or_else(|| Error::NotFound {
+                what: format!("{}/{}", self.root, relative),
+            })?;
+        if entry.bytes > max_bytes {
+            return Err(Error::InvalidRequest {
+                reason: format!("{}/{} 超过 {max_bytes} 字节", self.root, relative),
+            });
+        }
+        let file = self.open_file(entry)?;
+        let mut bytes = Vec::with_capacity(entry.bytes.min(1 << 20) as usize);
+        file.take(max_bytes + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|e| Error::io(relative.as_str(), e))?;
+        if bytes.len() as u64 != entry.bytes {
+            return Err(Error::InvalidRequest {
+                reason: format!("{}/{} 在读取期间改变", self.root, relative),
+            });
+        }
+        Ok(bytes)
+    }
+
+    fn collect(&mut self, dir: &std::fs::File, relative: &str) -> Result<()> {
+        let display = if relative.is_empty() {
+            self.root.to_string()
+        } else {
+            format!("{}/{relative}", self.root)
+        };
+        let entries = Dir::read_from(dir).map_err(|e| map_fs_error(&display, e))?;
+        for item in entries {
+            let item = item.map_err(|e| Error::io(&display, e.into()))?;
+            let raw_name = item.file_name().to_bytes();
+            if raw_name == b"." || raw_name == b".." {
+                continue;
+            }
+            let name = tree_entry_name(raw_name, &display)?;
+            let child_rel = if relative.is_empty() {
+                name.clone()
+            } else {
+                format!("{relative}/{name}")
+            };
+            let child_display = format!("{}/{child_rel}", self.root);
+            if HOST_METADATA_FILES.contains(&name.as_str()) {
+                return Err(Error::InvalidRequest {
+                    reason: format!(
+                        "{child_display} 是宿主元数据文件（如 Finder 生成），先清理再装"
+                    ),
+                });
+            }
+            let stat = statat(dir, &name, AtFlags::SYMLINK_NOFOLLOW)
+                .map_err(|e| map_fs_error(&child_display, e))?;
+            match FileType::from_raw_mode(stat.st_mode) {
+                FileType::Directory => {
+                    let child = open_directory_at(dir, &name, &child_display)?;
+                    let meta = child.metadata().map_err(|e| Error::io(&child_display, e))?;
+                    self.directories
+                        .insert(child_rel.clone(), (meta.dev(), meta.ino()));
+                    self.collect(&child, &child_rel)?;
+                }
+                FileType::RegularFile => {
+                    check_regular_stat(&child_display, &stat)?;
+                    let relative_path = RelPath::new(child_rel.clone()).map_err(Error::Core)?;
+                    let parent = if relative.is_empty() {
+                        String::new()
+                    } else {
+                        relative.to_string()
+                    };
+                    self.files.push(ExternalTreeFile {
+                        relative: relative_path,
+                        bytes: stat.st_size as u64,
+                        parent,
+                        name,
+                        device: stat.st_dev as u64,
+                        inode: stat.st_ino as u64,
+                    });
+                }
+                FileType::Symlink => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{child_display} 是符号链接"),
+                    });
+                }
+                _ => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{child_display} 不是普通文件或目录"),
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+fn tree_entry_name(raw: &[u8], display: &str) -> Result<String> {
+    std::str::from_utf8(raw)
+        .map(str::to_string)
+        .map_err(|_| Error::InvalidRequest {
+            reason: format!("{display} 下有非UTF-8名称"),
+        })
+}
+
+fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
+    let mut value = crate::request::lexical_abs(root.as_str());
+    for (alias, target) in [("/var/", "/private/var/"), ("/tmp/", "/private/tmp/")] {
+        if !value.starts_with(alias) {
+            continue;
+        }
+        let alias_root = alias.trim_end_matches('/');
+        let target_root = target.trim_end_matches('/');
+        if std::fs::read_link(alias_root).is_ok_and(|link| {
+            let resolved = if link.is_absolute() {
+                link
+            } else {
+                std::path::Path::new("/").join(link)
+            };
+            resolved == std::path::Path::new(target_root)
+        }) {
+            value = format!("{target}{}", &value[alias.len()..]);
+        }
+        break;
+    }
+    AbsPath::new(value).map_err(Error::Core)
+}
+
+#[cfg(test)]
+mod tree_tests {
+    use super::*;
+
+    // Task: C002-T21
+    #[test]
+    fn directory_reader_rejects_non_utf8_entry_names() {
+        assert!(
+            matches!(tree_entry_name(b"bad-\xff", "/source"), Err(Error::InvalidRequest { reason }) if reason.contains("非UTF-8"))
+        );
+        assert_eq!(
+            tree_entry_name(b"valid-name", "/source").unwrap(),
+            "valid-name"
+        );
+    }
+
+    // Task: C002-T21
+    #[test]
+    fn alias_normalization_is_limited_to_os_temp_roots() {
+        let arbitrary = AbsPath::new("/var-link/tree".to_string()).unwrap();
+        assert_eq!(canonical_external_root(&arbitrary).unwrap(), arbitrary);
+    }
+}
+
 pub(crate) fn open_managed_regular(home: &crate::home::Home, path: &AbsPath) -> Result<SafeFile> {
     let rel = ManagedRelPath::new(home.to_rel(path)?)?;
     ManagedFs::open_existing(home)?.open_regular(&rel)
@@ -966,79 +1339,34 @@ pub(crate) fn copy_tree_confined(
     src: &AbsPath,
     dst: &AbsPath,
 ) -> Result<u64> {
+    let tree = ExternalReadTree::open(src)?;
+    let total = tree.validate_sizes()?;
     let fs = ManagedFs::open_existing(home)?;
     let dst = ManagedRelPath::new(home.to_rel(dst)?)?;
     fs.ensure_dir(lock, &dst)?;
-    let mut total = 0u64;
-    copy_tree_into(&fs, lock, src, &dst, &mut total)?;
+    for relative in tree.directories() {
+        fs.ensure_dir(
+            lock,
+            &ManagedRelPath::new(format!("{}/{relative}", dst.as_str()))?,
+        )?;
+    }
+    for entry in tree.files() {
+        let source = tree.open_file(entry)?;
+        let mut content = Vec::with_capacity(entry.bytes.min(1 << 20) as usize);
+        source
+            .take(MAX_FILE_BYTES + 1)
+            .read_to_end(&mut content)
+            .map_err(|e| Error::io(entry.relative.as_str(), e))?;
+        if content.len() as u64 != entry.bytes {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 在复制期间改变", entry.relative),
+            });
+        }
+        let target = ManagedRelPath::new(format!("{}/{}", dst.as_str(), entry.relative.as_str()))?;
+        fs.write_new(lock, &target, &content)?;
+    }
+    tree.validate_unchanged()?;
     Ok(total)
-}
-
-fn copy_tree_into(
-    fs: &ManagedFs,
-    lock: &crate::home::HomeLock,
-    src: &AbsPath,
-    dst: &ManagedRelPath,
-    total: &mut u64,
-) -> Result<()> {
-    let stat = std::fs::symlink_metadata(src.as_path()).map_err(|e| Error::io(src.as_str(), e))?;
-    if stat.file_type().is_symlink() {
-        return Err(Error::InvalidRequest {
-            reason: format!("{src} 是符号链接"),
-        });
-    }
-    if !stat.is_dir() {
-        return Err(Error::InvalidRequest {
-            reason: format!("{src} 不是目录"),
-        });
-    }
-    for entry in std::fs::read_dir(src.as_path()).map_err(|e| Error::io(src.as_str(), e))? {
-        let entry = entry.map_err(|e| Error::io(src.as_str(), e))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let s = src.join_segment(&name);
-        let d = ManagedRelPath::new(format!("{}/{name}", dst.as_str()))?;
-        if HOST_METADATA_FILES.contains(&name.as_str()) {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 是宿主元数据文件（如 Finder 生成），先清理再装"),
-            });
-        }
-        let ft = entry.file_type().map_err(|e| Error::io(s.as_str(), e))?;
-        if ft.is_symlink() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 是符号链接"),
-            });
-        }
-        if ft.is_dir() {
-            fs.ensure_dir(lock, &d)?;
-            copy_tree_into(fs, lock, &s, &d, total)?;
-            continue;
-        }
-        if !ft.is_file() {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 不是普通文件"),
-            });
-        }
-        let from = ExternalReadFile::open_regular(&s)?;
-        let bytes = from.metadata().len();
-        if bytes > MAX_FILE_BYTES {
-            return Err(Error::InvalidRequest {
-                reason: format!("{s} 超过 {MAX_FILE_BYTES} 字节"),
-            });
-        }
-        *total = total
-            .checked_add(bytes)
-            .ok_or_else(|| Error::InvalidRequest {
-                reason: format!("{src} 总量超出上限"),
-            })?;
-        if *total > MAX_TOTAL_BYTES {
-            return Err(Error::InvalidRequest {
-                reason: format!("{src} 总量超过 {MAX_TOTAL_BYTES} 字节"),
-            });
-        }
-        let content = from.read_bounded(MAX_FILE_BYTES)?;
-        fs.write_new(lock, &d, &content)?;
-    }
-    Ok(())
 }
 
 /// 独占创建一个新文件并写入、fsync。目标已存在（含软链占位）即失败。

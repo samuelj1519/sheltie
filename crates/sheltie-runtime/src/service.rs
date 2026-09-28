@@ -72,6 +72,8 @@ struct Loaded {
     state: WorkState,
     revision: u64,
     graph: Graph,
+    resource_files: BTreeMap<sheltie_core::path::RelPath, ObservedFile>,
+    instructions: BTreeMap<sheltie_core::path::RelPath, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -381,7 +383,7 @@ impl WorkService {
             let mut observed = BTreeMap::new();
             for (name, path) in paths {
                 let obs = match path {
-                    Some(p) => observe_optional(&p)?,
+                    Some(p) => observe_loaded_input(&self.home, loaded, node, &name, &p)?,
                     None => None,
                 };
                 observed.insert(name, obs);
@@ -389,12 +391,7 @@ impl WorkService {
             Ok(Command::BeginAttempt {
                 node: node.clone(),
                 observed_inputs: observed,
-                instruction_text: instruction_text_of(
-                    &self.home,
-                    &loaded.state,
-                    &loaded.graph,
-                    node,
-                )?,
+                instruction_text: instruction_text_of(loaded, node)?,
             })
         })
     }
@@ -551,21 +548,29 @@ impl WorkService {
                 detail: format!("Work {work} 的冻结副本 {} 缺失", frozen),
             });
         }
-        let digest =
-            crate::workbook_digest::digest_dir_v2(&frozen).map_err(|e| Error::StoreCorrupt {
-                detail: format!("冻结副本 {} 读不了：{e}", frozen),
-            })?;
-        if digest != row.state.workbook.digest {
+        let workbook = crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state)?;
+        if workbook.digest != row.state.workbook.digest {
             return Err(Error::StoreCorrupt {
-                detail: format!("冻结副本 {} 的摘要 {} 与记录不符", frozen, digest.as_str()),
+                detail: format!(
+                    "冻结副本 {} 的摘要 {} 与记录不符",
+                    frozen,
+                    workbook.digest.as_str()
+                ),
             });
         }
-        let graph = crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state)?;
+        let graph = workbook
+            .flow(row.state.flow.as_str())
+            .map(|(_, graph)| graph.clone())
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("冻结副本里没有Flow {}", row.state.flow),
+            })?;
         crate::load::validate_work_paths(&self.home, &row.state, &graph)?;
         Ok(Loaded {
             state: row.state,
             revision: row.revision,
             graph,
+            resource_files: workbook.resource_files,
+            instructions: workbook.instructions,
         })
     }
 
@@ -1556,29 +1561,64 @@ fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {
 }
 
 /// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。
-fn instruction_text_of(
-    home: &Home,
-    state: &WorkState,
-    graph: &Graph,
-    node: &NodeId,
-) -> Result<String> {
-    let def = graph.node(node).ok_or_else(|| Error::NotFound {
+fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {
+    let def = loaded.graph.node(node).ok_or_else(|| Error::NotFound {
         what: format!("节点 {node}"),
     })?;
     match def.instruction() {
         sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
-        sheltie_core::flow::Instruction::File(rel) => {
-            let path = state.workbook_dir().join(rel);
-            let f = crate::fsx::open_managed_regular(home, &path)?;
-            let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-            String::from_utf8(bytes).map_err(|_| {
-                Error::Core(sheltie_core::Error::WorkbookInvalid {
-                    field: path.to_string(),
-                    reason: "说明书不是 UTF-8".to_string(),
-                })
-            })
-        }
+        sheltie_core::flow::Instruction::File(rel) => loaded
+            .instructions
+            .get(rel)
+            .cloned()
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("冻结副本装入时缺少节点 {node} 的说明书 {rel}"),
+            }),
     }
+}
+
+fn observe_loaded_input(
+    home: &Home,
+    loaded: &Loaded,
+    node: &NodeId,
+    name: &str,
+    path: &AbsPath,
+) -> Result<Option<ObservedFile>> {
+    let declaration = loaded
+        .graph
+        .node(node)
+        .and_then(|definition| {
+            definition
+                .inputs()
+                .iter()
+                .find(|input| input.name() == name)
+        })
+        .ok_or_else(|| Error::StoreCorrupt {
+            detail: format!("冻结Flow缺少节点 {node} 的输入声明 {name}"),
+        })?;
+    if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {
+        if path != &loaded.state.workbook_dir().join(relative) {
+            return Err(Error::StoreCorrupt {
+                detail: format!("资源输入 {name} 的路径与冻结Workbook不一致"),
+            });
+        }
+        return loaded
+            .resource_files
+            .get(relative)
+            .cloned()
+            .map(Some)
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("冻结副本装入时缺少资源 {relative}"),
+            });
+    }
+    if path.as_path().starts_with(home.root().as_path()) {
+        let Some(file) = crate::fsx::open_managed_optional(home, path)? else {
+            return Ok(None);
+        };
+        let (sha256, bytes) = file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+        return Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)));
+    }
+    observe_optional(path)
 }
 
 /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的
