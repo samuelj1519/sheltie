@@ -25,6 +25,16 @@ pub(crate) struct RequestRow {
     pub effects_json: String,
     pub published: bool,
     pub work_id: Option<String>,
+    pub at: String,
+}
+
+/// The single audit record that must own a persisted request.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct AuditRow {
+    pub work_id: String,
+    pub revision: i64,
+    pub command_json: String,
+    pub at: String,
 }
 
 /// `works` 表一行（`state_json` 已解码）。
@@ -175,16 +185,29 @@ impl Store {
         let conn = self.connect()?;
         Ok(conn
             .query_row(
-                "SELECT intent_hash, reply_json, effects_json, published, work_id
+                "SELECT intent_hash, reply_json, effects_json, published, work_id, at
                  FROM requests WHERE request_id = ?1",
                 [request_id],
                 |r| {
+                    let published = r.get::<_, i64>(3)?;
+                    let published = match published {
+                        0 => false,
+                        1 => true,
+                        _ => {
+                            return Err(rusqlite::Error::FromSqlConversionFailure(
+                                3,
+                                rusqlite::types::Type::Integer,
+                                Box::new(std::io::Error::other("published必须为0或1")),
+                            ));
+                        }
+                    };
                     Ok(RequestRow {
                         intent_hash: r.get(0)?,
                         reply_json: r.get(1)?,
                         effects_json: r.get(2)?,
-                        published: r.get::<_, i64>(3)? != 0,
+                        published,
                         work_id: r.get(4)?,
+                        at: r.get(5)?,
                     })
                 },
             )
@@ -196,10 +219,29 @@ impl Store {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
             "SELECT r.request_id, r.effects_json FROM requests r
-             JOIN audit a ON a.request_id = r.request_id
-             WHERE r.published = 0 ORDER BY a.seq",
+             WHERE r.published <> 1
+             ORDER BY COALESCE(
+               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),
+               9223372036854775807
+             ), r.request_id",
         )?;
         let rows = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {
+        let conn = self.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq",
+        )?;
+        let rows = stmt.query_map([request_id], |row| {
+            Ok(AuditRow {
+                work_id: row.get(0)?,
+                revision: row.get(1)?,
+                command_json: row.get(2)?,
+                at: row.get(3)?,
+            })
+        })?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 

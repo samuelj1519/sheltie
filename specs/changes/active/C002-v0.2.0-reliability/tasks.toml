@@ -127,7 +127,7 @@ test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T20]
-files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+files = ["crates/sheltie-core/src/work/command.rs","crates/sheltie-core/src/work/next.rs","crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 

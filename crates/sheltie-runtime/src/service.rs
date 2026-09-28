@@ -13,13 +13,14 @@ use sheltie_core::work::{
     WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_stats, render_stats_json,
     render_status_card, status_card_json,
 };
-use sheltie_core::workbook::parse_manifest;
 
-use crate::effects::{EffectOp, RefJson, decode_effects, encode_effects, execute};
+use crate::effects::{
+    CheckedEffects, EffectOp, RefJson, check_work_effects, decode_effects, encode_effects, execute,
+};
 use crate::error::{Error, Result};
 use crate::fsx::ManagedRelPath;
 use crate::home::Home;
-use crate::observe::{build_resource_index, now, observe_optional, principal};
+use crate::observe::{now, observe_optional, principal};
 use crate::request::{InputValue, RequestIntent};
 use crate::store::{CommitInput, CommitOutcome, Store};
 use crate::workbook_repo::WorkbookRepo;
@@ -73,6 +74,26 @@ struct Loaded {
     graph: Graph,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PersistedResponse {
+    request_id: String,
+    revision: u64,
+    replayed: bool,
+    reply: Reply,
+    data: serde_json::Value,
+    next: Vec<NextOp>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PendingOwner {
+    format: String,
+    internal_id: String,
+    request_id: String,
+    op: String,
+}
+
 /// pending 侧车与暂存容器的创建（存储合同 §3.3）。start/add再建立payload；remove只
 /// 建容器，提交后核验final身份才把它移入payload。
 pub(crate) fn stage_pending(
@@ -94,12 +115,19 @@ pub(crate) fn stage_pending(
     let pending_root = ManagedRelPath::new("pending")?;
     let container = ManagedRelPath::new(format!("pending/{internal_id}"))?;
     let sidecar = ManagedRelPath::new(format!("pending/{internal_id}.owner"))?;
-    let content = format!(
-        "{{\"format\":\"pending/v1\",\"internal_id\":\"{internal_id}\",\"request_id\":\"{request_id}\",\"op\":\"{op}\"}}\n"
-    );
+    let owner = PendingOwner {
+        format: "pending/v1".to_string(),
+        internal_id: internal_id.to_string(),
+        request_id: request_id.to_string(),
+        op: op.to_string(),
+    };
+    let mut content = serde_json::to_vec(&owner).map_err(|error| Error::StoreCorrupt {
+        detail: format!("pending owner序列化失败：{error}"),
+    })?;
+    content.push(b'\n');
     let fs = crate::fsx::ManagedFs::open_existing(home)?;
     fs.ensure_dir(lock, &pending_root)?;
-    fs.write_new(lock, &sidecar, content.as_bytes())?;
+    fs.write_new(lock, &sidecar, &content)?;
     fs.sync_dir_locked(lock, &pending_root)?;
     fs.ensure_dir(lock, &container)?;
     let payload = ManagedRelPath::new(format!("pending/{internal_id}/payload"))?;
@@ -107,6 +135,44 @@ pub(crate) fn stage_pending(
         fs.ensure_dir(lock, &payload)?;
     }
     home.rel(payload.as_str())
+}
+
+pub(crate) fn verify_pending_owner(
+    home: &Home,
+    internal_id: &str,
+    request_id: &str,
+    op: &str,
+) -> Result<()> {
+    let path = ManagedRelPath::new(format!("pending/{internal_id}.owner"))?;
+    let file = crate::fsx::ManagedFs::open_existing(home)?
+        .open_regular(&path)
+        .map_err(|error| Error::StoreCorrupt {
+            detail: format!("pending/{internal_id}.owner缺失或无效：{error}"),
+        })?;
+    let mut bytes = file
+        .read_bounded(4096)
+        .map_err(|error| Error::StoreCorrupt {
+            detail: format!("pending/{internal_id}.owner不可读：{error}"),
+        })?;
+    if bytes.pop() != Some(b'\n') {
+        return Err(Error::StoreCorrupt {
+            detail: format!("pending/{internal_id}.owner缺少结尾换行"),
+        });
+    }
+    let owner: PendingOwner =
+        serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
+            detail: format!("pending/{internal_id}.owner JSON无效：{error}"),
+        })?;
+    if owner.format != "pending/v1"
+        || owner.internal_id != internal_id
+        || owner.request_id != request_id
+        || owner.op != op
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("pending/{internal_id}.owner与Store归属不一致"),
+        });
+    }
+    Ok(())
 }
 
 impl WorkService {
@@ -473,11 +539,12 @@ impl WorkService {
     /// 从受 Store 保护的 pending 原件读取（存储合同 §3.3）。
     fn load(&self, work: &WorkId) -> Result<Loaded> {
         let row = self.store.load_work(work)?;
-        let frozen = row.state.workbook_dir();
+        let work_dir = crate::load::validate_work_root(&self.home, &row.state)?;
+        let frozen = work_dir.join_segment("workbook");
         let frozen = if frozen.as_path().exists() {
             frozen
         } else {
-            self.pending_workbook(work)?.unwrap_or(frozen)
+            self.pending_workbook(work, &row.state)?.unwrap_or(frozen)
         };
         if !frozen.as_path().exists() {
             return Err(Error::StoreCorrupt {
@@ -493,7 +560,8 @@ impl WorkService {
                 detail: format!("冻结副本 {} 的摘要 {} 与记录不符", frozen, digest.as_str()),
             });
         }
-        let graph = self.compile_frozen(&frozen, &row.state)?;
+        let graph = crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state)?;
+        crate::load::validate_work_paths(&self.home, &row.state, &graph)?;
         Ok(Loaded {
             state: row.state,
             revision: row.revision,
@@ -502,62 +570,144 @@ impl WorkService {
     }
 
     /// 未发布 Work 的冻结副本位置：本 Work 的 `publish_dir` 效果指向的 pending 原件。
-    fn pending_workbook(&self, work: &WorkId) -> Result<Option<AbsPath>> {
-        for (_, effects_json) in self.store.unpublished_requests()? {
-            for op in decode_effects(&effects_json)? {
-                if let EffectOp::PublishDir {
+    fn pending_workbook(&self, work: &WorkId, state: &WorkState) -> Result<Option<AbsPath>> {
+        for (request_id, effects_json) in self.store.unpublished_requests()? {
+            let ops = decode_effects(&effects_json)?;
+            let publish = ops.iter().find_map(|op| match op {
+                EffectOp::PublishDir {
                     pending,
+                    final_path,
                     owner,
+                    digest,
                     digest_root,
-                    ..
-                } = op
-                {
-                    if owner == format!("work:{work}") {
-                        let base = self.home.rel(&pending)?.join_segment(&digest_root);
-                        if base.as_path().exists() {
-                            return Ok(Some(base));
-                        }
-                    }
+                } if owner == &format!("work:{work}") => {
+                    Some((pending, final_path, owner, digest, digest_root))
                 }
-            }
-        }
-        Ok(None)
-    }
-
-    /// 从冻结副本解析 manifest 与 Flow，取出本 Work 的图。
-    fn compile_frozen(&self, frozen: &AbsPath, state: &WorkState) -> Result<Graph> {
-        let manifest_text =
-            crate::fsx::open_managed_regular(&self.home, &frozen.join_segment("workbook.toml"))?
-                .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-        let manifest_text = String::from_utf8(manifest_text).map_err(|_| Error::StoreCorrupt {
-            detail: "冻结副本的 workbook.toml 不是 UTF-8".to_string(),
-        })?;
-        let manifest = parse_manifest(&manifest_text).map_err(|e| Error::StoreCorrupt {
-            detail: format!("冻结副本的 workbook.toml 解不开：{e}"),
-        })?;
-        let res = build_resource_index(frozen).map_err(|e| Error::StoreCorrupt {
-            detail: format!("冻结副本读不了：{e}"),
-        })?;
-        for path in manifest.flows() {
-            let text = crate::fsx::open_managed_regular(&self.home, &frozen.join(path))?
-                .read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-            let text = String::from_utf8(text).map_err(|_| Error::StoreCorrupt {
-                detail: format!("冻结副本的 {path} 不是 UTF-8"),
-            })?;
-            let def = sheltie_core::flow::parse_flow(&text).map_err(|e| Error::StoreCorrupt {
-                detail: format!("冻结副本的 {path} 解不开：{e}"),
-            })?;
-            if def.id() == &state.flow {
-                return sheltie_core::flow::compile(&def, &manifest, &res).map_err(|e| {
-                    Error::StoreCorrupt {
-                        detail: format!("冻结副本的图编不过：{e}"),
-                    }
+                _ => None,
+            });
+            let Some((pending, final_path, owner, digest, digest_root)) = publish else {
+                continue;
+            };
+            if ops.len() != 2
+                || ops.iter().filter(|op| matches!(op, EffectOp::PublishDir { .. })).count() != 1
+                || ops.iter().filter(|op| matches!(op, EffectOp::RefreshStatusCard { work_id } if work_id == work.as_str())).count() != 1
+                || final_path != &format!("works/{work}")
+                || owner != &format!("work:{work}")
+                || digest != state.workbook.digest.as_str()
+                || digest_root != "workbook"
+            {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("Work {work} 的未发布Start效果归属不一致"),
                 });
             }
+            let segments = pending.split('/').collect::<Vec<_>>();
+            if segments.len() != 3
+                || segments[0] != "pending"
+                || segments[2] != "payload"
+                || uuid::Uuid::parse_str(segments[1]).is_err()
+            {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("Work {work} 的pending路径无效"),
+                });
+            }
+            let request =
+                self.store
+                    .inspect_request(&request_id)?
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("未发布Start {request_id} 缺少requests行"),
+                    })?;
+            if request.work_id.as_deref() != Some(work.as_str()) {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("未发布Start {request_id} 的Work归属不一致"),
+                });
+            }
+            Sha256Hex::new(request.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 的intent_hash无效：{error}"),
+            })?;
+            let audits = self.store.audit_rows(&request_id)?;
+            let [audit] = audits.as_slice() else {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
+                });
+            };
+            let response: PersistedResponse =
+                serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
+                })?;
+            let command: Command =
+                serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
+                })?;
+            let valid_start = match (&command, &response.reply) {
+                (
+                    Command::Start {
+                        work_id: command_work,
+                        name,
+                        workbook,
+                        flow,
+                        work_dir,
+                        inputs,
+                    },
+                    Reply::Started {
+                        work_id: reply_work,
+                        work_dir: reply_dir,
+                        requires,
+                    },
+                ) => {
+                    command_work == work
+                        && reply_work == work
+                        && name == &state.name
+                        && workbook == &state.workbook
+                        && flow == &state.flow
+                        && inputs == &state.inputs
+                        && work_dir == &state.work_dir
+                        && reply_dir == &state.work_dir
+                        && response.request_id == request_id
+                        && response.revision == 1
+                        && !response.replayed
+                        && audit.work_id == work.as_str()
+                        && audit.revision == 1
+                        && audit.at == request.at
+                        && response
+                            .data
+                            .get("work_id")
+                            .and_then(serde_json::Value::as_str)
+                            == Some(work.as_str())
+                        && response
+                            .data
+                            .get("work_dir")
+                            .and_then(serde_json::Value::as_str)
+                            == Some(state.work_dir.as_str())
+                        && response
+                            .data
+                            .get("name")
+                            .and_then(serde_json::Value::as_str)
+                            == Some(state.name.as_str())
+                        && response
+                            .data
+                            .get("flow")
+                            .and_then(serde_json::Value::as_str)
+                            == Some(state.flow.as_str())
+                        && response.data.get("workbook")
+                            == Some(&serde_json::json!({
+                                "id": state.workbook.id.as_str(),
+                                "version": state.workbook.version.as_str(),
+                                "digest": state.workbook.digest.as_str(),
+                            }))
+                        && response.data.get("requires")
+                            == serde_json::to_value(requires).ok().as_ref()
+                }
+                _ => false,
+            };
+            if !valid_start {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
+                });
+            }
+            verify_pending_owner(&self.home, segments[1], &request_id, "start_work")?;
+            return Ok(Some(self.home.rel(pending)?.join_segment("workbook")));
         }
-        Err(Error::StoreCorrupt {
-            detail: format!("冻结副本里没有 Flow {}", state.flow),
-        })
+        Ok(None)
     }
 
     /// Work 写操作的公共流程：无锁预检查重 → 锁 → 恢复 → 锁内重核 → load → 观察 →
@@ -637,10 +787,20 @@ impl WorkService {
 
     /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
     /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
-    fn recover(&self, lock: &crate::home::HomeLock) -> Result<()> {
-        for (request_id, effects_json) in self.store.unpublished_requests()? {
-            let ops = decode_effects(&effects_json)?;
-            if let Err(e) = execute(&self.home, lock, &ops, true) {
+    pub(crate) fn recover(&self, lock: &crate::home::HomeLock) -> Result<()> {
+        for (request_id, _) in self.store.unpublished_requests()? {
+            let row =
+                self.store
+                    .inspect_request(&request_id)?
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("未发布请求 {request_id} 缺少requests行"),
+                    })?;
+            let effects = if row.work_id.is_some() {
+                self.load_checked_request(&request_id)?.2
+            } else {
+                self.repo().checked_effects_for(&request_id)?.1
+            };
+            if let Err(e) = execute(&self.home, lock, &effects, true) {
                 return Err(Error::EffectPending {
                     committed: false,
                     request_id: String::new(),
@@ -649,15 +809,15 @@ impl WorkService {
                     original: None,
                 });
             }
-            self.refresh_cards_of(&ops, lock)?;
+            self.refresh_cards_of(&effects, lock)?;
             self.store.mark_published(&request_id)?;
         }
         Ok(())
     }
 
     /// 效果涉及的状态卡从**最新**状态重生成（不回退历史版本，§6）。
-    fn refresh_cards_of(&self, ops: &[EffectOp], lock: &crate::home::HomeLock) -> Result<()> {
-        for op in ops {
+    fn refresh_cards_of(&self, ops: &CheckedEffects, lock: &crate::home::HomeLock) -> Result<()> {
+        for op in ops.as_slice() {
             if let EffectOp::RefreshStatusCard { work_id } = op {
                 let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
                     detail: format!("效果里的 work_id {work_id} 不合法：{e}"),
@@ -677,8 +837,8 @@ impl WorkService {
 
     /// COMMIT 与效果发布之间被杀的请求由 `recover` 兜底；正常路径在这里发布并标记。
     fn finish_request(&self, request_id: &str, lock: &crate::home::HomeLock) -> Result<()> {
-        if let Some(row) = self.store.inspect_request(request_id)? {
-            let ops = decode_effects(&row.effects_json)?;
+        if self.store.inspect_request(request_id)?.is_some() {
+            let (row, _, ops) = self.load_checked_request(request_id)?;
             if !row.published {
                 if let Err(e) = execute(&self.home, lock, &ops, true) {
                     return Err(Error::EffectPending {
@@ -697,6 +857,118 @@ impl WorkService {
             }
         }
         Ok(())
+    }
+
+    fn load_checked_request(
+        &self,
+        request_id: &str,
+    ) -> Result<(crate::store::read::RequestRow, Response, CheckedEffects)> {
+        let row = self
+            .store
+            .inspect_request(request_id)?
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("缺少请求 {request_id} 的持久记录"),
+            })?;
+        Sha256Hex::new(row.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
+            detail: format!("请求 {request_id} 的intent_hash不合法：{error}"),
+        })?;
+        let audits = self.store.audit_rows(request_id)?;
+        let [audit] = audits.as_slice() else {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "请求 {request_id} 应有且仅有一条audit，实际 {} 条",
+                    audits.len()
+                ),
+            });
+        };
+        let work = row
+            .work_id
+            .as_deref()
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("Work请求 {request_id} 缺少requests.work_id"),
+            })
+            .and_then(|value| {
+                WorkId::parse(value).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 的work_id不合法：{error}"),
+                })
+            })?;
+        if audit.work_id != work.as_str() || row.at != audit.at {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的audit归属/时间与requests行不一致"),
+            });
+        }
+        let audit_revision = u64::try_from(audit.revision)
+            .ok()
+            .filter(|revision| *revision > 0)
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的audit.revision无效"),
+            })?;
+        let persisted: PersistedResponse =
+            serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的reply_json解不开：{error}"),
+            })?;
+        if persisted.request_id != request_id
+            || persisted.revision != audit_revision
+            || persisted.replayed
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的snapshot身份/revision与audit不一致"),
+            });
+        }
+        let snapshot = Response {
+            request_id: persisted.request_id,
+            revision: persisted.revision,
+            replayed: persisted.replayed,
+            reply: persisted.reply,
+            data: persisted.data,
+            next: persisted.next,
+        };
+        let state = self.load(&work)?;
+        if state.revision != audit_revision {
+            // A Work's later revisions are valid; audit ties to the original request, while
+            // the current state remains the checked owner for path validation.
+            if state.revision < audit_revision {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 的audit revision超出Work当前revision"),
+                });
+            }
+        }
+        let command: Command =
+            serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
+            })?;
+        validate_command_owner(
+            request_id,
+            &work,
+            &state.state,
+            &state.graph,
+            &command,
+            &snapshot,
+        )?;
+        let ops = decode_effects(&row.effects_json)?;
+        let checked = check_work_effects(
+            &self.home,
+            &state.state,
+            &state.graph,
+            &command,
+            &snapshot.reply,
+            ops,
+        )?;
+        for effect in checked.as_slice() {
+            if !row.published {
+                if let EffectOp::PublishDir { pending, .. } = effect {
+                    let internal_id =
+                        pending
+                            .split('/')
+                            .nth(1)
+                            .ok_or_else(|| Error::StoreCorrupt {
+                                detail: format!("请求 {request_id} 的pending owner路径无效"),
+                            })?;
+                    verify_pending_owner(&self.home, internal_id, request_id, "start_work")?;
+                }
+            }
+        }
+        Ok((row, snapshot, checked))
     }
 
     /// `decide` + 单事务提交 + 快照。`data` 在提交前组装，重放原样返回（GF-15）。
@@ -769,33 +1041,301 @@ impl WorkService {
         reply_json: String,
         lock: &crate::home::HomeLock,
     ) -> Result<Response> {
-        let mut resp: Response =
-            serde_json::from_str(&reply_json).map_err(|e| Error::StoreCorrupt {
-                detail: format!("requests 表里的响应解不开：{e}"),
-            })?;
+        let (row, mut resp, ops) = self.load_checked_request(&request_id)?;
+        if row.reply_json != reply_json {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的历史响应与requests记录不一致"),
+            });
+        }
         resp.request_id = request_id.clone();
         resp.replayed = true;
         // 完成未发布效果（若有）；已完成的只核对历史文件。
-        if let Some(row) = self.store.inspect_request(&request_id)? {
-            let ops = decode_effects(&row.effects_json)?;
-            if !row.published {
-                if let Err(e) = execute(&self.home, lock, &ops, true) {
-                    return Err(Error::EffectPending {
-                        committed: true,
-                        request_id,
-                        pending_request_id: None,
-                        detail: e.to_string(),
-                        original: Some(reply_json),
-                    });
-                }
-                self.refresh_cards_of(&ops, lock)?;
-                self.store.mark_published(&request_id)?;
-            } else {
-                execute(&self.home, lock, &ops, false)?;
+        if !row.published {
+            if let Err(e) = execute(&self.home, lock, &ops, true) {
+                return Err(Error::EffectPending {
+                    committed: true,
+                    request_id,
+                    pending_request_id: None,
+                    detail: e.to_string(),
+                    original: Some(reply_json),
+                });
             }
+            self.refresh_cards_of(&ops, lock)?;
+            self.store.mark_published(&request_id)?;
+        } else {
+            execute(&self.home, lock, &ops, false)?;
         }
         Ok(resp)
     }
+}
+
+fn validate_command_owner(
+    request_id: &str,
+    work_id: &WorkId,
+    state: &WorkState,
+    graph: &Graph,
+    command: &Command,
+    snapshot: &Response,
+) -> Result<()> {
+    let valid = match (command, &snapshot.reply) {
+        (
+            Command::Start {
+                work_id: command_work,
+                name,
+                workbook,
+                flow,
+                work_dir,
+                inputs,
+            },
+            Reply::Started {
+                work_id: reply_work,
+                work_dir: reply_dir,
+                requires,
+            },
+        ) => {
+            snapshot_data_has_exact_fields(
+                &snapshot.data,
+                &[
+                    "work_id", "name", "workbook", "flow", "work_dir", "requires",
+                ],
+            ) && command_work == work_id
+                && reply_work == work_id
+                && name == &state.name
+                && workbook == &state.workbook
+                && flow == &state.flow
+                && work_dir == &state.work_dir
+                && inputs == &state.inputs
+                && reply_dir == &state.work_dir
+                && snapshot
+                    .data
+                    .get("work_id")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(work_id.as_str())
+                && snapshot
+                    .data
+                    .get("work_dir")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(state.work_dir.as_str())
+                && snapshot
+                    .data
+                    .get("name")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(state.name.as_str())
+                && snapshot
+                    .data
+                    .get("flow")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(state.flow.as_str())
+                && snapshot.data.get("workbook")
+                    == Some(&serde_json::json!({
+                        "id": state.workbook.id.as_str(),
+                        "version": state.workbook.version.as_str(),
+                        "digest": state.workbook.digest.as_str(),
+                    }))
+                && snapshot.data.get("requires") == serde_json::to_value(requires).ok().as_ref()
+        }
+        (
+            Command::BeginAttempt { node, .. },
+            Reply::AttemptBegun {
+                attempt,
+                brief_path,
+                output_dir,
+                inputs,
+                outputs,
+                requires,
+            },
+        ) => {
+            let Some(record) = state.attempt(attempt) else {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
+                });
+            };
+            let expected_outputs = sheltie_core::work::output_paths_for(state, graph, attempt)
+                .map_err(|error| Error::StoreCorrupt {
+                    detail: format!("Work {work_id} 的冻结输出定义无效：{error}"),
+                })?;
+            let expected_inputs = record
+                .inputs
+                .iter()
+                .map(|(name, reference)| {
+                    (
+                        name.clone(),
+                        reference.as_ref().map(|item| item.path.clone()),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>();
+            let expected_inputs_data = serde_json::to_value(inputs).ok();
+            let expected_outputs_data = serde_json::to_value(outputs).ok();
+            let expected_requires_data = serde_json::to_value(requires).ok();
+            let attempt_text = attempt.to_string();
+            snapshot_data_has_exact_fields(
+                &snapshot.data,
+                &[
+                    "attempt",
+                    "node",
+                    "occurrence",
+                    "retry",
+                    "brief_path",
+                    "output_dir",
+                    "inputs",
+                    "outputs",
+                    "requires",
+                ],
+            ) && record.id.node == *node
+                && brief_path == &state.attempt_dir(attempt).join_segment("brief.md")
+                && output_dir
+                    == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))
+                && inputs == &expected_inputs
+                && outputs == &expected_outputs
+                && snapshot
+                    .data
+                    .get("attempt")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(attempt_text.as_str())
+                && snapshot
+                    .data
+                    .get("node")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(node.as_str())
+                && snapshot
+                    .data
+                    .get("occurrence")
+                    .and_then(serde_json::Value::as_u64)
+                    == Some(u64::from(attempt.occurrence))
+                && snapshot
+                    .data
+                    .get("retry")
+                    .and_then(serde_json::Value::as_u64)
+                    == Some(u64::from(attempt.retry))
+                && snapshot
+                    .data
+                    .get("brief_path")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(brief_path.as_str())
+                && snapshot
+                    .data
+                    .get("output_dir")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(output_dir.as_str())
+                && snapshot.data.get("inputs") == expected_inputs_data.as_ref()
+                && snapshot.data.get("outputs") == expected_outputs_data.as_ref()
+                && snapshot.data.get("requires") == expected_requires_data.as_ref()
+        }
+        (
+            Command::SubmitAttempt { attempt, .. },
+            Reply::AttemptSubmitted {
+                attempt: reply_attempt,
+                outputs,
+            },
+        ) => {
+            let Some(record) = state.attempt(attempt) else {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
+                });
+            };
+            let attempt_text = attempt.to_string();
+            let output_data = serde_json::to_value(outputs).ok();
+            snapshot_data_has_exact_fields(&snapshot.data, &["attempt", "outputs", "work_status"])
+                && reply_attempt == attempt
+                && record.status == sheltie_core::work::AttemptStatus::Succeeded
+                && outputs == &record.outputs
+                && snapshot
+                    .data
+                    .get("attempt")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(attempt_text.as_str())
+                && snapshot.data.get("outputs") == output_data.as_ref()
+                && snapshot
+                    .data
+                    .get("work_status")
+                    .cloned()
+                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+        }
+        (
+            Command::FailAttempt { attempt, .. },
+            Reply::AttemptFailed {
+                attempt: reply_attempt,
+            },
+        ) => state.attempt(attempt).is_some_and(|record| {
+            let attempt_text = attempt.to_string();
+            snapshot_data_has_exact_fields(&snapshot.data, &["attempt", "work_status"])
+                && reply_attempt == attempt
+                && record.status == sheltie_core::work::AttemptStatus::Failed
+                && snapshot
+                    .data
+                    .get("attempt")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(attempt_text.as_str())
+                && snapshot
+                    .data
+                    .get("work_status")
+                    .cloned()
+                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+        }),
+        (
+            Command::ApproveGate { node },
+            Reply::GateApproved {
+                node: reply_node,
+                occurrence,
+            },
+        ) => state
+            .approvals
+            .iter()
+            .find(|approval| approval.node == *node && approval.occurrence == *occurrence)
+            .is_some_and(|approval| {
+                snapshot_data_has_exact_fields(
+                    &snapshot.data,
+                    &["node", "occurrence", "by", "at", "work_status"],
+                ) && reply_node == node
+                    && snapshot
+                        .data
+                        .get("node")
+                        .and_then(serde_json::Value::as_str)
+                        == Some(node.as_str())
+                    && snapshot
+                        .data
+                        .get("occurrence")
+                        .and_then(serde_json::Value::as_u64)
+                        == Some(u64::from(*occurrence))
+                    && snapshot.data.get("by").and_then(serde_json::Value::as_str)
+                        == Some(approval.by.0.as_str())
+                    && snapshot.data.get("at").and_then(serde_json::Value::as_str)
+                        == Some(approval.at.as_str())
+                    && snapshot
+                        .data
+                        .get("work_status")
+                        .cloned()
+                        .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+            }),
+        (Command::Cancel, Reply::Cancelled) => {
+            snapshot_data_has_exact_fields(&snapshot.data, &["work_id", "work_status"])
+                && state.status == WorkStatus::Cancelled
+                && snapshot
+                    .data
+                    .get("work_id")
+                    .and_then(serde_json::Value::as_str)
+                    == Some(work_id.as_str())
+                && snapshot
+                    .data
+                    .get("work_status")
+                    .cloned()
+                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+        }
+        _ => false,
+    };
+    if !valid {
+        return Err(Error::StoreCorrupt {
+            detail: format!("请求 {request_id} 的audit命令与Work {work_id}状态不一致"),
+        });
+    }
+    Ok(())
+}
+
+fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {
+    let Some(object) = data.as_object() else {
+        return false;
+    };
+    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))
 }
 
 /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。
@@ -837,8 +1377,8 @@ fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Resu
     {
         let _ = brief_path;
         let mut dirs: Vec<String> = Vec::new();
-        let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| {
-            let rel = home.to_rel(abs).unwrap_or_default();
+        let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| -> Result<()> {
+            let rel = home.to_rel(abs)?;
             let mut acc = String::new();
             for seg in rel.split('/') {
                 if seg.is_empty() {
@@ -851,14 +1391,15 @@ fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Resu
                 };
                 dirs.push(acc.clone());
             }
+            Ok(())
         };
-        push_chain(output_dir, &mut dirs);
+        push_chain(output_dir, &mut dirs)?;
         for p in outputs.values() {
             if let Some(parent) = p.as_path().parent() {
                 push_chain(
                     &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
                     &mut dirs,
-                );
+                )?;
             }
         }
         // 引擎生成文件（brief.md、engine/stats.json）的父目录也在骨架里。
@@ -868,7 +1409,7 @@ fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Resu
                     push_chain(
                         &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
                         &mut dirs,
-                    );
+                    )?;
                 }
             }
         }
