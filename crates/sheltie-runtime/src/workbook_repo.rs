@@ -9,7 +9,7 @@ use sheltie_core::workbook::parse_manifest;
 
 use crate::effects::{EffectOp, decode_effects, encode_effects, execute};
 use crate::error::{Error, Result};
-use crate::fsx::ManagedRelPath;
+use crate::fsx::{ExternalReadTree, MAX_FILE_BYTES as FS_MAX_FILE_BYTES, ManagedRelPath};
 use crate::home::Home;
 use crate::observe::build_resource_index;
 use crate::request::{RequestIntent, lexical_abs};
@@ -101,6 +101,8 @@ pub struct LoadedWorkbook {
     pub flows: Vec<(FlowDef, Graph)>,
     pub dir: AbsPath,
     pub digest: Sha256Hex,
+    pub resource_files: std::collections::BTreeMap<RelPath, sheltie_core::work::ObservedFile>,
+    pub instructions: std::collections::BTreeMap<RelPath, String>,
 }
 
 impl LoadedWorkbook {
@@ -464,20 +466,85 @@ impl WorkbookRepo {
 
     /// 从已装目录（或任意目录，用于冻结副本）重新解析并编译。
     pub fn load_dir(&self, dir: &AbsPath) -> Result<LoadedWorkbook> {
-        let res = build_resource_index(dir)?;
-        let manifest = parse_manifest(&read_utf8(&dir.join(&RelPath::new("workbook.toml")?))?)?;
-        let mut flows = Vec::new();
+        Self::load_tree(&ExternalReadTree::open_managed(&self.home, dir)?)
+    }
+
+    pub(crate) fn load_managed_dir(home: &Home, dir: &AbsPath) -> Result<LoadedWorkbook> {
+        Self::load_tree(&ExternalReadTree::open_managed(home, dir)?)
+    }
+
+    fn load_tree(tree: &ExternalReadTree) -> Result<LoadedWorkbook> {
+        tree.validate_sizes()?;
+        let manifest_path = RelPath::new("workbook.toml")?;
+        let manifest_bytes = tree.read_file(&manifest_path, FS_MAX_FILE_BYTES)?;
+        let mut captured =
+            std::collections::BTreeMap::from([(manifest_path, manifest_bytes.clone())]);
+        let manifest = parse_manifest(&read_tree_utf8(&manifest_bytes, "workbook.toml")?)?;
+        let mut definitions = Vec::new();
         for path in manifest.flows() {
-            let def = parse_flow(&read_utf8(&dir.join(path))?)?;
-            let graph = compile(&def, &manifest, &res)?;
-            flows.push((def, graph));
+            let bytes = tree.read_file(path, FS_MAX_FILE_BYTES)?;
+            let def = parse_flow(&read_tree_utf8(&bytes, path.as_str())?)?;
+            captured.insert(path.clone(), bytes);
+            definitions.push(def);
         }
-        let digest = Self::digest_dir(dir)?;
+        let mut instruction_paths = std::collections::BTreeSet::new();
+        for definition in &definitions {
+            for node in definition.nodes() {
+                if let sheltie_core::flow::Instruction::File(path) = node.instruction() {
+                    instruction_paths.insert(path.clone());
+                }
+            }
+        }
+        for path in &instruction_paths {
+            if !captured.contains_key(path) {
+                captured.insert(path.clone(), tree.read_file(path, FS_MAX_FILE_BYTES)?);
+            }
+        }
+        let (digest, res, hashes) = crate::workbook_digest::inspect_tree_v2(tree, &captured)?;
+        let flows = definitions
+            .into_iter()
+            .map(|def| {
+                let graph = compile(&def, &manifest, &res)?;
+                Ok((def, graph))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let resource_files = hashes
+            .into_iter()
+            .map(|(relative, sha256)| {
+                let bytes = res
+                    .files
+                    .get(&relative)
+                    .map(|meta| meta.bytes)
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("ResourceIndex 缺少已摘要文件 {relative}"),
+                    })?;
+                Ok((
+                    relative.clone(),
+                    sheltie_core::work::ObservedFile::new(
+                        tree.root().join(&relative),
+                        sha256,
+                        bytes,
+                    ),
+                ))
+            })
+            .collect::<Result<_>>()?;
+        let instructions = instruction_paths
+            .into_iter()
+            .map(|path| {
+                let bytes = captured.get(&path).ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("冻结副本缺少说明书 {path}"),
+                })?;
+                let text = read_tree_utf8(bytes, path.as_str())?;
+                Ok((path, text))
+            })
+            .collect::<Result<_>>()?;
         Ok(LoadedWorkbook {
             manifest,
             flows,
-            dir: dir.clone(),
+            dir: tree.root().clone(),
             digest,
+            resource_files,
+            instructions,
         })
     }
 
@@ -751,15 +818,8 @@ impl WorkbookRepo {
 }
 
 /// 读一个必须存在的 UTF-8 文本文件：句柄核对身份并限额读取，失败按 `WORKBOOK_INVALID` 报。
-fn read_utf8(path: &AbsPath) -> Result<String> {
-    let f = crate::fsx::ExternalReadFile::open_regular(path)?;
-    let bytes = f.read_bounded(MAX_FILE_BYTES).map_err(|e| {
-        Error::Core(sheltie_core::Error::WorkbookInvalid {
-            field: path.to_string(),
-            reason: e.to_string(),
-        })
-    })?;
-    String::from_utf8(bytes).map_err(|_| {
+fn read_tree_utf8(bytes: &[u8], path: &str) -> Result<String> {
+    String::from_utf8(bytes.to_vec()).map_err(|_| {
         Error::Core(sheltie_core::Error::WorkbookInvalid {
             field: path.to_string(),
             reason: "不是 UTF-8".to_string(),

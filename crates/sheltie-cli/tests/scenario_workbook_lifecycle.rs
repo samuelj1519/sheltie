@@ -98,3 +98,82 @@ fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
     ]);
     assert_eq!(v["data"]["workbook"]["version"], "2.0.0");
 }
+
+// Task: C002-T21
+#[cfg(unix)]
+#[test]
+fn verify_rejects_installed_workbook_root_symlink() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let installed = env.workbook_dir("two-step", "1.0.0");
+    let saved = env.dir.path().join("original-workbook");
+    let before = std::fs::read(installed.join("workbook.toml")).unwrap();
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(
+        installed.parent().unwrap(),
+        std::fs::Permissions::from_mode(0o700),
+    )
+    .unwrap();
+    std::fs::set_permissions(&installed, std::fs::Permissions::from_mode(0o700)).unwrap();
+    std::fs::rename(&installed, &saved).unwrap();
+    std::os::unix::fs::symlink(&saved, &installed).unwrap();
+
+    let (_error, exit) = env.fail(&["workbook", "verify", "two-step@1.0.0"]);
+    assert_eq!(exit, 1);
+    assert_eq!(std::fs::read(saved.join("workbook.toml")).unwrap(), before);
+}
+
+// Task: C002-T21
+#[cfg(unix)]
+#[test]
+fn start_rejects_installed_workbook_parent_symlink() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let installed_id_dir = env
+        .workbook_dir("two-step", "1.0.0")
+        .parent()
+        .unwrap()
+        .to_path_buf();
+    let original = env.dir.path().join("original-workbook-id-dir");
+    let sentinel = installed_id_dir.join("1.0.0/workbook.toml");
+    let sentinel_bytes = std::fs::read(sentinel).unwrap();
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(&installed_id_dir, std::fs::Permissions::from_mode(0o700)).unwrap();
+    std::fs::rename(&installed_id_dir, &original).unwrap();
+    std::os::unix::fs::symlink(&original, &installed_id_dir).unwrap();
+
+    let (_error, exit) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(exit, 1);
+    assert_eq!(
+        std::fs::read(original.join("1.0.0/workbook.toml")).unwrap(),
+        sentinel_bytes
+    );
+}
+
+// Task: C002-T21
+#[test]
+fn workbook_add_accepts_current_directory_dot_path() {
+    let env = Env::new();
+    let source = example_dir("two-step");
+    let output = env
+        .cmd(&["workbook", "add", "."])
+        .current_dir(&source)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "`workbook add .` 应接受词法点段：{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(value["data"]["id"], "two-step");
+}
