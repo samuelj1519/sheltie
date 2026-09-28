@@ -90,13 +90,27 @@ fn add_rejects_non_regular_file() {
 #[test]
 fn add_failure_leaves_no_staging_and_no_row() {
     let (d, home) = temp_home();
+    let repo = repo(&home);
+    repo.add(&abs(&example_dir("two-step")), None).unwrap();
+    let before_rows = repo.list().unwrap().len();
     let src = copy_example("two-step", d.path());
     std::fs::write(src.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
-    let r = repo(&home);
-    assert!(r.add(&abs(&src), None).is_err());
+    assert!(repo.add(&abs(&src), None).is_err());
     let staging = std::path::PathBuf::from(home.staging_dir().as_str());
     assert!(!staging.exists() || std::fs::read_dir(staging).unwrap().next().is_none());
-    assert!(r.list().unwrap().is_empty());
+    assert_eq!(repo.list().unwrap().len(), before_rows, "失败不得插入新行");
+}
+
+// Task: C002-T24
+#[test]
+fn invalid_add_on_new_home_does_not_create_store_or_lock() {
+    let (d, home) = temp_home();
+    let source = copy_example("two-step", d.path());
+    std::fs::write(source.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
+    assert!(repo(&home).add(&abs(&source), None).is_err());
+    assert!(!home.store_path().as_path().exists());
+    assert!(!home.lock_path().as_path().exists());
+    assert!(!home.staging_dir().as_path().exists());
 }
 
 // Task: T14
@@ -207,7 +221,8 @@ fn total_limit_rejects_before_staging_or_registering_source_files() {
     let result = repo.add(&abs(&src), None);
     std::fs::set_permissions(&unreadable, std::fs::Permissions::from_mode(0o600)).unwrap();
     assert!(matches!(result, Err(Error::InvalidRequest { reason }) if reason.contains("总量")));
-    assert!(repo.list().unwrap().is_empty());
+    assert!(!home.store_path().as_path().exists());
+    assert!(!home.lock_path().as_path().exists());
     assert!(!home.pending_dir().as_path().exists());
 }
 

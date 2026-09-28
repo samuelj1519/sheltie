@@ -5,7 +5,6 @@ use std::collections::BTreeMap;
 use serde_json::json;
 use sheltie_core::ids::WorkId;
 use sheltie_core::work::Reply;
-use sheltie_runtime::store::OpenMode;
 use sheltie_runtime::{Response, WorkService};
 
 use crate::cli::{WorkCmd, parse_input_arg, parse_workbook_spec};
@@ -25,16 +24,17 @@ pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
 }
 
 /// 打开存储并建服务。只读或读写由调用方定。
-pub(crate) fn service(ctx: &Ctx, mode: OpenMode) -> Result<WorkService, Outcome> {
-    let store = ctx
-        .store(mode)
-        .map_err(|e| crate::error_map::to_outcome(&e))?;
-    Ok(WorkService::new(ctx.home.clone(), store))
+pub(crate) fn service(ctx: &Ctx) -> WorkService {
+    WorkService::new(ctx.home.clone())
 }
 
 /// `<work>` 前缀解析；零个或多个匹配都是错误Outcome。
-pub(crate) fn resolve(svc: &WorkService, work: &str) -> Result<WorkId, Outcome> {
-    svc.resolve_work(work)
+pub(crate) fn resolve(
+    svc: &WorkService,
+    work: &str,
+    request_id: Option<&str>,
+) -> Result<WorkId, Outcome> {
+    svc.resolve_work_for_request(work, request_id)
         .map_err(|e| crate::error_map::to_outcome(&e))
 }
 
@@ -56,18 +56,7 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
     };
     // 只读打开做预检（GF-30）：新管理根连 store.db 都没有，说明没有任何已装
     // Workbook，按 NOT_FOUND 拒绝，不为失败的 start 建库；写路径由 runtime 重开读写库。
-    let svc = match ctx.store(OpenMode::ReadOnly) {
-        Ok(store) => WorkService::new(ctx.home.clone(), store),
-        Err(sheltie_runtime::Error::NotFound { .. }) => {
-            return output::err(
-                sheltie_core::ErrorCode::NotFound,
-                format!("Workbook {workbook_id} 不存在：管理根里没有任何已装 Workbook"),
-                Some(json!({ "id": workbook_id })),
-                Vec::new(),
-            );
-        }
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
+    let svc = WorkService::new(ctx.home.clone());
     let rt_args = sheltie_runtime::StartArgs {
         workbook_id,
         version,
@@ -101,10 +90,7 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
 
 /// `work list`。
 fn list(ctx: &Ctx) -> Outcome {
-    let svc = match service(ctx, OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
+    let svc = service(ctx);
     let rows = match svc.list() {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -129,11 +115,8 @@ fn list(ctx: &Ctx) -> Outcome {
 
 /// `work status`：文本模式直接打状态卡。
 fn status(ctx: &Ctx, work: &str) -> Outcome {
-    let svc = match service(ctx, OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
         Ok(w) => w,
         Err(out) => return out,
     };
@@ -147,11 +130,8 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
 
 /// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。
 fn stats(ctx: &Ctx, work: &str) -> Outcome {
-    let svc = match service(ctx, OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
         Ok(w) => w,
         Err(out) => return out,
     };
@@ -169,11 +149,8 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
 
 /// `work cancel`。
 fn cancel(ctx: &Ctx, work: &str) -> Outcome {
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
         Ok(w) => w,
         Err(out) => return out,
     };

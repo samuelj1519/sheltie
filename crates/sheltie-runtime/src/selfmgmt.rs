@@ -105,18 +105,22 @@ pub fn version_info(home: &Home) -> VersionInfo {
 /// 已存在且字节相同 → `already_installed = true`。不写任何 shell 配置，PATH 提示
 /// 只是输出文本（存储合同 §9、协议 §3）。写动词持管理根写锁（§2.2）。
 pub fn install(home: &Home) -> Result<InstallOutcome> {
-    let lock = home.acquire_lock()?;
+    match crate::store::Store::open_for_home(home, crate::store::OpenMode::ReadOnly) {
+        Ok(store) => drop(store),
+        Err(Error::NotFound { .. }) => {}
+        Err(error) => return Err(error),
+    }
     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
-    let bin = home.bin_dir();
-    let target = bin.join_segment("sheltie");
-    // 建管理根的 store.db（协议 self install：复制之外还要建库）；
-    // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
-    crate::store::Store::open(&home.store_path(), crate::store::OpenMode::ReadWrite)?;
-    // 当前可执行文件是根外对象，只读取观察；限额读一次，幂等比较与落位都用这份字节。
     let exe = crate::fsx::ExternalReadFile::open_regular(
         &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
     )?;
     let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    let session = crate::session::WriteSession::open_or_create(home)?;
+    let lock = session.lock;
+    let bin = home.bin_dir();
+    let target = bin.join_segment("sheltie");
+    // 建管理根的 store.db（协议 self install：复制之外还要建库）；
+    // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
     // 缺失走独占新建；已存在对象必须是受管普通单链接文件，不能把软链当成
     // “不同版本”覆盖。相同字节保持幂等。
     let old = crate::fsx::open_managed_optional(home, &target)?;

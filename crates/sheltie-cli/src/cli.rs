@@ -167,8 +167,7 @@ pub fn parse_input_arg(
         if path.is_empty() {
             return Err(format!("--input 的值 {arg:?} 的 @ 后要有路径"));
         }
-        let abs = sheltie_runtime::request::lexical_abs(&sheltie_cli_abs(path));
-        check_at_file(&abs)?;
+        let abs = sheltie_runtime::request::lexical_abs(path);
         sheltie_runtime::request::InputValue::AtFile { path: abs }
     } else {
         sheltie_runtime::request::InputValue::Literal {
@@ -176,26 +175,6 @@ pub fn parse_input_arg(
         }
     };
     Ok((key.to_string(), source))
-}
-
-/// `@file` 路径的**存在性**预检（不读内容；内容由 runtime 在重放查重之后读）。
-/// 读不了按参数错误（退出码 2）处理（协议 work start 第 3 步）。
-fn check_at_file(abs: &str) -> Result<(), String> {
-    match std::fs::symlink_metadata(abs) {
-        Ok(meta) if meta.is_file() => Ok(()),
-        Ok(_) => Err(format!("读不了 {abs}：不是普通文件")),
-        Err(e) => Err(format!("读不了 {abs}：{e}")),
-    }
-}
-
-/// CLI 侧把相对路径按当前目录展开成绝对（词法）。
-fn sheltie_cli_abs(path: &str) -> String {
-    if std::path::Path::new(path).is_absolute() {
-        path.to_string()
-    } else {
-        let cwd = std::env::current_dir().unwrap_or_default();
-        cwd.join(path).to_string_lossy().into_owned()
-    }
 }
 
 /// `<id>@<version>` 解析。没有 `@` 时版本为 `None`。
@@ -221,12 +200,36 @@ pub fn parse_text_arg(value: &str) -> Result<sheltie_runtime::request::InputValu
         if path.is_empty() {
             return Err("@ 后要有路径".to_string());
         }
-        let abs = sheltie_runtime::request::lexical_abs(&sheltie_cli_abs(path));
-        check_at_file(&abs)?;
+        let abs = sheltie_runtime::request::lexical_abs(path);
         Ok(sheltie_runtime::request::InputValue::AtFile { path: abs })
     } else {
         Ok(sheltie_runtime::request::InputValue::Literal {
             text: value.to_string(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Task: C002-T24
+    #[test]
+    fn input_file_arguments_are_lexical_and_do_not_probe_the_filesystem() {
+        let missing = "/this/path/does/not/exist/sheltie-input";
+        let (key, input) = parse_input_arg(&format!("topic=@{missing}")).unwrap();
+        assert_eq!(key, "topic");
+        assert_eq!(
+            input,
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
+        assert_eq!(
+            parse_text_arg(&format!("@{missing}")).unwrap(),
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
     }
 }

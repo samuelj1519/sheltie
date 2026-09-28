@@ -41,7 +41,8 @@ impl Env {
         let out = self.cmd(args).output().unwrap();
         assert!(
             out.status.success(),
-            "命令失败：{args:?}\nstdout: {}\nstderr: {}",
+            "命令失败：{args:?}\nexit: {:?}\nstdout: {}\nstderr: {}",
+            out.status.code(),
             String::from_utf8_lossy(&out.stdout),
             String::from_utf8_lossy(&out.stderr)
         );

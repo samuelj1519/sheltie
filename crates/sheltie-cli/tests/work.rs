@@ -352,7 +352,7 @@ fn failed_start_on_new_home_creates_nothing() {
 
 // Task: C002-T02
 #[test]
-fn start_param_errors_exit_2_before_any_storage_access() {
+fn start_parameter_syntax_errors_precede_storage_and_bad_files_are_invalid_requests() {
     let env = Env::new();
 
     // `--input` 的值不是 k=v：参数错误，退出码 2。
@@ -369,8 +369,26 @@ fn start_param_errors_exit_2_before_any_storage_access() {
     assert_eq!(code, 2);
     assert_eq!(v["error"]["code"], "INVALID_REQUEST");
 
-    // `@file` 读不了：退出码 2。
-    let (v, code) = env.fail(&[
+    // 缺 `--workbook` 必填参数：clap 退出码 2。
+    let out = env
+        .cmd(&["work", "start", "--flow", "default", "--input", "topic=x"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+}
+
+// Task: C002-T24
+#[test]
+fn invalid_new_input_file_is_runtime_invalid_request_with_path_and_reason() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let outside = tempfile::tempdir().unwrap();
+    let external_file = outside.path().join("source.txt");
+    std::fs::write(&external_file, b"external input sentinel").unwrap();
+    let linked_parent = env.dir.path().join("linked-parent");
+    std::os::unix::fs::symlink(outside.path(), &linked_parent).unwrap();
+    let linked_input = format!("topic=@{}", linked_parent.join("source.txt").display());
+    let (response, code) = env.fail(&[
         "work",
         "start",
         "--workbook",
@@ -378,17 +396,50 @@ fn start_param_errors_exit_2_before_any_storage_access() {
         "--flow",
         "default",
         "--input",
-        "topic=@/definitely/not/here.txt",
+        &linked_input,
     ]);
     assert_eq!(code, 2);
-    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+    assert_eq!(response["error"]["code"], "INVALID_REQUEST");
+    assert!(
+        response["error"]["detail"]["reason"]
+            .as_str()
+            .unwrap()
+            .contains("符号链接")
+    );
+    assert_eq!(
+        std::fs::read(external_file).unwrap(),
+        b"external input sentinel"
+    );
 
-    // 缺 `--workbook` 必填参数：clap 退出码 2。
-    let out = env
-        .cmd(&["work", "start", "--flow", "default", "--input", "topic=x"])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(2));
+    let missing = env.dir.path().join("missing-input.txt");
+    let input = format!("topic=@{}", missing.display());
+    let (response, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        &input,
+    ]);
+    assert_eq!(code, 2);
+    assert_eq!(response["error"]["code"], "INVALID_REQUEST");
+    assert!(
+        response["error"]["detail"]["path"]
+            .as_str()
+            .unwrap()
+            .contains("missing-input.txt")
+    );
+    assert!(response["error"]["detail"]["reason"].is_string());
+    assert!(
+        env.ok(&["work", "list"])
+            .get("data")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
 }
 
 // Task: C002-T10

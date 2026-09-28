@@ -16,12 +16,13 @@ pub mod observe;
 pub mod request;
 pub mod selfmgmt;
 pub mod service;
-pub mod store;
+mod session;
+mod store;
 pub mod workbook_digest;
 pub mod workbook_repo;
 
 pub use error::{Error, Result};
 pub use home::Home;
 pub use service::{Response, StartArgs, WorkService, WorkSummary};
-pub use store::{Store, WorkbookRow};
+pub use store::WorkbookRow;
 pub use workbook_repo::{Added, LoadedWorkbook, Removed, VerifyRow, VerifyStatus, WorkbookRepo};

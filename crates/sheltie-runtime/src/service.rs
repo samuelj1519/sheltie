@@ -192,20 +192,20 @@ pub(crate) fn verify_pending_owner(
 }
 
 impl WorkService {
-    pub fn new(home: Home, store: Store) -> Self {
+    pub fn new(home: Home) -> Self {
+        let store = Store::deferred_for_home(&home, crate::store::OpenMode::ReadOnly);
         Self { home, store }
     }
 
-    fn rw(&self) -> Result<Store> {
-        Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)
+    pub(crate) fn with_store(home: Home, store: Store) -> Self {
+        Self { home, store }
     }
 
     /// `work start`（协议 §3）。无副作用预检（GF-30，T02）之后进入写路径：
     /// 锁内 staging → 复制核验 → 序号 → decide → 事务 → 发布。
     pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
-        // 意图构造先于一切读取：名字规范化、输入值与选择器原样进意图。
-        WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
+        // 意图构造先于任何目标解析或来源文件读取；省略状态与原参数保持固定。
         let intent = RequestIntent::StartWork {
             workbook: args.workbook_id.clone(),
             version: args.version.clone(),
@@ -217,43 +217,54 @@ impl WorkService {
         // ── 无锁预检：只读识别已有 Store，查可重放请求 ──
         let mut inputs: Option<BTreeMap<String, String>> = None;
         let mut replay_hit = false;
-        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
-            if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
-                if hash != intent.hash().as_str() {
-                    return Err(Error::RequestConflict {
-                        request_id: request_id.clone(),
+        let preflight_store =
+            match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly) {
+                Ok(ro) => {
+                    if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
+                        if hash != intent.hash().as_str() {
+                            return Err(Error::RequestConflict {
+                                request_id: request_id.clone(),
+                            });
+                        }
+                        // 命中：不读取当前 Workbook / @file（O04），效果核对在写锁内做。
+                        replay_hit = true;
+                    }
+                    Some(ro)
+                }
+                Err(Error::NotFound { .. }) => {
+                    return Err(Error::NotFound {
+                        what: format!("Workbook {}", args.workbook_id),
                     });
                 }
-                // 命中：不读取当前 Workbook / @file（O04），效果核对在写锁内做。
-                replay_hit = true;
-            }
-        }
+                Err(error) => return Err(error),
+            };
 
         if !replay_hit {
+            WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
             // 预检继续：装入 Workbook（含登记摘要核对）与 Flow，校验起始输入键。
-            let ro_store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly)
-                .map(|s| WorkService::new(self.home.clone(), s))
-                .map_err(|_| Error::NotFound {
-                    what: format!("Workbook {}", args.workbook_id),
-                })?;
+            let ro_store = WorkService::with_store(
+                self.home.clone(),
+                preflight_store.ok_or_else(|| Error::StoreCorrupt {
+                    detail: "未命中重放且缺少只读Store预检结果".to_string(),
+                })?,
+            );
             let wb = ro_store
                 .repo()
                 .load(&args.workbook_id, args.version.as_deref())?;
             let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
                 what: format!("Flow {}", args.flow),
             })?;
+            sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
             // @file 内容在重放查重之后读取（协议 work start 第 3 步），写路径复用
             // 同一份观察，不读第二次。
             let values = materialize_inputs(&args.inputs)?;
-            sheltie_core::work::validate_start_inputs(&flow.1, values.keys())?;
             inputs = Some(values);
         }
 
         // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
-        let lock = self.home.acquire_lock()?;
-        let store = self.rw()?;
-        let svc = Self::new(self.home.clone(), store);
-        svc.recover(&lock)?;
+        let session = crate::session::WriteSession::open_existing(&self.home)?;
+        let svc = Self::with_store(self.home.clone(), session.store.clone());
+        svc.recover(&session.lock)?;
         // 锁内重核请求表（预检后可能有并发写者）。
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
@@ -261,7 +272,7 @@ impl WorkService {
                     request_id: request_id.clone(),
                 });
             }
-            return svc.replay(request_id, row.reply_json, &lock);
+            return svc.replay(request_id, row.reply_json, &session.lock);
         }
         let wb = svc
             .repo()
@@ -269,12 +280,12 @@ impl WorkService {
         let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
             what: format!("Flow {}", args.flow),
         })?;
-        // 锁内重核输入键（受并发影响的前置事实）。
+        // 锁内再次核输入键，避免预检后的定义被替换。
+        sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
         let inputs = match inputs {
             Some(values) => values,
             None => materialize_inputs(&args.inputs)?,
         };
-        sheltie_core::work::validate_start_inputs(&flow.1, inputs.keys())?;
 
         let ctx = Context {
             now: now(),
@@ -282,9 +293,15 @@ impl WorkService {
         };
         // works/ 的祖先软链在序号分配与任何物化之前核对（O01）：软链把根重定义到
         // 根外时，这里拒绝而不是等到发布效果。
-        crate::fsx::ensure_dirs_under(&self.home, &lock, &self.home.works_dir())?;
+        crate::fsx::ensure_dirs_under(&self.home, &session.lock, &self.home.works_dir())?;
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
-        let payload = stage_pending(&self.home, &lock, &internal_id, &request_id, "start_work")?;
+        let payload = stage_pending(
+            &self.home,
+            &session.lock,
+            &internal_id,
+            &request_id,
+            "start_work",
+        )?;
 
         let day = ctx.now.day().to_string();
         let seq = svc.store.allocate_seq(&day)?;
@@ -295,7 +312,7 @@ impl WorkService {
         // payload/workbook：本 Work 的冻结定义。复制后对最终副本重新 parse/compile
         // 并核对身份与摘要（GF-17；存储合同 §5.4）。
         let frozen = payload.join_segment("workbook");
-        WorkbookRepo::copy_confined(&self.home, &lock, &wb.dir, &frozen)?;
+        WorkbookRepo::copy_confined(&self.home, &session.lock, &wb.dir, &frozen)?;
         let copied = svc.repo().load_dir(&frozen)?;
         if copied.manifest.id() != wb.manifest.id()
             || copied.manifest.version() != wb.manifest.version()
@@ -320,15 +337,15 @@ impl WorkService {
             .ok_or_else(|| Error::NotFound {
                 what: format!("Flow {}", args.flow),
             })?;
-        crate::fsx::set_tree_readonly_confined(&self.home, &lock, &frozen)?;
+        crate::fsx::set_tree_readonly_confined(&self.home, &session.lock, &frozen)?;
 
         // payload/start-inputs/<key>：物化在 pending，**记录最终路径**（发布后生效）。
         let inputs_dir = payload.join_segment("start-inputs");
-        crate::fsx::ensure_dirs_under(&self.home, &lock, &inputs_dir)?;
+        crate::fsx::ensure_dirs_under(&self.home, &session.lock, &inputs_dir)?;
         let mut input_refs = BTreeMap::new();
         for (key, value) in &inputs {
             let staged = Home::confine(&inputs_dir, key)?;
-            crate::fsx::write_new_file(&self.home, &lock, &staged, value.as_bytes())?;
+            crate::fsx::write_new_file(&self.home, &session.lock, &staged, value.as_bytes())?;
             let final_path = sheltie_core::work::start_input_path(&work_dir, key);
             input_refs.insert(
                 key.clone(),
@@ -374,10 +391,10 @@ impl WorkService {
             effects,
             &ctx,
             &cmd,
-            &lock,
+            &session.lock,
         )?;
         // COMMIT 后发布；随后清理本操作的空容器与侧车。
-        svc.finish_request(&request_id, &lock)?;
+        svc.finish_request(&request_id, &session.lock)?;
         Ok(resp)
     }
 
@@ -423,8 +440,8 @@ impl WorkService {
             attempt: attempt.clone(),
             summary: summary.clone(),
         };
-        let summary_text = materialize_summary(summary)?;
         self.run_command(work, &intent, request_id, &|loaded| {
+            let summary_text = materialize_summary(summary)?;
             let paths =
                 sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
             let mut observed = BTreeMap::new();
@@ -439,7 +456,7 @@ impl WorkService {
             Ok(PreparedCommand {
                 command: Command::SubmitAttempt {
                     attempt: attempt.clone(),
-                    summary: summary_text.clone(),
+                    summary: summary_text,
                     observed_outputs: observed,
                 },
                 observed_outputs: safe_files,
@@ -460,11 +477,11 @@ impl WorkService {
             attempt: attempt.clone(),
             reason: reason.clone(),
         };
-        let reason_text = materialize_summary(reason)?;
         self.run_command(work, &intent, request_id, &|_| {
+            let reason_text = materialize_summary(reason)?;
             Ok(PreparedCommand::plain(Command::FailAttempt {
                 attempt: attempt.clone(),
-                reason: reason_text.clone(),
+                reason: reason_text,
             }))
         })
     }
@@ -553,8 +570,35 @@ impl WorkService {
         }
     }
 
+    /// 请求已存在时以 requests.work_id 为目标权威；只有不匹配历史 Work 的前缀才冲突。
+    pub fn resolve_work_for_request(
+        &self,
+        prefix: &str,
+        request_id: Option<&str>,
+    ) -> Result<WorkId> {
+        if let Some(request_id) = request_id {
+            if let Some(stored_work) = self.store.lookup_request_work(request_id)? {
+                let Some(stored_work) = stored_work else {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.to_string(),
+                    });
+                };
+                let work = WorkId::parse(&stored_work).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("requests.work_id {stored_work:?} 无效：{error}"),
+                })?;
+                if !work.as_str().starts_with(prefix) {
+                    return Err(Error::RequestConflict {
+                        request_id: request_id.to_string(),
+                    });
+                }
+                return Ok(work);
+            }
+        }
+        self.resolve_work(prefix)
+    }
+
     fn repo(&self) -> WorkbookRepo {
-        WorkbookRepo::new(self.home.clone(), self.store.clone())
+        WorkbookRepo::with_store(self.home.clone(), self.store.clone())
     }
 
     /// 从冻结副本加载状态与图。副本缺失或摘要不符报 `StoreCorrupt`；未发布的 Work
@@ -752,7 +796,7 @@ impl WorkService {
         // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
         // 前缀；效果未完成的请求不在这里恢复，交给写路径。
         {
-            let ro = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly)?;
+            let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly)?;
             if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
                 if hash != intent.hash().as_str() {
                     return Err(Error::RequestConflict {
@@ -764,17 +808,16 @@ impl WorkService {
         }
 
         // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
-        let lock = self.home.acquire_lock()?;
-        let store = self.rw()?;
-        let svc = Self::new(self.home.clone(), store);
-        svc.recover(&lock)?;
+        let session = crate::session::WriteSession::open_existing(&self.home)?;
+        let svc = Self::with_store(self.home.clone(), session.store.clone());
+        svc.recover(&session.lock)?;
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
             }
-            return svc.replay(request_id, row.reply_json, &lock);
+            return svc.replay(request_id, row.reply_json, &session.lock);
         }
 
         let ctx = Context {
@@ -800,7 +843,7 @@ impl WorkService {
                 effects,
                 &ctx,
                 cmd,
-                &lock,
+                &session.lock,
             ) {
                 Ok(resp) => {
                     if matches!(cmd, Command::SubmitAttempt { .. }) {
@@ -812,7 +855,7 @@ impl WorkService {
                     }
                     svc.finish_request_with_observed(
                         &request_id,
-                        &lock,
+                        &session.lock,
                         &prepared.observed_outputs,
                     )?;
                     return Ok(resp);
@@ -1408,12 +1451,22 @@ fn materialize_summary(value: &InputValue) -> Result<String> {
     match value {
         InputValue::Literal { text } => Ok(text.clone()),
         InputValue::AtFile { path } => {
-            let f = crate::fsx::ExternalReadFile::open_regular(
+            let f = crate::fsx::ExternalReadFile::open_regular_no_follow(
                 &AbsPath::new(path.clone()).map_err(Error::Core)?,
-            )?;
-            let bytes = f.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
-            String::from_utf8(bytes).map_err(|_| Error::InvalidRequest {
-                reason: format!("读不了 {path}：不是 UTF-8"),
+            )
+            .map_err(|error| Error::InputFileInvalid {
+                path: path.clone(),
+                reason: error.to_string(),
+            })?;
+            let bytes = f
+                .read_bounded(crate::fsx::MAX_FILE_BYTES)
+                .map_err(|error| Error::InputFileInvalid {
+                    path: path.clone(),
+                    reason: error.to_string(),
+                })?;
+            String::from_utf8(bytes).map_err(|_| Error::InputFileInvalid {
+                path: path.clone(),
+                reason: "不是 UTF-8".to_string(),
             })
         }
     }
@@ -1769,5 +1822,34 @@ mod pending_stage_tests {
         let lock = home.acquire_lock().unwrap();
         let payload = stage_pending(&home, &lock, "internal-2", "request-2", "start_work").unwrap();
         assert!(std::path::Path::new(payload.as_str()).is_dir());
+    }
+}
+
+#[cfg(test)]
+mod input_file_tests {
+    use super::materialize_summary;
+    use crate::error::Error;
+    use crate::request::InputValue;
+
+    // Task: C002-T24
+    #[test]
+    fn input_file_accepts_exact_32_mib_and_rejects_one_more() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("input.txt");
+        let bytes = vec![b'x'; crate::fsx::MAX_FILE_BYTES as usize];
+        std::fs::write(&path, &bytes).unwrap();
+        let path = path.to_string_lossy().into_owned();
+        let input = InputValue::AtFile { path: path.clone() };
+        assert_eq!(
+            materialize_summary(&input).unwrap().len() as u64,
+            crate::fsx::MAX_FILE_BYTES
+        );
+
+        let over = vec![b'x'; crate::fsx::MAX_FILE_BYTES as usize + 1];
+        std::fs::write(&path, over).unwrap();
+        assert!(matches!(
+            materialize_summary(&input),
+            Err(Error::InputFileInvalid { path: rejected, .. }) if rejected == path
+        ));
     }
 }

@@ -6,8 +6,7 @@ pub mod self_cmd;
 pub mod work;
 pub mod workbook;
 
-use sheltie_runtime::store::OpenMode;
-use sheltie_runtime::{Home, Store};
+use sheltie_runtime::Home;
 
 use crate::cli::{Cli, Group, WorkCmd, WorkbookCmd};
 use crate::output::{self, Outcome};
@@ -17,13 +16,6 @@ pub struct Ctx {
     pub home: Home,
     pub json: bool,
     pub request_id: Option<String>,
-}
-
-impl Ctx {
-    /// 按只读或读写打开存储。
-    pub fn store(&self, mode: OpenMode) -> sheltie_runtime::Result<Store> {
-        Store::open(&self.home.store_path(), mode)
-    }
 }
 
 /// 解析管理根、分派到命令组、打印、返回退出码。

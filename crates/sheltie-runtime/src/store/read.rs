@@ -87,22 +87,14 @@ impl Store {
     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。
     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {
         let conn = self.connect()?;
-        let mut stmt = conn.prepare(
-            "SELECT work_id FROM works WHERE work_id LIKE ?1 ESCAPE '\\'
-                 ORDER BY work_id",
-        )?;
-        // 前缀里的 LIKE 通配符按字面匹配。
-        let pattern = format!(
-            "{}%",
-            prefix
-                .replace('\\', "\\\\")
-                .replace('%', "\\%")
-                .replace('_', "\\_")
-        );
-        let rows = stmt.query_map([pattern], |r| r.get::<_, String>(0))?;
+        let mut stmt = conn.prepare("SELECT work_id FROM works ORDER BY work_id")?;
+        let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;
         let mut out = Vec::new();
         for row in rows {
             let work_id = row?;
+            if !work_id.starts_with(prefix) {
+                continue;
+            }
             out.push(WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {
                 detail: format!("works 表的 work_id {work_id:?} 解不开：{e}"),
             })?);
@@ -132,6 +124,7 @@ impl Store {
     }
 
     /// 插入一行 Workbook。主键冲突报 `WorkbookExists`。独立事务（Workbook 入库不经 `commit`）。
+    #[cfg(test)]
     pub fn insert_workbook(&self, row: &WorkbookRow) -> Result<()> {
         let conn = self.connect()?;
         conn.execute(
@@ -153,21 +146,6 @@ impl Store {
         Ok(())
     }
 
-    /// 删一行 Workbook。不存在报 `NotFound`。
-    pub fn delete_workbook(&self, id: &str, version: &str) -> Result<()> {
-        let conn = self.connect()?;
-        let n = conn.execute(
-            "DELETE FROM workbooks WHERE id = ?1 AND version = ?2",
-            rusqlite::params![id, version],
-        )?;
-        if n == 0 {
-            return Err(Error::NotFound {
-                what: format!("Workbook {id}@{version}"),
-            });
-        }
-        Ok(())
-    }
-
     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。
     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {
         let conn = self.connect()?;
@@ -176,6 +154,17 @@ impl Store {
                 "SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1",
                 [request_id],
                 |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?)
+    }
+
+    pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT work_id FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get(0),
             )
             .optional()?)
     }

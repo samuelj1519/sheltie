@@ -10,7 +10,11 @@ pub fn to_outcome(err: &Error) -> Outcome {
     let code = err.code();
     let message = err.to_string();
     let detail = detail_of(err);
-    crate::output::err(code, message, detail, Vec::new())
+    let mut outcome = crate::output::err(code, message, detail, Vec::new());
+    if matches!(err, Error::InputFileInvalid { .. }) {
+        outcome.exit_code = 2;
+    }
+    outcome
 }
 
 /// 每个变体的定位字段。协议 §7 没写 `detail` 的变体也尽量带上定位信息，方便人看。
@@ -107,6 +111,7 @@ fn detail_of(err: &Error) -> Option<serde_json::Value> {
         }
         Error::Io { path, source } => json!({ "path": path, "error": source.to_string() }),
         Error::RecoveryRequired { path, detail } => json!({ "path": path, "error": detail }),
+        Error::InputFileInvalid { path, reason } => json!({ "path": path, "reason": reason }),
         Error::InvalidRequest { reason } => json!({ "reason": reason }),
     };
     Some(detail)

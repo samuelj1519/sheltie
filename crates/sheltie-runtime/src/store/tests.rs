@@ -1,13 +1,22 @@
 //! T13：SQLite 存储的结构校验、事务、去重、CAS、序号。
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-mod common;
-
-use common::*;
+use super::Store;
+use crate::store::{CommitInput, CommitOutcome, OpenMode, SCHEMA_VERSION};
+use crate::{Error, Home};
+use sheltie_core::path::AbsPath;
 use sheltie_core::testkit::{self, Fixture};
 use sheltie_core::work::{Principal, Timestamp};
-use sheltie_runtime::store::{CommitInput, CommitOutcome, OpenMode, SCHEMA_VERSION};
-use sheltie_runtime::{Error, Store};
+
+fn temp_home() -> (tempfile::TempDir, Home) {
+    let dir = tempfile::tempdir().unwrap();
+    let home = Home::at(AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap());
+    (dir, home)
+}
+
+fn open_rw(home: &Home) -> Store {
+    Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap()
+}
 
 fn state_fixture() -> sheltie_core::work::WorkState {
     Fixture::two_step()
@@ -112,6 +121,97 @@ fn open_readonly_on_existing_db_succeeds() {
     assert!(ro.list_works().unwrap().is_empty());
 }
 
+// Task: C002-T24
+#[test]
+fn readonly_store_open_rejects_a_symlink_without_touching_its_target() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let (_dir, home) = temp_home();
+    open_rw(&home);
+    let external = tempfile::tempdir().unwrap();
+    let sentinel = external.path().join("store-target.db");
+    std::fs::write(&sentinel, b"external store sentinel").unwrap();
+    let mode = std::fs::metadata(&sentinel).unwrap().permissions().mode();
+    std::fs::remove_file(home.store_path().as_path()).unwrap();
+    std::os::unix::fs::symlink(&sentinel, home.store_path().as_path()).unwrap();
+
+    assert!(matches!(
+        Store::open(&home.store_path(), OpenMode::ReadOnly),
+        Err(Error::InvalidRequest { .. })
+    ));
+    assert_eq!(
+        std::fs::read(&sentinel).unwrap(),
+        b"external store sentinel"
+    );
+    assert_eq!(
+        std::fs::metadata(&sentinel).unwrap().permissions().mode(),
+        mode
+    );
+}
+
+// Task: C002-T24
+#[test]
+fn lazy_readonly_store_rejects_a_hardlinked_database() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let (_dir, home) = temp_home();
+    open_rw(&home);
+    let bytes_before = std::fs::read(home.store_path().as_path()).unwrap();
+    let external = tempfile::tempdir().unwrap();
+    let alias = external.path().join("store-alias.db");
+    std::fs::hard_link(home.store_path().as_path(), &alias).unwrap();
+    let mode = std::fs::metadata(&alias).unwrap().permissions().mode();
+
+    let error = crate::WorkService::new(home.clone()).list().unwrap_err();
+    assert!(matches!(error, Error::InvalidRequest { .. }), "{error:?}");
+    assert_eq!(std::fs::read(&alias).unwrap(), bytes_before);
+    assert_eq!(
+        std::fs::metadata(&alias).unwrap().permissions().mode(),
+        mode
+    );
+}
+
+// Task: C002-T24
+#[test]
+fn lazy_readonly_store_rejects_a_wal_sidecar_symlink_before_sqlite_open() {
+    let (_dir, home) = temp_home();
+    open_rw(&home);
+    let external = tempfile::tempdir().unwrap();
+    let sentinel = external.path().join("wal-sentinel");
+    std::fs::write(&sentinel, b"external wal sentinel").unwrap();
+    std::os::unix::fs::symlink(
+        &sentinel,
+        home.root().join_segment("store.db-wal").as_path(),
+    )
+    .unwrap();
+
+    let error = crate::WorkService::new(home.clone()).list().unwrap_err();
+    assert!(matches!(error, Error::InvalidRequest { .. }), "{error:?}");
+    assert_eq!(std::fs::read(&sentinel).unwrap(), b"external wal sentinel");
+}
+
+// Task: C002-T24
+#[test]
+fn lazy_readonly_store_rejects_a_hardlinked_journal_sidecar() {
+    let (_dir, home) = temp_home();
+    open_rw(&home);
+    let external = tempfile::tempdir().unwrap();
+    let sentinel = external.path().join("journal-sentinel");
+    std::fs::write(&sentinel, b"external journal sentinel").unwrap();
+    std::fs::hard_link(
+        &sentinel,
+        home.root().join_segment("store.db-journal").as_path(),
+    )
+    .unwrap();
+
+    let error = crate::WorkService::new(home.clone()).list().unwrap_err();
+    assert!(matches!(error, Error::InvalidRequest { .. }), "{error:?}");
+    assert_eq!(
+        std::fs::read(&sentinel).unwrap(),
+        b"external journal sentinel"
+    );
+}
+
 // Task: T13
 #[test]
 fn open_rejects_same_whitespace_different_column_type() {
@@ -120,7 +220,7 @@ fn open_rejects_same_whitespace_different_column_type() {
     let (d, home) = temp_home();
     let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
     let mut script = String::new();
-    for (name, sql) in sheltie_runtime::store::schema::TABLES {
+    for (name, sql) in super::schema::TABLES {
         let sql = if *name == "works" {
             sql.replace("TEXT", "BLOB")
         } else {
@@ -145,7 +245,7 @@ fn insert_workbook_on_readonly_store_is_not_workbook_exists() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    let row = sheltie_runtime::WorkbookRow {
+    let row = crate::WorkbookRow {
         id: "x".into(),
         version: "1.0.0".into(),
         digest: "0".repeat(64),
