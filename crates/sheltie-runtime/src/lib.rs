@@ -6,13 +6,17 @@
 // 测试代码允许 unwrap；库代码不允许（workspace lints）。
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
+pub mod effects;
 pub mod error;
 pub mod failpoint;
+pub mod fsx;
 pub mod home;
 pub mod observe;
+pub mod request;
 pub mod selfmgmt;
 pub mod service;
 pub mod store;
+pub mod workbook_digest;
 pub mod workbook_repo;
 
 pub use error::{Error, Result};

@@ -1,7 +1,11 @@
 //! 表结构。这里是唯一定义；改结构必须同时升 `SCHEMA_VERSION`。
+//!
+//! schema 2（D-033）随 C002 一次定型：`requests` 携带意图指纹、完整响应快照、
+//! 效果登记与完成标记；`workbooks.digest` 一律是 `workbook-digest/v2`。schema 1
+//! 的旧库被整体拒绝，不迁移、不清空。
 
 /// `PRAGMA user_version` 的值。
-pub const SCHEMA_VERSION: i64 = 1;
+pub const SCHEMA_VERSION: i64 = 2;
 
 /// 全部建表语句 `(表名, SQL)`。结构校验把 `sqlite_master.sql` 与这里逐表比对（去掉全部空白）。
 pub const TABLES: &[(&str, &str)] = &[
@@ -38,9 +42,11 @@ pub const TABLES: &[(&str, &str)] = &[
         "requests",
         "CREATE TABLE requests (
   request_id   TEXT PRIMARY KEY,
+  intent_hash  TEXT NOT NULL,
   work_id      TEXT,
-  payload_hash TEXT NOT NULL,
   reply_json   TEXT NOT NULL,
+  effects_json TEXT NOT NULL,
+  published    INTEGER NOT NULL,
   at           TEXT NOT NULL
 )",
     ),
@@ -57,6 +63,19 @@ pub const TABLES: &[(&str, &str)] = &[
 )",
     ),
 ];
+
+/// 建库脚本：DDL 与 `PRAGMA user_version` 在**同一个事务**里执行（存储合同 §1.1），
+/// 不留半结构库；首次并发建库由管理根写锁串行化。
+pub fn create_script() -> String {
+    let mut script = String::from("BEGIN;\n");
+    for (_, sql) in TABLES {
+        script.push_str(sql);
+        script.push_str(";\n");
+    }
+    script.push_str(&format!("PRAGMA user_version = {SCHEMA_VERSION};\n"));
+    script.push_str("COMMIT;\n");
+    script
+}
 
 /// 去掉全部空白，用于比对。
 pub fn normalize_sql(sql: &str) -> String {

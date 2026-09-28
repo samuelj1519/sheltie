@@ -40,17 +40,34 @@ fn begin_next_node_before_approve_is_illegal_next() {
     );
 }
 
+// C002-T05 起主体取真实 OS 身份（D-036）：伪造 USER 也不改变批准人；期望值由系统
+// `id -un` 独立给出，不再读测试进程自己的 USER。
 // Task: T22
 #[test]
 fn approve_records_os_user_and_unblocks() {
     let env = Env::new();
     let (wid, _) = blocked_at_gate(&env);
-    let v = env.ok(&["gate", "approve", &wid, "--node", "notes"]);
+    let mut cmd = env.cmd(&["gate", "approve", &wid, "--node", "notes"]);
+    cmd.env("USER", "spoofed-approver")
+        .env("USERNAME", "spoofed-approver");
+    let out = cmd.output().unwrap();
+    assert!(
+        out.status.success(),
+        "gate approve 失败：{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(next_begin_nodes(&v), vec!["archive"]);
+    let expected = {
+        let o = std::process::Command::new("id")
+            .arg("-un")
+            .output()
+            .unwrap();
+        String::from_utf8(o.stdout).unwrap().trim().to_string()
+    };
+    assert_eq!(v["data"]["by"], expected);
     let card = std::fs::read_to_string(env.work_dir(&wid).join("status-card.md")).unwrap();
     assert!(card.contains("status: active"));
-    let user = std::env::var("USER").unwrap_or_else(|_| "unknown".into());
-    assert_eq!(v["data"]["by"], user);
 }
 
 // Task: T22

@@ -2,11 +2,11 @@
 //! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 use super::next::legal_next;
 use super::render::{render_brief, render_stats_json};
+use super::start::validate_start_inputs;
 use super::state::{
     Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
 };
@@ -87,28 +87,9 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         });
     };
 
-    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等。
-    let mut wanted: BTreeSet<String> = BTreeSet::new();
-    for node in graph.nodes() {
-        for decl in &node.inputs {
-            if let InputSource::Start { key } = &decl.from {
-                wanted.insert(key.clone());
-            }
-        }
-    }
-    let missing: Vec<String> = wanted
-        .iter()
-        .filter(|k| !inputs.contains_key(*k))
-        .cloned()
-        .collect();
-    let extra: Vec<String> = inputs
-        .keys()
-        .filter(|k| !wanted.contains(*k))
-        .cloned()
-        .collect();
-    if !missing.is_empty() || !extra.is_empty() {
-        return Err(Error::InputMissing { missing, extra });
-    }
+    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等（GF-30 的共享校验，
+    // runtime preflight 与 workbook show 用同一份结果，不各自重算）。
+    validate_start_inputs(graph, inputs.keys())?;
 
     let entry = graph.entry().clone();
     let mut visits = BTreeMap::new();
@@ -130,6 +111,7 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         visits,
         attempts: Vec::new(),
         approvals: Vec::new(),
+        blocked_count: 0,
         created_at: ctx.now.clone(),
         updated_at: ctx.now.clone(),
     };
@@ -252,7 +234,11 @@ fn decide_begin(
         .collect();
     let mut outputs = BTreeMap::new();
     for decl in &def.outputs {
-        outputs.insert(decl.name.clone(), attempt_dir.join(&decl.path));
+        // 声明路径挂在 Attempt 目录的 outputs/ 之下（WorkLayout，O12）。
+        outputs.insert(
+            decl.name.clone(),
+            crate::work::layout::output_path(&attempt_dir, &decl.path),
+        );
     }
     // 节点引用的 `kind:name` 换成 manifest 里的那条声明，按节点里的顺序。
     // 编译期已保证每条引用都能在 manifest 找到（flow::compile）。
@@ -274,7 +260,8 @@ fn decide_begin(
         reply: Reply::AttemptBegun {
             attempt: attempt_id,
             brief_path,
-            output_dir: attempt_dir,
+            // 输出目录是 Attempt 目录下的 outputs/（协议 §3 attempt begin 第 5 步）。
+            output_dir: crate::work::layout::outputs_dir(&attempt_dir),
             inputs,
             outputs,
             requires,
@@ -415,6 +402,13 @@ fn decide_submit(
         a.ended_at = Some(ctx.now.clone());
     }
     new_state.status = status_after_success(&new_state, graph, true);
+    // 累计受阻在发生时记录（GF-29）：gate 阻断与 no_legal_edge 各计一次。
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+    ) {
+        new_state.blocked_count += 1;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {
@@ -460,7 +454,8 @@ fn check_outputs(
             }
             None => {
                 if decl.required {
-                    let path = state.attempt_dir(attempt).join(&decl.path);
+                    let path =
+                        crate::work::layout::output_path(&state.attempt_dir(attempt), &decl.path);
                     return Err(Error::OutputMissing {
                         output: decl.name.clone(),
                         path: path.as_str().to_string(),
@@ -531,6 +526,7 @@ fn decide_fail(
     }
     if attempt.retry >= max_retries {
         new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+        new_state.blocked_count += 1;
     }
     new_state.updated_at = ctx.now.clone();
 
@@ -571,6 +567,12 @@ fn decide_approve(
         at: ctx.now.clone(),
     });
     new_state.status = status_after_success(&new_state, graph, false);
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+    ) {
+        new_state.blocked_count += 1;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {
@@ -634,7 +636,8 @@ fn engine_stats_artifact(
     let content = serde_json::to_string(&stats).map_err(|e| Error::InvalidRequest {
         reason: format!("engine.stats 序列化失败：{e}"),
     })?;
-    let path = state.attempt_dir(attempt_id).join_segment("stats.json");
+    // 引擎文件与 worker 输出分目录（workbook 合同 §3.2）：engine/stats.json。
+    let path = crate::work::layout::engine_stats_path(&state.attempt_dir(attempt_id));
     let artifact = ArtifactRef {
         sha256: Sha256Hex::of_bytes(content.as_bytes()),
         bytes: content.len() as u64,
@@ -657,7 +660,10 @@ pub fn output_paths_for(
     let dir = state.attempt_dir(attempt);
     let mut paths = BTreeMap::new();
     for decl in &def.outputs {
-        paths.insert(decl.name.clone(), dir.join(&decl.path));
+        paths.insert(
+            decl.name.clone(),
+            crate::work::layout::output_path(&dir, &decl.path),
+        );
     }
     Ok(paths)
 }
@@ -1013,7 +1019,7 @@ mod tests {
             stats
                 .path
                 .as_str()
-                .ends_with("attempts/only/1/0/stats.json")
+                .ends_with("attempts/only/occurrence-001/attempt-000/engine/stats.json")
         );
         let written = d.effects.iter().find_map(|e| match e {
             Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
@@ -1085,7 +1091,7 @@ mod tests {
     fn begin_emits_write_brief_effect() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
-        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/1/0/brief.md") && content.contains("# 任务书"))));
+        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/occurrence-001/attempt-000/brief.md") && content.contains("# 任务书"))));
         assert!(d.effects.contains(&Effect::RefreshStatusCard));
     }
 
@@ -1432,7 +1438,7 @@ mod tests {
             stats
                 .path
                 .as_str()
-                .ends_with("attempts/only/1/1/stats.json")
+                .ends_with("attempts/only/occurrence-001/attempt-001/engine/stats.json")
         );
         assert!(
             d.effects

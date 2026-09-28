@@ -430,9 +430,10 @@ mod tests {
     #[test]
     fn rejects_input_from_node_that_cannot_reach_consumer() {
         // draft 引用 publish 的输出：publish 是终点，到不了 draft。
+        // 夹具按样例字节同步：draft 的输入是多行数组，替换针对 topic 那条输入。
         let text = base().replace(
-            "inputs  = [{ name = \"topic\", from = \"start.topic\" }]",
-            "inputs  = [{ name = \"topic\", from = \"publish.final\" }]",
+            "{ name = \"topic\", from = \"start.topic\" }",
+            "{ name = \"topic\", from = \"publish.final\" }",
         );
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }

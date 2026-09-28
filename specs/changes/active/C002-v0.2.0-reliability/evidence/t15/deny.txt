@@ -1,0 +1,54 @@
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/deny.toml:23:6
+   │
+23 │     "BSD-2-Clause",
+   │      ━━━━━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/deny.toml:24:6
+   │
+24 │     "BSD-3-Clause",
+   │      ━━━━━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/deny.toml:28:6
+   │
+28 │     "CC0-1.0",
+   │      ━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/deny.toml:25:6
+   │
+25 │     "ISC",
+   │      ━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/deny.toml:29:6
+   │
+29 │     "MPL-2.0",
+   │      ━━━━━━━ unmatched license allowance
+
+warning[duplicate]: found 2 duplicate entries for crate 'winnow'
+    ┌─ /Users/shushu/orca/workspaces/sheltie/mimo/Cargo.lock:102:1
+    │
+102 │ ╭ winnow 0.7.15 registry+https://github.com/rust-lang/crates.io-index
+103 │ │ winnow 1.0.4 registry+https://github.com/rust-lang/crates.io-index
+    │ ╰──────────────────────────────────────────────────────────────────┘ lock entries
+    │
+    ├ winnow v0.7.15
+      └── toml v0.9.12+spec-1.1.0
+          └── sheltie-core v0.1.0
+              ├── sheltie-cli v0.1.0
+              ├── (dev) sheltie-core v0.1.0 (*)
+              └── sheltie-runtime v0.1.0
+                  └── sheltie-cli v0.1.0 (*)
+    ├ winnow v1.0.4
+      └── toml_parser v1.1.3+spec-1.1.0
+          └── toml v0.9.12+spec-1.1.0
+              └── sheltie-core v0.1.0
+                  ├── sheltie-cli v0.1.0
+                  ├── (dev) sheltie-core v0.1.0 (*)
+                  └── sheltie-runtime v0.1.0
+                      └── sheltie-cli v0.1.0 (*)
+
+advisories ok, bans ok, licenses ok, sources ok

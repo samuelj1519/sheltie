@@ -87,6 +87,47 @@ jobs:
           name: artifacts-plan-dist-manifest
           path: plan-dist-manifest.json
 
+  # 质量门禁（C002-T15；dist 不生成，重新跑 dist init 会丢掉，需照此补回）：
+  # 发布必须挂在同一 SHA 的质量 job 上。announce 的 needs 与 if 挡住质量失败的发布。
+  quality:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          submodules: recursive
+          # check-specs 要解析历史 tags/commits，浅检出取不到老 tag。
+          fetch-depth: 0
+      - name: Quality runs on the tagged commit
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Install MSRV toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal
+      - uses: taiki-e/install-action@nextest
+      - uses: taiki-e/install-action@cargo-deny
+      - uses: Swatinem/rust-cache@v2.9.2
+      - name: Check docs, specs governance, skill and tests
+        run: |
+          scripts/check-docs.sh
+          scripts/check-specs.sh
+          scripts/check-skill.sh
+          scripts/check-core-vocab.sh
+          scripts/check-tests.sh
+      - name: Check code format
+        run: cargo fmt --all -- --check
+      - name: Check the workspace for errors
+        run: cargo check --all-targets --all-features
+      - name: Lint rust sources
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Check dependencies
+        run: cargo deny check
+      - name: Execute rust tests
+        run: cargo nextest run --all-features --no-tests=pass
+      - name: MSRV 1.85 locked gate
+        run: cargo +1.85.0 check --workspace --all-targets --all-features --locked
+
   # Build and packages all the platform-specific things
   build-local-artifacts:
     name: build-local-artifacts (${{ join(matrix.targets, ', ') }})
@@ -262,10 +303,12 @@ jobs:
     needs:
       - plan
       - host
+      # C002-T15：质量失败不能发布。quality 与 host 同一 SHA，任一失败都挡住建 Release。
+      - quality
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' }}
+    if: ${{ always() && needs.host.result == 'success' && needs.quality.result == 'success' }}
     runs-on: "ubuntu-22.04"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -285,6 +328,12 @@ jobs:
         run: |
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
+      # 自定义步骤（dist 不生成，重新跑 dist init 会丢掉，需照此补回）：打包自包含
+      # skill 交付并挂成发布资产。资产名 sheltie-skill.tar.gz 与 README「装 skill」的
+      # 下载地址一一对应；打包与校验规则的单一事实源是 scripts/skill-delivery.sh。
+      - name: Pack sheltie skill
+        shell: bash
+        run: scripts/skill-delivery.sh tar artifacts/sheltie-skill.tar.gz
       - name: Create GitHub Release
         env:
           PRERELEASE_FLAG: "${{ fromJson(needs.host.outputs.val).announcement_is_prerelease && '--prerelease' || '' }}"

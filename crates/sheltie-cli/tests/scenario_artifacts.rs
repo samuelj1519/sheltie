@@ -15,7 +15,9 @@ fn modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified(
     let wid = env.start("two-step", &[("topic", "x")]);
     let b = env.begin(&wid, "outline");
     env.submit_all(&wid, &b, "ok");
-    let outline = env.work_dir(&wid).join("attempts/outline/1/0/outline.md");
+    let outline = env
+        .work_dir(&wid)
+        .join("attempts/outline/occurrence-001/attempt-000/outputs/outline.md");
     make_writable(&outline);
     std::fs::write(&outline, "偷偷改了").unwrap();
     let (e, _) = env.fail(&["attempt", "begin", &wid, "--node", "summary"]);

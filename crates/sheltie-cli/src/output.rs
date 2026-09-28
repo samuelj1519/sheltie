@@ -134,6 +134,32 @@ fn next_item(work: &str, op: &NextOp) -> serde_json::Value {
     }
 }
 
+/// [`ok_work`] 的变体：`next` 已是协议 §5 形状（core `next_item_json` 生成），
+/// 与状态卡 `data.next` 完全同形（O13），不再重复组装。
+pub(crate) fn ok_work_next(
+    text: String,
+    request_id: Option<String>,
+    revision: Option<u64>,
+    data: serde_json::Value,
+    next: Vec<serde_json::Value>,
+) -> Outcome {
+    let mut root = serde_json::Map::new();
+    root.insert("ok".to_string(), serde_json::Value::Bool(true));
+    if let Some(id) = request_id {
+        root.insert("request_id".to_string(), serde_json::json!(id));
+    }
+    if let Some(rev) = revision {
+        root.insert("revision".to_string(), serde_json::json!(rev));
+    }
+    root.insert("data".to_string(), data);
+    root.insert("next".to_string(), serde_json::Value::Array(next));
+    Outcome {
+        text,
+        json: serde_json::Value::Object(root),
+        exit_code: 0,
+    }
+}
+
 /// 把错误包成两种形式。退出码 1。
 pub fn err(
     code: ErrorCode,

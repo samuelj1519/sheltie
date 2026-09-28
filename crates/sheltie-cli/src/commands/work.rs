@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use serde_json::json;
 use sheltie_core::ids::WorkId;
-use sheltie_core::work::{Reply, WorkState};
+use sheltie_core::work::Reply;
 use sheltie_runtime::store::OpenMode;
 use sheltie_runtime::{Response, WorkService};
 
@@ -38,17 +38,6 @@ pub(crate) fn resolve(svc: &WorkService, work: &str) -> Result<WorkId, Outcome> 
         .map_err(|e| crate::error_map::to_outcome(&e))
 }
 
-/// 只读加载某个 Work 的状态（`name`、`workbook`、`flow`、`status` 不在 reply 里）。
-fn load_state(ctx: &Ctx, work: &WorkId) -> Result<WorkState, Outcome> {
-    let store = ctx
-        .store(OpenMode::ReadOnly)
-        .map_err(|e| crate::error_map::to_outcome(&e))?;
-    store
-        .load_work(work)
-        .map(|row| row.state)
-        .map_err(|e| crate::error_map::to_outcome(&e))
-}
-
 /// `work start`（协议 §3 第 8 步的返回）。
 fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
     // 参数解析错误先于任何存储访问，退出码 2。
@@ -65,9 +54,19 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(v) => v,
         Err(m) => return output::param_error(m),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
+    // 只读打开做预检（GF-30）：新管理根连 store.db 都没有，说明没有任何已装
+    // Workbook，按 NOT_FOUND 拒绝，不为失败的 start 建库；写路径由 runtime 重开读写库。
+    let svc = match ctx.store(OpenMode::ReadOnly) {
+        Ok(store) => WorkService::new(ctx.home.clone(), store),
+        Err(sheltie_runtime::Error::NotFound { .. }) => {
+            return output::err(
+                sheltie_core::ErrorCode::NotFound,
+                format!("Workbook {workbook_id} 不存在：管理根里没有任何已装 Workbook"),
+                Some(json!({ "id": workbook_id })),
+                Vec::new(),
+            );
+        }
+        Err(e) => return crate::error_map::to_outcome(&e),
     };
     let rt_args = sheltie_runtime::StartArgs {
         workbook_id,
@@ -80,32 +79,16 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let Reply::Started {
-        work_id,
-        work_dir,
-        requires,
-    } = &resp.reply
-    else {
-        return reply_mismatch("Started");
+    // 响应字段全部来自提交时快照（cli-result/v2）：CLI 不再回读 Store 拼数据（O04）。
+    let work_id = match &resp.reply {
+        Reply::Started { work_id, .. } => work_id.clone(),
+        other => return reply_mismatch("Started", other),
     };
-    let state = match load_state(ctx, work_id) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let data = json!({
-        "work_id": work_id.as_str(),
-        "name": state.name.as_str(),
-        "workbook": {
-            "id": state.workbook.id.as_str(),
-            "version": state.workbook.version,
-            "digest": state.workbook.digest.as_str(),
-        },
-        "flow": state.flow.as_str(),
-        "work_dir": work_dir.as_str(),
-        "requires": requires,
-        "replayed": resp.replayed,
-    });
-    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, work_id);
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
+    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, &work_id);
     output::ok_work(
         text,
         Some(resp.request_id),
@@ -158,8 +141,8 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let next = card.next.clone();
-    output::ok_work(text, None, None, json!(card), &next, wid.as_str())
+    // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
+    output::ok_work_next(text, None, None, json!(card), card.next.clone())
 }
 
 /// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。
@@ -172,6 +155,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Ok(w) => w,
         Err(out) => return out,
     };
+    // stats 与 next 用同一次加载的事实视图（GF-29）；next 与状态卡同源同形。
     let (text, stats) = match svc.stats(&wid) {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -180,7 +164,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Ok((_, card)) => card.next,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    output::ok_work(text, None, None, json!(stats), &ops, wid.as_str())
+    output::ok_work_next(text, None, None, json!(stats), ops)
 }
 
 /// `work cancel`。
@@ -197,19 +181,14 @@ fn cancel(ctx: &Ctx, work: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let state = match load_state(ctx, &wid) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
     let mut text = format!("已取消 {wid}\n");
     if resp.next.is_empty() {
         text.push_str("Work 已结束，没有下一步。\n");
     }
-    let data = json!({
-        "work_id": wid.as_str(),
-        "work_status": state.status,
-        "replayed": resp.replayed,
-    });
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
     output::ok_work(
         text,
         Some(resp.request_id),
@@ -237,10 +216,10 @@ pub(crate) fn next_lines(head: String, resp: &Response, work: &WorkId) -> String
 }
 
 /// runtime 保证 reply 与命令对应；对不上说明两端不一致。
-pub(crate) fn reply_mismatch(expected: &str) -> Outcome {
+pub(crate) fn reply_mismatch(expected: &str, got: &Reply) -> Outcome {
     crate::output::err(
         sheltie_core::ErrorCode::StoreCorrupt,
-        format!("响应与命令不匹配（期望 {expected}）"),
+        format!("响应与命令不匹配（期望 {expected}，实际 {got:?}）"),
         None,
         Vec::new(),
     )

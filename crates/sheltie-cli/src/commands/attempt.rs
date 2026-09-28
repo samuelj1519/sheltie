@@ -1,8 +1,8 @@
 //! `attempt begin | submit | fail`。
 
 use serde_json::json;
-use sheltie_core::ids::{AttemptId, NodeId, WorkId};
-use sheltie_core::work::{Reply, WorkState};
+use sheltie_core::ids::{AttemptId, NodeId};
+use sheltie_core::work::Reply;
 use sheltie_runtime::store::OpenMode;
 
 use crate::cli::AttemptCmd;
@@ -47,29 +47,20 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let Reply::AttemptBegun {
-        attempt,
-        brief_path,
-        output_dir,
-        inputs,
-        outputs,
-        requires,
-    } = &resp.reply
-    else {
-        return reply_mismatch("AttemptBegun");
+    // 数据来自提交时快照（cli-result/v2），不回读 Store（O04）。
+    let (attempt, brief_path, output_dir) = match &resp.reply {
+        Reply::AttemptBegun {
+            attempt,
+            brief_path,
+            output_dir,
+            ..
+        } => (attempt.clone(), brief_path.clone(), output_dir.clone()),
+        other => return reply_mismatch("AttemptBegun", other),
     };
-    let data = json!({
-        "attempt": attempt.to_string(),
-        "node": attempt.node.as_str(),
-        "occurrence": attempt.occurrence,
-        "retry": attempt.retry,
-        "brief_path": brief_path.as_str(),
-        "output_dir": output_dir.as_str(),
-        "inputs": inputs,
-        "outputs": outputs,
-        "requires": requires,
-        "replayed": resp.replayed,
-    });
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
     let text = next_lines(
         format!("已开始 {attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"),
         &resp,
@@ -87,7 +78,7 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
 
 /// `attempt submit`（协议 §3 第 6 步的返回）。
 fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
-    let summary = match crate::cli::read_text_arg(summary) {
+    let summary = match crate::cli::parse_text_arg(summary) {
         Ok(s) => s,
         Err(m) => return output::param_error(m),
     };
@@ -107,21 +98,16 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let Reply::AttemptSubmitted { attempt, outputs } = &resp.reply else {
-        return reply_mismatch("AttemptSubmitted");
+    let (attempt, outputs) = match &resp.reply {
+        Reply::AttemptSubmitted { attempt, outputs } => (attempt.clone(), outputs.clone()),
+        other => return reply_mismatch("AttemptSubmitted", other),
     };
-    let state = match state_of(ctx, &wid) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let data = json!({
-        "attempt": attempt.to_string(),
-        "outputs": outputs,
-        "work_status": state.status,
-        "replayed": resp.replayed,
-    });
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
     let mut text = format!("已提交 {attempt}\n");
-    for (name, r) in outputs {
+    for (name, r) in &outputs {
         text.push_str(&format!(
             "  {name} → {} (sha256 {})\n",
             r.path,
@@ -141,7 +127,7 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
 
 /// `attempt fail`。
 fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
-    let reason = match crate::cli::read_text_arg(reason) {
+    let reason = match crate::cli::parse_text_arg(reason) {
         Ok(s) => s,
         Err(m) => return output::param_error(m),
     };
@@ -161,18 +147,14 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let Reply::AttemptFailed { attempt } = &resp.reply else {
-        return reply_mismatch("AttemptFailed");
+    let attempt = match &resp.reply {
+        Reply::AttemptFailed { attempt } => attempt.clone(),
+        other => return reply_mismatch("AttemptFailed", other),
     };
-    let state = match state_of(ctx, &wid) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let data = json!({
-        "attempt": attempt.to_string(),
-        "work_status": state.status,
-        "replayed": resp.replayed,
-    });
+    let mut data = resp.data.clone();
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("replayed".to_string(), json!(resp.replayed));
+    }
     let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
     output::ok_work(
         text,
@@ -182,15 +164,4 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         &resp.next,
         wid.as_str(),
     )
-}
-
-/// 提交后的 `work_status` 与批准人不在 reply 里，只读加载一次状态。
-pub(crate) fn state_of(ctx: &Ctx, work: &WorkId) -> Result<WorkState, Outcome> {
-    let store = ctx
-        .store(OpenMode::ReadOnly)
-        .map_err(|e| crate::error_map::to_outcome(&e))?;
-    store
-        .load_work(work)
-        .map(|row| row.state)
-        .map_err(|e| crate::error_map::to_outcome(&e))
 }

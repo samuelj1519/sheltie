@@ -9,29 +9,43 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
 
 ## 铁律
 
-1. 只做 `next` 里的事。每次写操作的响应都带 `next` 数组，每项都能直接拼成命令执行。`next` 之外的操作会被引擎拒绝；被拒绝了就回到 `next` 里选，不要绕过。
+1. 只做 `next` 里的事——`next` 只限定**这个 Work 的推进**。每次写操作的响应都带
+   `next` 数组，每项都能直接拼成命令执行；`next` 之外的操作会被引擎拒绝，被拒绝了
+   就回到 `next` 里选，不要绕过。发现与管理工作另有入口：`workbook list/show/verify`、
+   `workbook add/remove`、`work start`、`work list`，它们不受某个 Work 的 `next` 限制；
+   `next` 为空只说明这个 Work 已终态，不是无事可做。
 2. 结论在输出文档里。执行成功只说明「这一步做完了」，通过与否写在输出文档里（通常第一行是结论）。你读文档后在多条边之间选，引擎不知道、也不替你知道哪个结论算通过。
 3. 只通过 CLI 读写状态。不直接改管理根（默认 `~/.sheltie`）下的任何文件。产出文件由执行者按任务书写到声明的位置，提交封存后任何人不得再改。
-4. 一律带 `--json` 调用，从响应的 `next` 取下一步。写操作可带 `--request-id <uuid>`；不确定上一次是否生效时，用同一个 id 重发是安全的，不会重复执行。
+4. 一律带 `--json` 调用，从响应的 `next` 取下一步。**要重试安全就先记下
+   `--request-id <uuid>` 再调用**（自己先生成并告知用户）；它只用于 Work 与 Workbook
+   的写操作，只读命令和整个 `self` 组给了会直接报参数错误。不确定上一次是否生效时，
+   用同一个 id 重发是安全的：同意图返回提交时的原响应（`replayed: true`），不会重复
+   执行。重放响应里的 `next` 是**历史**事实；续接一律先 `work status` 查当前状态。
 
 ## 流程
 
-1. **选 Workbook。** 列出已装的方法，看清它的节点、边与宿主资源声明：
+1. **选 Workbook。** 列出已装的方法，看清它的节点、边、宿主资源声明与**起始输入键**：
 
    ```bash
    sheltie workbook list
    sheltie workbook show <id>
    ```
 
-   用户没有指定 Workbook 或 Flow 时，问用户。
+   `show` 的 `start_inputs` 列出该 Flow 要的全部起始输入键（有序）。用户没有指定
+   Workbook 或 Flow 时问用户；**用户指定了但未安装的，停下报告**（`NOT_FOUND`），
+   不要静默换成别的 Workbook。
 
-2. **开 Work。** Flow 声明的起始输入按键给全，多给少给都会被拒绝：
+2. **开 Work。** 输入键从 `workbook show` 的 `start_inputs` 拿，不用失败的 start 去试：
+   **用户已给的信息直接用**（对话里说过、任务里写明、文件里有的都算），只对仍缺的键
+   问用户。给全再 start（多给少给都被拒绝）：
 
    ```bash
    sheltie work start --workbook <id> --flow <flow> --name <名字> --input <key>=<值> --json
    ```
 
-   `--name` 省略时取 Flow id；`--input` 的值以 `@` 开头时读文件内容。响应给出 `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的唯一前缀即可指代这个 Work。
+   `--name` 省略时取 Flow id；`--input` 的值以 `@` 开头时读文件内容。响应给出
+   `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的
+   唯一前缀即可指代这个 Work。
 
 3. **核对宿主资源。** `work start` 与每次 `attempt begin` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
 

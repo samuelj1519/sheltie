@@ -11,8 +11,17 @@ use sheltie_runtime::{Error, Home};
 // Task: T12
 #[test]
 fn home_prefers_cli_then_env_then_default() {
+    // T04 起根在入口规范化：对最深已存在祖先取真实形式（macOS 的 /tmp → /private/tmp），
+    // 余下段保持词法。期望用同一规则独立构造。
     let cli = Home::resolve(Some("/tmp/cli-home")).unwrap();
-    assert_eq!(cli.root().as_str(), "/tmp/cli-home");
+    let expected = format!(
+        "{}/cli-home",
+        std::fs::canonicalize("/tmp")
+            .unwrap()
+            .to_string_lossy()
+            .into_owned()
+    );
+    assert_eq!(cli.root().as_str(), expected);
     // 环境变量与默认值的分支由子进程测试覆盖（cli 层 `work_start_creates_work_and_prints_next` 用 --home）。
     // 这里只再确认相对路径被转成绝对路径。
     let rel = Home::resolve(Some("rel-home")).unwrap();
