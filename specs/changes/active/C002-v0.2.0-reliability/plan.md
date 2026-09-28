@@ -55,7 +55,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T21 | done | 受限目录枚举、摘要和复制 | T19；[macOS全树观察与复制](evidence/repairs/t21/README.md)，Linux `not_run` |
 | C002-T22 | done | 同句柄输出观察与封存 | T19、T20、T21；[macOS真实COMMIT至封存窗口](evidence/repairs/t22/README.md)，Linux `not_run` |
 | C002-T23 | done | self文件链与purge锁生命周期 | T19、T21、T18合同采用；[macOS门禁与双轴Review](evidence/repairs/t23/README.md)；Linux `not_run` |
-| C002-T24 | not_run | 请求解析、历史目标与锁内建库 | T20、T21 |
+| C002-T24 | done | 请求解析、历史目标与锁内建库 | T20、T21；[macOS门禁与双轴Review](evidence/repairs/t24/README.md)；Linux `not_run` |
 | C002-T25 | not_run | 统一恢复与准确提交错误 | T20、T21、T22、T24 |
 | C002-T26 | not_run | 发布完整归属与必要sync | T19–T21、T25 |
 | C002-T27 | not_run | 同对象删除与完成证明 | T25、T26 |

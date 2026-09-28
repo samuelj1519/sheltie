@@ -4,31 +4,52 @@ pub mod commit;
 pub mod read;
 pub mod schema;
 
+#[cfg(test)]
+mod tests;
+
 use rusqlite::OptionalExtension;
 use sheltie_core::path::AbsPath;
+use std::sync::Arc;
 
 use crate::error::{Error, Result};
+use crate::home::{Home, HomeLock};
 
 pub use commit::{CommitInput, CommitOutcome};
-pub use read::{WorkRow, WorkbookRow};
+pub use read::WorkbookRow;
 pub use schema::SCHEMA_VERSION;
 
 /// 只读还是读写。只读打开不存在的库报 `NOT_FOUND`，不建库。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum OpenMode {
+pub(crate) enum OpenMode {
     ReadOnly,
     ReadWrite,
 }
 
-/// 核对 `user_version` 与逐表建表语句。识别连接**不执行任何会写库的操作**
-///（不改 journal mode、不写 PRAGMA、不建表）；普通打开而非 `READ_ONLY` 旗标，
-/// 因为 WAL 库的只读连接在写者活动或 `-shm` 缺席时会直接失败。库文件不存在由
-/// 调用方先行判断。
+/// 用 `READ_ONLY | NOFOLLOW` 核对 `user_version` 与逐表建表语句。识别连接在旧库
+/// 拒绝前不改 journal mode、不建表或checkpoint；`NO_CKPT_ON_CLOSE` 防止关闭时写主库。
+/// 只允许 SQLite 在已存在管理根内维护合同认可的 `store.db-shm` 控制文件。
 fn validate_readonly(path: &AbsPath) -> Result<()> {
-    let conn = rusqlite::Connection::open(path.as_str())?;
+    let conn = rusqlite::Connection::open_with_flags(
+        path.as_str(),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
+    )?;
+    prevent_checkpoint_on_close(&conn, path)?;
     // 识别连接也要等待本地写者（首次建库窗口）。
     conn.busy_timeout(std::time::Duration::from_millis(5000))?;
     check_schema(&conn)
+}
+
+fn prevent_checkpoint_on_close(conn: &rusqlite::Connection, path: &AbsPath) -> Result<()> {
+    if !conn.set_db_config(
+        rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,
+        true,
+    )? {
+        return Err(Error::io(
+            path.as_str(),
+            std::io::Error::other("SQLite未启用NO_CKPT_ON_CLOSE"),
+        ));
+    }
+    Ok(())
 }
 
 fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
@@ -66,21 +87,27 @@ fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
 
 /// 存储句柄。不持久连接：每个方法开一个连接、用完关掉。
 #[derive(Debug, Clone)]
-pub struct Store {
+pub(crate) struct Store {
     path: AbsPath,
     mode: OpenMode,
+    owner_home: Option<Home>,
+    owner_lock: Option<Arc<HomeLock>>,
 }
 
 impl Store {
-    /// 打开（必要时建库），并做结构校验。
+    /// 单元测试的低层Store夹具；产品代码必须经Home与WriteSession打开。
     ///
     /// 顺序（存储合同 §1.1）：库不存在且 `ReadWrite` → 一个事务内建表并写
     /// `user_version`（无半结构库）；`ReadOnly` 且不存在 → `Error::NotFound`，
     /// 不建库不建目录（GF-30）。库已存在时**先以只读连接**识别 `user_version` 与
     /// 建表语句：`user_version ≠ 2`（含 schema 1 旧库）报 `StoreSchemaMismatch`，
     /// 拒绝之前对库文件没有任何写入——不改 journal mode、不写 PRAGMA、不建表。
-    pub fn open(path: &AbsPath, mode: OpenMode) -> Result<Self> {
-        if !path.as_path().exists() {
+    #[cfg(test)]
+    pub(crate) fn open(path: &AbsPath, mode: OpenMode) -> Result<Self> {
+        if let Err(error) = std::fs::symlink_metadata(path.as_path()) {
+            if error.kind() != std::io::ErrorKind::NotFound {
+                return Err(Error::io(path.as_str(), error));
+            }
             if mode == OpenMode::ReadOnly {
                 return Err(Error::NotFound {
                     what: path.to_string(),
@@ -90,45 +117,203 @@ impl Store {
             if let Some(parent) = path.as_path().parent() {
                 std::fs::create_dir_all(parent).map_err(|e| Error::io(parent.to_string(), e))?;
             }
-            let store = Self {
-                path: path.clone(),
-                mode,
-            };
-            let conn = store.connect()?;
+            let conn = rusqlite::Connection::open_with_flags(
+                path.as_str(),
+                rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE
+                    | rusqlite::OpenFlags::SQLITE_OPEN_CREATE
+                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
+            )?;
             conn.execute_batch(&schema::create_script())?;
-            return Ok(store);
+            drop(conn);
+            return Self::open_existing(path, mode);
         }
-        // 只读识别：旧库拒绝前无写。
-        validate_readonly(path)?;
+        Self::open_existing(path, mode)
+    }
+
+    pub(crate) fn deferred_for_home(home: &Home, mode: OpenMode) -> Self {
+        Self {
+            path: home.store_path(),
+            mode,
+            owner_home: Some(home.clone()),
+            owner_lock: None,
+        }
+    }
+
+    pub(crate) fn open_for_home(home: &Home, mode: OpenMode) -> Result<Self> {
+        crate::fsx::validate_store_files(home)?;
+        Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn open_existing(path: &AbsPath, mode: OpenMode) -> Result<Self> {
+        Self::open_existing_inner(path, mode, None, None)
+    }
+
+    pub(crate) fn open_existing_locked(
+        home: &Home,
+        lock: Arc<HomeLock>,
+        mode: OpenMode,
+    ) -> Result<Self> {
+        crate::fsx::validate_store_files_locked(home, &lock)?;
+        Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), Some(lock))
+    }
+
+    fn open_existing_inner(
+        path: &AbsPath,
+        mode: OpenMode,
+        owner_home: Option<Home>,
+        owner_lock: Option<Arc<HomeLock>>,
+    ) -> Result<Self> {
+        let metadata = std::fs::symlink_metadata(path.as_path()).map_err(|error| {
+            if error.kind() == std::io::ErrorKind::NotFound {
+                Error::NotFound {
+                    what: path.to_string(),
+                }
+            } else {
+                Error::io(path.as_str(), error)
+            }
+        })?;
+        if !metadata.file_type().is_file() {
+            return Err(Error::InvalidRequest {
+                reason: format!("Store {} 必须是普通文件", path),
+            });
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt as _;
+            if metadata.nlink() != 1 {
+                return Err(Error::InvalidRequest {
+                    reason: format!("Store {} 必须是单链接文件", path),
+                });
+            }
+        }
+        // 只读识别：旧库拒绝前无写；有 Home 时还绑定根与主库inode前后身份。
+        if let Some(home) = &owner_home {
+            let readonly = Self::deferred_for_home(home, OpenMode::ReadOnly);
+            drop(readonly.connect()?);
+        } else {
+            validate_readonly(path)?;
+        }
         let store = Self {
             path: path.clone(),
             mode,
+            owner_home,
+            owner_lock,
         };
         store.validate()?;
         Ok(store)
     }
 
+    pub(crate) fn initialize_existing(
+        home: &Home,
+        lock: &HomeLock,
+        path: &AbsPath,
+        created: &crate::fsx::SafeFile,
+    ) -> Result<()> {
+        crate::fsx::verify_managed_file_bound(home, lock, path, created)?;
+        let conn = rusqlite::Connection::open_with_flags(
+            path.as_str(),
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
+        )?;
+        crate::fsx::verify_managed_file_bound(home, lock, path, created)?;
+        conn.execute_batch(&schema::create_script())?;
+        Ok(())
+    }
+
+    #[cfg(test)]
     pub fn path(&self) -> &AbsPath {
         &self.path
     }
 
     /// 开一个连接并设 PRAGMA：WAL、`synchronous = FULL`、`foreign_keys = ON`、`busy_timeout = 5000`。
     pub(crate) fn connect(&self) -> Result<rusqlite::Connection> {
+        if let Some(home) = &self.owner_home {
+            if let Some(lock) = &self.owner_lock {
+                crate::fsx::validate_store_files_locked(home, lock)?;
+            } else {
+                crate::fsx::validate_store_files(home)?;
+            }
+        }
+        let metadata = match std::fs::symlink_metadata(self.path.as_path()) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Err(Error::NotFound {
+                    what: self.path.to_string(),
+                });
+            }
+            Err(error) => return Err(Error::io(self.path.as_str(), error)),
+        };
+        if !metadata.file_type().is_file() {
+            return Err(Error::InvalidRequest {
+                reason: format!("Store {} 必须是普通文件", self.path),
+            });
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt as _;
+            if metadata.nlink() != 1 {
+                return Err(Error::InvalidRequest {
+                    reason: format!("Store {} 必须是单链接文件", self.path),
+                });
+            }
+        }
+        let root_identity = self.owner_home.as_ref().map(root_identity).transpose()?;
+        self.verify_owner_binding(root_identity, file_identity(&metadata))?;
         let conn = match self.mode {
             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(
                 self.path.as_str(),
-                rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+                rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY
+                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
             ),
-            OpenMode::ReadWrite => rusqlite::Connection::open(self.path.as_str()),
+            OpenMode::ReadWrite => rusqlite::Connection::open_with_flags(
+                self.path.as_str(),
+                rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE
+                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
+            ),
         }?;
+        self.verify_owner_binding(root_identity, file_identity(&metadata))?;
         // 等待先于任何可能取写锁的 PRAGMA（journal_mode 在建库后的首次设置要等）。
         conn.busy_timeout(std::time::Duration::from_millis(5000))?;
+        if self.mode == OpenMode::ReadOnly {
+            prevent_checkpoint_on_close(&conn, &self.path)?;
+        }
+        check_schema(&conn)?;
         // WAL 与 synchronous 改的是库文件，只读连接上写不进去；本来就持久在库里。
         if self.mode == OpenMode::ReadWrite {
             conn.execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")?;
         }
         conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+        self.verify_owner_binding(root_identity, file_identity(&metadata))?;
         Ok(conn)
+    }
+
+    fn verify_owner_binding(
+        &self,
+        expected_root: Option<(u64, u64)>,
+        expected_store: (u64, u64),
+    ) -> Result<()> {
+        let Some(home) = &self.owner_home else {
+            return Ok(());
+        };
+        if let Some(lock) = &self.owner_lock {
+            if !lock.identity_still_valid() {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{} 的HomeLock身份已改变", home.root()),
+                });
+            }
+            crate::fsx::validate_store_files_locked(home, lock)?;
+        } else {
+            crate::fsx::validate_store_files(home)?;
+        }
+        let actual_root = root_identity(home)?;
+        let actual_store = std::fs::symlink_metadata(self.path.as_path())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
+        if Some(actual_root) != expected_root || file_identity(&actual_store) != expected_store {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的根或Store对象在SQLite连接期间被替换", home.root()),
+            });
+        }
+        Ok(())
     }
 
     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。
@@ -161,4 +346,26 @@ impl Store {
         tx.commit()?;
         Ok(last as u32)
     }
+}
+
+fn root_identity(home: &Home) -> Result<(u64, u64)> {
+    let metadata = std::fs::symlink_metadata(home.root().as_path())
+        .map_err(|error| Error::io(home.root().as_str(), error))?;
+    if !metadata.file_type().is_dir() {
+        return Err(Error::InvalidRequest {
+            reason: format!("管理根 {} 必须是目录", home.root()),
+        });
+    }
+    Ok(file_identity(&metadata))
+}
+
+#[cfg(unix)]
+fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+    use std::os::unix::fs::MetadataExt as _;
+    (metadata.dev(), metadata.ino())
+}
+
+#[cfg(not(unix))]
+fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+    (0, metadata.len())
 }

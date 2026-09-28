@@ -11,7 +11,6 @@ use crate::effects::{EffectOp, decode_effects, encode_effects, execute};
 use crate::error::{Error, Result};
 use crate::fsx::{ExternalReadTree, MAX_FILE_BYTES as FS_MAX_FILE_BYTES, ManagedRelPath};
 use crate::home::Home;
-use crate::observe::build_resource_index;
 use crate::request::{RequestIntent, lexical_abs};
 use crate::service::stage_pending;
 use crate::store::{CommitOutcome, Store, WorkbookRow};
@@ -140,7 +139,12 @@ pub struct WorkbookRepo {
 }
 
 impl WorkbookRepo {
-    pub fn new(home: Home, store: Store) -> Self {
+    pub fn new(home: Home) -> Self {
+        let store = Store::deferred_for_home(&home, crate::store::OpenMode::ReadOnly);
+        Self { home, store }
+    }
+
+    pub(crate) fn with_store(home: Home, store: Store) -> Self {
         Self { home, store }
     }
 
@@ -161,21 +165,27 @@ impl WorkbookRepo {
             _ => unreachable!("AddWorkbook方法必构造AddWorkbook intent"),
         };
         // 无锁预检：命中已提交请求直接按快照重放（发布完成状态下不再读源目录）。
-        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
-            if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
-                if hash != intent.hash().as_str() {
-                    return Err(Error::RequestConflict {
-                        request_id: request_id.clone(),
-                    });
+        match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly) {
+            Ok(ro) => {
+                if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+                    if hash != intent.hash().as_str() {
+                        return Err(Error::RequestConflict {
+                            request_id: request_id.clone(),
+                        });
+                    }
+                    return decode_added_snapshot(&request_id, &reply_json);
                 }
-                return decode_added_snapshot(&request_id, &reply_json);
             }
+            Err(Error::NotFound { .. }) => {}
+            Err(error) => return Err(error),
         }
 
-        let lock = self.home.acquire_lock()?;
-        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
-        let repo = Self::new(self.home.clone(), store);
-        crate::service::WorkService::new(self.home.clone(), repo.store.clone()).recover(&lock)?;
+        let _ = Self::load_tree(&ExternalReadTree::open(dir)?)?;
+        let session = crate::session::WriteSession::open_or_create(&self.home)?;
+        let lock = session.lock;
+        let repo = Self::with_store(self.home.clone(), session.store.clone());
+        crate::service::WorkService::with_store(self.home.clone(), repo.store.clone())
+            .recover(&lock)?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -186,8 +196,7 @@ impl WorkbookRepo {
             return decode_added_snapshot(&request_id, &row.reply_json);
         }
 
-        // 源目录粗检（§5.2 第 1 步）：可读、拒绝软链与宿主元数据。
-        let _ = build_resource_index(dir)?;
+        // 源目录粗检在锁前完成；只有合法新添加才创建管理锁和Store。
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
         let payload = stage_pending(&self.home, &lock, &internal_id, &request_id, "add_workbook")?;
 
@@ -639,21 +648,28 @@ impl WorkbookRepo {
             id: id.to_string(),
             version: version.to_string(),
         };
-        if let Ok(ro) = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadOnly) {
-            if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
-                if hash != intent.hash().as_str() {
-                    return Err(Error::RequestConflict {
-                        request_id: request_id.clone(),
-                    });
-                }
-                return decode_removed_snapshot(&request_id, &reply_json);
+        let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly).map_err(
+            |error| match error {
+                Error::NotFound { .. } => Error::NotFound {
+                    what: format!("Workbook {id}@{version}"),
+                },
+                other => other,
+            },
+        )?;
+        if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+            if hash != intent.hash().as_str() {
+                return Err(Error::RequestConflict {
+                    request_id: request_id.clone(),
+                });
             }
+            return decode_removed_snapshot(&request_id, &reply_json);
         }
 
-        let lock = self.home.acquire_lock()?;
-        let store = Store::open(&self.home.store_path(), crate::store::OpenMode::ReadWrite)?;
-        let repo = Self::new(self.home.clone(), store);
-        crate::service::WorkService::new(self.home.clone(), repo.store.clone()).recover(&lock)?;
+        let session = crate::session::WriteSession::open_existing(&self.home)?;
+        let lock = session.lock;
+        let repo = Self::with_store(self.home.clone(), session.store.clone());
+        crate::service::WorkService::with_store(self.home.clone(), repo.store.clone())
+            .recover(&lock)?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {

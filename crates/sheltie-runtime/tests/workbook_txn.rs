@@ -8,8 +8,7 @@ use std::path::Path;
 use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_runtime::request::InputValue;
-use sheltie_runtime::store::OpenMode;
-use sheltie_runtime::{StartArgs, Store, WorkbookRepo};
+use sheltie_runtime::{StartArgs, WorkbookRepo};
 
 fn make_writable(path: &Path) {
     use std::os::unix::fs::PermissionsExt;
@@ -48,15 +47,13 @@ fn remove_rejects_active_reference_and_rolls_back_row() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(start_args(), None).unwrap());
 
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let err = WorkbookRepo::new(home.clone(), store)
+    let err = WorkbookRepo::new(home.clone())
         .remove("two-step", "1.0.0", None)
         .unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookInUse, "{err:?}");
 
     // 行未删：只读库仍能列出，Work 仍可推进。
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    assert_eq!(WorkbookRepo::new(home.clone(), ro).list().unwrap().len(), 1);
+    assert_eq!(WorkbookRepo::new(home.clone()).list().unwrap().len(), 1);
     let (_, card) = svc.status(&wid).unwrap();
     assert_eq!(card.status, sheltie_core::work::WorkStatus::Active);
 }
@@ -66,8 +63,7 @@ fn remove_rejects_active_reference_and_rolls_back_row() {
 #[test]
 fn remove_stops_on_corrupt_reference_row() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), None).unwrap();
     // 直写一行损坏的 state_json。
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -81,8 +77,7 @@ fn remove_stops_on_corrupt_reference_row() {
 
     let err = repo.remove("two-step", "1.0.0", None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    assert_eq!(WorkbookRepo::new(home.clone(), ro).list().unwrap().len(), 1);
+    assert_eq!(WorkbookRepo::new(home.clone()).list().unwrap().len(), 1);
 }
 
 /// 并行 add 各自 staging：互不删除，两个都成功（N02 反面）。
@@ -91,25 +86,21 @@ fn remove_stops_on_corrupt_reference_row() {
 fn parallel_adds_do_not_delete_each_others_staging() {
     let (_d, home) = temp_home();
     // 先串行建库（建库窗口本身由管理根写锁串行化；这里避免测试代码在锁外抢建）。
-    drop(Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap());
     let a = {
         let home = home.clone();
         std::thread::spawn(move || {
-            let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-            WorkbookRepo::new(home.clone(), store).add(&abs(&example_dir("two-step")), None)
+            WorkbookRepo::new(home.clone()).add(&abs(&example_dir("two-step")), None)
         })
     };
     let b = {
         let home = home.clone();
         std::thread::spawn(move || {
-            let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-            WorkbookRepo::new(home.clone(), store).add(&abs(&example_dir("gated-release")), None)
+            WorkbookRepo::new(home.clone()).add(&abs(&example_dir("gated-release")), None)
         })
     };
     a.join().unwrap().unwrap();
     b.join().unwrap().unwrap();
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    let rows = WorkbookRepo::new(home.clone(), ro).list().unwrap();
+    let rows = WorkbookRepo::new(home.clone()).list().unwrap();
     assert_eq!(rows.len(), 2, "两个 Workbook 都在：{rows:?}");
     assert!(home.workbook_dir("two-step", "1.0.0").as_path().exists());
     assert!(
@@ -124,8 +115,7 @@ fn parallel_adds_do_not_delete_each_others_staging() {
 #[test]
 fn add_publish_window_recovered_by_next_write() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), Some("r-a".into()))
         .unwrap();
     // 模拟发布前被杀：行已提交、published 置 0、最终目录撤回 pending。
@@ -151,12 +141,10 @@ fn add_publish_window_recovered_by_next_write() {
     assert!(!final_dir.as_path().exists());
 
     // 下一个写操作先恢复：目录回到最终位置、只读、行 published。
-    let store2 = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    WorkbookRepo::new(home.clone(), store2)
+    WorkbookRepo::new(home.clone())
         .add(&abs(&example_dir("gated-release")), None)
         .unwrap();
     assert!(final_dir.as_path().exists(), "恢复发布了原件");
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let published: i64 = conn
         .query_row(
@@ -168,7 +156,7 @@ fn add_publish_window_recovered_by_next_write() {
     assert_eq!(published, 1);
     drop(conn);
     // 恢复后的目录可用（load 核摘要通过）。
-    let wb = WorkbookRepo::new(home.clone(), ro)
+    let wb = WorkbookRepo::new(home.clone())
         .load("two-step", Some("1.0.0"))
         .unwrap();
     assert_eq!(wb.manifest.id().as_str(), "two-step");
@@ -179,15 +167,13 @@ fn add_publish_window_recovered_by_next_write() {
 #[test]
 fn old_remove_replay_does_not_delete_readded_workbook() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), Some("r-a".into()))
         .unwrap();
     repo.remove("two-step", "1.0.0", Some("r-r".into()))
         .unwrap();
     // 同版本重新装（新对象、新请求）。
-    let store2 = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo2 = WorkbookRepo::new(home.clone(), store2);
+    let repo2 = WorkbookRepo::new(home.clone());
     repo2
         .add(&abs(&example_dir("two-step")), Some("r-a2".into()))
         .unwrap();
@@ -208,8 +194,7 @@ fn old_remove_replay_does_not_delete_readded_workbook() {
         .unwrap();
     assert!(readd.replayed);
     assert!(home.workbook_dir("two-step", "1.0.0").as_path().exists());
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    let rows = WorkbookRepo::new(home.clone(), ro).list().unwrap();
+    let rows = WorkbookRepo::new(home.clone()).list().unwrap();
     assert_eq!(rows.len(), 1);
 }
 
@@ -282,8 +267,7 @@ fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
 #[test]
 fn remove_writes_deleted_marker() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), None).unwrap();
     repo.remove("two-step", "1.0.0", None).unwrap();
     let pending = home.pending_dir();
@@ -303,8 +287,7 @@ fn remove_writes_deleted_marker() {
 fn request_ids_share_one_global_namespace() {
     let (_d, home, svc) = home_with_example("two-step");
     // 先用 r-x 完成一次 add（另一个 Workbook）。
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    WorkbookRepo::new(home.clone(), store)
+    WorkbookRepo::new(home.clone())
         .add(&abs(&example_dir("gated-release")), Some("r-x".into()))
         .unwrap();
     // 同 id 的 start 意图不同 → 冲突，不产生 Work。
@@ -318,8 +301,7 @@ fn request_ids_share_one_global_namespace() {
 #[test]
 fn add_and_remove_replay_return_original_snapshots() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     let add1 = repo
         .add(&abs(&example_dir("two-step")), Some("r-add".into()))
         .unwrap();

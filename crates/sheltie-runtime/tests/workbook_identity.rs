@@ -9,8 +9,7 @@ use std::path::Path;
 use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::{NodeId, WorkId};
-use sheltie_runtime::store::OpenMode;
-use sheltie_runtime::{Error, Home, StartArgs, Store, WorkService, WorkbookRepo};
+use sheltie_runtime::{Error, Home, StartArgs, WorkService, WorkbookRepo};
 
 fn two_step_args() -> StartArgs {
     StartArgs {
@@ -54,8 +53,7 @@ fn load_rejects_tampered_registered_digest() {
 }
 
 fn svc_status_repo(home: &Home) -> WorkbookRepo {
-    let store = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    WorkbookRepo::new(home.clone(), store)
+    WorkbookRepo::new(home.clone())
 }
 
 /// 清理前核归属：被改过的已装目录拒绝 remove，行保留。
@@ -73,8 +71,7 @@ fn remove_refuses_tampered_directory() {
     let err = r.remove("two-step", "1.0.0", None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookTampered, "{err:?}");
     // 行还在。
-    let store = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    let repo2 = WorkbookRepo::new(home.clone(), store);
+    let repo2 = WorkbookRepo::new(home.clone());
     assert_eq!(repo2.list().unwrap().len(), 1);
 }
 
@@ -91,7 +88,11 @@ fn ds_store_rejected_by_name_at_add() {
     let err = r.add(&abs(&dst), None).unwrap_err();
     let msg = err.to_string();
     assert!(msg.contains(".DS_Store"), "{msg}");
-    assert_eq!(r.list().unwrap().len(), 0, "不得留下 Workbook 行");
+    assert!(
+        !home.store_path().as_path().exists(),
+        "非法 add 不创建Store"
+    );
+    assert!(!home.lock_path().as_path().exists(), "非法 add 不创建锁");
     assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
 }
 
@@ -114,10 +115,10 @@ fn self_install_on_new_home_creates_root_store_and_bin() {
 fn readonly_open_never_creates_home() {
     let dir = tempfile::tempdir().unwrap();
     let home = Home::at(abs(dir.path()));
-    match Store::open(&home.store_path(), OpenMode::ReadOnly) {
-        Err(Error::NotFound { .. }) => {}
-        other => panic!("应当 NOT_FOUND：{other:?}"),
-    }
+    assert!(matches!(
+        WorkService::new(home.clone()).list(),
+        Err(Error::NotFound { .. })
+    ));
     let entries: Vec<_> = std::fs::read_dir(dir.path()).unwrap().collect();
     assert!(entries.is_empty(), "只读不得建目录：{entries:?}");
 }
@@ -270,11 +271,16 @@ fn readonly_bits_reduce_accidents_but_digest_is_the_guard() {
     std::fs::write(frozen.join("workbook.toml"), "改了").unwrap();
     // 独立重算：摘要确实变了，且与库里的记录不同。
     let now = WorkbookRepo::digest_dir(&abs(&frozen)).unwrap();
-    let recorded = Store::open(&home.store_path(), OpenMode::ReadOnly)
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let state_json: String = conn
+        .query_row(
+            "SELECT state_json FROM works WHERE work_id = ?1",
+            [wid.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let recorded = serde_json::from_str::<sheltie_core::work::WorkState>(&state_json)
         .unwrap()
-        .load_work(&wid)
-        .unwrap()
-        .state
         .workbook
         .digest;
     assert_ne!(now, recorded, "篡改必须改变摘要");

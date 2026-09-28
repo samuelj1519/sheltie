@@ -204,6 +204,23 @@ fn bounded_read_accepts_exactly_cap_and_rejects_one_more() {
     }
 }
 
+// Task: C002-T24
+#[test]
+fn exclusive_create_returns_the_same_handle_with_final_written_metadata() {
+    let (_dir, home) = temp_home();
+    let lock = home.acquire_lock().unwrap();
+    let fs = sheltie_runtime::fsx::ManagedFs::open_existing(&home).unwrap();
+    let path = sheltie_runtime::fsx::ManagedRelPath::new("tmp/observed-create").unwrap();
+    fs.ensure_dir(
+        &lock,
+        &sheltie_runtime::fsx::ManagedRelPath::new("tmp").unwrap(),
+    )
+    .unwrap();
+    let file = fs.write_new_observed(&lock, &path, b"new bytes").unwrap();
+    assert_eq!(file.metadata().len(), 9);
+    assert_eq!(file.read_bounded(9).unwrap(), b"new bytes");
+}
+
 // Task: C002-T04
 #[test]
 fn oversize_declared_output_rejected_at_observation_as_output_too_large() {

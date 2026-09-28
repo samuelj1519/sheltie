@@ -4,7 +4,6 @@ use serde_json::json;
 use sheltie_core::path::AbsPath;
 use sheltie_runtime::Error;
 use sheltie_runtime::WorkbookRepo;
-use sheltie_runtime::store::OpenMode;
 
 use crate::cli::{WorkbookCmd, parse_workbook_spec};
 use crate::commands::Ctx;
@@ -39,11 +38,7 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
         Ok(p) => p,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let store = match ctx.store(OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     match repo.add(&dir, ctx.request_id.clone()) {
         Ok(snapshot) => {
             // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
@@ -72,11 +67,7 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
 
 /// `workbook list`：每个 id 的最高版本（字面排序）标 `latest`。
 fn list(ctx: &Ctx) -> Outcome {
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let rows = match repo.list() {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -108,11 +99,7 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
         Ok(v) => v,
         Err(m) => return output::param_error(m),
     };
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let loaded = match repo.load(&id, version.as_deref()) {
         Ok(l) => l,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -206,11 +193,7 @@ fn remove(ctx: &Ctx, spec: &str) -> Outcome {
             "remove 必须给全版本，写 {id}@<version>；不接受「最高版本」默认"
         ));
     };
-    let store = match ctx.store(OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     match repo.remove(&id, &version, ctx.request_id.clone()) {
         Ok(snapshot) => {
             let mut data = snapshot.data.clone();
@@ -238,11 +221,7 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
             Err(m) => return output::param_error(m),
         },
     };
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let rows = match repo.verify(filter.as_ref().map(|(i, v)| (i.as_str(), v.as_str()))) {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),

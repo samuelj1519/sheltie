@@ -3,7 +3,6 @@
 use serde_json::json;
 use sheltie_core::ids::NodeId;
 use sheltie_core::work::Reply;
-use sheltie_runtime::store::OpenMode;
 
 use crate::cli::GateCmd;
 use crate::commands::Ctx;
@@ -18,11 +17,8 @@ pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
         Ok(n) => n,
         Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, &work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, &work, ctx.request_id.as_deref()) {
         Ok(w) => w,
         Err(out) => return out,
     };

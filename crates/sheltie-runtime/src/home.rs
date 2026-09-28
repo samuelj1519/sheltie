@@ -182,6 +182,7 @@ impl Home {
 /// 管理根写锁的守卫（存储合同 §2.2，D-035 的 `fs4`）。取得锁前只创建管理根与
 /// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。守卫记下取得锁时的管理根与
 /// 锁对象身份（dev/inode），供获锁后的 §2.2 复核用。
+#[derive(Debug)]
 pub struct HomeLock {
     _file: std::fs::File,
     root: AbsPath,
@@ -273,8 +274,16 @@ impl Home {
             ));
         };
         let root_ident = managed.identity();
-        fs4::fs_std::FileExt::lock_exclusive(&file)
-            .map_err(|e| Error::io(lock_path.as_str(), e))?;
+        match fs4::fs_std::FileExt::try_lock_exclusive(&file) {
+            Ok(true) => {}
+            Ok(false) => {
+                crate::failpoint::rendezvous("home_lock_waiting", lock_path.as_str())
+                    .map_err(|error| Error::io(lock_path.as_str(), error))?;
+                fs4::fs_std::FileExt::lock_exclusive(&file)
+                    .map_err(|error| Error::io(lock_path.as_str(), error))?;
+            }
+            Err(error) => return Err(Error::io(lock_path.as_str(), error)),
+        }
         Ok(HomeLock {
             _file: file,
             root: self.root.clone(),

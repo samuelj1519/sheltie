@@ -395,6 +395,36 @@ impl ManagedFs {
         }
     }
 
+    pub(crate) fn open_optional_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<Option<SafeFile>> {
+        self.check_lock(lock)?;
+        self.open_optional(path)
+    }
+
+    pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {
+        let display = self.display_path(path);
+        let (parent, leaf) = self.open_parent(path)?;
+        let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {
+            Ok(stat) => stat,
+            Err(rustix::io::Errno::NOENT) => return Ok(false),
+            Err(error) => return Err(map_fs_error(&display, error)),
+        };
+        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile
+            || !matches!(stat.st_nlink, 0 | 1)
+        {
+            return Err(Error::InvalidRequest {
+                reason: format!(
+                    "SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）",
+                    stat.st_nlink
+                ),
+            });
+        }
+        Ok(stat.st_nlink == 1)
+    }
+
     /// 持锁独占创建普通文件，写完并同步文件及其父目录。
     pub fn write_new(
         &self,
@@ -403,24 +433,70 @@ impl ManagedFs {
         bytes: &[u8],
     ) -> Result<()> {
         self.check_lock(lock)?;
-        self.write_new_unlocked(path, bytes)
+        drop(self.write_new_observed_unlocked(path, bytes)?);
+        Ok(())
     }
 
-    fn write_new_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<()> {
+    pub fn write_new_observed(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        bytes: &[u8],
+    ) -> Result<SafeFile> {
+        self.check_lock(lock)?;
+        self.write_new_observed_unlocked(path, bytes)
+    }
+
+    fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {
         let (parent, leaf) = self.open_parent(path)?;
         let display = self.display_path(path);
         let fd = openat(
             &parent,
             &leaf,
-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
             Mode::from_raw_mode(0o600),
         )
         .map_err(|e| map_fs_error(&display, e))?;
         let mut file = std::fs::File::from(fd);
-        file.write_all(bytes).map_err(|e| Error::io(&display, e))?;
-        file.sync_all().map_err(|e| Error::io(&display, e))?;
-        fsync(&parent).map_err(|e| map_fs_error(&display, e))?;
-        Ok(())
+        let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;
+        if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {
+            return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {
+                Ok(()) => Err(Error::io(&display, error)),
+                Err(cleanup) => Err(Error::RecoveryRequired {
+                    path: display,
+                    detail: format!("新文件写入失败：{error}；本次创建inode清理失败：{cleanup}"),
+                }),
+            };
+        }
+        let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {
+            path: display.clone(),
+            detail: format!("新文件内容已写入，但无法复核原句柄元数据：{error}"),
+        })?;
+        if !metadata.is_file()
+            || metadata.nlink() != 1
+            || (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())
+        {
+            return Err(Error::RecoveryRequired {
+                path: display,
+                detail: "新文件句柄在写入后身份、类型或链接数改变；保留该对象".into(),
+            });
+        }
+        if let Err(error) = fsync(&parent) {
+            return Err(Error::RecoveryRequired {
+                path: display,
+                detail: format!("新文件已同步但父目录同步失败，保留创建inode：{error}"),
+            });
+        }
+        Ok(SafeFile {
+            file,
+            path: self.absolute(path)?,
+            meta: metadata,
+            managed: Some(ManagedOrigin {
+                root: self.root.clone(),
+                root_ident: self.root_ident,
+                rel: path.clone(),
+            }),
+        })
     }
 
     /// 持锁以同目录临时对象原子替换投影文件；目标叶不跟随符号链接。
@@ -683,6 +759,31 @@ impl ManagedFs {
         let (parent, leaf) = self.open_parent(path)?;
         remove_at(&parent, &leaf, &self.display_path(path))?;
         fsync(&parent).map_err(|e| map_fs_error(&self.display_path(path), e))
+    }
+
+    pub(crate) fn remove_regular_file_if_same(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        observed: &SafeFile,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let origin = observed
+            .managed
+            .as_ref()
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: format!("{} 不是管理根内的文件句柄", observed.path),
+            })?;
+        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的文件句柄身份不匹配", observed.path),
+            });
+        }
+        let (parent, leaf) = self.open_parent(path)?;
+        verify_path_matches_handle(&parent, &leaf, observed)?;
+        unlinkat(&parent, &leaf, AtFlags::empty())
+            .map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        fsync(&parent).map_err(|error| map_fs_error(&self.display_path(path), error))
     }
 
     /// Purge explicitly requested data while retaining the management root and its lock inode.
@@ -974,6 +1075,30 @@ impl ExternalReadFile {
             std::fs::canonicalize(parent).map_err(|e| map_std_error(path.as_str(), e))?;
         let parent =
             AbsPath::new(canonical_parent.to_string_lossy().into_owned()).map_err(Error::Core)?;
+        let fs = ManagedFs::open_root(&parent)?;
+        let leaf = path
+            .as_path()
+            .file_name()
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: format!("{path} 没有文件名"),
+            })?;
+        Ok(Self(open_regular_at(
+            &fs.root_dir,
+            leaf,
+            path.as_str(),
+            path.clone(),
+        )?))
+    }
+
+    pub(crate) fn open_regular_no_follow(path: &AbsPath) -> Result<Self> {
+        let parent = path
+            .as_path()
+            .parent()
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: format!("{path} 没有父目录"),
+            })?;
+        let parent = AbsPath::new(parent.to_string()).map_err(Error::Core)?;
+        let parent = canonical_external_root(&parent)?;
         let fs = ManagedFs::open_root(&parent)?;
         let leaf = path
             .as_path()
@@ -1492,6 +1617,85 @@ pub(crate) fn open_managed_optional(
     ManagedFs::open_existing(home)?.open_optional(&rel)
 }
 
+pub(crate) fn open_managed_optional_locked(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+) -> Result<Option<SafeFile>> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.open_optional_locked(lock, &rel)
+}
+
+pub(crate) fn remove_managed_file_if_same(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    observed: &SafeFile,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.remove_regular_file_if_same(lock, &rel, observed)
+}
+
+pub(crate) fn verify_managed_file_bound(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    observed: &SafeFile,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    let fs = ManagedFs::open_existing(home)?;
+    fs.check_lock(lock)?;
+    let origin = observed
+        .managed
+        .as_ref()
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("{} 不是管理根内文件", observed.path),
+        })?;
+    if origin.root != fs.root || origin.root_ident != fs.root_ident || origin.rel != rel {
+        return Err(Error::InvalidRequest {
+            reason: format!("{} 的受管来源身份不匹配", observed.path),
+        });
+    }
+    let (parent, leaf) = fs.open_parent(&rel)?;
+    verify_path_matches_handle(&parent, &leaf, observed)
+}
+
+pub(crate) fn validate_store_files(home: &crate::home::Home) -> Result<()> {
+    let fs = ManagedFs::open_existing(home)?;
+    let main = ManagedRelPath::new("store.db")?;
+    let main_exists = fs.open_optional(&main)?.is_some();
+    let mut sidecar_exists = false;
+    for name in ["store.db-wal", "store.db-shm", "store.db-journal"] {
+        sidecar_exists |= fs.validate_sqlite_control_file(&ManagedRelPath::new(name)?)?;
+    }
+    if !main_exists && sidecar_exists {
+        return Err(Error::StoreCorrupt {
+            detail: "store.db不存在但仍有SQLite控制文件；拒绝建立新Store".into(),
+        });
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_store_files_locked(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+) -> Result<()> {
+    let fs = ManagedFs::open_existing(home)?;
+    let main = ManagedRelPath::new("store.db")?;
+    let main_exists = fs.open_optional_locked(lock, &main)?.is_some();
+    let mut sidecar_exists = false;
+    for name in ["store.db-wal", "store.db-shm", "store.db-journal"] {
+        fs.check_lock(lock)?;
+        sidecar_exists |= fs.validate_sqlite_control_file(&ManagedRelPath::new(name)?)?;
+    }
+    if !main_exists && sidecar_exists {
+        return Err(Error::StoreCorrupt {
+            detail: "store.db不存在但仍有SQLite控制文件；拒绝建立新Store".into(),
+        });
+    }
+    Ok(())
+}
+
 fn map_fs_error(path: &str, errno: rustix::io::Errno) -> Error {
     let error = std::io::Error::from(errno);
     if error.kind() == std::io::ErrorKind::NotFound {
@@ -1676,6 +1880,25 @@ fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
     drop(dir);
     unlinkat(parent, leaf, AtFlags::REMOVEDIR).map_err(|e| map_fs_error(display, e))?;
     Ok(())
+}
+
+fn unlink_created_at(
+    parent: &std::fs::File,
+    leaf: &str,
+    display: &str,
+    created: &std::fs::Metadata,
+) -> Result<()> {
+    use std::os::unix::fs::MetadataExt as _;
+    let current = statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW)
+        .map_err(|error| map_fs_error(display, error))?;
+    check_regular_stat(display, &current)?;
+    if current.st_dev as u64 != created.dev() || current.st_ino as u64 != created.ino() {
+        return Err(Error::InvalidRequest {
+            reason: format!("{display} 已不再绑定本次创建的inode"),
+        });
+    }
+    unlinkat(parent, leaf, AtFlags::empty()).map_err(|error| map_fs_error(display, error))?;
+    fsync(parent).map_err(|error| map_fs_error(display, error))
 }
 
 fn preflight_remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
@@ -1996,6 +2219,16 @@ pub(crate) fn write_new_file(
 ) -> Result<()> {
     let rel = ManagedRelPath::new(home.to_rel(path)?)?;
     ManagedFs::open_existing(home)?.write_new(lock, &rel, content)
+}
+
+pub(crate) fn write_new_file_observed(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    content: &[u8],
+) -> Result<SafeFile> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.write_new_observed(lock, &rel, content)
 }
 
 /// 不跟随软链的删除：叶子是软链时只删链接本身，目录才递归。清理不得沿链接

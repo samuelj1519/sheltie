@@ -3,7 +3,6 @@
 use serde_json::json;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::work::Reply;
-use sheltie_runtime::store::OpenMode;
 
 use crate::cli::AttemptCmd;
 use crate::commands::Ctx;
@@ -35,11 +34,8 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         Ok(n) => n,
         Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
         Ok(w) => w,
         Err(out) => return out,
     };
@@ -86,11 +82,8 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Ok(a) => a,
         Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
         Ok(w) => w,
         Err(out) => return out,
     };
@@ -135,11 +128,8 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Ok(a) => a,
         Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
     };
-    let svc = match service(ctx, OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(out) => return out,
-    };
-    let wid = match resolve(&svc, work) {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
         Ok(w) => w,
         Err(out) => return out,
     };

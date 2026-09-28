@@ -55,6 +55,8 @@ pub enum Error {
     RecoveryRequired { path: String, detail: String },
     #[error("{reason}")]
     InvalidRequest { reason: String },
+    #[error("读不了输入文件 {path}：{reason}")]
+    InputFileInvalid { path: String, reason: String },
 }
 
 impl Error {
@@ -75,6 +77,7 @@ impl Error {
             Self::Io { .. } => ErrorCode::Io,
             Self::RecoveryRequired { .. } => ErrorCode::Io,
             Self::InvalidRequest { .. } => ErrorCode::InvalidRequest,
+            Self::InputFileInvalid { .. } => ErrorCode::InvalidRequest,
         }
     }
 

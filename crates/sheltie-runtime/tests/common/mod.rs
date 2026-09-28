@@ -4,8 +4,7 @@
 use std::path::{Path, PathBuf};
 
 use sheltie_core::path::AbsPath;
-use sheltie_runtime::store::OpenMode;
-use sheltie_runtime::{Home, Store, WorkService, WorkbookRepo};
+use sheltie_runtime::{Home, WorkService, WorkbookRepo};
 use tempfile::TempDir;
 
 pub fn abs(p: &Path) -> AbsPath {
@@ -48,16 +47,12 @@ pub fn copy_dir(src: &Path, dst: &Path) {
     }
 }
 
-pub fn open_rw(home: &Home) -> Store {
-    Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap()
-}
-
 pub fn repo(home: &Home) -> WorkbookRepo {
-    WorkbookRepo::new(home.clone(), open_rw(home))
+    WorkbookRepo::new(home.clone())
 }
 
 pub fn service(home: &Home) -> WorkService {
-    WorkService::new(home.clone(), open_rw(home))
+    WorkService::new(home.clone())
 }
 
 /// 装好一个样例并返回服务。

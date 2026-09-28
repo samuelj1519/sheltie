@@ -11,8 +11,7 @@ use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::path::AbsPath;
 use sheltie_runtime::request::InputValue;
-use sheltie_runtime::store::OpenMode;
-use sheltie_runtime::{Error, Home, StartArgs, Store, WorkbookRepo};
+use sheltie_runtime::{Error, Home, StartArgs, WorkService, WorkbookRepo};
 
 fn lit(s: &str) -> InputValue {
     InputValue::Literal {
@@ -30,8 +29,8 @@ fn start_args() -> StartArgs {
     }
 }
 
-/// schema 1 的旧库被只读拒绝，且拒绝前后文件字节完全不变（D-033）。
-// Task: C002-T07
+/// schema 1 main/WAL 被各真实写入口拒绝，且拒绝前不建.lock或改写持久字节（D-033）。
+// Task: C002-T24
 #[test]
 fn schema1_store_rejected_without_touching_file() {
     let dir = tempfile::tempdir().unwrap();
@@ -48,16 +47,51 @@ fn schema1_store_rejected_without_touching_file() {
     )
     .unwrap();
     drop(conn);
+    let writer = rusqlite::Connection::open(&db).unwrap();
+    assert!(
+        writer
+            .set_db_config(
+                rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,
+                true,
+            )
+            .unwrap()
+    );
+    writer
+        .execute_batch(
+            "PRAGMA journal_mode = WAL;
+             CREATE TABLE user_records(value TEXT);
+             INSERT INTO user_records VALUES ('keep me');
+             PRAGMA user_version = 1;",
+        )
+        .unwrap();
+    drop(writer);
     let before = std::fs::read(&db).unwrap();
+    let wal = dir.path().join("store.db-wal");
+    let wal_before = std::fs::read(&wal).unwrap();
 
     let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
-    for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
-        match Store::open(&home.store_path(), mode) {
-            Err(Error::StoreSchemaMismatch { .. }) => {}
-            other => panic!("schema 1 应当被拒绝：{other:?}"),
-        }
-    }
-    assert_eq!(std::fs::read(&db).unwrap(), before, "拒绝不得改写任何字节");
+    assert!(matches!(
+        WorkService::new(home.clone()).list(),
+        Err(Error::StoreSchemaMismatch { .. })
+    ));
+    assert!(matches!(
+        WorkbookRepo::new(home.clone()).add(&abs(&example_dir("two-step")), None),
+        Err(Error::StoreSchemaMismatch { .. })
+    ));
+    assert!(matches!(
+        sheltie_runtime::selfmgmt::install(&home),
+        Err(Error::StoreSchemaMismatch { .. })
+    ));
+    assert!(
+        !home.lock_path().as_path().exists(),
+        "拒绝旧schema不得创建.lock"
+    );
+    assert!(
+        !home.lock_path().as_path().exists(),
+        "拒绝旧schema不得创建.lock"
+    );
+    assert_eq!(std::fs::read(&db).unwrap(), before, "拒绝不得改写main");
+    assert_eq!(std::fs::read(&wal).unwrap(), wal_before, "拒绝不得改写WAL");
 }
 
 /// 跨 Work 的 request-id：cancel A 后同 id cancel B 报 REQUEST_CONFLICT，B 保持原状态（O02）。
@@ -174,8 +208,7 @@ fn start_replay_after_workbook_removed_returns_original_snapshot() {
     let args = start_args();
     let wid = work_id_of(&svc.start(args.clone(), Some("r-start".into())).unwrap());
     svc.cancel(&wid, None).unwrap();
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    WorkbookRepo::new(home.clone(), ro)
+    WorkbookRepo::new(home.clone())
         .remove("two-step", "1.0.0", None)
         .unwrap();
 
@@ -304,8 +337,7 @@ fn workbook_add_replay_ignores_source_changes() {
     let dir = tempfile::tempdir().unwrap();
     let src = copy_example("two-step", dir.path());
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
 
     let first = repo.add(&abs(&src), Some("r-add".into())).unwrap();
     assert!(!first.replayed);
@@ -328,8 +360,7 @@ fn workbook_add_replay_ignores_source_changes() {
 #[test]
 fn workbook_remove_replay_and_readd() {
     let (_d, home) = temp_home();
-    let store = Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap();
-    let repo = WorkbookRepo::new(home.clone(), store);
+    let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), Some("r-a".into()))
         .unwrap();
 
