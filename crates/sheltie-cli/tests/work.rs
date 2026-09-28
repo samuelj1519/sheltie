@@ -56,7 +56,7 @@ fn work_start_accepts_at_file_input() {
     let f = env.dir.path().join("topic.txt");
     std::fs::write(&f, "来自文件").unwrap();
     let wid = env.start("two-step", &[("topic", &format!("@{}", f.display()))]);
-    let content = std::fs::read_to_string(env.work_dir(&wid).join("inputs/topic")).unwrap();
+    let content = std::fs::read_to_string(env.work_dir(&wid).join("start-inputs/topic")).unwrap();
     assert_eq!(content, "来自文件");
 }
 
@@ -198,4 +198,289 @@ fn work_start_with_chinese_name_creates_matching_directory() {
     let wid = v["data"]["work_id"].as_str().unwrap();
     assert!(wid.ends_with("-文章-初稿"), "{wid}");
     assert!(env.work_dir(wid).is_dir());
+}
+
+// ── C002-T02：start 的无副作用预检（GF-30） ─────────────────────
+
+/// 独立 oracle：递归列出管理根下的相对路径（跳过 SQLite 的 -wal/-shm，连接关闭时会回收）。
+fn snapshot_tree(root: &std::path::Path) -> Vec<String> {
+    fn walk(dir: &std::path::Path, prefix: &str, out: &mut Vec<String>) {
+        let mut entries: Vec<_> = std::fs::read_dir(dir)
+            .map(|it| it.flatten().collect())
+            .unwrap_or_default();
+        entries.sort_by_key(|e| e.file_name());
+        for entry in entries {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.ends_with("-wal") || name.ends_with("-shm") {
+                continue;
+            }
+            let rel = if prefix.is_empty() {
+                name.clone()
+            } else {
+                format!("{prefix}/{name}")
+            };
+            out.push(rel.clone());
+            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                walk(&entry.path(), &rel, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(root, "", &mut out);
+    out
+}
+
+// Task: C002-T02
+#[test]
+fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let before = snapshot_tree(std::path::Path::new(&env.home()));
+
+    // 缺 topic：INPUT_MISSING，detail 点名缺的键。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INPUT_MISSING");
+    assert_eq!(
+        v["error"]["detail"]["missing"],
+        serde_json::json!(["topic"])
+    );
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 多 key：INPUT_MISSING，detail 点名多的键。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+        "--input",
+        "bonus=y",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INPUT_MISSING");
+    assert_eq!(v["error"]["detail"]["extra"], serde_json::json!(["bonus"]));
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 非法名字：INVALID_REQUEST。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--name",
+        "a/b",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 缺 workbook：NOT_FOUND。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "ghost",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 缺 flow：NOT_FOUND。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "ghost",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
+
+    // 拒绝后只补缺条件即成功；当日序号没有被烧掉，仍是 001。
+    let wid = env.start("two-step", &[("topic", "x")]);
+    assert!(wid.contains("-001-"), "{wid}");
+}
+
+// Task: C002-T02
+#[test]
+fn failed_start_on_new_home_creates_nothing() {
+    let env = Env::new();
+    // 新管理根上没有任何已装 Workbook；失败的 start 不得建 store.db 或任何目录。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    let entries: Vec<_> = std::fs::read_dir(env.dir.path()).unwrap().collect();
+    assert!(entries.is_empty(), "管理根必须为空：{entries:?}");
+
+    // 补上「安装 Workbook」这个条件后同参数成功。
+    env.add_example("two-step");
+    let wid = env.start("two-step", &[("topic", "x")]);
+    assert!(wid.contains("-001-"), "{wid}");
+}
+
+// Task: C002-T02
+#[test]
+fn start_param_errors_exit_2_before_any_storage_access() {
+    let env = Env::new();
+
+    // `--input` 的值不是 k=v：参数错误，退出码 2。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "noequal",
+    ]);
+    assert_eq!(code, 2);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+
+    // `@file` 读不了：退出码 2。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=@/definitely/not/here.txt",
+    ]);
+    assert_eq!(code, 2);
+    assert_eq!(v["error"]["code"], "INVALID_REQUEST");
+
+    // 缺 `--workbook` 必填参数：clap 退出码 2。
+    let out = env
+        .cmd(&["work", "start", "--flow", "default", "--input", "topic=x"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+}
+
+// Task: C002-T10
+#[test]
+fn request_id_rejected_for_readonly_and_self_commands() {
+    let env = Env::new();
+    env.add_example("two-step");
+    for args in [
+        vec!["--request-id", "r-1", "workbook", "list"],
+        vec!["--request-id", "r-1", "work", "status", "any"],
+        vec!["--request-id", "r-1", "self", "version"],
+    ] {
+        let (v, code) = env.fail(&args);
+        assert_eq!(code, 2, "{args:?}：只读与 self 不支持 request-id");
+        assert_eq!(v["error"]["code"], "INVALID_REQUEST", "{args:?}");
+    }
+}
+
+// Task: C002-T10
+#[test]
+fn named_but_missing_workbook_is_not_silently_replaced() {
+    let env = Env::new();
+    env.add_example("two-step");
+    // 协调者按用户指定的 ghost 开工：NOT_FOUND，不换已装的 two-step。
+    let (v, code) = env.fail(&[
+        "work",
+        "start",
+        "--workbook",
+        "ghost",
+        "--flow",
+        "default",
+        "--input",
+        "topic=x",
+    ]);
+    assert_eq!(code, 1);
+    assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert!(
+        v["error"]["message"].as_str().unwrap().contains("ghost"),
+        "{v}"
+    );
+    // 没有任何 Work 被创建。
+    assert!(
+        env.ok(&["work", "list"])["data"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+}
+
+// Task: C002-T10
+#[test]
+fn resume_after_replay_reads_current_status_not_historical_next() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let wid = env.start("two-step", &[("topic", "x")]);
+    let rid = "11111111-2222-3333-4444-555555555555";
+    let begun = env.begin(&wid, "outline");
+    for (_, path) in begun["data"]["outputs"].as_object().unwrap() {
+        let p = std::path::Path::new(path.as_str().unwrap());
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(p, "输出内容\n").unwrap();
+    }
+    let first = env.ok(&[
+        "attempt",
+        "submit",
+        &wid,
+        "--attempt",
+        "outline#1.0",
+        "--summary",
+        "完成",
+        "--request-id",
+        rid,
+    ]);
+    env.ok(&["work", "cancel", &wid]);
+    // 同 id 重放：返回原快照（replayed=true），历史 next 保留；当前状态仍是 cancelled，
+    // 续接以 status 为准，不用历史 next。
+    let replay = env.ok(&[
+        "attempt",
+        "submit",
+        &wid,
+        "--attempt",
+        "outline#1.0",
+        "--summary",
+        "完成",
+        "--request-id",
+        rid,
+    ]);
+    assert_eq!(replay["data"]["replayed"], serde_json::json!(true));
+    assert_eq!(replay["data"]["attempt"], first["data"]["attempt"]);
+    let status = env.status(&wid);
+    assert_eq!(
+        status["data"]["status"],
+        serde_json::json!({"kind": "cancelled"})
+    );
 }

@@ -63,6 +63,26 @@ fn article_review_has_back_edge_human_publish_and_resource_input() {
     );
 }
 
+// Task: C002-T11
+#[test]
+fn article_review_draft_takes_optional_review_verdict_input() {
+    let g = compile_example("article-review");
+    let draft = g.node(&id("draft")).unwrap();
+    let input = draft
+        .inputs()
+        .iter()
+        .find(|i| i.name() == "review")
+        .unwrap_or_else(|| panic!("draft 应声明 review 输入"));
+    assert_eq!(
+        input.source(),
+        &sheltie_core::flow::InputSource::Node {
+            node: id("review"),
+            output: "verdict".to_string(),
+        }
+    );
+    assert!(!input.required());
+}
+
 // Task: T11
 #[test]
 fn gated_release_first_node_is_gate() {
@@ -79,12 +99,72 @@ fn no_example_declares_requires() {
     }
 }
 
-// Task: T11
+// Task: C002-T12
 #[test]
-fn spec_dev_compiles_with_eleven_nodes_twenty_four_edges() {
+fn spec_dev_compiles_with_eleven_nodes_twenty_five_edges() {
     let g = compile_example("spec-dev");
     assert_eq!(g.node_count(), 11);
-    assert_eq!(g.edge_count(), 24);
+    assert_eq!(g.edge_count(), 25);
+}
+
+// Task: C002-T12
+#[test]
+fn spec_dev_binds_decision_into_scaffold_implement_verify() {
+    let g = compile_example("spec-dev");
+    for node in ["scaffold", "implement", "verify"] {
+        let inputs = g.node(&id(node)).unwrap().inputs();
+        let decision = inputs
+            .iter()
+            .find(|i| i.name() == "decision")
+            .unwrap_or_else(|| panic!("{node} 应声明 decision 输入"));
+        assert_eq!(
+            decision.source(),
+            &sheltie_core::flow::InputSource::Node {
+                node: id("plan-review"),
+                output: "decision".to_string(),
+            }
+        );
+        assert!(decision.required(), "{node} 的 decision 应是必需输入");
+        let spec = inputs
+            .iter()
+            .find(|i| i.name() == "spec")
+            .unwrap_or_else(|| panic!("{node} 应声明 spec 输入供批准版本核对"));
+        assert_eq!(
+            spec.source(),
+            &sheltie_core::flow::InputSource::Node {
+                node: id("spec"),
+                output: "spec".to_string(),
+            }
+        );
+    }
+}
+
+// Task: C002-T12
+#[test]
+fn spec_dev_escalation_inputs_cover_return_edge_to_verify() {
+    let g = compile_example("spec-dev");
+    for node in ["scaffold", "verify"] {
+        let escalation = g
+            .node(&id(node))
+            .unwrap()
+            .inputs()
+            .iter()
+            .find(|i| i.name() == "escalation")
+            .unwrap_or_else(|| panic!("{node} 应声明 escalation 输入"));
+        assert_eq!(
+            escalation.source(),
+            &sheltie_core::flow::InputSource::Node {
+                node: id("escalate"),
+                output: "decision".to_string(),
+            }
+        );
+        assert!(!escalation.required());
+    }
+    assert!(
+        g.out_edges(&id("escalate"))
+            .iter()
+            .any(|e| e.to() == &id("verify") && e.kind() == sheltie_core::flow::EdgeKind::Back)
+    );
 }
 
 // Task: T11

@@ -156,9 +156,10 @@ pub fn parse_input_source(value: &str, path: &str) -> Result<InputSource> {
 ///
 /// 要做的检查（都是单字段，不看图）：`schema == "flow/v1"`；各 ID 合规；
 /// `executor` 二选一，`tier` 二选一或缺省；`instruction` 恰一个且 `text` 非空、≤ 8 KiB；
-/// `inputs[].name` 唯一，`required` 默认 `true`；`outputs[].name` 与 `path` 唯一，
-/// `path` 不得是 `brief.md`，`max_bytes` 在 1..=32 MiB；`requires[]` 形如 `kind:name`；
-/// `max_visits` 在 1..=32，`max_retries` 在 0..=8；`edges[].kind` 四选一。
+/// `inputs[].name` 唯一，`required` 默认 `true`；`outputs[].name` 唯一、`path` 走
+/// workbook 合同 §3.2 的四条路径规则（可移植字符集、唯一、不互为祖先、ASCII 大小写
+/// 折叠后仍不得相同或互为祖先）；`max_bytes` 在 1..=32 MiB；`requires[]` 形如
+/// `kind:name`；`max_visits` 在 1..=32，`max_retries` 在 0..=8；`edges[].kind` 四选一。
 fn convert(dto: FlowDto) -> Result<FlowDef> {
     let invalid = |path: String, reason: String| Error::FlowInvalid {
         rule: "parse",
@@ -273,11 +274,15 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
                 return Err(invalid(op("name"), "节点内输出名重复".to_string()));
             }
             let path = RelPath::new(&out.path).map_err(|e| invalid(op("path"), e.to_string()))?;
-            if path.as_str() == "brief.md" {
-                return Err(invalid(op("path"), "不得与 brief.md 相同".to_string()));
-            }
-            if outputs.iter().any(|x: &OutputDecl| x.path == path) {
-                return Err(invalid(op("path"), "节点内输出路径重复".to_string()));
+            validate_output_portable(&path).map_err(|reason| invalid(op("path"), reason))?;
+            if outputs
+                .iter()
+                .any(|x: &OutputDecl| output_paths_conflict(&x.path, &path))
+            {
+                return Err(invalid(
+                    op("path"),
+                    "节点内输出路径重复、互为祖先，或大小写折叠后相同或互为祖先".to_string(),
+                ));
             }
             let max_bytes = out.max_bytes.unwrap_or(OutputDecl::DEFAULT_MAX_BYTES);
             if !(1..=OutputDecl::MAX_MAX_BYTES).contains(&max_bytes) {
@@ -364,6 +369,48 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
         nodes,
         edges,
     })
+}
+
+/// 输出路径的可移植字符集（workbook 合同 §3.2 第 2 条）：每段非空、≤ 128 字节、
+/// 只含 `A-Z a-z 0-9 . _ -`。非 ASCII（含汉字、Unicode 变体）拒绝；这使 ASCII
+/// 大小写折叠成为完整的别名判定，不需要 Unicode 归一化猜测。
+fn validate_output_portable(path: &RelPath) -> std::result::Result<(), String> {
+    const SEGMENT_MAX_BYTES: usize = 128;
+    for segment in path.as_path().components() {
+        let seg = segment.as_str();
+        if seg.is_empty() {
+            return Err("段不能为空".to_string());
+        }
+        if seg.len() > SEGMENT_MAX_BYTES {
+            return Err(format!("段超过 {SEGMENT_MAX_BYTES} 字节"));
+        }
+        if !seg
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-'))
+        {
+            return Err("每段只能含 A-Z、a-z、0-9、.、_ 与 -".to_string());
+        }
+    }
+    Ok(())
+}
+
+/// 两条节点内输出路径是否冲突：逐段先按 ASCII 小写折叠，再比较；完全相同或
+/// 一方是另一方的祖先（段前缀）即冲突。`OUT.md` 与 `out.md`、`Out` 与 `out/x.md`
+/// 都算（workbook 合同 §3.2 第 3、4 条）。
+fn output_paths_conflict(a: &RelPath, b: &RelPath) -> bool {
+    let fold = |p: &RelPath| -> Vec<String> {
+        p.as_path()
+            .components()
+            .map(|c| c.as_str().to_ascii_lowercase())
+            .collect()
+    };
+    let (fa, fb) = (fold(a), fold(b));
+    let (short, long) = if fa.len() <= fb.len() {
+        (&fa, &fb)
+    } else {
+        (&fb, &fa)
+    };
+    long.starts_with(short.as_slice())
 }
 
 #[cfg(test)]
@@ -527,16 +574,75 @@ instruction = {{ text = "做 A" }}
         assert!(parse_flow(&minimal("max_retries = 9")).is_err());
     }
 
-    // Task: T04
+    // 引擎文件与 worker 输出分目录后，声明 brief.md 或 outputs/brief.md 都不再与
+    // Attempt 根的 brief.md 冲突（workbook 合同 §3.2 末段）。
+    // Task: C002-T03
     #[test]
-    fn rejects_output_path_brief_md() {
+    fn accepts_output_paths_named_brief_or_stats() {
+        for legal in [
+            "outputs = [{ name = \"o\", path = \"brief.md\" }]",
+            "outputs = [{ name = \"o\", path = \"outputs/brief.md\" }]",
+            "outputs = [{ name = \"o\", path = \"stats.json\" }]",
+            "outputs = [{ name = \"o\", path = \"outputs/stats.json\" }]",
+            "outputs = [{ name = \"o\", path = \"out.md\" }]",
+        ] {
+            assert!(
+                parse_flow(&minimal(legal)).is_ok(),
+                "{legal} 应当合法（物理路径在 outputs/ 之下）"
+            );
+        }
+    }
+
+    // Task: C002-T03
+    #[test]
+    fn rejects_output_path_outside_portable_charset() {
+        // 只改一个条件：合法路径的一个字符换成汉字。
+        for bad in ["说明.md", "out／x.md", "a b.md", "a+b.md"] {
+            let text = minimal(&format!("outputs = [{{ name = \"o\", path = \"{bad}\" }}]"));
+            assert!(
+                matches!(parse_flow(&text), Err(Error::FlowInvalid { rule: "parse", path, .. })
+                    if path == "nodes[0].outputs[0].path"),
+                "{bad:?} 应当拒绝"
+            );
+        }
+        // 段恰好 128 字节接受，129 字节拒绝。
+        let at = "a".repeat(128);
+        let over = "a".repeat(129);
         assert!(
-            parse_flow(&minimal(
-                "outputs = [{ name = \"o\", path = \"brief.md\" }]"
-            ))
+            parse_flow(&minimal(&format!(
+                "outputs = [{{ name = \"o\", path = \"{at}\" }}]"
+            )))
+            .is_ok()
+        );
+        assert!(
+            parse_flow(&minimal(&format!(
+                "outputs = [{{ name = \"o\", path = \"{over}\" }}]"
+            )))
             .is_err()
         );
-        assert!(parse_flow(&minimal("outputs = [{ name = \"o\", path = \"out.md\" }]")).is_ok());
+    }
+
+    // Task: C002-T03
+    #[test]
+    fn rejects_output_path_duplicate_ancestor_and_folded_alias() {
+        let rejects = |a: &str, b: &str| {
+            let text = minimal(&format!(
+                "outputs = [{{ name = \"p\", path = \"{a}\" }}, {{ name = \"q\", path = \"{b}\" }}]"
+            ));
+            matches!(parse_flow(&text), Err(Error::FlowInvalid { path, .. }) if path == "nodes[0].outputs[1].path")
+        };
+        // 完全重复。
+        assert!(rejects("out/x.md", "out/x.md"));
+        // 互为祖先：out 与 out/sub。
+        assert!(rejects("out", "out/sub"));
+        assert!(rejects("out/sub", "out"));
+        // ASCII 大小写折叠后相同或互为祖先（支持平台默认文件系统大小写不敏感）。
+        assert!(rejects("OUT.md", "out.md"));
+        assert!(rejects("Out", "out/x.md"));
+        // 只改一个条件的正侧：不同名且不互为祖先、大小写不同的段名不同文件。
+        assert!(!rejects("out/x.md", "out/y.md"));
+        assert!(!rejects("notes/a.md", "notes/a/b.md"));
+        assert!(!rejects("Draft.md", "review.md"));
     }
 
     // Task: T04

@@ -179,7 +179,7 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** `crates/sheltie-core/src/flow/parse.rs`。
 
-**测试。** `parses_three_node_flow`（用 [合同 §3](../../contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_parses_engine_stats_only`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`、`rejects_output_path_brief_md`、`rejects_unknown_edge_kind`。
+**测试。** `parses_three_node_flow`（用 [合同 §3](../../contracts/workbook.md) 的样例字节）、`instruction_requires_exactly_one_of_file_or_text`、`input_from_parses_start_resource_and_node_forms`、`input_from_parses_engine_stats_only`、`input_from_rejects_three_segments_for_start_and_node`、`input_from_resource_keeps_slashes_in_path`、`node_requires_parses_kind_colon_name`、`node_requires_rejects_bad_kind`、`input_required_defaults_true_and_parses_false`、`tier_defaults_standard_and_parses_strong`、`defaults_gate_false_visits_1_retries_1`、`rejects_max_visits_zero_or_over_32`（原列 rejects_output_path_brief_md：C002-T03 起输出与引擎文件分目录，该拒绝取消，由 C002-T03 的 accepts_output_paths_named_brief_or_stats 覆盖，见 C002 evidence/t03）、`rejects_unknown_edge_kind`。
 
 **实现要点。** `InputSource::from_str` 先按第一个 `.` 切，前缀是 `start` 或 `resource` 走对应分支，否则是 `node.output` 且只允许一个 `.`。`resource.` 后面的路径可以含 `/`。默认值按合同 §3.2 表。
 
@@ -275,7 +275,7 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** 允许改 `examples/**`（样例本身若有错就改样例）。不改测试。
 
-**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、`spec_dev_compiles_with_eleven_nodes_twenty_four_edges`、`spec_dev_retro_reads_engine_stats`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
+**测试。** `all_examples_compile`、`two_step_has_one_main_edge_and_no_gate`、`article_review_has_back_edge_human_publish_and_resource_input`、`gated_release_first_node_is_gate`、`no_example_declares_requires`、（原列 spec_dev_compiles_with_eleven_nodes_twenty_four_edges：C002-T12 给 spec-dev 补了 escalate→verify 回程边，边数 24→25，该测试改名 spec_dev_compiles_with_eleven_nodes_twenty_five_edges 并由 C002-T12 接管，见 C002 evidence/t12）、`spec_dev_retro_reads_engine_stats`、`spec_dev_optional_inputs_all_point_to_reachable_upstream`、`spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate`、`spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review`、`mutated_two_step_manifest_with_extra_field_is_rejected`。
 
 **实现要点。** 正常情况下启用测试就全绿。红了先看是样例不合合同（改样例）还是 T03 到 T05 有 bug（按第 9 条卡住，报回对应任务）。
 

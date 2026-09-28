@@ -44,28 +44,27 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     let repo = WorkbookRepo::new(ctx.home.clone(), store);
-    match repo.add(&dir) {
-        Ok(added) => {
-            let data = json!({
-                "id": added.id,
-                "version": added.version,
-                "digest": added.digest.as_str(),
-                "flows": added.flows,
-                "requires": added.requires,
-            });
-            let text = format!(
-                "已装 {}@{}\ndigest: {}\nflows: {}\nrequires: {}\n",
-                added.id,
-                added.version,
-                added.digest.as_str(),
-                added.flows.join(", "),
-                if added.requires.is_empty() {
-                    "无".to_string()
-                } else {
-                    added.requires.join(", ")
-                },
-            );
-            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+    match repo.add(&dir, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
+            let mut data = snapshot.data.clone();
+            if let serde_json::Value::Object(map) = &mut data {
+                map.insert("replayed".to_string(), serde_json::json!(snapshot.replayed));
+            }
+            let id = data["id"].as_str().unwrap_or_default().to_string();
+            let version = data["version"].as_str().unwrap_or_default().to_string();
+            let digest = data["digest"].as_str().unwrap_or_default().to_string();
+            let flows = data["flows"]
+                .as_array()
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|v| v.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                })
+                .unwrap_or_default();
+            let text = format!("已装 {id}@{version}\ndigest: {digest}\nflows: {flows}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }
@@ -137,10 +136,14 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
                 .join(", ")
         },
     );
-    for (def, _) in &loaded.flows {
+    for (def, graph) in &loaded.flows {
+        // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
+        // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
+        let start_inputs = sheltie_core::work::start_requirements(graph);
         flows.push(json!({
             "id": def.id().as_str(),
             "entry": def.entry().as_str(),
+            "start_inputs": start_inputs,
             "nodes": def.nodes().iter().map(|n| json!({
                 "id": n.id().as_str(),
                 "title": n.title(),
@@ -154,6 +157,14 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
             })).collect::<Vec<_>>(),
         }));
         text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        text.push_str(&format!(
+            "  起始输入: {}\n",
+            if start_inputs.is_empty() {
+                "无".to_string()
+            } else {
+                start_inputs.join(", ")
+            }
+        ));
         for n in def.nodes() {
             text.push_str(&format!(
                 "  {}  {}  {}{}\n",
@@ -200,16 +211,14 @@ fn remove(ctx: &Ctx, spec: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     let repo = WorkbookRepo::new(ctx.home.clone(), store);
-    match repo.remove(&id, &version) {
-        Ok(removed) => {
-            let text = format!("已删除 {}@{}\n", removed.id, removed.version);
-            output::ok(
-                text,
-                ctx.request_id.clone(),
-                None,
-                json!({ "id": removed.id, "version": removed.version }),
-                Vec::new(),
-            )
+    match repo.remove(&id, &version, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            let mut data = snapshot.data.clone();
+            if let serde_json::Value::Object(map) = &mut data {
+                map.insert("replayed".to_string(), serde_json::json!(snapshot.replayed));
+            }
+            let text = format!("已删除 {id}@{version}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }

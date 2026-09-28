@@ -163,6 +163,8 @@ pub const DESCRIPTION_MAX_BYTES: usize = 2048;
 pub const REQUIRES_MAX: usize = 32;
 /// `source` ≤ 512 字节。
 pub const SOURCE_MAX_BYTES: usize = 512;
+/// version 的内部保留名：引擎自己的 staging 目录段（存储合同 §5.3）。
+pub const RESERVED_VERSION: &str = ".staging";
 
 /// 原始 TOML 结构。未知字段拒绝。
 #[derive(Debug, Deserialize)]
@@ -239,6 +241,13 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
         return Err(invalid(
             "version".to_string(),
             "只能含 0-9、A-Z、a-z、.、+ 与 -".to_string(),
+        ));
+    }
+    // version 要作为单个安全目录段（存储合同 §5.3）：拒绝点段与内部保留名。
+    if matches!(dto.version.as_str(), "." | ".." | RESERVED_VERSION) {
+        return Err(invalid(
+            "version".to_string(),
+            format!("不得是 .、.. 或保留名 {RESERVED_VERSION}"),
         ));
     }
 
@@ -608,5 +617,19 @@ name = "db"
         assert!(m.find_require(RequireKind::Agent, "b").is_some());
         assert!(m.find_require(RequireKind::Skill, "a").is_none());
         assert!(m.find_require(RequireKind::Agent, "c").is_none());
+    }
+
+    // Task: C002-T05
+    #[test]
+    fn version_rejects_dot_segments_and_reserved_name() {
+        for bad in [".", "..", ".staging"] {
+            let text = MINIMAL.replace("\"1.0.0\"", &format!("\"{bad}\""));
+            assert!(
+                matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "version"),
+                "{bad:?} 应当拒绝"
+            );
+        }
+        // 只改一个条件：同样以点开头的合法 version 仍接受。
+        assert!(parse_manifest(&MINIMAL.replace("\"1.0.0\"", "\".1.0\"")).is_ok());
     }
 }

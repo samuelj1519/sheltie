@@ -32,19 +32,19 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | --- | --- | --- | --- |
 | C002-T01 | done | 固定上游合同、兼容性与任务治理；勘误首次提交 | 人采用 |
 | C002-T14 | done | 收紧已校验定义、持久状态验证接口 | T01 |
-| C002-T02 | not_run | StartRequirements 与无副作用 preflight | T14 |
-| C002-T03 | not_run | 单一 WorkLayout 与输出冲突规则 | T14 |
-| C002-T04 | not_run | 管理路径、文件句柄、限额和安全原子写 | T03 |
-| C002-T09 | not_run | 无歧义目录摘要与独立向量 | T04 |
-| C002-T05 | not_run | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |
-| C002-T06 | not_run | 一致事实视图与统计 | T14 |
-| C002-T07 | not_run | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
-| C002-T08 | not_run | Workbook 事务、幂等与发布生命周期 | T05、T07 |
-| C002-T10 | not_run | 输入发现、授权边界与恢复用法 | T02、T07 |
-| C002-T11 | not_run | article-review 打回意见绑定 | T01 |
-| C002-T12 | not_run | spec-dev 单任务与整体交付闭环 | T01 |
-| C002-T13 | not_run | skill 安装产物自包含 | T10 |
-| C002-T15 | not_run | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
+| C002-T02 | done | StartRequirements 与无副作用 preflight | T14 |
+| C002-T03 | done | 单一 WorkLayout 与输出冲突规则 | T14 |
+| C002-T04 | done | 管理路径、文件句柄、限额和安全原子写 | T03 |
+| C002-T09 | done | 无歧义目录摘要与独立向量 | T04 |
+| C002-T05 | done | Workbook 身份、复制核验、只读根与初始化 | T04、T09 |
+| C002-T06 | done | 一致事实视图与统计 | T14 |
+| C002-T07 | done | schema 2、意图、快照、Work 发布与恢复 | T02–T06、T09 |
+| C002-T08 | done | Workbook 事务、幂等与发布生命周期 | T05、T07 |
+| C002-T10 | done | 输入发现、授权边界与恢复用法 | T02、T07 |
+| C002-T11 | done | article-review 打回意见绑定 | T01 |
+| C002-T12 | done | spec-dev 单任务与整体交付闭环 | T01 |
+| C002-T13 | done | skill 安装产物自包含 | T10 |
+| C002-T15 | done | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
 | C002-M1 | not_run | 固定候选全链审查 | T02–T15 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |

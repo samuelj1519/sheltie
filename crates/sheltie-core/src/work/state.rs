@@ -290,6 +290,10 @@ pub struct WorkState {
     pub visits: BTreeMap<NodeId, u32>,
     pub attempts: Vec<Attempt>,
     pub approvals: Vec<Approval>,
+    /// 累计受阻事实（GF-29）：gate 提交成功、重试耗尽、`no_legal_edge` 发生各 +1，
+    /// 由状态转换在发生时记录，取消后不减少。schema 1 的旧 state 没有该字段，
+    /// 读取按「缺字段即拒绝」处理，不用默认值猜历史。
+    pub blocked_count: u32,
     pub created_at: Timestamp,
     pub updated_at: Timestamp,
 }
@@ -401,18 +405,15 @@ impl WorkState {
         self.work_dir.join_segment("workbook")
     }
 
-    /// Attempt 目录 `work_dir/attempts/<node>/<n>/<retry>`。
+    /// Attempt 目录：单一 `WorkLayout`（架构 §5）。
+    /// `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`。
     pub fn attempt_dir(&self, id: &AttemptId) -> AbsPath {
-        self.work_dir
-            .join_segment("attempts")
-            .join_segment(id.node.as_str())
-            .join_segment(&id.occurrence.to_string())
-            .join_segment(&id.retry.to_string())
+        crate::work::layout::attempt_dir(&self.work_dir, id)
     }
 
-    /// 状态卡路径 `work_dir/status-card.md`。
+    /// 状态卡路径 `work_dir/status-card.md`（当前投影）。
     pub fn status_card_path(&self) -> AbsPath {
-        self.work_dir.join_segment("status-card.md")
+        crate::work::layout::status_card_path(&self.work_dir)
     }
 
     pub fn attempt(&self, id: &AttemptId) -> Option<&Attempt> {

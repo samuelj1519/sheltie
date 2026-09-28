@@ -1,0 +1,13 @@
+    Checking sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/glm/crates/sheltie-runtime)
+    Checking sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/glm/crates/sheltie-cli)
+warning: unused import: `WorkState`
+ --> crates/sheltie-cli/src/commands/work.rs:7:33
+  |
+7 | use sheltie_core::work::{Reply, WorkState};
+  |                                 ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sheltie-cli` (bin "sheltie" test) generated 1 warning (1 duplicate)
+warning: `sheltie-cli` (bin "sheltie") generated 1 warning (run `cargo fix --bin "sheltie" -p sheltie-cli` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.63s

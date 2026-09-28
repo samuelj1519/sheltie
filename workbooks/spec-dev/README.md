@@ -17,9 +17,10 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
               卡住 branch（scaffold/implement/fix/verify）─▶ escalate(人)              │
                                                        │                               │
               继续 → 回卡住的那步    跳过 → implement    改方案 → plan    止损 → deliver ┘
+                （scaffold / implement / fix / verify）
 ```
 
-十一个节点、二十四条边。人必经两处：`plan-review` 与 `retro` 的门槛（同时看交付说明与反思）；另有 `escalate` 一处，只在卡住时。
+十一个节点、二十五条边。人必经两处：`plan-review` 与 `retro` 的门槛（同时看交付说明与反思）；另有 `escalate` 一处，只在卡住时。
 
 | 步骤 | 谁 | 产出 | 一句话 |
 | --- | --- | --- | --- |
@@ -28,10 +29,10 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | `plan-review` | 人 | `decision.md` | 第一行 `通过 / 修改规格 / 修改方案` |
 | `scaffold` | 强模型 | `scaffold.md` 加一次骨架提交 | 全部类型、签名、注释、占位函数体、禁用的测试。最后一个做设计的步骤 |
 | `implement` | 标准模型 | `change.md` | 一次一个任务：启用测试、填占位体、过门禁、提交。第一行 `完成 Tnn / 卡住 Tnn` |
-| `verify` | 标准模型（新会话） | `report.md` | 自己跑单任务测试与门禁，核对没改白名单外的文件与测试；第一行 `通过，下一任务 Tnn / 通过，全部完成 / 不通过 / 不通过，需要人` |
+| `verify` | 标准模型（新会话） | `report.md` | 自己跑单任务测试与门禁，按本任务的基线与候选核对改动、占位与批准版本；第一行 `通过，下一任务 Tnn / 通过，全部完成 / 不通过 / 不通过，需要人` |
 | `fix` | 标准模型 | `change.md` | 只修报告里的发现，一次提交。第一行 `修复完成 / 卡住` |
 | `escalate` | 人 | `decision.md` | 卡住、修两轮不过、需要授权时找人。第一行 `继续 / 跳过 / 改方案 / 止损` |
-| `review` | 强模型（新会话） | `report.md` | 对基线到 HEAD 的整体 diff 审查，可跑突变测试；第一行 `通过 / 不通过` |
+| `review` | 强模型（新会话） | `report.md` | 对原始基线到 HEAD 的整体 diff 审查，可跑突变测试；第一行 `通过 / 不通过` |
 | `deliver` | 标准模型 | `delivery.md` | 做了什么、怎么验、还欠什么、对外动作的命令 |
 | `retro` | 标准模型，带 `gate` | `lessons.md` | 读引擎的事实视图与各报告第一行，写出对本 Workbook 的具体修改建议。人批准后 Work 结束 |
 
@@ -57,7 +58,7 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | `fix` | `修复完成`，针对验证报告 | `attempt begin verify` |
 | `fix` | `修复完成`，针对审查报告 | `attempt begin review` |
 | `fix` | `卡住` | `attempt begin escalate` |
-| `escalate` | `继续` | 回到进入 `escalate` 之前的节点：`attempt begin scaffold`、`implement` 或 `fix`（看状态卡 `done` 的倒数第二项） |
+| `escalate` | `继续` | 回到进入 `escalate` 之前的节点：`attempt begin scaffold`、`implement`、`fix` 或 `verify`（看状态卡 `done` 的倒数第二项） |
 | `escalate` | `跳过` | `attempt begin implement` |
 | `escalate` | `改方案` | `attempt begin plan` |
 | `escalate` | `止损` | `attempt begin deliver` |
@@ -97,12 +98,12 @@ sheltie work start --workbook spec-dev --flow default \
 - **CI 在流程外。** 流程内已经跑了三遍门禁，CI 是 push 后换干净环境的再确认，不是验收。让 `plan` 抄 CI 的命令，两边就不会打架。
 - **设计集中在强模型手里，实现者只填空。** 初级模型失败的地方集中在四处：发明类型与接口、读大量上下文、判断自己做完没有、处理细微语义。`scaffold` 把类型、签名、注释、测试一次写好，前两项就没了；测试预写，第三项没了；语言的类型系统与穷尽匹配接住第四项的大半。实现者拿到的是「签名、注释、失败的测试」，这是初级模型最稳的场景。
 - **一次一个任务。** 每次 `implement` 只带一条任务、几个文件、十来个测试，上下文 3k 到 8k token，出错也只丢一个任务。
-- **审查交给机器，模型审查只做一次。** 编译器、测试、门禁抓逐任务的错；`verify` 用 `git diff` 机械核对没改白名单外的文件、没动测试与快照。`review` 只在最后看一次整体 diff，可以跑突变测试找没被测到的逻辑。
+- **审查交给机器，模型审查只做一次。** 编译器、测试、门禁抓逐任务的错；`verify` 按每任务的基线与候选用 `git diff` 机械核对没改白名单外的文件、没动测试与快照、没留本任务的占位。`review` 只在最后看一次原始基线到 `HEAD` 的整体 diff，可以跑突变测试找没被测到的逻辑。
 - **按 `tier` 派模型。** 四个节点标 `strong`（`spec`、`plan`、`scaffold`、`review`），`escalate` 需要判断、由人做，其余 agent 节点 `standard`。一个需求里强模型只用几次，便宜模型跑几十次。
 - **验证者与实现者分开。** 实现者报告不可信，验证者自己跑命令。验证只判「做完没」，审查只在最后看整体，避免每个任务都审一遍的 token 开销。
 - **报告第一行是协议。** 协调者不用读全文，看一行选边。修复者不用问，看「发现」动手。
 - **卡住就找人，不硬做，不绕过。** 缺信息、需要授权、环境坏了、修两轮不过，四种情况都走 `escalate`。人的回答写成文件，给下一步当输入，不是聊天里的一句话。两轮的上限靠报告里手递手传的 `修复轮次` 数字，简单到不会算错。
-- **任务书的「来自」行决定读哪份输入。** 可选输入会一直保留上一次的内容，节点只读「来自」指向的那份，其余当过期忽略。这样防串台，不靠模型自己判断新旧。
+- **任务书的「来自」行决定读哪份过程输入。** 可选输入会一直保留上一次的内容，节点只读「来自」指向的那份，其余当过期忽略。这样防串台，不靠模型自己判断新旧。例外是 `decision`：它是批准记录，每一步都核它写明的获批版本（规格与方案的 sha256），不随「来自」变；`escalation` 只在「来自」是 `escalate` 时读。
 - **门禁由方案写死。** 命令从项目里抄，不由每个实现者现场猜。
 - **一切走文件。** 规格、方案、任务、报告都是文件，任务书只给路径。没有任何一步需要把上一步的全文贴进对话。
 
@@ -111,3 +112,4 @@ sheltie work start --workbook spec-dev --flow default \
 每次采纳 `retro` 的建议出新版本，在这里记一行：版本、采纳了哪些 `Ln`、否决了哪些与原因。`retro` 下次运行会读这一节核对效果。
 
 - 0.1.0 初版。
+- 0.2.0 修 C002 审查确认的三处交付闭环缺口（O09/O10/N08）：任务验证改按「任务基线..候选」核对，占位体带任务编号、只查本任务；`plan-review` 决定写批准版本摘要并交给 `scaffold`/`implement`/`verify` 逐条核对；整体审查固定用 Work 原始基线，改方案不再重设。这一版不是 `retro` 建议，记在这里是为了版本可追溯。

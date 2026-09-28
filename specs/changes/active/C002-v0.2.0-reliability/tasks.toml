@@ -21,13 +21,19 @@ test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/she
 allow_test_changes = true
 
 [C002-T03]
-files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/releases/v0.1.0/plan.md：T01 修订 workbook 合同 §3.2 后，legacy T04 卡列的
+# rejects_output_path_brief_md 描述的拒绝已取消；按 check-tests 规则把该项改为原位注记，
+# 指向本任务的覆盖测试，不改归档计划的其他内容。
+files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T04]
+# crates/sheltie-cli/tests/scenario_article_review.rs：管理根入口规范化（本任务）后，
+# 记录路径成为真实形式（macOS 的 /var → /private/var），该测试的期望前缀需同样
+# canonicalize，只改这一处期望，不改断言语义。
 files = ["crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
-test_files = ["crates/sheltie-runtime/tests"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests/scenario_article_review.rs"]
 allow_test_changes = true
 
 [C002-T09]
@@ -36,7 +42,9 @@ test_files = ["crates/sheltie-runtime/tests"]
 allow_test_changes = true
 
 [C002-T05]
-files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/decisions/D-036-os-principal-from-uid.md：users 0.11.0 被 cargo deny 的
+# RUSTSEC advisory 拒绝，按工程规范勘误为同 API 的维护分支 uzers；语义与确认方式不变。
+files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/decisions/D-036-os-principal-from-uid.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-core"]
 allow_test_changes = true
 
@@ -61,12 +69,22 @@ test_files = ["crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T11]
-files = ["examples/article-review", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/contracts/workbook.md §3 是 examples/article-review/flows/default.toml 的图
+# （§6「即本文 §3 的图」）；draft 增加可选 review.verdict 输入后两处必须同步。
+# specs/contracts/protocol.md attempt begin 的返回补「未绑定的可选输入值为 null」一句：
+# 本任务的 CLI 例要固定该形状，没有合同依据就是文档没写却断言的行为。
+# crates/sheltie-core/src/flow/compile.rs 的 rejects_input_from_node_that_cannot_reach_consumer
+# 夹具按样例字节同步替换目标（draft 输入改多行数组），断言语义不变。
+files = ["examples/article-review", "crates", "specs/contracts/workbook.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
 [C002-T12]
-files = ["workbooks", "crates", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+# specs/contracts/workbook.md §6：spec-dev 的边数随本任务的回程边 24→25，事实同步。
+# specs/releases/v0.1.0/plan.md：legacy T11 卡列的 spec_dev_compiles_with_eleven_nodes_twenty_four_edges
+# 随本任务的图改动改名 spec_dev_compiles_with_eleven_nodes_twenty_five_edges 并由本任务接管；
+# 按 check-tests 规则把旧名改为原位注记（与 C002-T03 同一处置），不改归档计划的其他内容。
+files = ["workbooks", "crates", "specs/contracts/workbook.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
 test_files = ["crates"]
 allow_test_changes = true
 
