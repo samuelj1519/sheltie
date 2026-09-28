@@ -11,6 +11,16 @@ fail() {
 	status=1
 }
 
+# 取不到 tag/commit 时先分清「缺历史」与「没创建」：浅克隆或未拉全历史的检出
+# （CI 的默认 checkout 就是）取不到老 tag，诊断必须点名缺历史，不能说成记录写错。
+missing_history_diag() {
+	if [ "$(git rev-parse --is-shallow-repository 2>/dev/null || echo false)" = "true" ]; then
+		echo "缺历史：当前检出是浅克隆，取不到 $1；治理 job 要 fetch-depth: 0 拉完整历史与 tags"
+	else
+		echo "$1 在当前 Git 历史里找不到（未创建或未推送）"
+	fi
+}
+
 for path in \
 	specs/changes/README.md \
 	specs/changes/proposed \
@@ -156,7 +166,7 @@ for release in specs/releases/v*/README.md; do
 	if [ -z "$tag" ]; then
 		fail "$release 缺 Git tag"
 	elif ! git rev-parse --verify --quiet "refs/tags/$tag" >/dev/null; then
-		fail "$release 的 tag $tag 不能解析"
+		fail "$(missing_history_diag "tag $tag")；$release 记着它"
 	elif [ -n "$release_commit" ] && [ "$(git rev-list -n 1 "$tag")" != "$release_commit" ]; then
 		fail "$release 的 Release commit 与 tag $tag 不一致"
 	fi
@@ -172,7 +182,8 @@ for release in specs/releases/v*/README.md; do
 	' "$release" | grep -q '](' || fail "$release 的验收段没有证据链接"
 	while IFS= read -r commit; do
 		[ -n "$commit" ] || continue
-		git cat-file -e "${commit}^{commit}" 2>/dev/null || fail "$release 的 commit $commit 不能解析"
+		git cat-file -e "${commit}^{commit}" 2>/dev/null ||
+			fail "$(missing_history_diag "commit $commit")；$release 提到它"
 	done < <(grep -E 'commit|闭包' "$release" | grep -oE '[0-9a-f]{40}' || true)
 done
 
@@ -191,17 +202,35 @@ version="$(awk '
 ' Cargo.toml)"
 if [ -z "$version" ]; then
 	fail "Cargo.toml 取不到 workspace version"
-elif ! grep -q "^## \[$version\]" CHANGELOG.md; then
-	fail "CHANGELOG.md 没有版本 $version"
 fi
 
+# 已发布 release 与开发中的 active target/RC 分开验证（C002-T15）：有 release record
+# 的版本按已发布核 tag 与 commit；开发中的版本等于 active 目标版本或其 RC 就行，
+# 不要求已有 tag（发布还没做，不能逼着造 tag），CHANGELOG 允许先写 [Unreleased]。
 current_release="specs/releases/v${version}/README.md"
-if [ ! -f "$current_release" ]; then
-	fail "当前 Cargo 版本 $version 缺 release record"
-elif ! grep -q "^Git tag：\`v${version}\`" "$current_release"; then
-	fail "$current_release 的 tag 与 Cargo 版本 $version 不一致"
-elif ! git rev-parse --verify --quiet "refs/tags/v${version}" >/dev/null; then
-	fail "当前 Cargo 版本的 tag v${version} 不能解析"
+base_version="${version%%-*}"
+active_target="$(sed -n 's/^目标版本：`v\([^`]*\)`.*/\1/p' specs/changes/active/C*/README.md 2>/dev/null | head -1)"
+if [ -f "$current_release" ]; then
+	if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+		fail "CHANGELOG.md 没有版本 $version"
+	fi
+	if ! grep -q "^Git tag：\`v${version}\`" "$current_release"; then
+		fail "$current_release 的 tag 与 Cargo 版本 $version 不一致"
+	elif ! git rev-parse --verify --quiet "refs/tags/v${version}" >/dev/null; then
+		fail "$(missing_history_diag "tag v${version}")；$current_release 记着它"
+	fi
+else
+	dev_ok=""
+	if [ -n "$active_target" ] && [ "$base_version" = "$active_target" ]; then
+		case "$version" in
+		"$active_target" | "$active_target"-rc.*) dev_ok=1 ;;
+		esac
+	fi
+	if [ -z "$dev_ok" ]; then
+		fail "当前 Cargo 版本 $version 既没有 release record，也不是 active 目标版本/RC（${active_target:-无 active}）"
+	elif ! grep -q "^## \[$version\]" CHANGELOG.md && ! grep -q '^## \[Unreleased\]' CHANGELOG.md; then
+		fail "CHANGELOG.md 既没有版本 $version 也没有 [Unreleased] 段"
+	fi
 fi
 
 if [ "$status" -eq 0 ]; then
