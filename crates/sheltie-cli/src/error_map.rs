@@ -106,6 +106,7 @@ fn detail_of(err: &Error) -> Option<serde_json::Value> {
             json!({ "detail": detail })
         }
         Error::Io { path, source } => json!({ "path": path, "error": source.to_string() }),
+        Error::RecoveryRequired { path, detail } => json!({ "path": path, "error": detail }),
         Error::InvalidRequest { reason } => json!({ "reason": reason }),
     };
     Some(detail)

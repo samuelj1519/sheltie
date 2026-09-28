@@ -93,7 +93,10 @@ fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
     } else if ctx.json {
         false
     } else {
-        println!("将删除整个管理根 {}", ctx.home.root().as_str());
+        println!(
+            "将清理管理根中的 Workbook、Work、pending、临时文件、binary 与数据库；保留根目录和锁文件：{}",
+            ctx.home.root().as_str()
+        );
         let mut line = String::new();
         match std::io::stdin().read_line(&mut line) {
             Ok(_) => line.trim() == "yes",
@@ -104,10 +107,14 @@ fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
         Ok(kept) => {
             if purge {
                 return output::ok(
-                    format!("已删除 {}\n", ctx.home.root().as_str()),
+                    format!(
+                        "已清理管理数据与 binary。保留：\n  {}\n  {}\n",
+                        ctx.home.root(),
+                        ctx.home.lock_path()
+                    ),
                     ctx.request_id.clone(),
                     None,
-                    json!({ "kept": [] }),
+                    json!({ "kept": kept.iter().map(|path| path.as_str()).collect::<Vec<_>>() }),
                     Vec::new(),
                 );
             }

@@ -9,6 +9,20 @@ use common::*;
 use sheltie_runtime::Error;
 use sheltie_runtime::selfmgmt::{self, ReleaseSource};
 
+fn sentinel(dir: &Path, name: &str) -> std::path::PathBuf {
+    let path = dir.join(name);
+    std::fs::write(&path, format!("sentinel-{name}")).unwrap();
+    path
+}
+
+fn snapshot(path: &Path) -> (Vec<u8>, u32) {
+    use std::os::unix::fs::PermissionsExt as _;
+    (
+        std::fs::read(path).unwrap(),
+        std::fs::metadata(path).unwrap().permissions().mode(),
+    )
+}
+
 /// 写一个 tag 目录：`<base>/<tag>/dist-manifest.json` 与该 tag 的资产。
 /// 本地发布目录镜像远端 tag 布局（存储合同 §9）：`latest/` 是移动别名，
 /// 固定 tag 的清单与资产都在 `v<version>/` 下。
@@ -112,6 +126,64 @@ fn update_rejects_checksum_mismatch_and_leaves_binary_intact() {
     );
 }
 
+// Task: C002-T23
+#[cfg(feature = "failpoint")]
+#[test]
+fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
+    use std::time::{Duration, Instant};
+
+    let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
+    let (dir, home) = temp_home();
+    selfmgmt::install(&home).unwrap();
+    let before = std::fs::read(bin_path(&home)).unwrap();
+    let prev = std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie.prev");
+    std::fs::write(&prev, b"older previous binary").unwrap();
+    let prev_before = std::fs::read(&prev).unwrap();
+    let source = make_release(&dir.path().join("release"), "9.9.9", false);
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "update_after_candidate_verify",
+        home.root().as_str(),
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = Guard;
+    let update_home = home.clone();
+    let update = std::thread::spawn(move || selfmgmt::update(&update_home, &source, None));
+    let reached = rendezvous.path().join("reached");
+    let release = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !reached.exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !reached.exists() {
+        let _ = std::fs::write(&release, b"release");
+        let _ = update.join();
+        panic!("update 未到达候选核验后的同步点");
+    }
+    let tmp = std::fs::read_dir(home.tmp_dir().as_path())
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    std::fs::write(tmp.join("sheltie-candidate"), b"unverified replacement").unwrap();
+    std::fs::write(&release, b"release").unwrap();
+    assert!(matches!(
+        update.join().unwrap(),
+        Err(Error::InvalidRequest { .. })
+    ));
+    assert_eq!(std::fs::read(bin_path(&home)).unwrap(), before);
+    assert_eq!(std::fs::read(&prev).unwrap(), prev_before);
+    assert_tmp_clean(&home);
+}
+
 // Task: T20
 #[test]
 fn update_reports_unavailable_when_no_asset_for_platform() {
@@ -197,6 +269,237 @@ fn uninstall_purge_requires_yes() {
     assert_eq!(entries[0].as_ref().unwrap().file_name(), ".lock");
 }
 
+// Task: C002-T23
+#[test]
+fn purge_removes_frozen_work_and_binary_but_preserves_same_root_lock() {
+    use std::os::unix::fs::MetadataExt as _;
+
+    let (_d, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let begun = svc
+        .begin(
+            &wid,
+            &sheltie_core::ids::NodeId::new("outline").unwrap(),
+            None,
+        )
+        .unwrap();
+    write_output(&output_dir_of(&begun), "outline.md", "draft");
+    selfmgmt::install(&home).unwrap();
+    drop(svc);
+    let database_before = std::fs::read(home.store_path().as_path()).unwrap();
+    let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+
+    let kept = selfmgmt::uninstall(&home, true, true).unwrap();
+
+    assert_eq!(kept, vec![home.root().clone(), home.lock_path()]);
+    assert_eq!(
+        std::fs::read_dir(home.root().as_path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+            .collect::<Vec<_>>(),
+        vec![".lock"]
+    );
+    let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+    assert_eq!(
+        (lock_after.dev(), lock_after.ino()),
+        (lock_before.dev(), lock_before.ino())
+    );
+    assert!(!home.store_path().as_path().exists());
+    assert!(!home.bin_dir().as_path().exists());
+    assert!(!home.workbooks_dir().as_path().exists());
+    assert!(!home.works_dir().as_path().exists());
+    assert!(!home.pending_dir().as_path().exists());
+    assert!(!home.tmp_dir().as_path().exists());
+    assert!(!database_before.is_empty());
+}
+
+// Task: C002-T23
+#[test]
+fn install_rejects_tmp_parent_symlink_and_preserves_external_sentinel() {
+    let outside = tempfile::tempdir().unwrap();
+    let external = sentinel(outside.path(), "install-tmp-sentinel");
+    let external_before = snapshot(&external);
+    let (_dir, home) = temp_home();
+    std::os::unix::fs::symlink(outside.path(), home.tmp_dir().as_path()).unwrap();
+
+    let error = selfmgmt::install(&home).unwrap_err();
+    assert!(error.to_string().contains("符号链接"), "{error:?}");
+    assert_eq!(snapshot(&external), external_before);
+    assert!(!home.bin_dir().as_path().join("sheltie").exists());
+}
+
+// Task: C002-T23
+#[test]
+fn rollback_rejects_bin_parent_symlink_and_preserves_external_binaries() {
+    let outside = tempfile::tempdir().unwrap();
+    let target = sentinel(outside.path(), "sheltie");
+    let previous = sentinel(outside.path(), "sheltie.prev");
+    let target_before = snapshot(&target);
+    let previous_before = snapshot(&previous);
+    let (_dir, home) = temp_home();
+    std::os::unix::fs::symlink(outside.path(), home.bin_dir().as_path()).unwrap();
+
+    let error = selfmgmt::rollback(&home).unwrap_err();
+    assert!(error.to_string().contains("符号链接"), "{error:?}");
+    assert_eq!(snapshot(&target), target_before);
+    assert_eq!(snapshot(&previous), previous_before);
+}
+
+// Task: C002-T23
+#[test]
+fn update_rejects_symlink_in_archive_without_chmodding_its_target() {
+    use std::os::unix::fs::{PermissionsExt as _, symlink};
+
+    let (fixture, home) = temp_home();
+    selfmgmt::install(&home).unwrap();
+    let original_binary = std::fs::read(bin_path(&home)).unwrap();
+    let external = sentinel(fixture.path(), "archive-link-target");
+    std::fs::set_permissions(&external, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let external_before = snapshot(&external);
+
+    let version = "8.6.1";
+    let platform = selfmgmt::platform();
+    let archive_name = format!("sheltie-cli-{version}-{platform}.tar.xz");
+    let package_dir = format!("sheltie-cli-{version}-{platform}");
+    let staging = fixture.path().join("symlink-archive");
+    let package = staging.join(&package_dir);
+    std::fs::create_dir_all(&package).unwrap();
+    symlink(&external, package.join("sheltie")).unwrap();
+    let archive = fixture.path().join(&archive_name);
+    let packed = std::process::Command::new("tar")
+        .args(["-cJf", archive.to_str().unwrap(), &package_dir])
+        .current_dir(&staging)
+        .output()
+        .unwrap();
+    assert!(
+        packed.status.success(),
+        "tar打包失败：{}",
+        String::from_utf8_lossy(&packed.stderr)
+    );
+    let archive_bytes = std::fs::read(&archive).unwrap();
+    let digest = sheltie_core::digest::Sha256Hex::of_bytes(&archive_bytes);
+    let manifest = serde_json::json!({
+        "version": version,
+        "assets": [{ "platform": platform, "name": archive_name.clone(), "sha256": digest.as_str() }]
+    })
+    .to_string();
+    let release_root = fixture.path().join("release");
+    write_tag_dir(&release_root, "latest", &manifest, &[]);
+    write_tag_dir(
+        &release_root,
+        &format!("v{version}"),
+        &manifest,
+        &[(archive_name.as_str(), &archive_bytes)],
+    );
+
+    let error = selfmgmt::update(&home, &release_source(&release_root), Some(version)).unwrap_err();
+    assert!(error.to_string().contains("链接或特殊对象"), "{error:?}");
+    assert_eq!(std::fs::read(bin_path(&home)).unwrap(), original_binary);
+    assert_eq!(snapshot(&external), external_before);
+    assert_no_prev(&home);
+    assert_tmp_clean(&home);
+}
+
+#[cfg(feature = "failpoint")]
+static PURGE_PARTIAL_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+// Task: C002-T23
+#[cfg(feature = "failpoint")]
+#[test]
+fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
+    use std::time::{Duration, Instant};
+
+    let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
+    let (dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    svc.begin(
+        &wid,
+        &sheltie_core::ids::NodeId::new("outline").unwrap(),
+        None,
+    )
+    .unwrap();
+    selfmgmt::install(&home).unwrap();
+    let database = std::fs::read(home.store_path().as_path()).unwrap();
+    use std::os::unix::fs::MetadataExt as _;
+    let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+    drop(svc);
+
+    let rendezvous = tempfile::tempdir().unwrap();
+    let root_name = home.root().as_str().to_string();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "purge_after_top_level_delete",
+        &root_name,
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = Guard;
+    let purge_home = home.clone();
+    let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
+    let reached = rendezvous.path().join("reached");
+    let release = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !reached.exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !reached.exists() {
+        let _ = std::fs::write(&release, b"release");
+        let _ = purge.join();
+        panic!("purge 未到达首个根目录删除后的同步点");
+    }
+    let blocked = home.work_dir(&wid).join_segment("purge-special");
+    let fifo = std::process::Command::new("mkfifo")
+        .arg(blocked.as_str())
+        .status()
+        .unwrap();
+    assert!(fifo.success());
+    struct ReleaseGuard(std::path::PathBuf);
+    impl Drop for ReleaseGuard {
+        fn drop(&mut self) {
+            let _ = std::fs::write(&self.0, b"release");
+        }
+    }
+    let _release = ReleaseGuard(release.clone());
+    std::fs::write(&release, b"release").unwrap();
+    let result = purge.join().unwrap();
+
+    match result {
+        Err(Error::Io { path, source }) => {
+            assert!(path.contains("works"), "失败位置要明确：{path}");
+            let detail = source.to_string();
+            assert!(detail.contains("部分清理"), "{detail}");
+            assert!(detail.contains("workbooks"), "已完成顶层项要明确：{detail}");
+        }
+        other => panic!("特殊文件导致的部分purge未报告：{other:?}"),
+    }
+    assert!(!home.workbooks_dir().as_path().exists());
+    assert!(home.works_dir().as_path().exists());
+    assert!(home.bin_dir().as_path().exists());
+    assert_eq!(
+        std::fs::read(home.store_path().as_path()).unwrap(),
+        database
+    );
+    let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+    assert_eq!(
+        (lock_after.dev(), lock_after.ino()),
+        (lock_before.dev(), lock_before.ino())
+    );
+    assert!(
+        home.root()
+            .as_path()
+            .join("works")
+            .join(wid.as_str())
+            .join("purge-special")
+            .exists()
+    );
+    drop(dir);
+}
+
 // ── M3 里程碑审查补测：发布链与 install 语义（挂 T20） ─────────────────────
 
 // Task: T20
@@ -213,6 +516,102 @@ fn platform_matches_supported_target_triples() {
     if let Some(e) = expect {
         assert_eq!(selfmgmt::platform(), e);
     }
+}
+
+// Task: C002-T23
+#[cfg(feature = "failpoint")]
+#[test]
+fn purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock() {
+    use std::time::{Duration, Instant};
+
+    let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
+    let (_dir, home) = temp_home();
+    selfmgmt::install(&home).unwrap();
+    let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+    use std::os::unix::fs::MetadataExt as _;
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "purge_before_final_rescan",
+        home.root().as_str(),
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = Guard;
+    let purge_home = home.clone();
+    let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
+    let reached = rendezvous.path().join("reached");
+    let release = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !reached.exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !reached.exists() {
+        let _ = std::fs::write(&release, b"release");
+        let _ = purge.join();
+        panic!("purge 未到达最终复核同步点");
+    }
+    std::fs::write(
+        home.root().join_segment("store.db-shm").as_path(),
+        b"late shm",
+    )
+    .unwrap();
+    std::fs::write(&release, b"release").unwrap();
+    let kept = purge.join().unwrap().unwrap();
+    assert_eq!(kept, vec![home.root().clone(), home.lock_path().clone()]);
+    assert!(!home.root().join_segment("store.db-shm").as_path().exists());
+    let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+    assert_eq!(lock_before.dev(), lock_after.dev());
+    assert_eq!(lock_before.ino(), lock_after.ino());
+}
+
+// Task: C002-T23
+#[cfg(feature = "failpoint")]
+#[test]
+fn purge_reports_partial_progress_if_locked_inode_is_unlinked() {
+    use std::time::{Duration, Instant};
+
+    let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
+    let (_dir, home) = temp_home();
+    selfmgmt::install(&home).unwrap();
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "purge_before_final_rescan",
+        home.root().as_str(),
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = Guard;
+    let purge_home = home.clone();
+    let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
+    let reached = rendezvous.path().join("reached");
+    let release = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !reached.exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !reached.exists() {
+        let _ = std::fs::write(&release, b"release");
+        let _ = purge.join();
+        panic!("purge 未到达最终复核同步点");
+    }
+    std::fs::remove_file(home.lock_path().as_path()).unwrap();
+    std::fs::write(&release, b"release").unwrap();
+    let result = purge.join().unwrap();
+    assert!(matches!(result, Err(Error::Io { .. })));
+    assert!(!home.lock_path().as_path().exists(), "不得在错误锁下重建锁");
+    assert!(home.root().as_path().exists());
 }
 
 // Task: T20

@@ -110,6 +110,28 @@ fn self_update_json_stdout_is_single_document() {
     assert_eq!(v["data"]["up_to_date"], true);
 }
 
+// Task: C002-T23
+#[test]
+fn self_update_resolves_relative_release_base_from_command_directory() {
+    let env = Env::new();
+    write_current_version_fixture(&env);
+    let out = env
+        .cmd(&["self", "update"])
+        .current_dir(env.dir.path())
+        .env("SHELTIE_RELEASE_BASE", "rel")
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "stdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let response: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(response["ok"], true);
+    assert_eq!(response["data"]["up_to_date"], true);
+}
+
 // Task: C002-T15
 #[test]
 fn self_install_text_prompt_explains_schema2_and_rollback_limit() {
@@ -160,4 +182,32 @@ fn self_update_version_flag_pins_tag() {
     let expect = format!("cli fixture payload 8.8.8 for {platform}");
     let bin = env.dir.path().join("bin").join("sheltie");
     assert_eq!(std::fs::read_to_string(&bin).unwrap(), expect);
+}
+
+// Task: C002-T23
+#[test]
+fn purge_reports_the_retained_root_and_lock() {
+    let env = Env::new();
+    let result = env.ok(&["self", "uninstall", "--purge", "--yes"]);
+    let home = std::fs::canonicalize(env.home()).unwrap();
+    assert_eq!(
+        result["data"]["kept"],
+        serde_json::json!([home.to_str().unwrap(), home.join(".lock").to_str().unwrap()])
+    );
+    let text = String::from_utf8_lossy(
+        &env.cmd_text(&["self", "uninstall", "--purge", "--yes"])
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .to_string();
+    assert!(text.contains("保留"), "{text}");
+    assert!(home.join(".lock").is_file());
+    assert_eq!(
+        std::fs::read_dir(&home)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+            .collect::<Vec<_>>(),
+        vec![".lock"]
+    );
 }

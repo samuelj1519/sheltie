@@ -44,6 +44,8 @@ sheltie work status <work>          # status: succeeded
 
 不知道下一步做什么，就看每次响应里的下一步列表（文本模式下是「下一步：」，JSON 模式下是 `next` 数组，每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。升级用 `sheltie self update`，出问题 `sheltie self rollback`。注意 rollback 只换回旧二进制，不降级 Store：schema 是 2，旧数据留在旧管理根，查旧记录要旧二进制配旧管理根。
 
+`sheltie self uninstall` 默认只删除 `bin/`，保留 Store、Workbook 和 Work。`sheltie self uninstall --purge --yes` 清除管理数据与安装二进制，但保留原管理根和同一个 `.lock`；失败响应会列出已完成清理的顶层目录及出错位置，修复原因后可重复执行。
+
 在 Claude Code 里可以输入 `/sheltie` 让协调者代劳。装 skill 取发布资产 `sheltie-skill.tar.gz`（发布流程随每版挂出的自包含交付，解压即用，不依赖保留源码目录）：
 
 ```bash
