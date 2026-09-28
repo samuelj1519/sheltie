@@ -1,0 +1,456 @@
+e1a8126a432981df40023628dd06feec7884d458 Merge branch 'mimo' into codex
+
+2320020012701afa4a3ffdee776cf2dc5810d651 feat(self): self 生命周期、CI 与发布质量门禁
+为什么：self 安装/更新这条链上有三个洞——`--modify-path` 会写用户 shell rc
+（越出引擎只写管理根的边界）、`--json` 的 stdout 混着文本提示、更新对着两份
+`latest/` 清单与资产取版本（N06 的漂移窗口）；发布侧质量门禁与 MSRV 只是
+文档要求，没有接到 announce 上，check-specs 也不分已发布与开发中版本，浅
+克隆下诊断说不清缺的是什么。
+
+改了什么：删掉 `--modify-path`，`--json` stdout 只出协议 JSON，self 拒
+request-id；更新按固定 tag 一次解析版本/清单/资产，下载、摘要、解包、替换、
+rollback 五个失败窗口都留旧二进制、不建 `.prev`、清 tmp；安装/更新提示写明
+Store schema 2 与「rollback 只换回旧二进制，不降级 Store」。管理根写锁按
+存储合同 §2.2 复核根与 `.lock` 身份，purge 持锁删根后等待者释放旧锁整体
+重试。check-specs 分开核已发布 release 与 active 目标/RC，缺历史与未创建
+分开诊断；build.yml 的 docs 与 release.yml 新增的同 SHA `quality` 拉完整
+历史并实跑 MSRV 1.85 locked；announce 只在 quality 成功时建 Release。
+
+怎么验证：门禁与原始输出见
+specs/changes/active/C002-v0.2.0-reliability/evidence/t15/。C002-T15 归属
+32 例（31 新增 + 1 改写）：五个失败窗口各配只改一个条件的反例，旧二进制字
+节、`.prev`、tmp/ 与 store.db 字节是独立 oracle；固定 tag 四例钉住不混包；
+purge 等待者与并发串行三例；治理夹具七例与工作流三例（含两个单条件反例证
+明质量失败不能发布）；MSRV 1.85 locked 与 `dist plan` 真实形状本地实跑。
+独立 Reviewer 三轮（需修改→需修改→通过），逐条处置见证据目录。
+
+Change: C002
+Task: C002-T15
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+4960e9fc2295d02d9abdd624375d82340dcba7d4 feat(skill): skill 安装产物自包含交付
+GF-18 要求安装产物自包含：复制到任何目录后全部引用仍可解析，引用的
+命令合同由单一权威生成并校验，不手工维护两份。仓库 skills/sheltie/
+SKILL.md 保留指向 specs/contracts 的链接（合同就是唯一权威），打包时
+scripts/skill-delivery.sh 才把 SKILL.md 指向的合同收进 references/ 并
+改写链接；交付内解析不到的本地链接去链接只留文字——两份合同的本地链
+接闭包有 150 余文件，收不进交付，死链又不合格——storage.md 类文件因
+此不随包发布，内容回仓库 specs/。verify 拿「当前树重新生成的一份」逐
+文件比对：漏同步一份 reference 必被发现，「生成并校验」就落在这一步，
+也因此只适合同一源码的交付。
+
+验证：八例隔离安装 fixture 全用独立手写 oracle（交付文件集合、链接清
+单、tar 成员表、协议 §2 白名单、strip_links 归一后的正文比对），正例
+含安装副本逐项解析、移除源码树与移动后复查、发布链 README/release.yml
+/tar 三处同名；反例各改一个条件（漏一份 reference、内容过期、链接逃
+回仓库路径、权威缺文件）均让 check-skill 非零并点名。check-skill 补链
+接解析与交付自包含两条规则并加 --delivery；release.yml announce 挂
+sheltie-skill.tar.gz，README 装法改为从发布资产解压，不依赖保留源码路
+径。pack 不再 rm -rf 输出目录（只准尚不存在或已空，拒绝空串、/、仓库
+根、skill 源目录），tar 前先 verify。433 tests 与全部门禁过。独立
+Reviewer 三轮：首轮需修改（证据预填 check-task 退出码、plan.md 状态未
+翻，加可选五条），二轮需修改（leaky 归因与原始输出不符），按处方改毕
+后三轮通过。证据见 evidence/t13。
+
+Change: C002
+Task: C002-T13
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+c1a530e2a7acf89cff77c9c5c62bb48c42f64f67 feat(workbook): spec-dev 单任务与整体交付闭环
+方案的「基线」只记一次（Work 开始时的 HEAD），改方案从上一版原样抄、
+不重设；每个任务在 change.md 记自己的基线/提交，verify 只核当前任务
+（含修复轮次）的改动与占位体——别的任务留的占位合法，没标编号的占位
+判不通过。plan-review 的决定记「批准的规格/批准的方案」两行 sha256，
+随 Flow 输入交给 scaffold/implement/verify；方案修订使旧批准失效，worker
+卡住升级给人。补 escalate→scaffold 与 verify 升级返回的边、escalation
+可选输入与说明书三件套。全部约定在 Workbook 层，引擎不记 Spec/Plan/Git
+状态。合同 §6 边数 24→25 同步；归档计划 T11 卡旧测试名按 T03 先例改
+原位注记。
+
+验证：独立临时项目 Git 仓库 + 真实 CLI 十例，五组闭环各配手写文件集
+与路径后缀 oracle 并核任务书输入绑定——两任务改不同文件（对照组钉 O09
+累计范围失败形态）、共用文件留未来占位、附条件批准进三节点、verify/
+scaffold 升级按人意见返回、任务 1 完成后改方案最终 review 仍含任务 1；
+反例含越界文件、本任务占位残留、无编号占位、旧批准失效卡住零提交、
+重设基线丢任务 1。静态图三例钉 11 节点 25 边与 decision/escalation
+绑定。425 tests 与全部门禁过。独立 Reviewer 两轮需修改（G2 缺 brief
+绑定、证据 change/report 虚报、无编号占位无落证、计数过期），逐条修复
+后按其放行条件改毕。首次提交尝试暴露夹具 git 被钩子环境的 GIT_DIR
+类变量劫持（临时项目暂存到宿主索引，git reset 恢复、工作树完好），
+夹具改环境隔离后复验通过。证据见 evidence/t12。
+
+Change: C002
+Task: C002-T12
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+c600d66e927428be744f4aa7fdc05f78de5c0427 docs(specs): 修复 C004–C007 提案的机制与实施计划
+补齐受保护输入与 Attempt 计数的合同，收敛交付覆盖策略并闭合重复导出的元数据身份。厘清实验阶段、二进制分发和独立复核的实施条件。
+
+修复任务检查脚本对纯场景任务的误拒绝，同时保留未知任务和越界改动的拒绝。验证：cargo fmt、cargo check、cargo clippy、cargo nextest（325/325）、check-docs、check-specs、脚本隔离烟测和 diff check。
+
+Change: C004
+Change: C005
+Change: C006
+Change: C007
+Agent: Codex
+
+b3f138bdb81b415e2bf3d2970f34ecf32673f1a8 feat(workbook): article-review 打回意见绑定可选输入
+draft 增加 required = false 的 review.verdict 输入，说明书改为按任务书
+绑定的路径读最近一次成功审查的意见文档：首次标「尚无」照常写首稿，
+back 回来逐条回应再改。意见只以文件路径进入任务书，不内联历史正文，
+不再靠聊天补传。合同 §3 同步同一张图、§6 补可选输入回环；协议
+attempt begin 返回补「未绑定的可选输入值是 null」，§7 补
+INPUT_UNAVAILABLE 的 detail 字段。
+
+验证：真实 CLI 四组正反例——首次 draft 标尚无、back 后绑
+review/occurrence-001 且 brief 来自 review#1、第三轮只改轮次绑
+occurrence-002、去掉 required = false 首稿被拒 INPUT_UNAVAILABLE；
+静态图确认 draft 输入来源 review.verdict 与可选性。413 tests 与全部
+门禁过。独立 Reviewer 首轮需修改（null 断言未固定 key 存在性、证据
+预填 check-task 退出码），修复后复核通过。证据见 evidence/t11。
+
+Change: C002
+Task: C002-T11
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+6cdb1eadc3fb06c3814d737fa0feeec627dded76 docs(specs): 编写 C004–C007 实施计划
+四份提案已通过审阅，按 v0.1.0 的计划方式为每个 package 写 plan.md、tasks.toml 与 progress.md，README 加入口。实现者是初次接触项目的初级开发者，所以沿用四层分工：人审定上游同步与实施前决定，强模型一次写好骨架与全部测试，初级开发者逐任务去掉 ignore 并填实现，每组里程碑后由强模型审查。任务卡写明文件白名单、测试名、实现要点与停止条件；tasks.toml 与卡片一一对应，测试名全局唯一且不与现有代码重名。
+
+C007 的检查器定为仓库内不发布的 crates/sheltie-plan-check，只通过 sheltie 子进程取图和摘要。候选生产节点由 C004 与 C007 共用一种表示：终点之外默认全选，门槛节点也计入，合同或映射用 not_candidate_producers 显式排除；workbook show --json 输出生效集合。门槛节点先由 agent 执行再由人批准，若默认不计入，接收出口或测试之后的门槛节点能改候选后直达终点而装入校验不报错；两份 validation.md 各加一行对应反例，C007 的 spec.md 与 design.md 同步定义。
+
+全部保持 proposed，计划在采用后生效；根规格、合同与代码未改。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；typos；git diff --cached --check；四份计划共 540 个测试名，无重复、无与 crates 中已有函数重名。
+
+Change: C004
+Change: C005
+Change: C006
+Change: C007
+Agent: Claude
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+8afa7793616d7ec7970c8e20f3b3092a24c3e82b docs(specs): 答复复审并修订 C004–C007 提案
+复审（针对 e87eb07）以对话形式给出，逐条核对后追加到各 package 的 review-response，并按采纳项修订方案：C004 的装入校验改为按边做，删去接收出口后入口与候选生产节点都不能到达终点；VD-09 推迟时拒绝“构成必要条件”的审查声明，改由门槛把关。C005 补齐 work wait 与 work resume，定出资源等待的进入、离开与上限；业务重试口径与 C004 对齐，验证器故障消耗 max_retries。C006 的回执摘要改由 sheltie 读回目标字节自行计算，覆盖策略改用原子的不替换改名与交换。C007 的“候选之后”规则增加检查节点不属于候选生产集合的前提，并修复 WG-01 表格。
+
+全部保持 proposed，实验与探针为 not_run；根规格、合同与代码未改。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh。
+
+Change: C004
+Change: C005
+Change: C006
+Change: C007
+Agent: Claude
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+a5b2a05fe26c32a462d1e9aa24848f9c0f65c0f5 docs(skill): 协调者输入发现与授权边界指引
+SKILL.md 按 GF-30/T07 行为更新：输入键从 workbook show 的
+start_inputs 发现，用户已给的信息直接用，不用失败 start 探测；
+指定未装的 Workbook 停下报告不静默替换；next 只限定 Work 推进，
+发现与管理命令有独立入口；request-id 先保存再调用并注明只用于
+Work 与 Workbook 写操作，重放后一律查当前 status；gate 批准与
+human 节点如实记录代执行的 OS 账户。协议 gate approve 补同一边
+界句。CLI 补三例：只读与 self 给 request-id 退出码 2、未装
+Workbook 不替换无 Work 创建、重放后 status 为准。
+
+验证：check-skill/docs/specs 与四条 Rust 门禁全过（408 tests）。
+证据见 evidence/t10。
+
+Change: C002
+Task: C002-T10
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+766dbe29313be505e67634c2abc5b0e6e31ed1f4 feat(runtime): Workbook 事务引用检查与删除生命周期
+remove 的非终态引用检查搬进同一事务：逐行解码校验 works 后查
+引用，损坏行报 STORE_CORRUPT 不跳过，与删行、审计、请求登记一
+起提交或回滚。delete_dir 核对删除对象的登记摘要，摘要不符的是
+新生命周期对象——不删不覆盖、视为本操作完成；删除后写
+pending/<id>.deleted 持久标记。识别连接改为零写入普通打开并
+先设 busy_timeout（WAL 只读旗标在写者活动时直接失败，并行测试
+抓出）。删除锁外 works_referencing。
+
+验证：引用回滚、损坏行停止、并行 add 两全、发布窗口恢复、旧
+remove/add 重放不碰新对象、删除标记、请求全局去重、快照逐字段
+重放全部通过；405 tests 与全部门禁过。证据见 evidence/t08。
+
+Change: C002
+Task: C002-T08
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+bcfa0e6cd201b914729505ffa74f8c55b3d11620 feat(runtime): schema 2 一次切换意图快照与效果恢复
+Store 升 schema 2：建库 DDL 与 user_version 同事务，旧库先只读
+识别、拒绝前零写入。新增 RequestIntent 八种写操作闭集与意图指纹
+（绑定解析后完整目标）；effects 登记六类效果并按提交序恢复，
+brief/stats 按精确字节、封存核对原引用、发布核归属摘要。fs4 管
+理根写锁串行化全部写路径；WorkLayout（start-inputs、
+occurrence-NNN/attempt-NNN、outputs/、engine/stats.json）与
+workbook-digest/v2 一次切换，旧摘要算法删除。start/add/remove
+走 pending 侧车与 publish_dir；响应为提交时快照，重放逐字段返回，
+CLI 不再回读 Store 拼数据；只读与 self 给 request-id 即参数错误。
+
+验证：schema 1 拒绝且字节不变；跨 Work request-id 冲突且目标不
+动；文件变化/Workbook 删除/cancel 后重放均返回原快照；旧请求不
+回退状态卡；历史文件篡改报完整性错误；add/remove 重放与同版本
+再装；写锁下双写者终态一致；begin 崩溃窗口由下次写按登记字节恢
+复；既有 397 tests 全过。证据见 evidence/t07。
+
+Change: C002
+Task: C002-T07
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+e87eb070c67b119cf9925243d45abdc344d66f45 docs(specs): 答复审阅并修订 C004–C008 提案
+独立审阅指出的机制缺口大多成立，逐条核对原文后写入各 package 的 review-response，并按采纳项修订方案：C004 限定证据来源、定义验证器故障的走向、以装入校验保证终点必经接收出口、冻结基线与受保护路径清单；C005 新增取代运行中 Attempt 的操作、等待改名 resource_wait 并按来源显示、收窄与 C004 的先后承诺；C006 按目标实际字节恢复、补目标根写入合同、交付条件改为 Work succeeded；C007 分阶段写保证用语、在临时 SHELTIE_HOME 试装、补输入类负例并拆分锁定文件结果字段。
+
+按审阅第 2 条，把依赖就绪从 C006 拆为 C008，C006 更名为 C006-result-delivery。两项人工决定按答复建议定：C005 第二阶段以实测无人响应等待为触发条件；C006 导出组件为独立 crate 与独立二进制。未采纳或纠正的意见（硬链接拒绝、INV-3 出处、锁定文件缺映射、ADR-B 须等实验等）在答复中写明理由。
+
+全部保持 proposed，实验与探针为 not_run；根规格、合同与代码未改。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；git diff --cached --check。
+
+Change: C004
+Change: C005
+Change: C006
+Change: C007
+Change: C008
+Agent: Claude
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+7a6c90e6c7f08c7073bee5b4e5d431c06f5545fe docs(specs): 审阅 C004–C007 提案
+按提案顺序记录产品价值、机制缺口和采用前验证路径，并整理 OpenAI、Anthropic、Rust 与社区一手来源。保留各 proposal 的状态和 not_run 实验边界。
+
+验证：cargo fmt --all -- --check；cargo check --all-targets --all-features；cargo clippy --all-targets --all-features -- -D warnings；cargo nextest run --all-features --no-tests=pass（325 passed，2 leaky）；scripts/check-docs.sh；scripts/check-specs.sh；git diff --cached --check。
+
+Agent: Codex
+
+85ada77f45e7ec8f65c358dd40ad869c7411eb53 feat(core): 一致事实视图与累计受阻统计
+新增 StatusView：文本卡与 JSON 从同一份事实渲染，JSON 补齐失败
+原因、完整产物引用（path/sha256/bytes）与 blocked 说明串；next
+由 core next_item_json 装配成协议 §5 唯一形状，状态卡与响应封装
+同形（O13）。stats 的 entered_via 保留来源边类型，文本
+node(edge)×n、结构化 {from,edge,count}（N07）。WorkState 新增
+必填 blocked_count，由状态转换在 gate 提交成功、重试耗尽与
+no_legal_edge 发生时递增，取消不减少，不按当前 status 猜历史。
+持久 caller 与 cli-result/v2 按 plan 留待 T07 一次接入。
+
+验证：NoLegalEdge→cancel 计数保持；三类受阻累计与批准保留；
+reason/摘要/字节数逐字段等于提交记录（删字段即失败）；边类型
+区分 entry/back/main；手写状态两格式一致。386 tests 与全部门禁
+通过。证据见 evidence/t06。
+
+Change: C002
+Task: C002-T06
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+80fe5d4f0c449ccace1bacf53aa291de8070ab6c docs(specs): 同步 C004–C007 提案
+合入 zenmux 的四份 proposed change，保留两次方案提交的祖先关系。冲突处沿用 codex 已采用的 C002 状态，并登记 C004–C007；修正 C004 指向 C002 findings 的迁移链接。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；cargo fmt --all -- --check；cargo check --all-targets --all-features；cargo clippy --all-targets --all-features -- -D warnings；cargo nextest run --all-features --no-tests=pass（325 passed）。
+
+Agent: Codex
+
+d38b6e113f08138dbb84eaa2f4c0fde82c26032d feat(runtime): Workbook 身份核验与真实 OS 主体
+load 重算目录摘要与登记值核对，verify 发现的篡改不再被 start
+静默接受；remove 删除前核归属。start 的冻结副本复制后重新
+parse/compile，身份或摘要不符报 STORE_CORRUPT，图取自最终副本
+字节。manifest version 拒绝点段与保留名 .staging；源目录的
+.DS_Store 宿主元数据按 §5.3 准确点名拒绝。合法写操作建库前先
+建父目录，新管理根可直接 self install；只读打开永不建目录。
+审计主体改取 effective uid 的真实账户（uzers；users 0.11 被
+cargo deny 的 RUSTSEC advisory 拒绝，D-036 勘误为同 API 维护
+分支），USER/USERNAME 完全失效。
+
+验证：O03/O06/N04/N10 反例全部通过；USER 伪造经真实 CLI 子进程
+验证且期望来自 id -un 独立输出；只读位 0555 确认且摘要才是防线；
+删除后终态 Work 可读。380 tests、deny 与全部门禁通过。复制间源
+变化的动态竞态注入与 uid 回退分支 not_run，见 evidence/t05。
+
+Change: C002
+Task: C002-T05
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+d27356b1ee829f6168e6d6116e9bceacaabdb773 docs(specs): 修订 C004、C005 并起草 C006 交付与就绪、C007 运行前生成 Workbook
+外部讨论认为快照一致性、沙箱外调用通道和交付记录三处边界需要写成验收条件，据此迭代提案：C004 固定候选提交标识并在复制后核对，额外文件进入验证输入，验证环境改为通用合同，GF-22 登记为探针；C005 以宿主原生恢复为对照，执行绑定冻结允许的选择，区分政策不允许与能力不足，新增自动执行政策且不生成人工批准；新建 C006，成果交付与依赖就绪两个单元分别采用，送达以导出组件回执为准，终态 Work 只追加送达记录；新建 C007，规划者依据来自其外的生效约束快照起草，检查器按路径覆盖做结构判定，首个实验走现有 workbook add。
+
+全部保持 proposed，实验与实现为 not_run；根规格、决定记录与代码未改，受影响条款只列为候选修订。讨论结论、更正的说法与来源记录在各自的 review.md。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；git diff --cached --check。
+
+Change: C004
+Change: C005
+Change: C006
+Change: C007
+Agent: Claude
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+5196cb1bc74f51f61ffaaa0e62cf580deed99294 feat(runtime): 管理根受限文件操作与安全句柄贯通
+新增 fsx 模块：SafeFile 以 stat+open 双核对 dev/ino 身份，限额
+读取、摘要与封存在同一句柄上；ensure_dirs_under 从规范根逐段
+拒绝软链与占位；原子写用随机临时名独占创建、fsync 文件与父目
+录；复制、清理与只读化均不跟随软链。Home 入口把根规范化到真实
+形式，五个 caller（home/observe/service/workbook_repo/selfmgmt）
+全部改走 fsx，删除固定 tmp-pending 与重复 helper；旧目录摘要改
+流式并保留 schema 1 字节语义；含根置只读按存储合同。
+
+验证：works/bin 父软链、叶软链输入、固定名临时软链、观察后替换、
+超限文件（恰好 32 MiB/多一字节）反例全部通过，外部哨兵字节与权
+限逐项不变；观察拒绝不推进 Store。370 tests、四条门禁与 docs/specs
+全过。证据见 evidence/t04。
+
+Change: C002
+Task: C002-T04
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+429cb1df4cdc774053e3102ed01d2bc640ba1909 feat(runtime): workbook-digest/v2 无歧义目录摘要单元
+core 提供 v2 帧构造接口：域前缀、BE64 数量/长度、单文件帧头与
+单次 SHA256 收口 from_sha256。runtime 新增流式 digest_dir_v2：
+路径按字节序排序、空目录不参与、拒绝软硬链与特殊文件、限额
+（32 MiB/文件、256 MiB 总量）在读取前核对且逐文件计数核对帧头
+长度，读取间增长或收缩都拒绝。生产 caller（WorkbookRepo 的
+schema 1 路径）按 plan 留待 T07 一次切换，旧算法不作 fallback。
+
+验证：期望摘要全部由 python3 hashlib 对手写字节流独立算出，
+O07 碰撞对在 v2 下分开；顺序重排不变、路径或正文一字节即变、
+B.md 按字节序排在 a.md 前；恰好 32 MiB/256 MiB 接受、多一字节
+拒绝；软硬链拒绝。独立向量抓出并修复初版 of_bytes(finalize())
+双重哈希。全仓门禁 359 passed。证据见 evidence/t09。
+
+Change: C002
+Task: C002-T09
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+186ebd75d744fc2db83a72b715d36d05dd923883 docs(specs): 起草 C004 可验收委派与 C005 执行者接续提案
+把下一版方向定为可验收委派：C004 负责验收合同、本地快照验证器、审查声明与阻断项、执行身份三栏和返工闭环；C005 负责执行者替换与任务接续，分人工接续与自动接续两阶段。两份提案共用 Work、Attempt、候选快照与证据记录，均保持 proposed，实验与实现为 not_run。
+
+讨论过程、被否决的方向、更正的说法与来源记录在各自的 review.md；宪章 INV-1、INV-5、INV-6 与 GF-14 等条款只列出候选修订，未改根规格。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；git diff --cached --check。
+
+Change: C004
+Change: C005
+Agent: Claude
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+6b40abd98d46b878286bdc531021c6c4bd9dce50 feat(core): 单一 WorkLayout 与输出路径冲突规则
+新增 core work::layout 纯函数固定目标目录形状：occurrence-NNN/
+attempt-NNN 双维标签、引擎文件在 Attempt 根、worker 输出在
+outputs/ 之下。Flow 输出路径按 workbook 合同 §3.2 改为四条规则：
+可移植字符集（非 ASCII 拒绝）、节点内唯一、不互为祖先、ASCII
+大小写折叠后不得相同或互为祖先；outputs/brief.md 与 stats.json
+不再与引擎文件比较。持久 caller 按 plan 留待 T07 一次切换。
+legacy T04 卡中已取消的 rejects_output_path_brief_md 按合同勘误
+改为原位注记并扩本任务白名单。
+
+验证：layout 手写期望覆盖 draft#2.1 映射、engine/outputs 分离
+与嵌套路径；parse 重复/祖先/折叠别名/字符集逐项反例与恰好
+128 字节边界；真实 CLI outputs/brief.md 声明走完 begin→写输出
+→submit。全仓 fmt/check/clippy/nextest 347 passed、check-tests
+通过。证据见 evidence/t03。
+
+Change: C002
+Task: C002-T03
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+df0e12010887d14454d99915afe9790325d973ae feat(core): start 预检共享键校验且无副作用
+新增 core 纯函数 start_requirements 与 validate_start_inputs，
+decide、runtime preflight 与 workbook show 用同一份结果（GF-30）。
+start 的名字规范化、Workbook/Flow、缺/多键拒绝全部移到当日序号
+分配与目录物化之前；CLI 以只读库预检，新管理根的失败 start 不建
+store.db，拒绝后补条件即成功不烧号。workbook show 双格式暴露有序
+start_inputs。
+
+验证：fmt/check/clippy/nextest 全仓通过（338 passed）；缺/多键、
+非法名、缺 workbook/flow 逐项比较 home 与调用前相同；空管理根失败
+start 零残留；同 request-id 补条件重试成功且序号 001 未烧；exit 2
+参数反例通过。证据见 evidence/t02。
+
+Change: C002
+Task: C002-T02
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+63d4d48bb8d38c3a0fabe0c16dac57831df64b05 refactor(core): 收紧已校验定义并校验持久状态
+让 Manifest、Flow、Node 只能经解析入口形成已校验定义，真实 runtime/CLI
+调用方改用只读访问；Store 装入与 Workbook 删除共用全行校验，拒绝
+身份、revision、冗余状态和 Attempt 组合损坏。为后续任务补齐证据白名单。
+
+验证：cargo fmt/check/clippy 全仓通过；cargo nextest 325 passed；
+cargo test -p sheltie-core --doc 5 个 compile_fail 通过；
+check-docs/check-specs/check-tests/check-core-vocab/check-task 全过；
+独立 Standards 与 Spec review PASS。Workbook 删除同事务边界留给 T08。
+
+Change: C002
+Task: C002-T14
+Agent: Codex
+
+2a37062dd885472edd36d114af87a0216b2c9773 docs(specs): 修正 C002 T01 合同与执行指引
+统一请求重放、pending 归属、效果恢复和 Workbook 未发布窗口的合同，
+补齐后续任务的入口、验收与停止条件，并保留首次提交的失败证据。
+
+验证：cargo fmt --all -- --check；cargo check --all-targets --all-features；
+cargo clippy --all-targets --all-features -- -D warnings；
+cargo nextest run --all-features --no-tests=pass（315 passed，1 leaky）；
+scripts/check-docs.sh；scripts/check-specs.sh；
+scripts/check-task.sh C002-T01 --staged；独立 Standards/Spec review PASS。
+
+Change: C002
+Task: C002-T01
+Agent: Codex
+
+ceadc465fc2c57aaa52f910e78733da010f890b7 docs(specs): 采用 C002 并固定 v0.2.0 上游合同
+用户 2026-09-27 采用 C002（v0.2.0 可靠性修复），package 移入 active，
+建立 tasks.toml 白名单、progress 交接与实施验证记录。
+
+上游合同一次性固定破坏性边界：Store schema 2 明确拒旧（D-033）、
+workbook-digest/v2 带长度编码（D-034）、管理根写锁选 fs4（D-035）、
+操作主体取真实 OS 进程身份（D-036）。存储合同重写为「只读预检 →
+写锁 → 事务 → 发布 → 完成标记」与效果登记恢复窗口；协议升
+cli-result/v2（ResponseSnapshot、EFFECT_PENDING、统一 next 形状、
+workbook show 公开 start_inputs）；workbook 合同固定输出路径可移植
+ASCII 与别名拒绝。宪章写清 OS 账户记账不等于独立真人认证；GF-15
+改写为目标绑定重放，新增 GF-30/31/32。架构更新目录布局（pending/
+分离 tmp/、engine 与 outputs 分目录）与新依赖表。
+
+验证：scripts/check-docs.sh、scripts/check-specs.sh、
+scripts/check-task.sh C002-T01 --staged 全过；三份合同逐字段闭环
+复查；无产品代码改动，Rust 门禁沿用基线全绿。
+
+Change: C002
+Task: C002-T01
+Agent: Claude
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+296313c6f9fcfd0d6348927b73e7a49578581b6c docs(specs): 改用 MIT 与 Apache-2.0 双许可
+保留 MIT 选项并增加 Apache-2.0 的明确专利授权。统一 workspace、README 和许可正文；让三个 crate 打包时各自包含两份完整许可文本。
+
+验证：cargo fmt/check/clippy、315 项 nextest、隔离缓存的 cargo deny、docs/specs 检查与三个 crate 的 package 清单。
+
+Agent: Codex
+
+e35cc181d885bde9d0c41bc8d196971c272a081c docs(specs): 补齐 MIT 许可证正文
+Cargo workspace 和三个 crate 已声明 MIT；添加根目录标准许可文本，明确使用与再分发条件。
+
+验证：对照 OSI MIT 文本；cargo metadata --no-deps --format-version 1；scripts/check-docs.sh。
+
+Agent: Codex
+
+44ca09eb8306e909986c6908c45dc104ccff475c docs(specs): 整合 C002 审查与可靠性修复方案
+统一记录 MVP 审查问题、可复现证据、候选设计与逐任务修复门禁。C002 保持 proposed，产品修复及宿主验收仍为 not_run。
+
+验证：scripts/check-docs.sh；scripts/check-specs.sh；git diff --check。
+
+Change: C002
+
+Agent: Codex
+

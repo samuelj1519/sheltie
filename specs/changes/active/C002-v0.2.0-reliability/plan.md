@@ -4,6 +4,10 @@
 
 本计划供第一次接触仓库、具备 Rust 基础的实现者逐任务执行。先按 [CONTEXT.md](../../../../CONTEXT.md) 使用项目词汇，再读 [specs/README.md](../../../README.md)、[工程规范](../../../engineering.md)、本 package 的 [spec.md](spec.md)、[design.md](design.md) 与 [findings.md](findings.md)。产品行为和机制以根规格、架构及三份合同为准；本计划只规定实施顺序、Owner、验证和交接。任务白名单见 [tasks.toml](tasks.toml)，跨会话入口见 [progress.md](progress.md)，原始运行与结论记入 [validation.md](validation.md)。
 
+2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。这些任务尚未实施；T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
+
+2026-09-28 用户明确豁免T18–T31与最终M1中的Linux运行。此授权覆盖本计划及repair-plan中对Linux原生运行的要求；各Linux项保留`not_run`，结论只针对macOS测试，不写成跨平台PASS。其余任务、反例、独立review和Rust门禁照常执行。
+
 `ceadc465` 是 T01 首次提交，独立审查发现合同矛盾和门禁证据缺口；本次勘误与审查记录见 [validation.md](validation.md)。T01 关闭后，按下表依赖先完成 T14，再开始 T02。已有提交和旧审查 PASS 不自动转成当前候选 PASS。
 
 ## 1. 采用与执行规则
@@ -45,7 +49,21 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T12 | done | spec-dev 单任务与整体交付闭环 | T01 |
 | C002-T13 | done | skill 安装产物自包含 | T10 |
 | C002-T15 | done | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
-| C002-M1 | not_run | 固定候选全链审查 | T02–T15 |
+| C002-T18 | done | 固定修复合同、接口与平台API门槛 | 用户豁免Linux并保留not_run；macOS门禁与双轴独立review通过 |
+| C002-T19 | not_run | 受管路径、目录句柄与安全文件原语 | T18 |
+| C002-T20 | not_run | 持久路径与效果的可信装入 | T19 |
+| C002-T21 | not_run | 受限目录枚举、摘要和复制 | T19 |
+| C002-T22 | not_run | 同句柄输出观察与封存 | T19、T20 |
+| C002-T23 | not_run | self文件链与purge锁生命周期 | T19、T21、T18合同采用 |
+| C002-T24 | not_run | 请求解析、历史目标与锁内建库 | T20、T21 |
+| C002-T25 | not_run | 统一恢复与准确提交错误 | T20、T21、T22、T24 |
+| C002-T26 | not_run | 发布完整归属与必要sync | T19–T21、T25 |
+| C002-T27 | not_run | 同对象删除与完成证明 | T25、T26 |
+| C002-T28 | not_run | pending安全清理与只读发现 | T25–T27 |
+| C002-T29 | not_run | stats与next同次装入 | T25、T28 |
+| C002-T30 | not_run | spec-dev重规划旧输入交接 | T18 |
+| C002-T31 | not_run | 确定性交错、完整窗口与突变处置 | T19–T30 |
+| C002-M1 | not_run | 修复后固定候选全链审查 | T02–T15、T18–T31 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 
@@ -169,17 +187,18 @@ Owner：`skills/sheltie`、交付生成脚本、根 README、`scripts/check-skil
 Owner：runtime `selfmgmt`、CLI self、Cargo/toolchain/deny、`.github/workflows`、`scripts/check-specs.sh` 与根 README。
 
 1. 删除 `--modify-path` 写 shell rc 的入口，`--json` stdout 只输出协议 JSON，self 带 request-id 退出码 2。按固定 tag 解析 `--version`、manifest 与资产；下载、摘要、解包、替换和 rollback 分别核失败窗口。所有 managed self 路径使用 T04 的根内文件边界与同一写锁。
-2. purge 持锁；等待者获锁后复核根与 `.lock` 的 dev/inode，根已删或重建则释放旧锁并整体重试。加入 self/Work 并发和 purge 等待者测试。安装/更新提示明确 Store schema 2 与旧数据保留，不能误导用户只换二进制即可降级。
+2. purge在同一锁内删除用户数据但保留空管理根与原`.lock`；等待者沿同一锁继续，合法install/add可初始化，旧Work命令返回NOT_FOUND且不重建。另覆盖锁外意外替换根/锁的身份复核与整体重试。加入self/Work并发和purge等待者测试。安装/更新提示明确Store schema 2与旧数据保留，不能误导用户只换二进制即可降级。
 3. 让治理 job 获取需要的历史 tags/commits；check-specs 分开验证已发布 release 与 active target/RC，不要求开发中的版本已有 tag。release 依赖同一 SHA 的质量 job。实际运行 MSRV 1.85 locked gate；失败时用证据决定修依赖或提高声明，stable 通过不能代替。
 4. 用本地 release fixture 测指定版本、latest、rollback、clean home two-step 与 `cargo dist plan` 的真实发布形状。反例测校验失败旧二进制不变、latest 漂移不混包、伪造路径不越界、质量失败不能发布、缺历史给准确诊断。四平台已发布资产取证留给 T17。
 
 ## 4. C002-M1 固定候选全链 review
 
-Owner：未参与 T02–T15 实施的独立 Reviewer；实施者只提供候选、证据与逐条答复。
+Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；实施者只提供候选、证据与逐条答复。2026-09-28的审查结论为“需修改”，不构成M1关闭；修复后按 [repair-plan.md §6](repair-plan.md#6-m1-最终关闭与后续) 重新固定候选。
 
 1. 冻结候选 commit 与输入闭包。对 O01–O13/N01–N14 建矩阵：每行写 finding、修复 commit、正例、单条件反例、真实入口、原始 run、结果、Owner 与剩余风险。没有独立 oracle、真实 caller 或失败停止路径的项保持未关闭，不由 task `done` 或测试数量推成 PASS。
 2. 在同一候选运行 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV 与 `cargo dist plan`。并发测试先同时启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节用独立 oracle。补 Work/Workbook 的 COMMIT 前后、发布前后故障窗口；删除后但完成标记前被杀的“结果不明”必须准确停止并返回已提交错误，不能记自动恢复 PASS。core/runtime 突变按能力处置每个存活体，不机械要求每个都加测试。
 3. Reviewer 逐项检查不变式、三 crate 边界、合同与实际 caller、证据原文和实现者答复。审查后若修改影响候选输入闭包，按影响链重跑并记录新 hash。review.md 结论只用“通过 / 需修改 / 阻断”，M1 通过只证明源码与离线闭环，不能代表 Host 或发布。
+4. 同时关闭R01–R19；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
 
 ## 5. C002-T16 rc 真实宿主回归
 

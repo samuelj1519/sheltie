@@ -10,13 +10,13 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 | 旗标 | 含义 |
 | --- | --- |
-| `--json` | 输出一行 JSON（§5 的响应封装）。不带时输出给人读的文本 |
+| `--json` | stdout输出一行JSON（§5响应封装）。维护告警独立写stderr，不改业务JSON。不带时输出人读文本 |
 | `--home <dir>` | 覆盖管理根。默认取 `SHELTIE_HOME`，再默认 `~/.sheltie` |
 | `--request-id <uuid>` | 仅 Work 与 Workbook 写操作可选。不给时引擎生成并在响应里返回。协调者若要安全重试，先记下 id 再调用。只读操作和整个 `self` 命令组都不支持：给出即 `INVALID_REQUEST`、退出码 2，查询不虚构 request-id |
 
 **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
 
-**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改任何状态，不建管理根与任何目录，不刷状态卡。写操作的确定性拒绝同样不建管理根（GF-30）。
+**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件。写操作确定性拒绝不建Home（GF-30）。
 
 ## 2. 操作一览
 
@@ -25,7 +25,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `self install` | 是 | 把当前运行的二进制装到 `bin/sheltie`，建管理根。不写 shell 配置 |
 | `self update [--version <v>]` | 是 | 下载新版本，校验，原子替换 |
 | `self rollback` | 是 | 换回上一版本 |
-| `self uninstall [--purge]` | 是 | 删 `bin/`；`--purge` 才删整个管理根 |
+| `self uninstall [--purge]` | 是 | 默认删`bin/`；确认purge删用户数据/binary，保留空根和同一个`.lock` |
 | `self version` | 否 | 版本、平台、管理根、`SCHEMA_VERSION` |
 | `workbook add <dir>` | 是 | 校验并复制 Workbook 到管理根 |
 | `workbook list` | 否 | 列出已装 Workbook 的 id、版本、名称，标出每个 id 的最高版本；待发布版本带 `pending_publish` |
@@ -54,7 +54,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 `self rollback`。`sheltie.prev` 不存在报 `NOT_FOUND`。只保留一级。
 
-`self uninstall`。默认只删 `bin/`，`store.db`、`workbooks/`、`works/` 全部保留并打印它们的路径。`--purge` 删整个管理根，执行前打印将删除的路径并要求输入 `yes`（`--json` 模式下必须同时给 `--yes`）。
+`self uninstall`默认只删`bin/`并打印保留的Store/workbooks/works。`--purge`经显式确认后删所有用户数据/binary，保留空管理根及原`.lock`；执行前列出删除范围，文本模式输入`yes`，JSON模式给`--yes`。失败报告部分清理，重复purge可继续。
 
 `self version`。只读，不需要管理根存在。
 
@@ -80,19 +80,20 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `work start`
 
-以下步骤先做**无副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时管理根、当日序号、最终目录、请求登记都与调用前相同（新管理根不因此建库）。
+以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`，且不因此创建管理根、`.lock`或数据库。
 
-1. 解析 `--input` 的键和字面值或 `@file` 路径，规范化名字并构造 `RequestIntent`；此时不读 `@file` 内容、不装入 Workbook。名字省略时取 `flow` id；去首尾空白，连续空白替换为一个 `-`，转小写。规范化后必须只含小写字母、数字、汉字与单个 `-`（不以 `-` 开头或结尾，无连续 `-`）且 ≤ 48 字节，否则 `INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇` 等 `Han` 脚本的其他码点不接受。
+1. 解析 `--input` 的键和字面值或 `@file` 词法路径，以用户提供的name原值及省略状态构造 `RequestIntent`；此时不规范化 `WorkName`、不读 `@file` 内容、不装入 Workbook。名字参数是意图的一部分，省略与显式flow名不同，见存储合同 §2.1。
 2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。
-3. 读取全部 `@file` 内容（失败退出码 2）；按 `--workbook` 找到已装版本并编译图。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
-4. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。
+3. 仅新请求规范化WorkName：名字省略时取`flow` id；去首尾空白，连续空白替换为一个`-`，转小写。规范化后必须只含小写字母、数字、汉字与单个`-`（不以`-`开头或结尾，无连续`-`）且≤48字节，否则`INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇`等`Han`脚本的其他码点不接受。
+4. 读取全部 `@file` 内容（失败退出码 2）；按 `--workbook` 找到已装版本并编译图。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
+5. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。
 
 预检通过后进入[存储合同 §2.3](storage.md) 的写路径：
 
-5. 分配 `work_id = <UTC 日期 YYYY-MM-DD>-<当日序号 001..999>-<名字>`。序号按 UTC 日期在 SQLite 事务内递增（[存储合同 §7](storage.md)），同一天第 1000 个 Work 报 `INVALID_REQUEST`。序号之后的失败会留下空号，这是接受的代价；序号之前的失败（上面四步）不烧号。
-6. 在本操作自己的 `pending/<内部 id>/payload/` 里建 Work 目录：复制 Workbook 到 `workbook/` 并对副本重新核验摘要（[存储合同 §5.4](storage.md)），置只读；建 `start-inputs/`，把每个输入值写成文件 `start-inputs/<key>`，记 `ArtifactRef`。这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
-7. `current = entry#1`，`status = active`；COMMIT 后把 `payload/` rename 到 `works/<work_id>/` 并刷新状态卡。
-8. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`，全部来自提交时快照。`requires` 是 Workbook 声明的全部宿主资源，按 manifest 声明顺序，每项原样是那条声明 `{ kind, name, version, digest, source }`（没写的字段为 `null`；`digest` 与其他回复一样是裸 64 位十六进制，不带 `sha256:` 前缀），供协调者在开工前自行确认；MVP 的引擎不检查宿主。
+6. 分配 `work_id = <UTC 日期 YYYY-MM-DD>-<当日序号 001..999>-<名字>`。序号按 UTC 日期在 SQLite 事务内递增（[存储合同 §7](storage.md)），同一天第 1000 个 Work 报 `INVALID_REQUEST`。序号之后的失败会留下空号，这是接受的代价；序号之前的失败（上面五步）不烧号。
+7. 在本操作自己的 `pending/<内部 id>/payload/` 里建 Work 目录：复制 Workbook 到 `workbook/` 并对副本重新核验摘要（[存储合同 §5.4](storage.md)），置只读；建 `start-inputs/`，把每个输入值写成文件 `start-inputs/<key>`，记 `ArtifactRef`。这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
+8. `current = entry#1`，`status = active`；COMMIT 后把 `payload/` rename 到 `works/<work_id>/` 并刷新状态卡。
+9. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`，全部来自提交时快照。`requires` 是 Workbook 声明的全部宿主资源，按 manifest 声明顺序，每项原样是那条声明 `{ kind, name, version, digest, source }`（没写的字段为 `null`；`digest` 与其他回复一样是裸 64 位十六进制，不带 `sha256:` 前缀），供协调者在开工前自行确认；MVP 的引擎不检查宿主。
 
 例：`sheltie work start --workbook article-review --flow default --name "文章 初稿"` 得到 `2026-09-24-003-文章-初稿`。
 
@@ -261,6 +262,8 @@ Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `tr
 ```
 
 `next` 把当前合法下一步列成命令行，每项能直接执行。`next` 项的形状全协议只有一种（与状态卡 `data.next` 完全相同）：`op`、`args`、以及仅在 `attempt begin` 项上的 `edge`、`executor`、`tier`。只读操作也带 `next`。`executor` 与 `tier` 让协调者在派活前就知道该找谁、用什么模型。
+
+新请求读取用户提供的`@file`时，缺失、不可读、非UTF-8、非普通文件、符号链接、硬链接（`nlink > 1`）或超出[存储合同§5.3](storage.md)的单文件读取上限（32 MiB）均报`INVALID_REQUEST`、退出码2，detail给path/reason。只有新请求读取文件；同路径重放不重新打开。文件源上限依据storage §5.3，摘要/原因文本本身超过4096字节仍报`SUMMARY_TOO_LONG`、退出码1，不与文件源上限合并。
 
 退出码：成功 `0`；`ok = false` 时 `1`；参数解析错误 `2`。
 

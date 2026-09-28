@@ -1,0 +1,11 @@
+[package]
+name = "sheltie-c002-t18-api-probe"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+
+[workspace]
+
+[dependencies]
+rustix = { version = "=1.1.4", features = ["fs"] }
+rusqlite = { version = "=0.37.0", features = ["bundled"] }

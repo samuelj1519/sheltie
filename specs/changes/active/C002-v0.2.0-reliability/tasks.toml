@@ -112,3 +112,76 @@ allow_test_changes = true
 files = ["specs", "CHANGELOG.md", "README.md", "Cargo.toml", "Cargo.lock"]
 test_files = []
 allow_test_changes = true
+
+# M1 审查后追加修复。完整任务卡见 repair-plan.md，结果仍仅在 plan.md 主表维护。
+# package 文档范围用于本任务记录；不得覆盖旧 evidence 或改写历史审查失败。
+
+[C002-T18]
+files = ["specs/spec.md","specs/architecture.md","specs/contracts/storage.md","specs/contracts/protocol.md","specs/decisions/D-035-root-write-lock-fs4.md","specs/decisions/D-037-managed-file-handles.md","specs/decisions/D-038-purge-lock-lifecycle.md","specs/decisions/D-039-sqlite-read-control-files.md","specs/decisions/README.md","README.md","_typos.toml",".pre-commit-config.yaml","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = true
+
+[C002-T19]
+files = ["Cargo.toml","Cargo.lock","crates/sheltie-runtime/Cargo.toml","crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T20]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T21]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T22]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T23]
+files = ["crates/sheltie-runtime/src/selfmgmt.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-cli/src/commands/self_cmd.rs","README.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs","crates/sheltie-runtime/tests/crash.rs","crates/sheltie-runtime/tests/fs_boundary.rs","crates/sheltie-cli/tests/self_cmd.rs"]
+allow_test_changes = true
+
+[C002-T24]
+files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T25]
+files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src","skills/sheltie/SKILL.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T26]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T27]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T28]
+files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src/commands/work.rs","crates/sheltie-cli/src/commands/workbook.rs","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T29]
+files = ["crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-cli/src/commands/work.rs","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T30]
+files = ["workbooks/spec-dev","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-core/tests/examples.rs"]
+allow_test_changes = true
+
+[C002-T31]
+files = ["crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests","crates/sheltie-core/tests","crates/sheltie-core/src"]
+allow_test_changes = true

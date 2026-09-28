@@ -1,0 +1,24 @@
+{
+  "deny_retry": {
+    "command": "cargo deny check",
+    "exit": 0,
+    "reason": "first attempt sandbox denied Cargo advisory cache exclusive lock; rerun with permitted cache access",
+    "stdout": "deny-retry.stdout",
+    "stderr": "deny-retry.stderr"
+  },
+  "probe_runs": {
+    "probes.py": 0,
+    "recovery_probes.py": 0,
+    "controls.py": 0,
+    "init_lock_probe.py": 0,
+    "extra_controls.py": 0
+  },
+  "mutants": {
+    "enumerated": 1137,
+    "execution": "not_run",
+    "survivor_disposition": "not_run"
+  },
+  "host": "not_run",
+  "release": "not_run",
+  "full_kill_matrix": "not_run"
+}

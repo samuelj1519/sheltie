@@ -23,7 +23,7 @@
 | crate | 职责 | 禁止 |
 | --- | --- | --- |
 | `sheltie-core` | 类型、TOML 解析、图编译、`decide` 状态机、`legal_next`、状态卡渲染 | 任何 I/O。不出现 `std::fs`、`std::time::SystemTime::now`、随机数、SQLite。时间与 ID 从参数传进来 |
-| `sheltie-runtime` | 管理根目录、Workbook 仓库、SQLite 存储、产物封存、把观察到的文件事实交给 core、执行 core 返回的效果 | 业务决定。不重算 core 已决定的事；不解释自然语言 |
+| `sheltie-runtime` | 管理根目录、受管文件句柄、Workbook 仓库、SQLite 存储、产物封存、把观察到的文件事实交给 core、执行 core 返回的效果 | 业务决定。不重算 core 已决定的事；不解释自然语言 |
 | `sheltie-cli` | `clap` 命令树、参数到 `Command` 的转换、文本与 `--json` 输出、退出码 | 直接碰数据库或文件 |
 
 **为什么 core 是纯的。** 状态机是产品的全部规则所在。纯函数让每条规则都能用手写输入与期望输出做单元测试，不需要临时目录或数据库。runtime 的测试则只关心「事务是否原子、文件是否封住」。
@@ -228,6 +228,7 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 | 存储 | `rusqlite`（`bundled`） | 单文件、事务、零运维。WAL 模式 |
 | ID | `work_id` 为 `<UTC 日期>-<当日序号>-<名字>`；`request_id` 用 `uuid` v7 | `work_id` 对人可读、目录名即 id；序号在 SQLite 事务内分配（见 [存储合同 §7](contracts/storage.md)） |
 | 摘要 | `sha2` | 产物冻结与 `workbook-digest/v2` |
+| 受管文件调用 | `rustix` 1.1.4 安全文件系统调用（仅 runtime；`unsafe_code = forbid`） | 目录句柄锚定、拒绝路径跟随软链、核文件对象身份；具体契约见 storage §6 与 D-037 |
 | 管理根写锁 | `fs4`（std 文件的排他锁） | 文件生命周期串行化；进程退出由 OS 释放（D-035） |
 | OS 主体 | `users`（effective uid + 账户查询，仅 unix） | 安全 Rust API 取得进程身份，不采信 `USER`/`USERNAME`（D-036） |
 | 错误 | `thiserror` | 每个 crate 一个错误枚举；CLI 映射为错误码与退出码 |

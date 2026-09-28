@@ -95,3 +95,9 @@ T14 独立审查首轮发现两项状态校验反例：唯一 running Attempt �
 | 正反例 | 命令、唯一改变的条件、独立期望、实际响应/Store/文件字节/退出码、原始输出路径 |
 | 门禁 | 四条 Rust 命令及附加 gate 的完整命令、运行标识、退出码、原始输出路径；复用时证明输入闭包相同 |
 | 审查与交接 | Reviewer 的独立结论、逐条问题处置、剩余 `not_run`、最终提交 hash 与下一任务入口 |
+
+## 6. M1 预审与追加修复材料（2026-09-28）
+
+固定候选e1a8126的 [独立审查](review-m1-2026-09-28.md) 为“需修改”；已运行门禁和19项发现/27项矩阵见 [M1 evidence](evidence/m1-2026-09-28/README.md)，保留失败与未完成边界。该轮未完成完整kill/突变门槛，不构成M1关闭。
+
+用户已授权按 [repair-design](repair-design.md)、[repair-plan](repair-plan.md)、[repair-validation](repair-validation.md) 实施修复，并明确豁免Linux运行。C002-T18于2026-09-28完成：合同调整已按授权写入上游；macOS arm64/Rust 1.85.0/bundled SQLite 3.50.2探针通过；`git diff --check`、docs/specs/test映射、fmt/check/Clippy/nextest通过（464 passed）；独立Spec与Standards Reviewer通过。完整命令/原始输出见 [T18探针与门禁](evidence/t18-api-probe-2026-09-28/README.md)。Linux原生探针保留`not_run`，所有后续验证和最终结论限定为macOS；不把豁免写成Linux或跨平台PASS。方案材料独立审查与静态检查见 [repair-planning evidence](evidence/repair-planning-2026-09-28/README.md)。旧done或历史测试绿不转成新问题关闭。

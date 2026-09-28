@@ -92,3 +92,9 @@ C003 的当前文档/历史分层合理，本地结构检查通过；但是其�
 MCP 在 CLI 摩擦被真实观测时增加；安装器在真实资源声明需求出现后设计；并行、动态模板、沙箱和多用户认证各自立项。路线图里 L1–L3 是假设，不应成为当前工程任务。没有实证，不因模型能力想象提前建设“清算平面”。
 
 对用户提出的五条原则，本次采用的判断是：每项新机制都必须对应一个已出现的失败、一个当前合同或一个可验证的近期用例。修复请求重放、持久发布和路径边界属于兑现现有目标；为了浏览改名保留永久双格式、为假想宿主建立适配体系、用兼容分支掩盖错误摘要，都不值得。削减的是没有收益证据的复杂度，同时保留数据完整性所需的检查。
+
+## 9. M1 预审与修复材料（2026-09-28）
+
+候选e1a8126的[独立审查](review-m1-2026-09-28.md)为“需修改”，不改变本文前面的MVP历史结论。R01–R19的修复方案和新人执行材料见[repair-design](repair-design.md)、[repair-plan](repair-plan.md)、[repair-validation](repair-validation.md)。两位未参与材料撰写的Reviewer复核后给出“方案材料通过”，具体初稿问题与修订见[材料证据](evidence/repair-planning-2026-09-28/README.md)。该结论不表示代码、API探针、M1、Host或发布通过；实际进度仍只看plan.md。
+
+T18合同/API探针delta经独立Standards Reviewer和Spec Reviewer复核通过。复核范围是用户采用后的合同文档和macOS arm64探针：恢复了pending owner精确格式与self update/schema边界；保留self install替换分叉二进制的既有行为；区分正常purge沿同一根锁与锁外意外替换；按bundled SQLite实测收窄短main/有效WAL与坏WAL表述；补充`@file`错误边界、RequestIntent名字顺序与SHM例外；T18验证操作职责/API，T19确定私有签名并迁移caller。Linux与真实runtime caller未由Reviewer验证；用户明确豁免Linux，Linux仍`not_run`。
