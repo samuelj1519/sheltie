@@ -20,6 +20,16 @@ v0.1.0 已发布，MVP 与 T26 已被项目接受。独立全量审查确认：�
 5. [plan.md](plan.md)：任务、依赖、正反例、停止条件与交付门禁。
 6. [validation.md](validation.md)：本次审查证据及尚未执行的修复/宿主/发布验证。
 
+## M1 审查后的修复入口
+
+候选 `e1a8126` 的 [独立审查](review-m1-2026-09-28.md) 结论为“需修改”，R01–R19 尚待修复。2026-09-28 用户要求提供全部问题的方案与适合初级工程师的执行计划：
+
+1. [repair-design.md](repair-design.md)：文件、请求、恢复、删除与purge的确定方案及对应合同调整。
+2. [repair-plan.md](repair-plan.md)：新人开工路径、T18–T31任务卡、命令、提交与交接。
+3. [repair-validation.md](repair-validation.md)：32组验收样例、真实故障窗口、独立oracle与证据模板。
+
+修复任务状态只看 [plan.md](plan.md)。用户已授权实施、采用合同调整，并于2026-09-28明确豁免本修复线的Linux验证；Linux证据仍记`not_run`，不宣称跨平台验证通过。其余任务按依赖在macOS执行。T16/T17继续分别负责真实宿主与发布。
+
 ## 成功判据
 
 - 确认问题逐项有合法例、单条件反例和真实 caller 验证。

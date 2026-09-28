@@ -71,9 +71,9 @@ Workbook 与冻结副本的文件设 0444、目录含根设 0555；合法移除�
 
 先以只读方式识别已有 schema、构造不依赖当前文件内容的意图并查询可重放请求；未命中才读当前文件并完成确定性 preflight。旧库拒绝、新 home 的失败 start 都发生在创建目录/锁文件或写 PRAGMA 之前。合法写操作才创建管理根并取得锁；锁内重新核对 schema、request-id 与受并发影响的前置事实，再恢复/准备/提交。
 
-为避免本地多个写进程交错发布/删除，runtime 使用一个管理根级写锁，覆盖锁内重放复查、恢复、准备、事务与效果发布；进程退出由 OS 释放。只读操作不获取写锁，不创建锁文件。self 的写入口也遵守这把锁；purge 持锁删除后，等待者取得旧锁时必须复核管理根/锁对象身份，发现删除或重建就退出重试，不能把旧 inode 当现根的锁。这是文件生命周期串行化；SQLite revision/CAS 保留为事务边界校验，不做自动业务重试框架。锁只针对本地协作进程，不声称约束同用户手工改文件。采用具体锁库前按工程规范核其公开 API。
+为避免本地多个写进程交错发布/删除，runtime 使用一个管理根级写锁，覆盖锁内重放复查、恢复、准备、事务与效果发布；进程退出由 OS 释放。只读操作不获取写锁，不创建锁文件。self 的写入口也遵守这把锁。确认purge删除用户数据但保留空管理根和同一个`.lock`后，排队者沿同一锁继续；合法install/add可初始化空Store，旧Work写命令对已删除Store/Work返回`NOT_FOUND`且不重建。锁外因素意外删除/替换根或锁时，仍须身份复核并整体重试，不能沿陈旧inode写入。这是文件生命周期串行化；SQLite revision/CAS保留为事务边界校验，不做自动业务重试框架。锁只针对本地协作进程，不声称约束同用户手工改文件。
 
-start 和 add 的 staging 位于专用 `pending/<internal-id>/payload/`；引擎先独占创建并 fsync `pending/<internal-id>.owner` 侧车，再创建 payload，绝不把它放进可按年龄清理的 tmp。先 sync 原件和必要目录，再在一个事务中记录 Work/Workbook、audit、request snapshot 与发布效果，随后 rename `payload/` 到最终目录、刷新当前状态卡并完成效果标记。拒绝在内存中“记住”唯一恢复信息。
+start 和 add 的staging位于专用`pending/<internal-id>/payload/`；引擎先独占创建并fsync`pending/<internal-id>.owner`侧车，再创建payload，绝不把它放进可按年龄清理的tmp。remove先建owner/container，不预建payload；提交后核对final再移入payload并安全删除。先sync原件和必要目录，再在一个事务中记录Work/Workbook、audit、request snapshot与发布效果，随后rename`payload/`到最终目录、刷新当前状态卡并完成效果标记。拒绝在内存中“记住”唯一恢复信息。
 
 | 窗口 | 行为与恢复 |
 | --- | --- |

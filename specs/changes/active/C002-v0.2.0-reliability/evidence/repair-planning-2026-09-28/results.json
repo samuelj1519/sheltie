@@ -1,0 +1,37 @@
+[
+  {
+    "name": "docs",
+    "command": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "specs",
+    "command": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "test-owners",
+    "command": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "plan-static",
+    "command": "Python tomllib/re task/status/card/scope/R/V coverage check",
+    "exit": 0
+  }
+]

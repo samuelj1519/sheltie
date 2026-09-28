@@ -1,0 +1,121 @@
+{
+  "temp_root": "/private/tmp/sheltie-standards-aw9xr5lv",
+  "rollback": {
+    "before": {
+      "sheltie": "outside-current",
+      "sheltie.prev": "outside-prev"
+    },
+    "run": {
+      "command": [
+        "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+        "--json",
+        "--home",
+        "/private/tmp/sheltie-standards-aw9xr5lv/rollback-home",
+        "self",
+        "rollback"
+      ],
+      "exit": 0,
+      "stdout": "{\"data\":{\"rolled_back\":true},\"next\":[],\"ok\":true}\n",
+      "stderr": ""
+    },
+    "after": {
+      "sheltie": "outside-prev"
+    }
+  },
+  "install_tmp_symlink": {
+    "run": {
+      "command": [
+        "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+        "--json",
+        "--home",
+        "/private/tmp/sheltie-standards-aw9xr5lv/install-home",
+        "self",
+        "install"
+      ],
+      "exit": 0,
+      "stdout": "{\"data\":{\"already_installed\":false,\"installed_to\":\"/private/tmp/sheltie-standards-aw9xr5lv/install-home/bin/sheltie\",\"path_hint\":\"把 /private/tmp/sheltie-standards-aw9xr5lv/install-home/bin 加进 PATH\"},\"next\":[],\"ok\":true}\n",
+      "stderr": ""
+    },
+    "outside_transient_entries": [
+      "01a0e673-89c4-7356-807e-5d10c46a4d7d"
+    ],
+    "installed": true
+  },
+  "purge_frozen_workbook": {
+    "add": {
+      "command": [
+        "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+        "--json",
+        "--home",
+        "/private/tmp/sheltie-standards-aw9xr5lv/purge-home",
+        "workbook",
+        "add",
+        "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+      ],
+      "exit": 0,
+      "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0e673-89de-704e-ab79-8269c6c4e780\"}\n",
+      "stderr": ""
+    },
+    "purge": {
+      "command": [
+        "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+        "--json",
+        "--home",
+        "/private/tmp/sheltie-standards-aw9xr5lv/purge-home",
+        "self",
+        "uninstall",
+        "--purge",
+        "--yes"
+      ],
+      "exit": 1,
+      "stdout": "{\"error\":{\"code\":\"IO\",\"detail\":{\"error\":\"Permission denied (os error 13)\",\"path\":\"/private/tmp/sheltie-standards-aw9xr5lv/purge-home/workbooks/two-step/1.0.0/instructions/outline.md\"},\"message\":\"/private/tmp/sheltie-standards-aw9xr5lv/purge-home/workbooks/two-step/1.0.0/instructions/outline.md：Permission denied (os error 13)\"},\"next\":[],\"ok\":false}\n",
+      "stderr": ""
+    },
+    "root_still_exists": true,
+    "remaining": [
+      "workbooks",
+      "pending",
+      "workbooks/two-step",
+      "pending/01a0e67389e771bfaab51e6c4a790f5b",
+      "pending/01a0e67389e771bfaab51e6c4a790f5b.owner",
+      "workbooks/two-step/1.0.0",
+      "workbooks/two-step/1.0.0/instructions",
+      "workbooks/two-step/1.0.0/workbook.toml",
+      "workbooks/two-step/1.0.0/flows",
+      "workbooks/two-step/1.0.0/instructions/outline.md",
+      "workbooks/two-step/1.0.0/instructions/summary.md",
+      "workbooks/two-step/1.0.0/flows/default.toml"
+    ]
+  },
+  "archive_symlink": {
+    "manifest": {
+      "version": "9.9.9",
+      "assets": [
+        {
+          "platform": "aarch64-apple-darwin",
+          "name": "sheltie.tar.gz",
+          "sha256": "05b6ce480d03f86de71ac573e8242f081c0b5ea27e73ff6bb4e8dd35914dc934"
+        }
+      ]
+    },
+    "before_mode": "0600",
+    "run": {
+      "command": [
+        "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+        "--json",
+        "--home",
+        "/private/tmp/sheltie-standards-aw9xr5lv/archive-home",
+        "self",
+        "update",
+        "--version",
+        "9.9.9"
+      ],
+      "exit": 1,
+      "stdout": "{\"error\":{\"code\":\"UPDATE_UNAVAILABLE\",\"detail\":{\"reason\":\"解包 sheltie.tar.gz 后找不到 sheltie 二进制\"},\"message\":\"没有可用的更新：解包 sheltie.tar.gz 后找不到 sheltie 二进制\"},\"next\":[],\"ok\":false}\n",
+      "stderr": ""
+    },
+    "after_mode": "0o600",
+    "installed_is_symlink": false,
+    "installed_target": null
+  }
+}

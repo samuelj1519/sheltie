@@ -1,0 +1,9 @@
+   Compiling sheltie-c002-t18-api-probe v0.1.0 (/private/tmp/sheltie-c002-t18-2026-09-28)
+error[E0432]: unresolved import `rustix::fs::mkfifoat`
+ --> src/main.rs:9:91
+  |
+9 | use rustix::fs::{AtFlags, Dir, FileType, Mode, OFlags, RenameFlags, fchmod, fstat, fsync, mkfifoat, openat, renameat_with, statat};
+  |                                                                                           ^^^^^^^^ no `mkfifoat` in `fs`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `sheltie-c002-t18-api-probe` (bin "sheltie-c002-t18-api-probe") due to 1 previous error

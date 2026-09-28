@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/private/tmp/sheltie-m1-review-target/debug/sheltie",
+    "--json",
+    "workbook",
+    "add",
+    "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+  ],
+  "before_unlock": {
+    "home": "/private/tmp/m1-init-lock-fw1_08fv",
+    "pid": 57341,
+    "root_lock_held": true,
+    "process_running": true,
+    "db_exists": true,
+    "schema_version": 2
+  },
+  "exit": 0,
+  "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0e679-8156-70ea-a4da-5beaef942253\"}\n",
+  "stderr": ""
+}

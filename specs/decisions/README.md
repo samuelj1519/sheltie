@@ -11,5 +11,8 @@ MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代
 | D-034 | accepted | [workbook-digest/v2 的带长度编码](D-034-workbook-digest-v2.md) |
 | D-035 | accepted | [管理根写锁用 fs4](D-035-root-write-lock-fs4.md) |
 | D-036 | accepted | [操作主体取真实 OS 进程身份](D-036-os-principal-from-uid.md) |
+| D-037 | accepted | [受管文件使用目录句柄和安全 API](D-037-managed-file-handles.md) |
+| D-038 | accepted | [purge清除数据并保留根锁](D-038-purge-lock-lifecycle.md) |
+| D-039 | accepted | [只读SQLite允许共享内存控制文件](D-039-sqlite-read-control-files.md) |
 
 模板字段：状态、日期、关联 change、背景、选择、否决方案、后果、确认方式。
