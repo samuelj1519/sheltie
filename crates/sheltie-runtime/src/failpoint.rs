@@ -1,7 +1,8 @@
 //! 崩溃测试用的故障注入点。只在 `failpoint` 特性下生效。
 //!
 //! 命名崩溃点包括 `before_commit`、`after_commit_before_effects` 与
-//! `update_between_renames`；测试 rendezvous 只在 `failpoint` feature 开启时可配置。
+//! `update_between_renames`、`delete_after_first_payload_child` 与
+//! `delete_after_tree_removed_before_marker`；测试 rendezvous 只在 `failpoint` feature 开启时可配置。
 //! 调用处已由骨架放好；`maybe_exit` 原属 T23，因 `commit()` 一开始就调用它，
 //! T13 起测试在 `--all-features` 下必经此函数，提前到 T13 填（见 plan.md T13 任务卡）。
 

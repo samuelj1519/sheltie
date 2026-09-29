@@ -86,6 +86,13 @@ pub struct RefJson {
     pub bytes: u64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DeletedMarker {
+    format: String,
+    internal_id: String,
+}
+
 /// 把效果数组从 JSON 解出；结构不符报 `STORE_CORRUPT`，不猜默认值。
 pub fn decode_effects(json: &str) -> Result<Vec<EffectOp>> {
     serde_json::from_str(json).map_err(|e| Error::StoreCorrupt {
@@ -709,8 +716,13 @@ pub(crate) fn execute_with_observed_outputs(
                 if !publish {
                     continue;
                 }
-                let _ = owner;
-                delete_dir(home, lock, pending, final_path, digest)?;
+                let request_id = ops
+                    .request_id
+                    .as_deref()
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: "DeleteDir效果缺少已校验请求身份".to_string(),
+                    })?;
+                delete_dir(home, lock, request_id, pending, final_path, owner, digest)?;
             }
             EffectOp::RefreshStatusCard { .. } => {
                 // 状态卡是当前投影：由调用方（持有 Store）从最新 state_json 生成，
@@ -996,53 +1008,111 @@ fn verify_owned_digest(home: &Home, dir: &AbsPath, owner: &str, digest: &str) ->
     Ok(())
 }
 
-/// `delete_dir`（存储合同 §3.2/§3.3）：最终目录仍在时核身份与摘要——**只有登记的
-/// 那个对象**才移入本操作 pending 并删除；摘要不符说明那是别人的新生命周期对象
-///（同版本重新 add），本操作的删除视为已完成，不碰它。移入后只删同一对象；完成
-/// 后写 `.deleted` 持久标记，两处都缺时只有合法标记才能证明完成。
+/// `delete_dir`（存储合同 §3.2/§3.3）：final或pending中只处理摘要与owner均匹配的
+/// 登记对象；两处都缺时仅本请求的合法`.deleted` marker能证明完成。摘要不符、两端点
+/// 同时存在或两端点与marker同时缺失都表示归属/结果不明，必须停止并保留现场。
 fn delete_dir(
     home: &Home,
     lock: &crate::home::HomeLock,
+    request_id: &str,
     pending: &str,
     final_path: &str,
+    owner: &str,
     digest: &str,
 ) -> Result<()> {
-    let fin = home.rel(final_path)?;
-    let pen = home.rel(pending)?;
-    let internal_id = pen
-        .as_path()
-        .file_name()
-        .map(|n| n.to_string())
-        .unwrap_or_default();
-    if fin.as_path().exists() && !digest.is_empty() {
-        let got = crate::workbook_digest::digest_managed_dir_v2(home, &fin).map_err(|e| {
-            Error::StoreCorrupt {
-                detail: format!("删除对象 {fin} 读不了：{e}"),
-            }
-        })?;
-        if got.as_str() != digest {
-            // 不是登记要删的对象（新生命周期或外部替换）：不删、不覆盖。
-            write_deleted_marker(home, lock, &internal_id)?;
-            return Ok(());
+    let internal_id = pending_internal_id(pending)?;
+    if !owner.starts_with("workbook:") {
+        return Err(Error::StoreCorrupt {
+            detail: format!("remove请求 {request_id} 的owner不是Workbook"),
+        });
+    }
+    crate::service::verify_pending_owner(home, internal_id, request_id, "remove_workbook")?;
+    let marker_file = read_deleted_marker(home, lock, internal_id)?;
+    let pending_exists = fsx::managed_directory_exists(home, lock, pending)?;
+    let final_exists = fsx::managed_directory_exists(home, lock, final_path)?;
+    if let Some(marker_file) = marker_file {
+        if pending_exists || final_exists {
+            return Err(Error::StoreCorrupt {
+                detail: format!("删除请求 {request_id} 的完成marker与目录对象同时存在"),
+            });
         }
-    }
-    if fin.as_path().exists() {
-        fsx::make_tree_writable(home, lock, &fin)?;
-        if let Some(parent) = pen.as_path().parent() {
-            fsx::ensure_dirs_under(
-                home,
-                lock,
-                &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
-            )?;
+        sync_deleted_marker(home, lock, internal_id, request_id, &marker_file)?;
+        if fsx::managed_directory_exists(home, lock, pending)?
+            || fsx::managed_directory_exists(home, lock, final_path)?
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("marker同步期间删除请求 {request_id} 出现目录对象"),
+            });
         }
-        fsx::rename_managed_new(home, lock, final_path, pending)?;
+        return Ok(());
     }
-    if pen.as_path().exists() {
-        fsx::remove_tree_no_follow(home, lock, &pen)?;
+    if pending_exists && final_exists {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除请求 {request_id} 的final与pending同时存在"),
+        });
     }
-    // 两处都缺时本函数的执行本身就是完成证明：写持久标记（§3.3）。
-    write_deleted_marker(home, lock, &internal_id)?;
+    if !pending_exists && !final_exists {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除请求 {request_id} 两端点均缺失且没有合法完成marker，结果不明"),
+        });
+    }
+
+    if final_exists {
+        let tree = fsx::open_managed_tree(home, lock, final_path)?;
+        fsx::verify_managed_tree_at(home, &tree, final_path)?;
+        let final_dir = home.rel(final_path)?;
+        verify_publish_object(home, &final_dir, owner, digest)?;
+        fsx::make_managed_tree_writable(home, lock, &tree, final_path)?;
+        fsx::verify_managed_tree_at(home, &tree, final_path)?;
+        fsx::rename_managed_tree_new(home, lock, &tree, pending)?;
+        fsx::verify_managed_tree_at(home, &tree, pending)?;
+        let pending_dir = home.rel(pending)?;
+        verify_publish_object(home, &pending_dir, owner, digest)?;
+        fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
+        fsx::verify_managed_tree_at(home, &tree, pending)?;
+        verify_publish_object(home, &pending_dir, owner, digest)?;
+        fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+    } else {
+        let tree = fsx::open_managed_tree(home, lock, pending)?;
+        fsx::verify_managed_tree_at(home, &tree, pending)?;
+        let pending_dir = home.rel(pending)?;
+        verify_publish_object(home, &pending_dir, owner, digest)?;
+        fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
+        fsx::verify_managed_tree_at(home, &tree, pending)?;
+        verify_publish_object(home, &pending_dir, owner, digest)?;
+        fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+    }
+    crate::failpoint::maybe_exit("delete_after_tree_removed_before_marker");
+    if fsx::managed_directory_exists(home, lock, pending)?
+        || fsx::managed_directory_exists(home, lock, final_path)?
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除请求 {request_id} 后仍有final或pending对象"),
+        });
+    }
+    write_deleted_marker(home, lock, internal_id, request_id)?;
+    if fsx::managed_directory_exists(home, lock, pending)?
+        || fsx::managed_directory_exists(home, lock, final_path)?
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除请求 {request_id} 写marker期间出现目录对象"),
+        });
+    }
     Ok(())
+}
+
+fn pending_internal_id(pending: &str) -> Result<&str> {
+    let segments = pending.split('/').collect::<Vec<_>>();
+    if segments.len() != 3
+        || segments[0] != "pending"
+        || segments[2] != "payload"
+        || uuid::Uuid::parse_str(segments[1]).is_err()
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除效果的pending路径 {pending:?} 无效"),
+        });
+    }
+    Ok(segments[1])
 }
 
 /// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。
@@ -1050,21 +1120,110 @@ fn write_deleted_marker(
     home: &Home,
     lock: &crate::home::HomeLock,
     internal_id: &str,
+    request_id: &str,
 ) -> Result<()> {
-    if internal_id.is_empty() {
-        return Ok(());
+    let _ = uuid::Uuid::parse_str(internal_id).map_err(|error| Error::StoreCorrupt {
+        detail: format!("删除marker内部id无效：{error}"),
+    })?;
+    let relative = format!("pending/{internal_id}.deleted");
+    if let Some(file) = read_deleted_marker(home, lock, internal_id)? {
+        return sync_deleted_marker(home, lock, internal_id, request_id, &file);
     }
-    let marker = home
+    let marker = DeletedMarker {
+        format: "delete-complete/v1".to_string(),
+        internal_id: internal_id.to_string(),
+    };
+    let mut content = serde_json::to_vec(&marker).map_err(|error| Error::StoreCorrupt {
+        detail: format!("删除marker序列化失败：{error}"),
+    })?;
+    content.push(b'\n');
+    let path = home.rel(&relative)?;
+    let file = fsx::write_new_file_observed(home, lock, &path, &content)?;
+    sync_deleted_marker(home, lock, internal_id, request_id, &file)?;
+    Ok(())
+}
+
+fn read_deleted_marker(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    internal_id: &str,
+) -> Result<Option<fsx::SafeFile>> {
+    let marker_path = home
         .pending_dir()
         .join_segment(&format!("{internal_id}.deleted"));
-    if marker.as_path().exists() {
-        return Ok(());
+    let Some(file) =
+        fsx::open_managed_optional_locked(home, lock, &marker_path).map_err(|error| {
+            integrity_error(format!("删除marker {marker_path} 身份校验失败"), error)
+        })?
+    else {
+        return Ok(None);
+    };
+    validate_deleted_marker_file(&file, &marker_path, internal_id)?;
+    Ok(Some(file))
+}
+
+fn validate_deleted_marker_file(
+    file: &fsx::SafeFile,
+    marker_path: &AbsPath,
+    internal_id: &str,
+) -> Result<()> {
+    let mut bytes = file
+        .read_bounded(4096)
+        .map_err(|error| integrity_error(format!("删除marker {marker_path} 读取失败"), error))?;
+    if bytes.pop() != Some(b'\n') {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除marker {marker_path} 缺少结尾换行"),
+        });
     }
-    let content =
-        format!("{{\"format\":\"delete-complete/v1\",\"internal_id\":\"{internal_id}\"}}\n");
-    fsx::write_new_file(home, lock, &marker, content.as_bytes())?;
-    fsx::fsync_dir(home, lock, &home.pending_dir())?;
+    let marker: DeletedMarker =
+        serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
+            detail: format!("删除marker {marker_path} JSON无效：{error}"),
+        })?;
+    if marker.format != "delete-complete/v1" || marker.internal_id != internal_id {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除marker {marker_path} 与本请求internal_id不一致"),
+        });
+    }
+    let mut expected = serde_json::to_vec(&DeletedMarker {
+        format: "delete-complete/v1".to_string(),
+        internal_id: internal_id.to_string(),
+    })
+    .map_err(|error| Error::StoreCorrupt {
+        detail: format!("删除marker期望值序列化失败：{error}"),
+    })?;
+    expected.push(b'\n');
+    let mut actual = bytes;
+    actual.push(b'\n');
+    if actual != expected {
+        return Err(Error::StoreCorrupt {
+            detail: format!("删除marker {marker_path} 字节不是合同格式"),
+        });
+    }
     Ok(())
+}
+
+fn sync_deleted_marker(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    internal_id: &str,
+    request_id: &str,
+    file: &fsx::SafeFile,
+) -> Result<()> {
+    let relative = format!("pending/{internal_id}.deleted");
+    let path = home.rel(&relative)?;
+    validate_deleted_marker_file(file, &path, internal_id)?;
+    crate::failpoint::rendezvous("delete_marker_after_validation_before_sync", request_id)
+        .map_err(|error| Error::io(path.as_str(), error))?;
+    fsx::sync_managed_regular_file_handle(home, lock, &relative, file).map_err(|error| {
+        integrity_error(format!("删除marker {internal_id}.deleted sync失败"), error)
+    })?;
+    validate_deleted_marker_file(file, &path, internal_id)?;
+    fsx::verify_managed_file_bound(home, lock, &path, file).map_err(|error| {
+        integrity_error(
+            format!("删除marker {internal_id}.deleted 同步后路径绑定失败"),
+            error,
+        )
+    })
 }
 
 /// 独立校验一个 sha256 串。

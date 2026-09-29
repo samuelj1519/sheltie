@@ -336,6 +336,279 @@ fn old_remove_replay_does_not_delete_readded_workbook() {
     assert_eq!(rows.len(), 1);
 }
 
+// Task: C002-T27
+#[test]
+fn remove_marker_cannot_be_borrowed_from_another_internal_id() {
+    for mutation in ["cross_id", "bad_format"] {
+        let (_dir, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        repo.add(
+            &abs(&example_dir("two-step")),
+            Some("t27-marker-add-a".into()),
+        )
+        .unwrap();
+        repo.add(
+            &abs(&example_dir("gated-release")),
+            Some("t27-marker-add-b".into()),
+        )
+        .unwrap();
+        let request_a = "t27-marker-remove-a";
+        let request_b = "t27-marker-remove-b";
+        repo.remove("two-step", "1.0.0", Some(request_a.into()))
+            .unwrap();
+        repo.remove("gated-release", "1.0.0", Some(request_b.into()))
+            .unwrap();
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let effects_a: String = conn
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id = ?1",
+                [request_a],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects_b: String = conn
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id = ?1",
+                [request_b],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let internal_a =
+            serde_json::from_str::<serde_json::Value>(&effects_a).unwrap()[0]["pending"]
+                .as_str()
+                .unwrap()
+                .split('/')
+                .nth(1)
+                .unwrap()
+                .to_string();
+        let internal_b =
+            serde_json::from_str::<serde_json::Value>(&effects_b).unwrap()[0]["pending"]
+                .as_str()
+                .unwrap()
+                .split('/')
+                .nth(1)
+                .unwrap()
+                .to_string();
+        assert_ne!(internal_a, internal_b);
+        let marker_a = home
+            .pending_dir()
+            .join_segment(&format!("{internal_a}.deleted"));
+        let marker_b = home
+            .pending_dir()
+            .join_segment(&format!("{internal_b}.deleted"));
+        let bytes_a = std::fs::read(marker_a.as_path()).unwrap();
+        let marker_content = if mutation == "cross_id" {
+            bytes_a
+        } else {
+            format!("{{\"format\":\"unknown/v9\",\"internal_id\":\"{internal_b}\"}}\n").into_bytes()
+        };
+        std::fs::write(marker_b.as_path(), &marker_content).unwrap();
+        conn.execute(
+            "UPDATE requests SET published = 0 WHERE request_id = ?1",
+            [request_b],
+        )
+        .unwrap();
+
+        let error = repo
+            .remove("gated-release", "1.0.0", Some(request_b.to_string()))
+            .unwrap_err();
+        let Error::EffectPending {
+            committed,
+            request_id,
+            pending_request_id,
+            cause,
+            ..
+        } = error
+        else {
+            panic!("marker必须绑定自己的internal_id：{error:?}");
+        };
+        assert!(committed);
+        assert_eq!(request_id, request_b);
+        assert!(pending_request_id.is_none());
+        assert_eq!(cause, ErrorCode::StoreCorrupt);
+        assert_eq!(std::fs::read(marker_b.as_path()).unwrap(), marker_content);
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [request_b],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+        assert!(
+            !home
+                .workbook_dir("gated-release", "1.0.0")
+                .as_path()
+                .exists()
+        );
+        assert!(
+            !home
+                .rel(&format!("pending/{internal_b}/payload"))
+                .unwrap()
+                .as_path()
+                .exists()
+        );
+    }
+}
+
+// Task: C002-T27
+#[test]
+fn remove_refuses_missing_directory_or_digest_before_commit() {
+    for corruption in ["missing_directory", "empty_digest"] {
+        let (_dir, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        repo.add(
+            &abs(&example_dir("two-step")),
+            Some("t27-preflight-add".into()),
+        )
+        .unwrap();
+        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        if corruption == "missing_directory" {
+            make_writable(final_dir.as_path().as_std_path());
+            std::fs::remove_dir_all(final_dir.as_path()).unwrap();
+        } else {
+            let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+            conn.execute(
+                "UPDATE workbooks SET digest = '' WHERE id = 'two-step' AND version = '1.0.0'",
+                [],
+            )
+            .unwrap();
+        }
+
+        let request_id = format!("t27-remove-preflight-{corruption}");
+        let error = repo
+            .remove("two-step", "1.0.0", Some(request_id.clone()))
+            .unwrap_err();
+        assert_eq!(
+            error.code(),
+            ErrorCode::StoreCorrupt,
+            "{corruption}: {error:?}"
+        );
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        assert_eq!(
+            conn.query_row(
+                "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT COUNT(*) FROM audit WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(repo.list().unwrap().len(), 1);
+        assert_eq!(final_dir.as_path().exists(), corruption == "empty_digest");
+    }
+}
+
+// Task: C002-T27
+#[test]
+fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
+    use std::os::unix::fs::MetadataExt as _;
+
+    let (dir, home) = temp_home();
+    let source = copy_example("two-step", dir.path());
+    let repo = WorkbookRepo::new(home.clone());
+    let request_add_old = "t27-lifecycle-add-old";
+    let request_remove_old = "t27-lifecycle-remove-old";
+    let old_add = repo
+        .add(&abs(&source), Some(request_add_old.to_string()))
+        .unwrap();
+    repo.remove("two-step", "1.0.0", Some(request_remove_old.into()))
+        .unwrap();
+
+    std::fs::write(
+        source.join("instructions/outline.md"),
+        "同身份的新生命周期必须由新请求管理。\n",
+    )
+    .unwrap();
+    let new_add = repo
+        .add(&abs(&source), Some("t27-lifecycle-add-new".into()))
+        .unwrap();
+    assert_ne!(old_add.data["digest"], new_add.data["digest"]);
+    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let new_inode = std::fs::metadata(final_dir.as_path()).unwrap().ino();
+    let new_bytes =
+        std::fs::read(final_dir.join_segment("instructions/outline.md").as_path()).unwrap();
+    let row_before: String = rusqlite::Connection::open(home.store_path().as_str())
+        .unwrap()
+        .query_row(
+            "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.0'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let old_add_reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_add_old],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let old_remove_reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_remove_old],
+            |row| row.get(0),
+        )
+        .unwrap();
+
+    assert!(
+        repo.remove("two-step", "1.0.0", Some(request_remove_old.into()))
+            .unwrap()
+            .replayed
+    );
+    assert!(
+        repo.add(&abs(&source), Some(request_add_old.to_string()))
+            .unwrap()
+            .replayed
+    );
+    assert_eq!(
+        std::fs::metadata(final_dir.as_path()).unwrap().ino(),
+        new_inode
+    );
+    assert_eq!(
+        std::fs::read(final_dir.join_segment("instructions/outline.md").as_path()).unwrap(),
+        new_bytes
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.0'",
+            [],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+        row_before
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_add_old],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+        old_add_reply
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_remove_old],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+        old_remove_reply
+    );
+}
+
 // Task: C002-T20
 #[test]
 fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
