@@ -483,12 +483,18 @@ impl WorkService {
         ))
     }
 
-    /// 只读：事实视图文本与结构化形式（`render_stats`、`render_stats_json`）。
-    pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson)> {
+    /// 只读：事实视图与next均来自同一次装入的state/revision。
+    pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson, Vec<serde_json::Value>)> {
         let loaded = self.load(work)?;
+        crate::failpoint::rendezvous("stats_after_load", work.as_str())
+            .map_err(|error| Error::io(loaded.state.work_dir.as_str(), error))?;
         Ok((
             render_stats(&loaded.state, &loaded.graph),
             render_stats_json(&loaded.state, &loaded.graph),
+            legal_next(&loaded.state, &loaded.graph)
+                .iter()
+                .map(|operation| sheltie_core::work::render::next_item_json(work, operation))
+                .collect(),
         ))
     }
 

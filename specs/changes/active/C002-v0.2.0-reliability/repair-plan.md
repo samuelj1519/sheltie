@@ -328,7 +328,7 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
 **定位。** runtime tests/service.rs假并发、selfmgmt purge等待者、schema2_replay/workbook_txn/crash，CLI共用binary helper，`.config/nextest.toml`、scripts/mutants.sh、必要CI文件。
 
 1. 先做能力→真实入口→oracle→Owner→保留/替换矩阵。把lazy spawn/join改为先spawn集合、barrier/channel等待明确事件、最后join；purge等待者不以sleep代表已进入等待。
-2. 将runtime中真正需要子进程CLI的crash/OS主体用例迁到sheltie-cli/tests，保留runtime的直接API用例；CLI集成测试用Cargo注入的CARGO_BIN_EXE_sheltie，不在测试体启动cargo、不猜target路径。CLI新增failpoint feature映射runtime/failpoint，crash用例只在该feature下启用；全features门禁覆盖它。手工probe从Cargo JSON取executable。迁移前后能力/oracle/Owner一一对照，不能删掉故障窗口。
+2. 将runtime中真正需要子进程CLI的crash/OS主体用例迁到sheltie-cli/tests，保留runtime的直接API用例；CLI集成测试用Cargo注入的CARGO_BIN_EXE_sheltie，不在测试体启动cargo、不猜target路径。CLI使用T29提供的failpoint feature映射runtime/failpoint，crash用例只在该feature下启用；全features门禁覆盖它。手工probe从Cargo JSON取executable。迁移前后能力/oracle/Owner一一对照，不能删掉故障窗口。
 3. 为repair-validation §4逐窗口增加精确failpoint与子进程用例。API编译、模拟目录/SQL、exit70、实际kill分开存证；删除不明窗口的正确结论是停止。所有“存在”断言补文件bytes/Store归属。
 4. 在macOS以同候选/lockfile/feature运行文件/删除/publish/锁相关用例。Linux运行按用户明确指示豁免，保留`not_run`并将最终结论限定为macOS。
 5. 为core/runtime新候选生成完整mutant列表，按能力分片执行并记录每个存活体；保留安全/恢复/real-entry不同oracle测试，删除死代码只在consumer与义务已不存在的证据下进行。

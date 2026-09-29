@@ -135,7 +135,7 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
     output::ok_work_next(text, None, None, data, card.next.clone())
 }
 
-/// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。
+/// `work stats`：runtime返回同一次装入的事实视图与next。
 fn stats(ctx: &Ctx, work: &str) -> Outcome {
     let svc = service(ctx);
     let wid = match resolve(&svc, work, None) {
@@ -143,12 +143,8 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Err(out) => return out,
     };
     // stats 与 next 用同一次加载的事实视图（GF-29）；next 与状态卡同源同形。
-    let (text, stats) = match svc.stats(&wid) {
+    let (text, stats, ops) = match svc.stats(&wid) {
         Ok(t) => t,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let ops = match svc.status(&wid) {
-        Ok((_, card)) => card.next,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     output::ok_work_next(text, None, None, json!(stats), ops)

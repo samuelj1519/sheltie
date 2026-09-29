@@ -157,9 +157,19 @@ pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
             .lock()
             .map_err(|_| std::io::Error::other("rendezvous configuration lock poisoned"))?
             .clone();
-        let Some(configured) =
-            configured.filter(|point| point.name == name && point.request_id == request_id)
-        else {
+        let configured = configured
+            .filter(|point| point.name == name && point.request_id == request_id)
+            .or_else(|| {
+                let configured_name = std::env::var("SHELTIE_TEST_RENDEZVOUS_NAME").ok()?;
+                let configured_id = std::env::var("SHELTIE_TEST_RENDEZVOUS_ID").ok()?;
+                let directory = std::env::var_os("SHELTIE_TEST_RENDEZVOUS_DIR")?;
+                (configured_name == name && configured_id == request_id).then(|| Rendezvous {
+                    name: configured_name,
+                    request_id: configured_id,
+                    directory: std::path::PathBuf::from(directory),
+                })
+            });
+        let Some(configured) = configured else {
             return Ok(());
         };
         std::fs::write(configured.directory.join("reached"), name.as_bytes())?;

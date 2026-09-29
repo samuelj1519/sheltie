@@ -1,0 +1,35 @@
+   Compiling num-traits v0.2.19
+   Compiling tempfile v3.27.0
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+   Compiling float-cmp v0.10.0
+   Compiling predicates v3.1.4
+   Compiling assert_cmd v2.2.2
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.94s
+────────────
+ Nextest run ID 10d744d1-4a86-430f-98ad-06b07afb56bb with nextest profile: default
+    Starting 1 test across 16 binaries (116 tests skipped)
+        FAIL [   5.763s] (1/1) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+  stdout ───
+
+    running 1 test
+    test stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load ... FAILED
+
+    failures:
+
+    failures:
+        stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 20 filtered out; finished in 5.74s
+
+  stderr ───
+
+    thread 'stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load' (66205936) panicked at crates/sheltie-cli/tests/work.rs:659:5:
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   5.764s] 1 test run: 0 passed, 1 failed, 116 skipped
+        FAIL [   5.763s] (1/1) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+error: test run failed

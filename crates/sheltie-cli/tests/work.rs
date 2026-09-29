@@ -605,3 +605,85 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
         serde_json::json!({"kind": "cancelled"})
     );
 }
+
+// Task: C002-T29
+#[cfg(feature = "failpoint")]
+#[test]
+fn stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load() {
+    use std::process::{Child, Command, Stdio};
+    use std::time::{Duration, Instant};
+    struct PausedReader {
+        child: Option<Child>,
+        release: std::path::PathBuf,
+    }
+    impl Drop for PausedReader {
+        fn drop(&mut self) {
+            if let Some(child) = self.child.as_mut() {
+                let _ = std::fs::write(&self.release, b"release");
+                let _ = child.kill();
+                let _ = child.wait();
+            }
+        }
+    }
+    let env = Env::new();
+    env.add_example("two-step");
+    let work = env.start("two-step", &[("topic", "snapshot")]);
+    let sync = tempfile::tempdir().unwrap();
+    let child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
+        .args(["--home", &env.home(), "--json", "work", "stats", &work])
+        .env("SHELTIE_TEST_RENDEZVOUS_NAME", "stats_after_load")
+        .env("SHELTIE_TEST_RENDEZVOUS_ID", &work)
+        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut reader = PausedReader {
+        child: Some(child),
+        release: sync.path().join("release"),
+    };
+    let deadline = Instant::now() + Duration::from_secs(15);
+    while !sync.path().join("reached").exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !sync.path().join("reached").exists() {
+        panic!("真实CLI读者未到达stats装入后的同步点");
+    }
+    let writer = env
+        .cmd(&["attempt", "begin", &work, "--node", "outline"])
+        .timeout(Duration::from_secs(5))
+        .output();
+    std::fs::write(sync.path().join("release"), b"release").unwrap();
+    let result = reader.child.take().unwrap().wait_with_output().unwrap();
+    let writer = writer.unwrap();
+    assert!(
+        writer.status.success(),
+        "{}",
+        String::from_utf8_lossy(&writer.stderr)
+    );
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let old: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(old["data"]["nodes"][0]["attempts"], 0);
+    assert_eq!(old["data"]["nodes"][0]["visits"], 1);
+    assert_eq!(
+        old["next"],
+        serde_json::json!([
+        {"op":"attempt begin", "args":{"work":work,"node":"outline"}, "executor":"agent", "tier":"standard"},
+            {"op":"work cancel", "args":{"work":work}}
+        ])
+    );
+    let current = env.ok(&["work", "stats", &work]);
+    assert_eq!(current["data"]["nodes"][0]["attempts"], 1);
+    assert_eq!(
+        current["next"],
+        serde_json::json!([
+            {"op":"attempt submit", "args":{"work":work,"attempt":"outline#1.0"}},
+            {"op":"attempt fail", "args":{"work":work,"attempt":"outline#1.0"}},
+            {"op":"work cancel", "args":{"work":work}}
+        ])
+    );
+}
