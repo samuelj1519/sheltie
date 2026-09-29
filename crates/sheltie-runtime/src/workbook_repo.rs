@@ -7,7 +7,7 @@ use sheltie_core::path::{AbsPath, RelPath};
 use sheltie_core::workbook::Manifest;
 use sheltie_core::workbook::parse_manifest;
 
-use crate::effects::{EffectOp, decode_effects, encode_effects, execute};
+use crate::effects::{EffectOp, decode_effects, encode_effects};
 use crate::error::{Error, Result};
 use crate::fsx::{ExternalReadTree, MAX_FILE_BYTES as FS_MAX_FILE_BYTES, ManagedRelPath};
 use crate::home::Home;
@@ -46,28 +46,16 @@ enum WorkbookAuditCommand {
     RemoveWorkbook { target: String },
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct AddedSnapshotData {
-    id: String,
-    version: String,
-    digest: String,
-    flows: Vec<String>,
-    requires: Vec<String>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct RemovedSnapshotData {
-    id: String,
-    version: String,
-}
-
 fn decode_added_snapshot(request_id: &str, reply_json: &str) -> Result<AddedSnapshot> {
     let mut s: AddedSnapshot =
         serde_json::from_str(reply_json).map_err(|e| Error::StoreCorrupt {
             detail: format!("requests 表里的响应解不开：{e}"),
         })?;
+    if s.request_id != request_id || s.replayed {
+        return Err(Error::StoreCorrupt {
+            detail: format!("Workbook add请求 {request_id} 的历史snapshot身份无效"),
+        });
+    }
     s.request_id = request_id.to_string();
     s.replayed = true;
     Ok(s)
@@ -78,6 +66,11 @@ fn decode_removed_snapshot(request_id: &str, reply_json: &str) -> Result<Removed
         serde_json::from_str(reply_json).map_err(|e| Error::StoreCorrupt {
             detail: format!("requests 表里的响应解不开：{e}"),
         })?;
+    if s.request_id != request_id || s.replayed {
+        return Err(Error::StoreCorrupt {
+            detail: format!("Workbook remove请求 {request_id} 的历史snapshot身份无效"),
+        });
+    }
     s.request_id = request_id.to_string();
     s.replayed = true;
     Ok(s)
@@ -164,28 +157,32 @@ impl WorkbookRepo {
             }
             _ => unreachable!("AddWorkbook方法必构造AddWorkbook intent"),
         };
-        // 无锁预检：命中已提交请求直接按快照重放（发布完成状态下不再读源目录）。
-        match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly) {
+        // 无锁预检只决定是否需要读取源目录；实际重放必须先拿写锁并恢复旧效果。
+        let replay_exists = match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly)
+        {
             Ok(ro) => {
-                if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+                if let Some(hash) = ro.lookup_request_hash(&request_id)? {
                     if hash != intent.hash().as_str() {
                         return Err(Error::RequestConflict {
                             request_id: request_id.clone(),
                         });
                     }
-                    return decode_added_snapshot(&request_id, &reply_json);
+                    true
+                } else {
+                    false
                 }
             }
-            Err(Error::NotFound { .. }) => {}
+            Err(Error::NotFound { .. }) => false,
             Err(error) => return Err(error),
-        }
+        };
 
-        let _ = Self::load_tree(&ExternalReadTree::open(dir)?)?;
+        if !replay_exists {
+            let _ = Self::load_tree(&ExternalReadTree::open(dir)?)?;
+        }
         let session = crate::session::WriteSession::open_or_create(&self.home)?;
         let lock = session.lock;
         let repo = Self::with_store(self.home.clone(), session.store.clone());
-        crate::service::WorkService::with_store(self.home.clone(), repo.store.clone())
-            .recover(&lock)?;
+        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -264,29 +261,19 @@ impl WorkbookRepo {
             command_json,
             at: ctx.now,
         };
-        match repo.store.commit(input)? {
-            CommitOutcome::Committed { .. } => {}
-            CommitOutcome::Replayed { reply_json, .. } => {
-                return decode_added_snapshot(&request_id, &reply_json);
-            }
+        let replayed = matches!(repo.store.commit(input)?, CommitOutcome::Replayed { .. });
+        repo.recover_finish_request(&lock, &request_id, false)?;
+        if replayed {
+            let row =
+                repo.store
+                    .inspect_request(&request_id)?
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("重放请求 {request_id} 在requests中消失"),
+                    })?;
+            decode_added_snapshot(&request_id, &row.reply_json)
+        } else {
+            Ok(snapshot)
         }
-        // 发布效果；失败返回 committed=true 的 EFFECT_PENDING（协议 §5）。
-        if repo.store.inspect_request(&request_id)?.is_some() {
-            let (row, ops) = repo.checked_effects_for(&request_id)?;
-            if !row.published {
-                if let Err(e) = execute(&self.home, &lock, &ops, true) {
-                    return Err(Error::EffectPending {
-                        committed: true,
-                        request_id,
-                        pending_request_id: None,
-                        detail: e.to_string(),
-                        original: None,
-                    });
-                }
-                repo.store.mark_published(&request_id)?;
-            }
-        }
-        Ok(snapshot)
     }
 
     /// 锁内恢复未完成的 Workbook 效果（先于新命令，存储合同 §3.2）。
@@ -347,7 +334,7 @@ impl WorkbookRepo {
                         detail: format!("Workbook add请求 {request_id} snapshot身份无效"),
                     });
                 }
-                let data: AddedSnapshotData =
+                let data: crate::recovery::AddedSnapshotData =
                     serde_json::from_value(snapshot.data).map_err(|error| Error::StoreCorrupt {
                         detail: format!(
                             "Workbook add请求 {request_id} snapshot.data不符合合同：{error}"
@@ -370,22 +357,27 @@ impl WorkbookRepo {
                         detail: format!("Workbook add请求 {request_id} snapshot.data字段无效"),
                     });
                 }
-                let registered = self
-                    .store
-                    .workbook_versions(&data.id)?
-                    .into_iter()
-                    .find(|candidate| candidate.version == data.version)
-                    .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("Workbook add请求 {request_id} 缺少登记行"),
-                    })?;
-                crate::load::validate_workbook_row(&self.home, &registered)?;
+                let registered = if row.published {
+                    None
+                } else {
+                    let registered = self
+                        .store
+                        .workbook_versions(&data.id)?
+                        .into_iter()
+                        .find(|candidate| candidate.version == data.version)
+                        .ok_or_else(|| Error::StoreCorrupt {
+                            detail: format!("Workbook add请求 {request_id} 缺少登记行"),
+                        })?;
+                    crate::load::validate_workbook_row(&self.home, &registered)?;
+                    Some(registered)
+                };
                 (
                     crate::effects::WorkbookEffectIdentity::Add {
                         id: data.id,
                         version: data.version,
                         digest: data.digest,
                     },
-                    Some(registered),
+                    registered,
                 )
             }
             WorkbookAuditCommand::RemoveWorkbook { target } => {
@@ -417,7 +409,7 @@ impl WorkbookRepo {
                         detail: format!("Workbook remove请求 {request_id} snapshot身份无效"),
                     });
                 }
-                let data: RemovedSnapshotData =
+                let data: crate::recovery::RemovedSnapshotData =
                     serde_json::from_value(snapshot.data).map_err(|error| Error::StoreCorrupt {
                         detail: format!(
                             "Workbook remove请求 {request_id} snapshot.data不符合合同：{error}"
@@ -446,7 +438,11 @@ impl WorkbookRepo {
             &audit.at,
             identity,
             effects,
-            registered.as_ref(),
+            if row.published {
+                None
+            } else {
+                registered.as_ref()
+            },
         )?;
         let (pending, operation) = match checked.as_slice() {
             [EffectOp::PublishDir { pending, .. }] => (pending, "add_workbook"),
@@ -467,6 +463,53 @@ impl WorkbookRepo {
             crate::service::verify_pending_owner(&self.home, internal_id, request_id, operation)?;
         }
         Ok((row, checked))
+    }
+
+    fn recovery_load_effects(
+        &self,
+        request_id: &str,
+        expected: &crate::store::read::RequestRow,
+    ) -> Result<crate::effects::CheckedEffects> {
+        let (row, effects) = if expected.work_id.is_some() {
+            let service =
+                crate::service::WorkService::with_store(self.home.clone(), self.store.clone());
+            let (row, _, effects) = service.load_checked_request(request_id)?;
+            (row, effects)
+        } else {
+            self.checked_effects_for(request_id)?
+        };
+        if row.reply_json != expected.reply_json {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook请求 {request_id} 的响应在校验期间改变"),
+            });
+        }
+        Ok(effects)
+    }
+
+    fn recover_before_write(
+        &self,
+        lock: &crate::home::HomeLock,
+        request_id: &str,
+        intent_hash: &str,
+    ) -> Result<()> {
+        crate::recovery::before_write(&self.home, &self.store, lock, request_id, intent_hash, self)
+    }
+
+    fn recover_finish_request(
+        &self,
+        lock: &crate::home::HomeLock,
+        request_id: &str,
+        verify_published: bool,
+    ) -> Result<()> {
+        crate::recovery::finish_request(
+            &self.home,
+            &self.store,
+            lock,
+            request_id,
+            None,
+            verify_published,
+            self,
+        )
     }
 
     pub fn list(&self) -> Result<Vec<WorkbookRow>> {
@@ -656,20 +699,21 @@ impl WorkbookRepo {
                 other => other,
             },
         )?;
-        if let Some((hash, reply_json)) = ro.lookup_request(&request_id)? {
+        let replay_exists = if let Some(hash) = ro.lookup_request_hash(&request_id)? {
             if hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
             }
-            return decode_removed_snapshot(&request_id, &reply_json);
-        }
+            true
+        } else {
+            false
+        };
 
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let lock = session.lock;
         let repo = Self::with_store(self.home.clone(), session.store.clone());
-        crate::service::WorkService::with_store(self.home.clone(), repo.store.clone())
-            .recover(&lock)?;
+        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -677,6 +721,11 @@ impl WorkbookRepo {
                 });
             }
             return decode_removed_snapshot(&request_id, &row.reply_json);
+        }
+        if replay_exists {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook请求 {request_id} 重放预检与写锁内记录不一致"),
+            });
         }
 
         // 清理前核归属（T05）：目录当前摘要必须仍与登记值相符。
@@ -761,28 +810,19 @@ impl WorkbookRepo {
             .to_string(),
             at: ctx.now,
         };
-        match repo.store.commit(input)? {
-            CommitOutcome::Committed { .. } => {}
-            CommitOutcome::Replayed { reply_json, .. } => {
-                return decode_removed_snapshot(&request_id, &reply_json);
-            }
+        let replayed = matches!(repo.store.commit(input)?, CommitOutcome::Replayed { .. });
+        repo.recover_finish_request(&lock, &request_id, false)?;
+        if replayed {
+            let row =
+                repo.store
+                    .inspect_request(&request_id)?
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("重放请求 {request_id} 在requests中消失"),
+                    })?;
+            decode_removed_snapshot(&request_id, &row.reply_json)
+        } else {
+            Ok(snapshot)
         }
-        if repo.store.inspect_request(&request_id)?.is_some() {
-            let (row, ops) = repo.checked_effects_for(&request_id)?;
-            if !row.published {
-                if let Err(e) = execute(&self.home, &lock, &ops, true) {
-                    return Err(Error::EffectPending {
-                        committed: true,
-                        request_id,
-                        pending_request_id: None,
-                        detail: e.to_string(),
-                        original: None,
-                    });
-                }
-                repo.store.mark_published(&request_id)?;
-            }
-        }
-        Ok(snapshot)
     }
 
     /// `workbook verify`。`filter` 为 `Some((id, version))` 只核对一个。
@@ -830,6 +870,26 @@ impl WorkbookRepo {
         dst: &AbsPath,
     ) -> Result<u64> {
         crate::fsx::copy_tree_confined(home, lock, src, dst)
+    }
+}
+
+impl crate::recovery::RecoveryAccess for WorkbookRepo {
+    fn load_effects(
+        &self,
+        request_id: &str,
+        row: &crate::store::read::RequestRow,
+    ) -> Result<crate::effects::CheckedEffects> {
+        self.recovery_load_effects(request_id, row)
+    }
+
+    fn refresh_cards(
+        &self,
+        effects: &crate::effects::CheckedEffects,
+        lock: &crate::home::HomeLock,
+    ) -> Result<()> {
+        let service =
+            crate::service::WorkService::with_store(self.home.clone(), self.store.clone());
+        service.refresh_cards_of(effects, lock)
     }
 }
 

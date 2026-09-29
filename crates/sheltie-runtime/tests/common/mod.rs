@@ -4,8 +4,76 @@
 use std::path::{Path, PathBuf};
 
 use sheltie_core::path::AbsPath;
-use sheltie_runtime::{Home, WorkService, WorkbookRepo};
+use sheltie_runtime::{Error, Home, WorkService, WorkbookRepo};
 use tempfile::TempDir;
+
+pub fn assert_effect_pending(
+    error: Error,
+    committed: bool,
+    request_id: Option<&str>,
+    pending_request_id: Option<&str>,
+) -> serde_json::Value {
+    let Error::EffectPending {
+        committed: actual_committed,
+        request_id: actual_request,
+        pending_request_id: actual_pending,
+        cause,
+        original,
+        pending_original,
+        ..
+    } = error
+    else {
+        panic!("请求错误必须保留EFFECT_PENDING归属：{error:?}");
+    };
+    assert_eq!(actual_committed, committed);
+    if let Some(request_id) = request_id {
+        assert_eq!(actual_request, request_id);
+    } else {
+        assert!(!actual_request.is_empty());
+    }
+    assert_eq!(actual_pending.as_deref(), pending_request_id);
+    assert_eq!(cause, sheltie_core::ErrorCode::StoreCorrupt);
+    let (snapshot, other) = if committed {
+        (original, pending_original)
+    } else {
+        (pending_original, original)
+    };
+    let snapshot: serde_json::Value = serde_json::from_str(snapshot.as_deref().unwrap()).unwrap();
+    if snapshot["ok"] == true {
+        assert_eq!(snapshot["data"]["replayed"], false);
+        assert!(snapshot.get("next").unwrap().is_array());
+    } else {
+        assert!(snapshot.get("request_id").is_some());
+    }
+    assert!(other.is_none());
+    snapshot
+}
+
+pub fn assert_effect_pending_without_original(
+    error: Error,
+    committed: bool,
+    request_id: &str,
+    pending_request_id: Option<&str>,
+) {
+    let Error::EffectPending {
+        committed: actual_committed,
+        request_id: actual_request,
+        pending_request_id: actual_pending,
+        cause,
+        original,
+        pending_original,
+        ..
+    } = error
+    else {
+        panic!("请求错误必须保留EFFECT_PENDING归属：{error:?}");
+    };
+    assert_eq!(actual_committed, committed);
+    assert_eq!(actual_request, request_id);
+    assert_eq!(actual_pending.as_deref(), pending_request_id);
+    assert_eq!(cause, sheltie_core::ErrorCode::StoreCorrupt);
+    assert!(original.is_none());
+    assert!(pending_original.is_none());
+}
 
 pub fn abs(p: &Path) -> AbsPath {
     AbsPath::new(p.to_str().unwrap()).unwrap()

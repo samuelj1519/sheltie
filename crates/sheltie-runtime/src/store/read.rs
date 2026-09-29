@@ -158,6 +158,19 @@ impl Store {
             .optional()?)
     }
 
+    /// Read only the idempotency identity. A malformed reply payload must not hide the fact
+    /// that the request was already committed or bypass REQUEST_CONFLICT precedence.
+    pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT intent_hash FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get(0),
+            )
+            .optional()?)
+    }
+
     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {
         let conn = self.connect()?;
         Ok(conn
@@ -218,6 +231,22 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
+    /// Request IDs in commit order. Recovery opens each row separately so one malformed
+    /// `effects_json` can be attributed to its owner instead of aborting this index read.
+    pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {
+        let conn = self.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT r.request_id FROM requests r
+             WHERE r.published <> 1
+             ORDER BY COALESCE(
+               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),
+               9223372036854775807
+             ), r.request_id",
+        )?;
+        let rows = stmt.query_map([], |row| row.get(0))?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
@@ -237,10 +266,15 @@ impl Store {
     /// 效果全部完成后置 `published = 1`。
     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {
         let conn = self.connect()?;
-        conn.execute(
+        let changed = conn.execute(
             "UPDATE requests SET published = 1 WHERE request_id = ?1",
             [request_id],
         )?;
+        if changed != 1 {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 发布标记应更新1行，实际更新{changed}行"),
+            });
+        }
         Ok(())
     }
 }

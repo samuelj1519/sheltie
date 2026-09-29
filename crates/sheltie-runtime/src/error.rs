@@ -27,16 +27,17 @@ pub enum Error {
     NotFound { what: String },
     #[error("请求 {request_id} 已用不同意图提交过")]
     RequestConflict { request_id: String },
-    /// 效果未完成（协议 §5）：`committed = true` 表示**本次请求**已提交但自己的效果
-    /// 失败，携带原响应；`committed = false` 表示被旧请求的未完成效果阻断，携带
-    /// `pending_request_id` 与其提交时响应。
-    #[error("效果未完成（committed={committed}）：{detail}")]
+    /// 效果未完成（协议 §5）。cause 是稳定错误码，原始成功快照和旧阻断请求快照
+    /// 分别保留，避免把两个请求的归属混在一个字段里。
+    #[error("效果未完成（committed={committed}，cause={cause}）：{cause_detail}")]
     EffectPending {
         committed: bool,
         request_id: String,
         pending_request_id: Option<String>,
-        detail: String,
-        original: Option<String>,
+        cause: ErrorCode,
+        cause_detail: String,
+        original: Option<Box<str>>,
+        pending_original: Option<Box<str>>,
     },
     #[error("revision 冲突：期望 {expected}，实际 {actual}")]
     RevisionConflict { expected: u64, actual: u64 },
@@ -88,14 +89,66 @@ impl Error {
             source,
         }
     }
+
+    pub(crate) fn effect_pending(
+        committed: bool,
+        request_id: impl Into<String>,
+        pending_request_id: Option<String>,
+        cause: &Error,
+        original: Option<String>,
+        pending_original: Option<String>,
+    ) -> Self {
+        Self::EffectPending {
+            committed,
+            request_id: request_id.into(),
+            pending_request_id,
+            cause: cause.code(),
+            cause_detail: cause.to_string(),
+            original: original.map(String::into_boxed_str),
+            pending_original: pending_original.map(String::into_boxed_str),
+        }
+    }
 }
 
 impl From<rusqlite::Error> for Error {
     fn from(e: rusqlite::Error) -> Self {
-        Self::StoreCorrupt {
-            detail: e.to_string(),
+        use rusqlite::ffi::ErrorCode as SqliteErrorCode;
+
+        match e.sqlite_error_code() {
+            Some(
+                SqliteErrorCode::PermissionDenied
+                | SqliteErrorCode::DatabaseBusy
+                | SqliteErrorCode::DatabaseLocked
+                | SqliteErrorCode::ReadOnly
+                | SqliteErrorCode::SystemIoFailure
+                | SqliteErrorCode::DiskFull
+                | SqliteErrorCode::CannotOpen
+                | SqliteErrorCode::FileLockingProtocolFailed,
+            ) => Self::io("store.db", std::io::Error::other(e)),
+            _ => Self::StoreCorrupt {
+                detail: e.to_string(),
+            },
         }
     }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+mod tests {
+    use super::Error;
+    use sheltie_core::ErrorCode;
+
+    // Task: C002-T25
+    #[test]
+    fn sqlite_environment_failures_keep_io_error_code() {
+        let sqlite = rusqlite::Error::SqliteFailure(
+            rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_FULL),
+            Some("database or disk is full".to_string()),
+        );
+        let error = Error::from(sqlite);
+        assert_eq!(error.code(), ErrorCode::Io);
+        assert!(error.to_string().contains("store.db"));
+        assert!(error.to_string().contains("database or disk is full"));
+    }
+}

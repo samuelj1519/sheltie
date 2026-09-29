@@ -1,0 +1,33 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+────────────
+ Nextest run ID b959050f-291f-4c4e-b1bb-b1c545fcfaba with nextest profile: default
+    Starting 27 tests across 32 binaries (550 tests skipped)
+        PASS [   0.010s] ( 1/27) sheltie-runtime error::tests::sqlite_environment_failures_keep_io_error_code
+        PASS [   0.010s] ( 2/27) sheltie-cli::bin/sheltie error_map::tests::effect_pending_json_keeps_current_and_blocking_request_snapshots_separate
+        PASS [   1.315s] ( 3/27) sheltie-runtime::service malformed_started_workbook_ref_is_not_projected_as_success
+        PASS [   1.323s] ( 4/27) sheltie-runtime::service malformed_started_name_is_not_projected_as_success
+        PASS [   1.495s] ( 5/27) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+        PASS [   1.508s] ( 6/27) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error
+        PASS [   1.618s] ( 7/27) sheltie-runtime::service malformed_current_owner_column_keeps_committed_request_identity
+        PASS [   1.703s] ( 8/27) sheltie-runtime::service malformed_cancelled_status_is_not_projected_as_success
+        PASS [   1.716s] ( 9/27) sheltie-runtime::service malformed_current_reply_keeps_commit_identity_and_request_conflict_priority
+        PASS [   1.714s] (10/27) sheltie-runtime::service unknown_nested_status_field_is_not_projected_as_success
+        PASS [   1.730s] (11/27) sheltie-runtime::service malformed_old_reply_is_attributed_to_the_blocking_request
+        PASS [   1.743s] (12/27) sheltie-runtime::service malformed_old_effect_row_is_attributed_to_the_blocking_request
+        PASS [   1.772s] (13/27) sheltie-runtime::service duplicate_audit_owner_is_rejected_before_recovery_io
+        PASS [   1.918s] (14/27) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities
+        PASS [   1.935s] (15/27) sheltie-cli::attempt effect_pending_cli_json_contains_full_original_work_success_envelope
+        PASS [   1.993s] (16/27) sheltie-runtime::service historical_write_with_missing_parent_keeps_committed_snapshot
+        PASS [   0.510s] (17/27) sheltie-runtime::workbook_repo malformed_historical_workbook_snapshot_is_not_projected_as_success
+        PASS [   0.557s] (18/27) sheltie-runtime::workbook_repo unpublished_workbook_add_requires_its_owner_sidecar
+        PASS [   0.473s] (19/27) sheltie-runtime::workbook_repo workbook_publish_requires_digest_root_before_recovery_io
+        PASS [   2.104s] (20/27) sheltie-runtime::service tampered_begin_snapshot_path_is_rejected_on_historical_replay
+        PASS [   0.859s] (21/27) sheltie-runtime::workbook_repo empty_remove_digest_blocks_later_workbook_write
+        PASS [   2.195s] (22/27) sheltie-runtime::service malformed_gate_principal_is_not_projected_as_success
+        PASS [   0.883s] (23/27) sheltie-runtime::service unpublished_work_start_requires_its_owner_sidecar
+        PASS [   0.613s] (24/27) sheltie-runtime::workbook_txn old_add_replay_does_not_bind_to_a_readded_workbook_lifecycle
+        PASS [   0.625s] (25/27) sheltie-runtime::workbook_txn workbook_replay_finishes_unpublished_effects
+        PASS [   0.625s] (26/27) sheltie-runtime::workbook_txn workbook_write_recovers_work_status_card
+        PASS [   0.709s] (27/27) sheltie-runtime::workbook_txn workbook_remove_recovers_latest_work_status_card
+────────────
+     Summary [   2.426s] 27 tests run: 27 passed, 550 skipped

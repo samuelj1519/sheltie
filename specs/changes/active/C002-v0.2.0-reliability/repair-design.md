@@ -128,7 +128,7 @@ T18明确新请求@file参数失败的形状：不可读/非UTF-8/非普通文�
 
 ## 5. 一个恢复模块完成全部效果
 
-新增 `runtime/recovery.rs`，它依赖 Home 文件模块和 Store，不反向依赖 WorkService/WorkbookRepo。将 Work 冻结图装入放到 `runtime/load.rs`，状态卡刷新和只读状态都使用这份装入函数，避免 recovery→service→recovery 的循环。
+新增 `runtime/recovery.rs` 统一恢复循环。它只依赖自己定义的 `RecoveryAccess` 能力接口、Home、Store 与效果执行器，不持有 WorkService/WorkbookRepo 的具体类型；两个服务各自提供持久行与效果校验，Work 服务也提供最新 Work 状态读取。状态卡刷新循环放在 `runtime/load.rs`，通过读取回调从最新 Store 状态编译并渲染卡片，不在 recovery 或 repo 中重写恢复流程。
 
 恢复模块只保留两个对 caller 的动作：`recover_before(current_request)` 与 `finish_request(request_id)`。前者按 audit.seq 处理未完成请求，后者处理本请求的效果或已完成 begin 的历史文件核对。它们共同使用同一个校验、效果执行、当前状态卡刷新、mark 与清理实现。删除 `WorkService::recover/finish_request/replay` 与 `WorkbookRepo::recover_workbook_effects` 中的重复 I/O；快照解码仍可按 Work/Workbook 的回复类型区分。
 

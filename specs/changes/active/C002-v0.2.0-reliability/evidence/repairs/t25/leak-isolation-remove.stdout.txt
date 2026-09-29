@@ -1,0 +1,45 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+────────────
+ Nextest run ID 638aa6a1-4494-41c1-9e6d-bf352ded7c6d with nextest profile: default
+    Starting 1 test across 1 binary (30 tests skipped)
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_accepts_files_at_exact_limits
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_failure_leaves_no_staging_and_no_row
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_duplicate_id_version_with_workbook_exists
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_file_over_32mib
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_hard_link_inside_workbook
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_non_regular_file
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_symlink_inside_workbook
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_rejects_when_total_over_256mib
+        SKIP [         ] (───) sheltie-runtime::workbook_repo add_two_step_example_copies_and_marks_readonly
+        SKIP [         ] (───) sheltie-runtime::workbook_repo corrupted_workbook_row_path_is_rejected_before_verify_or_remove_io
+        SKIP [         ] (───) sheltie-runtime::workbook_repo invalid_add_on_new_home_does_not_create_store_or_lock
+        SKIP [         ] (───) sheltie-runtime::workbook_repo list_orders_by_id_then_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo load_recompiles_graph_from_installed_copy
+        SKIP [         ] (───) sheltie-runtime::workbook_repo load_with_explicit_version_picks_that_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo malformed_historical_workbook_snapshot_is_not_projected_as_success
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_allows_when_only_terminal_works_reference_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_allows_when_other_workbook_shares_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_deletes_row_and_directory
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_moves_dir_to_tmp_before_delete
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_rejects_when_active_work_references_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_requires_explicit_version
+        SKIP [         ] (───) sheltie-runtime::workbook_repo remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal
+        SKIP [         ] (───) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files
+        SKIP [         ] (───) sheltie-runtime::workbook_repo unpublished_workbook_add_requires_its_owner_sidecar
+        SKIP [         ] (───) sheltie-runtime::workbook_repo verify_all_when_filter_omitted
+        SKIP [         ] (───) sheltie-runtime::workbook_repo verify_reports_missing_when_directory_gone
+        SKIP [         ] (───) sheltie-runtime::workbook_repo verify_reports_ok_for_untouched_install
+        SKIP [         ] (───) sheltie-runtime::workbook_repo verify_reports_tampered_after_byte_change
+        SKIP [         ] (───) sheltie-runtime::workbook_repo workbook_publish_requires_digest_root_before_recovery_io
+        SKIP [         ] (───) sheltie-runtime::workbook_repo workbook_row_version_must_be_one_manifest_compatible_path_segment
+        PASS [   0.110s] (1/1) sheltie-runtime::workbook_repo empty_remove_digest_blocks_later_workbook_write
+  stdout ───
+
+    running 1 test
+    test empty_remove_digest_blocks_later_workbook_write ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.10s
+
+
+────────────
+     Summary [   0.110s] 1 test run: 1 passed, 30 skipped

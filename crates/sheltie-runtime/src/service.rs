@@ -15,7 +15,7 @@ use sheltie_core::work::{
 };
 
 use crate::effects::{
-    CheckedEffects, EffectOp, RefJson, check_work_effects, decode_effects, encode_effects, execute,
+    CheckedEffects, EffectOp, RefJson, check_work_effects, decode_effects, encode_effects,
 };
 use crate::error::{Error, Result};
 use crate::fsx::ManagedRelPath;
@@ -88,17 +88,6 @@ impl PreparedCommand {
             observed_outputs: BTreeMap::new(),
         }
     }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct PersistedResponse {
-    request_id: String,
-    revision: u64,
-    replayed: bool,
-    reply: Reply,
-    data: serde_json::Value,
-    next: Vec<NextOp>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -220,7 +209,7 @@ impl WorkService {
         let preflight_store =
             match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly) {
                 Ok(ro) => {
-                    if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
+                    if let Some(hash) = ro.lookup_request_hash(&request_id)? {
                         if hash != intent.hash().as_str() {
                             return Err(Error::RequestConflict {
                                 request_id: request_id.clone(),
@@ -264,7 +253,7 @@ impl WorkService {
         // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
-        svc.recover(&session.lock)?;
+        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
         // 锁内重核请求表（预检后可能有并发写者）。
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
@@ -393,8 +382,8 @@ impl WorkService {
             &cmd,
             &session.lock,
         )?;
-        // COMMIT 后发布；随后清理本操作的空容器与侧车。
-        svc.finish_request(&request_id, &session.lock)?;
+        // COMMIT 后由统一入口执行整组效果并记录完成状态。
+        svc.recover_finish_request(&session.lock, &request_id, None, false)?;
         Ok(resp)
     }
 
@@ -704,7 +693,7 @@ impl WorkService {
                     detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
                 });
             };
-            let response: PersistedResponse =
+            let response: crate::recovery::PersistedResponse =
                 serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
                     detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
                 })?;
@@ -797,7 +786,7 @@ impl WorkService {
         // 前缀；效果未完成的请求不在这里恢复，交给写路径。
         {
             let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly)?;
-            if let Some((hash, _reply_json)) = ro.lookup_request(&request_id)? {
+            if let Some(hash) = ro.lookup_request_hash(&request_id)? {
                 if hash != intent.hash().as_str() {
                     return Err(Error::RequestConflict {
                         request_id: request_id.clone(),
@@ -810,7 +799,7 @@ impl WorkService {
         // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
-        svc.recover(&session.lock)?;
+        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent.hash().as_str() {
                 return Err(Error::RequestConflict {
@@ -872,57 +861,56 @@ impl WorkService {
 
     /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
     /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
-    pub(crate) fn recover(&self, lock: &crate::home::HomeLock) -> Result<()> {
-        for (request_id, _) in self.store.unpublished_requests()? {
-            let row =
-                self.store
-                    .inspect_request(&request_id)?
-                    .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("未发布请求 {request_id} 缺少requests行"),
-                    })?;
-            let effects = if row.work_id.is_some() {
-                self.load_checked_request(&request_id)?.2
-            } else {
-                self.repo().checked_effects_for(&request_id)?.1
-            };
-            if let Err(e) = execute(&self.home, lock, &effects, true) {
-                return Err(Error::EffectPending {
-                    committed: false,
-                    request_id: String::new(),
-                    pending_request_id: Some(request_id),
-                    detail: e.to_string(),
-                    original: None,
-                });
-            }
-            self.refresh_cards_of(&effects, lock)?;
-            self.store.mark_published(&request_id)?;
-        }
-        Ok(())
-    }
-
     /// 效果涉及的状态卡从**最新**状态重生成（不回退历史版本，§6）。
-    fn refresh_cards_of(&self, ops: &CheckedEffects, lock: &crate::home::HomeLock) -> Result<()> {
-        for op in ops.as_slice() {
-            if let EffectOp::RefreshStatusCard { work_id } = op {
-                let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
-                    detail: format!("效果里的 work_id {work_id} 不合法：{e}"),
-                })?;
-                let loaded = self.load(&id)?;
-                let card = render_status_card(&loaded.state, &loaded.graph);
-                crate::fsx::write_exclusive_atomic(
-                    &self.home,
-                    lock,
-                    &loaded.state.status_card_path(),
-                    card.as_bytes(),
-                )?;
-            }
-        }
-        Ok(())
+    pub(crate) fn refresh_cards_of(
+        &self,
+        ops: &CheckedEffects,
+        lock: &crate::home::HomeLock,
+    ) -> Result<()> {
+        crate::load::refresh_status_cards(&self.home, ops, lock, |id| {
+            self.load(id).map(|loaded| (loaded.state, loaded.graph))
+        })
     }
 
-    /// COMMIT 与效果发布之间被杀的请求由 `recover` 兜底；正常路径在这里发布并标记。
-    fn finish_request(&self, request_id: &str, lock: &crate::home::HomeLock) -> Result<()> {
-        self.finish_request_with_observed(request_id, lock, &BTreeMap::new())
+    fn recovery_load_effects(
+        &self,
+        request_id: &str,
+        row: &crate::store::read::RequestRow,
+    ) -> Result<CheckedEffects> {
+        let (checked_row, _, effects) = self.load_checked_request(request_id)?;
+        if checked_row.reply_json != row.reply_json {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的响应在校验期间改变"),
+            });
+        }
+        Ok(effects)
+    }
+
+    fn recover_before_write(
+        &self,
+        lock: &crate::home::HomeLock,
+        request_id: &str,
+        intent_hash: &str,
+    ) -> Result<()> {
+        crate::recovery::before_write(&self.home, &self.store, lock, request_id, intent_hash, self)
+    }
+
+    fn recover_finish_request(
+        &self,
+        lock: &crate::home::HomeLock,
+        request_id: &str,
+        observed: Option<&BTreeMap<String, crate::fsx::SafeFile>>,
+        verify_published: bool,
+    ) -> Result<()> {
+        crate::recovery::finish_request(
+            &self.home,
+            &self.store,
+            lock,
+            request_id,
+            observed,
+            verify_published,
+            self,
+        )
     }
 
     fn finish_request_with_observed(
@@ -931,35 +919,10 @@ impl WorkService {
         lock: &crate::home::HomeLock,
         observed: &BTreeMap<String, crate::fsx::SafeFile>,
     ) -> Result<()> {
-        if self.store.inspect_request(request_id)?.is_some() {
-            let (row, _, ops) = self.load_checked_request(request_id)?;
-            if !row.published {
-                if let Err(e) = crate::effects::execute_with_observed_outputs(
-                    &self.home,
-                    lock,
-                    &ops,
-                    true,
-                    Some(observed),
-                ) {
-                    return Err(Error::EffectPending {
-                        committed: true,
-                        request_id: request_id.to_string(),
-                        pending_request_id: None,
-                        detail: e.to_string(),
-                        original: None,
-                    });
-                }
-                self.refresh_cards_of(&ops, lock)?;
-                self.store.mark_published(request_id)?;
-            } else {
-                // 已完成的请求显式重放：只核对历史文件（write_file），不重做发布。
-                execute(&self.home, lock, &ops, false)?;
-            }
-        }
-        Ok(())
+        self.recover_finish_request(lock, request_id, Some(observed), false)
     }
 
-    fn load_checked_request(
+    pub(crate) fn load_checked_request(
         &self,
         request_id: &str,
     ) -> Result<(crate::store::read::RequestRow, Response, CheckedEffects)> {
@@ -1003,7 +966,7 @@ impl WorkService {
             .ok_or_else(|| Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的audit.revision无效"),
             })?;
-        let persisted: PersistedResponse =
+        let persisted: crate::recovery::PersistedResponse =
             serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的reply_json解不开：{error}"),
             })?;
@@ -1141,31 +1104,60 @@ impl WorkService {
         reply_json: String,
         lock: &crate::home::HomeLock,
     ) -> Result<Response> {
-        let (row, mut resp, ops) = self.load_checked_request(&request_id)?;
+        let stored =
+            self.store
+                .inspect_request(&request_id)?
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("重放请求 {request_id} 在requests中消失"),
+                })?;
+        let original = crate::recovery::original_snapshot(&request_id, &stored);
+        let (row, ..) = self
+            .load_checked_request(&request_id)
+            .map_err(|cause| crate::recovery::own_pending(&request_id, original.clone(), cause))?;
         if row.reply_json != reply_json {
-            return Err(Error::StoreCorrupt {
+            let cause = Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的历史响应与requests记录不一致"),
-            });
+            };
+            return Err(crate::recovery::own_pending(
+                &request_id,
+                crate::recovery::original_snapshot(&request_id, &row),
+                cause,
+            ));
         }
+        self.recover_finish_request(lock, &request_id, None, true)?;
+        let (_, mut resp, _) = self.load_checked_request(&request_id).map_err(|cause| {
+            crate::recovery::own_pending(
+                &request_id,
+                crate::recovery::original_snapshot(&request_id, &row),
+                cause,
+            )
+        })?;
         resp.request_id = request_id.clone();
         resp.replayed = true;
-        // 完成未发布效果（若有）；已完成的只核对历史文件。
-        if !row.published {
-            if let Err(e) = execute(&self.home, lock, &ops, true) {
-                return Err(Error::EffectPending {
-                    committed: true,
-                    request_id,
-                    pending_request_id: None,
-                    detail: e.to_string(),
-                    original: Some(reply_json),
-                });
-            }
-            self.refresh_cards_of(&ops, lock)?;
-            self.store.mark_published(&request_id)?;
-        } else {
-            execute(&self.home, lock, &ops, false)?;
-        }
         Ok(resp)
+    }
+}
+
+impl crate::recovery::RecoveryAccess for WorkService {
+    fn load_effects(
+        &self,
+        request_id: &str,
+        row: &crate::store::read::RequestRow,
+    ) -> Result<CheckedEffects> {
+        if row.work_id.is_some() {
+            return self.recovery_load_effects(request_id, row);
+        }
+        let (checked_row, effects) = self.repo().checked_effects_for(request_id)?;
+        if checked_row.reply_json != row.reply_json {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook请求 {request_id} 的响应在校验期间改变"),
+            });
+        }
+        Ok(effects)
+    }
+
+    fn refresh_cards(&self, effects: &CheckedEffects, lock: &crate::home::HomeLock) -> Result<()> {
+        self.refresh_cards_of(effects, lock)
     }
 }
 
@@ -1193,6 +1185,10 @@ fn validate_command_owner(
                 requires,
             },
         ) => {
+            let snapshot_name = snapshot
+                .data
+                .get("name")
+                .and_then(serde_json::Value::as_str);
             snapshot_data_has_exact_fields(
                 &snapshot.data,
                 &[
@@ -1201,6 +1197,10 @@ fn validate_command_owner(
             ) && command_work == work_id
                 && reply_work == work_id
                 && name == &state.name
+                && work_id
+                    .as_str()
+                    .get(15..)
+                    .is_some_and(|suffix| snapshot_name == Some(suffix))
                 && workbook == &state.workbook
                 && flow == &state.flow
                 && work_dir == &state.work_dir
@@ -1349,7 +1349,7 @@ fn validate_command_owner(
                     .data
                     .get("work_status")
                     .cloned()
-                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+                    .is_some_and(|value| work_status_value_is_canonical(&value))
         }
         (
             Command::FailAttempt { attempt, .. },
@@ -1370,7 +1370,7 @@ fn validate_command_owner(
                     .data
                     .get("work_status")
                     .cloned()
-                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+                    .is_some_and(|value| work_status_value_is_canonical(&value))
         }),
         (
             Command::ApproveGate { node },
@@ -1405,7 +1405,7 @@ fn validate_command_owner(
                         .data
                         .get("work_status")
                         .cloned()
-                        .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+                        .is_some_and(|value| work_status_value_is_canonical(&value))
             }),
         (Command::Cancel, Reply::Cancelled) => {
             snapshot_data_has_exact_fields(&snapshot.data, &["work_id", "work_status"])
@@ -1419,7 +1419,12 @@ fn validate_command_owner(
                     .data
                     .get("work_status")
                     .cloned()
-                    .is_some_and(|value| serde_json::from_value::<WorkStatus>(value).is_ok())
+                    .is_some_and(|value| {
+                        serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {
+                            status == WorkStatus::Cancelled
+                                && work_status_value_is_canonical(&value)
+                        })
+                    })
         }
         _ => false,
     };
@@ -1436,6 +1441,13 @@ fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -
         return false;
     };
     object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))
+}
+
+fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {
+    serde_json::from_value::<WorkStatus>(value.clone())
+        .ok()
+        .and_then(|status| serde_json::to_value(status).ok())
+        .is_some_and(|canonical| canonical == *value)
 }
 
 /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。

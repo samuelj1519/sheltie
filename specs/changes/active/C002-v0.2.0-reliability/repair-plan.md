@@ -242,7 +242,7 @@ Owner：recovery/load/结果封装；依赖T20、T21、T22、T24。完成现象�
 2. 查意图相同时先确认“当前请求已提交”的身份，不能把自己的pending失败包成新请求被阻断。按audit.seq恢复，所有旧效果完成后新B才能进入事务。
 3. 执行包含prepare、write、seal/delete、最新card的完整序列，再mark；删除Workbook replay的无锁成功早返，保留完成请求不再读源的语义。
 4. 用结构化cause和完整原snapshot产生准确顶层committed/request_id/revision/original；旧A阻B的detail.pending_*位置正确。单个效果失败、卡失败、mark失败、历史核验失败均走同一包装。
-5. 将清理告警与业务响应分开，JSON stdout保持原业务快照；维护失败按T18固定的stderr/exit规则，不标业务失败然后重做删除。
+5. T25只统一效果失败的业务错误封装。当前候选尚无`published`元数据清理器；清理执行、诊断传递、CLI stderr/exit 0、成功JSON与历史快照不漂移，以及清理失败不重做效果，全部明确交T28实现并由V25验收。T25不能把这项标为已通过；T28完成前该维护诊断义务保持未关闭。
 6. V15–V18：同请求pending、旧A阻B、卡目录占位、missing历史父、Workbook恢复Work；检查完整JSON与SQL，不仅看code。迁移所有旧回复fixture和skill里恢复用法所需字段引用。
 
 **停止与交接。** 自己committed=false、B请求id为空、原响应混当前状态、漏card却mark成功、异常被先stringify丢code都停止。交T26–T28唯一恢复入口与错误上下文；未来修复不得重新在Service/Repo加恢复循环。

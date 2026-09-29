@@ -498,7 +498,7 @@ fn workbook_row_version_must_be_one_manifest_compatible_path_segment() {
     assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
 }
 
-// Task: C002-T20
+// Task: C002-T25
 #[test]
 fn empty_remove_digest_blocks_later_workbook_write() {
     let (_d, home) = temp_home();
@@ -532,7 +532,7 @@ fn empty_remove_digest_blocks_later_workbook_write() {
             Some("must-not-commit".to_string()),
         )
         .unwrap_err();
-    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(request_id));
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(
@@ -545,7 +545,7 @@ fn empty_remove_digest_blocks_later_workbook_write() {
     );
 }
 
-// Task: C002-T20
+// Task: C002-T25
 #[test]
 fn workbook_publish_requires_digest_root_before_recovery_io() {
     let (_d, home) = temp_home();
@@ -594,7 +594,7 @@ fn workbook_publish_requires_digest_root_before_recovery_io() {
             Some("remove-after-missing-field".to_string()),
         )
         .unwrap_err();
-    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(request_id));
     assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
@@ -608,7 +608,49 @@ fn workbook_publish_requires_digest_root_before_recovery_io() {
     );
 }
 
-// Task: C002-T20
+// Task: C002-T25
+#[test]
+fn malformed_historical_workbook_snapshot_is_not_projected_as_success() {
+    let (_dir, home) = temp_home();
+    let workbooks = repo(&home);
+    let request_id = "t25-malformed-workbook-snapshot";
+    workbooks
+        .add(&abs(&example_dir("two-step")), Some(request_id.to_string()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"].as_object_mut().unwrap().remove("id");
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = workbooks
+        .add(&abs(&example_dir("two-step")), Some(request_id.to_string()))
+        .unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(reply, serde_json::to_string(&snapshot).unwrap());
+}
+
+// Task: C002-T25
 #[test]
 fn unpublished_workbook_add_requires_its_owner_sidecar() {
     let (_d, home) = temp_home();
@@ -644,7 +686,7 @@ fn unpublished_workbook_add_requires_its_owner_sidecar() {
             Some("remove-without-owner".to_string()),
         )
         .unwrap_err();
-    assert_eq!(err.code(), sheltie_core::ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(request_id));
     assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
