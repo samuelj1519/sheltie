@@ -82,12 +82,18 @@ fn list(ctx: &Ctx) -> Outcome {
             "version": row.version,
             "digest": row.digest,
             "latest": latest,
+            "pending_publish": row.pending_publish,
         }));
         text.push_str(&format!(
-            "{}  {}  {}\n",
+            "{}  {}  {}{}\n",
             row.id,
             row.version,
-            if latest { "latest" } else { "" }
+            if latest { "latest" } else { "" },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
         ));
     }
     output::ok(text, None, None, data, Vec::new())
@@ -123,6 +129,9 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
                 .join(", ")
         },
     );
+    if loaded.pending_publish {
+        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
+    }
     for (def, graph) in &loaded.flows {
         // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
         // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
@@ -176,6 +185,7 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
         "name": loaded.manifest.name(),
         "description": loaded.manifest.description(),
         "digest": loaded.digest.as_str(),
+        "pending_publish": loaded.pending_publish,
         "requires": loaded.manifest.requires(),
         "flows": flows,
     });
@@ -229,14 +239,19 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
     let mut text = String::new();
     for row in &rows {
         text.push_str(&format!(
-            "{}@{}  {}\n",
+            "{}@{}  {}{}\n",
             row.id,
             row.version,
             match row.status {
                 sheltie_runtime::VerifyStatus::Ok => "ok",
                 sheltie_runtime::VerifyStatus::Tampered => "tampered",
                 sheltie_runtime::VerifyStatus::Missing => "missing",
-            }
+            },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
         ));
     }
     let all_ok = rows

@@ -28,9 +28,19 @@ pub(crate) struct RequestRow {
     pub at: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RequestEffectRow {
+    pub request_id: String,
+    pub published: bool,
+    pub effects_json: String,
+    pub work_id: Option<String>,
+}
+
 /// The single audit record that must own a persisted request.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct AuditRow {
+    pub seq: i64,
+    pub request_id: String,
     pub work_id: String,
     pub revision: i64,
     pub command_json: String,
@@ -216,21 +226,6 @@ impl Store {
             .optional()?)
     }
 
-    /// 未完成效果的请求，按提交先后（`audit.seq` 递增）。恢复按这个顺序执行。
-    pub(crate) fn unpublished_requests(&self) -> Result<Vec<(String, String)>> {
-        let conn = self.connect()?;
-        let mut stmt = conn.prepare(
-            "SELECT r.request_id, r.effects_json FROM requests r
-             WHERE r.published <> 1
-             ORDER BY COALESCE(
-               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),
-               9223372036854775807
-             ), r.request_id",
-        )?;
-        let rows = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
-    }
-
     /// Request IDs in commit order. Recovery opens each row separately so one malformed
     /// `effects_json` can be attributed to its owner instead of aborting this index read.
     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {
@@ -247,17 +242,84 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
+    /// All request effect rows, including completed requests that may still own cleanup metadata.
+    /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.
+    pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {
+        use rusqlite::types::ValueRef;
+
+        let conn = self.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id",
+        )?;
+        let mut rows = stmt.query([])?;
+        let mut out = Vec::new();
+        while let Some(row) = rows.next()? {
+            let request_id: String = row.get(0)?;
+            let published = match row.get_ref(1)? {
+                ValueRef::Integer(0) => false,
+                ValueRef::Integer(1) => true,
+                _ => {
+                    return Err(Error::StoreCorrupt {
+                        detail: format!("请求 {request_id} 的published值无效"),
+                    });
+                }
+            };
+            let effects_json =
+                match row.get_ref(2)? {
+                    ValueRef::Text(bytes) => std::str::from_utf8(bytes)
+                        .map(str::to_string)
+                        .map_err(|error| Error::StoreCorrupt {
+                            detail: format!("请求 {request_id} 的effects_json不是UTF-8：{error}"),
+                        })?,
+                    _ => {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("请求 {request_id} 的effects_json不是TEXT"),
+                        });
+                    }
+                };
+            out.push(RequestEffectRow {
+                request_id,
+                published,
+                effects_json,
+                work_id: row.get(3)?,
+            });
+        }
+        Ok(out)
+    }
+
     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
-            "SELECT work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq",
+            "SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq",
         )?;
         let rows = stmt.query_map([request_id], |row| {
             Ok(AuditRow {
-                work_id: row.get(0)?,
-                revision: row.get(1)?,
-                command_json: row.get(2)?,
-                at: row.get(3)?,
+                seq: row.get(0)?,
+                request_id: row.get(1)?,
+                work_id: row.get(2)?,
+                revision: row.get(3)?,
+                command_json: row.get(4)?,
+                at: row.get(5)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。
+    pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {
+        let conn = self.connect()?;
+        let mut stmt = conn.prepare(
+            "SELECT seq, request_id, work_id, revision, command_json, at
+             FROM audit ORDER BY seq",
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok(AuditRow {
+                seq: row.get(0)?,
+                request_id: row.get(1)?,
+                work_id: row.get(2)?,
+                revision: row.get(3)?,
+                command_json: row.get(4)?,
+                at: row.get(5)?,
             })
         })?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)

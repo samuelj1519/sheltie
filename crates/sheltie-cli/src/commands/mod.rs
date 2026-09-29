@@ -37,6 +37,13 @@ pub fn dispatch(cli: Cli) -> i32 {
             )
             | Group::Work(WorkCmd::List | WorkCmd::Status { .. } | WorkCmd::Stats { .. })
     );
+    let cleanup_after_success = matches!(
+        &cli.group,
+        Group::Workbook(WorkbookCmd::Add { .. } | WorkbookCmd::Remove { .. })
+            | Group::Work(WorkCmd::Start(_) | WorkCmd::Cancel { .. })
+            | Group::Attempt(_)
+            | Group::Gate(_)
+    );
     if cli.request_id.is_some() && read_only {
         let out = crate::output::param_error(
             "--request-id 只用于 Work 与 Workbook 写操作；只读与 self 命令不支持".to_string(),
@@ -57,5 +64,15 @@ pub fn dispatch(cli: Cli) -> i32 {
         Group::Gate(cmd) => gate::run(&ctx, cmd),
     };
     output::print(&outcome, ctx.json);
+    if outcome.exit_code == 0 && cleanup_after_success {
+        match sheltie_runtime::WorkbookRepo::new(ctx.home.clone()).cleanup_pending() {
+            Ok(warnings) => {
+                for warning in warnings {
+                    eprintln!("warning: pending维护：{warning}");
+                }
+            }
+            Err(error) => eprintln!("warning: pending维护未完成：{error}"),
+        }
+    }
     outcome.exit_code
 }

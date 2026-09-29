@@ -74,6 +74,7 @@ struct Loaded {
     graph: Graph,
     resource_files: BTreeMap<sheltie_core::path::RelPath, ObservedFile>,
     instructions: BTreeMap<sheltie_core::path::RelPath, String>,
+    pending_publish: bool,
 }
 
 struct PreparedCommand {
@@ -88,15 +89,6 @@ impl PreparedCommand {
             observed_outputs: BTreeMap::new(),
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct PendingOwner {
-    format: String,
-    internal_id: String,
-    request_id: String,
-    op: String,
 }
 
 /// pending 侧车与暂存容器的创建（存储合同 §3.3）。start/add再建立payload；remove只
@@ -120,7 +112,7 @@ pub(crate) fn stage_pending(
     let pending_root = ManagedRelPath::new("pending")?;
     let container = ManagedRelPath::new(format!("pending/{internal_id}"))?;
     let sidecar = ManagedRelPath::new(format!("pending/{internal_id}.owner"))?;
-    let owner = PendingOwner {
+    let owner = crate::pending::PendingOwner {
         format: "pending/v1".to_string(),
         internal_id: internal_id.to_string(),
         request_id: request_id.to_string(),
@@ -148,36 +140,7 @@ pub(crate) fn verify_pending_owner(
     request_id: &str,
     op: &str,
 ) -> Result<()> {
-    let path = ManagedRelPath::new(format!("pending/{internal_id}.owner"))?;
-    let file = crate::fsx::ManagedFs::open_existing(home)?
-        .open_regular(&path)
-        .map_err(|error| Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner缺失或无效：{error}"),
-        })?;
-    let mut bytes = file
-        .read_bounded(4096)
-        .map_err(|error| Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner不可读：{error}"),
-        })?;
-    if bytes.pop() != Some(b'\n') {
-        return Err(Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner缺少结尾换行"),
-        });
-    }
-    let owner: PendingOwner =
-        serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner JSON无效：{error}"),
-        })?;
-    if owner.format != "pending/v1"
-        || owner.internal_id != internal_id
-        || owner.request_id != request_id
-        || owner.op != op
-    {
-        return Err(Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner与Store归属不一致"),
-        });
-    }
-    Ok(())
+    crate::pending::verify_owner(home, internal_id, request_id, op)
 }
 
 impl WorkService {
@@ -510,6 +473,16 @@ impl WorkService {
         ))
     }
 
+    /// 返回状态卡和本次装入的发布状态事实。
+    pub fn status_with_publication(&self, work: &WorkId) -> Result<(String, StatusCardJson, bool)> {
+        let loaded = self.load(work)?;
+        Ok((
+            render_status_card(&loaded.state, &loaded.graph),
+            status_card_json(&loaded.state, &loaded.graph),
+            loaded.pending_publish,
+        ))
+    }
+
     /// 只读：事实视图文本与结构化形式（`render_stats`、`render_stats_json`）。
     pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson)> {
         let loaded = self.load(work)?;
@@ -594,24 +567,43 @@ impl WorkService {
     /// 从受 Store 保护的 pending 原件读取（存储合同 §3.3）。
     fn load(&self, work: &WorkId) -> Result<Loaded> {
         let row = self.store.load_work(work)?;
-        let work_dir = crate::load::validate_work_root(&self.home, &row.state)?;
-        let frozen = work_dir.join_segment("workbook");
-        let frozen = if frozen.as_path().exists() {
-            frozen
-        } else {
-            self.pending_workbook(work, &row.state)?.unwrap_or(frozen)
-        };
-        if !frozen.as_path().exists() {
-            return Err(Error::StoreCorrupt {
-                detail: format!("Work {work} 的冻结副本 {} 缺失", frozen),
-            });
-        }
-        let workbook = crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state)?;
+        let location = self.workbook_publication(work, &row.state)?;
+        let (workbook, pending_publish) =
+            crate::pending::read_publish_dir(&self.home, &location, |root| {
+                let frozen = root.join_segment("workbook");
+                let relative = self.home.to_rel(&frozen)?;
+                if !crate::fsx::managed_directory_exists_readonly(&self.home, &relative)? {
+                    if !location.pending_publish {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("Work {work} 的已发布冻结副本 {} 缺失", frozen),
+                        });
+                    }
+                    return Err(Error::NotFound {
+                        what: format!("Work {work} 的冻结副本 {}", frozen),
+                    });
+                }
+                crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state).map_err(
+                    |error| match error {
+                        Error::NotFound { .. } if !location.pending_publish => {
+                            Error::StoreCorrupt {
+                                detail: format!("Work {work} 的已发布冻结副本文件缺失"),
+                            }
+                        }
+                        other => other,
+                    },
+                )
+            })
+            .map_err(|error| match error {
+                Error::NotFound { .. } => Error::StoreCorrupt {
+                    detail: format!("Work {work} 的冻结副本缺失声明文件"),
+                },
+                other => other,
+            })?;
         if workbook.digest != row.state.workbook.digest {
             return Err(Error::StoreCorrupt {
                 detail: format!(
                     "冻结副本 {} 的摘要 {} 与记录不符",
-                    frozen,
+                    workbook.dir,
                     workbook.digest.as_str()
                 ),
             });
@@ -629,148 +621,211 @@ impl WorkService {
             graph,
             resource_files: workbook.resource_files,
             instructions: workbook.instructions,
+            pending_publish,
         })
     }
 
-    /// 未发布 Work 的冻结副本位置：本 Work 的 `publish_dir` 效果指向的 pending 原件。
-    fn pending_workbook(&self, work: &WorkId, state: &WorkState) -> Result<Option<AbsPath>> {
-        for (request_id, effects_json) in self.store.unpublished_requests()? {
-            let ops = decode_effects(&effects_json)?;
-            let publish = ops.iter().find_map(|op| match op {
-                EffectOp::PublishDir {
-                    pending,
-                    final_path,
-                    owner,
-                    digest,
-                    digest_root,
-                } if owner == &format!("work:{work}") => {
-                    Some((pending, final_path, owner, digest, digest_root))
-                }
-                _ => None,
+    /// 从Start请求与effects闭包定位本Work唯一冻结副本。
+    fn workbook_publication(
+        &self,
+        work: &WorkId,
+        state: &WorkState,
+    ) -> Result<crate::pending::PublishLocation> {
+        let references = crate::pending::PendingReferenceIndex::load(&self.store)?;
+        crate::failpoint::rendezvous("pending_after_reference_index", &format!("works/{work}"))
+            .map_err(|error| Error::io(state.work_dir.as_str(), error))?;
+        let work_references = references.publish_references_for_work(work.as_str());
+        let [reference] = work_references.as_slice() else {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "Work {work} 应有唯一Start publish引用，实际{}个",
+                    work_references.len()
+                ),
             });
-            let Some((pending, final_path, owner, digest, digest_root)) = publish else {
-                continue;
-            };
-            if ops.len() != 2
-                || ops.iter().filter(|op| matches!(op, EffectOp::PublishDir { .. })).count() != 1
-                || ops.iter().filter(|op| matches!(op, EffectOp::RefreshStatusCard { work_id } if work_id == work.as_str())).count() != 1
-                || final_path != &format!("works/{work}")
-                || owner != &format!("work:{work}")
-                || digest != state.workbook.digest.as_str()
-                || digest_root != "workbook"
-            {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的未发布Start效果归属不一致"),
-                });
-            }
-            let segments = pending.split('/').collect::<Vec<_>>();
-            if segments.len() != 3
-                || segments[0] != "pending"
-                || segments[2] != "payload"
-                || uuid::Uuid::parse_str(segments[1]).is_err()
-            {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的pending路径无效"),
-                });
-            }
-            let request =
-                self.store
-                    .inspect_request(&request_id)?
-                    .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("未发布Start {request_id} 缺少requests行"),
-                    })?;
-            if request.work_id.as_deref() != Some(work.as_str()) {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("未发布Start {request_id} 的Work归属不一致"),
-                });
-            }
-            Sha256Hex::new(request.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 的intent_hash无效：{error}"),
-            })?;
-            let audits = self.store.audit_rows(&request_id)?;
-            let [audit] = audits.as_slice() else {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
-                });
-            };
-            let response: crate::recovery::PersistedResponse =
-                serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
-                    detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
+        };
+        let request_id = reference.request_id.as_str();
+        let mut request =
+            self.store
+                .inspect_request(request_id)?
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("Start {request_id} 缺少requests行"),
                 })?;
-            let command: Command =
-                serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
-                    detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
-                })?;
-            let valid_start = match (&command, &response.reply) {
-                (
-                    Command::Start {
-                        work_id: command_work,
-                        name,
-                        workbook,
-                        flow,
-                        work_dir,
-                        inputs,
-                    },
-                    Reply::Started {
-                        work_id: reply_work,
-                        work_dir: reply_dir,
-                        requires,
-                    },
-                ) => {
-                    command_work == work
-                        && reply_work == work
-                        && name == &state.name
-                        && workbook == &state.workbook
-                        && flow == &state.flow
-                        && inputs == &state.inputs
-                        && work_dir == &state.work_dir
-                        && reply_dir == &state.work_dir
-                        && response.request_id == request_id
-                        && response.revision == 1
-                        && !response.replayed
-                        && audit.work_id == work.as_str()
-                        && audit.revision == 1
-                        && audit.at == request.at
-                        && response
-                            .data
-                            .get("work_id")
-                            .and_then(serde_json::Value::as_str)
-                            == Some(work.as_str())
-                        && response
-                            .data
-                            .get("work_dir")
-                            .and_then(serde_json::Value::as_str)
-                            == Some(state.work_dir.as_str())
-                        && response
-                            .data
-                            .get("name")
-                            .and_then(serde_json::Value::as_str)
-                            == Some(state.name.as_str())
-                        && response
-                            .data
-                            .get("flow")
-                            .and_then(serde_json::Value::as_str)
-                            == Some(state.flow.as_str())
-                        && response.data.get("workbook")
-                            == Some(&serde_json::json!({
-                                "id": state.workbook.id.as_str(),
-                                "version": state.workbook.version.as_str(),
-                                "digest": state.workbook.digest.as_str(),
-                            }))
-                        && response.data.get("requires")
-                            == serde_json::to_value(requires).ok().as_ref()
-                }
-                _ => false,
-            };
-            if !valid_start {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
-                });
-            }
-            verify_pending_owner(&self.home, segments[1], &request_id, "start_work")?;
-            return Ok(Some(self.home.rel(pending)?.join_segment("workbook")));
+        if reference.published && !request.published {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Start {request_id} 的published在索引读取后回退"),
+            });
         }
-        Ok(None)
+        let ops = decode_effects(&request.effects_json)?;
+        let publish = ops.iter().find_map(|op| match op {
+            EffectOp::PublishDir {
+                pending,
+                final_path,
+                owner,
+                digest,
+                digest_root,
+            } if owner == &format!("work:{work}") => {
+                Some((pending, final_path, owner, digest, digest_root))
+            }
+            _ => None,
+        });
+        let Some((pending, final_path, owner, digest, digest_root)) = publish else {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work {work} 的引用索引与Start效果不一致"),
+            });
+        };
+        if ops.len() != 2
+            || ops
+                .iter()
+                .filter(|op| matches!(op, EffectOp::PublishDir { .. }))
+                .count()
+                != 1
+            || ops
+                .iter()
+                .filter(|op| matches!(op, EffectOp::RefreshStatusCard { work_id } if work_id == work.as_str()))
+                .count()
+                != 1
+            || final_path != &format!("works/{work}")
+            || owner != &format!("work:{work}")
+            || digest != state.workbook.digest.as_str()
+            || digest_root != "workbook"
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work {work} 的未发布Start效果归属不一致"),
+            });
+        }
+        let segments = pending.split('/').collect::<Vec<_>>();
+        if segments.len() != 3
+            || segments[0] != "pending"
+            || segments[2] != "payload"
+            || uuid::Uuid::parse_str(segments[1]).is_err()
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work {work} 的pending路径无效"),
+            });
+        }
+        if request.work_id.as_deref() != Some(work.as_str()) {
+            return Err(Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 的Work归属不一致"),
+            });
+        }
+        if request.at != state.created_at.as_str() {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Start {request_id} 时间与WorkState.created_at不一致"),
+            });
+        }
+        Sha256Hex::new(request.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
+            detail: format!("未发布Start {request_id} 的intent_hash无效：{error}"),
+        })?;
+        let audits = self.store.audit_rows(request_id)?;
+        let [audit] = audits.as_slice() else {
+            return Err(Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
+            });
+        };
+        let response: crate::recovery::PersistedResponse =
+            serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
+            })?;
+        let command: Command =
+            serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
+            })?;
+        let valid_start = match (&command, &response.reply) {
+            (
+                Command::Start {
+                    work_id: command_work,
+                    name,
+                    workbook,
+                    flow,
+                    work_dir,
+                    inputs,
+                },
+                Reply::Started {
+                    work_id: reply_work,
+                    work_dir: reply_dir,
+                    requires,
+                },
+            ) => {
+                snapshot_data_has_exact_fields(
+                    &response.data,
+                    &[
+                        "work_id", "name", "workbook", "flow", "work_dir", "requires",
+                    ],
+                ) && command_work == work
+                    && reply_work == work
+                    && name == &state.name
+                    && workbook == &state.workbook
+                    && flow == &state.flow
+                    && inputs == &state.inputs
+                    && work_dir == &state.work_dir
+                    && reply_dir == &state.work_dir
+                    && response.request_id == request_id
+                    && response.revision == 1
+                    && !response.replayed
+                    && audit.work_id == work.as_str()
+                    && audit.revision == 1
+                    && audit.at == request.at
+                    && response
+                        .data
+                        .get("work_id")
+                        .and_then(serde_json::Value::as_str)
+                        == Some(work.as_str())
+                    && response
+                        .data
+                        .get("work_dir")
+                        .and_then(serde_json::Value::as_str)
+                        == Some(state.work_dir.as_str())
+                    && response
+                        .data
+                        .get("name")
+                        .and_then(serde_json::Value::as_str)
+                        == Some(state.name.as_str())
+                    && response
+                        .data
+                        .get("flow")
+                        .and_then(serde_json::Value::as_str)
+                        == Some(state.flow.as_str())
+                    && response.data.get("workbook")
+                        == Some(&serde_json::json!({
+                            "id": state.workbook.id.as_str(),
+                            "version": state.workbook.version.as_str(),
+                            "digest": state.workbook.digest.as_str(),
+                        }))
+                    && response.data.get("requires") == serde_json::to_value(requires).ok().as_ref()
+            }
+            _ => false,
+        };
+        if !valid_start {
+            return Err(Error::StoreCorrupt {
+                detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
+            });
+        }
+        if !request.published {
+            match verify_pending_owner(&self.home, segments[1], request_id, "start_work") {
+                Ok(()) => {}
+                Err(owner_error) => {
+                    let current = self.store.inspect_request(request_id)?;
+                    match current {
+                        Some(current)
+                            if current.published
+                                && current.intent_hash == request.intent_hash
+                                && current.reply_json == request.reply_json
+                                && current.effects_json == request.effects_json
+                                && current.work_id == request.work_id
+                                && current.at == request.at =>
+                        {
+                            request = current;
+                        }
+                        _ => return Err(owner_error),
+                    }
+                }
+            }
+        }
+        Ok(crate::pending::PublishLocation {
+            pending: pending.clone(),
+            final_path: final_path.clone(),
+            pending_publish: !request.published,
+        })
     }
 
     /// Work 写操作的公共流程：无锁预检查重 → 锁 → 恢复 → 锁内重核 → load → 观察 →

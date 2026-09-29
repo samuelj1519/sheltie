@@ -300,6 +300,515 @@ fn workbook_publication_recovery_checks_owner_and_manifest_identity() {
     }
 }
 
+// Task: C002-T28
+#[test]
+fn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(
+        &abs(&example_dir("two-step")),
+        Some("t28-pending-wb".into()),
+    )
+    .unwrap();
+    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-pending-wb'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    let payload = home.rel(pending).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = 't28-pending-wb'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+    make_writable(std::path::Path::new(final_dir.as_str()));
+    std::fs::rename(final_dir.as_path(), payload.as_path()).unwrap();
+
+    let rows = repo.list().unwrap();
+    assert_eq!(rows.len(), 1);
+    assert!(rows[0].pending_publish);
+    let loaded = repo.load("two-step", Some("1.0.0")).unwrap();
+    assert!(loaded.pending_publish);
+    assert_eq!(loaded.manifest.id().as_str(), "two-step");
+    let verified = repo.verify(Some(("two-step", "1.0.0"))).unwrap();
+    assert_eq!(verified[0].status, sheltie_runtime::VerifyStatus::Ok);
+    assert!(verified[0].pending_publish);
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    assert!(payload.as_path().is_dir(), "published=0原件不能被清理");
+    assert!(!final_dir.as_path().exists(), "只读操作不恢复发布目录");
+    let started = sheltie_runtime::WorkService::new(home.clone())
+        .start(start_args(), Some("t28-start-from-pending".into()))
+        .unwrap();
+    assert!(matches!(
+        started.reply,
+        sheltie_core::work::Reply::Started { .. }
+    ));
+    assert!(final_dir.as_path().is_dir(), "写锁内恢复后从final重新核验");
+}
+
+// Task: C002-T28
+#[test]
+fn cleanup_removes_a_valid_precommit_orphan_without_age_checks() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), None).unwrap();
+    let orphan_id = "0198f01a7f0070008000000000000002";
+    let container = home.pending_dir().join_segment(orphan_id);
+    std::fs::create_dir_all(container.as_path().join("payload")).unwrap();
+    std::fs::write(container.as_path().join("payload/private"), b"uncommitted").unwrap();
+    let owner = serde_json::json!({
+        "format": "pending/v1",
+        "internal_id": orphan_id,
+        "request_id": "never-committed-request",
+        "op": "add_workbook",
+    });
+    let sidecar = home
+        .pending_dir()
+        .join_segment(&format!("{orphan_id}.owner"));
+    std::fs::write(
+        sidecar.as_path(),
+        format!("{}\n", serde_json::to_string(&owner).unwrap()),
+    )
+    .unwrap();
+    let incomplete_id = "0198f01a7f0070008000000000000003";
+    let incomplete_sidecar = home
+        .pending_dir()
+        .join_segment(&format!("{incomplete_id}.owner"));
+    std::fs::write(incomplete_sidecar.as_path(), b"{\"format\":\n").unwrap();
+
+    let warnings = repo.cleanup_pending().unwrap();
+    assert!(
+        warnings
+            .iter()
+            .any(|warning| warning.contains(incomplete_id))
+    );
+    assert!(!container.as_path().exists());
+    assert!(!sidecar.as_path().exists());
+    assert!(incomplete_sidecar.as_path().is_file());
+}
+
+// Task: C002-T28
+#[test]
+fn cleanup_preserves_nonempty_payload_after_request_completion() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(
+        &abs(&example_dir("two-step")),
+        Some("t28-nonempty-completed".into()),
+    )
+    .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-nonempty-completed'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    drop(conn);
+    let store_before = std::fs::read(home.store_path().as_path()).unwrap();
+    let payload = home.rel(pending).unwrap();
+    std::fs::create_dir_all(payload.as_path()).unwrap();
+    let extra = payload.as_path().join("retained-private-bytes");
+    std::fs::write(&extra, b"retain").unwrap();
+
+    let warnings = repo.cleanup_pending().unwrap();
+    assert!(
+        warnings
+            .iter()
+            .any(|warning| warning.contains("container仍有内容"))
+    );
+    assert_eq!(std::fs::read(extra).unwrap(), b"retain");
+    assert!(payload.as_path().is_dir());
+    assert_eq!(
+        std::fs::read(home.store_path().as_path()).unwrap(),
+        store_before
+    );
+    assert!(repo.load("two-step", Some("1.0.0")).is_ok());
+}
+
+// Task: C002-T28
+#[test]
+fn pending_workbook_with_missing_owner_does_not_fall_back_to_another_version() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), Some("t28-v27-old".into()))
+        .unwrap();
+    let newer_source_root = tempfile::tempdir().unwrap();
+    let newer_source = copy_example("two-step", newer_source_root.path());
+    let manifest = std::fs::read_to_string(newer_source.join("workbook.toml")).unwrap();
+    std::fs::write(
+        newer_source.join("workbook.toml"),
+        manifest.replace("version = \"1.0.0\"", "version = \"2.0.0\""),
+    )
+    .unwrap();
+    repo.add(&abs(&newer_source), Some("t28-v27-new".into()))
+        .unwrap();
+
+    let old_final = home.workbook_dir("two-step", "1.0.0");
+    let newer_final = home.workbook_dir("two-step", "2.0.0");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-v27-old'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    let internal_id = pending.split('/').nth(1).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = 't28-v27-old'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+    make_writable(std::path::Path::new(old_final.as_str()));
+    std::fs::rename(old_final.as_path(), home.rel(pending).unwrap().as_path()).unwrap();
+    std::fs::remove_file(
+        home.pending_dir()
+            .join_segment(&format!("{internal_id}.owner"))
+            .as_path(),
+    )
+    .unwrap();
+
+    let error = match repo.load("two-step", Some("1.0.0")) {
+        Ok(_) => panic!("缺少owner的pending Workbook不能读取"),
+        Err(error) => error,
+    };
+    assert_eq!(error.code(), ErrorCode::StoreCorrupt);
+    assert!(newer_final.as_path().is_dir(), "另一版本原件保持不变");
+    assert_eq!(
+        repo.load("two-step", Some("2.0.0"))
+            .unwrap()
+            .manifest
+            .version(),
+        "2.0.0"
+    );
+}
+
+// Task: C002-T28
+#[test]
+fn pending_cleanup_removes_only_completed_empty_metadata() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), Some("t28-clean-wb".into()))
+        .unwrap();
+    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let before = WorkbookRepo::digest_dir(&final_dir).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-clean-wb'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let internal_id = effects[0]["pending"]
+        .as_str()
+        .unwrap()
+        .split('/')
+        .nth(1)
+        .unwrap();
+    drop(conn);
+
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    assert!(final_dir.as_path().is_dir());
+    assert_eq!(WorkbookRepo::digest_dir(&final_dir).unwrap(), before);
+    assert!(
+        !home
+            .pending_dir()
+            .join_segment(&format!("{internal_id}.owner"))
+            .as_path()
+            .exists()
+    );
+    assert_eq!(repo.load("two-step", Some("1.0.0")).unwrap().digest, before);
+}
+
+// Task: C002-T28
+#[test]
+fn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed() {
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), Some("t28-bad-index".into()))
+        .unwrap();
+    let orphan_id = "0198f01a-7f00-7000-8000-000000000001";
+    let orphan = home.pending_dir().join_segment(orphan_id);
+    std::fs::create_dir_all(orphan.as_path().join("payload")).unwrap();
+    let owner = serde_json::json!({
+        "format": "pending/v1",
+        "internal_id": orphan_id,
+        "request_id": "orphan-request",
+        "op": "add_workbook",
+    });
+    std::fs::write(
+        home.pending_dir()
+            .join_segment(&format!("{orphan_id}.owner"))
+            .as_path(),
+        format!("{}\n", serde_json::to_string(&owner).unwrap()),
+    )
+    .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET effects_json = 'not-json' WHERE request_id = 't28-bad-index'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+
+    assert_eq!(
+        repo.cleanup_pending().unwrap_err().code(),
+        ErrorCode::StoreCorrupt
+    );
+    assert!(orphan.as_path().is_dir(), "坏引用索引不能触发任何清理");
+    assert!(
+        home.pending_dir()
+            .join_segment(&format!("{orphan_id}.owner"))
+            .as_path()
+            .is_file()
+    );
+}
+
+// Task: C002-T28
+#[test]
+fn work_status_loads_committed_pending_frozen_graph_without_locking_or_recovery() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let response = svc
+        .start(start_args(), Some("t28-pending-work".into()))
+        .unwrap();
+    let wid = work_id_of(&response);
+    let final_dir = home.work_dir(&wid);
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-pending-work'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    let payload = home.rel(pending).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = 't28-pending-work'",
+        [],
+    )
+    .unwrap();
+    drop(conn);
+    make_writable(std::path::Path::new(final_dir.as_str()));
+    std::fs::rename(final_dir.as_path(), payload.as_path()).unwrap();
+
+    let (text, card, pending_publish) = svc.status_with_publication(&wid).unwrap();
+    assert!(pending_publish);
+    assert!(text.contains(wid.as_str()));
+    assert_eq!(card.status, sheltie_core::work::WorkStatus::Active);
+    assert!(!final_dir.as_path().exists(), "只读status不能执行恢复");
+    assert!(payload.as_path().join("workbook").is_dir());
+}
+
+// Task: C002-T28
+#[test]
+fn cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = svc
+        .start(start_args(), Some("t28-index-work".into()))
+        .unwrap();
+    let work = work_id_of(&started);
+    svc.begin(
+        &work,
+        &sheltie_core::ids::NodeId::new("outline").unwrap(),
+        Some("t28-index-begin".into()),
+    )
+    .unwrap();
+    let orphan_id = "0198f01a7f0070008000000000000010";
+    let container = home.pending_dir().join_segment(orphan_id);
+    let payload = container.as_path().join("payload");
+    std::fs::create_dir_all(&payload).unwrap();
+    std::fs::write(payload.join("private"), b"must-retain").unwrap();
+    let owner = serde_json::json!({
+        "format": "pending/v1",
+        "internal_id": orphan_id,
+        "request_id": "t28-unreferenced-owner",
+        "op": "add_workbook",
+    });
+    std::fs::write(
+        home.pending_dir()
+            .join_segment(&format!("{orphan_id}.owner"))
+            .as_path(),
+        format!("{}\n", serde_json::to_string(&owner).unwrap()),
+    )
+    .unwrap();
+
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let mut effects: serde_json::Value = connection
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-index-begin'",
+            [],
+            |row| row.get::<_, String>(0),
+        )
+        .map(|raw| serde_json::from_str(&raw).unwrap())
+        .unwrap();
+    let write = effects
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|effect| effect["kind"] == "write_file")
+        .unwrap();
+    write["path"] = serde_json::json!(format!("pending/{orphan_id}/payload/private"));
+    connection
+        .execute(
+            "UPDATE requests SET effects_json = ?1 WHERE request_id = 't28-index-begin'",
+            [serde_json::to_string(&effects).unwrap()],
+        )
+        .unwrap();
+    drop(connection);
+
+    assert_eq!(
+        repo(&home).cleanup_pending().unwrap_err().code(),
+        ErrorCode::StoreCorrupt
+    );
+    assert_eq!(
+        std::fs::read(payload.join("private")).unwrap(),
+        b"must-retain"
+    );
+    assert!(container.as_path().is_dir());
+}
+
+// Task: C002-T28
+#[cfg(feature = "failpoint")]
+#[test]
+fn real_work_status_retries_after_start_publish_renames_post_location() {
+    use std::time::{Duration, Instant};
+
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = svc
+        .start(start_args(), Some("t28-read-race".into()))
+        .unwrap();
+    let work = work_id_of(&started);
+    let final_dir = home.work_dir(&work);
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = connection
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-read-race'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    connection
+        .execute(
+            "UPDATE requests SET published = 0 WHERE request_id = 't28-read-race'",
+            [],
+        )
+        .unwrap();
+    drop(connection);
+
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "pending_read_after_locate",
+        &format!("works/{work}"),
+        rendezvous.path(),
+    )
+    .unwrap();
+    let reader_service = svc.clone();
+    let reader_work = work.clone();
+    let reader = std::thread::spawn(move || reader_service.status_with_publication(&reader_work));
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !rendezvous.path().join("reached").exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !rendezvous.path().join("reached").exists() {
+        let _ = std::fs::write(rendezvous.path().join("release"), b"release");
+        let _ = reader.join();
+        panic!("Work只读装入没有到达定位后的同步点");
+    }
+    std::fs::rename(final_dir.as_path(), home.rel(pending).unwrap().as_path()).unwrap();
+    sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+    std::fs::write(rendezvous.path().join("release"), b"release").unwrap();
+
+    let (_, card, pending_publish) = reader.join().unwrap().unwrap();
+    assert!(pending_publish);
+    assert_eq!(card.work_id, work);
+    assert!(!final_dir.as_path().exists());
+    assert!(home.rel(pending).unwrap().as_path().is_dir());
+}
+
+// Task: C002-T28
+#[cfg(feature = "failpoint")]
+#[test]
+fn completed_empty_container_that_changes_before_unlink_is_preserved() {
+    use std::time::{Duration, Instant};
+
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(
+        &abs(&example_dir("two-step")),
+        Some("t28-clean-race".into()),
+    )
+    .unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = connection
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-clean-race'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let internal_id = effects[0]["pending"]
+        .as_str()
+        .unwrap()
+        .split('/')
+        .nth(1)
+        .unwrap();
+    drop(connection);
+    let container = home.pending_dir().join_segment(internal_id);
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "pending_cleanup_after_empty_check",
+        "t28-clean-race",
+        rendezvous.path(),
+    )
+    .unwrap();
+    let cleanup_repo = repo.clone();
+    let cleanup = std::thread::spawn(move || cleanup_repo.cleanup_pending());
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !rendezvous.path().join("reached").exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !rendezvous.path().join("reached").exists() {
+        let _ = std::fs::write(rendezvous.path().join("release"), b"release");
+        let _ = cleanup.join();
+        panic!("cleanup没有到达同一ManagedTree空容器检查后的同步点");
+    }
+    let sentinel = container.as_path().join("late-content");
+    std::fs::write(&sentinel, b"retain").unwrap();
+    sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+    std::fs::write(rendezvous.path().join("release"), b"release").unwrap();
+
+    let warnings = cleanup.join().unwrap().unwrap();
+    assert!(warnings.iter().any(|warning| {
+        warning.contains("request_id=t28-clean-race")
+            && warning.contains("object=pending/")
+            && warning.contains("reason=")
+    }));
+    assert_eq!(std::fs::read(sentinel).unwrap(), b"retain");
+    assert!(container.as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+}
+
 /// 旧 remove 的重放不得删除同版本的新对象；新生命周期不被旧请求覆盖（§5.2 第 4 条）。
 // Task: C002-T08
 #[test]
@@ -504,7 +1013,12 @@ fn remove_refuses_missing_directory_or_digest_before_commit() {
             .unwrap(),
             0
         );
-        assert_eq!(repo.list().unwrap().len(), 1);
+        assert_eq!(
+            conn.query_row("SELECT COUNT(*) FROM workbooks", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            1
+        );
         assert_eq!(final_dir.as_path().exists(), corruption == "empty_digest");
     }
 }
@@ -980,4 +1494,361 @@ fn old_add_replay_does_not_bind_to_a_readded_workbook_lifecycle() {
         )
         .unwrap();
     assert_eq!(row, new.data["digest"]);
+}
+
+// Task: C002-T28
+#[test]
+fn cleanup_removes_a_valid_orphan_with_a_frozen_readonly_workbook() {
+    use std::os::unix::fs::PermissionsExt;
+    fn freeze(path: &Path) {
+        if path.is_dir() {
+            for entry in std::fs::read_dir(path).unwrap() {
+                freeze(&entry.unwrap().path());
+            }
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o555)).unwrap();
+        } else {
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o444)).unwrap();
+        }
+    }
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), None).unwrap();
+    let id = "0198f01a7f0070008000000000000011";
+    let container = home.pending_dir().join_segment(id);
+    let frozen = container.as_path().join("payload/workbook");
+    copy_dir(&example_dir("two-step"), frozen.as_std_path());
+    freeze(frozen.as_std_path());
+    std::fs::write(
+        home.pending_dir()
+            .join_segment(&format!("{id}.owner"))
+            .as_path(),
+        format!(
+            "{}\n",
+            serde_json::json!({
+                "format": "pending/v1", "internal_id": id,
+                "request_id": "t28-never-committed-start", "op": "start_work"
+            })
+        ),
+    )
+    .unwrap();
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    assert!(!container.as_path().exists());
+    assert!(
+        !home
+            .pending_dir()
+            .join_segment(&format!("{id}.owner"))
+            .as_path()
+            .exists()
+    );
+}
+
+// Task: C002-T28
+#[test]
+fn completed_workbook_final_requires_its_current_successful_publisher() {
+    for mutation in ["snapshot_request_id", "missing_audit"] {
+        let (_dir, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        repo.add(&abs(&example_dir("two-step")), Some("t28-final-wb".into()))
+            .unwrap();
+        repo.cleanup_pending().unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        if mutation == "missing_audit" {
+            connection
+                .execute("DELETE FROM audit WHERE request_id = 't28-final-wb'", [])
+                .unwrap();
+        } else {
+            let raw: String = connection
+                .query_row(
+                    "SELECT reply_json FROM requests WHERE request_id = 't28-final-wb'",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let mut snapshot: serde_json::Value = serde_json::from_str(&raw).unwrap();
+            snapshot["request_id"] = serde_json::json!("other-request");
+            connection
+                .execute(
+                    "UPDATE requests SET reply_json = ?1 WHERE request_id = 't28-final-wb'",
+                    [serde_json::to_string(&snapshot).unwrap()],
+                )
+                .unwrap();
+        }
+        drop(connection);
+        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{mutation}: {error}");
+        assert_eq!(repo.list().unwrap_err().code(), ErrorCode::StoreCorrupt);
+        assert_eq!(
+            repo.verify(None).unwrap_err().code(),
+            ErrorCode::StoreCorrupt
+        );
+        assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    }
+}
+
+// Task: C002-T28
+#[test]
+fn completed_work_final_requires_its_successful_start_request() {
+    for mutation in ["snapshot_request_id", "missing_audit", "unknown_data"] {
+        let (_dir, home, svc) = home_with_example("two-step");
+        let started = svc
+            .start(start_args(), Some("t28-final-work".into()))
+            .unwrap();
+        let work = work_id_of(&started);
+        WorkbookRepo::new(home.clone()).cleanup_pending().unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        if mutation == "missing_audit" {
+            connection
+                .execute("DELETE FROM audit WHERE request_id = 't28-final-work'", [])
+                .unwrap();
+        } else {
+            let raw: String = connection
+                .query_row(
+                    "SELECT reply_json FROM requests WHERE request_id = 't28-final-work'",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let mut snapshot: serde_json::Value = serde_json::from_str(&raw).unwrap();
+            if mutation == "unknown_data" {
+                snapshot["data"]["unknown"] = serde_json::json!(true);
+            } else {
+                snapshot["request_id"] = serde_json::json!("other-request");
+            }
+            connection
+                .execute(
+                    "UPDATE requests SET reply_json = ?1 WHERE request_id = 't28-final-work'",
+                    [serde_json::to_string(&snapshot).unwrap()],
+                )
+                .unwrap();
+        }
+        drop(connection);
+        assert_eq!(
+            svc.status_with_publication(&work).unwrap_err().code(),
+            ErrorCode::StoreCorrupt
+        );
+        assert!(home.work_dir(&work).as_path().is_dir());
+    }
+}
+
+// Task: C002-T28
+#[cfg(feature = "failpoint")]
+#[test]
+fn workbook_reader_accepts_publication_and_cleanup_after_its_reference_index() {
+    use std::time::{Duration, Instant};
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    let source = abs(&example_dir("two-step"));
+    repo.add(&source, Some("t28-mark-race".into())).unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    connection
+        .execute(
+            "UPDATE requests SET published = 0 WHERE request_id = 't28-mark-race'",
+            [],
+        )
+        .unwrap();
+    drop(connection);
+    let sync = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "pending_after_reference_index",
+        "workbooks/two-step/1.0.0",
+        sync.path(),
+    )
+    .unwrap();
+    let reader_repo = repo.clone();
+    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !sync.path().join("reached").exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !sync.path().join("reached").exists() {
+        let _ = std::fs::write(sync.path().join("release"), b"release");
+        let _ = reader.join();
+        panic!("reader没有到达引用索引后的同步点");
+    }
+    sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+    let replay = repo.add(&source, Some("t28-mark-race".into())).unwrap();
+    assert!(replay.replayed);
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    std::fs::write(sync.path().join("release"), b"release").unwrap();
+    let loaded = reader.join().unwrap().unwrap();
+    assert!(!loaded.pending_publish);
+    assert_eq!(loaded.manifest.id().as_str(), "two-step");
+}
+
+// Task: C002-T28
+#[test]
+fn cleanup_preserves_owner_for_a_valid_id_with_a_symlink_container() {
+    use std::os::unix::fs::symlink;
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), None).unwrap();
+    let id = "0198f01a7f0070008000000000000012";
+    let external = tempfile::tempdir().unwrap();
+    let sentinel = external.path().join("sentinel");
+    std::fs::write(&sentinel, b"external-bytes").unwrap();
+    let container = home.pending_dir().join_segment(id);
+    symlink(external.path(), container.as_path()).unwrap();
+    let ownerless = home
+        .pending_dir()
+        .join_segment("0198f01a7f0070008000000000000013");
+    std::fs::create_dir(ownerless.as_path()).unwrap();
+    std::fs::write(
+        ownerless.join_segment("sentinel").as_path(),
+        b"unowned-bytes",
+    )
+    .unwrap();
+    let owner = home.pending_dir().join_segment(&format!("{id}.owner"));
+    let owner_bytes = format!(
+        "{}\n",
+        serde_json::json!({
+            "format": "pending/v1", "internal_id": id,
+            "request_id": "t28-orphan-symlink", "op": "start_work"
+        })
+    );
+    std::fs::write(owner.as_path(), owner_bytes.as_bytes()).unwrap();
+    let warnings = repo.cleanup_pending().unwrap();
+    assert!(
+        warnings
+            .iter()
+            .any(|warning| warning.contains("request_id=t28-orphan-symlink")
+                && warning.contains("container类型异常"))
+    );
+    assert!(
+        std::fs::symlink_metadata(container.as_path())
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+    assert_eq!(
+        std::fs::read(owner.as_path()).unwrap(),
+        owner_bytes.as_bytes()
+    );
+    assert_eq!(std::fs::read(sentinel).unwrap(), b"external-bytes");
+    assert_eq!(
+        std::fs::read(ownerless.join_segment("sentinel").as_path()).unwrap(),
+        b"unowned-bytes"
+    );
+}
+
+// Task: C002-T28
+#[test]
+fn current_workbook_never_uses_an_old_same_second_publisher_when_latest_audit_is_corrupt() {
+    for mutation in ["revision", "work_id", "command_other_remove"] {
+        let (_dir, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        let source = abs(&example_dir("two-step"));
+        repo.add(&source, Some("t28-old-publisher".into())).unwrap();
+        repo.remove("two-step", "1.0.0", Some("t28-between-remove".into()))
+            .unwrap();
+        repo.add(&source, Some("t28-new-publisher".into())).unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let at = "2026-09-29T00:00:00Z";
+        connection
+            .execute("UPDATE requests SET at = ?1", [at])
+            .unwrap();
+        connection
+            .execute("UPDATE audit SET at = ?1", [at])
+            .unwrap();
+        connection
+            .execute("UPDATE workbooks SET added_at = ?1", [at])
+            .unwrap();
+        if mutation == "revision" {
+            connection
+                .execute(
+                    "UPDATE audit SET revision = 1 WHERE request_id = 't28-new-publisher'",
+                    [],
+                )
+                .unwrap();
+        } else if mutation == "work_id" {
+            connection
+                .execute(
+                    "UPDATE audit SET work_id = 'wrong' WHERE request_id = 't28-new-publisher'",
+                    [],
+                )
+                .unwrap();
+        } else {
+            connection
+                .execute(
+                    "UPDATE audit SET command_json = ?1 WHERE request_id = 't28-new-publisher'",
+                    [
+                        serde_json::json!({"intent":"remove_workbook", "target":"other@1.0.0"})
+                            .to_string(),
+                    ],
+                )
+                .unwrap();
+        }
+        drop(connection);
+        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{mutation}: {error}");
+        assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    }
+}
+
+// Task: C002-T28
+#[test]
+fn completed_final_views_ignore_preserved_abnormal_pending_metadata() {
+    use std::os::unix::fs::symlink;
+    let (_dir, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(
+        &abs(&example_dir("two-step")),
+        Some("t28-complete-wb".into()),
+    )
+    .unwrap();
+    let svc = sheltie_runtime::WorkService::new(home.clone());
+    let started = svc
+        .start(start_args(), Some("t28-complete-work".into()))
+        .unwrap();
+    let work = work_id_of(&started);
+    repo.cleanup_pending().unwrap();
+    let external = tempfile::tempdir().unwrap();
+    std::fs::write(external.path().join("sentinel"), b"retain").unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let mut links = Vec::new();
+    for request in ["t28-complete-wb", "t28-complete-work"] {
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id = ?1",
+                [request],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let id = effects[0]["pending"]
+            .as_str()
+            .unwrap()
+            .split('/')
+            .nth(1)
+            .unwrap();
+        let link = home.pending_dir().join_segment(id);
+        symlink(external.path(), link.as_path()).unwrap();
+        links.push(link);
+    }
+    drop(connection);
+    std::fs::remove_file(home.lock_path().as_path()).unwrap();
+    assert!(
+        !repo
+            .load("two-step", Some("1.0.0"))
+            .unwrap()
+            .pending_publish
+    );
+    assert!(!repo.list().unwrap()[0].pending_publish);
+    assert_eq!(
+        repo.verify(None).unwrap()[0].status,
+        sheltie_runtime::VerifyStatus::Ok
+    );
+    assert!(!svc.status_with_publication(&work).unwrap().2);
+    assert!(!home.lock_path().as_path().exists());
+    for link in links {
+        assert!(
+            std::fs::symlink_metadata(link.as_path())
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+    }
+    assert_eq!(
+        std::fs::read(external.path().join("sentinel")).unwrap(),
+        b"retain"
+    );
 }

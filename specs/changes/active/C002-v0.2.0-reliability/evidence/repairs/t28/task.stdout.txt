@@ -1,0 +1,29 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+────────────
+ Nextest run ID 348c5ee9-71fb-473e-920a-b5a53ec80d7e with nextest profile: default
+    Starting 22 tests across 32 binaries (593 tests skipped)
+        PASS [   0.041s] ( 1/22) sheltie-runtime pending::tests::read_publish_dir_retries_when_final_renames_after_location
+        PASS [   0.467s] ( 2/22) sheltie-runtime::workbook_txn cleanup_preserves_owner_for_a_valid_id_with_a_symlink_container
+        PASS [   0.479s] ( 3/22) sheltie-runtime::workbook_txn completed_empty_container_that_changes_before_unlink_is_preserved
+        PASS [   0.442s] ( 4/22) sheltie-runtime::workbook_txn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed
+        PASS [   0.518s] ( 5/22) sheltie-runtime::workbook_txn cleanup_removes_a_valid_precommit_orphan_without_age_checks
+        PASS [   0.580s] ( 6/22) sheltie-runtime::workbook_txn cleanup_removes_a_valid_orphan_with_a_frozen_readonly_workbook
+        PASS [   0.590s] ( 7/22) sheltie-runtime::workbook_txn cleanup_preserves_nonempty_payload_after_request_completion
+        PASS [   0.558s] ( 8/22) sheltie-runtime::workbook_txn pending_cleanup_removes_only_completed_empty_metadata
+        PASS [   1.087s] ( 9/22) sheltie-cli::workbook cleanup_warning_goes_to_stderr_without_changing_success_json_or_replaying_business_effects
+        PASS [   1.121s] (10/22) sheltie-cli::workbook workbook_views_read_a_committed_pending_add_without_recovery
+        PASS [   1.256s] (11/22) sheltie-cli::workbook successful_new_add_keeps_json_success_when_old_completed_effects_break_maintenance
+        PASS [   1.290s] (12/22) sheltie-runtime::workbook_txn completed_workbook_final_requires_its_current_successful_publisher
+        PASS [   0.864s] (13/22) sheltie-runtime::workbook_txn pending_workbook_with_missing_owner_does_not_fall_back_to_another_version
+        PASS [   0.807s] (14/22) sheltie-runtime::workbook_txn workbook_reader_accepts_publication_and_cleanup_after_its_reference_index
+        PASS [   1.419s] (15/22) sheltie-runtime::workbook_txn completed_final_views_ignore_preserved_abnormal_pending_metadata
+        PASS [   0.912s] (16/22) sheltie-runtime::workbook_txn work_status_loads_committed_pending_frozen_graph_without_locking_or_recovery
+        PASS [   0.953s] (17/22) sheltie-runtime::workbook_txn real_work_status_retries_after_start_publish_renames_post_location
+        PASS [   1.462s] (18/22) sheltie-runtime::workbook_txn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending
+        PASS [   1.468s] (19/22) sheltie-runtime::workbook_txn cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan
+        PASS [   1.471s] (20/22) sheltie-cli::work work_status_reports_pending_publication_while_reading_the_frozen_copy
+        PASS [   1.791s] (21/22) sheltie-runtime::workbook_txn current_workbook_never_uses_an_old_same_second_publisher_when_latest_audit_is_corrupt
+        PASS [   1.800s] (22/22) sheltie-runtime::workbook_txn completed_work_final_requires_its_successful_start_request
+────────────
+     Summary [   1.802s] 22 tests run: 22 passed, 593 skipped

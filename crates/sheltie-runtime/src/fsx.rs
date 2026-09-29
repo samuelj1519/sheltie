@@ -90,6 +90,20 @@ pub struct ManagedDir {
     path: ManagedRelPath,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ManagedEntryKind {
+    Directory,
+    RegularFile,
+    Symlink,
+    Special,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ManagedDirEntry {
+    pub name: String,
+    pub kind: ManagedEntryKind,
+}
+
 /// 一个待发布目录的受管句柄，保持同步与原子移动绑定到同一 inode。
 #[derive(Debug)]
 pub(crate) struct ManagedTree {
@@ -456,6 +470,14 @@ impl ManagedFs {
         path: &ManagedRelPath,
     ) -> Result<bool> {
         self.check_lock(lock)?;
+        self.directory_exists(path)
+    }
+
+    pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {
+        self.directory_exists(path)
+    }
+
+    fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {
         let (parent, leaf) = match self.open_parent(path) {
             Ok(parent) => parent,
             Err(Error::NotFound { .. }) => return Ok(false),
@@ -472,6 +494,54 @@ impl ManagedFs {
                 detail: format!("{} 不是受管目录", self.display_path(path)),
             }),
         }
+    }
+
+    pub(crate) fn directory_entries_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<Vec<ManagedDirEntry>> {
+        self.check_lock(lock)?;
+        self.directory_entries(path)
+    }
+
+    pub(crate) fn managed_tree_is_empty_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+        path: &ManagedRelPath,
+    ) -> Result<bool> {
+        self.check_lock(lock)?;
+        self.check_tree_root(tree)?;
+        self.verify_tree_at(tree, path)?;
+        Ok(directory_entry_names(&tree.file, &self.display_path(path))?
+            .iter()
+            .all(|name| name == "." || name == ".."))
+    }
+
+    fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {
+        let directory = self.open_dir(Some(path))?;
+        let display = self.display_path(path);
+        let names = directory_entry_names(&directory, &display)?;
+        let mut out = Vec::with_capacity(names.len());
+        for name in names {
+            if name == "." || name == ".." {
+                continue;
+            }
+            let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)
+                .map_err(|error| map_fs_error(&format!("{display}/{name}"), error))?;
+            let kind = match FileType::from_raw_mode(stat.st_mode) {
+                FileType::Directory => {
+                    open_directory_at(&directory, &name, &format!("{display}/{name}"))?;
+                    ManagedEntryKind::Directory
+                }
+                FileType::RegularFile => ManagedEntryKind::RegularFile,
+                FileType::Symlink => ManagedEntryKind::Symlink,
+                _ => ManagedEntryKind::Special,
+            };
+            out.push(ManagedDirEntry { name, kind });
+        }
+        Ok(out)
     }
 
     pub(crate) fn open_tree_locked(
@@ -616,6 +686,35 @@ impl ManagedFs {
         fsync(&parent).map_err(|error| Error::RecoveryRequired {
             path: self.display_path(path),
             detail: format!("目录已删但父目录同步失败：{error}"),
+        })
+    }
+
+    pub(crate) fn remove_empty_managed_tree(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.check_tree_root(tree)?;
+        let (parent, leaf) = self.open_parent(path)?;
+        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;
+        if directory_entry_names(&tree.file, &self.display_path(path))?
+            .iter()
+            .any(|name| name != "." && name != "..")
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("{} 清理前出现新内容，保留容器", self.display_path(path)),
+            });
+        }
+        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;
+        unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(path),
+            detail: format!("空容器删除失败；保留变化后的对象：{error}"),
+        })?;
+        fsync(&parent).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(path),
+            detail: format!("空容器已删除但父目录同步失败：{error}"),
         })
     }
 
@@ -2546,6 +2645,23 @@ pub(crate) fn managed_directory_exists(
     ManagedFs::open_existing(home)?.directory_exists_locked(lock, &rel)
 }
 
+pub(crate) fn managed_directory_exists_readonly(
+    home: &crate::home::Home,
+    path: &str,
+) -> Result<bool> {
+    let rel = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.directory_exists_readonly(&rel)
+}
+
+pub(crate) fn managed_directory_entries_locked(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+) -> Result<Vec<ManagedDirEntry>> {
+    let rel = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.directory_entries_locked(lock, &rel)
+}
+
 pub(crate) fn open_managed_tree(
     home: &crate::home::Home,
     lock: &crate::home::HomeLock,
@@ -2601,6 +2717,26 @@ pub(crate) fn remove_managed_tree(
 ) -> Result<()> {
     let path = ManagedRelPath::new(path)?;
     ManagedFs::open_existing(home)?.remove_managed_tree(lock, tree, &path, request_id)
+}
+
+pub(crate) fn managed_tree_is_empty_locked(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+    path: &str,
+) -> Result<bool> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.managed_tree_is_empty_locked(lock, tree, &path)
+}
+
+pub(crate) fn remove_empty_managed_tree(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+    path: &str,
+) -> Result<()> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.remove_empty_managed_tree(lock, tree, &path)
 }
 
 pub(crate) fn sync_managed_regular_file_handle(

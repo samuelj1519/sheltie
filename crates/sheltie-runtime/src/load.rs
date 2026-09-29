@@ -264,8 +264,11 @@ pub(crate) fn compile_frozen_workbook(
 ) -> Result<crate::workbook_repo::LoadedWorkbook> {
     let workbook =
         crate::workbook_repo::WorkbookRepo::load_managed_dir(home, frozen).map_err(|error| {
-            Error::StoreCorrupt {
-                detail: format!("冻结副本读不了：{error}"),
+            match error {
+                Error::NotFound { .. } | Error::Io { .. } => error,
+                other => Error::StoreCorrupt {
+                    detail: format!("冻结副本读不了：{other}"),
+                },
             }
         })?;
     let manifest = &workbook.manifest;

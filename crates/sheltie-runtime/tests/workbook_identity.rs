@@ -71,8 +71,11 @@ fn remove_refuses_tampered_directory() {
     let err = r.remove("two-step", "1.0.0", None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookTampered, "{err:?}");
     // 行还在。
-    let repo2 = WorkbookRepo::new(home.clone());
-    assert_eq!(repo2.list().unwrap().len(), 1);
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let rows: i64 = connection
+        .query_row("SELECT COUNT(*) FROM workbooks", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(rows, 1);
 }
 
 /// Finder 宿主元数据按 §5.3 准确拒绝并点名；不落任何行或最终目录。

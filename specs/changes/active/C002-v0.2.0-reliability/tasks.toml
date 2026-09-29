@@ -167,7 +167,9 @@ test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T28]
-files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src/commands/work.rs","crates/sheltie-cli/src/commands/workbook.rs","specs/changes/active/C002-v0.2.0-reliability"]
+# commands/mod.rs：所有成功写命令的统一输出出口需要在打印后补发pending维护告警，保持JSON与退出码不变。
+# CLI只读与发布交错回归直接准备临时SQLite持久状态，故给集成测试显式声明已有workspace依赖rusqlite，并更新锁文件。
+files = ["Cargo.lock","crates/sheltie-runtime/src","crates/sheltie-cli/Cargo.toml","crates/sheltie-cli/src/commands/mod.rs","crates/sheltie-cli/src/commands/work.rs","crates/sheltie-cli/src/commands/workbook.rs","specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 
