@@ -1,0 +1,125 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.86s
+────────────
+ Nextest run ID 820bfd25-450e-4159-be0f-34c0cec823bd with nextest profile: default
+    Starting 9 tests across 32 binaries (616 tests skipped)
+        PASS [   0.026s] (1/9) sheltie-core::examples spec_dev_replanning_uses_required_review_copies_and_reachable_optional_history
+  stdout ───
+
+    running 1 test
+    test spec_dev_replanning_uses_required_review_copies_and_reachable_optional_history ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.01s
+
+
+        PASS [   3.761s] (2/9) sheltie-cli::scenario_spec_dev replan::replan_binds_the_exact_plan_and_tasks_copies_reviewed_by_the_human
+  stdout ───
+
+    running 1 test
+    test replan::replan_binds_the_exact_plan_and_tasks_copies_reviewed_by_the_human ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 3.74s
+
+
+        PASS [   5.519s] (3/9) sheltie-cli::scenario_spec_dev replan::failed_verification_without_current_change_stops_lineage_reconstruction
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpB78WKw/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpB78WKw/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::failed_verification_without_current_change_stops_lineage_reconstruction ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 5.50s
+
+
+        PASS [   5.930s] (4/9) sheltie-cli::scenario_spec_dev replan::implement_after_escalation_continue_keeps_latest_verified_prefix_even_when_plan_is_older
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpQkTZ3L/t30-cold-continue","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpQkTZ3L/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::implement_after_escalation_continue_keeps_latest_verified_prefix_even_when_plan_is_older ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 5.91s
+
+
+        FAIL [   6.029s] (5/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"33ba280a743391ce63122dcfb31697caef672796","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpEmQiYm/t30-cold-approval_correction","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpEmQiYm/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version ... FAILED
+
+    failures:
+
+    failures:
+        replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 17 filtered out; finished in 6.01s
+
+  stderr ───
+
+    thread 'replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version' (66505901) panicked at crates/sheltie-cli/tests/common/spec_dev_replan.rs:1157:38:
+    called `Result::unwrap()` on an `Err` value: "被审方案与人工版本记录不一致"
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 4 tests still running
+        PASS [   7.164s] (6/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpjbDk4d/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpjbDk4d/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","candidate":"e66c883ccd4005fceb7516a10b04e0916d6d86a2","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpjbDk4d/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpjbDk4d/cold-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 7.14s
+
+
+        PASS [  10.135s] (7/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_accepts_stale_whole_review_fix_after_later_task_verification
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","candidate":"8a277ebdca716ddfcb4880dbde81d1b3189ce854","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/advanced-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"05b5f78623015a0b26bb31319bf68eb899a69938","candidate":"482c8fd80dce96c6489b20d2403a94988ee1452b","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/t30-cold-legal","exit":0,"files":["src/third.py","tests/test_third.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWy1hDe/advanced-proof-T03.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::fresh_replanner_accepts_stale_whole_review_fix_after_later_task_verification ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 10.11s
+
+
+        PASS [  13.586s] (8/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpZ5aFqQ/t30-cold-reset_baseline","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpZ5aFqQ/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"a8cfb5e994895466ca9314abcc024aa1c9b85f5c","candidate":"1394485e4b9885023088013e826d48d15fca5ebf","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpulc796/t30-cold-missing_fields","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpulc796/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"88177e37a5de9673649d07bba35c70938909287d","candidate":"674d562ca104e98d4f094e421a2c81863e8950b6","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpuoXH0k/t30-cold-drop_completed","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpuoXH0k/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"350c8ef1162a6bba5879371b76425e819fb985e8","candidate":"8abb9f07b8fea7399cfec77a5ef0e66984275b80","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmptYYstq/t30-cold-missing_evidence","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmptYYstq/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 13.56s
+
+
+        PASS [  26.455s] (9/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles
+  stdout ───
+
+    running 1 test
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0e930dd556a258c486446518224a6c1881f35f53","candidate":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"1e30e194a903c2bfa8fd2d5bcc825882a4b69728","candidate":"8a277ebdca716ddfcb4880dbde81d1b3189ce854","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/advanced-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"05b5f78623015a0b26bb31319bf68eb899a69938","candidate":"ca6d724a74a15530d197e6a928feb0a6bdebc5ab","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/t30-cold-legal","exit":0,"files":["src/third.py","tests/test_third.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNVonDk/advanced-proof-T03.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"189d9c018aabb0ffdeb1d8073f883c9278947acc","candidate":"b2d63c87769e44f623dd065a89c96db0cbe25327","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"b2d63c87769e44f623dd065a89c96db0cbe25327","candidate":"db3d416e450cdcee37d7bd55d0a4eb111e8910d6","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/advanced-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"a0eaf2360149276ab7ce2cfc493b9c24cd5d7192","candidate":"ea2c419e0f5f148eb02ae43627b637ffe078c019","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/t30-cold-legal","exit":0,"files":["src/third.py","tests/test_third.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMOmn6W/advanced-proof-T03.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0028fee15628fd4eca07d16d6ea8bb1b9a98812a","candidate":"2548ff4ad4a1eca82601c0c7f5cb014bee826296","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"2548ff4ad4a1eca82601c0c7f5cb014bee826296","candidate":"d11bc412316eeb94bdd89e6e27a6033cbf6daf8e","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/advanced-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"9eccfccaea70034ffeb5cf4de6c7f1d0a429b841","candidate":"40dd3b0470b48f4f0d5ad87b0f77f50c3398b09d","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/t30-cold-legal","exit":0,"files":["src/third.py","tests/test_third.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpoq5IJd/advanced-proof-T03.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"a078c280124090bdc6376de43f764ea6124e1dc7","candidate":"0b43ca8c08fee69e73c5c339210398830c5e2a7c","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/t30-cold-legal","exit":0,"files":["src/export.py","tests/test_export.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/cold-proof-T01.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"0b43ca8c08fee69e73c5c339210398830c5e2a7c","candidate":"3ec466cfb894b4a25f7418ba8afdebaa6c5065d6","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/t30-cold-legal","exit":0,"files":["src/encode.py","tests/test_encode.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/advanced-proof-T02.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    SPEC_DEV_RAW_GATE {"argv":["sh","gate.sh"],"baseline":"41f8ec2188efe7657157905724be941540ea53e3","candidate":"abd4dab871e29322a0d91c4607a68b20bf0671cf","cwd":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/t30-cold-legal","exit":0,"files":["src/third.py","tests/test_third.py"],"manifest":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvNuQgp/advanced-proof-T03.txt","stderr_bytes":[],"stdout_bytes":[102,105,120,116,117,114,101,32,103,97,116,101,32,112,97,115,115,101,100,10]}
+    test replan::fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 26.43s
+
+
+────────────
+     Summary [  26.459s] 9 tests run: 8 passed, 1 failed, 616 skipped
+        FAIL [   6.029s] (5/9) sheltie-cli::scenario_spec_dev replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version
+error: test run failed

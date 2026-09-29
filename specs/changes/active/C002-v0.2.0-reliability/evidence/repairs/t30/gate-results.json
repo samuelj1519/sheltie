@@ -1,0 +1,124 @@
+[
+  {
+    "gate": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.289
+  },
+  {
+    "gate": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 0.404
+  },
+  {
+    "gate": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 0.438
+  },
+  {
+    "gate": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 129.438
+  },
+  {
+    "gate": "task",
+    "argv": [
+      "scripts/task.sh",
+      "C002-T30"
+    ],
+    "exit": 0,
+    "seconds": 26.6
+  },
+  {
+    "gate": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--locked",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 0.141
+  },
+  {
+    "gate": "deny",
+    "argv": [
+      "cargo",
+      "deny",
+      "--offline",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.319
+  },
+  {
+    "gate": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.843
+  },
+  {
+    "gate": "specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.368
+  },
+  {
+    "gate": "core-vocab",
+    "argv": [
+      "scripts/check-core-vocab.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.145
+  },
+  {
+    "gate": "tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.992
+  },
+  {
+    "gate": "skill",
+    "argv": [
+      "scripts/check-skill.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.541
+  }
+]

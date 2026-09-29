@@ -312,7 +312,7 @@ Owner：Workbook作者/CLI-Git回归；依赖T18。完成现象：第二次plan�
 
 **定位。** `workbooks/spec-dev/flows/default.toml` 的plan/plan-review inputs+outputs，instructions/plan-review.md/plan.md/implement.md/verify.md/fix.md，resources/templates/plan.md/tasks.md/report.md，CLI scenario_spec_dev，core examples。
 
-1. plan-review新增必需reviewed_plan/reviewed_tasks输出，审核人按任务书原字节复制本次输入再交decision；批准/打回都保留被审副本。plan增optional previous_plan←plan-review.reviewed_plan、previous_tasks←plan-review.reviewed_tasks。保留core禁止自己作为来源的规则，运行现有compile确认显式back可达。
+1. plan-review新增必需reviewed-plan/reviewed-tasks输出，审核人按任务书原字节复制本次输入再交decision；批准/打回都保留被审副本。plan增optional previous_plan←plan-review.reviewed-plan、previous_tasks←plan-review.reviewed-tasks。保留core禁止自己作为来源的规则，运行现有compile确认显式back可达。
 2. plan再绑定optional previous_verification←verify.report、previous_change←implement.change、previous_fix_change←fix.change。首次无旧计划才取HEAD，之后从被审副本复制原始基线；不从冻结tasks猜后来完成事实。
 3. change记录继承verify输入路径并原样携带表；verify写本轮检查change/fix及继承来源，逐行比对并保留全部原行，独立过Git/范围/门禁才追加当前Task。fresh planner沿这些源路径核累计前缀和Git/审批/原始证据，漏行或改写停止；对尚未验证的下一任务，只保留其已继承事实，不标新Task完成。改变验收条件列重验项；表保留引用不复制全文，符合32768字节上限。
 4. V29真实CLI first plan→review→back，核被审副本bytes与第二brief实际路径。V30完成并提交task1、独立verify追加累计表后replan；fresh worker只从新brief绑定文件和project Git重建整体基线及已验证Task/commit，不捕获baseline0/已完成列表到闭包给它。
@@ -328,7 +328,7 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
 **定位。** runtime tests/service.rs假并发、selfmgmt purge等待者、schema2_replay/workbook_txn/crash，CLI共用binary helper，`.config/nextest.toml`、scripts/mutants.sh、必要CI文件。
 
 1. 先做能力→真实入口→oracle→Owner→保留/替换矩阵。把lazy spawn/join改为先spawn集合、barrier/channel等待明确事件、最后join；purge等待者不以sleep代表已进入等待。
-2. 将runtime中真正需要子进程CLI的crash/OS主体用例迁到sheltie-cli/tests，保留runtime的直接API用例；CLI集成测试用Cargo注入的CARGO_BIN_EXE_sheltie，不在测试体启动cargo、不猜target路径。CLI使用T29提供的failpoint feature映射runtime/failpoint，crash用例只在该feature下启用；全features门禁覆盖它。手工probe从Cargo JSON取executable。迁移前后能力/oracle/Owner一一对照，不能删掉故障窗口。
+2. 将runtime中真正需要子进程CLI的crash/OS主体用例迁到sheltie-cli/tests（T30全仓验收已暴露测试内重建共享binary的ENOENT竞态，因此此迁移提前随T30落地；T31核迁移矩阵及当前候选覆盖），保留runtime的直接API用例；CLI集成测试用Cargo注入的CARGO_BIN_EXE_sheltie，不在测试体启动cargo、不猜target路径。CLI使用T29提供的failpoint feature映射runtime/failpoint，crash用例只在该feature下启用；全features门禁覆盖它。手工probe从Cargo JSON取executable。迁移前后能力/oracle/Owner一一对照，不能删掉故障窗口。
 3. 为repair-validation §4逐窗口增加精确failpoint与子进程用例。API编译、模拟目录/SQL、exit70、实际kill分开存证；删除不明窗口的正确结论是停止。所有“存在”断言补文件bytes/Store归属。
 4. 在macOS以同候选/lockfile/feature运行文件/删除/publish/锁相关用例。Linux运行按用户明确指示豁免，保留`not_run`并将最终结论限定为macOS。
 5. 为core/runtime新候选生成完整mutant列表，按能力分片执行并记录每个存活体；保留安全/恢复/real-entry不同oracle测试，删除死代码只在consumer与义务已不存在的证据下进行。

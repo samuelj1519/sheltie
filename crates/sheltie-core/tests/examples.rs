@@ -239,3 +239,38 @@ fn mutated_two_step_manifest_with_extra_field_is_rejected() {
     );
     assert!(parse_manifest(&text).is_err());
 }
+
+// Task: C002-T30
+#[test]
+fn spec_dev_replanning_uses_required_review_copies_and_reachable_optional_history() {
+    let graph = compile_example("spec-dev");
+    let review = graph.node(&id("plan-review")).unwrap();
+    for name in ["reviewed-plan", "reviewed-tasks"] {
+        let declaration = serde_json::to_value(review.output(name).unwrap()).unwrap();
+        assert_eq!(declaration["required"], true);
+        assert_eq!(declaration["max_bytes"], 65536);
+    }
+    let plan = graph.node(&id("plan")).unwrap();
+    for (name, source, output) in [
+        ("previous_plan", "plan-review", "reviewed-plan"),
+        ("previous_tasks", "plan-review", "reviewed-tasks"),
+        ("previous_verification", "verify", "report"),
+        ("previous_change", "implement", "change"),
+        ("previous_fix_change", "fix", "change"),
+    ] {
+        let input = plan
+            .inputs()
+            .iter()
+            .find(|input| input.name() == name)
+            .unwrap();
+        assert!(!input.required());
+        assert_eq!(
+            input.source(),
+            &sheltie_core::flow::InputSource::Node {
+                node: id(source),
+                output: output.to_string()
+            }
+        );
+        assert_ne!(source, "plan", "保持既有禁止自来源规则");
+    }
+}

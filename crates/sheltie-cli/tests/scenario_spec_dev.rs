@@ -14,6 +14,10 @@ use std::process::Command as Sh;
 use common::*;
 use serde_json::Value;
 
+#[path = "common/spec_dev_replan.rs"]
+mod replan;
+use replan::verified_table;
+
 // ── 独立临时 Git 仓库 ─────────────────────────────────────────────────────
 
 struct Proj {
@@ -25,7 +29,11 @@ impl Proj {
         let root = env.dir.path().join(name);
         std::fs::create_dir_all(root.join("src")).unwrap();
         std::fs::create_dir_all(root.join("tests")).unwrap();
-        std::fs::write(root.join("gate.sh"), "#!/bin/sh\nexit 0\n").unwrap();
+        std::fs::write(
+            root.join("gate.sh"),
+            "#!/bin/sh\necho 'fixture gate passed'\nexit 0\n",
+        )
+        .unwrap();
         let proj = Proj { root };
         proj.git(&["init", "-q"]);
         proj.git(&["config", "user.email", "sim@example.com"]);
@@ -88,6 +96,38 @@ impl Proj {
             out.status.success(),
             "门禁失败：{}",
             String::from_utf8_lossy(&out.stderr)
+        );
+    }
+
+    fn capture_gate(&self, base: &str, candidate: &str, evidence: &Path) {
+        let output = Sh::new("sh")
+            .arg("gate.sh")
+            .current_dir(&self.root)
+            .output()
+            .unwrap();
+        let stdout = evidence.with_extension("stdout");
+        let stderr = evidence.with_extension("stderr");
+        std::fs::write(&stdout, &output.stdout).unwrap();
+        std::fs::write(&stderr, &output.stderr).unwrap();
+        std::fs::write(evidence, format!(
+            "命令: sh gate.sh\n目录: {}\n退出码: {}\n提交: {candidate}\n基线: {base}\n文件: {}\nstdout: {}\nstdout_sha256: {}\nstderr: {}\nstderr_sha256: {}\n",
+            self.root.display(), output.status.code().unwrap(), self.diff_names(base, candidate).join(","),
+            stdout.display(), sha256_file(&stdout), stderr.display(), sha256_file(&stderr)
+        )).unwrap();
+        println!(
+            "SPEC_DEV_RAW_GATE {}",
+            serde_json::json!({
+                "argv": ["sh", "gate.sh"], "cwd": self.root,
+                "exit": output.status.code(), "baseline": base, "candidate": candidate,
+                "files": self.diff_names(base, candidate),
+                "stdout_bytes": output.stdout, "stderr_bytes": output.stderr,
+                "manifest": evidence,
+            })
+        );
+        assert!(
+            output.status.success(),
+            "fixture gate failed: {}",
+            String::from_utf8_lossy(&output.stderr)
         );
     }
 
@@ -247,7 +287,7 @@ fn plan_md(baseline: &str, revision: &str) -> String {
         "# 技术方案：报表页导出 CSV\n\n\
          ## 现状\n\n报表模块现在只输出 JSON。\n\n\
          ## 改法\n\n- src/export.py：导出入口（T01）\n- src/encode.py：CSV 编码（T02）\n\n\
-         ## 门禁\n\n每个任务做完都要全部通过。命令在项目根目录运行。\n\n```bash\n./gate.sh\n```\n\n\
+         ## 门禁\n\n每个任务做完都要全部通过。命令在项目根目录运行。\n\n```bash\nsh gate.sh\n```\n\n\
          ## 基线\n\n原始基线（Work 开始时的 `git rev-parse HEAD`；改方案从上一版原样抄这一行，不重设）：`{baseline}`\n\n\
          ## 风险\n\n- 编码细节可能返工。\n\n\
          ## 修订记录\n\n{revision}"
@@ -289,7 +329,7 @@ fn change_done(
     for f in files {
         s.push_str(&format!("- {f}\n"));
     }
-    s.push_str("门禁:\n- ./gate.sh: 通过\n");
+    s.push_str("门禁:\n- sh gate.sh: 通过\n");
     s.push_str(&format!("备注: {note}\n"));
     s
 }
@@ -303,7 +343,7 @@ fn change_stuck(task: &str, note: &str) -> String {
 /// fix 的 change.md（第一行 `修复完成` / `卡住`）。
 fn fix_done(task: &str, baseline: &str, commit: &str, fix_round: u32, note: &str) -> String {
     format!(
-        "修复完成\n针对: 验证报告\n任务: {task}\n基线: {baseline}\n提交: {commit}\n修复轮次: {fix_round}\n改动文件:\n门禁:\n- ./gate.sh: 通过\n备注: {note}\n"
+        "修复完成\n针对: 验证报告\n任务: {task}\n基线: {baseline}\n提交: {commit}\n修复轮次: {fix_round}\n改动文件:\n门禁:\n- sh gate.sh: 通过\n备注: {note}\n"
     )
 }
 
@@ -344,6 +384,13 @@ fn submit_outputs(
 ) -> Value {
     let attempt = begun["data"]["attempt"].as_str().unwrap().to_string();
     let declared = begun["data"]["outputs"].as_object().unwrap();
+    for (output, input) in [("reviewed-plan", "plan"), ("reviewed-tasks", "tasks")] {
+        if let Some(destination) = declared.get(output).and_then(Value::as_str) {
+            let destination = Path::new(destination);
+            std::fs::create_dir_all(destination.parent().unwrap()).unwrap();
+            std::fs::copy(input_path(begun, input), destination).unwrap();
+        }
+    }
     for (name, content) in outputs {
         let path = declared
             .get(*name)
@@ -396,13 +443,28 @@ fn output_file(begun: &Value, name: &str) -> PathBuf {
 /// 规划三步：spec → plan（「基线」记原始基线）→ plan-review 通过。
 /// 返回 (批准记录文本)。
 fn plan_and_approve(env: &Env, wid: &str, proj: &Proj, baseline: &str, conditions: &str) -> String {
+    plan_and_approve_with_hash(env, wid, proj, baseline, conditions, None)
+}
+
+fn plan_and_approve_with_hash(
+    env: &Env,
+    wid: &str,
+    proj: &Proj,
+    baseline: &str,
+    conditions: &str,
+    plan_hash: Option<&str>,
+) -> String {
     // 写方案时项目还没有任何提交：「基线」记的就是 Work 开始时的 HEAD。
     assert_eq!(proj.head(), baseline);
     let s0 = env.begin(wid, "spec");
     submit_outputs(env, wid, &s0, &[("spec", SPEC_MD)], "规格写好");
     let b1 = env.begin(wid, "plan");
     assert_eq!(b1["data"]["attempt"], "plan#1.0");
-    let plan = plan_md(baseline, "- 2026-09-28 初版\n");
+    let plan = format!(
+        "{}\n继承来源: 无\n\n{}",
+        plan_md(baseline, "- 2026-09-28 初版\n"),
+        verified_table(&[])
+    );
     let tasks = tasks_md(&[
         (
             "T01 导出入口",
@@ -415,6 +477,10 @@ fn plan_and_approve(env: &Env, wid: &str, proj: &Proj, baseline: &str, condition
             "test_encode",
         ),
     ]);
+    let tasks = format!(
+        "{tasks}\n原始基线: {baseline}\n继承来源: 无\n\n{}",
+        verified_table(&[])
+    );
     submit_outputs(
         env,
         wid,
@@ -425,7 +491,9 @@ fn plan_and_approve(env: &Env, wid: &str, proj: &Proj, baseline: &str, condition
     let pr = env.begin(wid, "plan-review");
     let decision = approval_md(
         &sha256_file(&input_path(&pr, "spec")),
-        &sha256_file(&input_path(&pr, "plan")),
+        &plan_hash
+            .map(str::to_string)
+            .unwrap_or_else(|| sha256_file(&input_path(&pr, "plan"))),
         conditions,
     );
     submit_outputs(env, wid, &pr, &[("decision", &decision)], "批准");
@@ -435,11 +503,16 @@ fn plan_and_approve(env: &Env, wid: &str, proj: &Proj, baseline: &str, condition
 /// 搭骨架：核批准版本 → 写占位文件 → 骨架提交 → 交 scaffold.md。
 fn do_scaffold(env: &Env, wid: &str, proj: &Proj, files: &[(&str, &str)]) -> Value {
     let b = env.begin(wid, "scaffold");
+    let approval_path = b["data"]["inputs"]["escalation"]
+        .as_str()
+        .map(PathBuf::from)
+        .filter(|path| read(path).contains("更正原审批:"))
+        .unwrap_or_else(|| input_path(&b, "decision"));
     assert_eq!(
         check_approval(
-            &read(&input_path(&b, "decision")),
+            &read(&approval_path),
             &input_path(&b, "spec"),
-            &input_path(&b, "plan"),
+            &input_path(&b, "plan")
         ),
         Ok(())
     );
@@ -1415,7 +1488,7 @@ fn replan_after_first_task_keeps_original_baseline_for_final_review() {
     assert_eq!(replan_head, t01_commit);
     let plan2 = plan_md(
         &baseline0,
-        "- 2026-09-28 初版\n- 2026-09-28 任务重排，编码并入新 T01\n",
+        "- 2026-09-28 初版\n- 2026-09-28 任务重排，编码保留为 T02\n",
     );
     let s5 = submit_outputs(
         &env,
@@ -1426,7 +1499,7 @@ fn replan_after_first_task_keeps_original_baseline_for_final_review() {
             (
                 "tasks",
                 &tasks_md(&[(
-                    "T01 编码处理",
+                    "T02 编码处理",
                     "src/encode.py、tests/test_encode.py",
                     "test_encode",
                 )]),
@@ -1442,7 +1515,7 @@ fn replan_after_first_task_keeps_original_baseline_for_final_review() {
     );
     let s6 = submit_outputs(&env, &wid, &pr2, &[("decision", &d2)], "批准");
 
-    // 重排后的骨架与实现：剩下的活是新清单的 T01。
+    // 重排后的骨架与实现：剩下的活是新清单的 T02。
     let sb2 = env.follow_begin(&s6, "scaffold");
     let s7 = submit_outputs(
         &env,
@@ -1465,18 +1538,18 @@ fn replan_after_first_task_keeps_original_baseline_for_final_review() {
     )
     .unwrap();
     proj.gate();
-    let t02_commit = proj.commit("feat(encode): 编码处理\n\nTask: T01\nAgent: sim");
+    let t02_commit = proj.commit("feat(encode): 编码处理\n\nTask: T02\nAgent: sim");
     let change3 = change_done(
-        "T01",
+        "T02",
         &t02_base,
         &t02_commit,
         0,
         &["src/encode.py", "tests/test_encode.py"],
         "",
     );
-    let s8 = submit_outputs(&env, &wid, &im3, &[("change", &change3)], "完成 T01");
+    let s8 = submit_outputs(&env, &wid, &im3, &[("change", &change3)], "完成 T02");
     let v2 = env.follow_begin(&s8, "verify");
-    let r2 = verify_report("通过，全部完成", "T01", 0, &t02_base, "- 全部对得上");
+    let r2 = verify_report("通过，全部完成", "T02", 0, &t02_base, "- 全部对得上");
     let s9 = submit_outputs(&env, &wid, &v2, &[("report", &r2)], "通过，全部完成");
 
     // 最终审查绑的是 plan#2，「基线」仍是 Work 开始时的 HEAD。
