@@ -29,6 +29,17 @@ struct Rendezvous {
 static RENDEZVOUS: std::sync::OnceLock<std::sync::Mutex<Option<Rendezvous>>> =
     std::sync::OnceLock::new();
 
+#[cfg(feature = "failpoint")]
+static SYNC_ERROR: std::sync::OnceLock<std::sync::Mutex<Option<SyncFailure>>> =
+    std::sync::OnceLock::new();
+
+#[cfg(feature = "failpoint")]
+#[derive(Clone)]
+struct SyncFailure {
+    root: String,
+    name: String,
+}
+
 #[cfg(all(test, feature = "failpoint"))]
 pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
@@ -65,6 +76,60 @@ pub fn disarm_rendezvous() -> std::io::Result<()> {
             .map_err(|_| std::io::Error::other("rendezvous configuration lock poisoned"))?;
         *state = None;
     }
+    Ok(())
+}
+
+/// Arm one named sync failure for deterministic recovery tests.
+pub fn arm_sync_error(root: &str, name: &str) -> std::io::Result<()> {
+    #[cfg(feature = "failpoint")]
+    {
+        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));
+        let mut state = state
+            .lock()
+            .map_err(|_| std::io::Error::other("sync failure configuration lock poisoned"))?;
+        *state = Some(SyncFailure {
+            root: root.to_string(),
+            name: name.to_string(),
+        });
+    }
+    #[cfg(not(feature = "failpoint"))]
+    let _ = (root, name);
+    Ok(())
+}
+
+/// Disarm the named sync failure.
+pub fn disarm_sync_error() -> std::io::Result<()> {
+    #[cfg(feature = "failpoint")]
+    {
+        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));
+        let mut state = state
+            .lock()
+            .map_err(|_| std::io::Error::other("sync failure configuration lock poisoned"))?;
+        *state = None;
+    }
+    Ok(())
+}
+
+/// Return an injected I/O error at a named durable sync boundary.
+pub(crate) fn sync_error(root: &str, name: &str) -> std::io::Result<()> {
+    #[cfg(feature = "failpoint")]
+    {
+        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));
+        let mut state = state
+            .lock()
+            .map_err(|_| std::io::Error::other("sync failure configuration lock poisoned"))?;
+        if state
+            .as_ref()
+            .is_some_and(|failure| failure.root == root && failure.name == name)
+        {
+            *state = None;
+            return Err(std::io::Error::other(format!(
+                "injected sync failure: {name}"
+            )));
+        }
+    }
+    #[cfg(not(feature = "failpoint"))]
+    let _ = (root, name);
     Ok(())
 }
 

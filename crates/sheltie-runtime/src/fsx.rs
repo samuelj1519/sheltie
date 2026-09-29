@@ -90,6 +90,15 @@ pub struct ManagedDir {
     path: ManagedRelPath,
 }
 
+/// 一个待发布目录的受管句柄，保持同步与原子移动绑定到同一 inode。
+#[derive(Debug)]
+pub(crate) struct ManagedTree {
+    file: std::fs::File,
+    root: AbsPath,
+    root_ident: (u64, u64),
+    path: ManagedRelPath,
+}
+
 impl ManagedDir {
     pub fn path(&self) -> &ManagedRelPath {
         &self.path
@@ -441,6 +450,168 @@ impl ManagedFs {
         self.open_optional(path)
     }
 
+    pub(crate) fn directory_exists_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<bool> {
+        self.check_lock(lock)?;
+        let (parent, leaf) = match self.open_parent(path) {
+            Ok(parent) => parent,
+            Err(Error::NotFound { .. }) => return Ok(false),
+            Err(error) => return Err(error),
+        };
+        match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {
+            Err(rustix::io::Errno::NOENT) => Ok(false),
+            Err(error) => Err(map_fs_error(&self.display_path(path), error)),
+            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {
+                open_directory_at(&parent, &leaf, &self.display_path(path))?;
+                Ok(true)
+            }
+            Ok(_) => Err(Error::StoreCorrupt {
+                detail: format!("{} 不是受管目录", self.display_path(path)),
+            }),
+        }
+    }
+
+    pub(crate) fn open_tree_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<ManagedTree> {
+        self.check_lock(lock)?;
+        let file = self.open_dir(Some(path))?;
+        Ok(ManagedTree {
+            file,
+            root: self.root.clone(),
+            root_ident: self.root_ident,
+            path: path.clone(),
+        })
+    }
+
+    pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {
+        self.check_tree_root(tree)?;
+        let (parent, leaf) = self.open_parent(path)?;
+        let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        let held =
+            fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        if FileType::from_raw_mode(stat.st_mode) != FileType::Directory
+            || stat.st_dev != held.st_dev
+            || stat.st_ino != held.st_ino
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("{} 不再指向已核验的发布目录对象", self.display_path(path)),
+            });
+        }
+        Ok(())
+    }
+
+    pub(crate) fn sync_managed_tree(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.check_tree_root(tree)?;
+        sync_dir_tree(
+            &tree.file,
+            &self.display_path(&tree.path),
+            self.root.as_str(),
+            true,
+        )
+    }
+
+    pub(crate) fn rename_tree_new(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+        to: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.check_tree_root(tree)?;
+        let from = &tree.path;
+        let (source_parent, source_leaf) = self.open_parent(from)?;
+        let (target_parent, target_leaf) = self.open_parent(to)?;
+        let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|error| map_fs_error(&self.display_path(from), error))?;
+        let held =
+            fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;
+        if FileType::from_raw_mode(source.st_mode) != FileType::Directory
+            || source.st_dev != held.st_dev
+            || source.st_ino != held.st_ino
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("{} 在发布前已被替换", self.display_path(from)),
+            });
+        }
+        renameat_with(
+            &source_parent,
+            &source_leaf,
+            &target_parent,
+            &target_leaf,
+            RenameFlags::NOREPLACE,
+        )
+        .map_err(|error| map_fs_error(&self.display_path(to), error))?;
+        self.verify_tree_at(tree, to)
+            .map_err(|error| Error::RecoveryRequired {
+                path: self.display_path(to),
+                detail: format!("目录已移动但目标不再是已核验对象：{error}"),
+            })?;
+        sync_rename_parents(
+            &source_parent,
+            &target_parent,
+            &self.display_path(from),
+            &self.display_path(to),
+            self.root.as_str(),
+        )
+    }
+
+    pub(crate) fn sync_publish_parents_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        from: &ManagedRelPath,
+        to: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let source_parent = from.parent().ok_or_else(|| Error::StoreCorrupt {
+            detail: "pending目录不能是管理根".to_string(),
+        })?;
+        let target_parent = to.parent().ok_or_else(|| Error::StoreCorrupt {
+            detail: "final目录不能是管理根".to_string(),
+        })?;
+        let source = self.open_dir(Some(&source_parent))?;
+        let target = self.open_dir(Some(&target_parent))?;
+        sync_rename_parents(
+            &source,
+            &target,
+            &self.display_path(from),
+            &self.display_path(to),
+            self.root.as_str(),
+        )
+    }
+
+    pub(crate) fn sync_publish_final_root_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let directory = self.open_dir(Some(path))?;
+        crate::failpoint::sync_error(self.root.as_str(), "publish_final_root_sync")
+            .map_err(|error| Error::io(self.display_path(path), error))?;
+        fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))
+    }
+
+    fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {
+        if tree.root != self.root || tree.root_ident != self.root_ident {
+            return Err(Error::InvalidRequest {
+                reason: "发布目录句柄不属于此管理根".to_string(),
+            });
+        }
+        Ok(())
+    }
+
     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {
         let display = self.display_path(path);
         let (parent, leaf) = self.open_parent(path)?;
@@ -775,15 +946,13 @@ impl ManagedFs {
             RenameFlags::NOREPLACE,
         )
         .map_err(|e| map_fs_error(&self.display_path(to), e))?;
-        fsync(&src_parent).map_err(|e| Error::RecoveryRequired {
-            path: self.display_path(from),
-            detail: format!("rename已生效但源目录同步失败：{e}"),
-        })?;
-        fsync(&dst_parent).map_err(|e| Error::RecoveryRequired {
-            path: self.display_path(to),
-            detail: format!("rename已生效但目标目录同步失败：{e}"),
-        })?;
-        Ok(())
+        sync_rename_parents(
+            &src_parent,
+            &dst_parent,
+            &self.display_path(from),
+            &self.display_path(to),
+            self.root.as_str(),
+        )
     }
 
     /// 持锁安全删除本管理根下的对象；目录逐层由句柄枚举，叶链接只unlink自身。
@@ -1047,9 +1216,21 @@ impl ManagedFs {
     ) -> Result<()> {
         self.check_lock(lock)?;
         let dir = self.open_dir(Some(path))?;
-        set_dir_tree_mode(&dir, &self.display_path(path), 0o444, 0o555)?;
+        set_dir_tree_mode(
+            &dir,
+            &self.display_path(path),
+            self.root.as_str(),
+            0o444,
+            0o555,
+        )?;
         fchmod(&dir, Mode::from_raw_mode(0o555))
             .map_err(|e| map_fs_error(&self.display_path(path), e))?;
+        crate::failpoint::sync_error(self.root.as_str(), "publish_readonly_root_sync").map_err(
+            |error| Error::RecoveryRequired {
+                path: self.display_path(path),
+                detail: format!("只读权限已设置但目录同步失败：{error}"),
+            },
+        )?;
         fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
     }
 
@@ -1060,7 +1241,13 @@ impl ManagedFs {
     ) -> Result<()> {
         self.check_lock(lock)?;
         let dir = self.open_dir(Some(path))?;
-        set_dir_tree_mode(&dir, &self.display_path(path), 0o644, 0o755)?;
+        set_dir_tree_mode(
+            &dir,
+            &self.display_path(path),
+            self.root.as_str(),
+            0o644,
+            0o755,
+        )?;
         fchmod(&dir, Mode::from_raw_mode(0o755))
             .map_err(|e| map_fs_error(&self.display_path(path), e))?;
         fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
@@ -1081,6 +1268,53 @@ fn directory_entry_names(directory: &std::fs::File, display: &str) -> Result<Vec
         .collect()
 }
 
+fn sync_dir_tree(
+    directory: &std::fs::File,
+    display: &str,
+    root: &str,
+    is_root: bool,
+) -> Result<()> {
+    for name in directory_entry_names(directory, display)? {
+        if name == "." || name == ".." {
+            continue;
+        }
+        let child_display = format!("{display}/{name}");
+        let stat = statat(directory, &name, AtFlags::SYMLINK_NOFOLLOW)
+            .map_err(|error| map_fs_error(&child_display, error))?;
+        match FileType::from_raw_mode(stat.st_mode) {
+            FileType::Directory => {
+                let child = open_directory_at(directory, &name, &child_display)?;
+                sync_dir_tree(&child, &child_display, root, false)?;
+            }
+            FileType::RegularFile => {
+                check_regular_stat(&child_display, &stat)?;
+                let path = AbsPath::new(child_display.clone()).map_err(Error::Core)?;
+                let file = open_regular_at(directory, &name, &child_display, path)?;
+                crate::failpoint::sync_error(root, "publish_file_sync")
+                    .map_err(|error| Error::io(&child_display, error))?;
+                fsync(&file.file).map_err(|error| map_fs_error(&child_display, error))?;
+            }
+            FileType::Symlink => {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{child_display} 是符号链接"),
+                });
+            }
+            _ => {
+                return Err(Error::InvalidRequest {
+                    reason: format!("{child_display} 是特殊文件"),
+                });
+            }
+        }
+    }
+    let point = if is_root {
+        "publish_tree_root_sync"
+    } else {
+        "publish_tree_nested_dir_sync"
+    };
+    crate::failpoint::sync_error(root, point).map_err(|error| Error::io(display, error))?;
+    fsync(directory).map_err(|error| map_fs_error(display, error))
+}
+
 fn check_rename_source(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
     let stat =
         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
@@ -1094,6 +1328,35 @@ fn check_rename_source(parent: &std::fs::File, leaf: &str, display: &str) -> Res
         });
     }
     Ok(())
+}
+
+fn sync_rename_parents(
+    source_parent: &std::fs::File,
+    target_parent: &std::fs::File,
+    source_display: &str,
+    target_display: &str,
+    root: &str,
+) -> Result<()> {
+    crate::failpoint::sync_error(root, "publish_source_parent_sync").map_err(|error| {
+        Error::RecoveryRequired {
+            path: source_display.to_string(),
+            detail: format!("rename已生效但源目录同步失败：{error}"),
+        }
+    })?;
+    fsync(source_parent).map_err(|error| Error::RecoveryRequired {
+        path: source_display.to_string(),
+        detail: format!("rename已生效但源目录同步失败：{error}"),
+    })?;
+    crate::failpoint::sync_error(root, "publish_target_parent_sync").map_err(|error| {
+        Error::RecoveryRequired {
+            path: target_display.to_string(),
+            detail: format!("rename已生效但目标目录同步失败：{error}"),
+        }
+    })?;
+    fsync(target_parent).map_err(|error| Error::RecoveryRequired {
+        path: target_display.to_string(),
+        detail: format!("rename已生效但目标目录同步失败：{error}"),
+    })
 }
 
 /// 用户显式来源路径的只读句柄。它不提供写入、删除或改权限的方法。
@@ -2153,6 +2416,71 @@ pub(crate) fn fsync_dir(
     ManagedFs::open_existing(home)?.sync_dir_locked(lock, &rel)
 }
 
+pub(crate) fn managed_directory_exists(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+) -> Result<bool> {
+    let rel = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.directory_exists_locked(lock, &rel)
+}
+
+pub(crate) fn open_managed_tree(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+) -> Result<ManagedTree> {
+    let rel = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.open_tree_locked(lock, &rel)
+}
+
+pub(crate) fn verify_managed_tree_at(
+    home: &crate::home::Home,
+    tree: &ManagedTree,
+    path: &str,
+) -> Result<()> {
+    let rel = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.verify_tree_at(tree, &rel)
+}
+
+pub(crate) fn sync_managed_tree(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+) -> Result<()> {
+    ManagedFs::open_existing(home)?.sync_managed_tree(lock, tree)
+}
+
+pub(crate) fn rename_managed_tree_new(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+    to: &str,
+) -> Result<()> {
+    let to = ManagedRelPath::new(to)?;
+    ManagedFs::open_existing(home)?.rename_tree_new(lock, tree, &to)
+}
+
+pub(crate) fn sync_publish_parents(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    from: &str,
+    to: &str,
+) -> Result<()> {
+    let from = ManagedRelPath::new(from)?;
+    let to = ManagedRelPath::new(to)?;
+    ManagedFs::open_existing(home)?.sync_publish_parents_locked(lock, &from, &to)
+}
+
+pub(crate) fn sync_publish_final_root(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+) -> Result<()> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.sync_publish_final_root_locked(lock, &path)
+}
+
 pub(crate) fn rename_managed_new(
     home: &crate::home::Home,
     lock: &crate::home::HomeLock,
@@ -2344,6 +2672,7 @@ pub(crate) fn make_tree_writable(
 fn set_dir_tree_mode(
     directory: &std::fs::File,
     display: &str,
+    root: &str,
     file_mode: u16,
     directory_mode: u16,
 ) -> Result<()> {
@@ -2381,9 +2710,15 @@ fn set_dir_tree_mode(
                     reason: format!("{child_display} 在遍历期间被替换"),
                 });
             }
-            set_dir_tree_mode(&child, &child_display, file_mode, directory_mode)?;
+            set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;
             fchmod(&child, Mode::from_raw_mode(directory_mode))
                 .map_err(|e| map_fs_error(&child_display, e))?;
+            crate::failpoint::sync_error(root, "publish_readonly_nested_dir_sync").map_err(
+                |error| Error::RecoveryRequired {
+                    path: child_display.clone(),
+                    detail: format!("只读权限已设置但嵌套目录同步失败：{error}"),
+                },
+            )?;
             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;
         } else if file_type == FileType::RegularFile {
             check_regular_stat(&child_display, &stat)?;
@@ -2404,6 +2739,12 @@ fn set_dir_tree_mode(
             let file = std::fs::File::from(fd);
             fchmod(&file, Mode::from_raw_mode(file_mode))
                 .map_err(|e| map_fs_error(&child_display, e))?;
+            crate::failpoint::sync_error(root, "publish_readonly_file_sync").map_err(|error| {
+                Error::RecoveryRequired {
+                    path: child_display.clone(),
+                    detail: format!("只读权限已设置但文件同步失败：{error}"),
+                }
+            })?;
             fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;
         } else {
             return Err(Error::InvalidRequest {

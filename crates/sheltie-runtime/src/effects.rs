@@ -21,11 +21,15 @@ use crate::home::Home;
 
 /// Effects whose complete batch has been checked against its owning Work and frozen graph.
 #[derive(Debug)]
-pub(crate) struct CheckedEffects(Vec<EffectOp>);
+pub(crate) struct CheckedEffects {
+    ops: Vec<EffectOp>,
+    start_inputs: Option<BTreeMap<String, RefJson>>,
+    request_id: Option<String>,
+}
 
 impl CheckedEffects {
     pub(crate) fn as_slice(&self) -> &[EffectOp] {
-        &self.0
+        &self.ops
     }
 }
 
@@ -95,6 +99,7 @@ pub fn encode_effects(ops: &[EffectOp]) -> String {
 
 pub(crate) fn check_work_effects(
     home: &Home,
+    request_id: &str,
     state: &WorkState,
     graph: &Graph,
     command: &Command,
@@ -284,7 +289,30 @@ pub(crate) fn check_work_effects(
             }
         }
     }
-    Ok(CheckedEffects(ops))
+    let start_inputs = matches!(command, Command::Start { .. })
+        .then(|| {
+            state
+                .inputs
+                .iter()
+                .map(|(key, reference)| {
+                    let path = home.to_rel(&reference.path)?;
+                    Ok((
+                        key.clone(),
+                        RefJson {
+                            path,
+                            sha256: reference.sha256.as_str().to_string(),
+                            bytes: reference.bytes,
+                        },
+                    ))
+                })
+                .collect::<Result<BTreeMap<_, _>>>()
+        })
+        .transpose()?;
+    Ok(CheckedEffects {
+        ops,
+        start_inputs,
+        request_id: Some(request_id.to_string()),
+    })
 }
 
 fn validate_effect_shape(
@@ -366,6 +394,7 @@ pub(crate) enum WorkbookEffectIdentity {
 }
 
 pub(crate) fn check_workbook_effects(
+    request_id: &str,
     audit_work_id: &str,
     audit_revision: i64,
     audit_at: &str,
@@ -446,7 +475,11 @@ pub(crate) fn check_workbook_effects(
             });
         }
     }
-    Ok(CheckedEffects(ops))
+    Ok(CheckedEffects {
+        ops,
+        start_inputs: None,
+        request_id: Some(request_id.to_string()),
+    })
 }
 
 fn validate_pending_payload(path: &str) -> Result<()> {
@@ -581,7 +614,19 @@ pub(crate) fn execute_with_observed_outputs(
                 if !publish {
                     continue;
                 }
-                publish_dir(home, lock, pending, final_path, owner, digest, digest_root)?;
+                publish_dir(
+                    home,
+                    lock,
+                    PublishSpec {
+                        pending,
+                        final_path,
+                        owner,
+                        digest,
+                        digest_root,
+                        start_inputs: ops.start_inputs.as_ref(),
+                        request_id: ops.request_id.as_deref(),
+                    },
+                )?;
             }
             EffectOp::PrepareAttempt { dirs, .. } => {
                 if !publish {
@@ -704,15 +749,26 @@ fn classify_seal_integrity_error(target: &AbsPath, error: Error) -> Error {
 
 /// `publish_dir`：`final` 不存在且 `pending` 在 → 核原件归属与摘要后 rename 并置
 /// 只读；仅 `final` 在 → 核归属与摘要后视为完成；两者都在或内容不符 → 停止。
-fn publish_dir(
-    home: &Home,
-    lock: &crate::home::HomeLock,
-    pending: &str,
-    final_path: &str,
-    owner: &str,
-    digest: &str,
-    digest_root: &str,
-) -> Result<()> {
+struct PublishSpec<'a> {
+    pending: &'a str,
+    final_path: &'a str,
+    owner: &'a str,
+    digest: &'a str,
+    digest_root: &'a str,
+    start_inputs: Option<&'a BTreeMap<String, RefJson>>,
+    request_id: Option<&'a str>,
+}
+
+fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>) -> Result<()> {
+    let PublishSpec {
+        pending,
+        final_path,
+        owner,
+        digest,
+        digest_root,
+        start_inputs,
+        request_id,
+    } = spec;
     // 摘要核算的是原件的某个子路径（Work 的 payload 含 workbook/ 与 start-inputs/，
     // 摘要只核 workbook/，存储合同 §3.2）；发布动作移动的是**整个 payload**。
     let payload = home.rel(pending)?;
@@ -722,9 +778,25 @@ fn publish_dir(
         payload.join_segment(digest_root)
     };
     let dst = home.rel(final_path)?;
-    match (payload.as_path().exists(), dst.as_path().exists()) {
+    let pending_exists = fsx::managed_directory_exists(home, lock, pending)?;
+    let final_exists = fsx::managed_directory_exists(home, lock, final_path)?;
+    match (pending_exists, final_exists) {
         (true, false) => {
-            verify_owned_digest(home, &verify_at, owner, digest)?;
+            let tree = fsx::open_managed_tree(home, lock, pending)?;
+            fsx::verify_managed_tree_at(home, &tree, pending).map_err(|error| {
+                integrity_error(format!("发布原件 {pending} 身份复核失败"), error)
+            })?;
+            verify_publish_object(home, &verify_at, owner, digest)?;
+            verify_start_input_references(home, pending, final_path, owner, start_inputs)?;
+            fsx::sync_managed_tree(home, lock, &tree)
+                .map_err(|error| integrity_error(format!("发布原件 {pending} 同步失败"), error))?;
+            if let Some(request_id) = request_id {
+                crate::failpoint::rendezvous("publish_after_tree_sync", request_id)
+                    .map_err(|error| Error::io(pending, error))?;
+            }
+            fsx::verify_managed_tree_at(home, &tree, pending).map_err(|error| {
+                integrity_error(format!("发布同步后原件 {pending} 身份复核失败"), error)
+            })?;
             if let Some(parent) = dst.as_path().parent() {
                 fsx::ensure_dirs_under(
                     home,
@@ -732,14 +804,33 @@ fn publish_dir(
                     &AbsPath::new(parent.to_string()).map_err(Error::Core)?,
                 )?;
             }
-            fsx::rename_managed_new(home, lock, pending, final_path)?;
-            fsx::fsync_dir(home, lock, &dst)?;
+            fsx::rename_managed_tree_new(home, lock, &tree, final_path)?;
+            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
+                integrity_error(format!("发布后原件 {final_path} 身份复核失败"), error)
+            })?;
+            let final_verify = if digest_root.is_empty() {
+                dst.clone()
+            } else {
+                dst.join_segment(digest_root)
+            };
+            verify_publish_object(home, &final_verify, owner, digest)?;
+            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
+            fsx::sync_publish_final_root(home, lock, final_path)?;
             // 只读化只属于 Workbook 目录（合同 §5.2：目录含根 0555、文件 0444）。
             // Work 目录要保持可写——状态卡与 Attempt 目录随后还要写入；冻结副本
             // `workbook/` 子树已在提交前置只读（§5.4）。
             if owner.starts_with("workbook:") {
                 fsx::set_tree_readonly_confined(home, lock, &dst)?;
+            } else {
+                let workbook = dst.join_segment("workbook");
+                fsx::set_tree_readonly_confined(home, lock, &workbook)?;
             }
+            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
+                integrity_error(format!("readonly后原件 {final_path} 身份复核失败"), error)
+            })?;
+            verify_publish_object(home, &final_verify, owner, digest)?;
+            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
+            verify_publish_final_state(home, lock, pending, final_path, &tree)?;
             Ok(())
         }
         (false, true) => {
@@ -750,7 +841,32 @@ fn publish_dir(
             } else {
                 dst.join_segment(digest_root)
             };
-            verify_owned_digest(home, &final_verify, owner, digest)?;
+            let tree = fsx::open_managed_tree(home, lock, final_path)?;
+            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
+                integrity_error(format!("已发布原件 {final_path} 身份复核失败"), error)
+            })?;
+            verify_publish_object(home, &final_verify, owner, digest)?;
+            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
+            fsx::sync_managed_tree(home, lock, &tree).map_err(|error| {
+                integrity_error(format!("已发布原件 {final_path} 同步失败"), error)
+            })?;
+            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
+                integrity_error(format!("同步后原件 {final_path} 身份复核失败"), error)
+            })?;
+            fsx::sync_publish_parents(home, lock, pending, final_path)?;
+            fsx::sync_publish_final_root(home, lock, final_path)?;
+            if owner.starts_with("workbook:") {
+                fsx::set_tree_readonly_confined(home, lock, &dst)?;
+            } else {
+                let workbook = dst.join_segment("workbook");
+                fsx::set_tree_readonly_confined(home, lock, &workbook)?;
+            }
+            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
+                integrity_error(format!("已发布原件 {final_path} 身份复核失败"), error)
+            })?;
+            verify_publish_object(home, &final_verify, owner, digest)?;
+            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
+            verify_publish_final_state(home, lock, pending, final_path, &tree)?;
             Ok(())
         }
         (false, false) => Err(Error::StoreCorrupt {
@@ -762,13 +878,110 @@ fn publish_dir(
     }
 }
 
+fn verify_publish_final_state(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    pending: &str,
+    final_path: &str,
+    tree: &fsx::ManagedTree,
+) -> Result<()> {
+    let pending_exists = fsx::managed_directory_exists(home, lock, pending)?;
+    let final_exists = fsx::managed_directory_exists(home, lock, final_path)?;
+    if pending_exists || !final_exists {
+        return Err(Error::StoreCorrupt {
+            detail: format!(
+                "发布完成前四格状态改变：pending={pending_exists}, final={final_exists}"
+            ),
+        });
+    }
+    fsx::verify_managed_tree_at(home, tree, final_path)
+        .map_err(|error| integrity_error(format!("发布终态 {final_path} 不再绑定原件"), error))?;
+    Ok(())
+}
+
+fn integrity_error(context: String, error: Error) -> Error {
+    match error {
+        Error::Io { .. } | Error::RecoveryRequired { .. } | Error::StoreCorrupt { .. } => error,
+        other => Error::StoreCorrupt {
+            detail: format!("{context}：{other}"),
+        },
+    }
+}
+
+fn verify_publish_object(home: &Home, dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
+    let Some(identity) = owner.strip_prefix("workbook:") else {
+        return verify_owned_digest(home, dir, owner, digest);
+    };
+    let (expected_id, expected_version) =
+        identity
+            .split_once('@')
+            .ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("Workbook发布owner {owner:?} 格式无效"),
+            })?;
+    let loaded =
+        crate::workbook_repo::WorkbookRepo::load_managed_dir(home, dir).map_err(|error| {
+            integrity_error(format!("Workbook发布目录 {dir} manifest校验失败"), error)
+        })?;
+    if loaded.manifest.id().as_str() != expected_id
+        || loaded.manifest.version() != expected_version
+        || loaded.digest.as_str() != digest
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("Workbook发布目录 {dir} 的manifest身份或摘要与请求owner不符"),
+        });
+    }
+    Ok(())
+}
+
+fn verify_start_input_references(
+    home: &Home,
+    source_root: &str,
+    final_root: &str,
+    owner: &str,
+    start_inputs: Option<&BTreeMap<String, RefJson>>,
+) -> Result<()> {
+    if !owner.starts_with("work:") {
+        if start_inputs.is_some() {
+            return Err(Error::StoreCorrupt {
+                detail: "Workbook发布效果意外携带Work起始输入".to_string(),
+            });
+        }
+        return Ok(());
+    }
+    let inputs = start_inputs.ok_or_else(|| Error::StoreCorrupt {
+        detail: "Work发布缺少已校验的起始输入引用".to_string(),
+    })?;
+    for (key, reference) in inputs {
+        let expected_final = format!("{final_root}/start-inputs/{key}");
+        if reference.path != expected_final || Sha256Hex::new(reference.sha256.clone()).is_err() {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work发布起始输入 {key} 的路径或摘要归属无效"),
+            });
+        }
+        let source_path = format!("{source_root}/start-inputs/{key}");
+        let path = home.rel(&source_path)?;
+        let file = fsx::open_managed_regular(home, &path).map_err(|error| {
+            integrity_error(
+                format!("Work发布起始输入 {key} 缺失或不是受管普通文件"),
+                error,
+            )
+        })?;
+        let (digest, bytes) = file
+            .sha256_bounded(fsx::MAX_FILE_BYTES)
+            .map_err(|error| integrity_error(format!("Work发布起始输入 {key} 读取失败"), error))?;
+        if digest.as_str() != reference.sha256 || bytes != reference.bytes {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work发布起始输入 {key} 的实际字节与提交引用不一致"),
+            });
+        }
+    }
+    Ok(())
+}
+
 /// 核对目录摘要与归属标记（侧车）；不符报 `STORE_CORRUPT`。
 fn verify_owned_digest(home: &Home, dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
-    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir).map_err(|e| {
-        Error::StoreCorrupt {
-            detail: format!("发布原件 {dir} 读不了：{e}"),
-        }
-    })?;
+    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir)
+        .map_err(|error| integrity_error(format!("发布原件 {dir} 摘要读取失败"), error))?;
     if got.as_str() != digest {
         return Err(Error::StoreCorrupt {
             detail: format!("发布原件 {dir} 的摘要与登记不符"),
@@ -866,18 +1079,22 @@ mod seal_output_tests {
     use std::os::unix::fs::{MetadataExt as _, PermissionsExt as _};
 
     fn checked_submit(path: &ManagedRelPath, sha256: &str, bytes: u64) -> CheckedEffects {
-        CheckedEffects(vec![
-            EffectOp::SealOutputs {
-                refs: vec![RefJson {
-                    path: path.as_str().to_string(),
-                    sha256: sha256.to_string(),
-                    bytes,
-                }],
-            },
-            EffectOp::RefreshStatusCard {
-                work_id: "w20260929-001".to_string(),
-            },
-        ])
+        CheckedEffects {
+            ops: vec![
+                EffectOp::SealOutputs {
+                    refs: vec![RefJson {
+                        path: path.as_str().to_string(),
+                        sha256: sha256.to_string(),
+                        bytes,
+                    }],
+                },
+                EffectOp::RefreshStatusCard {
+                    work_id: "w20260929-001".to_string(),
+                },
+            ],
+            start_inputs: None,
+            request_id: None,
+        }
     }
 
     fn observed_file() -> (

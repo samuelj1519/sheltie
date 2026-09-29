@@ -8,7 +8,7 @@ use std::path::Path;
 use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_runtime::request::InputValue;
-use sheltie_runtime::{StartArgs, WorkbookRepo};
+use sheltie_runtime::{Error, StartArgs, WorkbookRepo};
 
 fn make_writable(path: &Path) {
     use std::os::unix::fs::PermissionsExt;
@@ -160,6 +160,144 @@ fn add_publish_window_recovered_by_next_write() {
         .load("two-step", Some("1.0.0"))
         .unwrap();
     assert_eq!(wb.manifest.id().as_str(), "two-step");
+}
+
+// Task: C002-T26
+#[test]
+fn workbook_publication_recovery_checks_owner_and_manifest_identity() {
+    for (mutation, final_only) in [
+        ("owner_request_id", false),
+        ("owner_op", false),
+        ("manifest_id_pending", false),
+        ("manifest_id_final", true),
+        ("manifest_content_pending", false),
+        ("manifest_permission_pending", false),
+    ] {
+        let (_dir, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        let request_id = format!("t26-wb-{mutation}");
+        repo.add(&abs(&example_dir("two-step")), Some(request_id.clone()))
+            .unwrap();
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let effects_raw: String = conn
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects: serde_json::Value = serde_json::from_str(&effects_raw).unwrap();
+        let pending_rel = effects[0]["pending"].as_str().unwrap();
+        let internal_id = pending_rel.split('/').nth(1).unwrap();
+        let payload = home
+            .rel(pending_rel)
+            .unwrap()
+            .as_path()
+            .to_path_buf()
+            .into_std_path_buf();
+        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        if !final_only {
+            make_writable(final_dir.as_path().parent().unwrap().as_std_path());
+            std::fs::rename(final_dir.as_path(), &payload).unwrap();
+        }
+        conn.execute(
+            "UPDATE requests SET published = 0 WHERE request_id = ?1",
+            [&request_id],
+        )
+        .unwrap();
+
+        match mutation {
+            "owner_request_id" | "owner_op" => {
+                let owner_path = home
+                    .pending_dir()
+                    .join_segment(&format!("{internal_id}.owner"));
+                let mut owner: serde_json::Value =
+                    serde_json::from_slice(&std::fs::read(owner_path.as_path()).unwrap()).unwrap();
+                if mutation == "owner_request_id" {
+                    owner["request_id"] = serde_json::json!("t26-different-request");
+                } else {
+                    owner["op"] = serde_json::json!("remove_workbook");
+                }
+                let mut bytes = serde_json::to_vec(&owner).unwrap();
+                bytes.push(b'\n');
+                std::fs::write(owner_path.as_path(), bytes).unwrap();
+            }
+            "manifest_id_pending" | "manifest_id_final" => {
+                let root = if final_only {
+                    std::path::PathBuf::from(final_dir.as_str())
+                } else {
+                    payload.clone()
+                };
+                let manifest = root.join("workbook.toml");
+                make_writable(&manifest);
+                let before = std::fs::read_to_string(&manifest).unwrap();
+                assert!(before.contains("id = \"two-step\""));
+                std::fs::write(
+                    &manifest,
+                    before.replacen("id = \"two-step\"", "id = \"other\"", 1),
+                )
+                .unwrap();
+            }
+            "manifest_content_pending" => {
+                let instruction = payload.join("instructions/outline.md");
+                make_writable(&instruction);
+                let mut bytes = std::fs::read(&instruction).unwrap();
+                let first = bytes.first_mut().unwrap();
+                *first ^= 1;
+                std::fs::write(instruction, bytes).unwrap();
+            }
+            "manifest_permission_pending" => {
+                use std::os::unix::fs::PermissionsExt as _;
+                let manifest = payload.join("workbook.toml");
+                std::fs::set_permissions(&manifest, std::fs::Permissions::from_mode(0o0)).unwrap();
+            }
+            _ => unreachable!(),
+        }
+
+        let error = repo
+            .add(
+                &abs(&example_dir("gated-release")),
+                Some("t26-wb-blocked-write".to_string()),
+            )
+            .unwrap_err();
+        let Error::EffectPending {
+            committed,
+            pending_request_id,
+            cause,
+            ..
+        } = error
+        else {
+            panic!("Workbook发布归属不符必须保留pending身份：{error:?}");
+        };
+        assert!(!committed);
+        assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
+        let expected_cause = if mutation == "manifest_permission_pending" {
+            ErrorCode::Io
+        } else {
+            ErrorCode::StoreCorrupt
+        };
+        assert_eq!(cause, expected_cause);
+        assert_eq!(payload.exists(), !final_only);
+        assert_eq!(final_dir.as_path().exists(), final_only);
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT COUNT(*) FROM requests WHERE request_id = 't26-wb-blocked-write'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+    }
 }
 
 /// 旧 remove 的重放不得删除同版本的新对象；新生命周期不被旧请求覆盖（§5.2 第 4 条）。

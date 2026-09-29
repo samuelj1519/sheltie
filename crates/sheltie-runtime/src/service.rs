@@ -1011,6 +1011,7 @@ impl WorkService {
         let ops = decode_effects(&row.effects_json)?;
         let checked = check_work_effects(
             &self.home,
+            request_id,
             &state.state,
             &state.graph,
             &command,
