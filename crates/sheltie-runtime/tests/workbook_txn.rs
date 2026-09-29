@@ -321,3 +321,252 @@ fn add_and_remove_replay_return_original_snapshots() {
     assert!(rm2.replayed);
     assert_eq!(rm1.data, rm2.data);
 }
+
+// Task: C002-T25
+#[test]
+fn workbook_replay_finishes_unpublished_effects() {
+    let (source_root, home) = temp_home();
+    let source = copy_example("two-step", source_root.path());
+    let repo = WorkbookRepo::new(home.clone());
+    let add_request = "t25-add-replay";
+    let first = repo
+        .add(&abs(&source), Some(add_request.to_string()))
+        .unwrap();
+    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects_json: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = ?1",
+            [add_request],
+            |row| row.get(0),
+        )
+        .unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [add_request],
+    )
+    .unwrap();
+    drop(conn);
+    let pending_rel =
+        serde_json::from_str::<serde_json::Value>(&effects_json).unwrap()[0]["pending"]
+            .as_str()
+            .unwrap()
+            .to_string();
+    make_writable(std::path::Path::new(final_dir.as_str()));
+    std::fs::rename(
+        final_dir.as_path(),
+        home.rel(&pending_rel).unwrap().as_path(),
+    )
+    .unwrap();
+    make_writable(&source);
+    std::fs::remove_dir_all(&source).unwrap();
+
+    let replayed_add = repo
+        .add(&abs(&source), Some(add_request.to_string()))
+        .unwrap();
+    assert!(replayed_add.replayed);
+    assert_eq!(first.data, replayed_add.data);
+    assert!(final_dir.as_path().is_dir());
+
+    let remove_request = "t25-remove-replay";
+    let first_remove = repo
+        .remove("two-step", "1.0.0", Some(remove_request.to_string()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [remove_request],
+    )
+    .unwrap();
+    drop(conn);
+    let replayed_remove = repo
+        .remove("two-step", "1.0.0", Some(remove_request.to_string()))
+        .unwrap();
+    assert!(replayed_remove.replayed);
+    assert_eq!(first_remove.data, replayed_remove.data);
+    assert!(!final_dir.as_path().exists());
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    for request_id in [add_request, remove_request] {
+        let published: i64 = conn
+            .query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(published, 1, "重放必须先完成原效果：{request_id}");
+    }
+}
+
+// Task: C002-T25
+#[test]
+fn workbook_write_recovers_work_status_card() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let request_id = "t25-start-pending";
+    let started = svc
+        .start(start_args(), Some(request_id.to_string()))
+        .unwrap();
+    let wid = work_id_of(&started);
+    let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
+    let expected_card = std::fs::read(&card).unwrap();
+    std::fs::remove_file(&card).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let added = WorkbookRepo::new(home.clone())
+        .add(
+            &abs(&example_dir("gated-release")),
+            Some("t25-add-after-start".into()),
+        )
+        .unwrap();
+    assert_eq!(added.data["id"], "gated-release");
+    assert_eq!(std::fs::read(&card).unwrap(), expected_card);
+    assert!(
+        home.workbook_dir("gated-release", "1.0.0")
+            .as_path()
+            .is_dir()
+    );
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 1, "Workbook写操作结束前必须完成Work卡效果");
+}
+
+// Task: C002-T25
+#[test]
+fn workbook_remove_recovers_latest_work_status_card() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("gated-release")), None).unwrap();
+    let old_request = "t25-start-before-begin";
+    let started = svc
+        .start(start_args(), Some(old_request.to_string()))
+        .unwrap();
+    let wid = work_id_of(&started);
+    let begun = svc
+        .begin(
+            &wid,
+            &sheltie_core::ids::NodeId::new("outline").unwrap(),
+            Some("t25-latest-begin".into()),
+        )
+        .unwrap();
+    let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
+    let latest_card = std::fs::read(&card).unwrap();
+    assert_eq!(begun.revision, 2);
+
+    std::fs::remove_file(&card).unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [old_request],
+    )
+    .unwrap();
+    let begin_reply_before: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = 't25-latest-begin'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    drop(conn);
+
+    let removed = repo
+        .remove(
+            "gated-release",
+            "1.0.0",
+            Some("t25-remove-after-work".into()),
+        )
+        .unwrap();
+    assert_eq!(removed.data["id"], "gated-release");
+    assert_eq!(std::fs::read(&card).unwrap(), latest_card);
+    assert!(
+        !home
+            .workbook_dir("gated-release", "1.0.0")
+            .as_path()
+            .exists()
+    );
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [old_request],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 1);
+    let (latest_published, begin_reply_after): (i64, String) = conn
+        .query_row(
+            "SELECT published, reply_json FROM requests WHERE request_id = 't25-latest-begin'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(latest_published, 1);
+    assert_eq!(
+        begin_reply_after, begin_reply_before,
+        "旧start恢复不能改历史begin响应"
+    );
+}
+
+// Task: C002-T25
+#[test]
+fn old_add_replay_does_not_bind_to_a_readded_workbook_lifecycle() {
+    let (root, home) = temp_home();
+    let source = copy_example("two-step", root.path());
+    let repo = WorkbookRepo::new(home.clone());
+    let old_request = "t25-old-add-lifecycle";
+    let old = repo
+        .add(&abs(&source), Some(old_request.to_string()))
+        .unwrap();
+    repo.remove("two-step", "1.0.0", Some("t25-remove-old-lifecycle".into()))
+        .unwrap();
+    make_writable(&source);
+    std::fs::write(
+        source.join("instructions/outline.md"),
+        "同一身份的新生命周期使用不同内容。\n",
+    )
+    .unwrap();
+    let new = repo
+        .add(&abs(&source), Some("t25-readd-lifecycle".into()))
+        .unwrap();
+    assert_ne!(old.data["digest"], new.data["digest"]);
+    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let new_bytes =
+        std::fs::read(std::path::Path::new(final_dir.as_str()).join("instructions/outline.md"))
+            .unwrap();
+
+    let replayed_old = repo
+        .add(&abs(&source), Some(old_request.to_string()))
+        .unwrap();
+    assert!(replayed_old.replayed);
+    assert_eq!(replayed_old.data, old.data);
+    assert_eq!(
+        std::fs::read(std::path::Path::new(final_dir.as_str()).join("instructions/outline.md"))
+            .unwrap(),
+        new_bytes,
+        "旧add重放只能回原快照，不能触碰新生命周期对象"
+    );
+    let row: String = rusqlite::Connection::open(home.store_path().as_str())
+        .unwrap()
+        .query_row(
+            "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.0'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(row, new.data["digest"]);
+}

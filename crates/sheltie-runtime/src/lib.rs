@@ -13,6 +13,7 @@ pub mod fsx;
 pub mod home;
 mod load;
 pub mod observe;
+mod recovery;
 pub mod request;
 pub mod selfmgmt;
 pub mod service;

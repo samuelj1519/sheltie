@@ -12,6 +12,31 @@ use crate::error::{Error, Result};
 use crate::fsx::ManagedRelPath;
 use crate::home::Home;
 
+/// Refresh cards from freshly loaded Work state after the effect batch has completed.
+pub(crate) fn refresh_status_cards(
+    home: &Home,
+    effects: &crate::effects::CheckedEffects,
+    lock: &crate::home::HomeLock,
+    mut load_work: impl FnMut(&WorkId) -> Result<(WorkState, Graph)>,
+) -> Result<()> {
+    for op in effects.as_slice() {
+        if let crate::effects::EffectOp::RefreshStatusCard { work_id } = op {
+            let id = WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {
+                detail: format!("效果里的 work_id {work_id} 不合法：{error}"),
+            })?;
+            let (state, graph) = load_work(&id)?;
+            let card = sheltie_core::work::render_status_card(&state, &graph);
+            crate::fsx::write_exclusive_atomic(
+                home,
+                lock,
+                &state.status_card_path(),
+                card.as_bytes(),
+            )?;
+        }
+    }
+    Ok(())
+}
+
 /// Check path-bearing Work fields against the Work identity before opening any referenced file.
 pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPath> {
     let expected = home.work_dir(&state.work_id);

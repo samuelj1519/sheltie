@@ -24,6 +24,16 @@ fn inputs_lit(pairs: &[(&str, &str)]) -> std::collections::BTreeMap<String, Inpu
     pairs.iter().map(|(k, v)| (k.to_string(), lit(v))).collect()
 }
 
+fn two_step_start_args() -> StartArgs {
+    StartArgs {
+        workbook_id: "two-step".into(),
+        version: None,
+        flow: "default".into(),
+        name: None,
+        inputs: inputs_lit(&[("topic", "给新人介绍 Sheltie")]),
+    }
+}
+
 fn node(s: &str) -> NodeId {
     NodeId::new(s).unwrap()
 }
@@ -536,7 +546,7 @@ fn invalid_later_effect_is_rejected_before_any_effect_runs() {
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(&request_id));
     assert!(!brief.exists(), "首个合法效果也必须在批次校验后才执行");
     assert_eq!(std::fs::read(&sentinel).unwrap(), before);
 }
@@ -659,11 +669,11 @@ fn engine_stats_effect_must_match_its_bound_artifact_reference() {
     let err = svc
         .begin(&wid, &node("b"), Some("stats-b".into()))
         .unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, true, Some("stats-b"), None);
     assert!(std::path::Path::new(stats_path.as_str()).exists());
 }
 
-// Task: C002-T20
+// Task: C002-T25
 #[test]
 fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     use std::os::unix::fs::PermissionsExt;
@@ -699,8 +709,8 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     let err = svc
         .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
         .unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
-    snapshot.as_object_mut().unwrap().remove("data");
+    assert_effect_pending_without_original(err, true, &begun.request_id, None);
+    snapshot["data"] = serde_json::json!({});
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
         "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
@@ -711,11 +721,7 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     let missing_data = svc
         .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
         .unwrap_err();
-    assert_eq!(
-        missing_data.code(),
-        ErrorCode::StoreCorrupt,
-        "{missing_data:?}"
-    );
+    assert_effect_pending_without_original(missing_data, true, &begun.request_id, None);
     let mut unknown_reply = serde_json::to_value(&begun).unwrap();
     unknown_reply["reply"]["unrecognized"] = serde_json::json!("outside path");
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -731,11 +737,7 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     let unknown_reply_error = svc
         .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
         .unwrap_err();
-    assert_eq!(
-        unknown_reply_error.code(),
-        ErrorCode::StoreCorrupt,
-        "{unknown_reply_error:?}"
-    );
+    assert_effect_pending_without_original(unknown_reply_error, true, &begun.request_id, None);
 
     let mut unknown_next = serde_json::to_value(&begun).unwrap();
     unknown_next["next"][0]["unrecognized"] = serde_json::json!("extra command data");
@@ -752,11 +754,7 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     let unknown_next_error = svc
         .begin(&wid, &node("outline"), Some(begun.request_id.clone()))
         .unwrap_err();
-    assert_eq!(
-        unknown_next_error.code(),
-        ErrorCode::StoreCorrupt,
-        "{unknown_next_error:?}"
-    );
+    assert_effect_pending_without_original(unknown_next_error, true, &begun.request_id, None);
     assert_eq!(std::fs::read(&sentinel).unwrap(), before);
     assert_eq!(
         std::fs::metadata(&sentinel).unwrap().permissions().mode(),
@@ -764,7 +762,7 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     );
 }
 
-// Task: C002-T20
+// Task: C002-T25
 #[test]
 fn duplicate_audit_owner_is_rejected_before_recovery_io() {
     let (_d, home, svc) = home_with_example("two-step");
@@ -795,12 +793,15 @@ fn duplicate_audit_owner_is_rejected_before_recovery_io() {
         rusqlite::params![audit.0, audit.1, request_id, audit.2, audit.3, at],
     )
     .unwrap();
-    conn.execute("UPDATE requests SET published = 0", [])
-        .unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [&request_id],
+    )
+    .unwrap();
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(&request_id));
     assert!(!brief.exists(), "重复audit归属时不得执行第一条效果");
 }
 
@@ -823,7 +824,7 @@ fn invalid_published_flag_is_not_treated_as_completed() {
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(&request_id));
     assert!(!brief.exists(), "非0/1的published不能跳过效果校验");
 }
 
@@ -855,7 +856,7 @@ fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(&request_id));
     assert!(!brief.exists());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let published: i64 = conn
@@ -897,7 +898,7 @@ fn empty_effect_batch_is_rejected_without_marking_published() {
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some(&request_id));
     assert!(!brief.exists());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let published: i64 = conn
@@ -950,7 +951,7 @@ fn pending_owner_json_roundtrips_opaque_request_id() {
     }));
 }
 
-// Task: C002-T20
+// Task: C002-T25
 #[test]
 fn unpublished_work_start_requires_its_owner_sidecar() {
     let (_d, home, svc) = home_with_example("two-step");
@@ -988,7 +989,7 @@ fn unpublished_work_start_requires_its_owner_sidecar() {
     drop(conn);
 
     let err = svc.cancel(&wid, None).unwrap_err();
-    assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
+    assert_effect_pending(err, false, None, Some("start-owner-required"));
     assert!(home.work_dir(&wid).as_path().join("workbook").is_dir());
 }
 
@@ -1074,6 +1075,534 @@ fn recover_submit_stops_and_keeps_unpublished(
         )
         .unwrap();
     assert_eq!(published, 0, "失败的seal不得标记已发布");
+}
+
+// Task: C002-T25
+#[test]
+fn post_commit_card_failure_returns_committed_response() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = start_two_step(&svc);
+    let wid = work_id_of(&started);
+    let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
+    std::fs::remove_file(&card).unwrap();
+    std::fs::create_dir(&card).unwrap();
+
+    let request_id = "t25-card-failure";
+    let err = svc
+        .begin(&wid, &node("outline"), Some(request_id.to_string()))
+        .unwrap_err();
+    let Error::EffectPending {
+        committed,
+        request_id: actual,
+        pending_request_id,
+        cause,
+        original,
+        pending_original,
+        ..
+    } = err
+    else {
+        panic!("COMMIT后的状态卡错误必须保留请求归属：{err:?}");
+    };
+    assert!(committed);
+    assert_eq!(actual, request_id);
+    assert_eq!(pending_request_id, None);
+    assert_eq!(cause, ErrorCode::Io);
+    assert!(pending_original.is_none());
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let (stored, revision, published): (String, u64, i64) = conn
+        .query_row(
+            "SELECT r.reply_json, w.revision, r.published FROM requests r JOIN works w USING(work_id) WHERE r.request_id = ?1",
+            [request_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(published, 0);
+    assert_eq!(revision, 2);
+    let original: serde_json::Value = serde_json::from_str(original.as_deref().unwrap()).unwrap();
+    let stored: serde_json::Value = serde_json::from_str(&stored).unwrap();
+    assert_eq!(original["ok"], true);
+    assert_eq!(original["request_id"], request_id);
+    assert_eq!(original["revision"], 2);
+    let mut expected_data = stored["data"].clone();
+    expected_data["replayed"] = serde_json::Value::Bool(false);
+    assert_eq!(original["data"], expected_data);
+    assert_eq!(original["data"]["replayed"], false);
+    assert_eq!(
+        original["next"],
+        serde_json::json!([
+            {
+                "op": "attempt submit",
+                "args": { "work": wid.as_str(), "attempt": "outline#1.0" }
+            },
+            {
+                "op": "attempt fail",
+                "args": { "work": wid.as_str(), "attempt": "outline#1.0" }
+            },
+            { "op": "work cancel", "args": { "work": wid.as_str() } }
+        ])
+    );
+}
+
+// Task: C002-T25
+#[test]
+fn historical_write_with_missing_parent_keeps_committed_snapshot() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let request_id = "t25-missing-history-parent";
+    let begun = svc
+        .begin(&wid, &node("outline"), Some(request_id.to_string()))
+        .unwrap();
+    let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
+        .join("attempts/outline/occurrence-001/attempt-000/brief.md");
+    let attempt_dir = brief.parent().unwrap();
+    make_writable(attempt_dir);
+    std::fs::remove_dir_all(attempt_dir).unwrap();
+
+    let error = svc
+        .begin(&wid, &node("outline"), Some(request_id.to_string()))
+        .unwrap_err();
+    let original = assert_effect_pending(error, true, Some(request_id), None);
+    assert_eq!(original["revision"], begun.revision);
+    assert!(!attempt_dir.exists(), "历史父目录缺失时不能自行补造");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        1,
+        "同请求历史核验失败不能产生新记录"
+    );
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_started_workbook_ref_is_not_projected_as_success() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let request_id = "t25-start-workbook-ref";
+    svc.start(two_step_start_args(), Some(request_id.to_string()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"]["workbook"] = serde_json::json!({});
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc
+        .start(two_step_start_args(), Some(request_id.to_string()))
+        .unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_started_name_is_not_projected_as_success() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let request_id = "t25-start-name";
+    svc.start(two_step_start_args(), Some(request_id.to_string()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"]["name"] = serde_json::json!("other-valid-name");
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc
+        .start(two_step_start_args(), Some(request_id.to_string()))
+        .unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_cancelled_status_is_not_projected_as_success() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = svc.start(two_step_start_args(), None).unwrap();
+    let wid = work_id_of(&started);
+    let request_id = "t25-cancelled-status";
+    svc.cancel(&wid, Some(request_id.to_string())).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"]["work_status"] = serde_json::json!({"kind":"active"});
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc.cancel(&wid, Some(request_id.to_string())).unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+}
+
+// Task: C002-T25
+#[test]
+fn unknown_nested_status_field_is_not_projected_as_success() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&svc.start(two_step_start_args(), None).unwrap());
+    let request_id = "t25-cancelled-status-extra";
+    svc.cancel(&wid, Some(request_id.to_string())).unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"]["work_status"] = serde_json::json!({"kind":"cancelled","unknown":"extra"});
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc.cancel(&wid, Some(request_id.to_string())).unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_gate_principal_is_not_projected_as_success() {
+    let (_dir, home, svc) = home_with_example("gated-release");
+    let started = svc
+        .start(
+            StartArgs {
+                workbook_id: "gated-release".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: inputs_lit(&[("version", "1.0.0")]),
+            },
+            None,
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
+    let begun = svc.begin(&wid, &node("notes"), None).unwrap();
+    write_output(&output_dir_of(&begun), "notes.md", "发布说明");
+    svc.submit(&wid, &attempt("notes#1.0"), &lit("完成"), None)
+        .unwrap();
+    let request_id = "t25-gate-principal";
+    svc.approve(&wid, &node("notes"), Some(request_id.into()))
+        .unwrap();
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+    snapshot["data"]["by"] = serde_json::Value::Bool(false);
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc
+        .approve(&wid, &node("notes"), Some(request_id.into()))
+        .unwrap_err();
+    assert_effect_pending_without_original(error, true, request_id, None);
+}
+
+// Task: C002-T25
+#[test]
+fn mark_published_zero_rows_returns_committed_recovery_error() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = start_two_step(&svc);
+    let wid = work_id_of(&started);
+    let request_id = "t25-mark-zero-rows";
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute_batch(&format!(
+        "CREATE TRIGGER ignore_mark_t25 BEFORE UPDATE OF published ON requests
+         WHEN OLD.request_id = '{request_id}'
+         BEGIN SELECT RAISE(IGNORE); END;"
+    ))
+    .unwrap();
+    drop(conn);
+
+    let err = svc
+        .begin(&wid, &node("outline"), Some(request_id.to_string()))
+        .unwrap_err();
+    let original = assert_effect_pending(err, true, Some(request_id), None);
+    assert_eq!(original["revision"], 2);
+    assert!(
+        std::path::Path::new(&original["data"]["brief_path"].as_str().unwrap()).exists(),
+        "mark失败发生在效果与状态卡完成之后"
+    );
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let published: i64 = conn
+        .query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 0, "零行UPDATE不能报告发布完成");
+}
+
+// Task: C002-T25
+#[test]
+fn old_effect_blocks_new_request_with_distinct_identities() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = start_two_step(&svc);
+    let wid = work_id_of(&started);
+    let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
+    std::fs::remove_file(&card).unwrap();
+    std::fs::create_dir(&card).unwrap();
+
+    let old_request = "t25-old-A";
+    let old_error = svc
+        .begin(&wid, &node("outline"), Some(old_request.to_string()))
+        .unwrap_err();
+    assert!(matches!(
+        old_error,
+        Error::EffectPending {
+            committed: true,
+            ..
+        }
+    ));
+    let new_request = "t25-new-B";
+    let blocked = svc
+        .begin(&wid, &node("review"), Some(new_request.to_string()))
+        .unwrap_err();
+    let Error::EffectPending {
+        committed,
+        request_id,
+        pending_request_id,
+        original,
+        pending_original,
+        ..
+    } = blocked
+    else {
+        panic!("旧请求失败必须阻断新请求：{blocked:?}");
+    };
+    assert!(!committed);
+    assert_eq!(request_id, new_request);
+    assert_eq!(pending_request_id.as_deref(), Some(old_request));
+    assert!(original.is_none());
+    let pending_original: serde_json::Value =
+        serde_json::from_str(pending_original.as_deref().unwrap()).unwrap();
+    assert_eq!(pending_original["request_id"], old_request);
+    assert_eq!(pending_original["revision"], 2);
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [new_request],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0,
+        "B 在 A 恢复前不得提交"
+    );
+
+    let replay = svc
+        .begin(&wid, &node("outline"), Some(old_request.to_string()))
+        .unwrap_err();
+    assert!(matches!(
+        replay,
+        Error::EffectPending {
+            committed: true,
+            ref request_id,
+            original: Some(_),
+            ..
+        } if request_id == old_request
+    ));
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_old_effect_row_is_attributed_to_the_blocking_request() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let old_request = "t25-blob-effects-A";
+    svc.begin(&wid, &node("outline"), Some(old_request.into()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET effects_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![rusqlite::types::Value::Blob(vec![0xff]), old_request],
+    )
+    .unwrap();
+    drop(conn);
+
+    let new_request = "t25-blob-effects-B";
+    let error = svc.cancel(&wid, Some(new_request.to_string())).unwrap_err();
+    assert_effect_pending(error, false, Some(new_request), Some(old_request));
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [new_request],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+    let (effects_type, published): (String, i64) = conn
+        .query_row(
+            "SELECT typeof(effects_json), published FROM requests WHERE request_id = ?1",
+            [old_request],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(effects_type, "blob");
+    assert_eq!(published, 0);
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_current_owner_column_keeps_committed_request_identity() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let request_id = "t25-blob-current-owner";
+    svc.begin(&wid, &node("outline"), Some(request_id.into()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET work_id = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![rusqlite::types::Value::Blob(vec![0xff]), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let error = svc
+        .begin(&wid, &node("outline"), Some(request_id.into()))
+        .unwrap_err();
+    let Error::EffectPending {
+        committed,
+        request_id: actual,
+        pending_request_id,
+        cause,
+        original,
+        ..
+    } = error
+    else {
+        panic!("已提交请求的owner类型损坏必须保留提交归属：{error:?}");
+    };
+    assert!(committed);
+    assert_eq!(actual, request_id);
+    assert!(pending_request_id.is_none());
+    assert_eq!(cause, ErrorCode::StoreCorrupt);
+    assert!(original.is_none(), "损坏的owner让next无法可信绑定Work");
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_current_reply_keeps_commit_identity_and_request_conflict_priority() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let request_id = "t25-blob-current-reply";
+    svc.begin(&wid, &node("outline"), Some(request_id.into()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![rusqlite::types::Value::Blob(vec![0xff]), request_id],
+    )
+    .unwrap();
+    drop(conn);
+
+    let replay_error = svc
+        .begin(&wid, &node("outline"), Some(request_id.into()))
+        .unwrap_err();
+    assert_effect_pending_without_original(replay_error, true, request_id, None);
+
+    let conflict = svc.cancel(&wid, Some(request_id.to_string())).unwrap_err();
+    assert_eq!(conflict.code(), ErrorCode::RequestConflict, "{conflict:?}");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let (reply_type, row_count): (String, i64) = conn
+        .query_row(
+            "SELECT typeof(reply_json), COUNT(*) FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(reply_type, "blob");
+    assert_eq!(row_count, 1);
+}
+
+// Task: C002-T25
+#[test]
+fn malformed_old_reply_is_attributed_to_the_blocking_request() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let wid = work_id_of(&start_two_step(&svc));
+    let old_request = "t25-blob-reply-A";
+    svc.begin(&wid, &node("outline"), Some(old_request.into()))
+        .unwrap();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute(
+        "UPDATE requests SET reply_json = ?1, published = 0 WHERE request_id = ?2",
+        rusqlite::params![rusqlite::types::Value::Blob(vec![0xff]), old_request],
+    )
+    .unwrap();
+    drop(conn);
+
+    let new_request = "t25-blob-reply-B";
+    let error = svc.cancel(&wid, Some(new_request.to_string())).unwrap_err();
+    assert_effect_pending_without_original(error, false, new_request, Some(old_request));
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [new_request],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT typeof(reply_json) FROM requests WHERE request_id = ?1",
+            [old_request],
+            |row| row.get::<_, String>(0),
+        )
+        .unwrap(),
+        "blob"
+    );
 }
 
 #[cfg(feature = "failpoint")]

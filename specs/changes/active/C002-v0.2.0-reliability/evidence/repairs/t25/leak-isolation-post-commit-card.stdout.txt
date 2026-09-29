@@ -1,0 +1,61 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+────────────
+ Nextest run ID 89e2afa3-5a4c-4668-8a36-f32ba56d28c3 with nextest profile: default
+    Starting 1 test across 1 binary (45 tests skipped)
+        SKIP [         ] (───) sheltie-runtime::service audit_stores_command_with_instruction_text_redacted
+        SKIP [         ] (───) sheltie-runtime::service begin_binds_resource_input_to_frozen_copy_path
+        SKIP [         ] (───) sheltie-runtime::service begin_loads_graph_from_frozen_copy_not_repository
+        SKIP [         ] (───) sheltie-runtime::service begin_on_tampered_frozen_copy_is_store_corrupt
+        SKIP [         ] (───) sheltie-runtime::service begin_replay_regenerates_missing_stats_json
+        SKIP [         ] (───) sheltie-runtime::service begin_replay_returns_original_reply_and_rewrites_brief
+        SKIP [         ] (───) sheltie-runtime::service begin_same_request_id_different_node_is_request_conflict
+        SKIP [         ] (───) sheltie-runtime::service begin_writes_brief_md_with_absolute_input_paths
+        SKIP [         ] (───) sheltie-runtime::service concurrent_writers_one_gets_revision_conflict
+        SKIP [         ] (───) sheltie-runtime::service duplicate_audit_owner_is_rejected_before_recovery_io
+        SKIP [         ] (───) sheltie-runtime::service empty_effect_batch_is_rejected_without_marking_published
+        SKIP [         ] (───) sheltie-runtime::service engine_stats_effect_must_match_its_bound_artifact_reference
+        SKIP [         ] (───) sheltie-runtime::service historical_write_with_missing_parent_keeps_committed_snapshot
+        SKIP [         ] (───) sheltie-runtime::service invalid_later_effect_is_rejected_before_any_effect_runs
+        SKIP [         ] (───) sheltie-runtime::service invalid_published_flag_is_not_treated_as_completed
+        SKIP [         ] (───) sheltie-runtime::service malformed_current_owner_column_keeps_committed_request_identity
+        SKIP [         ] (───) sheltie-runtime::service malformed_current_reply_keeps_commit_identity_and_request_conflict_priority
+        SKIP [         ] (───) sheltie-runtime::service malformed_old_effect_row_is_attributed_to_the_blocking_request
+        SKIP [         ] (───) sheltie-runtime::service malformed_old_reply_is_attributed_to_the_blocking_request
+        SKIP [         ] (───) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error
+        SKIP [         ] (───) sheltie-runtime::service missing_audit_does_not_hide_unpublished_request_from_recovery
+        SKIP [         ] (───) sheltie-runtime::service missing_frozen_copy_is_store_corrupt_for_begin_and_status
+        SKIP [         ] (───) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities
+        SKIP [         ] (───) sheltie-runtime::service pending_owner_json_roundtrips_opaque_request_id
+        SKIP [         ] (───) sheltie-runtime::service real_submit_hardlink_added_after_commit_stops_before_chmod
+        SKIP [         ] (───) sheltie-runtime::service real_submit_path_swap_after_commit_seals_original_and_preserves_external_target
+        SKIP [         ] (───) sheltie-runtime::service real_submit_same_inode_byte_change_after_commit_stops_before_chmod
+        SKIP [         ] (───) sheltie-runtime::service recovery_refuses_hardlink_added_to_submitted_output
+        SKIP [         ] (───) sheltie-runtime::service recovery_refuses_output_replaced_by_external_symlink
+        SKIP [         ] (───) sheltie-runtime::service recovery_refuses_same_inode_output_changed_after_submit
+        SKIP [         ] (───) sheltie-runtime::service resolve_work_rejects_unknown_prefix
+        SKIP [         ] (───) sheltie-runtime::service resolve_work_unique_prefix_resolves
+        SKIP [         ] (───) sheltie-runtime::service response_revision_increments_with_each_commit
+        SKIP [         ] (───) sheltie-runtime::service start_allocates_work_id_with_today_and_seq_001
+        SKIP [         ] (───) sheltie-runtime::service start_copies_workbook_into_work_dir_readonly
+        SKIP [         ] (───) sheltie-runtime::service start_replay_returns_same_work_id_without_new_seq
+        SKIP [         ] (───) sheltie-runtime::service start_same_request_id_different_inputs_is_request_conflict
+        SKIP [         ] (───) sheltie-runtime::service status_card_regenerated_after_each_commit
+        SKIP [         ] (───) sheltie-runtime::service status_works_after_workbook_removed
+        SKIP [         ] (───) sheltie-runtime::service tampered_artifact_path_is_rejected_before_observing_external_file
+        SKIP [         ] (───) sheltie-runtime::service tampered_begin_snapshot_path_is_rejected_on_historical_replay
+        SKIP [         ] (───) sheltie-runtime::service tampered_resource_input_is_store_corrupt_not_artifact_modified
+        SKIP [         ] (───) sheltie-runtime::service tampered_work_dir_is_rejected_before_reading_outside_paths
+        SKIP [         ] (───) sheltie-runtime::service two_step_runs_to_succeeded
+        SKIP [         ] (───) sheltie-runtime::service unpublished_work_start_requires_its_owner_sidecar
+        PASS [   0.256s] (1/1) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+  stdout ───
+
+    running 1 test
+    test post_commit_card_failure_returns_committed_response ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 45 filtered out; finished in 0.24s
+
+
+────────────
+     Summary [   0.257s] 1 test run: 1 passed, 45 skipped

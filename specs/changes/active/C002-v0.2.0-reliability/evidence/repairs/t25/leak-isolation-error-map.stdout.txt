@@ -1,0 +1,18 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.81s
+────────────
+ Nextest run ID 403cae6b-2e49-4ac0-b264-479a9babb510 with nextest profile: default
+    Starting 1 test across 1 binary (1 test skipped)
+        SKIP [         ] (───) sheltie-cli::bin/sheltie cli::tests::input_file_arguments_are_lexical_and_do_not_probe_the_filesystem
+        PASS [   0.009s] (1/1) sheltie-cli::bin/sheltie error_map::tests::effect_pending_json_keeps_current_and_blocking_request_snapshots_separate
+  stdout ───
+
+    running 1 test
+    test error_map::tests::effect_pending_json_keeps_current_and_blocking_request_snapshots_separate ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+
+────────────
+     Summary [   0.010s] 1 test run: 1 passed, 1 skipped

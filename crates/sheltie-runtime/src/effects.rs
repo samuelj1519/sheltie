@@ -398,17 +398,13 @@ pub(crate) fn check_workbook_effects(
             ManagedRelPath::new(expected_final.clone()).map_err(|error| Error::StoreCorrupt {
                 detail: format!("add snapshot的Workbook身份路径不合法：{error}"),
             })?;
-            let Some(registered) = registered else {
-                return Err(Error::StoreCorrupt {
-                    detail: "add请求缺少对应workbooks登记行".to_string(),
-                });
-            };
-            if registered.id != id
-                || registered.version != version
-                || registered.digest != expected_digest
-                || registered.dir != expected_final
-                || registered.added_at != audit_at
-                || final_path != &expected_final
+            if registered.is_some_and(|registered| {
+                registered.id != id
+                    || registered.version != version
+                    || registered.digest != expected_digest
+                    || registered.dir != expected_final
+                    || registered.added_at != audit_at
+            }) || final_path != &expected_final
                 || owner != &format!("workbook:{id}@{version}")
                 || digest != &expected_digest
                 || !digest_root.is_empty()
