@@ -88,9 +88,9 @@ pub struct RefJson {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct DeletedMarker {
-    format: String,
-    internal_id: String,
+pub(crate) struct DeletedMarker {
+    pub(crate) format: String,
+    pub(crate) internal_id: String,
 }
 
 /// 把效果数组从 JSON 解出；结构不符报 `STORE_CORRUPT`，不猜默认值。
@@ -1101,7 +1101,7 @@ fn delete_dir(
     Ok(())
 }
 
-fn pending_internal_id(pending: &str) -> Result<&str> {
+pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {
     let segments = pending.split('/').collect::<Vec<_>>();
     if segments.len() != 3
         || segments[0] != "pending"
@@ -1143,7 +1143,7 @@ fn write_deleted_marker(
     Ok(())
 }
 
-fn read_deleted_marker(
+pub(crate) fn read_deleted_marker(
     home: &Home,
     lock: &crate::home::HomeLock,
     internal_id: &str,

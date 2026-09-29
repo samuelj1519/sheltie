@@ -200,6 +200,76 @@ fn work_start_with_chinese_name_creates_matching_directory() {
     assert!(env.work_dir(wid).is_dir());
 }
 
+// Task: C002-T28
+#[test]
+fn work_status_reports_pending_publication_while_reading_the_frozen_copy() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let started = env.ok(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=pending",
+        "--request-id",
+        "t28-cli-pending-work",
+    ]);
+    let work = started["data"]["work_id"].as_str().unwrap();
+    let connection = rusqlite::Connection::open(env.dir.path().join("store.db")).unwrap();
+    let effects: String = connection
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = 't28-cli-pending-work'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    let payload = env.dir.path().join(pending);
+    let internal_id = pending.split('/').nth(1).unwrap();
+    std::fs::create_dir_all(payload.parent().unwrap()).unwrap();
+    let owner = serde_json::json!({
+        "format": "pending/v1",
+        "internal_id": internal_id,
+        "request_id": "t28-cli-pending-work",
+        "op": "start_work",
+    });
+    std::fs::write(
+        env.dir.path().join(format!("pending/{internal_id}.owner")),
+        format!("{}\n", serde_json::to_string(&owner).unwrap()),
+    )
+    .unwrap();
+    let lock_path = env.dir.path().join(".lock");
+    std::fs::remove_file(&lock_path).unwrap();
+    connection
+        .execute(
+            "UPDATE requests SET published = 0 WHERE request_id = 't28-cli-pending-work'",
+            [],
+        )
+        .unwrap();
+    drop(connection);
+    let store_before = std::fs::read(env.dir.path().join("store.db")).unwrap();
+    std::fs::rename(env.work_dir(work), payload).unwrap();
+
+    let status = env.ok(&["work", "status", work]);
+    assert_eq!(status["data"]["pending_publish"], true);
+    assert_eq!(status["data"]["status"]["kind"], "active");
+    let text = env.cmd_text(&["work", "status", work]).output().unwrap();
+    assert!(String::from_utf8_lossy(&text.stdout).contains("待完成"));
+    assert_eq!(
+        std::fs::read(env.dir.path().join("store.db")).unwrap(),
+        store_before
+    );
+    assert!(!lock_path.exists(), "只读status不能创建HomeLock");
+    assert!(
+        !env.work_dir(work).exists(),
+        "read-only status does not recover"
+    );
+}
+
 // ── C002-T02：start 的无副作用预检（GF-30） ─────────────────────
 
 /// 独立 oracle：递归列出管理根下的相对路径（跳过 SQLite 的 -wal/-shm，连接关闭时会回收）。

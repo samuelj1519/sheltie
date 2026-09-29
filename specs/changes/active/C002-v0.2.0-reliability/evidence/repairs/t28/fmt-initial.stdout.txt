@@ -1,0 +1,25 @@
+Diff in /Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime/tests/workbook_txn.rs:346:
+     let started = sheltie_runtime::WorkService::new(home.clone())
+         .start(start_args(), Some("t28-start-from-pending".into()))
+         .unwrap();
+[31m-    assert!(matches!(started.reply, sheltie_core::work::Reply::Started { .. }));
+(B[m[32m+    assert!(matches!(
+(B[m[32m+        started.reply,
+(B[m[32m+        sheltie_core::work::Reply::Started { .. }
+(B[m[32m+    ));
+(B[m     assert!(final_dir.as_path().is_dir(), "写锁内恢复后从final重新核验");
+ }
+
+Diff in /Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime/tests/workbook_txn.rs:381:
+     std::fs::write(incomplete_sidecar.as_path(), b"{\"format\":\n").unwrap();
+
+     let warnings = repo.cleanup_pending().unwrap();
+[31m-    assert!(warnings.iter().any(|warning| warning.contains(incomplete_id)));
+(B[m[32m+    assert!(
+(B[m[32m+        warnings
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|warning| warning.contains(incomplete_id))
+(B[m[32m+    );
+(B[m     assert!(!container.as_path().exists());
+     assert!(!sidecar.as_path().exists());
+     assert!(incomplete_sidecar.as_path().is_file());

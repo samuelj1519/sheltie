@@ -120,12 +120,19 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(w) => w,
         Err(out) => return out,
     };
-    let (text, card) = match svc.status(&wid) {
+    let (mut text, card, pending_publish) = match svc.status_with_publication(&wid) {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
+    if pending_publish {
+        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
+    }
+    let mut data = serde_json::to_value(&card).unwrap_or(serde_json::Value::Null);
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("pending_publish".to_string(), json!(pending_publish));
+    }
     // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
-    output::ok_work_next(text, None, None, json!(card), card.next.clone())
+    output::ok_work_next(text, None, None, data, card.next.clone())
 }
 
 /// `work stats`：事实视图。封装层的 `next` 与状态卡同源，再读一次状态卡取。

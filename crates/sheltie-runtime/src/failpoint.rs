@@ -134,6 +134,19 @@ pub(crate) fn sync_error(root: &str, name: &str) -> std::io::Result<()> {
     Ok(())
 }
 
+/// Inject a recoverable maintenance cleanup failure in subprocess integration tests.
+pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {
+    #[cfg(feature = "failpoint")]
+    if std::env::var("SHELTIE_FAILPOINT").ok().as_deref() == Some(name) {
+        return Err(std::io::Error::other(format!(
+            "injected cleanup failure: {name}"
+        )));
+    }
+    #[cfg(not(feature = "failpoint"))]
+    let _ = name;
+    Ok(())
+}
+
 /// Test-only rendezvous used to mutate an observed object after COMMIT and before effects.
 /// The request-id guard prevents unrelated commands in a parallel test process from pausing.
 pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {

@@ -59,7 +59,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T25 | done | 统一恢复与准确提交错误 | T20、T21、T22、T24；[macOS全链门禁与双轴独立Review](evidence/repairs/t25/README.md)；Linux `not_run`。published元数据清理及stderr诊断交T28/V25，未关闭 |
 | C002-T26 | done | 发布完整归属与必要sync | T19–T21、T25；[macOS门禁与双轴独立Review](evidence/repairs/t26/README.md)，Linux `not_run` |
 | C002-T27 | done | 同对象删除与完成证明 | T25、T26；[macOS门禁与双轴独立Review](evidence/repairs/t27/README.md)，Linux `not_run` |
-| C002-T28 | not_run | pending安全清理与只读发现 | T25–T27 |
+| C002-T28 | done | pending安全清理与只读发现 | T25–T27；[macOS全仓门禁与双轴独立Review](evidence/repairs/t28/README.md)，Linux `not_run` |
 | C002-T29 | not_run | stats与next同次装入 | T25、T28 |
 | C002-T30 | not_run | spec-dev重规划旧输入交接 | T18 |
 | C002-T31 | not_run | 确定性交错、完整窗口与突变处置 | T19–T30 |

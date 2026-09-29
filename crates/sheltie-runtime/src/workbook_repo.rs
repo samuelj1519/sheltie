@@ -95,6 +95,7 @@ pub struct LoadedWorkbook {
     pub digest: Sha256Hex,
     pub resource_files: std::collections::BTreeMap<RelPath, sheltie_core::work::ObservedFile>,
     pub instructions: std::collections::BTreeMap<RelPath, String>,
+    pub pending_publish: bool,
 }
 
 impl LoadedWorkbook {
@@ -122,6 +123,16 @@ pub struct VerifyRow {
     pub id: String,
     pub version: String,
     pub status: VerifyStatus,
+    pub pending_publish: bool,
+}
+
+/// `workbook list` 的登记身份及只读发布状态。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WorkbookListItem {
+    pub id: String,
+    pub version: String,
+    pub digest: String,
+    pub pending_publish: bool,
 }
 
 /// 仓库句柄。
@@ -287,12 +298,12 @@ impl WorkbookRepo {
         crate::store::read::RequestRow,
         crate::effects::CheckedEffects,
     )> {
-        let row = self
-            .store
-            .inspect_request(request_id)?
-            .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("缺少Workbook请求 {request_id} 的requests行"),
-            })?;
+        let mut row =
+            self.store
+                .inspect_request(request_id)?
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("缺少Workbook请求 {request_id} 的requests行"),
+                })?;
         if row.work_id.is_some() {
             return Err(Error::StoreCorrupt {
                 detail: format!("Workbook请求 {request_id} 不应归属Work"),
@@ -464,7 +475,24 @@ impl WorkbookRepo {
                 detail: format!("Workbook请求 {request_id} 的pending路径无效"),
             })?;
         if !row.published {
-            crate::service::verify_pending_owner(&self.home, internal_id, request_id, operation)?;
+            if let Err(owner_error) =
+                crate::service::verify_pending_owner(&self.home, internal_id, request_id, operation)
+            {
+                let current = self.store.inspect_request(request_id)?;
+                match current {
+                    Some(current)
+                        if current.published
+                            && current.intent_hash == row.intent_hash
+                            && current.reply_json == row.reply_json
+                            && current.effects_json == row.effects_json
+                            && current.work_id == row.work_id
+                            && current.at == row.at =>
+                    {
+                        row = current;
+                    }
+                    _ => return Err(owner_error),
+                }
+            }
         }
         Ok((row, checked))
     }
@@ -516,8 +544,255 @@ impl WorkbookRepo {
         )
     }
 
-    pub fn list(&self) -> Result<Vec<WorkbookRow>> {
-        self.store.list_workbooks()
+    pub fn list(&self) -> Result<Vec<WorkbookListItem>> {
+        let references = crate::pending::PendingReferenceIndex::load(&self.store)?;
+        self.store
+            .list_workbooks()?
+            .into_iter()
+            .map(|row| {
+                let loaded = self.load_row(&row, &references)?;
+                Ok(WorkbookListItem {
+                    id: row.id,
+                    version: row.version,
+                    digest: row.digest,
+                    pending_publish: loaded.pending_publish,
+                })
+            })
+            .collect()
+    }
+
+    fn publication_for_row(
+        &self,
+        row: &WorkbookRow,
+        references: &crate::pending::PendingReferenceIndex,
+    ) -> Result<crate::pending::PublishLocation> {
+        let owner = format!("workbook:{}@{}", row.id, row.version);
+        crate::failpoint::rendezvous("pending_after_reference_index", &row.dir)
+            .map_err(|error| Error::io(&row.dir, error))?;
+        let publisher_ids = references
+            .lifecycle_references_for_workbook(&owner, &row.dir)
+            .into_iter()
+            .map(|reference| reference.request_id.as_str())
+            .collect::<std::collections::BTreeSet<_>>();
+        let mut latest = None;
+        for audit in self.store.audit_history()? {
+            let raw: serde_json::Value =
+                serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("audit {} 命令JSON无效：{error}", audit.request_id),
+                })?;
+            let workbook_command = matches!(
+                raw.get("intent").and_then(serde_json::Value::as_str),
+                Some("add_workbook" | "remove_workbook")
+            );
+            if !workbook_command && !publisher_ids.contains(audit.request_id.as_str()) {
+                continue;
+            }
+            let command: WorkbookAuditCommand =
+                serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                    detail: format!("Workbook audit {} 命令解不开：{error}", audit.request_id),
+                })?;
+            let (matches, is_add) = match &command {
+                WorkbookAuditCommand::AddWorkbook { .. } => {
+                    let request =
+                        self.store
+                            .inspect_request(&audit.request_id)?
+                            .ok_or_else(|| Error::StoreCorrupt {
+                                detail: format!(
+                                    "Workbook audit {} 缺少requests行",
+                                    audit.request_id
+                                ),
+                            })?;
+                    let snapshot: AddedSnapshot = serde_json::from_str(&request.reply_json)
+                        .map_err(|error| Error::StoreCorrupt {
+                            detail: format!(
+                                "Workbook add请求 {} snapshot解不开：{error}",
+                                audit.request_id
+                            ),
+                        })?;
+                    let data: crate::recovery::AddedSnapshotData =
+                        serde_json::from_value(snapshot.data).map_err(|error| {
+                            Error::StoreCorrupt {
+                                detail: format!(
+                                    "Workbook add请求 {} snapshot身份无效：{error}",
+                                    audit.request_id
+                                ),
+                            }
+                        })?;
+                    (
+                        (data.id == row.id && data.version == row.version)
+                            || publisher_ids.contains(audit.request_id.as_str()),
+                        true,
+                    )
+                }
+                WorkbookAuditCommand::RemoveWorkbook { target } => (
+                    target == &format!("{}@{}", row.id, row.version)
+                        || publisher_ids.contains(audit.request_id.as_str()),
+                    false,
+                ),
+            };
+            if matches {
+                latest = Some((audit.seq, audit.request_id, is_add));
+            }
+        }
+        let Some((_, request_id, true)) = latest else {
+            let detail = match latest {
+                Some((_, request_id, false)) => {
+                    // Validate the latest removal's own persisted closure before rejecting a row
+                    // that claims the removed lifecycle still exists.
+                    self.checked_effects_for(&request_id)?;
+                    format!("Workbook {owner} 的最新生命周期是remove，但workbooks行仍存在")
+                }
+                _ => format!("Workbook {owner} 缺少对应成功add请求"),
+            };
+            return Err(Error::StoreCorrupt { detail });
+        };
+
+        let (request, checked) = self.checked_effects_for(&request_id)?;
+        let audits = self.store.audit_rows(&request_id)?;
+        let [audit] = audits.as_slice() else {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} 应有且仅有一条audit"),
+            });
+        };
+        if request.work_id.is_some()
+            || !audit.work_id.is_empty()
+            || audit.revision != 0
+            || audit.at != row.added_at
+            || request.at != row.added_at
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook {owner} 的workbooks.added_at与当前add审计不一致"),
+            });
+        }
+        let snapshot: AddedSnapshot =
+            serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} snapshot解不开：{error}"),
+            })?;
+        if snapshot.request_id != request_id || snapshot.replayed {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} snapshot身份无效"),
+            });
+        }
+        let data: crate::recovery::AddedSnapshotData = serde_json::from_value(snapshot.data)
+            .map_err(|error| Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} snapshot.data解不开：{error}"),
+            })?;
+        if data.id != row.id || data.version != row.version || data.digest != row.digest {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook {owner} 与当前add响应身份/摘要不一致"),
+            });
+        }
+        let [
+            EffectOp::PublishDir {
+                pending,
+                final_path,
+                owner: effect_owner,
+                digest,
+                digest_root,
+            },
+        ] = checked.as_slice()
+        else {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} 的发布效果形状无效"),
+            });
+        };
+        if effect_owner != &owner
+            || final_path != &row.dir
+            || digest != &row.digest
+            || !digest_root.is_empty()
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} 的effect与当前workbooks行不一致"),
+            });
+        }
+        let internal_id = crate::effects::pending_internal_id(pending)?;
+        let Some(reference) = references.get(internal_id) else {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} 缺少pending引用索引项"),
+            });
+        };
+        if reference.request_id != request_id
+            || reference.pending != *pending
+            || reference.final_path != *final_path
+            || reference.owner != *effect_owner
+            || reference.digest != *digest
+            || reference.digest_root != *digest_root
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook add请求 {request_id} 与pending引用索引不一致"),
+            });
+        }
+        Ok(crate::pending::PublishLocation {
+            pending: pending.clone(),
+            final_path: final_path.clone(),
+            pending_publish: !request.published,
+        })
+    }
+
+    fn load_row_from_directory(
+        &self,
+        row: &WorkbookRow,
+        directory: &AbsPath,
+        pending_publish: bool,
+    ) -> Result<LoadedWorkbook> {
+        let mut loaded = match Self::load_managed_dir(&self.home, directory) {
+            Err(error @ Error::NotFound { .. }) => {
+                let relative = self.home.to_rel(directory)?;
+                if !crate::fsx::managed_directory_exists_readonly(&self.home, &relative)? {
+                    return Err(error);
+                }
+                return Err(Error::WorkbookTampered {
+                    results: vec![VerifyRow {
+                        id: row.id.clone(),
+                        version: row.version.clone(),
+                        status: VerifyStatus::Tampered,
+                        pending_publish,
+                    }],
+                });
+            }
+            result => result?,
+        };
+        if loaded.digest.as_str() != row.digest {
+            return Err(Error::WorkbookTampered {
+                results: vec![VerifyRow {
+                    id: row.id.clone(),
+                    version: row.version.clone(),
+                    status: VerifyStatus::Tampered,
+                    pending_publish,
+                }],
+            });
+        }
+        if loaded.manifest.id().as_str() != row.id || loaded.manifest.version() != row.version {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "Workbook {}@{} 的manifest身份与Store行不一致",
+                    row.id, row.version
+                ),
+            });
+        }
+        loaded.pending_publish = pending_publish;
+        Ok(loaded)
+    }
+
+    fn load_row(
+        &self,
+        row: &WorkbookRow,
+        references: &crate::pending::PendingReferenceIndex,
+    ) -> Result<LoadedWorkbook> {
+        crate::load::validate_workbook_row(&self.home, row)?;
+        let location = self.publication_for_row(row, references)?;
+        self.load_row_from_publish_location(row, &location)
+    }
+
+    fn load_row_from_publish_location(
+        &self,
+        row: &WorkbookRow,
+        location: &crate::pending::PublishLocation,
+    ) -> Result<LoadedWorkbook> {
+        let (loaded, _) = crate::pending::read_publish_dir(&self.home, location, |directory| {
+            self.load_row_from_directory(row, directory, location.pending_publish)
+        })?;
+        Ok(loaded)
     }
 
     /// 从已装目录（或任意目录，用于冻结副本）重新解析并编译。
@@ -601,6 +876,7 @@ impl WorkbookRepo {
             digest,
             resource_files,
             instructions,
+            pending_publish: false,
         })
     }
 
@@ -638,26 +914,8 @@ impl WorkbookRepo {
                     what: format!("Workbook {id}"),
                 })?,
         };
-        let directory = crate::load::validate_workbook_row(&self.home, &row)?;
-        let loaded = self.load_dir(&directory)?;
-        if loaded.digest.as_str() != row.digest {
-            return Err(Error::WorkbookTampered {
-                results: vec![VerifyRow {
-                    id: row.id,
-                    version: row.version,
-                    status: VerifyStatus::Tampered,
-                }],
-            });
-        }
-        if loaded.manifest.id().as_str() != row.id || loaded.manifest.version() != row.version {
-            return Err(Error::StoreCorrupt {
-                detail: format!(
-                    "Workbook {}@{} 的manifest身份与Store行不一致",
-                    row.id, row.version
-                ),
-            });
-        }
-        Ok(loaded)
+        let references = crate::pending::PendingReferenceIndex::load(&self.store)?;
+        self.load_row(&row, &references)
     }
 
     /// 目录摘要 `workbook-digest/v2`（存储合同 §5.1）。schema 2 的唯一摘要口径，
@@ -775,6 +1033,7 @@ impl WorkbookRepo {
                     id: id.to_string(),
                     version: version.to_string(),
                     status: VerifyStatus::Tampered,
+                    pending_publish: false,
                 }],
             });
         }
@@ -844,6 +1103,7 @@ impl WorkbookRepo {
 
     /// `workbook verify`。`filter` 为 `Some((id, version))` 只核对一个。
     pub fn verify(&self, filter: Option<(&str, &str)>) -> Result<Vec<VerifyRow>> {
+        let references = crate::pending::PendingReferenceIndex::load(&self.store)?;
         let rows = match filter {
             Some((id, version)) => {
                 let row = self
@@ -860,22 +1120,30 @@ impl WorkbookRepo {
         };
         let mut out = Vec::with_capacity(rows.len());
         for row in rows {
-            let dir = crate::load::validate_workbook_row(&self.home, &row)?;
-            let status = if !dir.as_path().exists() {
-                VerifyStatus::Missing
-            } else {
-                match Self::digest_dir(&dir) {
-                    Ok(d) if d.as_str() == row.digest => VerifyStatus::Ok,
-                    _ => VerifyStatus::Tampered,
-                }
+            match self.load_row(&row, &references) {
+                Ok(loaded) => out.push(VerifyRow {
+                    id: row.id,
+                    version: row.version,
+                    status: VerifyStatus::Ok,
+                    pending_publish: loaded.pending_publish,
+                }),
+                Err(Error::NotFound { .. }) => out.push(VerifyRow {
+                    id: row.id,
+                    version: row.version,
+                    status: VerifyStatus::Missing,
+                    pending_publish: false,
+                }),
+                Err(Error::WorkbookTampered { results }) => out.extend(results),
+                Err(error) => return Err(error),
             };
-            out.push(VerifyRow {
-                id: row.id,
-                version: row.version,
-                status,
-            });
         }
         Ok(out)
+    }
+
+    /// 清理写操作留下的pending元数据；失败只返回维护诊断，不回滚已提交业务结果。
+    pub fn cleanup_pending(&self) -> Result<Vec<String>> {
+        let session = crate::session::WriteSession::open_existing(&self.home)?;
+        crate::pending::cleanup(&self.home, &session.store, &session.lock)
     }
 
     /// 受限复制：拒绝软链、硬链、非普通文件、单文件超 32 MiB、总量超 256 MiB。
