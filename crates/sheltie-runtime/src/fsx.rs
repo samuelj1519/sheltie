@@ -567,6 +567,85 @@ impl ManagedFs {
         )
     }
 
+    pub(crate) fn make_managed_tree_writable(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.verify_tree_at(tree, path)?;
+        set_dir_tree_mode(
+            &tree.file,
+            &self.display_path(path),
+            self.root.as_str(),
+            0o644,
+            0o755,
+        )?;
+        fchmod(&tree.file, Mode::from_raw_mode(0o755))
+            .map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        fsync(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        self.verify_tree_at(tree, path)
+    }
+
+    pub(crate) fn remove_managed_tree(
+        &self,
+        lock: &crate::home::HomeLock,
+        tree: &ManagedTree,
+        path: &ManagedRelPath,
+        request_id: &str,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.check_tree_root(tree)?;
+        let (parent, leaf) = self.open_parent(path)?;
+        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;
+        remove_directory_contents(&tree.file, &self.display_path(path))?;
+        fsync(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        crate::failpoint::rendezvous("delete_before_root_unlink", request_id)
+            .map_err(|error| Error::io(self.display_path(path), error))?;
+        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path)).map_err(
+            |error| Error::RecoveryRequired {
+                path: self.display_path(path),
+                detail: format!("删除内容后待unlink目录身份改变：{error}"),
+            },
+        )?;
+        unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(path),
+            detail: format!("目录内容已删但根目录删除失败：{error}"),
+        })?;
+        fsync(&parent).map_err(|error| Error::RecoveryRequired {
+            path: self.display_path(path),
+            detail: format!("目录已删但父目录同步失败：{error}"),
+        })
+    }
+
+    pub(crate) fn sync_regular_file_handle_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        file: &SafeFile,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {
+            reason: format!("{} 不是受管文件句柄", file.path),
+        })?;
+        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 的文件句柄身份与同步路径不一致", file.path),
+            });
+        }
+        let (parent, leaf) = self.open_parent(path)?;
+        verify_path_matches_handle(&parent, &leaf, file)?;
+        fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+        verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {
+            Error::RecoveryRequired {
+                path: self.display_path(path),
+                detail: format!("文件同步期间marker路径被替换：{error}"),
+            }
+        })?;
+        fsync(&parent).map_err(|error| map_fs_error(&self.display_path(path), error))
+    }
+
     pub(crate) fn sync_publish_parents_locked(
         &self,
         lock: &crate::home::HomeLock,
@@ -1233,25 +1312,6 @@ impl ManagedFs {
         )?;
         fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
     }
-
-    pub fn make_tree_writable(
-        &self,
-        lock: &crate::home::HomeLock,
-        path: &ManagedRelPath,
-    ) -> Result<()> {
-        self.check_lock(lock)?;
-        let dir = self.open_dir(Some(path))?;
-        set_dir_tree_mode(
-            &dir,
-            &self.display_path(path),
-            self.root.as_str(),
-            0o644,
-            0o755,
-        )?;
-        fchmod(&dir, Mode::from_raw_mode(0o755))
-            .map_err(|e| map_fs_error(&self.display_path(path), e))?;
-        fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
-    }
 }
 
 fn directory_entry_names(directory: &std::fs::File, display: &str) -> Result<Vec<String>> {
@@ -1357,6 +1417,26 @@ fn sync_rename_parents(
         path: target_display.to_string(),
         detail: format!("rename已生效但目标目录同步失败：{error}"),
     })
+}
+
+fn verify_tree_entry_at(
+    parent: &std::fs::File,
+    leaf: &str,
+    tree: &std::fs::File,
+    display: &str,
+) -> Result<()> {
+    let entry = statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW)
+        .map_err(|error| map_fs_error(display, error))?;
+    let held = fstat(tree).map_err(|error| map_fs_error(display, error))?;
+    if FileType::from_raw_mode(entry.st_mode) != FileType::Directory
+        || entry.st_dev != held.st_dev
+        || entry.st_ino != held.st_ino
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("{display} 不再指向已验证的目录inode"),
+        });
+    }
+    Ok(())
 }
 
 /// 用户显式来源路径的只读句柄。它不提供写入、删除或改权限的方法。
@@ -2129,6 +2209,33 @@ fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Resul
     Ok(std::fs::File::from(fd))
 }
 
+fn remove_directory_contents(directory: &std::fs::File, display: &str) -> Result<()> {
+    let mut removed_child = false;
+    for name in directory_entry_names(directory, display)? {
+        if name == "." || name == ".." {
+            continue;
+        }
+        if let Err(error) = remove_at(directory, &name, &format!("{display}/{name}")) {
+            return Err(sync_partial_delete(directory, display, error));
+        }
+        if !removed_child {
+            removed_child = true;
+            crate::failpoint::maybe_exit("delete_after_first_payload_child");
+        }
+    }
+    Ok(())
+}
+
+fn sync_partial_delete(directory: &std::fs::File, display: &str, delete_error: Error) -> Error {
+    match fsync(directory) {
+        Ok(()) => delete_error,
+        Err(sync_error) => Error::RecoveryRequired {
+            path: display.to_string(),
+            detail: format!("部分删除失败：{delete_error}；已修改目录同步失败：{sync_error}"),
+        },
+    }
+}
+
 fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
     let stat =
         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
@@ -2167,16 +2274,40 @@ fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
     }
     let entries = Dir::read_from(&dir).map_err(|e| map_fs_error(display, e))?;
     for entry in entries {
-        let entry = entry.map_err(|e| map_fs_error(display, e))?;
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(error) => {
+                return Err(sync_partial_delete(
+                    &dir,
+                    display,
+                    Error::io(display, error.into()),
+                ));
+            }
+        };
         let name = entry.file_name().to_bytes();
         if name == b"." || name == b".." {
             continue;
         }
-        let name = std::str::from_utf8(name).map_err(|_| Error::InvalidRequest {
-            reason: format!("{display} 下有非UTF-8文件名，拒绝删除"),
-        })?;
-        remove_at(&dir, name, &format!("{display}/{name}"))?;
+        let name = match std::str::from_utf8(name) {
+            Ok(name) => name,
+            Err(_) => {
+                return Err(sync_partial_delete(
+                    &dir,
+                    display,
+                    Error::InvalidRequest {
+                        reason: format!("{display} 下有非UTF-8文件名，拒绝删除"),
+                    },
+                ));
+            }
+        };
+        if let Err(error) = remove_at(&dir, name, &format!("{display}/{name}")) {
+            return Err(sync_partial_delete(&dir, display, error));
+        }
     }
+    fsync(&dir).map_err(|error| Error::RecoveryRequired {
+        path: display.to_string(),
+        detail: format!("子对象已删除但目录同步失败：{error}"),
+    })?;
     drop(dir);
     unlinkat(parent, leaf, AtFlags::REMOVEDIR).map_err(|e| map_fs_error(display, e))?;
     Ok(())
@@ -2406,16 +2537,6 @@ pub(crate) fn write_exclusive_atomic(
     ManagedFs::open_existing(home)?.write_atomic(lock, &rel, content)
 }
 
-/// 同步目录句柄；失败向caller传播，不能把未持久化的目录项报告为已完成。
-pub(crate) fn fsync_dir(
-    home: &crate::home::Home,
-    lock: &crate::home::HomeLock,
-    dir: &AbsPath,
-) -> Result<()> {
-    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
-    ManagedFs::open_existing(home)?.sync_dir_locked(lock, &rel)
-}
-
 pub(crate) fn managed_directory_exists(
     home: &crate::home::Home,
     lock: &crate::home::HomeLock,
@@ -2459,6 +2580,37 @@ pub(crate) fn rename_managed_tree_new(
 ) -> Result<()> {
     let to = ManagedRelPath::new(to)?;
     ManagedFs::open_existing(home)?.rename_tree_new(lock, tree, &to)
+}
+
+pub(crate) fn make_managed_tree_writable(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+    path: &str,
+) -> Result<()> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.make_managed_tree_writable(lock, tree, &path)
+}
+
+pub(crate) fn remove_managed_tree(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    tree: &ManagedTree,
+    path: &str,
+    request_id: &str,
+) -> Result<()> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.remove_managed_tree(lock, tree, &path, request_id)
+}
+
+pub(crate) fn sync_managed_regular_file_handle(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+    file: &SafeFile,
+) -> Result<()> {
+    let path = ManagedRelPath::new(path)?;
+    ManagedFs::open_existing(home)?.sync_regular_file_handle_locked(lock, &path, file)
 }
 
 pub(crate) fn sync_publish_parents(
@@ -2659,16 +2811,6 @@ pub(crate) fn set_tree_readonly_confined(
     ManagedFs::open_existing(home)?.set_tree_readonly(lock, &rel)
 }
 
-/// 在句柄上整棵放开写权限：文件 0644、目录 0755（含根）。任何检查或权限错误都传播。
-pub(crate) fn make_tree_writable(
-    home: &crate::home::Home,
-    lock: &crate::home::HomeLock,
-    dir: &AbsPath,
-) -> Result<()> {
-    let rel = ManagedRelPath::new(home.to_rel(dir)?)?;
-    ManagedFs::open_existing(home)?.make_tree_writable(lock, &rel)
-}
-
 fn set_dir_tree_mode(
     directory: &std::fs::File,
     display: &str,
@@ -2713,12 +2855,14 @@ fn set_dir_tree_mode(
             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;
             fchmod(&child, Mode::from_raw_mode(directory_mode))
                 .map_err(|e| map_fs_error(&child_display, e))?;
-            crate::failpoint::sync_error(root, "publish_readonly_nested_dir_sync").map_err(
-                |error| Error::RecoveryRequired {
-                    path: child_display.clone(),
-                    detail: format!("只读权限已设置但嵌套目录同步失败：{error}"),
-                },
-            )?;
+            if file_mode == 0o444 && directory_mode == 0o555 {
+                crate::failpoint::sync_error(root, "publish_readonly_nested_dir_sync").map_err(
+                    |error| Error::RecoveryRequired {
+                        path: child_display.clone(),
+                        detail: format!("只读权限已设置但嵌套目录同步失败：{error}"),
+                    },
+                )?;
+            }
             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;
         } else if file_type == FileType::RegularFile {
             check_regular_stat(&child_display, &stat)?;
@@ -2739,12 +2883,14 @@ fn set_dir_tree_mode(
             let file = std::fs::File::from(fd);
             fchmod(&file, Mode::from_raw_mode(file_mode))
                 .map_err(|e| map_fs_error(&child_display, e))?;
-            crate::failpoint::sync_error(root, "publish_readonly_file_sync").map_err(|error| {
-                Error::RecoveryRequired {
-                    path: child_display.clone(),
-                    detail: format!("只读权限已设置但文件同步失败：{error}"),
-                }
-            })?;
+            if file_mode == 0o444 && directory_mode == 0o555 {
+                crate::failpoint::sync_error(root, "publish_readonly_file_sync").map_err(
+                    |error| Error::RecoveryRequired {
+                        path: child_display.clone(),
+                        detail: format!("只读权限已设置但文件同步失败：{error}"),
+                    },
+                )?;
+            }
             fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;
         } else {
             return Err(Error::InvalidRequest {

@@ -262,6 +262,9 @@ impl WorkbookRepo {
             at: ctx.now,
         };
         let replayed = matches!(repo.store.commit(input)?, CommitOutcome::Replayed { .. });
+        if !replayed {
+            crate::failpoint::maybe_exit("after_commit_before_effects");
+        }
         repo.recover_finish_request(&lock, &request_id, false)?;
         if replayed {
             let row =
@@ -737,7 +740,8 @@ impl WorkbookRepo {
             .into_iter()
             .find(|row| row.version == version);
         let Some(registered) = registered else {
-            if dir.as_path().exists() {
+            let dir_rel = self.home.to_rel(&dir)?;
+            if crate::fsx::managed_directory_exists(&self.home, &lock, &dir_rel)? {
                 return Err(Error::StoreCorrupt {
                     detail: format!("Workbook目录 {dir} 存在但没有对应登记行，拒绝删除"),
                 });
@@ -753,17 +757,26 @@ impl WorkbookRepo {
             });
         }
         let registered_digest = registered.digest.clone();
-        if dir.as_path().exists() {
-            let current = Self::digest_dir(&dir)?;
-            if current.as_str() != registered.digest {
-                return Err(Error::WorkbookTampered {
-                    results: vec![VerifyRow {
-                        id: id.to_string(),
-                        version: version.to_string(),
-                        status: VerifyStatus::Tampered,
-                    }],
-                });
+        sheltie_core::digest::Sha256Hex::new(registered_digest.clone()).map_err(|error| {
+            Error::StoreCorrupt {
+                detail: format!("Workbook {id}@{version} 登记摘要无效：{error}"),
             }
+        })?;
+        let dir_rel = self.home.to_rel(&dir)?;
+        if !crate::fsx::managed_directory_exists(&self.home, &lock, &dir_rel)? {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Workbook {id}@{version} 有登记行但最终目录缺失，拒绝删除"),
+            });
+        }
+        let current = crate::workbook_digest::digest_managed_dir_v2(&self.home, &dir)?;
+        if current.as_str() != registered_digest {
+            return Err(Error::WorkbookTampered {
+                results: vec![VerifyRow {
+                    id: id.to_string(),
+                    version: version.to_string(),
+                    status: VerifyStatus::Tampered,
+                }],
+            });
         }
         // 引用检查与删行在同一个事务（存储合同 §5.2）；损坏引用行在事务内停止。
         let ctx = Context {
@@ -812,6 +825,9 @@ impl WorkbookRepo {
             at: ctx.now,
         };
         let replayed = matches!(repo.store.commit(input)?, CommitOutcome::Replayed { .. });
+        if !replayed {
+            crate::failpoint::maybe_exit("after_commit_before_effects");
+        }
         repo.recover_finish_request(&lock, &request_id, false)?;
         if replayed {
             let row =
