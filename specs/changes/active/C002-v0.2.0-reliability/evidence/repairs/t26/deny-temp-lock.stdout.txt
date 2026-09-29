@@ -1,0 +1,4 @@
+Command: CARGO_HOME=/private/tmp/c002-cargo-home CARGO_NET_OFFLINE=true cargo deny check
+Exit: 1
+Output:
+2026-09-29 02:50:11 [ERROR] failed to acquire advisory database lock: failed to obtain lock file '/private/tmp/c002-cargo-home/advisory-dbs/db.lock': failed to acquire lock within the specified duration

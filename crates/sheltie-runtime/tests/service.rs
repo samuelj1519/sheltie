@@ -34,6 +34,99 @@ fn two_step_start_args() -> StartArgs {
     }
 }
 
+fn unpublished_start_fixture() -> (
+    tempfile::TempDir,
+    sheltie_runtime::Home,
+    sheltie_runtime::WorkService,
+    sheltie_core::ids::WorkId,
+    String,
+    std::path::PathBuf,
+    std::path::PathBuf,
+) {
+    let (dir, home, svc) = home_with_example("two-step");
+    let request_id = format!("t26-start-{}", uuid::Uuid::now_v7());
+    let started = svc
+        .start(two_step_start_args(), Some(request_id.clone()))
+        .unwrap();
+    let work = work_id_of(&started);
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let effects: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+    let pending = effects[0]["pending"].as_str().unwrap();
+    let internal_id = pending.split('/').nth(1).unwrap();
+    let payload = home
+        .rel(&format!("pending/{internal_id}/payload"))
+        .unwrap()
+        .as_path()
+        .to_path_buf()
+        .into_std_path_buf();
+    let final_path = std::path::PathBuf::from(home.work_dir(&work).as_str());
+    std::fs::rename(&final_path, &payload).unwrap();
+    conn.execute(
+        "UPDATE requests SET published = 0 WHERE request_id = ?1",
+        [&request_id],
+    )
+    .unwrap();
+    drop(conn);
+    (dir, home, svc, work, request_id, payload, final_path)
+}
+
+fn assert_blocked_unpublished_start(
+    home: &sheltie_runtime::Home,
+    service: &sheltie_runtime::WorkService,
+    work: &sheltie_core::ids::WorkId,
+    request_id: &str,
+    payload: &Path,
+    final_path: &Path,
+    cause: sheltie_core::error::ErrorCode,
+) {
+    let blocker_id = "t26-blocked-request";
+    let error = service
+        .cancel(work, Some(blocker_id.to_string()))
+        .unwrap_err();
+    let Error::EffectPending {
+        committed,
+        request_id: current,
+        pending_request_id,
+        cause: actual_cause,
+        ..
+    } = error
+    else {
+        panic!("恢复失败必须保留pending归属：{error:?}");
+    };
+    assert!(!committed);
+    assert_eq!(current, blocker_id);
+    assert_eq!(pending_request_id.as_deref(), Some(request_id));
+    assert_eq!(actual_cause, cause);
+    assert!(payload.exists(), "失败后保留pending原件");
+    assert!(!final_path.exists(), "身份不符时不得发布final");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [request_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [blocker_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+}
+
 fn node(s: &str) -> NodeId {
     NodeId::new(s).unwrap()
 }
@@ -1871,4 +1964,558 @@ fn recovery_refuses_output_replaced_by_external_symlink() {
     recover_submit_stops_and_keeps_unpublished(&home, &wid, &request_id);
     assert_eq!(std::fs::read(&sentinel).unwrap(), b"external sentinel");
     assert_eq!(std::fs::metadata(&sentinel).unwrap().permissions(), before);
+}
+
+// Task: C002-T26
+#[test]
+fn publication_checks_each_start_input_reference_and_owner_field() {
+    let corruptions = [
+        "start_input_bytes",
+        "start_input_ref_length",
+        "owner_format",
+        "owner_internal_id",
+        "owner_request_id",
+        "owner_op",
+        "effect_owner",
+        "effect_digest_root",
+    ];
+    for corruption in corruptions {
+        let (_dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+        let owner_file = payload.parent().unwrap().parent().unwrap().join(format!(
+            "{}.owner",
+            payload
+                .parent()
+                .unwrap()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+        ));
+        match corruption {
+            "start_input_bytes" => {
+                let input = payload.join("start-inputs/topic");
+                std::fs::write(input, "搁新人介绍 Sheltie".as_bytes()).unwrap();
+            }
+            "start_input_ref_length" => {
+                let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+                let work_id: String = conn
+                    .query_row(
+                        "SELECT work_id FROM requests WHERE request_id = ?1",
+                        [&request_id],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let state_raw: String = conn
+                    .query_row(
+                        "SELECT state_json FROM works WHERE work_id = ?1",
+                        [&work_id],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let audit_raw: String = conn
+                    .query_row(
+                        "SELECT command_json FROM audit WHERE request_id = ?1",
+                        [&request_id],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let mut state: serde_json::Value = serde_json::from_str(&state_raw).unwrap();
+                let mut command: serde_json::Value = serde_json::from_str(&audit_raw).unwrap();
+                state["inputs"]["topic"]["bytes"] =
+                    serde_json::json!(state["inputs"]["topic"]["bytes"].as_u64().unwrap() + 1);
+                command["inputs"]["topic"]["bytes"] = state["inputs"]["topic"]["bytes"].clone();
+                conn.execute(
+                    "UPDATE works SET state_json = ?1 WHERE work_id = ?2",
+                    rusqlite::params![serde_json::to_string(&state).unwrap(), work_id],
+                )
+                .unwrap();
+                conn.execute(
+                    "UPDATE audit SET command_json = ?1 WHERE request_id = ?2",
+                    rusqlite::params![serde_json::to_string(&command).unwrap(), request_id],
+                )
+                .unwrap();
+            }
+            "owner_format" | "owner_internal_id" | "owner_request_id" | "owner_op" => {
+                let mut owner: serde_json::Value =
+                    serde_json::from_slice(&std::fs::read(&owner_file).unwrap()).unwrap();
+                let field = match corruption {
+                    "owner_format" => "format",
+                    "owner_internal_id" => "internal_id",
+                    "owner_request_id" => "request_id",
+                    _ => "op",
+                };
+                owner[field] = match field {
+                    "format" => serde_json::json!("pending/v2"),
+                    "internal_id" => serde_json::json!("00000000000000000000000000000000"),
+                    "request_id" => serde_json::json!("another-opaque-id"),
+                    _ => serde_json::json!("add_workbook"),
+                };
+                let mut bytes = serde_json::to_vec(&owner).unwrap();
+                bytes.push(b'\n');
+                std::fs::write(owner_file, bytes).unwrap();
+            }
+            "effect_owner" | "effect_digest_root" => {
+                let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+                let raw: String = conn
+                    .query_row(
+                        "SELECT effects_json FROM requests WHERE request_id = ?1",
+                        [&request_id],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let mut effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+                if corruption == "effect_owner" {
+                    effects[0]["owner"] = serde_json::json!("work:w20260929-999-tampered");
+                } else {
+                    effects[0]["digest_root"] = serde_json::json!("");
+                }
+                conn.execute(
+                    "UPDATE requests SET effects_json = ?1 WHERE request_id = ?2",
+                    rusqlite::params![serde_json::to_string(&effects).unwrap(), request_id],
+                )
+                .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        assert_blocked_unpublished_start(
+            &home,
+            &svc,
+            &work,
+            &request_id,
+            &payload,
+            &final_path,
+            sheltie_core::error::ErrorCode::StoreCorrupt,
+        );
+    }
+}
+
+// Task: C002-T26
+#[test]
+fn final_only_publication_recovery_checks_start_input_bytes() {
+    let (_dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+    std::fs::rename(&payload, &final_path).unwrap();
+    let input = final_path.join("start-inputs/topic");
+    assert_eq!(
+        std::fs::read(&input).unwrap().len(),
+        "搁新人介绍 Sheltie".len()
+    );
+    std::fs::write(&input, "搁新人介绍 Sheltie".as_bytes()).unwrap();
+    let blocker_id = "t26-blocked-final-only";
+    let error = svc.cancel(&work, Some(blocker_id.to_string())).unwrap_err();
+    let Error::EffectPending {
+        committed,
+        pending_request_id,
+        cause,
+        ..
+    } = error
+    else {
+        panic!("final-only恢复输入不符必须停止：{error:?}");
+    };
+    assert!(!committed);
+    assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
+    assert_eq!(cause, sheltie_core::error::ErrorCode::StoreCorrupt);
+    assert!(!payload.exists());
+    assert!(final_path.exists());
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT COUNT(*) FROM requests WHERE request_id = ?1",
+            [blocker_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
+}
+
+// Task: C002-T26
+#[test]
+fn publication_keeps_start_input_permission_failure_as_io() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let (_dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+    let input = payload.join("start-inputs/topic");
+    let mode = std::fs::metadata(&input).unwrap().permissions().mode();
+    std::fs::set_permissions(&input, std::fs::Permissions::from_mode(0o0)).unwrap();
+    assert_blocked_unpublished_start(
+        &home,
+        &svc,
+        &work,
+        &request_id,
+        &payload,
+        &final_path,
+        sheltie_core::error::ErrorCode::Io,
+    );
+    assert_eq!(
+        std::fs::metadata(&input).unwrap().permissions().mode() & 0o777,
+        0
+    );
+    std::fs::set_permissions(&input, std::fs::Permissions::from_mode(mode)).unwrap();
+}
+
+// Task: C002-T26
+#[test]
+fn real_workbook_add_and_start_final_publications_serve_status_and_show() {
+    let (_dir, home) = temp_home();
+    let workbook_source = example_dir("two-step");
+    let added = repo(&home)
+        .add(&abs(&workbook_source), Some("t26-workbook-add".to_string()))
+        .unwrap();
+    assert_eq!(added.request_id, "t26-workbook-add");
+    let shown = repo(&home).load("two-step", None).unwrap();
+    assert_eq!(shown.manifest.id().as_str(), "two-step");
+    assert_eq!(shown.manifest.version(), "1.0.0");
+
+    let svc = service(&home);
+    let started = svc
+        .start(two_step_start_args(), Some("t26-work-start".to_string()))
+        .unwrap();
+    let work = work_id_of(&started);
+    let (card, _) = svc.status(&work).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(
+            home.work_dir(&work)
+                .join_segment("status-card.md")
+                .as_path()
+        )
+        .unwrap(),
+        card
+    );
+    assert_eq!(
+        std::fs::read(
+            home.work_dir(&work)
+                .join_segment("start-inputs/topic")
+                .as_path()
+        )
+        .unwrap(),
+        "给新人介绍 Sheltie".as_bytes()
+    );
+
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    for request_id in ["t26-workbook-add", "t26-work-start"] {
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            1
+        );
+    }
+}
+
+// Task: C002-T26
+#[cfg(feature = "failpoint")]
+#[test]
+fn publication_sync_failures_leave_effect_pending_and_retry_same_object() {
+    use std::os::unix::fs::MetadataExt as _;
+
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+    for sync_point in [
+        "publish_file_sync",
+        "publish_tree_nested_dir_sync",
+        "publish_tree_root_sync",
+        "publish_source_parent_sync",
+        "publish_target_parent_sync",
+        "publish_final_root_sync",
+        "publish_readonly_file_sync",
+        "publish_readonly_nested_dir_sync",
+        "publish_readonly_root_sync",
+    ] {
+        let (_dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+        sheltie_runtime::failpoint::arm_sync_error(home.root().as_str(), sync_point).unwrap();
+        let error = svc
+            .cancel(&work, Some("t26-blocked-request".to_string()))
+            .unwrap_err();
+        sheltie_runtime::failpoint::disarm_sync_error().unwrap();
+        let Error::EffectPending {
+            committed,
+            pending_request_id,
+            cause,
+            cause_detail,
+            ..
+        } = error
+        else {
+            panic!("sync失败必须准确返回EFFECT_PENDING：{error:?}");
+        };
+        assert!(!committed);
+        assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
+        assert_eq!(cause, sheltie_core::error::ErrorCode::Io);
+        assert!(cause_detail.contains("injected sync failure"));
+        let before_rename = matches!(
+            sync_point,
+            "publish_file_sync" | "publish_tree_nested_dir_sync" | "publish_tree_root_sync"
+        );
+        if before_rename {
+            assert!(payload.exists(), "rename前文件sync失败时保留pending原件");
+            assert!(!final_path.exists(), "文件sync未成功不得rename");
+        } else {
+            assert!(!payload.exists(), "rename后失败时pending路径不再存在");
+            assert!(final_path.exists(), "rename后的唯一final原件必须保留");
+        }
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT COUNT(*) FROM requests WHERE request_id = 't26-blocked-request'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+
+        sheltie_runtime::failpoint::arm_sync_error(home.root().as_str(), sync_point).unwrap();
+        let retry_error = svc
+            .cancel(&work, Some("t26-blocked-request".to_string()))
+            .unwrap_err();
+        sheltie_runtime::failpoint::disarm_sync_error().unwrap();
+        let Error::EffectPending {
+            committed,
+            pending_request_id,
+            cause,
+            cause_detail,
+            ..
+        } = retry_error
+        else {
+            panic!("恢复重试必须再次经过{sync_point}：{retry_error:?}");
+        };
+        assert!(!committed);
+        assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
+        assert_eq!(cause, sheltie_core::error::ErrorCode::Io);
+        assert!(cause_detail.contains("injected sync failure"));
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0,
+            "同一同步点第二次失败不得mark published"
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT COUNT(*) FROM requests WHERE request_id = 't26-blocked-request'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0
+        );
+
+        let inode = if final_path.exists() {
+            Some(std::fs::metadata(&final_path).unwrap().ino())
+        } else {
+            None
+        };
+        svc.cancel(&work, Some("t26-blocked-request".to_string()))
+            .unwrap();
+        if let Some(inode) = inode {
+            assert_eq!(std::fs::metadata(&final_path).unwrap().ino(), inode);
+        }
+        assert_eq!(
+            std::fs::read(final_path.join("start-inputs/topic")).unwrap(),
+            "给新人介绍 Sheltie".as_bytes()
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            1
+        );
+    }
+}
+
+// Task: C002-T26
+#[cfg(feature = "failpoint")]
+#[test]
+fn start_replay_sync_failure_preserves_own_commit_snapshot() {
+    use std::os::unix::fs::MetadataExt as _;
+
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+    let (_dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let original_reply: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+
+    for retry_index in 0..2 {
+        sheltie_runtime::failpoint::arm_sync_error(
+            home.root().as_str(),
+            "publish_source_parent_sync",
+        )
+        .unwrap();
+        let error = svc
+            .start(two_step_start_args(), Some(request_id.clone()))
+            .unwrap_err();
+        sheltie_runtime::failpoint::disarm_sync_error().unwrap();
+        let Error::EffectPending {
+            committed,
+            request_id: actual_request,
+            pending_request_id,
+            cause,
+            original,
+            ..
+        } = error
+        else {
+            panic!("同一start重放的sync失败必须保留本请求归属：{error:?}");
+        };
+        assert!(committed);
+        assert_eq!(actual_request, request_id);
+        assert!(pending_request_id.is_none());
+        assert_eq!(cause, sheltie_core::error::ErrorCode::Io);
+        let original: serde_json::Value =
+            serde_json::from_str(original.as_deref().unwrap()).unwrap();
+        assert_eq!(original["ok"], true);
+        assert_eq!(original["request_id"], request_id);
+        assert_eq!(original["revision"], 1);
+        assert!(original["next"].is_array());
+        assert_eq!(original["data"]["work_id"], work.as_str());
+        assert!(!payload.exists());
+        assert!(final_path.exists());
+        assert_eq!(
+            conn.query_row(
+                "SELECT published FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            0,
+            "第 {retry_index} 次同请求恢复的父sync仍失败，不得mark"
+        );
+    }
+
+    let inode = std::fs::metadata(&final_path).unwrap().ino();
+    let replayed = svc
+        .start(two_step_start_args(), Some(request_id.clone()))
+        .unwrap();
+    assert!(replayed.replayed);
+    assert_eq!(std::fs::metadata(&final_path).unwrap().ino(), inode);
+    assert_eq!(
+        std::fs::read(final_path.join("start-inputs/topic")).unwrap(),
+        "给新人介绍 Sheltie".as_bytes()
+    );
+    let (published, reply_after, row_count): (i64, String, i64) = conn
+        .query_row(
+            "SELECT published, reply_json, COUNT(*) FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(published, 1);
+    assert_eq!(
+        reply_after, original_reply,
+        "重放不可改写提交时snapshot字节"
+    );
+    assert_eq!(row_count, 1);
+}
+
+// Task: C002-T26
+#[cfg(feature = "failpoint")]
+#[test]
+fn publication_refuses_payload_directory_replaced_after_sync() {
+    use std::time::{Duration, Instant};
+
+    let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
+    let (dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
+    let moved = dir.path().join("synced-original-payload");
+    let rendezvous = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "publish_after_tree_sync",
+        &request_id,
+        rendezvous.path(),
+    )
+    .unwrap();
+    struct Guard;
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        }
+    }
+    let _guard = Guard;
+    let recovery_service = svc.clone();
+    let recovery_work = work.clone();
+    let recovery = std::thread::spawn(move || {
+        recovery_service.cancel(&recovery_work, Some("t26-replacement-blocker".to_string()))
+    });
+    let reached = rendezvous.path().join("reached");
+    let release = rendezvous.path().join("release");
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !reached.exists() && Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    if !reached.exists() {
+        let _ = std::fs::write(&release, b"release");
+        let _ = recovery.join();
+        panic!("发布没有到达目录同步后的身份交错点");
+    }
+    std::fs::rename(&payload, &moved).unwrap();
+    std::fs::create_dir(&payload).unwrap();
+    std::fs::create_dir(payload.join("start-inputs")).unwrap();
+    std::fs::write(
+        payload.join("start-inputs/topic"),
+        b"unverified replacement",
+    )
+    .unwrap();
+    std::fs::write(&release, b"release").unwrap();
+
+    let error = recovery.join().unwrap().unwrap_err();
+    let Error::EffectPending {
+        committed,
+        pending_request_id,
+        cause,
+        ..
+    } = error
+    else {
+        panic!("替换原件必须停止并保留归属：{error:?}");
+    };
+    assert!(!committed);
+    assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
+    assert_eq!(cause, sheltie_core::error::ErrorCode::StoreCorrupt);
+    assert!(moved.join("start-inputs/topic").exists());
+    assert_eq!(
+        std::fs::read(moved.join("start-inputs/topic")).unwrap(),
+        "给新人介绍 Sheltie".as_bytes()
+    );
+    assert_eq!(
+        std::fs::read(payload.join("start-inputs/topic")).unwrap(),
+        b"unverified replacement"
+    );
+    assert!(!final_path.exists(), "未核验的替代目录不得发布");
+    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(
+        conn.query_row(
+            "SELECT published FROM requests WHERE request_id = ?1",
+            [&request_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap(),
+        0
+    );
 }

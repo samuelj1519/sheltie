@@ -433,6 +433,7 @@ impl WorkbookRepo {
         };
         let effects = decode_effects(&row.effects_json)?;
         let checked = crate::effects::check_workbook_effects(
+            request_id,
             &audit.work_id,
             audit.revision,
             &audit.at,

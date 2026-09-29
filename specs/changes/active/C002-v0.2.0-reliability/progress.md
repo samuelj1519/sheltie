@@ -6,7 +6,7 @@
 
 - 2026-09-27 用户采用 C002，指示按计划执行到完成。2026-09-28 用户明确跳过Linux相关运行，完成其余修复和M1。
 - 实施进度只看 [plan.md](plan.md) 状态列；历史逐任务原始运行在 [evidence/tNN/](evidence/)。候选e1a8126的 [M1独立审查](review-m1-2026-09-28.md) 为“需修改”；追加修复的开工入口是 [repair-plan.md](repair-plan.md) 的T18，先固定上游调整/API门槛，再按T19–T31依赖修复与验证。
-- 修复后重新固定M1候选，Reviewer不得参与被审代码实施；T16/T17继续需要真实宿主操作者和发布授权。新任务证据写到各任务专属 `evidence/tNN-*`，保留旧M1失败原文，不覆盖历史运行。T19由`ee78118`、T20由`22942ee`、T21由`543f9d2`、T22由`fd21a63`、T23由`7e9178e`、T24由`5d2d051`提交并通过钩子；另针对初始化并发竞态追加T24 follow-up提交`edb86f1`。T23/T24证据见[evidence/repairs/t23](evidence/repairs/t23/README.md)、[evidence/repairs/t24](evidence/repairs/t24/README.md)与[T24并发初始化follow-up](evidence/repairs/t24-followup/README.md)。T25已通过双轴独立Review与macOS全门禁，正在单独提交；清理诊断按计划交T28/V25保持未关闭。
+- 修复后重新固定M1候选，Reviewer不得参与被审代码实施；T16/T17继续需要真实宿主操作者和发布授权。新任务证据写到各任务专属 `evidence/tNN-*`，保留旧M1失败原文，不覆盖历史运行。T19由`ee78118`、T20由`22942ee`、T21由`543f9d2`、T22由`fd21a63`、T23由`7e9178e`、T24由`5d2d051`提交并通过钩子；另针对初始化并发竞态追加T24 follow-up提交`edb86f1`。T23/T24证据见[evidence/repairs/t23](evidence/repairs/t23/README.md)、[evidence/repairs/t24](evidence/repairs/t24/README.md)与[T24并发初始化follow-up](evidence/repairs/t24-followup/README.md)。T25已提交`1d92bcd`，通过双轴独立Review、macOS全门禁与提交后任务门禁；cleanup诊断按计划交T28/V25，仍未关闭。T26已通过双轴独立Review、macOS Rust/MSRV/deny/文档门禁与全仓585项测试，现按独立任务提交；Linux保持`not_run`。
 
 ## 跨任务事实
 
