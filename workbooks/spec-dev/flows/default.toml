@@ -37,6 +37,11 @@ inputs = [
   { name = "task_rules", from = "resource.resources/checklists/task-rules.md" },
   { name = "decision",   from = "plan-review.decision", required = false },
   { name = "escalation", from = "escalate.decision",    required = false },
+  { name = "previous_plan", from = "plan-review.reviewed-plan", required = false },
+  { name = "previous_tasks", from = "plan-review.reviewed-tasks", required = false },
+  { name = "previous_verification", from = "verify.report", required = false },
+  { name = "previous_change", from = "implement.change", required = false },
+  { name = "previous_fix_change", from = "fix.change", required = false },
 ]
 outputs = [
   { name = "plan",  path = "plan.md",  max_bytes = 65536 },
@@ -54,7 +59,11 @@ inputs = [
   { name = "plan",  from = "plan.plan" },
   { name = "tasks", from = "plan.tasks" },
 ]
-outputs = [{ name = "decision", path = "decision.md", max_bytes = 16384 }]
+outputs = [
+  { name = "decision", path = "decision.md", max_bytes = 16384 },
+  { name = "reviewed-plan", path = "reviewed-plan.md", max_bytes = 65536 },
+  { name = "reviewed-tasks", path = "reviewed-tasks.md", max_bytes = 65536 },
+]
 max_visits = 4
 
 [[nodes]]
@@ -147,6 +156,8 @@ title = "人工决策：卡住、反复失败或需要授权"
 executor = "human"
 instruction = { file = "instructions/escalate.md" }
 inputs = [
+  { name = "spec",             from = "spec.spec" },
+  { name = "approval",         from = "plan-review.decision" },
   { name = "tasks",            from = "plan.tasks" },
   { name = "plan",             from = "plan.plan" },
   { name = "scaffold_report",  from = "scaffold.scaffold",  required = false },

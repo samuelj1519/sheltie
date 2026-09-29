@@ -69,7 +69,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
 | V26 / T28 / R09 | 合法待发布Workbook/Work与合法侧车；另有published1且已清元数据的final | 仅让final暂缺；另例只在读期间rename | list/show/verify/status及start preflight从同一原件读，pending_publish准确、verify为ok；完成对象清理后仍可读/重放；有限重读，无业务写/引擎.lock，SQLite控制变化另记；`pending_workbook_is_readable_without_recovery` |
 | V27 / T28 / R09 | pending副本完整 | 仅删owner或唯一原件；另例旁边另装同id其他版本 | STORE_CORRUPT/暂时IO按合同，不能回退其他版本、不能写或恢复 |
 | V28 / T29 / R15 | stats/next来自同一装入state | 装入后、渲染前同步让另一写者改变Store | 本响应stats/next仍同revision事实；随后新查询才能反映新状态；`stats_and_next_share_one_loaded_state` |
-| V29 / T30 / R16 | plan第一次，旧输入null | 仅让plan-review沿back再次plan | reviewed_plan/tasks是被审输入的原字节镜像；第二brief包含其冻结路径，合法不同节点来源；`replan_brief_binds_previous_plan_and_tasks` |
+| V29 / T30 / R16 | plan第一次，旧输入null | 仅让plan-review沿back再次plan | reviewed-plan/tasks是被审输入的原字节镜像；第二brief包含其冻结路径，合法不同节点来源；`replan_brief_binds_previous_plan_and_tasks` |
 | V30 / T30 / R16 | task1提交并经独立verify记累计表后重规划 | 仅改整体基线；另例丢verify累计表中一条完成记录/原始证据 | fresh worker只读brief输入+真实Git得到Task/commit/原基线，非法材料停止；最终范围仍含task1；不从冻结tasks或测试闭包猜完成事实 |
 | V31 / T31 / R17 | 先启动全部参与者、同步事件控制窗口 | 独立审查旧lazy spawn→join及sleep | 两个线程确实同时到达指定窗口，最后才join；否定控制摘掉锁/同步应暴露违规，不靠重复运行碰运气 |
 | V32 / T31 / R17 | 每个能力有生产入口与独立oracle | mutant移除/改变单一保护条件 | 被正确反例捕获；存活逐一说明当前义务、consumer、oracle与保留/删除理由；未运行不能PASS |

@@ -181,7 +181,9 @@ allow_test_changes = true
 
 [C002-T30]
 files = ["workbooks/spec-dev","specs/changes/active/C002-v0.2.0-reliability"]
-test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-core/tests/examples.rs"]
+# 重规划回归放同一CLI测试binary的子模块，复用既有临时Git/真实命令fixture，避免继续扩大旧场景文件。
+# 全仓T30验收发现runtime测试内cargo重建共享CLI引发ENOENT；提前迁入T31的二进制注入步骤，断言/Owner保持。
+test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cli/tests/common/spec_dev_replan.rs","crates/sheltie-core/tests/examples.rs","crates/sheltie-cli/tests/crash.rs","crates/sheltie-cli/tests/os_process.rs","crates/sheltie-runtime/tests/crash.rs","crates/sheltie-runtime/tests/selfmgmt.rs","crates/sheltie-runtime/tests/workbook_identity.rs"]
 allow_test_changes = true
 
 [C002-T31]

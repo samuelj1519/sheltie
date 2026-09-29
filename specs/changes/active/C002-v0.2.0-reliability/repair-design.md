@@ -201,7 +201,7 @@ install/update/rollback/uninstall 全部使用 T19 文件模块，临时名字�
 
 `load.rs` 的只读 Work 装入返回 state/revision/graph/定位事实。runtime 同一次装入构建 stats 与 next，CLI 不再另调 status。测试用明确同步事件在“装入完成/渲染之前”让写者改变 Store；响应中的统计与 next 仍来自原一份 state，不要求它等于随后发起的最新查询。
 
-spec-dev不修改core“来源节点不能是自己”的规则。plan-review保留decision.md/16384字节，新增必需reviewed_plan→reviewed-plan.md、reviewed_tasks→reviewed-tasks.md，两个上限均65536字节；审核人按任务书把本轮plan/tasks输入原字节复制到这些输出再提交decision。批准/打回都保存被审副本。plan增加optional previous_plan←plan-review.reviewed_plan、previous_tasks←plan-review.reviewed_tasks；不同节点显式back满足现行规则。首次null，之后绑定上次被审副本，不依赖聊天或缓存。
+spec-dev不修改core“来源节点不能是自己”的规则。plan-review保留decision.md/16384字节，新增必需reviewed-plan→reviewed-plan.md、reviewed-tasks→reviewed-tasks.md，两个上限均65536字节；审核人按任务书把本轮plan/tasks输入原字节复制到这些输出再提交decision。批准/打回都保存被审副本。plan增加optional previous_plan←plan-review.reviewed-plan、previous_tasks←plan-review.reviewed-tasks；不同节点显式back满足现行规则。首次null，之后绑定上次被审副本，不依赖聊天或缓存。
 
 冻结旧tasks只含定义，不含后来完成事实。implement.change/fix.change记录“继承验证报告”的实际绑定路径并原样携带其累计表；verify在report写本轮检查的change/fix路径和继承来源，先与源表逐行比对、保留所有已有行，独立过Git/范围/门禁后才追加本任务，失败不追加。每行含Task、任务基线/候选commit、原审批spec/plan摘要、冻结verify报告和原始门禁路径。report写自己输出路径即可，不算自引用sha；表累计到最多20任务仍受32768字节报告上限，不复制全文历史。这是协调者/worker核查的业务文档，引擎不解释结论、不写为WorkState字段。
 

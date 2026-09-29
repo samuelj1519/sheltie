@@ -126,34 +126,6 @@ fn readonly_open_never_creates_home() {
     assert!(entries.is_empty(), "只读不得建目录：{entries:?}");
 }
 
-/// 真实 `sheltie` 二进制路径：问 cargo 要（crash.rs 的做法），不信相对 target 推断。
-fn sheltie_bin() -> std::path::PathBuf {
-    let out = std::process::Command::new("cargo")
-        .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."))
-        .args(["build", "-p", "sheltie-cli", "--message-format=json"])
-        .output()
-        .unwrap();
-    assert!(
-        out.status.success(),
-        "cargo build 失败：{}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-    for line in String::from_utf8_lossy(&out.stdout).lines() {
-        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
-            continue;
-        };
-        if v["reason"] == "compiler-artifact"
-            && v["target"]["name"] == "sheltie"
-            && v["executable"].is_string()
-        {
-            let p = std::path::PathBuf::from(v["executable"].as_str().unwrap_or_default());
-            assert!(p.exists(), "cargo 报的路径不存在：{}", p.display());
-            return p;
-        }
-    }
-    panic!("cargo 没报出 sheltie 的可执行文件路径");
-}
-
 fn account_name_oracle() -> String {
     let out = std::process::Command::new("id")
         .arg("-un")
@@ -161,54 +133,6 @@ fn account_name_oracle() -> String {
         .unwrap();
     assert!(out.status.success());
     String::from_utf8(out.stdout).unwrap().trim().to_string()
-}
-
-/// 主体取真实 OS 身份：伪造 `USER` 的子进程里跑真实 CLI 开 Work，audit 主体既不等于
-/// 伪造值、又与 `id -un` 的独立输出一致（D-036 的确认方式）。
-// Task: C002-T05
-#[test]
-fn audit_principal_ignores_spoofed_user_env() {
-    let (_d, home) = temp_home();
-    repo(&home)
-        .add(&abs(&example_dir("two-step")), None)
-        .unwrap();
-
-    let out = std::process::Command::new(sheltie_bin())
-        .env("USER", "spoofed-auditor")
-        .env("USERNAME", "spoofed-auditor")
-        .env("SHELTIE_HOME", home.root().as_str())
-        .args([
-            "work",
-            "start",
-            "--workbook",
-            "two-step",
-            "--flow",
-            "default",
-            "--input",
-            "topic=t",
-        ])
-        .output()
-        .unwrap();
-    assert!(
-        out.status.success(),
-        "start 失败：{}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-
-    let conn = rusqlite::Connection::open_with_flags(
-        home.store_path().as_str(),
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
-    )
-    .unwrap();
-    let principal: String = conn
-        .query_row(
-            "SELECT principal FROM audit ORDER BY seq DESC LIMIT 1",
-            [],
-            |r| r.get(0),
-        )
-        .unwrap();
-    assert_ne!(principal, "spoofed-auditor");
-    assert_eq!(principal, account_name_oracle());
 }
 
 /// in-process 读取同样不采信 USER（principal 不读环境变量；这里只验证它等于 oracle）。

@@ -26,7 +26,7 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 | --- | --- | --- | --- |
 | `spec` | 强模型 | `spec.md` | 把需求写成可验收的规格；问题先给推荐答案 |
 | `plan` | 强模型 | `plan.md`、`tasks.md` | 技术方案、门禁命令、三到二十个填空式任务 |
-| `plan-review` | 人 | `decision.md` | 第一行 `通过 / 修改规格 / 修改方案` |
+| `plan-review` | 人 | `decision.md`、被审方案与任务清单的原字节副本 | 第一行 `通过 / 修改规格 / 修改方案`，三份输出都要提交 |
 | `scaffold` | 强模型 | `scaffold.md` 加一次骨架提交 | 全部类型、签名、注释、占位函数体、禁用的测试。最后一个做设计的步骤 |
 | `implement` | 标准模型 | `change.md` | 一次一个任务：启用测试、填占位体、过门禁、提交。第一行 `完成 Tnn / 卡住 Tnn` |
 | `verify` | 标准模型（新会话） | `report.md` | 自己跑单任务测试与门禁，按本任务的基线与候选核对改动、占位与批准版本；第一行 `通过，下一任务 Tnn / 通过，全部完成 / 不通过 / 不通过，需要人` |
@@ -73,6 +73,16 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 
 `implement` 每次只做一个任务。任务清单有 N 个任务，`implement` 与 `verify` 就各跑 N 次。`max_visits` 上限是 24 与 32；更大的需求先拆。
 
+## 重规划交接
+
+plan-review 总是保存本次被审 plan/tasks 的原字节副本。下一次 plan 的任务书会绑定 previous_plan、previous_tasks，以及可用的 previous_verification、previous_change、previous_fix_change；新 worker 只需这些路径与 project Git 即可恢复整体原始基线和已验证前缀。
+
+实现和修复记录原样携带已有验证行，独立 verify 在核 Git、批准版本、门禁和原始证据之后追加本任务。planner 沿引用逐行核对，缺字段、漏行或基线变化时停止，不能从旧任务清单或聊天猜完成事实。尚未验证的当前变更只交接旧前缀。
+
+重规划保留原始基线和历史验证行。验收条件变化时列出需重验事项，经过新 plan-review 批准后执行重验。表只保存路径与哈希引用，不复制全部报告正文。测试名描述行为，任务归属单独记录，不强制 tNN 前缀。
+
+本次定义用独立管理根回归。已安装的同 id/version 不被覆盖，已有 Work 继续使用自己的冻结 Workbook，不能原地改写其图或说明书。
+
 ## 给用户
 
 ```bash
@@ -83,9 +93,9 @@ sheltie work start --workbook spec-dev --flow default \
   --input project=/abs/path/to/repo
 ```
 
-然后在 Claude Code 里 `/sheltie`，选这个 Work。你一定会被找两次，偶尔第三次：
+然后在 Claude Code 里 `/sheltie`，选这个 Work。流程必经规划审核和最终批准两个位置；重规划会再次审核，卡住时另走升级：
 
-1. `plan-review`。读 `spec.md`、`plan.md`、`tasks.md`，写 `decision.md`，按任务书末尾的命令提交。
+1. `plan-review`。读 `spec.md`、`plan.md`、`tasks.md`，把实际被审 plan/tasks 原字节复制到 reviewed-plan/reviewed-tasks，核摘要相同，再写 decision.md。通过或打回都提交三份输出。
 2. `escalate`，只在 agent 卡住、同一任务修两轮不过、或要做需要授权的事时。读它的报告，写四个词之一加意见。授权要写清范围。
 3. `retro` 之后。读 `delivery.md`，满意就运行里面列的对外动作（push、开 PR），再 `sheltie gate approve <work> --node retro`。不满意就 `work cancel`，或者手工改完再批准。顺手读 `lessons.md`：每条建议指向这份 Workbook 的一个文件一段，采纳的就改进下一版，在 README 修订记录里写「采纳 L1、L3，否决 L2（原因）」。
 

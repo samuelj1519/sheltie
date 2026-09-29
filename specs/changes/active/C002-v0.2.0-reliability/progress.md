@@ -18,3 +18,5 @@
 - 测试由各任务自己编写并挂 `// Task: C002-Tnn` 归属；期望值用独立 oracle（手工字节、合同数值、独立计算），不用生产 helper 生成。
 - 提交用 `Change: C002`、`Task: C002-Tnn`、`Agent: <实际提交者>` trailer；通常一个任务一个提交。T01 首次提交审查失败，勘误另记纠正提交。提交前 fmt/check/clippy/nextest 与任务附加 gate 全绿，独立 review 通过。
 - skill 交付是生成物：`scripts/skill-delivery.sh pack|tar|verify` 从 `skills/sheltie` 与 `specs/contracts/` 生成/校验自包含交付（发布资产名 `sheltie-skill.tar.gz`）。仓库内 `skills/sheltie/SKILL.md` 保留指向合同的链接；T16 准备「自包含 skill」用 `pack`，核已装副本用 `check-skill.sh --delivery <dir>`（校验对象要与当前树同源；`storage.md` 类文件不随包发布，是去链接后的文字提法）。
+
+T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成required被审镜像、递归累计交接与真实CLI/Git冷读正反例；全仓验收暴露测试内Cargo重建共享CLI的ENOENT，已提前完整迁入T31原定binary注入步骤，Owner与断言保留。T30双轴独立Review及macOS门禁通过，详见 [T30证据](evidence/repairs/t30/README.md)。下一入口为repair-plan的T31：确定性交错、完整窗口、完整mutant inventory及存活处置，再固定M1候选。Linux仍为用户豁免的not_run。
