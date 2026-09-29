@@ -81,6 +81,8 @@ mod tests {
     use super::WriteSession;
     use crate::error::Error;
     use crate::home::Home;
+    #[cfg(feature = "failpoint")]
+    use crate::store::{OpenMode, Store};
     use sheltie_core::path::AbsPath;
 
     // Task: C002-T24
@@ -131,5 +133,86 @@ mod tests {
         );
         drop(session);
         std::fs::remove_dir_all(moved_root).unwrap();
+    }
+
+    // Task: C002-T24
+    #[cfg(feature = "failpoint")]
+    #[test]
+    fn concurrent_store_initializer_waits_for_schema_before_preflight_rejection() {
+        use std::time::{Duration, Instant};
+
+        struct FailpointGuard;
+        impl Drop for FailpointGuard {
+            fn drop(&mut self) {
+                crate::failpoint::disarm_rendezvous().unwrap();
+            }
+        }
+
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let _guard = FailpointGuard;
+        let directory = tempfile::tempdir().unwrap();
+        let home_root = directory.path().join("home");
+        std::fs::create_dir(&home_root).unwrap();
+        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
+
+        let first_sync = tempfile::tempdir().unwrap();
+        crate::failpoint::arm_rendezvous(
+            "write_session_after_store_create",
+            home.root().as_str(),
+            first_sync.path(),
+        )
+        .unwrap();
+        let first_home = home.clone();
+        let first = std::thread::spawn(move || {
+            let result = WriteSession::open_or_create(&first_home);
+            drop(result?);
+            Ok::<(), Error>(())
+        });
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !first_sync.path().join("reached").exists() && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        if !first_sync.path().join("reached").exists() {
+            let _ = std::fs::write(first_sync.path().join("release"), b"release");
+            let _ = first.join();
+            panic!("首个Store初始化未停在创建后同步点");
+        }
+
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let second_sync = tempfile::tempdir().unwrap();
+        crate::failpoint::arm_rendezvous(
+            "home_existing_lock_opened",
+            home.lock_path().as_str(),
+            second_sync.path(),
+        )
+        .unwrap();
+        let second_home = home.clone();
+        let second = std::thread::spawn(move || {
+            let result = WriteSession::open_or_create(&second_home);
+            drop(result?);
+            Ok::<(), Error>(())
+        });
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !second_sync.path().join("reached").exists() && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        if !second_sync.path().join("reached").exists() {
+            let _ = std::fs::write(first_sync.path().join("release"), b"release");
+            let _ = std::fs::write(second_sync.path().join("release"), b"release");
+            let _ = first.join();
+            let _ = second.join();
+            panic!("第二个Store初始化没有等待同一根锁");
+        }
+
+        std::fs::write(first_sync.path().join("release"), b"release").unwrap();
+        first.join().unwrap().unwrap();
+        std::fs::write(second_sync.path().join("release"), b"release").unwrap();
+        second.join().unwrap().unwrap();
+
+        let store = Store::open_for_home(&home, OpenMode::ReadOnly).unwrap();
+        assert!(store.list_workbooks().unwrap().is_empty());
+        crate::failpoint::disarm_rendezvous().unwrap();
     }
 }

@@ -244,6 +244,43 @@ impl ManagedFs {
         Ok(file)
     }
 
+    /// Open only an existing, trusted `.lock` file. Unlike `open_lock_file`, this path never
+    /// creates the root or lock entry and is used only while retrying a concurrent Store init.
+    pub(crate) fn open_existing_lock_file(&self) -> Result<Option<std::fs::File>> {
+        let lock_path = self.root.join_segment(".lock");
+        let observed = match statat(&self.root_dir, ".lock", AtFlags::SYMLINK_NOFOLLOW) {
+            Ok(stat) => stat,
+            Err(error) if error == rustix::io::Errno::NOENT => return Ok(None),
+            Err(error) => return Err(map_fs_error(lock_path.as_str(), error)),
+        };
+        if FileType::from_raw_mode(observed.st_mode) != FileType::RegularFile
+            || observed.st_nlink != 1
+        {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 必须是普通单链接锁文件", lock_path),
+            });
+        }
+        let fd = openat(
+            &self.root_dir,
+            ".lock",
+            OFlags::RDWR | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+            Mode::from_raw_mode(0),
+        )
+        .map_err(|error| map_fs_error(lock_path.as_str(), error))?;
+        let file = std::fs::File::from(fd);
+        let opened = fstat(&file).map_err(|error| map_fs_error(lock_path.as_str(), error))?;
+        if FileType::from_raw_mode(opened.st_mode) != FileType::RegularFile
+            || opened.st_nlink != 1
+            || opened.st_dev != observed.st_dev
+            || opened.st_ino != observed.st_ino
+        {
+            return Err(Error::InvalidRequest {
+                reason: format!("{} 在安全打开期间被替换", lock_path),
+            });
+        }
+        Ok(Some(file))
+    }
+
     pub(crate) fn identity(&self) -> (u64, u64) {
         self.root_ident
     }

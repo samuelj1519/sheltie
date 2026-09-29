@@ -257,6 +257,47 @@ impl Home {
         ))
     }
 
+    /// Wait on an existing managed-root lock without creating the root or `.lock` file.
+    pub(crate) fn acquire_existing_lock(&self) -> Result<Option<HomeLock>> {
+        let managed = crate::fsx::ManagedFs::open_existing(self)?;
+        let Some(file) = managed.open_existing_lock_file()? else {
+            return Ok(None);
+        };
+        let lock_path = self.lock_path();
+        crate::failpoint::rendezvous("home_existing_lock_opened", lock_path.as_str())
+            .map_err(|error| Error::io(lock_path.as_str(), error))?;
+        let Some(locked_ident) = file_ident(&file) else {
+            return Err(Error::io(
+                lock_path.as_str(),
+                std::io::Error::other("无法读取已存在.lock的文件身份"),
+            ));
+        };
+        let root_ident = managed.identity();
+        match fs4::fs_std::FileExt::try_lock_exclusive(&file) {
+            Ok(true) => {}
+            Ok(false) => {
+                crate::failpoint::rendezvous("home_lock_waiting", lock_path.as_str())
+                    .map_err(|error| Error::io(lock_path.as_str(), error))?;
+                fs4::fs_std::FileExt::lock_exclusive(&file)
+                    .map_err(|error| Error::io(lock_path.as_str(), error))?;
+            }
+            Err(error) => return Err(Error::io(lock_path.as_str(), error)),
+        }
+        let guard = HomeLock {
+            _file: file,
+            root: self.root.clone(),
+            lock_path,
+            locked_ident,
+            root_ident,
+        };
+        if !guard.identity_still_valid() {
+            return Err(Error::InvalidRequest {
+                reason: "等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store".into(),
+            });
+        }
+        Ok(Some(guard))
+    }
+
     fn acquire_lock_once(&self) -> Result<HomeLock> {
         let lock_path = self.lock_path();
         let managed = crate::fsx::ManagedFs::create_root(&self.root)?;
@@ -333,5 +374,55 @@ mod lock_retry_tests {
         assert!(!home.is_lock_setup_path_missing(&Error::InvalidRequest {
             reason: "不是瞬时缺失".to_string(),
         }));
+    }
+
+    // Task: C002-T24
+    #[cfg(feature = "failpoint")]
+    #[test]
+    fn existing_lock_removed_after_open_is_never_recreated() {
+        use std::time::{Duration, Instant};
+
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("home");
+        std::fs::create_dir(&root).unwrap();
+        let home = Home::at(AbsPath::new(root.to_string_lossy().into_owned()).unwrap());
+        let held = home.acquire_lock().unwrap();
+        let rendezvous = tempfile::tempdir().unwrap();
+        crate::failpoint::arm_rendezvous(
+            "home_existing_lock_opened",
+            home.lock_path().as_str(),
+            rendezvous.path(),
+        )
+        .unwrap();
+        struct Guard;
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                crate::failpoint::disarm_rendezvous().unwrap();
+            }
+        }
+        let _guard = Guard;
+        let child_home = home.clone();
+        let child = std::thread::spawn(move || child_home.acquire_existing_lock());
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !rendezvous.path().join("reached").exists() && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        if !rendezvous.path().join("reached").exists() {
+            let _ = std::fs::write(rendezvous.path().join("release"), b"release");
+            drop(held);
+            let _ = child.join();
+            panic!("既有锁没有在CREATE=false句柄打开后停住");
+        }
+        std::fs::remove_file(home.lock_path().as_path()).unwrap();
+        drop(held);
+        std::fs::write(rendezvous.path().join("release"), b"release").unwrap();
+        assert!(matches!(
+            child.join().unwrap(),
+            Err(Error::InvalidRequest { .. })
+        ));
+        assert!(!home.lock_path().as_path().exists());
+        assert!(home.root().as_path().is_dir());
     }
 }
