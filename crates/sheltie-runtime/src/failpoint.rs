@@ -29,6 +29,9 @@ struct Rendezvous {
 static RENDEZVOUS: std::sync::OnceLock<std::sync::Mutex<Option<Rendezvous>>> =
     std::sync::OnceLock::new();
 
+#[cfg(all(test, feature = "failpoint"))]
+pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 /// Arm a test-only COMMIT/effect rendezvous. No environment or host setting is modified.
 pub fn arm_rendezvous(
     name: &str,

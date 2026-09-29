@@ -20,3 +20,5 @@
 Spec 与 Standards 两轴独立 Review 均为 PASS。中间全仓运行发现旧的无效-add测试仍期待新库存在，已改为分别断言“已有库行数不变”和“新 Home 不建 Store/锁”；另一次场景测试并发子进程空输出未能稳定复现，独立场景 binary 与最终全仓运行均通过。中间失败日志保存在 `workspace-nextest-*` 文件中；`workspace-nextest-scenario-diagnostic.stdout.raw.b64` 是为保留空行尾空格而编码的原始输出，可用 `base64 -D` 还原。
 
 T24 不关闭后续 T25 恢复协议、T31 全链确定性交错或 C002-M1；旧 Work 等待锁后不重建库的本任务反例使用真实锁竞争点和数据库移除模拟，purge 全链仍由 T31 验证。Linux `not_run`。
+
+完整候选回归另发现并修复了新Store初始化期间另一写者的只读预检竞态；T24 follow-up 的实现、真实add/install同步测试和门禁见[并发Store初始化修复](../t24-followup/README.md)。

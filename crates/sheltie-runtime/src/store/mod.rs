@@ -140,8 +140,26 @@ impl Store {
     }
 
     pub(crate) fn open_for_home(home: &Home, mode: OpenMode) -> Result<Self> {
-        crate::fsx::validate_store_files(home)?;
-        Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)
+        const RETRY_LIMIT: usize = 8;
+        let mut last_mismatch = None;
+        for _ in 0..RETRY_LIMIT {
+            let opened = crate::fsx::validate_store_files(home).and_then(|()| {
+                Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)
+            });
+            match opened {
+                Err(error @ Error::StoreSchemaMismatch { .. }) if mode == OpenMode::ReadOnly => {
+                    match home.acquire_existing_lock()? {
+                        Some(lock) => drop(lock),
+                        None => return Err(error),
+                    }
+                    last_mismatch = Some(error);
+                }
+                result => return result,
+            }
+        }
+        Err(last_mismatch.unwrap_or_else(|| Error::StoreCorrupt {
+            detail: "锁内重验Store schema时没有保留原始错误".into(),
+        }))
     }
 
     #[cfg(test)]
