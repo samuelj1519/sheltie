@@ -11,6 +11,9 @@ repository.workspace = true
 name = "sheltie"
 path = "src/main.rs"
 
+[features]
+failpoint = ["sheltie-runtime/failpoint"]
+
 [dependencies]
 clap = { workspace = true }
 serde = { workspace = true }

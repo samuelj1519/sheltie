@@ -174,7 +174,8 @@ test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 
 [C002-T29]
-files = ["crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-cli/src/commands/work.rs","specs/changes/active/C002-v0.2.0-reliability"]
+# V28须从真实CLI暂停已装入读者，故集中扩展failpoint的子进程同步配置，并提前提供T31所需CLI feature映射。
+files = ["crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-cli/Cargo.toml","crates/sheltie-cli/src/commands/work.rs","specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
 allow_test_changes = true
 
