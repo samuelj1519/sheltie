@@ -98,3 +98,7 @@ MCP 在 CLI 摩擦被真实观测时增加；安装器在真实资源声明需�
 候选e1a8126的[独立审查](review-m1-2026-09-28.md)为“需修改”，不改变本文前面的MVP历史结论。R01–R19的修复方案和新人执行材料见[repair-design](repair-design.md)、[repair-plan](repair-plan.md)、[repair-validation](repair-validation.md)。两位未参与材料撰写的Reviewer复核后给出“方案材料通过”，具体初稿问题与修订见[材料证据](evidence/repair-planning-2026-09-28/README.md)。该结论不表示代码、API探针、M1、Host或发布通过；实际进度仍只看plan.md。
 
 T18合同/API探针delta经独立Standards Reviewer和Spec Reviewer复核通过。复核范围是用户采用后的合同文档和macOS arm64探针：恢复了pending owner精确格式与self update/schema边界；保留self install替换分叉二进制的既有行为；区分正常purge沿同一根锁与锁外意外替换；按bundled SQLite实测收窄短main/有效WAL与坏WAL表述；补充`@file`错误边界、RequestIntent名字顺序与SHM例外；T18验证操作职责/API，T19确定私有签名并迁移caller。Linux与真实runtime caller未由Reviewer验证；用户明确豁免Linux，Linux仍`not_run`。
+
+## 10. M1 当前候选复审（2026-10-01）
+
+原实现候选ca6d92f的源码/规格/工程独立复核及本轮精简见[M1审查](review-m1-2026-10-01.md)。代码与文档增量通过，但完整M1结论仍为需修改：269项安全变异暂缓未关闭，不能把T31范围豁免扩大为M1通过。最终输入、运行与逐行关闭边界见[证据矩阵](evidence/m1-2026-10-01/coverage-matrix.md)。Linux仍not_run，Host与发布另由T16/T17验收。

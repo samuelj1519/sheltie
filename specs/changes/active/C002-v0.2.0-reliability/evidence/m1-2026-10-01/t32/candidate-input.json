@@ -1,0 +1,28 @@
+{
+  "base_head": "ca6d92fa83494feeb9ea55840bfd4bca5f14629c",
+  "cargo_lock_sha256": "76621d1d7ec8056f3817c3e647dd5f34fca13f6c14345353ce550f7b4dc6de19",
+  "files": {
+    "crates/sheltie-cli/tests/remote_update.rs": "c8acdcfd2055bf9def7df7019ccc27a46c4900652440574ec373deec92b3621c",
+    "crates/sheltie-runtime/src/observe.rs": "d0e6eff7de2fa5aa642e21989a7812833af3b7e0add818ddc69bd2586274f4c0",
+    "crates/sheltie-runtime/src/recovery.rs": "dee7a1d52658ca44b346294a01cb73ec0a4b28f99cc553f1eabfbeea35af81aa",
+    "crates/sheltie-runtime/src/request.rs": "c69077389bdef3cc974ded51a3d5c962535642d692cddec29a148b52b1b0810d",
+    "crates/sheltie-runtime/src/service.rs": "76592e1bdf6e014299df07bf10ac5b454e30765ffe8a68e652cbe7d2f8c5a470",
+    "crates/sheltie-runtime/tests/effect_contracts.rs": "77c980d3533947c3a4b98a3329b8db0c6e3fb1112f500f4011236b36952ee640",
+    "crates/sheltie-runtime/tests/workbook_repo.rs": "3899990bb1e44f5bd7c117515088721662a88296035958aea9f1052478b5df94",
+    "specs/contracts/storage.md": "ebafd519c67b5c6e2dbdeb1f1969537a90d336f62948ec4e19439a924081ff87"
+  },
+  "features": "all-features",
+  "platform": "macOS arm64",
+  "deny_argv": [
+    "cargo",
+    "deny",
+    "--offline",
+    "check"
+  ],
+  "deny_exit": 0,
+  "nextest_tests": 678,
+  "reviewers": [
+    "/root/m1_spec",
+    "/root/m1_standards"
+  ]
+}

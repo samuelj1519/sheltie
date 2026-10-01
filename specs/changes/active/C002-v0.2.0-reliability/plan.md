@@ -10,6 +10,8 @@
 
 2026-10-01 用户进一步要求“先跳过可能会触发安全的相关任务，继续执行到T31完成”。本次T31收尾暂缓新增安全边界复现、观察点插桩及相关存活体处分；尚未结束的runtime变异全workspace复验是混合安全验证流水线，一并停止续跑。已完成清单、原始结果和独立复核保留，未完成项逐项记`deferred_by_user`，不得改记caught、equivalent或PASS。T31在此明确豁免范围内完成代码修复、正常可靠性/并发/崩溃验证、工程门禁、文档及提交；M1仍需独立审查，必须保留这批暂缓项的边界。
 
+2026-10-01 用户要求M1完整覆盖全部已完成C002任务，并授权恢复暂缓验证。仅在具体项目实际触发平台安全提示且暂停时，记录项目、阶段、提示原文与缺失义务，跳过该项目并继续其余项目；不得预先把原269项整体跳过，不得把实际跳过项标caught、equivalent或安全PASS。M1按本次明确例外完成其余审查、修复与门禁，结论必须列出实际跳过项和验收限制。Linux豁免保持not_run，T16/T17仍有独立门槛。
+
 `ceadc465` 是 T01 首次提交，独立审查发现合同矛盾和门禁证据缺口；本次勘误与审查记录见 [validation.md](validation.md)。T01 关闭后，按下表依赖先完成 T14，再开始 T02。已有提交和旧审查 PASS 不自动转成当前候选 PASS。
 
 ## 1. 采用与执行规则
@@ -65,7 +67,8 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T29 | done | stats与next同次装入 | T25、T28；[macOS真实CLI交错与双轴Review](evidence/repairs/t29/README.md)，Linux `not_run` |
 | C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](evidence/repairs/t30/README.md)；Linux `not_run` |
 | C002-T31 | done | 确定性交错、正常窗口与变异登记（含2026-10-01用户安全验证豁免） | T19–T30 |
-| C002-M1 | not_run | 修复后固定候选全链审查 | T02–T15、T18–T31 |
+| C002-T32 | done | M1审查反馈精简与真实caller回归 | T31 |
+| C002-M1 | doing | 修复后固定候选全链审查 | T02–T15、T18–T32 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 
@@ -219,3 +222,7 @@ Owner：用户/真实宿主操作者；实施者准备绑定 M1 候选的 rc 二
 Owner：发布操作者；发布动作需要用户授权，且 M1 与 T16 全部必需项通过。授权前先准备可复核的发布候选、CHANGELOG、release record 草稿与四平台资产/manifest/checksum/quality 的同 SHA 对照。新管理根安装、指定版本更新和 rollback 用独立 home 实测；schema 1 数据保持原样，旧 binary 只配旧 home 查旧记录，新 home 不被旧 binary 误写。
 
 取得发布授权后才执行对外发布与 package 生命周期变更。release record 写候选、门禁、Host 证据、兼容限制与已知问题；发布失败不标 `completed`。T16 未运行或不通过时 T17 保持 `not_run`，不能把本计划或离线审查写成产品发布成功。
+
+## M1追加修复 C002-T32
+
+Owner：Codex；Reviewer：未参与修改的Spec/Standards Reviewer。承接本轮M1中已确认的接口冗余、Store合同冲突、测试辨别力缺口。范围包括runtime源码、对应真实caller测试及本package；上游Store合同只勘误CAS停止行为。补测采用原合同独立值，不为每个存活体镜像实现写测试。退役接口须核全仓consumer，保留历史变异ID与删除理由。按Rust四门禁、deny/MSRV/文档/skill/dist门禁及独立review完成任务提交，再固定M1变异输入。M1仍负责全部当前已完成任务的最终闭环，安全跳过仅适用于实际平台拦截。

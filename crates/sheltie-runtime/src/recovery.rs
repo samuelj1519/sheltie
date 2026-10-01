@@ -162,7 +162,7 @@ pub(crate) fn before_write(
                         let original = pending_snapshot.as_ref().and_then(|(_, reply)| {
                             original_snapshot_parts(&pending_id, None, reply)
                         });
-                        let blocker = own_pending_optional(&pending_id, original, owner_error);
+                        let blocker = own_pending(&pending_id, original, owner_error);
                         if pending_id == request_id {
                             return Err(blocker);
                         }
@@ -182,7 +182,7 @@ pub(crate) fn before_write(
                         reply,
                     )
                 });
-                let blocker = own_pending_optional(&pending_id, pending_original, cause);
+                let blocker = own_pending(&pending_id, pending_original, cause);
                 if pending_id == request_id {
                     return Err(blocker);
                 }
@@ -233,10 +233,10 @@ pub(crate) fn finish_request(
     let identity = match store.lookup_request_hash(request_id) {
         Ok(Some(_)) => match store.lookup_request(request_id) {
             Ok(identity) => identity,
-            Err(cause) => return Err(own_pending_optional(request_id, None, cause)),
+            Err(cause) => return Err(own_pending(request_id, None, cause)),
         },
         Ok(None) => None,
-        Err(cause) => return Err(own_pending_optional(request_id, None, cause)),
+        Err(cause) => return Err(own_pending(request_id, None, cause)),
     };
     let work_id = match store.lookup_request_work(request_id) {
         Ok(work_id) => work_id,
@@ -254,7 +254,7 @@ pub(crate) fn finish_request(
         Ok(Some(row)) => row,
         Ok(None) => {
             let Some((_, reply_json)) = identity.as_ref() else {
-                return Err(own_pending_optional(
+                return Err(own_pending(
                     request_id,
                     None,
                     Error::StoreCorrupt {
@@ -277,7 +277,7 @@ pub(crate) fn finish_request(
         }
         Err(cause) => {
             let Some((_, reply_json)) = identity.as_ref() else {
-                return Err(own_pending_optional(request_id, None, cause));
+                return Err(own_pending(request_id, None, cause));
             };
             let original = original_snapshot_parts(
                 request_id,
@@ -344,15 +344,11 @@ pub(crate) fn finish_checked_request(
 }
 
 pub(crate) fn own_pending(request_id: &str, original: Option<String>, cause: Error) -> Error {
-    own_pending_optional(request_id, original, cause)
+    Error::effect_pending(true, request_id.to_string(), None, &cause, original, None)
 }
 
 fn own_pending_without_snapshot(request_id: &str, cause: Error) -> Error {
-    own_pending_optional(request_id, None, cause)
-}
-
-fn own_pending_optional(request_id: &str, original: Option<String>, cause: Error) -> Error {
-    Error::effect_pending(true, request_id.to_string(), None, &cause, original, None)
+    own_pending(request_id, None, cause)
 }
 
 fn blocked_by_pending(
