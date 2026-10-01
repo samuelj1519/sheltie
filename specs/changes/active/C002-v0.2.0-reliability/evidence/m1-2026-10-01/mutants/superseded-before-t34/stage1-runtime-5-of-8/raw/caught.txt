@@ -1,0 +1,129 @@
+crates/sheltie-runtime/src/selfmgmt.rs:34:9: delete ! in ReleaseSource::is_local
+crates/sheltie-runtime/src/selfmgmt.rs:34:46: delete ! in ReleaseSource::is_local
+crates/sheltie-runtime/src/selfmgmt.rs:34:9: replace ReleaseSource::is_local -> bool with false
+crates/sheltie-runtime/src/selfmgmt.rs:40:9: replace ReleaseSource::manifest_url -> String with String::new()
+crates/sheltie-runtime/src/selfmgmt.rs:40:9: replace ReleaseSource::manifest_url -> String with "xyzzy".into()
+crates/sheltie-runtime/src/selfmgmt.rs:50:9: replace ReleaseSource::asset_url -> String with String::new()
+crates/sheltie-runtime/src/selfmgmt.rs:50:9: replace ReleaseSource::asset_url -> String with "xyzzy".into()
+crates/sheltie-runtime/src/selfmgmt.rs:84:5: replace platform -> String with String::new()
+crates/sheltie-runtime/src/selfmgmt.rs:84:5: replace platform -> String with "xyzzy".into()
+crates/sheltie-runtime/src/selfmgmt.rs:136:59: replace == with != in install
+crates/sheltie-runtime/src/selfmgmt.rs:203:25: replace != with == in update
+crates/sheltie-runtime/src/selfmgmt.rs:209:25: replace == with != in update
+crates/sheltie-runtime/src/selfmgmt.rs:217:66: replace == with != in update
+crates/sheltie-runtime/src/selfmgmt.rs:242:25: replace != with == in update
+crates/sheltie-runtime/src/selfmgmt.rs:371:5: replace rollback -> Result<()> with Ok(())
+crates/sheltie-runtime/src/selfmgmt.rs:451:5: replace resolve_tag -> Result<String> with Ok(String::new())
+crates/sheltie-runtime/src/selfmgmt.rs:421:14: replace && with || in uninstall
+crates/sheltie-runtime/src/selfmgmt.rs:421:17: delete ! in uninstall
+crates/sheltie-runtime/src/selfmgmt.rs:421:5: replace uninstall -> Result<Vec<AbsPath>> with Ok(vec![])
+crates/sheltie-runtime/src/selfmgmt.rs:451:5: replace resolve_tag -> Result<String> with Ok("xyzzy".into())
+crates/sheltie-runtime/src/selfmgmt.rs:466:5: replace tag_version -> String with String::new()
+crates/sheltie-runtime/src/selfmgmt.rs:466:5: replace tag_version -> String with "xyzzy".into()
+crates/sheltie-runtime/src/selfmgmt.rs:471:5: replace checked_version -> Result<String> with Ok(String::new())
+crates/sheltie-runtime/src/selfmgmt.rs:471:5: replace checked_version -> Result<String> with Ok("xyzzy".into())
+crates/sheltie-runtime/src/selfmgmt.rs:473:14: replace == with != in checked_version
+crates/sheltie-runtime/src/selfmgmt.rs:474:14: replace == with != in checked_version
+crates/sheltie-runtime/src/selfmgmt.rs:488:5: replace checked_asset_name -> Result<String> with Ok(String::new())
+crates/sheltie-runtime/src/selfmgmt.rs:488:5: replace checked_asset_name -> Result<String> with Ok("xyzzy".into())
+crates/sheltie-runtime/src/selfmgmt.rs:492:9: replace || with && in checked_asset_name
+crates/sheltie-runtime/src/selfmgmt.rs:491:9: replace || with && in checked_asset_name
+crates/sheltie-runtime/src/selfmgmt.rs:489:16: replace == with != in checked_asset_name
+crates/sheltie-runtime/src/selfmgmt.rs:490:16: replace == with != in checked_asset_name
+crates/sheltie-runtime/src/selfmgmt.rs:580:9: delete match arm serde_json::Value::Object(map) in adapt_cargo_dist_manifest
+crates/sheltie-runtime/src/selfmgmt.rs:587:17: replace != with == in adapt_cargo_dist_manifest
+crates/sheltie-runtime/src/selfmgmt.rs:717:8: delete ! in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:717:62: replace || with && in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:717:36: replace || with && in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:732:22: replace != with == in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:740:12: delete ! in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:752:13: replace && with || in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:751:13: replace && with || in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:750:17: replace == with != in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:751:41: replace == with != in unpack_if_archive
+crates/sheltie-runtime/src/selfmgmt.rs:773:5: replace run_tar_stdout -> Result<Vec<u8>> with Ok(vec![])
+crates/sheltie-runtime/src/selfmgmt.rs:773:5: replace run_tar_stdout -> Result<Vec<u8>> with Ok(vec![0])
+crates/sheltie-runtime/src/selfmgmt.rs:786:8: delete ! in run_tar_stdout
+crates/sheltie-runtime/src/selfmgmt.rs:773:5: replace run_tar_stdout -> Result<Vec<u8>> with Ok(vec![1])
+crates/sheltie-runtime/src/selfmgmt.rs:922:28: replace > with == in wait_bounded_child
+crates/sheltie-runtime/src/selfmgmt.rs:922:28: replace > with >= in wait_bounded_child
+crates/sheltie-runtime/src/selfmgmt.rs:927:28: replace > with == in wait_bounded_child
+crates/sheltie-runtime/src/selfmgmt.rs:942:5: replace path_hint -> String with String::new()
+crates/sheltie-runtime/src/selfmgmt.rs:942:5: replace path_hint -> String with "xyzzy".into()
+crates/sheltie-runtime/src/service.rs:104:9: delete match arm "start_work" | "add_workbook" in stage_pending
+crates/sheltie-runtime/src/service.rs:105:9: delete match arm "remove_workbook" in stage_pending
+crates/sheltie-runtime/src/service.rs:144:5: replace verify_pending_owner -> Result<()> with Ok(())
+crates/sheltie-runtime/src/service.rs:177:33: replace != with == in WorkService::start
+crates/sheltie-runtime/src/service.rs:195:12: delete ! in WorkService::start
+crates/sheltie-runtime/src/service.rs:270:33: replace != with == in WorkService::start
+crates/sheltie-runtime/src/service.rs:271:42: replace != with == in WorkService::start
+crates/sheltie-runtime/src/service.rs:223:32: replace != with == in WorkService::start
+crates/sheltie-runtime/src/service.rs:283:26: replace != with == in WorkService::start
+crates/sheltie-runtime/src/service.rs:504:9: replace WorkService::list -> Result<Vec<WorkSummary>> with Ok(vec![])
+crates/sheltie-runtime/src/service.rs:589:20: delete ! in WorkService::load_row
+crates/sheltie-runtime/src/service.rs:525:13: delete match arm 0 in WorkService::resolve_work
+crates/sheltie-runtime/src/service.rs:528:13: delete match arm 1 in WorkService::resolve_work
+crates/sheltie-runtime/src/service.rs:590:24: delete ! in WorkService::load_row
+crates/sheltie-runtime/src/service.rs:616:28: replace != with == in WorkService::load_row
+crates/sheltie-runtime/src/service.rs:667:32: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:667:35: delete ! in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!("work:{work}") with false in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:680:24: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:704:13: replace || with && in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:703:13: replace || with && in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:701:13: replace || with && in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:696:13: replace || with && in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:690:22: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:691:13: replace || with && in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:695:17: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:700:17: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:701:27: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:702:22: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:703:23: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:704:28: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:711:27: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:712:28: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:713:28: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:720:39: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:725:23: replace != with == in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:754:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:753:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:751:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:752:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:750:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:749:13: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:749:36: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:750:34: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:751:16: delete ! in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:752:30: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:753:31: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:754:25: replace == with != in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:755:12: delete ! in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:760:12: delete ! in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:767:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with true in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:772:33: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:771:33: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:770:33: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:769:33: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:768:33: replace && with || in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:784:30: delete ! in WorkService::workbook_publication
+crates/sheltie-runtime/src/service.rs:802:25: replace != with == in WorkService::run_command
+crates/sheltie-runtime/src/service.rs:816:32: replace != with == in WorkService::run_command
+crates/sheltie-runtime/src/service.rs:860:9: replace WorkService::refresh_cards_of -> Result<()> with Ok(())
+crates/sheltie-runtime/src/service.rs:871:35: replace != with == in WorkService::recovery_load_effects
+crates/sheltie-runtime/src/service.rs:895:9: replace WorkService::recover_finish_request -> Result<()> with Ok(())
+crates/sheltie-runtime/src/service.rs:912:9: replace WorkService::finish_request_with_observed -> Result<()> with Ok(())
+crates/sheltie-runtime/src/service.rs:885:9: replace WorkService::recover_before_write -> Result<()> with Ok(())
+crates/sheltie-runtime/src/service.rs:948:26: replace != with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:948:43: replace || with && in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:948:53: replace != with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:955:42: replace > with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:955:42: replace > with < in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:955:42: replace > with >= in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:965:13: replace || with && in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:964:13: replace || with && in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:963:33: replace != with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:964:35: replace != with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:980:27: replace != with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:983:31: replace < with == in WorkService::load_checked_request
+crates/sheltie-runtime/src/service.rs:983:31: replace < with > in WorkService::load_checked_request

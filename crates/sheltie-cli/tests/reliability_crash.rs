@@ -1215,7 +1215,7 @@ fn gate_approval_without_a_remaining_edge_adds_a_second_blocked_event() {
     );
 }
 
-fn counter_store_facts(env: &Env) -> Value {
+fn store_facts(env: &Env) -> Value {
     use rusqlite::types::Value as SqlValue;
     let conn = connection(env);
     let mut facts = serde_json::Map::new();
@@ -1275,7 +1275,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
         )
         .unwrap();
         drop(conn);
-        let before = counter_store_facts(&env);
+        let before = store_facts(&env);
         let files = tree(&env.dir.path().join("works"));
         for args in [
             vec!["work", "status", &work],
@@ -1286,7 +1286,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
             eprintln!("counter={count} argv={args:?} exit={exit} response={error}");
             assert_eq!(exit, 1);
             assert_eq!(error["error"]["code"], "STORE_CORRUPT");
-            assert_eq!(counter_store_facts(&env), before);
+            assert_eq!(store_facts(&env), before);
             same_files(&env.dir.path().join("works"), &files);
         }
         let id = "t31-corrupt-counter-approve";
@@ -1304,7 +1304,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
         assert_eq!(exit, 1);
         assert_eq!(error["error"]["code"], "STORE_CORRUPT");
         assert!(record(&env, id).is_none());
-        assert_eq!(counter_store_facts(&env), before);
+        assert_eq!(store_facts(&env), before);
         same_files(&env.dir.path().join("works"), &files);
     }
 }
@@ -1624,4 +1624,284 @@ fn relative_input_resolution_reports_a_removed_current_directory_without_registe
             if table == "requests" { 1 } else { 0 }
         );
     }
+}
+
+// Task: C002-T34
+#[test]
+fn corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original() {
+    for (field, replacement) in [("id", "other-step"), ("version", "2.0.0")] {
+        let env = Env::new();
+        env.add_example("two-step");
+        let rid = "t34-remove-original";
+        let args = ["--request-id", rid, "workbook", "remove", "two-step@1.0.0"];
+        let committed = env.ok(&args);
+        assert_eq!(
+            committed["data"],
+            json!({"id":"two-step", "version":"1.0.0", "replayed":false})
+        );
+        let mut expected_replay = committed.clone();
+        expected_replay["data"]["replayed"] = json!(true);
+        assert_eq!(env.ok(&args), expected_replay);
+        let mut snapshot = record(&env, rid).unwrap().reply;
+        snapshot["data"][field] = json!(replacement);
+        Connection::open(env.dir.path().join("store.db"))
+            .unwrap()
+            .execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![snapshot.to_string(), rid],
+            )
+            .unwrap();
+        let before = store_facts(&env);
+        let (error, exit) = env.fail(&args);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+        assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+        assert_eq!(error["committed"], true);
+        assert_eq!(error["request_id"], rid);
+        assert!(error.get("original").is_none(), "{field}: {error}");
+        assert_eq!(store_facts(&env), before);
+    }
+}
+
+// Task: C002-T34
+#[test]
+fn corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original() {
+    for (field, replacement) in [("id", "other-step"), ("version", "2.0.0")] {
+        let env = Env::new();
+        env.add_example("two-step");
+        let old = "t34-old-remove";
+        stop(
+            &env,
+            &["--request-id", old, "workbook", "remove", "two-step@1.0.0"],
+            "after_commit_before_effects",
+            Termination::Exit70,
+        );
+        let stored = record(&env, old).unwrap();
+        assert!(!stored.published);
+        assert_eq!(
+            stored.reply["data"],
+            json!({"id":"two-step", "version":"1.0.0"})
+        );
+        let mut snapshot = stored.reply;
+        snapshot["data"][field] = json!(replacement);
+        Connection::open(env.dir.path().join("store.db"))
+            .unwrap()
+            .execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![snapshot.to_string(), old],
+            )
+            .unwrap();
+        let before_rows = store_facts(&env);
+        let before_files = ["workbooks", "pending"].map(|name| tree(&env.dir.path().join(name)));
+        let next = "t34-blocked-add";
+        let (error, exit) = env.fail(&[
+            "--request-id",
+            next,
+            "workbook",
+            "add",
+            example_dir("article-review").to_str().unwrap(),
+        ]);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+        assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+        assert_eq!(error["committed"], false);
+        assert_eq!(error["request_id"], next);
+        assert_eq!(error["error"]["detail"]["pending_request_id"], old);
+        assert!(error.get("original").is_none());
+        assert!(
+            error["error"]["detail"].get("pending_original").is_none(),
+            "{field}: {error}"
+        );
+        assert_eq!(store_facts(&env), before_rows);
+        assert_eq!(
+            ["workbooks", "pending"].map(|name| tree(&env.dir.path().join(name))),
+            before_files
+        );
+    }
+}
+
+// Task: C002-T34
+#[test]
+fn add_snapshot_target_is_bound_before_an_original_response_is_released() {
+    for field in ["id", "version", "digest"] {
+        let env = Env::new();
+        let rid = "t34-add-target";
+        let source = example_dir("two-step");
+        let args = [
+            "--request-id",
+            rid,
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        let committed = env.ok(&args);
+        let mut replay = committed.clone();
+        replay["data"]["replayed"] = json!(true);
+        assert_eq!(env.ok(&args), replay);
+        let mut snapshot = record(&env, rid).unwrap().reply;
+        snapshot["data"][field] = match field {
+            "id" => json!("other-step"),
+            "version" => json!("2.0.0"),
+            "digest" => json!(if committed["data"]["digest"] == "0".repeat(64) {
+                "1".repeat(64)
+            } else {
+                "0".repeat(64)
+            }),
+            _ => unreachable!(),
+        };
+        Connection::open(env.dir.path().join("store.db"))
+            .unwrap()
+            .execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![snapshot.to_string(), rid],
+            )
+            .unwrap();
+        let before_rows = store_facts(&env);
+        let before_files = tree(&env.workbook_dir("two-step", "1.0.0"));
+        let (error, exit) = env.fail(&args);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+        assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+        assert_eq!(error["committed"], true);
+        assert_eq!(error["request_id"], rid);
+        assert!(error.get("original").is_none(), "{field}: {error}");
+        assert_eq!(store_facts(&env), before_rows);
+        assert_eq!(tree(&env.workbook_dir("two-step", "1.0.0")), before_files);
+    }
+}
+
+// Task: C002-T34
+#[test]
+fn fail_snapshot_status_matches_the_original_retry_even_after_later_progress() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let work = env.start("two-step", &[("topic", "x")]);
+    let first = env.begin(&work, "outline");
+    let first_args = [
+        "--request-id",
+        "t34-fail-first",
+        "attempt",
+        "fail",
+        &work,
+        "--attempt",
+        first["data"]["attempt"].as_str().unwrap(),
+        "--reason",
+        "controlled failure",
+    ];
+    let first_response = env.ok(&first_args);
+    assert_eq!(
+        first_response["data"]["work_status"],
+        json!({"kind":"active"})
+    );
+    let last = env.begin(&work, "outline");
+    let last_args = [
+        "--request-id",
+        "t34-fail-last",
+        "attempt",
+        "fail",
+        &work,
+        "--attempt",
+        last["data"]["attempt"].as_str().unwrap(),
+        "--reason",
+        "controlled failure",
+    ];
+    let last_response = env.ok(&last_args);
+    assert_eq!(
+        last_response["data"]["work_status"],
+        json!({"kind":"blocked","reason":"retries_exhausted"})
+    );
+    env.ok(&["work", "cancel", &work]);
+    for (rid, args, committed) in [
+        ("t34-fail-first", first_args, first_response),
+        ("t34-fail-last", last_args, last_response),
+    ] {
+        let mut replay = committed.clone();
+        replay["data"]["replayed"] = json!(true);
+        assert_eq!(env.ok(&args), replay);
+        let original = record(&env, rid).unwrap().reply;
+        for status in [
+            json!({"kind":"succeeded"}),
+            json!({"kind":"cancelled"}),
+            json!({"kind":"active"}),
+            json!({"kind":"blocked","reason":"retries_exhausted"}),
+            json!({"kind":"blocked","reason":"gate"}),
+            json!({"kind":"blocked","reason":"no_legal_edge"}),
+        ] {
+            if status == committed["data"]["work_status"] {
+                continue;
+            }
+            let mut changed = original.clone();
+            changed["data"]["work_status"] = status.clone();
+            Connection::open(env.dir.path().join("store.db"))
+                .unwrap()
+                .execute(
+                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                    rusqlite::params![changed.to_string(), rid],
+                )
+                .unwrap();
+            let before = store_facts(&env);
+            let (error, exit) = env.fail(&args);
+            assert_eq!(exit, 1);
+            assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+            assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+            assert_eq!(error["committed"], true);
+            assert_eq!(error["request_id"], rid);
+            assert!(error.get("original").is_none(), "{rid} {status}: {error}");
+            assert_eq!(store_facts(&env), before);
+            Connection::open(env.dir.path().join("store.db"))
+                .unwrap()
+                .execute(
+                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                    rusqlite::params![original.to_string(), rid],
+                )
+                .unwrap();
+        }
+        assert_eq!(env.ok(&args), replay);
+    }
+}
+
+// Task: C002-T34
+#[test]
+fn begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let work = env.start("two-step", &[("topic", "x")]);
+    let rid = "t34-begin-requires";
+    let args = [
+        "--request-id",
+        rid,
+        "attempt",
+        "begin",
+        &work,
+        "--node",
+        "outline",
+    ];
+    let committed = env.ok(&args);
+    assert_eq!(committed["data"]["requires"], json!([]));
+    let mut replay = committed;
+    replay["data"]["replayed"] = json!(true);
+    assert_eq!(env.ok(&args), replay);
+    let mut snapshot = record(&env, rid).unwrap().reply;
+    let requires =
+        json!([{"kind":"mcp","name":"extra-resource","version":null,"digest":null,"source":null}]);
+    snapshot["reply"]["requires"] = requires.clone();
+    snapshot["data"]["requires"] = requires;
+    Connection::open(env.dir.path().join("store.db"))
+        .unwrap()
+        .execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![snapshot.to_string(), rid],
+        )
+        .unwrap();
+    let before_rows = store_facts(&env);
+    let before_files = tree(&env.dir.path().join("works"));
+    let (error, exit) = env.fail(&args);
+    assert_eq!(exit, 1);
+    assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+    assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+    assert_eq!(error["committed"], true);
+    assert_eq!(error["request_id"], rid);
+    assert!(error.get("original").is_none(), "{error}");
+    assert_eq!(store_facts(&env), before_rows);
+    assert_eq!(tree(&env.dir.path().join("works")), before_files);
 }

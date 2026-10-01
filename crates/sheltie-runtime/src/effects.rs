@@ -400,6 +400,102 @@ pub(crate) enum WorkbookEffectIdentity {
     },
 }
 
+#[derive(serde::Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum PublicationTarget {
+    PublishDir {
+        #[serde(rename = "final")]
+        final_path: String,
+        owner: String,
+        digest: String,
+    },
+    #[serde(other)]
+    Other,
+}
+
+fn workbook_target_matches(
+    identity: &WorkbookEffectIdentity,
+    final_path: &str,
+    owner: &str,
+    digest: Option<&str>,
+) -> bool {
+    match identity {
+        WorkbookEffectIdentity::Add {
+            id,
+            version,
+            digest: expected_digest,
+        } => {
+            final_path == format!("workbooks/{id}/{version}")
+                && owner == format!("workbook:{id}@{version}")
+                && digest == Some(expected_digest.as_str())
+        }
+        WorkbookEffectIdentity::Remove { id, version } => {
+            final_path == format!("workbooks/{id}/{version}")
+                && owner == format!("workbook:{id}@{version}")
+        }
+    }
+}
+
+fn invalid_workbook_target() -> Error {
+    Error::StoreCorrupt {
+        detail: "Workbook snapshot的业务身份与效果登记不一致".into(),
+    }
+}
+
+/// 只读发布身份投影；其他效果字段仍由完整载荷校验拒绝，不影响已核身份。
+pub(crate) fn check_workbook_add_snapshot_target(
+    identity: &WorkbookEffectIdentity,
+    json: &str,
+) -> Result<()> {
+    let targets: Vec<PublicationTarget> =
+        serde_json::from_str(json).map_err(|error| Error::StoreCorrupt {
+            detail: format!("Workbook发布身份解不开：{error}"),
+        })?;
+    let mut publications = targets
+        .iter()
+        .filter(|target| matches!(target, PublicationTarget::PublishDir { .. }));
+    let valid = matches!((publications.next(), publications.next()),
+        (Some(PublicationTarget::PublishDir { final_path, owner, digest }), None)
+        if matches!(identity, WorkbookEffectIdentity::Add { .. })
+            && workbook_target_matches(identity, final_path, owner, Some(digest)));
+    if !valid {
+        return Err(invalid_workbook_target());
+    }
+    Ok(())
+}
+
+pub(crate) fn check_workbook_snapshot_target(
+    identity: &WorkbookEffectIdentity,
+    ops: &[EffectOp],
+) -> Result<()> {
+    let valid = match (identity, ops) {
+        (
+            WorkbookEffectIdentity::Add { .. },
+            [
+                EffectOp::PublishDir {
+                    final_path,
+                    owner,
+                    digest,
+                    ..
+                },
+            ],
+        ) => workbook_target_matches(identity, final_path, owner, Some(digest)),
+        (
+            WorkbookEffectIdentity::Remove { .. },
+            [
+                EffectOp::DeleteDir {
+                    final_path, owner, ..
+                },
+            ],
+        ) => workbook_target_matches(identity, final_path, owner, None),
+        _ => false,
+    };
+    if !valid {
+        return Err(invalid_workbook_target());
+    }
+    Ok(())
+}
+
 pub(crate) fn check_workbook_effects(
     request_id: &str,
     audit_work_id: &str,
@@ -414,14 +510,14 @@ pub(crate) fn check_workbook_effects(
             detail: "Workbook请求的audit归属或效果数量无效".to_string(),
         });
     }
+    check_workbook_snapshot_target(&identity, &ops)?;
     match (&ops[0], identity) {
         (
             EffectOp::PublishDir {
                 pending,
-                final_path,
-                owner,
                 digest,
                 digest_root,
+                ..
             },
             WorkbookEffectIdentity::Add {
                 id,
@@ -429,7 +525,6 @@ pub(crate) fn check_workbook_effects(
                 digest: expected_digest,
             },
         ) => {
-            validate_workbook_identity(&id, &version)?;
             let expected_final = format!("workbooks/{id}/{version}");
             ManagedRelPath::new(expected_final.clone()).map_err(|error| Error::StoreCorrupt {
                 detail: format!("add snapshot的Workbook身份路径不合法：{error}"),
@@ -440,10 +535,7 @@ pub(crate) fn check_workbook_effects(
                     || registered.digest != expected_digest
                     || registered.dir != expected_final
                     || registered.added_at != audit_at
-            }) || final_path != &expected_final
-                || owner != &format!("workbook:{id}@{version}")
-                || digest != &expected_digest
-                || !digest_root.is_empty()
+            }) || !digest_root.is_empty()
                 || Sha256Hex::new(digest.clone()).is_err()
             {
                 return Err(Error::StoreCorrupt {
@@ -454,22 +546,15 @@ pub(crate) fn check_workbook_effects(
         }
         (
             EffectOp::DeleteDir {
-                pending,
-                final_path,
-                owner,
-                digest,
+                pending, digest, ..
             },
             WorkbookEffectIdentity::Remove { id, version },
         ) => {
-            validate_workbook_identity(&id, &version)?;
             let expected_final = format!("workbooks/{id}/{version}");
             ManagedRelPath::new(expected_final.clone()).map_err(|error| Error::StoreCorrupt {
                 detail: format!("remove snapshot的Workbook身份路径不合法：{error}"),
             })?;
-            if final_path != &expected_final
-                || owner != &format!("workbook:{id}@{version}")
-                || Sha256Hex::new(digest.clone()).is_err()
-            {
+            if Sha256Hex::new(digest.clone()).is_err() {
                 return Err(Error::StoreCorrupt {
                     detail: "remove请求的audit、snapshot与DeleteDir归属不一致".to_string(),
                 });
@@ -506,7 +591,7 @@ fn validate_pending_payload(path: &str) -> Result<()> {
     Ok(())
 }
 
-fn validate_workbook_identity(id: &str, version: &str) -> Result<()> {
+pub(crate) fn validate_workbook_identity(id: &str, version: &str) -> Result<()> {
     sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {
         detail: format!("Workbook effect的id不合法：{error}"),
     })?;

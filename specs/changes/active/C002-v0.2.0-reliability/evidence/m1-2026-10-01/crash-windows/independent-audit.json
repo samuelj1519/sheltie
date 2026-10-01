@@ -1,0 +1,125 @@
+{
+  "run_id": "339f54ca-7b4f-4d72-8b7e-8601d8c26390",
+  "exit": 0,
+  "source_manifest_match": true,
+  "raw_count": 56,
+  "modes": {
+    "Exit70": 30,
+    "Kill": 26
+  },
+  "main_dual_mode_cases": 46,
+  "cross_write_dual_mode_cases": 4,
+  "asymmetric_extra_cases": [
+    {
+      "argv": [
+        "--request-id",
+        "t31-history-outputs-file",
+        "attempt",
+        "begin",
+        "2026-10-01-001-default",
+        "--node",
+        "outline"
+      ],
+      "exit": 70,
+      "mode": "Exit70",
+      "point": "after_commit_before_effects",
+      "signal": null,
+      "stderr": [],
+      "stdout": []
+    },
+    {
+      "argv": [
+        "--request-id",
+        "t31-delete-parent-sync",
+        "workbook",
+        "remove",
+        "two-step@1.0.0"
+      ],
+      "exit": null,
+      "mode": "Kill",
+      "point": "tree_rename_before_parent_sync",
+      "signal": 9,
+      "stderr": [],
+      "stdout": []
+    },
+    {
+      "argv": [
+        "--request-id",
+        "t31-clean-fail-start-pending_owner_synced_before_payload",
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=cleanup"
+      ],
+      "exit": 70,
+      "mode": "Exit70",
+      "point": "pending_owner_synced_before_payload",
+      "signal": null,
+      "stderr": [],
+      "stdout": []
+    },
+    {
+      "argv": [
+        "--request-id",
+        "t31-clean-fail-start-before_commit",
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=cleanup"
+      ],
+      "exit": 70,
+      "mode": "Exit70",
+      "point": "before_commit",
+      "signal": null,
+      "stderr": [],
+      "stdout": []
+    },
+    {
+      "argv": [
+        "--request-id",
+        "t31-clean-fail-add-pending_owner_synced_before_payload",
+        "workbook",
+        "add",
+        "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+      ],
+      "exit": 70,
+      "mode": "Exit70",
+      "point": "pending_owner_synced_before_payload",
+      "signal": null,
+      "stderr": [],
+      "stdout": []
+    },
+    {
+      "argv": [
+        "--request-id",
+        "t31-clean-fail-add-before_commit",
+        "workbook",
+        "add",
+        "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+      ],
+      "exit": 70,
+      "mode": "Exit70",
+      "point": "before_commit",
+      "signal": null,
+      "stderr": [],
+      "stdout": []
+    }
+  ],
+  "oracle_raw_count": 20,
+  "oracle_scope": "CRASH_ORACLE is emitted for Start/Add20 only; remaining crash tests contain byte/Store/committed/error stopping assertions and parent tests PASS but no per-case serialized CRASH_ORACLE",
+  "missing_main_cases": [],
+  "errors": [],
+  "result": "PASS",
+  "scope": "crash-window evidence only; no power-loss/Host/full mutation/M1 completion claim",
+  "summary_19_zero_skip": true,
+  "raw_run_id_match": true,
+  "remove_unknown_result_stop_oracle": "remove_real_windows test source explicitly checks EFFECT_PENDING+committed true for own request, committed false+blocking request for later writes at partial/tree-removed-before-marker windows; successful 19-test run includes this test. Parent assertions preserved; serialized CRASH_ORACLE not emitted for remove."
+}

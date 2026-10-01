@@ -1,0 +1,131 @@
+fix utf-8 byte order marker..............................................Passed
+check for case conflicts.................................................Passed
+check for merge conflicts................................................Passed
+check for broken symlinks............................(no files to check)Skipped
+check yaml...........................................(no files to check)Skipped
+check toml...............................................................Passed
+fix end of files.........................................................Passed
+mixed line ending........................................................Passed
+trim trailing whitespace.................................................Passed
+typos....................................................................Passed
+check docs...............................................................Passed
+check specs governance...................................................Passed
+check sheltie skill..................................(no files to check)Skipped
+check engine vocabulary..................................................Passed
+check test names and owners..............................................Passed
+cargo fmt................................................................Passed
+cargo check..............................................................Passed
+cargo clippy.............................................................Passed
+cargo deny check.....................................(no files to check)Skipped
+cargo nextest............................................................Passed
+[codex 06c3af3] fix(runtime): 保留路径解析错误并补M1真实调用回归
+ 141 files changed, 133165 insertions(+), 85 deletions(-)
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/baseline.metadata.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/baseline.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/core-stage1-reuse.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/current-phase.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/execution-closure.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/inventory-metadata.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/inventory.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/inventory.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/pipeline.py
+ rename specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/{source-input.json => superseded-before-t33/pre-t32-preparation-input.json} (100%)
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/progress.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-0-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-0-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-1-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-1-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-2-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-2-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-3-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-3-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-4-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-4-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-5-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-5-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-6-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-6-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-7-list.stderr.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/runtime-shard-7-selection.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/source-input.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/metadata.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/process-completion.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw-manifest.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw.tar.gz
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/caught.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/lock.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/missed.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/mutants.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/outcomes.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/timeout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/raw/unviable.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage1-runtime-0-of-8/stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/metadata.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/process-completion.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw-manifest.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw.tar.gz
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/caught.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/lock.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/missed.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/mutants.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/outcomes.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/timeout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/raw/unviable.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/stage2-core-current-consumers/stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/superseded-before-t33/superseded.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t32/commit.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t32/post-task.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/README.md
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/caller-drift-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/candidate-diff.patch
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/candidate-input.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/confine-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/deny.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fixture-filter-selection-failure.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fixture-migration-compile-failure.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fixture-non-utf8-path-unavailable.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fixture-private-lock-compile-failure.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fixture-readonly-connection-failure.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/fsx-deep-static-review.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-check.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-clippy.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-core-vocab.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-dist.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-docs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-fmt.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-msrv.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-nextest.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-results.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-skill.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-specs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-fallible-lexical-paths/gate-tests.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-check.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-clippy.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-core-vocab.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-dist.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-docs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-fmt.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-msrv.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-nextest.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-results.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-skill.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-specs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates-before-strict-source-paths/gate-tests.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-check.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-clippy.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-core-vocab.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-dist.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-docs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-fmt.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-msrv.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-nextest.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-results.json
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-skill.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-specs.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/gates/gate-tests.stdout.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/home-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/home-permission-red.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/lexical-cwd-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/native-boundaries-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/remote-green.txt
+ create mode 100644 specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t33/spec-deep-static-review.json

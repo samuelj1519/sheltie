@@ -1,0 +1,1973 @@
+{
+  "records": [
+    {
+      "case": "fail_succeeded",
+      "binary_sha256": "90ca2d18fbcd912cd085e08792b7a70bab497d4e406ac56d86b9c947282ede0d",
+      "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+      "runs": [
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "add",
+            "workbook",
+            "add",
+            "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"add\"}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "start",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=x"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"start\",\"revision\":1}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "begin",
+            "attempt",
+            "begin",
+            "2026-10-01-001-default",
+            "--node",
+            "outline"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"begin\",\"revision\":2}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":true,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-_ma36vyy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":true,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        }
+      ],
+      "submitted_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": false,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "legal_control_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": true,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "logical_changed_condition": "only data.work_status",
+      "sql": {
+        "statement": "UPDATE requests SET reply_json=? WHERE request_id=?",
+        "parameters": [
+          "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+          "fail"
+        ]
+      },
+      "replayed_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": true,
+          "work_status": {
+            "kind": "succeeded"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "declaration_oracle": {
+        "command": "FailAttempt",
+        "impossible_work_status": [
+          "succeeded",
+          "cancelled"
+        ]
+      },
+      "rows_before": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            3,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"failed\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":\"controlled failure\",\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":\"2026-10-01T14:47:27Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef4000709db7f269c3d22caf99/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef40447656bb0da6385f320fb8/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"8dca33886f65357fffacb854cd0f274f930a8289e7f6f6353ec2d83a962be279\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "fail",
+            "e177055663af4e8899c4f207ba734ab8dec8fa6a72fc60f213e93ed8beb7a045",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            4,
+            "2026-10-01-001-default",
+            3,
+            "fail",
+            "shushu",
+            "{\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"command\":\"fail_attempt\",\"reason\":\"<18 字节>\"}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "rows_after": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            3,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"failed\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":\"controlled failure\",\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":\"2026-10-01T14:47:27Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef4000709db7f269c3d22caf99/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef40447656bb0da6385f320fb8/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"8dca33886f65357fffacb854cd0f274f930a8289e7f6f6353ec2d83a962be279\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "fail",
+            "e177055663af4e8899c4f207ba734ab8dec8fa6a72fc60f213e93ed8beb7a045",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-_ma36vyy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            4,
+            "2026-10-01-001-default",
+            3,
+            "fail",
+            "shushu",
+            "{\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"command\":\"fail_attempt\",\"reason\":\"<18 字节>\"}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "files_before": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d5f6d6133367679792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d5f6d6133367679792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e30206661696c65640a726561736f6e3a20636f6e74726f6c6c6564206661696c7572650a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d707420626567696e20323032362d31302d30312d3030312d64656661756c74202d2d6e6f6465206f75746c696e650a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "files_after": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d5f6d6133367679792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d5f6d6133367679792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e30206661696c65640a726561736f6e3a20636f6e74726f6c6c6564206661696c7572650a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d707420626567696e20323032362d31302d30312d3030312d64656661756c74202d2d6e6f6465206f75746c696e650a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "store_rows_unchanged": true,
+      "business_files_unchanged": true,
+      "verdict": "CONFIRMED non-mutated successful replay returns semantically impossible/drifted snapshot field"
+    },
+    {
+      "case": "fail_cancelled",
+      "binary_sha256": "90ca2d18fbcd912cd085e08792b7a70bab497d4e406ac56d86b9c947282ede0d",
+      "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+      "runs": [
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "add",
+            "workbook",
+            "add",
+            "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"add\"}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "start",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=x"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"start\",\"revision\":1}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "begin",
+            "attempt",
+            "begin",
+            "2026-10-01-001-default",
+            "--node",
+            "outline"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"begin\",\"revision\":2}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":true,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-c9qv3qfy/home",
+            "--json",
+            "--request-id",
+            "fail",
+            "attempt",
+            "fail",
+            "2026-10-01-001-default",
+            "--attempt",
+            "outline#1.0",
+            "--reason",
+            "controlled failure"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"replayed\":true,\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"fail\",\"revision\":3}\n",
+          "stderr": ""
+        }
+      ],
+      "submitted_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": false,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "legal_control_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": true,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "logical_changed_condition": "only data.work_status",
+      "sql": {
+        "statement": "UPDATE requests SET reply_json=? WHERE request_id=?",
+        "parameters": [
+          "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+          "fail"
+        ]
+      },
+      "replayed_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "replayed": true,
+          "work_status": {
+            "kind": "cancelled"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-01-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "fail",
+        "revision": 3
+      },
+      "declaration_oracle": {
+        "command": "FailAttempt",
+        "impossible_work_status": [
+          "succeeded",
+          "cancelled"
+        ]
+      },
+      "rows_before": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            3,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"failed\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":\"controlled failure\",\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":\"2026-10-01T14:47:27Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef4123709883c51519238a5134/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef416871f29b12bf8cc38d1999/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"51dc7c60e6704aba56706c3a41587a519d8b5a7fbfdfde690867c4517ba7d387\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "fail",
+            "e177055663af4e8899c4f207ba734ab8dec8fa6a72fc60f213e93ed8beb7a045",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            4,
+            "2026-10-01-001-default",
+            3,
+            "fail",
+            "shushu",
+            "{\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"command\":\"fail_attempt\",\"reason\":\"<18 字节>\"}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "rows_after": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            3,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"failed\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":\"controlled failure\",\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":\"2026-10-01T14:47:27Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef4123709883c51519238a5134/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef416871f29b12bf8cc38d1999/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"51dc7c60e6704aba56706c3a41587a519d8b5a7fbfdfde690867c4517ba7d387\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "fail",
+            "e177055663af4e8899c4f207ba734ab8dec8fa6a72fc60f213e93ed8beb7a045",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"fail\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_failed\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},\"data\":{\"attempt\":\"outline#1.0\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-c9qv3qfy/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            4,
+            "2026-10-01-001-default",
+            3,
+            "fail",
+            "shushu",
+            "{\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"command\":\"fail_attempt\",\"reason\":\"<18 字节>\"}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "files_before": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d63397176337166792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d63397176337166792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e30206661696c65640a726561736f6e3a20636f6e74726f6c6c6564206661696c7572650a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d707420626567696e20323032362d31302d30312d3030312d64656661756c74202d2d6e6f6465206f75746c696e650a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "files_after": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d63397176337166792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d63397176337166792f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e30206661696c65640a726561736f6e3a20636f6e74726f6c6c6564206661696c7572650a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d707420626567696e20323032362d31302d30312d3030312d64656661756c74202d2d6e6f6465206f75746c696e650a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "store_rows_unchanged": true,
+      "business_files_unchanged": true,
+      "verdict": "CONFIRMED non-mutated successful replay returns semantically impossible/drifted snapshot field"
+    },
+    {
+      "case": "begin_requires",
+      "binary_sha256": "90ca2d18fbcd912cd085e08792b7a70bab497d4e406ac56d86b9c947282ede0d",
+      "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+      "runs": [
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home",
+            "--json",
+            "--request-id",
+            "add",
+            "workbook",
+            "add",
+            "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"add\"}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home",
+            "--json",
+            "--request-id",
+            "start",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=x"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"start\",\"revision\":1}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home",
+            "--json",
+            "--request-id",
+            "begin",
+            "attempt",
+            "begin",
+            "2026-10-01-001-default",
+            "--node",
+            "outline"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"begin\",\"revision\":2}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home",
+            "--json",
+            "--request-id",
+            "begin",
+            "attempt",
+            "begin",
+            "2026-10-01-001-default",
+            "--node",
+            "outline"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":true,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"begin\",\"revision\":2}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+            "--home",
+            "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home",
+            "--json",
+            "--request-id",
+            "begin",
+            "attempt",
+            "begin",
+            "2026-10-01-001-default",
+            "--node",
+            "outline"
+          ],
+          "exit": 0,
+          "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":true,\"requires\":[{\"digest\":null,\"kind\":\"mcp\",\"name\":\"extra-resource\",\"source\":null,\"version\":null}],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-01-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"begin\",\"revision\":2}\n",
+          "stderr": ""
+        }
+      ],
+      "submitted_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "brief_path": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md",
+          "inputs": {
+            "topic": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic"
+          },
+          "node": "outline",
+          "occurrence": 1,
+          "output_dir": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs",
+          "outputs": {
+            "outline": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md"
+          },
+          "replayed": false,
+          "requires": [],
+          "retry": 0
+        },
+        "next": [
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt submit"
+          },
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt fail"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "begin",
+        "revision": 2
+      },
+      "legal_control_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "brief_path": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md",
+          "inputs": {
+            "topic": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic"
+          },
+          "node": "outline",
+          "occurrence": 1,
+          "output_dir": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs",
+          "outputs": {
+            "outline": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md"
+          },
+          "replayed": true,
+          "requires": [],
+          "retry": 0
+        },
+        "next": [
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt submit"
+          },
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt fail"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "begin",
+        "revision": 2
+      },
+      "logical_changed_condition": "one requires fact at matching Reply/data locations, internally consistent",
+      "sql": {
+        "statement": "UPDATE requests SET reply_json=? WHERE request_id=?",
+        "parameters": [
+          "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+          "begin"
+        ]
+      },
+      "replayed_response": {
+        "data": {
+          "attempt": "outline#1.0",
+          "brief_path": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md",
+          "inputs": {
+            "topic": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic"
+          },
+          "node": "outline",
+          "occurrence": 1,
+          "output_dir": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs",
+          "outputs": {
+            "outline": "/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md"
+          },
+          "replayed": true,
+          "requires": [
+            {
+              "digest": null,
+              "kind": "mcp",
+              "name": "extra-resource",
+              "source": null,
+              "version": null
+            }
+          ],
+          "retry": 0
+        },
+        "next": [
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt submit"
+          },
+          {
+            "args": {
+              "attempt": "outline#1.0",
+              "work": "2026-10-01-001-default"
+            },
+            "op": "attempt fail"
+          },
+          {
+            "args": {
+              "work": "2026-10-01-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "begin",
+        "revision": 2
+      },
+      "declaration_oracle": {
+        "outline_requires": []
+      },
+      "rows_before": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            2,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"running\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":null,\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":null}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef424b72239ed67d0bba7829c6/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef428a7502b591e9f1f3d1fbb4/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"16820016e3da9a33c25cc815e756cbb0be1ffeb4d0aa062b18fb85565b9d7758\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "rows_after": {
+        "workbooks": [
+          [
+            "two-step",
+            "1.0.0",
+            "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+            "workbooks/two-step/1.0.0",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "works": [
+          [
+            "2026-10-01-001-default",
+            2,
+            "active",
+            "{\"work_id\":\"2026-10-01-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[{\"id\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"status\":\"running\",\"entered_from\":null,\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\",\"bytes\":1}},\"outputs\":{},\"summary\":null,\"fail_reason\":null,\"started_at\":\"2026-10-01T14:47:27Z\",\"ended_at\":null}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-01T14:47:27Z\",\"updated_at\":\"2026-10-01T14:47:27Z\"}",
+            "2026-10-01T14:47:27Z",
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "work_sequence": [
+          [
+            "2026-10-01",
+            1
+          ]
+        ],
+        "requests": [
+          [
+            "add",
+            "186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046",
+            null,
+            "{\"request_id\":\"add\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef424b72239ed67d0bba7829c6/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "start",
+            "f74a0f3ecd1e8464c69af17d6b264535a6dfdb947b57b45e0c398a86d0103698",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-01-001-default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0f7ef428a7502b591e9f1f3d1fbb4/payload\",\"final\":\"works/2026-10-01-001-default\",\"owner\":\"work:2026-10-01-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            "begin",
+            "71430317af6d4457875344b2eb93cb8c452506de673c4ff3ee10d561f9d6b6d3",
+            "2026-10-01-001-default",
+            "{\"request_id\":\"begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0},\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}]},\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"requires\":[{\"kind\":\"mcp\",\"name\":\"extra-resource\",\"version\":null,\"digest\":null,\"source\":null}],\"retry\":0},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"outline\",\"occurrence\":1,\"retry\":0}},{\"op\":\"work cancel\"}]}",
+            "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-01-001-default\",\"attempt_id\":\"outline#1.0\",\"dirs\":[\"works\",\"works/2026-10-01-001-default\",\"works/2026-10-01-001-default/attempts\",\"works/2026-10-01-001-default/attempts/outline\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000\",\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"sha256\":\"16820016e3da9a33c25cc815e756cbb0be1ffeb4d0aa062b18fb85565b9d7758\",\"content\":\"# 任务书：列提纲\\n\\nWork: 2026-10-01-001-default（default）\\n节点: outline#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| topic | /private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic | 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 |\\n\\n## 说明\\n\\n读 `topic`，围绕它列一份提纲。\\n\\n- 三到六个一级要点，每个要点下一到三个子点。\\n- 每个要点一句话说清要讲什么，不展开。\\n- 用简体中文，Markdown 列表。\\n\\n把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| outline | /private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-01-001-default\"}]",
+            1,
+            "2026-10-01T14:47:27Z"
+          ]
+        ],
+        "audit": [
+          [
+            1,
+            "",
+            0,
+            "add",
+            "shushu",
+            "{\"intent\":\"add_workbook\",\"source\":\"186e02ba1b5b4d4841081ddeb666f6c4de4d21a79c2f51ec05ecbbd234d33046\"}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            2,
+            "2026-10-01-001-default",
+            1,
+            "start",
+            "shushu",
+            "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}",
+            "2026-10-01T14:47:27Z"
+          ],
+          [
+            3,
+            "2026-10-01-001-default",
+            2,
+            "begin",
+            "shushu",
+            "{\"command\":\"begin_attempt\",\"instruction_text\":\"<344 字节>\",\"node\":\"outline\",\"observed_inputs\":{\"topic\":{\"bytes\":1,\"path\":\"/private/tmp/m1-snapshot-semantics-dz6ji1sf/home/works/2026-10-01-001-default/start-inputs/topic\",\"sha256\":\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\"}}}",
+            "2026-10-01T14:47:27Z"
+          ]
+        ]
+      },
+      "files_before": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d647a366a693173662f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d647a366a693173662f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e302072756e6e696e670a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d7074207375626d697420323032362d31302d30312d3030312d64656661756c74202d2d617474656d7074206f75746c696e6523312e30202d2d73756d6d61727920223ce4b880e58fa5e8af9de7bb93e8aeba3e220a2d207368656c74696520617474656d7074206661696c20323032362d31302d30312d3030312d64656661756c74202d2d617474656d7074206f75746c696e6523312e30202d2d726561736f6e20223ce58e9fe59ba03e220a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "files_after": {
+        "workbooks": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "workbooks/two-step/1.0.0/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "workbooks/two-step/1.0.0/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "workbooks/two-step/1.0.0/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "workbooks/two-step/1.0.0/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "works": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/brief.md": {
+          "mode": 33152,
+          "bytes": "2320e4bbbbe58aa1e4b9a6efbc9ae58897e68f90e7bab20a0a576f726b3a20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890ae88a82e782b93a206f75746c696e652331efbc8ce7acac203020e6aca1e5b09de8af950ae69da5e887aa3a20e585a5e58fa30ae689a7e8a18ce880853a206167656e74efbc887374616e64617264efbc890a0a232320e8be93e585a50a0a7c20e5908de7a7b0207c20e8b7afe5be84207c20736861323536207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c0a7c20746f706963207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d647a366a693173662f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f73746172742d696e707574732f746f706963207c2032643731313634326237323662303434303136323763613966626163333266356338353330666231393033636334646230323235383731373932316134383831207c0a0a232320e8afb4e6988e0a0ae8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a0a232320e8be93e587bae8a681e6b1820a0a7c20e5908de7a7b0207c20e58699e588b0207c20e5bf85e99c80207c20e4b88ae99990207c0a7c202d2d2d207c202d2d2d207c202d2d2d207c202d2d2d207c0a7c206f75746c696e65207c202f707269766174652f746d702f6d312d736e617073686f742d73656d616e746963732d647a366a693173662f686f6d652f776f726b732f323032362d31302d30312d3030312d64656661756c742f617474656d7074732f6f75746c696e652f6f6363757272656e63652d3030312f617474656d70742d3030302f6f7574707574732f6f75746c696e652e6d64207c20e698af207c203634204b6942207c0a0ae5ae8ce68890e5908ee4b88de8a681e887aae5b7b1e4bfaee694b9e8be93e585a5e69687e4bbb6e38082e59b9ee5a48de58d8fe8b083e88085e697b6e794a8e587a0e58fa5e8af9de8afb4e6988ee7bb93e8aebaefbc8ce5b9b6e58897e587bae4bda0e58699e4ba86e593aae4ba9be8be93e587bae69687e4bbb6e380820a"
+        },
+        "works/2026-10-01-001-default/attempts/outline/occurrence-001/attempt-000/outputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs": {
+          "mode": 16832,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/start-inputs/topic": {
+          "mode": 33152,
+          "bytes": "78"
+        },
+        "works/2026-10-01-001-default/status-card.md": {
+          "mode": 33152,
+          "bytes": "2320576f726b20323032362d31302d30312d3030312d64656661756c74efbc8864656661756c74efbc890a0a776f726b626f6f6b3a2074776f2d7374657040312e302e30202020666c6f773a2064656661756c742020207374617475733a206163746976650a63757272656e743a206f75746c696e6523310a646f6e653a20e697a00a70656e64696e673a2073756d6d6172790a7669736974733a206f75746c696e6520312f312c2073756d6d61727920302f310a0a232320e69c80e8bf91e4b880e6aca1e5b09de8af950a0a6f75746c696e6523312e302072756e6e696e670a0a232320e59088e6b395e4b88be4b880e6ada50a0a2d207368656c74696520617474656d7074207375626d697420323032362d31302d30312d3030312d64656661756c74202d2d617474656d7074206f75746c696e6523312e30202d2d73756d6d61727920223ce4b880e58fa5e8af9de7bb93e8aeba3e220a2d207368656c74696520617474656d7074206661696c20323032362d31302d30312d3030312d64656661756c74202d2d617474656d7074206f75746c696e6523312e30202d2d726561736f6e20223ce58e9fe59ba03e220a2d207368656c74696520776f726b2063616e63656c20323032362d31302d30312d3030312d64656661756c740a"
+        },
+        "works/2026-10-01-001-default/workbook": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/flows/default.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022666c6f772f7631220a6964203d202264656661756c74220a656e747279203d20226f75746c696e65220a0a5b5b6e6f6465735d5d0a6964203d20226f75746c696e65220a7469746c65203d2022e58897e68f90e7bab2220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f6f75746c696e652e6d6422207d0a696e7075747320203d205b7b206e616d65203d2022746f706963222c2066726f6d203d202273746172742e746f70696322207d5d0a6f757470757473203d205b7b206e616d65203d20226f75746c696e65222c2070617468203d20226f75746c696e652e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b6e6f6465735d5d0a6964203d202273756d6d617279220a7469746c65203d2022e68c89e68f90e7bab2e58699e69198e8a681220a6578656375746f72203d20226167656e74220a696e737472756374696f6e203d207b2066696c65203d2022696e737472756374696f6e732f73756d6d6172792e6d6422207d0a696e7075747320203d205b7b206e616d65203d20226f75746c696e65222c2066726f6d203d20226f75746c696e652e6f75746c696e6522207d5d0a6f757470757473203d205b7b206e616d65203d202273756d6d617279222c2070617468203d202273756d6d6172792e6d64222c206d61785f6279746573203d203635353336207d5d0a0a5b5b65646765735d5d0a66726f6d203d20226f75746c696e65220a746f203d202273756d6d617279220a6b696e64203d20226d61696e220a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions": {
+          "mode": 16749,
+          "bytes": null
+        },
+        "works/2026-10-01-001-default/workbook/instructions/outline.md": {
+          "mode": 33060,
+          "bytes": "e8afbb2060746f70696360efbc8ce59bb4e7bb95e5ae83e58897e4b880e4bbbde68f90e7bab2e380820a0a2d20e4b889e588b0e585ade4b8aae4b880e7baa7e8a681e782b9efbc8ce6af8fe4b8aae8a681e782b9e4b88be4b880e588b0e4b889e4b8aae5ad90e782b9e380820a2d20e6af8fe4b8aae8a681e782b9e4b880e58fa5e8af9de8afb4e6b885e8a681e8aeb2e4bb80e4b988efbc8ce4b88de5b195e5bc80e380820a2d20e794a8e7ae80e4bd93e4b8ade69687efbc8c4d61726b646f776e20e58897e8a1a8e380820a0ae68a8ae68f90e7bab2e58699e588b0e4bbbbe58aa1e4b9a6e3808ce8be93e587bae8a681e6b182e3808de9878c20606f75746c696e656020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae587a0e4b8aae8a681e782b9efbc8ce4b8bbe7babfe698afe4bb80e4b988e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/instructions/summary.md": {
+          "mode": 33060,
+          "bytes": "e8afbb20606f75746c696e6560efbc8ce68c89e5ae83e58699e4b880e7af872033303020e588b02035303020e5ad97e79a84e69198e8a681e380820a0a2d20e9a1bae5ba8fe4b88ee68f90e7bab2e4b880e887b4efbc8ce6af8fe4b8aae4b880e7baa7e8a681e782b9e4b880e6aeb5e380820a2d20e4b88de696b0e5a29ee68f90e7bab2e9878ce6b2a1e69c89e79a84e8a782e782b9e380820a2d20e794a8e7ae80e4bd93e4b8ade69687e380820a0ae68a8ae69198e8a681e58699e588b0206073756d6d6172796020e5afb9e5ba94e79a84e8b7afe5be84e38082e59b9ee5a48de58d8fe8b083e88085e697b6e8afb4e4b880e58fa5efbc9ae5ad97e695b0e4b88ee698afe590a6e8a686e79b96e4ba86e585a8e983a8e8a681e782b9e380820a"
+        },
+        "works/2026-10-01-001-default/workbook/workbook.toml": {
+          "mode": 33060,
+          "bytes": "736368656d61203d2022776f726b626f6f6b2f7631220a6964203d202274776f2d73746570220a76657273696f6e203d2022312e302e30220a6e616d65203d2022e4b8a4e6ada5e58699e4bd9c220a6465736372697074696f6e203d2022e58588e58897e68f90e7bab2efbc8ce5868de68c89e68f90e7bab2e58699e69198e8a681e38082e697a0e5aea1e69fa5e38081e697a0e997a8e6a79befbc8ce8af81e6988ee5bc95e6938ee4b88ee4b89ae58aa1e697a0e585b3e38082220a0a666c6f7773203d205b22666c6f77732f64656661756c742e746f6d6c225d0a"
+        },
+        "pending": {
+          "mode": 16832,
+          "bytes": null
+        }
+      },
+      "store_rows_unchanged": true,
+      "business_files_unchanged": true,
+      "verdict": "CONFIRMED non-mutated successful replay returns semantically impossible/drifted snapshot field"
+    }
+  ]
+}

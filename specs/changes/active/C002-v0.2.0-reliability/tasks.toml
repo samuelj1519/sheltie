@@ -99,7 +99,7 @@ test_files = ["crates"]
 allow_test_changes = true
 
 [C002-M1]
-# M1审查反馈的源码与回归独立归属T32；M1记录最终审查。
+# M1审查反馈的源码与回归独立归属T32–T34；M1记录最终审查。
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
 test_files = []
 allow_test_changes = false
@@ -201,5 +201,11 @@ allow_test_changes = true
 
 [C002-T33]
 files = ["crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/commands/workbook.rs", "crates/sheltie-runtime/src", "specs/architecture.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T34]
+# R23/R24的状态与资源规则由core提供同一纯函数，runtime只验证历史快照事实。
+files = ["crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src", "specs/contracts/storage.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true

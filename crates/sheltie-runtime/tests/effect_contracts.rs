@@ -189,7 +189,8 @@ fn submit_replay_requires_exactly_the_committed_output_references_and_seal() {
     }
 }
 
-// Task: C002-T31
+// 原任务 C002-T31；T34收紧原响应资格断言。
+// Task: C002-T34
 #[test]
 fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
     for remove in [false, true] {
@@ -295,7 +296,15 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
             } else {
                 repo.add(&source, Some(rid.into())).unwrap_err()
             };
-            if corruption == "shared_bad_digest" {
+            // add的唯一业务身份锚点损坏时，不能把仅形状合法的快照当可信原响应。
+            // remove仍由audit target独立绑定；pending等后效果错误也保留已核原响应。
+            if corruption == "shared_bad_digest"
+                || !remove
+                    && matches!(
+                        corruption,
+                        "empty_batch" | "final" | "owner" | "digest" | "digest_format"
+                    )
+            {
                 assert_effect_pending_without_original(error, true, rid, None);
             } else {
                 let snapshot = assert_effect_pending(error, true, Some(rid), None);

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "cargo",
+    "deny",
+    "check",
+    "--offline"
+  ],
+  "exit": 2,
+  "reason": "offline is a cargo-deny global option, not a check subcommand option",
+  "safety_interception": false
+}

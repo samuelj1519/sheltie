@@ -859,7 +859,8 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     );
 }
 
-// Task: C002-T25
+// 原任务 C002-T25；T34收紧原响应资格断言。
+// Task: C002-T34
 #[test]
 fn duplicate_audit_owner_is_rejected_before_recovery_io() {
     let (_d, home, svc) = home_with_example("two-step");
@@ -897,8 +898,9 @@ fn duplicate_audit_owner_is_rejected_before_recovery_io() {
     .unwrap();
     drop(conn);
 
-    let err = svc.cancel(&wid, None).unwrap_err();
-    assert_effect_pending(err, false, None, Some(&request_id));
+    let blocked_request = "t34-duplicate-audit-blocked";
+    let err = svc.cancel(&wid, Some(blocked_request.into())).unwrap_err();
+    assert_effect_pending_without_original(err, false, blocked_request, Some(&request_id));
     assert!(!brief.exists(), "重复audit归属时不得执行第一条效果");
 }
 
@@ -925,7 +927,8 @@ fn invalid_published_flag_is_not_treated_as_completed() {
     assert!(!brief.exists(), "非0/1的published不能跳过效果校验");
 }
 
-// Task: C002-T20
+// 原任务 C002-T20；T34收紧原响应资格断言。
+// Task: C002-T34
 #[test]
 fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
     let (_d, home, svc) = home_with_example("two-step");
@@ -952,8 +955,9 @@ fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
         .unwrap();
     drop(conn);
 
-    let err = svc.cancel(&wid, None).unwrap_err();
-    assert_effect_pending(err, false, None, Some(&request_id));
+    let blocked_request = "t34-missing-audit-blocked";
+    let err = svc.cancel(&wid, Some(blocked_request.into())).unwrap_err();
+    assert_effect_pending_without_original(err, false, blocked_request, Some(&request_id));
     assert!(!brief.exists());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let published: i64 = conn
@@ -1048,7 +1052,8 @@ fn pending_owner_json_roundtrips_opaque_request_id() {
     }));
 }
 
-// Task: C002-T25
+// 原任务 C002-T25；T34收紧原响应资格断言。
+// Task: C002-T34
 #[test]
 fn unpublished_work_start_requires_its_owner_sidecar() {
     let (_d, home, svc) = home_with_example("two-step");
@@ -1085,8 +1090,14 @@ fn unpublished_work_start_requires_its_owner_sidecar() {
     .unwrap();
     drop(conn);
 
-    let err = svc.cancel(&wid, None).unwrap_err();
-    assert_effect_pending(err, false, None, Some("start-owner-required"));
+    let blocked_request = "t34-unverified-start-blocked";
+    let err = svc.cancel(&wid, Some(blocked_request.into())).unwrap_err();
+    assert_effect_pending_without_original(
+        err,
+        false,
+        blocked_request,
+        Some("start-owner-required"),
+    );
     assert!(home.work_dir(&wid).as_path().join("workbook").is_dir());
 }
 

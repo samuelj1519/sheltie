@@ -44,3 +44,10 @@ T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成req
 ## T33收尾与M1重新冻结
 
 T33实际R21根/路径失败传播修复、全API迁移及新增真实caller回归已独立Spec/Standards复核通过；最终693项及工程门禁通过。旧5261e0d变异部分结果在M1 evidence/mutants/superseded-before-t33/，不复用新输入。提交T33后重新冻结同源码并运行完整runtime第一阶段+全部workspace存活复验；core720原直接测试只在精确依赖闭包不变时复用并保留原身份，core4消费者重跑。M1尚未通过，actual safety skip记录为空，Linux/T16/T17边界不变。
+
+
+## T34收尾与下一入口
+
+R22/R23/R24已修复；T34最终699项及Rust/MSRV/离线deny/文档/skill/dist门禁通过，Standards增量通过。独立Spec后续复核实际被平台暂停，按授权SK01跳过，不重试、不记Spec通过。原文与缺失义务见M1 safety-skips.json；既有反例与审查反馈仍作为历史证据。
+
+下一步是提交T34后重新冻结M1 source/治理输入。core已经改变，不能再复用旧720项；core/runtime全部重新运行完整第一阶段及所有workspace存活复验。旧5344完整runtime第一阶段及尚未开始的workspace边界保留，非安全跳过；不要启动两条管线。M1仍doing，Linux/T16/T17边界不变。

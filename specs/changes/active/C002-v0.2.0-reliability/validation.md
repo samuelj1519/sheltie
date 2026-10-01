@@ -139,3 +139,14 @@ T14 独立审查首轮发现两项状态校验反例：唯一 running Attempt �
 T33修复真实R21：Home::resolve/confine吞I/O或保留原路径，lexical_abs猜测cwd/用lossy字符串解释路径。统一失败传播、严格UTF8和唯一解析caller；删除只测试使用的Home::at并迁完caller。新增15项真实caller回归及既有Row校验补revision0；693/693零skip，Rust四门禁/MSRV/离线deny/规范/skill/dist通过，独立Spec/Standards最终增量review通过，见[T33证据](evidence/m1-2026-10-01/t33/README.md)。实际非UTF8实体路径fixture在当前APFS创建EPERM原文保留，不当安全拦截或实际验证PASS。
 
 旧5261e0d/2495输入原文保留为superseded：core4完整3caught1missed、runtime第0片222项167caught/13unviable/42missed均经独立证据Reviewer核实际build/test/diagnostic及逐成员SHA；源码变化检测在下片启动前停止，不套新候选。最终完整变异由M1重新冻结本任务提交后输入执行。Linux not_run，T16/T17 not_run，实际平台安全拦截记录为空。
+
+
+## 2026-10-01 T34 快照业务绑定修复
+
+实施Owner Codex，父提交T33 `06c3af3`。R22/R23/R24独立真实CLI红色证据与逐字段/全Store/业务文件oracle见[evidence/m1-2026-10-01/t34](evidence/m1-2026-10-01/t34/README.md)。原响应经元数据、audit、业务绑定校验后提供，合法后效果失败仍携原响应；core生成/验证共用状态与节点资源事实，历史结果不比较当前visits。退役raw投影、未消费查询及冗余判断，Box cause关闭Clippy大Err。
+
+最终source输入`8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f`，全仓run `79c91669-2f11-422e-9cc8-4b91b7de5df3` 699/699、零skip、1 slow，exit0。fmt/check/Clippy、Rust1.85 locked、docs/specs/core-vocab/tests/skill/dist均exit0；offline deny exit0，仅使用记录中的本地公告缓存。原始argv/exit/SHA在T34 gates及metadata；先前fixture编译/只读连接、资格旧断言和test-owner注释失败均保留，未掩盖失败。
+
+独立Standards当前源码通过。Spec已返回的反例/seam/方向记录保留，其后续复核实际触发平台风险提示并暂停，按用户明确授权记录`M1-safety-skip-001`、跳过、不重试；不写最终Spec通过。T34 done只适用于本次明确例外；缺失义务见[清单](evidence/m1-2026-10-01/safety-skips.json)。
+
+旧5344候选runtime第一阶段1773完整、core旧720及core4workspace保留；源码guard在runtime workspace创建前停止exit1，非安全跳过。T34改变core/runtime，新M1不得复用任何旧运行为当前PASS，必须重新冻结并全量运行两阶段及存活处置。Linux not_run；M1 doing；T16/T17 not_run。任务/staged、提交与提交后门禁另记。

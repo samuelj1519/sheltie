@@ -862,20 +862,6 @@ impl WorkService {
         })
     }
 
-    fn recovery_load_effects(
-        &self,
-        request_id: &str,
-        row: &crate::store::read::RequestRow,
-    ) -> Result<CheckedEffects> {
-        let (checked_row, _, effects) = self.load_checked_request(request_id)?;
-        if checked_row.reply_json != row.reply_json {
-            return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的响应在校验期间改变"),
-            });
-        }
-        Ok(effects)
-    }
-
     fn recover_before_write(
         &self,
         lock: &crate::home::HomeLock,
@@ -915,13 +901,9 @@ impl WorkService {
     pub(crate) fn load_checked_request(
         &self,
         request_id: &str,
-    ) -> Result<(crate::store::read::RequestRow, Response, CheckedEffects)> {
-        let row = self
-            .store
-            .inspect_request(request_id)?
-            .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("缺少请求 {request_id} 的持久记录"),
-            })?;
+        metadata: &crate::store::read::RequestMetadata,
+    ) -> crate::recovery::RequestLoadResult<(crate::recovery::CheckedRequest, Response)> {
+        let row = metadata;
         Sha256Hex::new(row.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
             detail: format!("请求 {request_id} 的intent_hash不合法：{error}"),
         })?;
@@ -932,7 +914,8 @@ impl WorkService {
                     "请求 {request_id} 应有且仅有一条audit，实际 {} 条",
                     audits.len()
                 ),
-            });
+            }
+            .into());
         };
         let work = row
             .work_id
@@ -948,7 +931,8 @@ impl WorkService {
         if audit.work_id != work.as_str() || row.at != audit.at {
             return Err(Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的audit归属/时间与requests行不一致"),
-            });
+            }
+            .into());
         }
         let audit_revision = u64::try_from(audit.revision)
             .ok()
@@ -966,7 +950,8 @@ impl WorkService {
         {
             return Err(Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的snapshot身份/revision与audit不一致"),
-            });
+            }
+            .into());
         }
         let snapshot = Response {
             request_id: persisted.request_id,
@@ -977,14 +962,11 @@ impl WorkService {
             next: persisted.next,
         };
         let state = self.load(&work)?;
-        if state.revision != audit_revision {
-            // A Work's later revisions are valid; audit ties to the original request, while
-            // the current state remains the checked owner for path validation.
-            if state.revision < audit_revision {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 的audit revision超出Work当前revision"),
-                });
+        if state.revision < audit_revision {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的audit revision超出Work当前revision"),
             }
+            .into());
         }
         let command: Command =
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
@@ -998,31 +980,52 @@ impl WorkService {
             &command,
             &snapshot,
         )?;
-        let ops = decode_effects(&row.effects_json)?;
-        let checked = check_work_effects(
-            &self.home,
-            request_id,
-            &state.state,
-            &state.graph,
-            &command,
-            &snapshot.reply,
-            ops,
-        )?;
-        for effect in checked.as_slice() {
-            if !row.published {
-                if let EffectOp::PublishDir { pending, .. } = effect {
-                    let internal_id =
-                        pending
-                            .split('/')
-                            .nth(1)
-                            .ok_or_else(|| Error::StoreCorrupt {
-                                detail: format!("请求 {request_id} 的pending owner路径无效"),
-                            })?;
-                    verify_pending_owner(&self.home, internal_id, request_id, "start_work")?;
+        let original = crate::recovery::work_original_response(&work, &snapshot);
+        let effects_result: Result<_> = (|| {
+            let row =
+                self.store
+                    .inspect_request(request_id)?
+                    .ok_or_else(|| Error::StoreCorrupt {
+                        detail: format!("缺少请求 {request_id} 的效果记录"),
+                    })?;
+            metadata.check_row(request_id, &row)?;
+            let ops = decode_effects(&row.effects_json)?;
+            let checked = check_work_effects(
+                &self.home,
+                request_id,
+                &state.state,
+                &state.graph,
+                &command,
+                &snapshot.reply,
+                ops,
+            )?;
+            for effect in checked.as_slice() {
+                if !row.published {
+                    if let EffectOp::PublishDir { pending, .. } = effect {
+                        let internal_id =
+                            pending
+                                .split('/')
+                                .nth(1)
+                                .ok_or_else(|| Error::StoreCorrupt {
+                                    detail: format!("请求 {request_id} 的pending owner路径无效"),
+                                })?;
+                        verify_pending_owner(&self.home, internal_id, request_id, "start_work")?;
+                    }
                 }
             }
-        }
-        Ok((row, snapshot, checked))
+            Ok((row, checked))
+        })();
+        let (row, effects) = effects_result.map_err(|cause| {
+            crate::recovery::RequestLoadError::with_original(cause, original.clone())
+        })?;
+        Ok((
+            crate::recovery::CheckedRequest {
+                row,
+                original,
+                effects,
+            },
+            snapshot,
+        ))
     }
 
     /// `decide` + 单事务提交 + 快照。`data` 在提交前组装，重放原样返回（GF-15）。
@@ -1095,23 +1098,30 @@ impl WorkService {
         reply_json: String,
         lock: &crate::home::HomeLock,
     ) -> Result<Response> {
-        let stored =
-            self.store
-                .inspect_request(&request_id)?
-                .ok_or_else(|| Error::StoreCorrupt {
-                    detail: format!("重放请求 {request_id} 在requests中消失"),
-                })?;
-        let original = crate::recovery::original_snapshot(&request_id, &stored);
-        let (row, mut resp, effects) = self
-            .load_checked_request(&request_id)
-            .map_err(|cause| crate::recovery::own_pending(&request_id, original.clone(), cause))?;
+        let metadata = self
+            .store
+            .inspect_request_metadata(&request_id)
+            .map_err(|cause| crate::recovery::own_pending(&request_id, None, cause))?
+            .ok_or_else(|| {
+                crate::recovery::own_pending(
+                    &request_id,
+                    None,
+                    Error::StoreCorrupt {
+                        detail: format!("重放请求 {request_id} 在requests中消失"),
+                    },
+                )
+            })?;
+        let (checked, mut resp) = self
+            .load_checked_request(&request_id, &metadata)
+            .map_err(|failure| failure.into_pending(&request_id))?;
+        let row = &checked.row;
         if row.reply_json != reply_json {
             let cause = Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的历史响应与requests记录不一致"),
             };
             return Err(crate::recovery::own_pending(
                 &request_id,
-                crate::recovery::original_snapshot(&request_id, &row),
+                Some(checked.original.clone()),
                 cause,
             ));
         }
@@ -1121,8 +1131,7 @@ impl WorkService {
             lock,
             crate::recovery::CheckedRequestEffects {
                 request_id: &request_id,
-                row: &row,
-                effects: &effects,
+                request: &checked,
             },
             None,
             self,
@@ -1134,21 +1143,17 @@ impl WorkService {
 }
 
 impl crate::recovery::RecoveryAccess for WorkService {
-    fn load_effects(
+    fn load_request(
         &self,
         request_id: &str,
-        row: &crate::store::read::RequestRow,
-    ) -> Result<CheckedEffects> {
-        if row.work_id.is_some() {
-            return self.recovery_load_effects(request_id, row);
+        metadata: &crate::store::read::RequestMetadata,
+    ) -> crate::recovery::RequestLoadResult<crate::recovery::CheckedRequest> {
+        if metadata.work_id.is_some() {
+            self.load_checked_request(request_id, metadata)
+                .map(|(request, _)| request)
+        } else {
+            self.repo().load_checked_request(request_id, metadata)
         }
-        let (checked_row, effects) = self.repo().checked_effects_for(request_id)?;
-        if checked_row.reply_json != row.reply_json {
-            return Err(Error::StoreCorrupt {
-                detail: format!("Workbook请求 {request_id} 的响应在校验期间改变"),
-            });
-        }
-        Ok(effects)
     }
 
     fn refresh_cards(&self, effects: &CheckedEffects, lock: &crate::home::HomeLock) -> Result<()> {
@@ -1167,6 +1172,19 @@ fn validate_command_owner(
     use crate::snapshot::CheckedData;
 
     let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
+    let status = match &data {
+        CheckedData::Submitted(status) | CheckedData::Failed(status) => Some(*status),
+        CheckedData::Approved(data) => Some(data.work_status),
+        _ => None,
+    };
+    if status.is_some_and(|status| {
+        !sheltie_core::work::reply_status_matches(&snapshot.reply, status, graph)
+    }) {
+        return Err(Error::StoreCorrupt {
+            detail: format!("请求 {request_id} 的snapshot状态与原操作不一致"),
+        });
+    }
+
     let valid = match (command, &snapshot.reply, &data) {
         (Command::Start { .. }, Reply::Started { requires, .. }, CheckedData::Started(_)) => {
             crate::snapshot::start_matches(state, command, &snapshot.reply, &data)
@@ -1180,6 +1198,7 @@ fn validate_command_owner(
                 output_dir,
                 inputs,
                 outputs,
+                requires,
                 ..
             },
             CheckedData::Begun,
@@ -1207,6 +1226,7 @@ fn validate_command_owner(
                     == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))
                 && inputs == &expected_inputs
                 && outputs == &expected_outputs
+                && graph.node_requires(node).as_ref() == Some(requires)
         }
         (
             Command::SubmitAttempt { attempt, .. },
@@ -1214,7 +1234,7 @@ fn validate_command_owner(
                 attempt: reply_attempt,
                 outputs,
             },
-            CheckedData::Submitted,
+            CheckedData::Submitted(_),
         ) => state.attempt(attempt).is_some_and(|record| {
             reply_attempt == attempt
                 && record.status == sheltie_core::work::AttemptStatus::Succeeded
@@ -1225,7 +1245,7 @@ fn validate_command_owner(
             Reply::AttemptFailed {
                 attempt: reply_attempt,
             },
-            CheckedData::Failed,
+            CheckedData::Failed(_),
         ) => {
             reply_attempt == attempt
                 && state.attempt(attempt).is_some_and(|record| {

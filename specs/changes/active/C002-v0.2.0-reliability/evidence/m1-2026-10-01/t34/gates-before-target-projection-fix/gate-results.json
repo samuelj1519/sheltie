@@ -1,0 +1,60 @@
+[
+  {
+    "name": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.388,
+    "source_input_sha256": "391dd867cae9353008fb91dde79d3a6de8fb0d4921f374a7f03d5c86669bb8c6",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 0.621,
+    "source_input_sha256": "391dd867cae9353008fb91dde79d3a6de8fb0d4921f374a7f03d5c86669bb8c6",
+    "stdout_sha256": "4430e0bff0533f48413fa80e723457334e7bc9857167e567dc7b317bfac7a52d"
+  },
+  {
+    "name": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 0.588,
+    "source_input_sha256": "391dd867cae9353008fb91dde79d3a6de8fb0d4921f374a7f03d5c86669bb8c6",
+    "stdout_sha256": "f05f16472ec40973582bcb6c2361252185d708fe342cce6894c3de2b84d97c45"
+  },
+  {
+    "name": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass",
+      "--no-fail-fast"
+    ],
+    "exit": 100,
+    "seconds": 171.807,
+    "source_input_sha256": "391dd867cae9353008fb91dde79d3a6de8fb0d4921f374a7f03d5c86669bb8c6",
+    "stdout_sha256": "c1def15297e96be7af367977d84d3fa71562c5872aead9721bf497c5fe2ee543"
+  }
+]

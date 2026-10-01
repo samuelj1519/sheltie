@@ -596,3 +596,48 @@ fn managed_rename_rejects_symlink_source_without_moving_or_touching_target() {
 fn _svc_ref(s: &WorkService) {
     let _ = s.list();
 }
+
+// Task: C002-T34
+#[test]
+fn held_directory_rechecks_the_lock_for_every_write_and_rename() {
+    for replaced_lock in [false, true] {
+        let directory = tempfile::tempdir().unwrap();
+        let other_directory = tempfile::tempdir().unwrap();
+        let home =
+            sheltie_runtime::Home::resolve(Some(canonical_abs(directory.path()).as_str())).unwrap();
+        let other =
+            sheltie_runtime::Home::resolve(Some(canonical_abs(other_directory.path()).as_str()))
+                .unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let other_lock = other.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let held = fs
+            .ensure_dir(&lock, &ManagedRelPath::new("works/slot").unwrap())
+            .unwrap();
+        held.write_new(&lock, "source", b"preserve").unwrap();
+        let source = home.root().as_path().join("works/slot/source");
+        let before = snapshot(source.as_std_path());
+        let saved_lock = directory.path().join("saved-lock");
+        if replaced_lock {
+            std::fs::rename(directory.path().join(".lock"), &saved_lock).unwrap();
+            std::fs::write(directory.path().join(".lock"), b"").unwrap();
+        }
+        let invalid_lock = if replaced_lock { &lock } else { &other_lock };
+        for error in [
+            held.write_new(invalid_lock, "never-created", b"must not write")
+                .unwrap_err(),
+            held.rename_new(invalid_lock, "source", "never-renamed")
+                .unwrap_err(),
+        ] {
+            assert!(matches!(error, Error::InvalidRequest { .. }), "{error}");
+        }
+        assert_eq!(snapshot(source.as_std_path()), before);
+        assert!(!directory.path().join("works/slot/never-created").exists());
+        assert!(!directory.path().join("works/slot/never-renamed").exists());
+        if replaced_lock {
+            std::fs::rename(saved_lock, directory.path().join(".lock")).unwrap();
+        }
+        held.rename_new(&lock, "source", "legal").unwrap();
+        assert_eq!(snapshot(&directory.path().join("works/slot/legal")), before);
+    }
+}

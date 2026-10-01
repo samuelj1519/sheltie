@@ -1,0 +1,138 @@
+[
+  {
+    "name": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.349,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 0.638,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "9fe1a262037f0626ef2dc288c698ef7d171e3458c423bdaa68d0ead31181e0b9"
+  },
+  {
+    "name": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 0.589,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "bf5c323c4ab2d3d93626eea442168722ba06df140cac74e1c371d456a77e5f04"
+  },
+  {
+    "name": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass",
+      "--no-fail-fast"
+    ],
+    "exit": 0,
+    "seconds": 166.325,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "321ea4555d8d43368269356e71f893d1c6bd45c4eefeb5451fc0c88812fc92f0"
+  },
+  {
+    "name": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--workspace",
+      "--all-targets",
+      "--all-features",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 0.433,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "1c3a5efd94eda5137f87743a940396a9ed0f3a5ad547a0c848bde62791e4e3cd"
+  },
+  {
+    "name": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.237,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "0b0846f56ae3bd96f41d18002d4c6495eb3a2d082cfcc585ba75278e33b4e35a"
+  },
+  {
+    "name": "specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.402,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+  },
+  {
+    "name": "core-vocab",
+    "argv": [
+      "scripts/check-core-vocab.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.163,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+  },
+  {
+    "name": "tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.079,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "970a047e727e68f8da8700a003ca81601d5945f5b8b16c20caeeb118df528188"
+  },
+  {
+    "name": "skill",
+    "argv": [
+      "scripts/check-skill.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.539,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+  },
+  {
+    "name": "dist",
+    "argv": [
+      "dist",
+      "plan",
+      "--output-format=json"
+    ],
+    "exit": 0,
+    "seconds": 0.854,
+    "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+    "stdout_sha256": "e648bb1409150847726bd045a99effa0bb54b33c2d735437544d64860d9b70ff"
+  }
+]

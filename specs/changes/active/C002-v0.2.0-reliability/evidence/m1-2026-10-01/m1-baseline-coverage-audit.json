@@ -1,0 +1,2105 @@
+{
+  "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+  "clone_candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+  "run_id": "40ee813b-2d23-4a91-b4ad-31e26ce7dc39",
+  "baseline_source": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/baseline.stdout.txt",
+  "baseline_sha256": "fb677b222b5cd3ffc44aa8064e8f3df0e5b6a5f560a8d50e14ed2135e3880718",
+  "metadata_execution_closure_match": true,
+  "summary_lines": [
+    " Nextest run ID 40ee813b-2d23-4a91-b4ad-31e26ce7dc39 with nextest profile: default",
+    "     Summary [  84.707s] 693 tests run: 693 passed, 0 skipped"
+  ],
+  "rows": [
+    {
+      "finding": "R01 路径归属",
+      "matrix_line": 17,
+      "explicit_tests": [
+        {
+          "name": "tampered_work_dir_is_rejected_before_reading_outside_paths",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 594,
+              "raw": "        PASS [   0.182s] (588/693) sheltie-runtime::service tampered_work_dir_is_rejected_before_reading_outside_paths"
+            }
+          ]
+        },
+        {
+          "name": "invalid_later_effect_is_rejected_before_any_effect_runs",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 555,
+              "raw": "        PASS [   0.256s] (549/693) sheltie-runtime::service invalid_later_effect_is_rejected_before_any_effect_runs"
+            }
+          ]
+        },
+        {
+          "name": "tampered_artifact_path_is_rejected_before_observing_external_file",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 592,
+              "raw": "        PASS [   0.304s] (586/693) sheltie-runtime::service tampered_artifact_path_is_rejected_before_observing_external_file"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R02 seal",
+      "matrix_line": 18,
+      "explicit_tests": [
+        {
+          "name": "real_submit_path_swap_after_commit_seals_original_and_preserves_external_target",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 575,
+              "raw": "        PASS [   0.272s] (569/693) sheltie-runtime::service real_submit_path_swap_after_commit_seals_original_and_preserves_external_target"
+            }
+          ]
+        },
+        {
+          "name": "real_submit_same_inode_byte_change_after_commit_stops_before_chmod",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 576,
+              "raw": "        PASS [   0.272s] (570/693) sheltie-runtime::service real_submit_same_inode_byte_change_after_commit_stops_before_chmod"
+            }
+          ]
+        },
+        {
+          "name": "real_submit_hardlink_added_after_commit_stops_before_chmod",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 574,
+              "raw": "        PASS [   0.271s] (568/693) sheltie-runtime::service real_submit_hardlink_added_after_commit_stops_before_chmod"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R03 self 文件链",
+      "matrix_line": 19,
+      "explicit_tests": [
+        {
+          "name": "install_rejects_tmp_parent_symlink_and_preserves_external_sentinel",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 506,
+              "raw": "        PASS [   0.011s] (500/693) sheltie-runtime::selfmgmt install_rejects_tmp_parent_symlink_and_preserves_external_sentinel"
+            }
+          ]
+        },
+        {
+          "name": "rollback_rejects_bin_parent_symlink_and_preserves_external_binaries",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 515,
+              "raw": "        PASS [   0.008s] (509/693) sheltie-runtime::selfmgmt rollback_rejects_bin_parent_symlink_and_preserves_external_binaries"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R04 purge",
+      "matrix_line": 20,
+      "explicit_tests": [
+        {
+          "name": "purge_removes_frozen_work_and_binary_but_preserves_same_root_lock",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 511,
+              "raw": "        PASS [   0.321s] (505/693) sheltie-runtime::selfmgmt purge_removes_frozen_work_and_binary_but_preserves_same_root_lock"
+            }
+          ]
+        },
+        {
+          "name": "purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection",
+          "source_paths": [
+            "crates/sheltie-cli/tests/reliability_crash.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 50,
+              "raw": "        PASS [   0.875s] ( 44/693) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R05 @file 重放",
+      "matrix_line": 21,
+      "explicit_tests": [
+        {
+          "name": "start_request_replay_does_not_require_the_original_input_file",
+          "source_paths": [
+            "crates/sheltie-cli/tests/replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 67,
+              "raw": "        PASS [   0.281s] ( 61/693) sheltie-cli::replay start_request_replay_does_not_require_the_original_input_file"
+            }
+          ]
+        },
+        {
+          "name": "submit_request_replay_does_not_reread_a_deleted_summary_file",
+          "source_paths": [
+            "crates/sheltie-cli/tests/replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 68,
+              "raw": "        PASS [   0.365s] ( 62/693) sheltie-cli::replay submit_request_replay_does_not_reread_a_deleted_summary_file"
+            }
+          ]
+        },
+        {
+          "name": "fail_request_replay_does_not_reread_a_deleted_reason_file",
+          "source_paths": [
+            "crates/sheltie-cli/tests/replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 61,
+              "raw": "        PASS [   0.396s] ( 55/693) sheltie-cli::replay fail_request_replay_does_not_reread_a_deleted_reason_file"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R06 历史目标",
+      "matrix_line": 22,
+      "explicit_tests": [
+        {
+          "name": "historical_work_id_resolves_before_a_now_ambiguous_prefix",
+          "source_paths": [
+            "crates/sheltie-cli/tests/replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 62,
+              "raw": "        PASS [   0.419s] ( 56/693) sheltie-cli::replay historical_work_id_resolves_before_a_now_ambiguous_prefix"
+            }
+          ]
+        },
+        {
+          "name": "work_prefix_matching_is_case_sensitive_and_replays_with_the_same_selector",
+          "source_paths": [
+            "crates/sheltie-cli/tests/replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 69,
+              "raw": "        PASS [   0.305s] ( 63/693) sheltie-cli::replay work_prefix_matching_is_case_sensitive_and_replays_with_the_same_selector"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R07 恢复错误协议",
+      "matrix_line": 23,
+      "explicit_tests": [
+        {
+          "name": "post_commit_card_failure_returns_committed_response",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 570,
+              "raw": "        PASS [   0.218s] (564/693) sheltie-runtime::service post_commit_card_failure_returns_committed_response"
+            }
+          ]
+        },
+        {
+          "name": "old_effect_blocks_new_request_with_distinct_identities",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 569,
+              "raw": "        PASS [   0.325s] (563/693) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities"
+            }
+          ]
+        },
+        {
+          "name": "mark_published_zero_rows_returns_committed_recovery_error",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 565,
+              "raw": "        PASS [   0.232s] (559/693) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R08 Workbook 重放",
+      "matrix_line": 24,
+      "explicit_tests": [
+        {
+          "name": "workbook_replay_finishes_unpublished_effects",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 690,
+              "raw": "        PASS [   0.193s] (684/693) sheltie-runtime::workbook_txn workbook_replay_finishes_unpublished_effects"
+            }
+          ]
+        },
+        {
+          "name": "completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 668,
+              "raw": "        PASS [   0.207s] (662/693) sheltie-runtime::workbook_txn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R09 pending 读",
+      "matrix_line": 25,
+      "explicit_tests": [
+        {
+          "name": "committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 666,
+              "raw": "        PASS [   0.257s] (660/693) sheltie-runtime::workbook_txn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending"
+            }
+          ]
+        },
+        {
+          "name": "real_work_status_retries_after_start_publish_renames_post_location",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 678,
+              "raw": "        PASS [   0.215s] (672/693) sheltie-runtime::workbook_txn real_work_status_retries_after_start_publish_renames_post_location"
+            }
+          ]
+        },
+        {
+          "name": "workbook_reader_accepts_publication_and_cleanup_after_its_reference_index",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 687,
+              "raw": "        PASS [   0.140s] (681/693) sheltie-runtime::workbook_txn workbook_reader_accepts_publication_and_cleanup_after_its_reference_index"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R10 跨入口卡刷新",
+      "matrix_line": 26,
+      "explicit_tests": [
+        {
+          "name": "workbook_write_recovers_work_status_card",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 693,
+              "raw": "        PASS [   0.288s] (687/693) sheltie-runtime::workbook_txn workbook_write_recovers_work_status_card"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R11 删除证明",
+      "matrix_line": 27,
+      "explicit_tests": [
+        {
+          "name": "remove_marker_cannot_be_borrowed_from_another_internal_id",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 681,
+              "raw": "        PASS [   0.514s] (675/693) sheltie-runtime::workbook_txn remove_marker_cannot_be_borrowed_from_another_internal_id"
+            }
+          ]
+        },
+        {
+          "name": "marker_replaced_after_validation_cannot_prove_deletion",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/crash.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 435,
+              "raw": "        PASS [   0.144s] (429/693) sheltie-runtime::crash marker_replaced_after_validation_cannot_prove_deletion"
+            }
+          ]
+        },
+        {
+          "name": "remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle",
+          "source_paths": [
+            "crates/sheltie-cli/tests/reliability_crash.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 52,
+              "raw": "        PASS [   3.323s] ( 46/693) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R12 发布闭包",
+      "matrix_line": 28,
+      "explicit_tests": [
+        {
+          "name": "publication_checks_each_start_input_reference_and_owner_field",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 573,
+              "raw": "        PASS [   1.510s] (567/693) sheltie-runtime::service publication_checks_each_start_input_reference_and_owner_field"
+            }
+          ]
+        },
+        {
+          "name": "final_only_publication_recovery_checks_start_input_bytes",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 553,
+              "raw": "        PASS [   0.196s] (547/693) sheltie-runtime::service final_only_publication_recovery_checks_start_input_bytes"
+            }
+          ]
+        },
+        {
+          "name": "workbook_publication_recovery_checks_owner_and_manifest_identity",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 688,
+              "raw": "        PASS [   0.469s] (682/693) sheltie-runtime::workbook_txn workbook_publication_recovery_checks_owner_and_manifest_identity"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R13 cleanup",
+      "matrix_line": 29,
+      "explicit_tests": [
+        {
+          "name": "cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 659,
+              "raw": "        PASS [   0.190s] (653/693) sheltie-runtime::workbook_txn cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan"
+            }
+          ]
+        },
+        {
+          "name": "malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 671,
+              "raw": "        PASS [   0.073s] (665/693) sheltie-runtime::workbook_txn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R14 树装入/摘要",
+      "matrix_line": 30,
+      "explicit_tests": [
+        {
+          "name": "digest_matches_independent_vectors_on_disk",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 603,
+              "raw": "        PASS [   0.009s] (597/693) sheltie-runtime::workbook_digest digest_matches_independent_vectors_on_disk"
+            }
+          ]
+        },
+        {
+          "name": "tree_reader_rejects_symlinked_parent_directory",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 611,
+              "raw": "        PASS [   0.008s] (605/693) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_parent_directory"
+            }
+          ]
+        },
+        {
+          "name": "total_limit_rejects_before_staging_or_registering_source_files",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_repo.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 648,
+              "raw": "        PASS [   0.009s] (642/693) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R15 stats 快照",
+      "matrix_line": 31,
+      "explicit_tests": [
+        {
+          "name": "stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load",
+          "source_paths": [
+            "crates/sheltie-cli/tests/work.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 141,
+              "raw": "        PASS [   0.265s] (135/693) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R16 replan",
+      "matrix_line": 32,
+      "explicit_tests": [
+        {
+          "name": "fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files",
+          "source_paths": [
+            "crates/sheltie-cli/tests/common/spec_dev_replan.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 94,
+              "raw": "        PASS [   2.676s] ( 88/693) sheltie-cli::scenario_spec_dev replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles",
+          "source_paths": [
+            "crates/sheltie-cli/tests/common/spec_dev_replan.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 103,
+              "raw": "        PASS [  17.902s] ( 97/693) sheltie-cli::scenario_spec_dev replan::fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R17 全验证闭包",
+      "matrix_line": 33,
+      "explicit_tests": [],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R18 必需 sync",
+      "matrix_line": 34,
+      "explicit_tests": [
+        {
+          "name": "publication_sync_failures_leave_effect_pending_and_retry_same_object",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 579,
+              "raw": "        PASS [   2.368s] (573/693) sheltie-runtime::service publication_sync_failures_leave_effect_pending_and_retry_same_object"
+            }
+          ]
+        },
+        {
+          "name": "start_replay_sync_failure_preserves_own_commit_snapshot",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 588,
+              "raw": "        PASS [   0.266s] (582/693) sheltie-runtime::service start_replay_sync_failure_preserves_own_commit_snapshot"
+            }
+          ]
+        },
+        {
+          "name": "moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload",
+          "source_paths": [
+            "crates/sheltie-cli/tests/reliability_crash.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 44,
+              "raw": "        PASS [   0.218s] ( 38/693) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R19 锁内建库",
+      "matrix_line": 35,
+      "explicit_tests": [
+        {
+          "name": "real_install_waits_for_a_concurrent_workbook_add_store_initializer",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/write_session.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 697,
+              "raw": "        PASS [   0.116s] (691/693) sheltie-runtime::write_session real_install_waits_for_a_concurrent_workbook_add_store_initializer"
+            }
+          ]
+        },
+        {
+          "name": "real_workbook_add_waits_for_a_concurrent_install_store_initializer",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/write_session.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 696,
+              "raw": "        PASS [   0.112s] (690/693) sheltie-runtime::write_session real_workbook_add_waits_for_a_concurrent_install_store_initializer"
+            }
+          ]
+        },
+        {
+          "name": "old_work_waiting_behind_purge_does_not_recreate_the_removed_store",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/write_session.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 695,
+              "raw": "        PASS [   0.212s] (689/693) sheltie-runtime::write_session old_work_waiting_behind_purge_does_not_recreate_the_removed_store"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O01 根隔离",
+      "matrix_line": 36,
+      "explicit_tests": [],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O02 跨 Work 重放",
+      "matrix_line": 37,
+      "explicit_tests": [
+        {
+          "name": "cross_work_request_id_is_request_conflict_and_target_untouched",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/schema2_replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 492,
+              "raw": "        PASS [   0.319s] (486/693) sheltie-runtime::schema2_replay cross_work_request_id_is_request_conflict_and_target_untouched"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O03 Workbook 身份",
+      "matrix_line": 38,
+      "explicit_tests": [
+        {
+          "name": "load_rejects_tampered_registered_digest",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 614,
+              "raw": "        PASS [   0.074s] (608/693) sheltie-runtime::workbook_identity load_rejects_tampered_registered_digest"
+            }
+          ]
+        },
+        {
+          "name": "completed_workbook_final_requires_its_current_successful_publisher",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 669,
+              "raw": "        PASS [   0.190s] (663/693) sheltie-runtime::workbook_txn completed_workbook_final_requires_its_current_successful_publisher"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O04 历史回复/观察",
+      "matrix_line": 39,
+      "explicit_tests": [
+        {
+          "name": "old_submit_replay_after_cancel_returns_original_reply",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/schema2_replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 494,
+              "raw": "        PASS [   0.379s] (488/693) sheltie-runtime::schema2_replay old_submit_replay_after_cancel_returns_original_reply"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O05 历史 engine.stats",
+      "matrix_line": 40,
+      "explicit_tests": [
+        {
+          "name": "begin_replay_regenerates_missing_stats_json",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/service.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 545,
+              "raw": "        PASS [   0.358s] (539/693) sheltie-runtime::service begin_replay_regenerates_missing_stats_json"
+            }
+          ]
+        },
+        {
+          "name": "replay_does_not_rewrite_status_card_to_old_revision",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/schema2_replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 493,
+              "raw": "        PASS [   0.309s] (487/693) sheltie-runtime::schema2_replay replay_does_not_rewrite_status_card_to_old_revision"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O06 clean home",
+      "matrix_line": 41,
+      "explicit_tests": [
+        {
+          "name": "self_install_on_new_home_creates_root_store_and_bin",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 619,
+              "raw": "        PASS [   0.037s] (613/693) sheltie-runtime::workbook_identity self_install_on_new_home_creates_root_store_and_bin"
+            }
+          ]
+        },
+        {
+          "name": "clean_home_install_then_update_two_step",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 501,
+              "raw": "        PASS [   0.066s] (495/693) sheltie-runtime::selfmgmt clean_home_install_then_update_two_step"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O07 摘要碰撞",
+      "matrix_line": 42,
+      "explicit_tests": [
+        {
+          "name": "digest_matches_independent_vectors_on_disk",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 603,
+              "raw": "        PASS [   0.009s] (597/693) sheltie-runtime::workbook_digest digest_matches_independent_vectors_on_disk"
+            }
+          ]
+        },
+        {
+          "name": "framing_collision_pair_now_yields_two_different_digests",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 605,
+              "raw": "        PASS [   0.007s] (599/693) sheltie-runtime::workbook_digest framing_collision_pair_now_yields_two_different_digests"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O08 Workbook/self 幂等",
+      "matrix_line": 43,
+      "explicit_tests": [
+        {
+          "name": "add_and_remove_replay_return_original_snapshots",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 657,
+              "raw": "        PASS [   0.126s] (651/693) sheltie-runtime::workbook_txn add_and_remove_replay_return_original_snapshots"
+            }
+          ]
+        },
+        {
+          "name": "request_id_rejected_for_readonly_and_self_commands",
+          "source_paths": [
+            "crates/sheltie-cli/tests/work.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 137,
+              "raw": "        PASS [   0.081s] (131/693) sheltie-cli::work request_id_rejected_for_readonly_and_self_commands"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O09 每任务 Git 范围",
+      "matrix_line": 44,
+      "explicit_tests": [
+        {
+          "name": "two_task_loops_scope_each_task_diff_to_its_own_files",
+          "source_paths": [
+            "crates/sheltie-cli/tests/scenario_spec_dev.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 105,
+              "raw": "        PASS [   2.390s] ( 99/693) sheltie-cli::scenario_spec_dev two_task_loops_scope_each_task_diff_to_its_own_files"
+            }
+          ]
+        },
+        {
+          "name": "out_of_whitelist_file_in_second_task_is_flagged",
+          "source_paths": [
+            "crates/sheltie-cli/tests/scenario_spec_dev.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 90,
+              "raw": "        PASS [   2.095s] ( 84/693) sheltie-cli::scenario_spec_dev out_of_whitelist_file_in_second_task_is_flagged"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O10 人工意见/继续",
+      "matrix_line": 45,
+      "explicit_tests": [
+        {
+          "name": "conditional_approval_binds_decision_into_scaffold_implement_verify",
+          "source_paths": [
+            "crates/sheltie-cli/tests/scenario_spec_dev.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 89,
+              "raw": "        PASS [   1.623s] ( 83/693) sheltie-cli::scenario_spec_dev conditional_approval_binds_decision_into_scaffold_implement_verify"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version",
+          "source_paths": [
+            "crates/sheltie-cli/tests/common/spec_dev_replan.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 93,
+              "raw": "        PASS [   2.318s] ( 87/693) sheltie-cli::scenario_spec_dev replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O11 skill 自包含",
+      "matrix_line": 46,
+      "explicit_tests": [
+        {
+          "name": "installed_delivery_stays_self_contained_after_source_tree_is_removed",
+          "source_paths": [
+            "crates/sheltie-cli/tests/skill_delivery.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 130,
+              "raw": "        PASS [   0.224s] (124/693) sheltie-cli::skill_delivery installed_delivery_stays_self_contained_after_source_tree_is_removed"
+            }
+          ]
+        },
+        {
+          "name": "check_skill_fails_when_delivery_link_escapes",
+          "source_paths": [
+            "crates/sheltie-cli/tests/skill_delivery.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 125,
+              "raw": "        PASS [   0.544s] (119/693) sheltie-cli::skill_delivery check_skill_fails_when_delivery_link_escapes"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O12 输出命名空间",
+      "matrix_line": 47,
+      "explicit_tests": [
+        {
+          "name": "worker_outputs_named_brief_and_stats_write_and_submit_via_real_chain",
+          "source_paths": [
+            "crates/sheltie-cli/tests/output_paths.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 25,
+              "raw": "        PASS [   0.281s] ( 19/693) sheltie-cli::output_paths worker_outputs_named_brief_and_stats_write_and_submit_via_real_chain"
+            }
+          ]
+        },
+        {
+          "name": "add_rejects_ancestor_and_folded_alias_output_paths_at_cli",
+          "source_paths": [
+            "crates/sheltie-cli/tests/output_paths.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 24,
+              "raw": "        PASS [   0.124s] ( 18/693) sheltie-cli::output_paths add_rejects_ancestor_and_folded_alias_output_paths_at_cli"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "O13 完整事实视图",
+      "matrix_line": 48,
+      "explicit_tests": [
+        {
+          "name": "text_and_json_agree_on_hand_written_state",
+          "source_paths": [
+            "crates/sheltie-core/src/work/render.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 327,
+              "raw": "        PASS [   0.006s] (321/693) sheltie-core work::render::tests::text_and_json_agree_on_hand_written_state"
+            }
+          ]
+        },
+        {
+          "name": "status_json_carries_reason_and_full_artifact_refs",
+          "source_paths": [
+            "crates/sheltie-core/src/work/render.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 326,
+              "raw": "        PASS [   0.006s] (320/693) sheltie-core work::render::tests::status_json_carries_reason_and_full_artifact_refs"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N01 start 预检",
+      "matrix_line": 49,
+      "explicit_tests": [
+        {
+          "name": "start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq",
+          "source_paths": [
+            "crates/sheltie-cli/tests/work.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 138,
+              "raw": "        PASS [   0.251s] (132/693) sheltie-cli::work start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq"
+            }
+          ]
+        },
+        {
+          "name": "failed_start_on_new_home_creates_nothing",
+          "source_paths": [
+            "crates/sheltie-cli/tests/work.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 133,
+              "raw": "        PASS [   0.163s] (127/693) sheltie-cli::work failed_start_on_new_home_creates_nothing"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N02 Workbook 生命周期",
+      "matrix_line": 50,
+      "explicit_tests": [
+        {
+          "name": "remove_rejects_active_reference_and_rolls_back_row",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 680,
+              "raw": "        PASS [   0.246s] (674/693) sheltie-runtime::workbook_txn remove_rejects_active_reference_and_rolls_back_row"
+            }
+          ]
+        },
+        {
+          "name": "completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_txn.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 668,
+              "raw": "        PASS [   0.207s] (662/693) sheltie-runtime::workbook_txn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N03 schema/持久验证",
+      "matrix_line": 51,
+      "explicit_tests": [
+        {
+          "name": "schema1_store_rejected_without_touching_file",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/schema2_replay.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 495,
+              "raw": "        PASS [   0.012s] (489/693) sheltie-runtime::schema2_replay schema1_store_rejected_without_touching_file"
+            }
+          ]
+        },
+        {
+          "name": "load_rejects_row_identity_status_and_revision_mismatch",
+          "source_paths": [
+            "crates/sheltie-runtime/src/store/tests.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 421,
+              "raw": "        PASS [   0.019s] (415/693) sheltie-runtime store::tests::load_rejects_row_identity_status_and_revision_mismatch"
+            }
+          ]
+        },
+        {
+          "name": "store_accepts_real_running_and_failed_attempt_states",
+          "source_paths": [
+            "crates/sheltie-runtime/src/store/tests.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 432,
+              "raw": "        PASS [   0.012s] (426/693) sheltie-runtime store::tests::store_accepts_real_running_and_failed_attempt_states"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N04 OS 主体/授权",
+      "matrix_line": 52,
+      "explicit_tests": [
+        {
+          "name": "audit_principal_ignores_spoofed_user_env",
+          "source_paths": [
+            "crates/sheltie-cli/tests/os_process.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 21,
+              "raw": "        PASS [   0.176s] ( 15/693) sheltie-cli::os_process audit_principal_ignores_spoofed_user_env"
+            }
+          ]
+        },
+        {
+          "name": "principal_matches_id_un_oracle",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 615,
+              "raw": "        PASS [   0.010s] (609/693) sheltie-runtime::workbook_identity principal_matches_id_un_oracle"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N05 modify-path/JSON",
+      "matrix_line": 53,
+      "explicit_tests": [
+        {
+          "name": "install_modify_path_flag_is_rejected",
+          "source_paths": [
+            "crates/sheltie-cli/tests/os_process.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 23,
+              "raw": "        PASS [   0.009s] ( 17/693) sheltie-cli::os_process install_modify_path_flag_is_rejected"
+            }
+          ]
+        },
+        {
+          "name": "self_install_json_stdout_is_single_document",
+          "source_paths": [
+            "crates/sheltie-cli/tests/self_cmd.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 116,
+              "raw": "        PASS [   0.032s] (110/693) sheltie-cli::self_cmd self_install_json_stdout_is_single_document"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N06 固定 release/tag",
+      "matrix_line": 54,
+      "explicit_tests": [
+        {
+          "name": "update_pinned_version_installs_only_that_tag",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 527,
+              "raw": "        PASS [   0.050s] (521/693) sheltie-runtime::selfmgmt update_pinned_version_installs_only_that_tag"
+            }
+          ]
+        },
+        {
+          "name": "update_rejects_manifest_version_not_matching_tag",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 531,
+              "raw": "        PASS [   0.036s] (525/693) sheltie-runtime::selfmgmt update_rejects_manifest_version_not_matching_tag"
+            }
+          ]
+        },
+        {
+          "name": "update_pinned_version_then_rollback_restores_previous",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/selfmgmt.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 528,
+              "raw": "        PASS [   0.050s] (522/693) sheltie-runtime::selfmgmt update_pinned_version_then_rollback_restores_previous"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N07 stats 累计/edge",
+      "matrix_line": 55,
+      "explicit_tests": [
+        {
+          "name": "entered_via_distinguishes_edges_and_entry",
+          "source_paths": [
+            "crates/sheltie-core/src/work/render.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 312,
+              "raw": "        PASS [   0.006s] (306/693) sheltie-core work::render::tests::entered_via_distinguishes_edges_and_entry"
+            }
+          ]
+        },
+        {
+          "name": "blocked_count_survives_cancel_after_no_legal_edge",
+          "source_paths": [
+            "crates/sheltie-core/src/work/render.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 302,
+              "raw": "        PASS [   0.006s] (296/693) sheltie-core work::render::tests::blocked_count_survives_cancel_after_no_legal_edge"
+            }
+          ]
+        },
+        {
+          "name": "gate_approval_without_a_remaining_edge_adds_a_second_blocked_event",
+          "source_paths": [
+            "crates/sheltie-cli/tests/reliability_crash.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 41,
+              "raw": "        PASS [   0.494s] ( 35/693) sheltie-cli::reliability_crash gate_approval_without_a_remaining_edge_adds_a_second_blocked_event"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N08 最终审查基线",
+      "matrix_line": 56,
+      "explicit_tests": [
+        {
+          "name": "fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files",
+          "source_paths": [
+            "crates/sheltie-cli/tests/common/spec_dev_replan.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 94,
+              "raw": "        PASS [   2.676s] ( 88/693) sheltie-cli::scenario_spec_dev replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task",
+          "source_paths": [
+            "crates/sheltie-cli/tests/common/spec_dev_replan.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 96,
+              "raw": "        PASS [   7.709s] ( 90/693) sheltie-cli::scenario_spec_dev replan::fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N09 article-review 意见",
+      "matrix_line": 57,
+      "explicit_tests": [
+        {
+          "name": "first_draft_marks_review_input_absent_without_body",
+          "source_paths": [
+            "crates/sheltie-cli/tests/scenario_article_review.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 71,
+              "raw": "        PASS [   0.255s] ( 65/693) sheltie-cli::scenario_article_review first_draft_marks_review_input_absent_without_body"
+            }
+          ]
+        },
+        {
+          "name": "back_to_draft_binds_review_verdict_path_with_source_occurrence",
+          "source_paths": [
+            "crates/sheltie-cli/tests/scenario_article_review.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 70,
+              "raw": "        PASS [   0.509s] ( 64/693) sheltie-cli::scenario_article_review back_to_draft_binds_review_verdict_path_with_source_occurrence"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N10 冻结根/元数据",
+      "matrix_line": 58,
+      "explicit_tests": [
+        {
+          "name": "readonly_bits_reduce_accidents_but_digest_is_the_guard",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 616,
+              "raw": "        PASS [   0.147s] (610/693) sheltie-runtime::workbook_identity readonly_bits_reduce_accidents_but_digest_is_the_guard"
+            }
+          ]
+        },
+        {
+          "name": "ds_store_rejected_by_name_at_add",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 613,
+              "raw": "        PASS [   0.010s] (607/693) sheltie-runtime::workbook_identity ds_store_rejected_by_name_at_add"
+            }
+          ]
+        },
+        {
+          "name": "work_readable_after_workbook_removed",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_identity.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 620,
+              "raw": "        PASS [   0.286s] (614/693) sheltie-runtime::workbook_identity work_readable_after_workbook_removed"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N11 治理历史/版本",
+      "matrix_line": 59,
+      "explicit_tests": [
+        {
+          "name": "check_specs_shallow_clone_reports_missing_history",
+          "source_paths": [
+            "crates/sheltie-cli/tests/release_governance.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 37,
+              "raw": "        PASS [   0.959s] ( 31/693) sheltie-cli::release_governance check_specs_shallow_clone_reports_missing_history"
+            }
+          ]
+        },
+        {
+          "name": "check_specs_accepts_active_target_without_tag",
+          "source_paths": [
+            "crates/sheltie-cli/tests/release_governance.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 28,
+              "raw": "        PASS [   0.709s] ( 22/693) sheltie-cli::release_governance check_specs_accepts_active_target_without_tag"
+            }
+          ]
+        },
+        {
+          "name": "check_specs_rejects_version_outside_active_target",
+          "source_paths": [
+            "crates/sheltie-cli/tests/release_governance.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 33,
+              "raw": "        PASS [   0.698s] ( 27/693) sheltie-cli::release_governance check_specs_rejects_version_outside_active_target"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N12 同 SHA 质量/MSRV",
+      "matrix_line": 60,
+      "explicit_tests": [
+        {
+          "name": "release_workflow_gates_announce_on_quality_job",
+          "source_paths": [
+            "crates/sheltie-cli/tests/release_governance.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 34,
+              "raw": "        PASS [   0.007s] ( 28/693) sheltie-cli::release_governance release_workflow_gates_announce_on_quality_job"
+            }
+          ]
+        },
+        {
+          "name": "release_workflow_quality_failure_blocks_announce",
+          "source_paths": [
+            "crates/sheltie-cli/tests/release_governance.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 35,
+              "raw": "        PASS [   0.006s] ( 29/693) sheltie-cli::release_governance release_workflow_quality_failure_blocks_announce"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N13 自证/假并发/窗口",
+      "matrix_line": 61,
+      "explicit_tests": [],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "N14 限额/重复扫描",
+      "matrix_line": 62,
+      "explicit_tests": [
+        {
+          "name": "file_size_limit_is_exactly_32_mib",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 610,
+              "raw": "        PASS [   0.154s] (604/693) sheltie-runtime::workbook_digest file_size_limit_is_exactly_32_mib"
+            }
+          ]
+        },
+        {
+          "name": "total_size_limit_is_exactly_256_mib",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_digest.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 621,
+              "raw": "        PASS [   1.186s] (615/693) sheltie-runtime::workbook_digest total_size_limit_is_exactly_256_mib"
+            }
+          ]
+        },
+        {
+          "name": "total_limit_rejects_before_staging_or_registering_source_files",
+          "source_paths": [
+            "crates/sheltie-runtime/tests/workbook_repo.rs"
+          ],
+          "baseline_PASS": [
+            {
+              "line": 648,
+              "raw": "        PASS [   0.009s] (642/693) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files"
+            }
+          ]
+        }
+      ],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R20 持久计数",
+      "matrix_line": 63,
+      "explicit_tests": [],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    },
+    {
+      "finding": "R21 根解析错误",
+      "matrix_line": 64,
+      "explicit_tests": [],
+      "missing": [],
+      "scope": "listed test coverage only; independent caller review required"
+    }
+  ],
+  "T33_new_test_functions": [
+    {
+      "name": "home_resolution_rejects_unrepresentable_roots_without_selecting_an_alternative",
+      "source_paths": [
+        "crates/sheltie-cli/tests/os_process.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 22,
+          "raw": "        PASS [   0.014s] ( 16/693) sheltie-cli::os_process home_resolution_rejects_unrepresentable_roots_without_selecting_an_alternative"
+        }
+      ]
+    },
+    {
+      "name": "file_inputs_reject_same_volume_replacement_links_and_special_files_at_open",
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 40,
+          "raw": "        PASS [   0.552s] ( 34/693) sheltie-cli::reliability_crash file_inputs_reject_same_volume_replacement_links_and_special_files_at_open"
+        }
+      ]
+    },
+    {
+      "name": "workbook_source_rejects_a_replaced_directory_at_the_open_boundary",
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 53,
+          "raw": "        PASS [   0.085s] ( 47/693) sheltie-cli::reliability_crash workbook_source_rejects_a_replaced_directory_at_the_open_boundary"
+        }
+      ]
+    },
+    {
+      "name": "readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes",
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 48,
+          "raw": "        PASS [   0.275s] ( 42/693) sheltie-cli::reliability_crash readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes"
+        }
+      ]
+    },
+    {
+      "name": "zero_work_revision_is_rejected_by_readonly_and_write_cli_entries",
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 54,
+          "raw": "        PASS [   0.244s] ( 48/693) sheltie-cli::reliability_crash zero_work_revision_is_rejected_by_readonly_and_write_cli_entries"
+        }
+      ]
+    },
+    {
+      "name": "relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request",
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 49,
+          "raw": "        PASS [   0.112s] ( 43/693) sheltie-cli::reliability_crash relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request"
+        }
+      ]
+    },
+    {
+      "name": "remote_update_accepts_exact_asset_limit_and_rejects_one_more_byte",
+      "source_paths": [
+        "crates/sheltie-cli/tests/remote_update.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 56,
+          "raw": "        PASS [   0.533s] ( 50/693) sheltie-cli::remote_update remote_update_accepts_exact_asset_limit_and_rejects_one_more_byte"
+        }
+      ]
+    },
+    {
+      "name": "remote_update_rejects_invalid_versions_before_invoking_transport",
+      "source_paths": [
+        "crates/sheltie-cli/tests/remote_update.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 60,
+          "raw": "        PASS [   0.209s] ( 54/693) sheltie-cli::remote_update remote_update_rejects_invalid_versions_before_invoking_transport"
+        }
+      ]
+    },
+    {
+      "name": "workbook_replay_rejects_audit_and_snapshot_single_field_drift",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/effect_contracts.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 455,
+          "raw": "        PASS [   0.241s] (449/693) sheltie-runtime::effect_contracts workbook_replay_rejects_audit_and_snapshot_single_field_drift"
+        }
+      ]
+    },
+    {
+      "name": "home_resolution_preserves_permission_errors_from_an_existing_ancestor",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/home_observe.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 481,
+          "raw": "        PASS [   0.006s] (475/693) sheltie-runtime::home_observe home_resolution_preserves_permission_errors_from_an_existing_ancestor"
+        }
+      ]
+    },
+    {
+      "name": "external_reads_do_not_follow_a_temporary_alias_to_the_same_observed_object",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/home_observe.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 478,
+          "raw": "        PASS [   0.015s] (472/693) sheltie-runtime::home_observe external_reads_do_not_follow_a_temporary_alias_to_the_same_observed_object"
+        }
+      ]
+    },
+    {
+      "name": "confine_does_not_treat_an_unreadable_existing_base_as_missing",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/home_observe.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 473,
+          "raw": "        PASS [   0.012s] (467/693) sheltie-runtime::home_observe confine_does_not_treat_an_unreadable_existing_base_as_missing"
+        }
+      ]
+    },
+    {
+      "name": "removing_an_unrelated_workbook_preserves_the_registered_neighbor",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/workbook_repo.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 647,
+          "raw": "        PASS [   0.160s] (641/693) sheltie-runtime::workbook_repo removing_an_unrelated_workbook_preserves_the_registered_neighbor"
+        }
+      ]
+    },
+    {
+      "name": "missing_installed_manifest_is_tampered_instead_of_a_missing_workbook",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/workbook_repo.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 639,
+          "raw": "        PASS [   0.065s] (633/693) sheltie-runtime::workbook_repo missing_installed_manifest_is_tampered_instead_of_a_missing_workbook"
+        }
+      ]
+    },
+    {
+      "name": "workbook_copy_rejects_an_observed_replacement_even_if_the_original_is_restored_before_open",
+      "source_paths": [
+        "crates/sheltie-runtime/tests/workbook_repo.rs"
+      ],
+      "baseline_PASS": [
+        {
+          "line": 654,
+          "raw": "        PASS [   0.049s] (648/693) sheltie-runtime::workbook_repo workbook_copy_rejects_an_observed_replacement_even_if_the_original_is_restored_before_open"
+        }
+      ]
+    }
+  ],
+  "all_reliability_crash_tests": [
+    {
+      "name": "start_and_add_recover_each_publication_window_after_exit70_and_actual_kill",
+      "baseline_PASS": [
+        {
+          "line": 59,
+          "raw": "        PASS [   4.843s] ( 53/693) sheltie-cli::reliability_crash start_and_add_recover_each_publication_window_after_exit70_and_actual_kill"
+        }
+      ]
+    },
+    {
+      "name": "begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination",
+      "baseline_PASS": [
+        {
+          "line": 42,
+          "raw": "        PASS [   3.272s] ( 36/693) sheltie-cli::reliability_crash begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination"
+        }
+      ]
+    },
+    {
+      "name": "remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle",
+      "baseline_PASS": [
+        {
+          "line": 52,
+          "raw": "        PASS [   3.323s] ( 46/693) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle"
+        }
+      ]
+    },
+    {
+      "name": "installed_prev_rolls_back_after_update_termination_without_changing_store_bytes",
+      "baseline_PASS": [
+        {
+          "line": 43,
+          "raw": "        PASS [   0.495s] ( 37/693) sheltie-cli::reliability_crash installed_prev_rolls_back_after_update_termination_without_changing_store_bytes"
+        }
+      ]
+    },
+    {
+      "name": "purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work",
+      "baseline_PASS": [
+        {
+          "line": 47,
+          "raw": "        PASS [   0.520s] ( 41/693) sheltie-cli::reliability_crash purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work"
+        }
+      ]
+    },
+    {
+      "name": "purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection",
+      "baseline_PASS": [
+        {
+          "line": 50,
+          "raw": "        PASS [   0.875s] ( 44/693) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection"
+        }
+      ]
+    },
+    {
+      "name": "moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload",
+      "baseline_PASS": [
+        {
+          "line": 44,
+          "raw": "        PASS [   0.218s] ( 38/693) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload"
+        }
+      ]
+    },
+    {
+      "name": "same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned",
+      "baseline_PASS": [
+        {
+          "line": 51,
+          "raw": "        PASS [   0.811s] ( 45/693) sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned"
+        }
+      ]
+    },
+    {
+      "name": "owned_test_directory_cleanup_removes_readonly_trees_without_chmod_of_external_links",
+      "baseline_PASS": [
+        {
+          "line": 45,
+          "raw": "        PASS [   0.009s] ( 39/693) sheltie-cli::reliability_crash owned_test_directory_cleanup_removes_readonly_trees_without_chmod_of_external_links"
+        }
+      ]
+    },
+    {
+      "name": "another_write_kind_directly_recovers_start_or_add_after_commit_process_termination",
+      "baseline_PASS": [
+        {
+          "line": 36,
+          "raw": "        PASS [   0.887s] ( 30/693) sheltie-cli::reliability_crash another_write_kind_directly_recovers_start_or_add_after_commit_process_termination"
+        }
+      ]
+    },
+    {
+      "name": "committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot",
+      "baseline_PASS": [
+        {
+          "line": 38,
+          "raw": "        PASS [   1.438s] ( 32/693) sheltie-cli::reliability_crash committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot"
+        }
+      ]
+    },
+    {
+      "name": "exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks",
+      "baseline_PASS": [
+        {
+          "line": 39,
+          "raw": "        PASS [   0.465s] ( 33/693) sheltie-cli::reliability_crash exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks"
+        }
+      ]
+    },
+    {
+      "name": "gate_approval_without_a_remaining_edge_adds_a_second_blocked_event",
+      "baseline_PASS": [
+        {
+          "line": 41,
+          "raw": "        PASS [   0.494s] ( 35/693) sheltie-cli::reliability_crash gate_approval_without_a_remaining_edge_adds_a_second_blocked_event"
+        }
+      ]
+    },
+    {
+      "name": "impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic",
+      "baseline_PASS": [
+        {
+          "line": 46,
+          "raw": "        PASS [   1.272s] ( 40/693) sheltie-cli::reliability_crash impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic"
+        }
+      ]
+    },
+    {
+      "name": "file_inputs_reject_same_volume_replacement_links_and_special_files_at_open",
+      "baseline_PASS": [
+        {
+          "line": 40,
+          "raw": "        PASS [   0.552s] ( 34/693) sheltie-cli::reliability_crash file_inputs_reject_same_volume_replacement_links_and_special_files_at_open"
+        }
+      ]
+    },
+    {
+      "name": "workbook_source_rejects_a_replaced_directory_at_the_open_boundary",
+      "baseline_PASS": [
+        {
+          "line": 53,
+          "raw": "        PASS [   0.085s] ( 47/693) sheltie-cli::reliability_crash workbook_source_rejects_a_replaced_directory_at_the_open_boundary"
+        }
+      ]
+    },
+    {
+      "name": "readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes",
+      "baseline_PASS": [
+        {
+          "line": 48,
+          "raw": "        PASS [   0.275s] ( 42/693) sheltie-cli::reliability_crash readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes"
+        }
+      ]
+    },
+    {
+      "name": "zero_work_revision_is_rejected_by_readonly_and_write_cli_entries",
+      "baseline_PASS": [
+        {
+          "line": 54,
+          "raw": "        PASS [   0.244s] ( 48/693) sheltie-cli::reliability_crash zero_work_revision_is_rejected_by_readonly_and_write_cli_entries"
+        }
+      ]
+    },
+    {
+      "name": "relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request",
+      "baseline_PASS": [
+        {
+          "line": 49,
+          "raw": "        PASS [   0.112s] ( 43/693) sheltie-cli::reliability_crash relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request"
+        }
+      ]
+    }
+  ],
+  "concurrency_tests": [
+    {
+      "name": "purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection",
+      "baseline_PASS": [
+        {
+          "line": 50,
+          "raw": "        PASS [   0.875s] ( 44/693) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-cli/tests/reliability_crash.rs"
+      ]
+    },
+    {
+      "name": "stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load",
+      "baseline_PASS": [
+        {
+          "line": 141,
+          "raw": "        PASS [   0.265s] (135/693) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-cli/tests/work.rs"
+      ]
+    },
+    {
+      "name": "session::tests::concurrent_store_initializer_waits_for_schema_before_preflight_rejection",
+      "baseline_PASS": [
+        {
+          "line": 403,
+          "raw": "        PASS [   0.032s] (397/693) sheltie-runtime session::tests::concurrent_store_initializer_waits_for_schema_before_preflight_rejection"
+        }
+      ],
+      "source_paths": []
+    },
+    {
+      "name": "concurrent_writers_one_gets_revision_conflict",
+      "baseline_PASS": [
+        {
+          "line": 549,
+          "raw": "        PASS [   0.302s] (543/693) sheltie-runtime::service concurrent_writers_one_gets_revision_conflict"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-runtime/tests/service.rs"
+      ]
+    },
+    {
+      "name": "parallel_adds_do_not_delete_each_others_staging",
+      "baseline_PASS": [
+        {
+          "line": 674,
+          "raw": "        PASS [   0.177s] (668/693) sheltie-runtime::workbook_txn parallel_adds_do_not_delete_each_others_staging"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-runtime/tests/workbook_txn.rs"
+      ]
+    },
+    {
+      "name": "old_work_waiting_behind_purge_does_not_recreate_the_removed_store",
+      "baseline_PASS": [
+        {
+          "line": 695,
+          "raw": "        PASS [   0.212s] (689/693) sheltie-runtime::write_session old_work_waiting_behind_purge_does_not_recreate_the_removed_store"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-runtime/tests/write_session.rs"
+      ]
+    },
+    {
+      "name": "real_workbook_add_waits_for_a_concurrent_install_store_initializer",
+      "baseline_PASS": [
+        {
+          "line": 696,
+          "raw": "        PASS [   0.112s] (690/693) sheltie-runtime::write_session real_workbook_add_waits_for_a_concurrent_install_store_initializer"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-runtime/tests/write_session.rs"
+      ]
+    },
+    {
+      "name": "real_install_waits_for_a_concurrent_workbook_add_store_initializer",
+      "baseline_PASS": [
+        {
+          "line": 697,
+          "raw": "        PASS [   0.116s] (691/693) sheltie-runtime::write_session real_install_waits_for_a_concurrent_workbook_add_store_initializer"
+        }
+      ],
+      "source_paths": [
+        "crates/sheltie-runtime/tests/write_session.rs"
+      ]
+    }
+  ],
+  "closure_boundaries": [
+    "R17/N13 full mutations remain open",
+    "test logs show aggregate PASS; individual failpoint iterations inferred from reviewed fixed-source loops",
+    "SIGKILL/exit70 do not prove power-loss persistence"
+  ],
+  "reviewed_crash_window_loops": [
+    {
+      "test": "start_and_add_recover_each_publication_window_after_exit70_and_actual_kill",
+      "operations": [
+        "start",
+        "add"
+      ],
+      "points": [
+        "pending_owner_synced_before_payload",
+        "before_commit",
+        "after_commit_before_effects",
+        "tree_rename_before_parent_sync",
+        "request_published_before_cleanup"
+      ],
+      "modes": [
+        "Exit70",
+        "Kill"
+      ],
+      "cases": 20
+    },
+    {
+      "test": "begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination",
+      "points_by_operation": {
+        "begin": [
+          "after_commit_before_effects",
+          "after_first_history_file_write"
+        ],
+        "submit": [
+          "after_commit_before_effects",
+          "submit_before_seal"
+        ]
+      },
+      "modes": [
+        "Exit70",
+        "Kill"
+      ],
+      "cases": 8
+    },
+    {
+      "test": "remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle",
+      "points": [
+        "after_commit_before_effects",
+        "tree_rename_before_parent_sync",
+        "delete_payload_verified_before_remove",
+        "delete_after_first_payload_child",
+        "delete_after_tree_removed_before_marker",
+        "delete_marker_synced_before_mark",
+        "request_published_before_cleanup"
+      ],
+      "modes": [
+        "Exit70",
+        "Kill"
+      ],
+      "cases": 14
+    },
+    {
+      "test": "installed_prev_rolls_back_after_update_termination_without_changing_store_bytes",
+      "points": [
+        "update_between_renames"
+      ],
+      "modes": [
+        "Exit70",
+        "Kill"
+      ],
+      "cases": 2
+    },
+    {
+      "test": "purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work",
+      "points": [
+        "purge_after_top_level_delete"
+      ],
+      "modes": [
+        "Exit70",
+        "Kill"
+      ],
+      "cases": 2
+    }
+  ],
+  "crash_raw_limit": "This baseline suppresses successful test stdout: CRASH_RAW per-case output is not separately preserved here. Exact per-case exit70/SIGKILL conclusions follow fixed-source loops and successful parent tests, not independent per-case baseline logs.",
+  "missing_rows": []
+}

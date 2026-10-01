@@ -76,7 +76,7 @@ pub(crate) struct ApprovedData {
     pub(crate) by: Principal,
     pub(crate) at: Timestamp,
     #[serde(deserialize_with = "canonical_status")]
-    work_status: WorkStatus,
+    pub(crate) work_status: WorkStatus,
 }
 
 #[derive(Debug, Deserialize)]
@@ -90,8 +90,8 @@ struct CancelledData {
 pub(crate) enum CheckedData {
     Started(StartedData),
     Begun,
-    Submitted,
-    Failed,
+    Submitted(WorkStatus),
+    Failed(WorkStatus),
     Approved(ApprovedData),
     Cancelled,
 }
@@ -171,17 +171,15 @@ pub(crate) fn check_data(
         }
         Reply::AttemptSubmitted { attempt, outputs } => {
             let data: SubmittedData = parse(value)?;
-            let _ = data.work_status;
-            (data.attempt == *attempt && &data.outputs == outputs).then_some(CheckedData::Submitted)
+            (data.attempt == *attempt && &data.outputs == outputs)
+                .then_some(CheckedData::Submitted(data.work_status))
         }
         Reply::AttemptFailed { attempt } => {
             let data: FailedData = parse(value)?;
-            let _ = data.work_status;
-            (data.attempt == *attempt).then_some(CheckedData::Failed)
+            (data.attempt == *attempt).then_some(CheckedData::Failed(data.work_status))
         }
         Reply::GateApproved { node, occurrence } => {
             let data: ApprovedData = parse(value)?;
-            let _ = data.work_status;
             (data.node == *node && data.occurrence == *occurrence && !data.by.0.is_empty())
                 .then_some(CheckedData::Approved(data))
         }
