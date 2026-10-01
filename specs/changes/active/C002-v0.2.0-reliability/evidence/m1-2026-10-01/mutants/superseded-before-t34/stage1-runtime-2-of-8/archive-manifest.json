@@ -1,0 +1,19 @@
+{
+  "archive": "raw.tar.gz",
+  "archive_sha256": "0e9542cb07b1433fdcb56291760923307b49dd84569e369be91995acc1ce74c1",
+  "raw_manifest_sha256": "cad251223e57d58da1a07b4a20c2192c481a2e2cc1e249142003a9ee78ffd935",
+  "members": 453,
+  "original_bytes": 15398478,
+  "archive_bytes": 1332616,
+  "verified_all_members": true,
+  "loose_index_files": [
+    "caught.txt",
+    "lock.json",
+    "missed.txt",
+    "mutants.json",
+    "outcomes.json",
+    "timeout.txt",
+    "unviable.txt"
+  ],
+  "scope": "Only complete phases with immutable metadata. Original raw-manifest remains unchanged; logs and diffs are losslessly archived."
+}

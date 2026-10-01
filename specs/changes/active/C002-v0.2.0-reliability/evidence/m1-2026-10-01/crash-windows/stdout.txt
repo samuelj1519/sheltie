@@ -1,0 +1,276 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
+────────────
+ Nextest run ID 339f54ca-7b4f-4d72-8b7e-8601d8c26390 with nextest profile: default
+    Starting 19 tests across 1 binary (40 binaries skipped)
+        PASS [   6.171s] ( 1/19) sheltie-cli::reliability_crash another_write_kind_directly_recovers_start_or_add_after_commit_process_termination
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-cross-start-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=original"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CROSS_KIND_RECOVERY_RAW {"mode":"Exit70","new_published":true,"new_request":"t31-cross-new-write","old_operation":"start","old_published":true,"old_request":"t31-cross-start-Exit70"}
+    CRASH_RAW {"argv":["--request-id","t31-cross-start-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=original"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CROSS_KIND_RECOVERY_RAW {"mode":"Kill","new_published":true,"new_request":"t31-cross-new-write","old_operation":"start","old_published":true,"old_request":"t31-cross-start-Kill"}
+    CRASH_RAW {"argv":["--request-id","t31-cross-add-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CROSS_KIND_RECOVERY_RAW {"mode":"Exit70","new_published":true,"new_request":"t31-cross-new-write","old_operation":"add","old_published":true,"old_request":"t31-cross-add-Exit70"}
+    CRASH_RAW {"argv":["--request-id","t31-cross-add-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CROSS_KIND_RECOVERY_RAW {"mode":"Kill","new_published":true,"new_request":"t31-cross-new-write","old_operation":"add","old_published":true,"old_request":"t31-cross-add-Kill"}
+    test another_write_kind_directly_recovers_start_or_add_after_commit_process_termination ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 6.16s
+
+
+        PASS [   6.874s] ( 2/19) sheltie-cli::reliability_crash committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-history-outputs-file","attempt","begin","2026-10-01-001-default","--node","outline"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    test committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 6.87s
+
+
+        PASS [   2.042s] ( 3/19) sheltie-cli::reliability_crash exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks
+  stdout ───
+
+    running 1 test
+    test exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 2.03s
+
+
+        PASS [   2.593s] ( 4/19) sheltie-cli::reliability_crash file_inputs_reject_same_volume_replacement_links_and_special_files_at_open
+  stdout ───
+
+    running 1 test
+    test file_inputs_reject_same_volume_replacement_links_and_special_files_at_open ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 2.58s
+
+
+        PASS [  18.245s] ( 5/19) sheltie-cli::reliability_crash begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-begin-after_commit_before_effects-Exit70","attempt","begin","2026-10-01-001-default","--node","outline"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-begin-after_commit_before_effects-Kill","attempt","begin","2026-10-01-001-default","--node","outline"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-begin-after_first_history_file_write-Exit70","attempt","begin","2026-10-01-001-default","--node","outline"],"exit":70,"mode":"Exit70","point":"after_first_history_file_write","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-begin-after_first_history_file_write-Kill","attempt","begin","2026-10-01-001-default","--node","outline"],"exit":null,"mode":"Kill","point":"after_first_history_file_write","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-submit-after_commit_before_effects-Exit70","attempt","submit","2026-10-01-001-default","--attempt","outline#1.0","--summary","done"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-submit-after_commit_before_effects-Kill","attempt","submit","2026-10-01-001-default","--attempt","outline#1.0","--summary","done"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-submit-submit_before_seal-Exit70","attempt","submit","2026-10-01-001-default","--attempt","outline#1.0","--summary","done"],"exit":70,"mode":"Exit70","point":"submit_before_seal","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-submit-submit_before_seal-Kill","attempt","submit","2026-10-01-001-default","--attempt","outline#1.0","--summary","done"],"exit":null,"mode":"Kill","point":"submit_before_seal","signal":9,"stderr":[],"stdout":[]}
+    test begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 18.24s
+
+
+        PASS [   2.618s] ( 6/19) sheltie-cli::reliability_crash gate_approval_without_a_remaining_edge_adds_a_second_blocked_event
+  stdout ───
+
+    running 1 test
+    test gate_approval_without_a_remaining_edge_adds_a_second_blocked_event ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 2.61s
+
+
+        PASS [   1.655s] ( 7/19) sheltie-cli::reliability_crash installed_prev_rolls_back_after_update_termination_without_changing_store_bytes
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"exit":70,"mode":"Exit70","point":"update_between_renames","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"exit":null,"mode":"Kill","point":"update_between_renames","signal":9,"stderr":[],"stdout":[]}
+    test installed_prev_rolls_back_after_update_termination_without_changing_store_bytes ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 1.65s
+
+
+        PASS [   0.990s] ( 8/19) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-delete-parent-sync","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    test moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.98s
+
+
+        PASS [   0.013s] ( 9/19) sheltie-cli::reliability_crash owned_test_directory_cleanup_removes_readonly_trees_without_chmod_of_external_links
+  stdout ───
+
+    running 1 test
+    test owned_test_directory_cleanup_removes_readonly_trees_without_chmod_of_external_links ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s
+
+
+        PASS [   6.932s] (10/19) sheltie-cli::reliability_crash impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic
+  stdout ───
+
+    running 1 test
+    test impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 6.92s
+
+  stderr ───
+    counter=4294967295 argv=["work", "status", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=4294967295 argv=["work", "stats", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=4294967295 argv=["work", "list"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=4294967295 argv=["--request-id", "t31-corrupt-counter-approve", "gate", "approve", "2026-10-01-001-default", "--node", "review"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=0 argv=["work", "status", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=0 argv=["work", "stats", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=0 argv=["work", "list"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=0 argv=["--request-id", "t31-corrupt-counter-approve", "gate", "approve", "2026-10-01-001-default", "--node", "review"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=3 argv=["work", "status", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=3 argv=["work", "stats", "2026-10-01-001-default"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=3 argv=["work", "list"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+    counter=3 argv=["--request-id", "t31-corrupt-counter-approve", "gate", "approve", "2026-10-01-001-default", "--node", "review"] exit=1 response={"error":{"code":"STORE_CORRUPT","detail":{"detail":"works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"message":"数据库内容损坏：works 行 2026-10-01-001-default 的 state_json.blocked_count 与 Attempt/Approval 受阻事实不一致"},"next":[],"ok":false}
+
+        PASS [   2.655s] (11/19) sheltie-cli::reliability_crash purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["self","uninstall","--purge","--yes"],"exit":70,"mode":"Exit70","point":"purge_after_top_level_delete","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["self","uninstall","--purge","--yes"],"exit":null,"mode":"Kill","point":"purge_after_top_level_delete","signal":9,"stderr":[],"stdout":[]}
+    test purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 2.65s
+
+
+        PASS [   1.019s] (12/19) sheltie-cli::reliability_crash readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes
+  stdout ───
+
+    running 1 test
+    test readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 1.01s
+
+
+        PASS [   0.333s] (13/19) sheltie-cli::reliability_crash relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request
+  stdout ───
+
+    running 1 test
+    test relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.32s
+
+
+        PASS [   3.333s] (14/19) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection
+  stdout ───
+
+    running 1 test
+    SQLITE_CONTROL_RAW {"action":"install","main_bytes_unchanged":true,"wal_bytes":0}
+    PURGE_WAITER_RAW {"action":"install","event":"home_lock_waiting","purge_exit":0,"waiter_exit":0,"waiter_stderr":[],"waiter_stdout":[123,34,100,97,116,97,34,58,123,34,97,108,114,101,97,100,121,95,105,110,115,116,97,108,108,101,100,34,58,102,97,108,115,101,44,34,105,110,115,116,97,108,108,101,100,95,116,111,34,58,34,47,112,114,105,118,97,116,101,47,118,97,114,47,102,111,108,100,101,114,115,47,52,49,47,106,103,51,49,104,50,52,106,49,50,110,98,113,104,51,51,52,109,54,121,122,107,104,52,48,48,48,48,103,110,47,84,47,46,116,109,112,101,80,99,69,56,98,47,98,105,110,47,115,104,101,108,116,105,101,34,44,34,112,97,116,104,95,104,105,110,116,34,58,34,230,138,138,32,47,112,114,105,118,97,116,101,47,118,97,114,47,102,111,108,100,101,114,115,47,52,49,47,106,103,51,49,104,50,52,106,49,50,110,98,113,104,51,51,52,109,54,121,122,107,104,52,48,48,48,48,103,110,47,84,47,46,116,109,112,101,80,99,69,56,98,47,98,105,110,32,229,138,160,232,191,155,32,80,65,84,72,34,125,44,34,110,101,120,116,34,58,91,93,44,34,111,107,34,58,116,114,117,101,125,10]}
+    SQLITE_CONTROL_RAW {"action":"add","main_bytes_unchanged":true,"wal_bytes":0}
+    PURGE_WAITER_RAW {"action":"add","event":"home_lock_waiting","purge_exit":0,"waiter_exit":0,"waiter_stderr":[],"waiter_stdout":[123,34,100,97,116,97,34,58,123,34,100,105,103,101,115,116,34,58,34,100,98,53,102,52,97,55,102,55,100,100,57,101,50,54,101,51,102,99,51,56,55,97,54,48,51,49,55,51,100,100,98,98,101,52,53,100,97,101,56,100,102,55,102,98,101,97,56,52,54,56,102,53,49,52,52,100,49,102,53,97,53,52,57,34,44,34,102,108,111,119,115,34,58,91,34,100,101,102,97,117,108,116,34,93,44,34,105,100,34,58,34,116,119,111,45,115,116,101,112,34,44,34,114,101,112,108,97,121,101,100,34,58,102,97,108,115,101,44,34,114,101,113,117,105,114,101,115,34,58,91,93,44,34,118,101,114,115,105,111,110,34,58,34,49,46,48,46,48,34,125,44,34,110,101,120,116,34,58,91,93,44,34,111,107,34,58,116,114,117,101,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,48,49,97,48,102,55,100,51,45,99,102,55,53,45,55,50,48,54,45,57,55,99,100,45,56,101,102,100,102,50,102,56,53,102,101,49,34,125,10]}
+    SQLITE_CONTROL_RAW {"action":"old-work","main_bytes_unchanged":true,"wal_bytes":0}
+    PURGE_WAITER_RAW {"action":"old-work","event":"home_lock_waiting","purge_exit":0,"waiter_exit":1,"waiter_stderr":[],"waiter_stdout":[123,34,101,114,114,111,114,34,58,123,34,99,111,100,101,34,58,34,78,79,84,95,70,79,85,78,68,34,44,34,100,101,116,97,105,108,34,58,123,34,119,104,97,116,34,58,34,47,112,114,105,118,97,116,101,47,118,97,114,47,102,111,108,100,101,114,115,47,52,49,47,106,103,51,49,104,50,52,106,49,50,110,98,113,104,51,51,52,109,54,121,122,107,104,52,48,48,48,48,103,110,47,84,47,46,116,109,112,52,101,79,114,109,67,47,115,116,111,114,101,46,100,98,34,125,44,34,109,101,115,115,97,103,101,34,58,34,47,112,114,105,118,97,116,101,47,118,97,114,47,102,111,108,100,101,114,115,47,52,49,47,106,103,51,49,104,50,52,106,49,50,110,98,113,104,51,51,52,109,54,121,122,107,104,52,48,48,48,48,103,110,47,84,47,46,116,109,112,52,101,79,114,109,67,47,115,116,111,114,101,46,100,98,32,228,184,141,229,173,152,229,156,168,34,125,44,34,110,101,120,116,34,58,91,93,44,34,111,107,34,58,102,97,108,115,101,125,10]}
+    test purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 3.32s
+
+
+        PASS [   3.776s] (15/19) sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-clean-fail-start-pending_owner_synced_before_payload","work","start","--workbook","two-step","--flow","default","--input","topic=cleanup"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-clean-fail-start-before_commit","work","start","--workbook","two-step","--flow","default","--input","topic=cleanup"],"exit":70,"mode":"Exit70","point":"before_commit","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-clean-fail-add-pending_owner_synced_before_payload","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-clean-fail-add-before_commit","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"before_commit","signal":null,"stderr":[],"stdout":[]}
+    test same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 3.77s
+
+
+        PASS [  15.138s] (16/19) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-remove-after_commit_before_effects-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-after_commit_before_effects-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-tree_rename_before_parent_sync-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"tree_rename_before_parent_sync","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-tree_rename_before_parent_sync-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_payload_verified_before_remove-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_payload_verified_before_remove","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_payload_verified_before_remove-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"delete_payload_verified_before_remove","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_after_first_payload_child-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_after_first_payload_child","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_after_first_payload_child-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"delete_after_first_payload_child","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_after_tree_removed_before_marker-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_after_tree_removed_before_marker","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_after_tree_removed_before_marker-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"delete_after_tree_removed_before_marker","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_marker_synced_before_mark-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_marker_synced_before_mark","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_marker_synced_before_mark-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"delete_marker_synced_before_mark","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-request_published_before_cleanup-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"request_published_before_cleanup","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-request_published_before_cleanup-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"request_published_before_cleanup","signal":9,"stderr":[],"stdout":[]}
+    test remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 15.13s
+
+
+        PASS [   0.390s] (17/19) sheltie-cli::reliability_crash workbook_source_rejects_a_replaced_directory_at_the_open_boundary
+  stdout ───
+
+    running 1 test
+    test workbook_source_rejects_a_replaced_directory_at_the_open_boundary ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.38s
+
+
+        PASS [   0.826s] (18/19) sheltie-cli::reliability_crash zero_work_revision_is_rejected_by_readonly_and_write_cli_entries
+  stdout ───
+
+    running 1 test
+    test zero_work_revision_is_rejected_by_readonly_and_write_cli_entries ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.81s
+
+
+        PASS [  20.829s] (19/19) sheltie-cli::reliability_crash start_and_add_recover_each_publication_window_after_exit70_and_actual_kill
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-start-pending_owner_synced_before_payload-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Exit70","operation":"start","point":"pending_owner_synced_before_payload","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-pending_owner_synced_before_payload-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":null,"mode":"Kill","point":"pending_owner_synced_before_payload","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Kill","operation":"start","point":"pending_owner_synced_before_payload","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-before_commit-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"before_commit","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Exit70","operation":"start","point":"before_commit","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-before_commit-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":null,"mode":"Kill","point":"before_commit","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Kill","operation":"start","point":"before_commit","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-after_commit_before_effects-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"start","point":"after_commit_before_effects","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-after_commit_before_effects-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"start","point":"after_commit_before_effects","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-tree_rename_before_parent_sync-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"tree_rename_before_parent_sync","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"start","point":"tree_rename_before_parent_sync","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-tree_rename_before_parent_sync-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"start","point":"tree_rename_before_parent_sync","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-request_published_before_cleanup-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"request_published_before_cleanup","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"start","point":"request_published_before_cleanup","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-start-request_published_before_cleanup-Kill","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":null,"mode":"Kill","point":"request_published_before_cleanup","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"start","point":"request_published_before_cleanup","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-pending_owner_synced_before_payload-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Exit70","operation":"add","point":"pending_owner_synced_before_payload","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-pending_owner_synced_before_payload-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"pending_owner_synced_before_payload","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Kill","operation":"add","point":"pending_owner_synced_before_payload","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-before_commit-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"before_commit","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Exit70","operation":"add","point":"before_commit","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-before_commit-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"before_commit","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":false,"mode":"Kill","operation":"add","point":"before_commit","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-after_commit_before_effects-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"add","point":"after_commit_before_effects","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-after_commit_before_effects-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"add","point":"after_commit_before_effects","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-tree_rename_before_parent_sync-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"tree_rename_before_parent_sync","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"add","point":"tree_rename_before_parent_sync","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-tree_rename_before_parent_sync-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"add","point":"tree_rename_before_parent_sync","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-request_published_before_cleanup-Exit70","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":70,"mode":"Exit70","point":"request_published_before_cleanup","signal":null,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Exit70","operation":"add","point":"request_published_before_cleanup","published_after_restart":true}
+    CRASH_RAW {"argv":["--request-id","t31-add-request_published_before_cleanup-Kill","workbook","add","/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"],"exit":null,"mode":"Kill","point":"request_published_before_cleanup","signal":9,"stderr":[],"stdout":[]}
+    CRASH_ORACLE {"committed_before_restart":true,"mode":"Kill","operation":"add","point":"request_published_before_cleanup","published_after_restart":true}
+    test start_and_add_recover_each_publication_window_after_exit70_and_actual_kill ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 20.82s
+
+
+────────────
+     Summary [  53.123s] 19 tests run: 19 passed, 0 skipped

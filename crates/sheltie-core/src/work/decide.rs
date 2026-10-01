@@ -251,19 +251,11 @@ fn decide_begin(
             crate::work::layout::output_path(&attempt_dir, &decl.path),
         );
     }
-    // 节点引用的 `kind:name` 换成 manifest 里的那条声明，按节点里的顺序。
-    // 编译期已保证每条引用都能在 manifest 找到（flow::compile）。
-    let requires = def
-        .requires
-        .iter()
-        .filter_map(|(kind, name)| {
-            graph
-                .requires()
-                .iter()
-                .find(|r| r.kind == *kind && r.name == *name)
-                .cloned()
-        })
-        .collect();
+    let requires = graph
+        .node_requires(node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {node} 不在图里"),
+        })?;
 
     Ok(Decision {
         state: new_state,
@@ -481,26 +473,65 @@ fn check_outputs(
 /// 节点 Attempt 成功（或门槛刚批准）后 Work 的状态，按协议 `attempt submit` 第 5 步的顺序：
 /// `consider_gate && node.gate` → `Blocked(Gate)`；无出边 → `Succeeded`；
 /// 每条出边目标都 `visits >= max_visits` → `Blocked(NoLegalEdge)`；否则 `Active`。
-fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
-    let Some(def) = graph.node(&state.current.node) else {
+fn success_status_at(
+    graph: &Graph,
+    node: &NodeId,
+    consider_gate: bool,
+    all_maxed: bool,
+) -> WorkStatus {
+    let Some(def) = graph.node(node) else {
         return WorkStatus::Active;
     };
     if consider_gate && def.gate {
         return WorkStatus::Blocked(BlockedReason::Gate);
     }
-    let outs = graph.out_edges(&state.current.node);
-    if outs.is_empty() {
+    if graph.is_terminal(node) {
         return WorkStatus::Succeeded;
     }
-    let all_maxed = outs.iter().all(|e| {
-        graph
-            .node(&e.to)
-            .is_some_and(|t| state.visits_of(&e.to) >= t.max_visits)
-    });
     if all_maxed {
-        return WorkStatus::Blocked(BlockedReason::NoLegalEdge);
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+    } else {
+        WorkStatus::Active
     }
-    WorkStatus::Active
+}
+
+fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
+    let all_maxed = graph.out_edges(&state.current.node).iter().all(|edge| {
+        graph
+            .node(&edge.to)
+            .is_some_and(|target| state.visits_of(&edge.to) >= target.max_visits)
+    });
+    success_status_at(graph, &state.current.node, consider_gate, all_maxed)
+}
+
+/// 失败后的状态只依赖本次重试序号与冻结的重试上限。
+fn status_after_failure(retry: u32, max_retries: u32) -> WorkStatus {
+    if retry >= max_retries {
+        WorkStatus::Blocked(BlockedReason::RetriesExhausted)
+    } else {
+        WorkStatus::Active
+    }
+}
+
+/// 校验历史回复状态的必要条件；不以当前访问计数重建历史状态。
+pub fn reply_status_matches(reply: &Reply, status: WorkStatus, graph: &Graph) -> bool {
+    match reply {
+        Reply::AttemptFailed { attempt } => graph
+            .node(&attempt.node)
+            .is_some_and(|node| status == status_after_failure(attempt.retry, node.max_retries)),
+        Reply::AttemptSubmitted { attempt, .. } => {
+            graph.node(&attempt.node).is_some()
+                && (status == success_status_at(graph, &attempt.node, true, false)
+                    || status == success_status_at(graph, &attempt.node, true, true))
+        }
+        Reply::GateApproved { node, .. } => {
+            graph.node(node).is_some()
+                && (status == success_status_at(graph, node, false, false)
+                    || status == success_status_at(graph, node, false, true))
+        }
+        Reply::Started { .. } | Reply::AttemptBegun { .. } => status == WorkStatus::Active,
+        Reply::Cancelled => status == WorkStatus::Cancelled,
+    }
 }
 
 /// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
@@ -535,8 +566,8 @@ fn decide_fail(
         a.fail_reason = Some(reason_text);
         a.ended_at = Some(ctx.now.clone());
     }
-    if attempt.retry >= max_retries {
-        new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+    new_state.status = status_after_failure(attempt.retry, max_retries);
+    if new_state.status == WorkStatus::Blocked(BlockedReason::RetriesExhausted) {
         increment_blocked_count(&mut new_state)?;
     }
     new_state.updated_at = ctx.now.clone();

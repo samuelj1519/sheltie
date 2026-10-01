@@ -1,0 +1,28 @@
+{
+  "name": "stage2-core-current-consumers",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-core",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--test-workspace",
+    "true",
+    "--re",
+    "^(?:crates/sheltie-core/src/flow/parse\\.rs:140:32: replace \\|\\| with && in parse_input_source|crates/sheltie-core/src/work/state\\.rs:419:56: replace && with \\|\\| in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:438:17: replace \\|\\| with && in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:444:31: replace == with != in WorkState::validate_gate_facts)$"
+  ],
+  "exit": 2,
+  "seconds": 145.645,
+  "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+  "execution_closure_sha256": "62274cf277c7dd03f1c116901aad4b41dcf578c3c345c71988c19dadad6c6141",
+  "listed": 4,
+  "processed": 4,
+  "counts": {
+    "CaughtMutant": 3,
+    "MissedMutant": 1
+  },
+  "outcomes_sha256": "12505a332db834635c054e6d4f692eccabb34b1bde125e526fc3d6b4ee7630c6",
+  "mutants_sha256": "87f3b9c6e91eebe89703bff549a920a3a4a2fa0f3ab4b34c53ef02d31f34bc22"
+}

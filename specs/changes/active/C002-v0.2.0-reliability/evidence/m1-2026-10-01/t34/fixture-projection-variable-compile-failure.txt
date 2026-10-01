@@ -1,0 +1,12 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+error[E0425]: cannot find value `effects` in this scope
+   --> crates/sheltie-runtime/src/workbook_repo.rs:523:25
+    |
+523 |                         effects
+    |                         ^^^^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `sheltie-runtime` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `sheltie-runtime` (lib test) due to 1 previous error
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --all-features` exited with code 101

@@ -1,0 +1,318 @@
+{
+  "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+  "mutation_candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+  "reviewer": "/root/m1_spec",
+  "counts": {
+    "needs_workspace_reproduction": 20,
+    "equivalent_reviewed": 3,
+    "equivalent_current_consumer_reviewed": 1,
+    "no_current_producer_obligation_reviewed": 2,
+    "platform_not_applicable_reviewed": 4
+  },
+  "items": [
+    {
+      "index": 0,
+      "name": "crates/sheltie-runtime/src/service.rs:1173:17: replace && with || in validate_command_owner",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1165,17 +1165,17 @@\n     snapshot: &Response,\n ) -> Result<()> {\n     use crate::snapshot::CheckedData;\n \n     let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;\n     let valid = match (command, &snapshot.reply, &data) {\n         (Command::Start { .. }, Reply::Started { requires, .. }, CheckedData::Started(_)) => {\n             crate::snapshot::start_matches(state, command, &snapshot.reply, &data)\n-                && requires == graph.requires()\n+                || /* ~ changed by cargo-mutants ~ */ requires == graph.requires()\n         }\n         (\n             Command::BeginAttempt { node, .. },\n             Reply::AttemptBegun {\n                 attempt,\n                 brief_path,\n                 output_dir,\n                 inputs,\n",
+      "proof_or_difference": "Start snapshot Reply/data requires同时改同一合法但不同host requirement事实；start_matches仍绑定Work/Workbook/inputs身份，但original&&要求requires==冻结graph.requires，OR放过该错误事实。workbook_publication.start_matches不另核graph requires，因此不是下游重复保护。真实同rid Start replay不应返错误host依赖列表。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_command_owner",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 1,
+      "name": "crates/sheltie-runtime/src/service.rs:1221:17: replace && with || in validate_command_owner",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1213,17 +1213,17 @@\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n                 outputs,\n             },\n             CheckedData::Submitted,\n         ) => state.attempt(attempt).is_some_and(|record| {\n             reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n-                && outputs == &record.outputs\n+                || /* ~ changed by cargo-mutants ~ */ outputs == &record.outputs\n         }),\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n             CheckedData::Failed,\n         ) => {\n",
+      "proof_or_difference": "Submit Reply/data outputs同一快照事实单字段漂移，record仍Succeeded；OR可放过输出映射不符。Seal ref checker仅与state.outputs比，不比较snapshot Reply outputs，必须由此guard拒。已有submit_snapshot_data_must_match...若只改data会被check_data提前拒，需Reply/data成对修改。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_command_owner",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 2,
+      "name": "crates/sheltie-runtime/src/service.rs:1220:17: replace && with || in validate_command_owner",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1212,17 +1212,17 @@\n             Command::SubmitAttempt { attempt, .. },\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n                 outputs,\n             },\n             CheckedData::Submitted,\n         ) => state.attempt(attempt).is_some_and(|record| {\n             reply_attempt == attempt\n-                && record.status == sheltie_core::work::AttemptStatus::Succeeded\n+                || /* ~ changed by cargo-mutants ~ */ record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n         }),\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n             CheckedData::Failed,\n",
+      "proof_or_difference": "Submit Reply attempt错但Command attempt/state record仍原Succeeded且outputs一致（无outputs节点可空）；OR扩大合法域。validate_effect_shape后续也核Command attempt==Reply attempt，会重复拒错attempt，但record.status或outputs漂移仍可能放过；按精确predicate与phase判断，不凭is_err推等价。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_command_owner",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 3,
+      "name": "crates/sheltie-runtime/src/service.rs:1231:17: replace && with || in validate_command_owner",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1223,17 +1223,17 @@\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n             CheckedData::Failed,\n         ) => {\n             reply_attempt == attempt\n-                && state.attempt(attempt).is_some_and(|record| {\n+                || /* ~ changed by cargo-mutants ~ */ state.attempt(attempt).is_some_and(|record| {\n                     record.status == sheltie_core::work::AttemptStatus::Failed\n                 })\n         }\n         (\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n                 node: reply_node,\n                 occurrence,\n",
+      "proof_or_difference": "Fail Reply/data attempt与Command attempt相同但record不是Failed，OR左边已true放过状态不符；effects shape只card且不核record status。需真实失败历史state状态事实漂移的完整持久夹具，不能只data误改被check_data抓住。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_command_owner",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 4,
+      "name": "crates/sheltie-runtime/src/service.rs:1563:12: replace > with >= in observe_output",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace > with >= in observe_output\n@@ -1555,17 +1555,17 @@\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n     let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n         return Ok((None, None));\n     };\n     let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n+    if len >= /* ~ changed by cargo-mutants ~ */ crate::fsx::MAX_FILE_BYTES {\n         return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n             output: name.to_string(),\n             max_bytes: crate::fsx::MAX_FILE_BYTES,\n             actual: len,\n         }));\n     }\n     let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n     Ok((\n",
+      "proof_or_difference": "声明输出合法32MiB，>=提前报OUTPUT_TOO_LARGE。CLI begin→创建exactcap output→submit应成功sha/bytes；manifest或asset exactcap都不是这个consumer。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function observe_output",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 5,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:34:52: replace | with ^ in validate_readonly",
+      "classification": "equivalent_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace | with ^ in validate_readonly\n@@ -26,17 +26,17 @@\n }\n \n /// 用 `READ_ONLY | NOFOLLOW` 核对 `user_version` 与逐表建表语句。识别连接在旧库\n /// 拒绝前不改 journal mode、不建表或checkpoint；`NO_CKPT_ON_CLOSE` 防止关闭时写主库。\n /// 只允许 SQLite 在已存在管理根内维护合同认可的 `store.db-shm` 控制文件。\n fn validate_readonly(path: &AbsPath) -> Result<()> {\n     let conn = rusqlite::Connection::open_with_flags(\n         path.as_str(),\n-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY ^ /* ~ changed by cargo-mutants ~ */ rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n     )?;\n     prevent_checkpoint_on_close(&conn, path)?;\n     // 识别连接也要等待本地写者（首次建库窗口）。\n     conn.busy_timeout(std::time::Duration::from_millis(5000))?;\n     check_schema(&conn)\n }\n \n fn prevent_checkpoint_on_close(conn: &rusqlite::Connection, path: &AbsPath) -> Result<()> {\n",
+      "proof_or_difference": "SQLITE_OPEN_READ_ONLY=0x00000001，SQLITE_OPEN_NOFOLLOW=0x01000000，常量bit intersection为0。固定A/B满足A|B=A^B=0x01000001，传给Connection::open_with_flags的flags逐bit相同，后续checkpoint配置/schema识别完全不变。核本地rusqlite0.40.2 OpenFlags定义及libsqlite3-sys0.38.2 bundled SQLITE_OPEN_READONLY=1。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_readonly",
+      "executed_result": "not_run_by_reviewer; pending final current workspace",
+      "scope_limit": "只适用于这两个固定互斥bit常量，不将所有|/^ mutation判为等价。"
+    },
+    {
+      "index": 6,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(())",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace validate_readonly -> Result<()> with Ok(())\n@@ -24,24 +24,17 @@\n     ReadOnly,\n     ReadWrite,\n }\n \n /// 用 `READ_ONLY | NOFOLLOW` 核对 `user_version` 与逐表建表语句。识别连接在旧库\n /// 拒绝前不改 journal mode、不建表或checkpoint；`NO_CKPT_ON_CLOSE` 防止关闭时写主库。\n /// 只允许 SQLite 在已存在管理根内维护合同认可的 `store.db-shm` 控制文件。\n fn validate_readonly(path: &AbsPath) -> Result<()> {\n-    let conn = rusqlite::Connection::open_with_flags(\n-        path.as_str(),\n-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n-    )?;\n-    prevent_checkpoint_on_close(&conn, path)?;\n-    // 识别连接也要等待本地写者（首次建库窗口）。\n-    conn.busy_timeout(std::time::Duration::from_millis(5000))?;\n-    check_schema(&conn)\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn prevent_checkpoint_on_close(conn: &rusqlite::Connection, path: &AbsPath) -> Result<()> {\n     if !conn.set_db_config(\n         rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,\n         true,\n     )? {\n         return Err(Error::io(\n",
+      "proof_or_difference": "validate_readonly no-op后Store::validate/connect仍check_schema且RO有NO_CKPT_ON_CLOSE；当前RO stable库识别重复保护。RW locked场景的旧库拒绝前必须仍是RO识别，需审清外部Store换绑/旧WAL checkpoint与初始化场景，不提前叫严格等价。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function validate_readonly",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 7,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with true in Store::open_for_home",
+      "classification": "equivalent_current_consumer_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace match guard mode == OpenMode::ReadOnly with true in Store::open_for_home\n@@ -142,17 +142,17 @@\n     pub(crate) fn open_for_home(home: &Home, mode: OpenMode) -> Result<Self> {\n         const RETRY_LIMIT: usize = 8;\n         let mut last_mismatch = None;\n         for _ in 0..RETRY_LIMIT {\n             let opened = crate::fsx::validate_store_files(home).and_then(|()| {\n                 Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)\n             });\n             match opened {\n-                Err(error @ Error::StoreSchemaMismatch { .. }) if mode == OpenMode::ReadOnly => {\n+                Err(error @ Error::StoreSchemaMismatch { .. }) if true /* ~ changed by cargo-mutants ~ */ => {\n                     match home.acquire_existing_lock()? {\n                         Some(lock) => drop(lock),\n                         None => return Err(error),\n                     }\n                     last_mismatch = Some(error);\n                 }\n                 result => return result,\n             }\n",
+      "proof_or_difference": "Store::open_for_home全部当前生产caller传ReadOnly，guard true与原mode==ReadOnly同值；RW另经open_existing_locked。此分类不覆盖新增caller传ReadWrite，不将公共任意args宣称等价。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::open_for_home",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 8,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home",
+      "classification": "no_current_producer_obligation_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home\n@@ -142,17 +142,17 @@\n     pub(crate) fn open_for_home(home: &Home, mode: OpenMode) -> Result<Self> {\n         const RETRY_LIMIT: usize = 8;\n         let mut last_mismatch = None;\n         for _ in 0..RETRY_LIMIT {\n             let opened = crate::fsx::validate_store_files(home).and_then(|()| {\n                 Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)\n             });\n             match opened {\n-                Err(error @ Error::StoreSchemaMismatch { .. }) if mode == OpenMode::ReadOnly => {\n+                Err(error @ Error::StoreSchemaMismatch { .. }) if false /* ~ changed by cargo-mutants ~ */ => {\n                     match home.acquire_existing_lock()? {\n                         Some(lock) => drop(lock),\n                         None => return Err(error),\n                     }\n                     last_mismatch = Some(error);\n                 }\n                 result => return result,\n             }\n",
+      "proof_or_difference": "该条件只决定RO预检已见StoreSchemaMismatch后是否等待现有HomeLock并重识别。storage§1.1当前初始化先内存生成完整schema2，私有tmp写完整字节并sync，NOREPLACE原子发布；可见store.db为不存在或完整schema2，已无先创建空sqlite/schema0再DDL的producer。已存在schema0/1拒绝，不迁移/初始化/删除；所有合法engine写者都不能把其升级为2。当前open_for_home生产caller全部ReadOnly，写连接另走open_existing_locked。因此当前无“合法写者将可见schema不匹配库变为匹配”的恢复义务；误配旧schema仍返回StoreSchemaMismatch，字节保持。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::open_for_home",
+      "executed_result": "not_run_by_reviewer; pending final current workspace",
+      "scope_limit": "不是严格任意轨迹等价：删除guard可改变旧schema且.lock存在时的等待时长，也不覆盖锁外手改SQLite schema；该分类仅声明当前协作producer不存在这项transition义务。"
+    },
+    {
+      "index": 9,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:150:72: replace == with != in Store::open_for_home",
+      "classification": "no_current_producer_obligation_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace == with != in Store::open_for_home\n@@ -142,17 +142,17 @@\n     pub(crate) fn open_for_home(home: &Home, mode: OpenMode) -> Result<Self> {\n         const RETRY_LIMIT: usize = 8;\n         let mut last_mismatch = None;\n         for _ in 0..RETRY_LIMIT {\n             let opened = crate::fsx::validate_store_files(home).and_then(|()| {\n                 Self::open_existing_inner(&home.store_path(), mode, Some(home.clone()), None)\n             });\n             match opened {\n-                Err(error @ Error::StoreSchemaMismatch { .. }) if mode == OpenMode::ReadOnly => {\n+                Err(error @ Error::StoreSchemaMismatch { .. }) if mode != /* ~ changed by cargo-mutants ~ */ OpenMode::ReadOnly => {\n                     match home.acquire_existing_lock()? {\n                         Some(lock) => drop(lock),\n                         None => return Err(error),\n                     }\n                     last_mismatch = Some(error);\n                 }\n                 result => return result,\n             }\n",
+      "proof_or_difference": "该条件只决定RO预检已见StoreSchemaMismatch后是否等待现有HomeLock并重识别。storage§1.1当前初始化先内存生成完整schema2，私有tmp写完整字节并sync，NOREPLACE原子发布；可见store.db为不存在或完整schema2，已无先创建空sqlite/schema0再DDL的producer。已存在schema0/1拒绝，不迁移/初始化/删除；所有合法engine写者都不能把其升级为2。当前open_for_home生产caller全部ReadOnly，写连接另走open_existing_locked。因此当前无“合法写者将可见schema不匹配库变为匹配”的恢复义务；误配旧schema仍返回StoreSchemaMismatch，字节保持。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::open_for_home",
+      "executed_result": "not_run_by_reviewer; pending final current workspace",
+      "scope_limit": "不是严格任意轨迹等价：删除guard可改变旧schema且.lock存在时的等待时长，也不覆盖锁外手改SQLite schema；该分类仅声明当前协作producer不存在这项transition义务。"
+    },
+    {
+      "index": 10,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:249:27: replace match guard error.kind() == std::io::ErrorKind::NotFound with true in Store::connect",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace match guard error.kind() == std::io::ErrorKind::NotFound with true in Store::connect\n@@ -241,17 +241,17 @@\n             if let Some(lock) = &self.owner_lock {\n                 crate::fsx::validate_store_files_locked(home, lock)?;\n             } else {\n                 crate::fsx::validate_store_files(home)?;\n             }\n         }\n         let metadata = match std::fs::symlink_metadata(self.path.as_path()) {\n             Ok(metadata) => metadata,\n-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {\n+            Err(error) if true /* ~ changed by cargo-mutants ~ */ => {\n                 return Err(Error::NotFound {\n                     what: self.path.to_string(),\n                 });\n             }\n             Err(error) => return Err(Error::io(self.path.as_str(), error)),\n         };\n         if !metadata.file_type().is_file() {\n             return Err(Error::InvalidRequest {\n",
+      "proof_or_difference": "connect前fsx验证成功后symlink_metadata若发生PermissionDenied/IO错误，true把它当NOT_FOUND；错误闭集有区别。初始化前就不可读会在更早fsx挡，不能用这个例证明本metadata分支。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::connect",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 11,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:278:21: replace | with ^ in Store::connect",
+      "classification": "equivalent_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace | with ^ in Store::connect\n@@ -270,17 +270,17 @@\n         let root_identity = self.owner_home.as_ref().map(root_identity).transpose()?;\n         self.verify_owner_binding(root_identity, file_identity(&metadata))?;\n         crate::failpoint::rendezvous(\"store_before_sqlite_open\", self.path.as_str())\n             .map_err(|error| Error::io(self.path.as_str(), error))?;\n         let conn = match self.mode {\n             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY\n-                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n+                    ^ /* ~ changed by cargo-mutants ~ */ rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n             OpenMode::ReadWrite => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE\n                     | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n         }?;\n         self.verify_owner_binding(root_identity, file_identity(&metadata))?;\n",
+      "proof_or_difference": "SQLite READ_ONLY=0x1或READ_WRITE=0x2分别与NOFOLLOW=0x01000000无共同bit；|和^传同一flags值。该connection其余参数/后续check_schema/配置都不变。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::connect",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 12,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:307:9: replace Store::verify_owner_binding -> Result<()> with Ok(())",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace Store::verify_owner_binding -> Result<()> with Ok(())\n@@ -299,38 +299,17 @@\n         Ok(conn)\n     }\n \n     fn verify_owner_binding(\n         &self,\n         expected_root: Option<(u64, u64)>,\n         expected_store: (u64, u64),\n     ) -> Result<()> {\n-        let Some(home) = &self.owner_home else {\n-            return Ok(());\n-        };\n-        if let Some(lock) = &self.owner_lock {\n-            if !lock.identity_still_valid() {\n-                return Err(Error::InvalidRequest {\n-                    reason: format!(\"{} 的HomeLock身份已改变\", home.root()),\n-                });\n-            }\n-            crate::fsx::validate_store_files_locked(home, lock)?;\n-        } else {\n-            crate::fsx::validate_store_files(home)?;\n-        }\n-        let actual_root = root_identity(home)?;\n-        let actual_store = std::fs::symlink_metadata(self.path.as_path())\n-            .map_err(|error| Error::io(self.path.as_str(), error))?;\n-        if Some(actual_root) != expected_root || file_identity(&actual_store) != expected_store {\n-            return Err(Error::InvalidRequest {\n-                reason: format!(\"{} 的根或Store对象在SQLite连接期间被替换\", home.root()),\n-            });\n-        }\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。\n     /// 结构校验通过的读写连接才设 WAL。\n     fn validate(&self) -> Result<()> {\n         let conn = self.connect()?;\n         check_schema(&conn)\n     }\n",
+      "proof_or_difference": "verify_owner_binding No-op取消SQLite连接前后root/store对象身份与HomeLock复核。T33真实readonly合法Store/root替换测试是consumer，stage1 runtime-only不含CLI；必须等当前workspace而非引用旧caught。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::verify_owner_binding",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 13,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:283:21: replace | with ^ in Store::connect",
+      "classification": "equivalent_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace | with ^ in Store::connect\n@@ -275,17 +275,17 @@\n             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY\n                     | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n             OpenMode::ReadWrite => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE\n-                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n+                    ^ /* ~ changed by cargo-mutants ~ */ rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n         }?;\n         self.verify_owner_binding(root_identity, file_identity(&metadata))?;\n         // 等待先于任何可能取写锁的 PRAGMA（journal_mode 在建库后的首次设置要等）。\n         conn.busy_timeout(std::time::Duration::from_millis(5000))?;\n         if self.mode == OpenMode::ReadOnly {\n             prevent_checkpoint_on_close(&conn, &self.path)?;\n         }\n",
+      "proof_or_difference": "SQLite READ_ONLY=0x1或READ_WRITE=0x2分别与NOFOLLOW=0x01000000无共同bit；|和^传同一flags值。该connection其余参数/后续check_schema/配置都不变。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::connect",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 14,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:323:47: replace || with && in Store::verify_owner_binding",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace || with && in Store::verify_owner_binding\n@@ -315,17 +315,17 @@\n             }\n             crate::fsx::validate_store_files_locked(home, lock)?;\n         } else {\n             crate::fsx::validate_store_files(home)?;\n         }\n         let actual_root = root_identity(home)?;\n         let actual_store = std::fs::symlink_metadata(self.path.as_path())\n             .map_err(|error| Error::io(self.path.as_str(), error))?;\n-        if Some(actual_root) != expected_root || file_identity(&actual_store) != expected_store {\n+        if Some(actual_root) != expected_root && /* ~ changed by cargo-mutants ~ */ file_identity(&actual_store) != expected_store {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的根或Store对象在SQLite连接期间被替换\", home.root()),\n             });\n         }\n         Ok(())\n     }\n \n     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。\n",
+      "proof_or_difference": "root/store只有一者inode变时OR本该拒，AND要求两者都变放过；T33分别root仅换（把原store搬回新root保持Store inode）、Store仅换是真单条件oracle。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::verify_owner_binding",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 15,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:334:9: replace Store::validate -> Result<()> with Ok(())",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace Store::validate -> Result<()> with Ok(())\n@@ -326,18 +326,17 @@\n             });\n         }\n         Ok(())\n     }\n \n     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。\n     /// 结构校验通过的读写连接才设 WAL。\n     fn validate(&self) -> Result<()> {\n-        let conn = self.connect()?;\n-        check_schema(&conn)\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。\n     pub fn allocate_seq(&self, day: &str) -> Result<u32> {\n         let mut conn = self.connect()?;\n         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;\n         tx.execute(\n             \"INSERT INTO work_sequence (day, last) VALUES (?1, 1)\\n  \\\n",
+      "proof_or_difference": "Store::validate No-op初始validate_readonly已核schema，但正常Store constructor也执行connect身份绑定与RW mode配置。是否context-equivalent应区分RO vs locked RW以及构造后的消费者，保守复验，不把schema重复保护推广到全部I/O。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Store::validate",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 16,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 0))",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace root_identity -> Result<(u64, u64)> with Ok((0, 0))\n@@ -356,24 +356,17 @@\n             });\n         }\n         tx.commit()?;\n         Ok(last as u32)\n     }\n }\n \n fn root_identity(home: &Home) -> Result<(u64, u64)> {\n-    let metadata = std::fs::symlink_metadata(home.root().as_path())\n-        .map_err(|error| Error::io(home.root().as_str(), error))?;\n-    if !metadata.file_type().is_dir() {\n-        return Err(Error::InvalidRequest {\n-            reason: format!(\"管理根 {} 必须是目录\", home.root()),\n-        });\n-    }\n-    Ok(file_identity(&metadata))\n+    Ok((0, 0)) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n",
+      "proof_or_difference": "root_identity恒(0,0)把expected/actual root同时常量化，readonlySQLite打开期间同路径新root无法辨认；T33readonly换root测试保持原store inode，是针对根身份的独立oracle。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function root_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 17,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 1))",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace root_identity -> Result<(u64, u64)> with Ok((0, 1))\n@@ -356,24 +356,17 @@\n             });\n         }\n         tx.commit()?;\n         Ok(last as u32)\n     }\n }\n \n fn root_identity(home: &Home) -> Result<(u64, u64)> {\n-    let metadata = std::fs::symlink_metadata(home.root().as_path())\n-        .map_err(|error| Error::io(home.root().as_str(), error))?;\n-    if !metadata.file_type().is_dir() {\n-        return Err(Error::InvalidRequest {\n-            reason: format!(\"管理根 {} 必须是目录\", home.root()),\n-        });\n-    }\n-    Ok(file_identity(&metadata))\n+    Ok((0, 1)) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n",
+      "proof_or_difference": "root_identity恒(0,1)同16，常量值改变不恢复根身份比较，需当前CLI workspace实际捕获。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function root_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 18,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0))",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace root_identity -> Result<(u64, u64)> with Ok((1, 0))\n@@ -356,24 +356,17 @@\n             });\n         }\n         tx.commit()?;\n         Ok(last as u32)\n     }\n }\n \n fn root_identity(home: &Home) -> Result<(u64, u64)> {\n-    let metadata = std::fs::symlink_metadata(home.root().as_path())\n-        .map_err(|error| Error::io(home.root().as_str(), error))?;\n-    if !metadata.file_type().is_dir() {\n-        return Err(Error::InvalidRequest {\n-            reason: format!(\"管理根 {} 必须是目录\", home.root()),\n-        });\n-    }\n-    Ok(file_identity(&metadata))\n+    Ok((1, 0)) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n",
+      "proof_or_difference": "root_identity恒(1,0)同16。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function root_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 19,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 1))",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace root_identity -> Result<(u64, u64)> with Ok((1, 1))\n@@ -356,24 +356,17 @@\n             });\n         }\n         tx.commit()?;\n         Ok(last as u32)\n     }\n }\n \n fn root_identity(home: &Home) -> Result<(u64, u64)> {\n-    let metadata = std::fs::symlink_metadata(home.root().as_path())\n-        .map_err(|error| Error::io(home.root().as_str(), error))?;\n-    if !metadata.file_type().is_dir() {\n-        return Err(Error::InvalidRequest {\n-            reason: format!(\"管理根 {} 必须是目录\", home.root()),\n-        });\n-    }\n-    Ok(file_identity(&metadata))\n+    Ok((1, 1)) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n",
+      "proof_or_difference": "root_identity恒(1,1)同16。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function root_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 20,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 0)",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (0, 0)\n@@ -368,16 +368,15 @@\n             reason: format!(\"管理根 {} 必须是目录\", home.root()),\n         });\n     }\n     Ok(file_identity(&metadata))\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    use std::os::unix::fs::MetadataExt as _;\n-    (metadata.dev(), metadata.ino())\n+    (0, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     (0, metadata.len())\n }\n",
+      "proof_or_difference": "Unix file_identity恒(0,0)也使root_identity依赖同常量；同schema普通Store/root连接期间替换不被检测。T33readonly两个独立case排除HomeLock更早拒绝混淆。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function file_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 21,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 1)",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (0, 1)\n@@ -368,16 +368,15 @@\n             reason: format!(\"管理根 {} 必须是目录\", home.root()),\n         });\n     }\n     Ok(file_identity(&metadata))\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    use std::os::unix::fs::MetadataExt as _;\n-    (metadata.dev(), metadata.ino())\n+    (0, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     (0, metadata.len())\n }\n",
+      "proof_or_difference": "Unix file_identity恒(0,1)同20。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function file_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 22,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 0)",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (1, 0)\n@@ -368,16 +368,15 @@\n             reason: format!(\"管理根 {} 必须是目录\", home.root()),\n         });\n     }\n     Ok(file_identity(&metadata))\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    use std::os::unix::fs::MetadataExt as _;\n-    (metadata.dev(), metadata.ino())\n+    (1, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     (0, metadata.len())\n }\n",
+      "proof_or_difference": "Unix file_identity恒(1,0)同20。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function file_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 23,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 1)",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (1, 1)\n@@ -368,16 +368,15 @@\n             reason: format!(\"管理根 {} 必须是目录\", home.root()),\n         });\n     }\n     Ok(file_identity(&metadata))\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    use std::os::unix::fs::MetadataExt as _;\n-    (metadata.dev(), metadata.ino())\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     (0, metadata.len())\n }\n",
+      "proof_or_difference": "Unix file_identity恒(1,1)同20。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function file_identity",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 24,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:382:5: replace file_identity -> (u64, u64) with (0, 0)",
+      "classification": "platform_not_applicable_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (0, 0)\n@@ -374,10 +374,10 @@\n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    (0, metadata.len())\n+    (0, 0) /* ~ changed by cargo-mutants ~ */\n }\n",
+      "proof_or_difference": "file_identity定义处带#[cfg(not(unix))]；本候选macOS aarch64是unix，实际编译/执行的是:376 UnixMetadataExt dev/ino函数，:382这个定义未进入目标crate。仅本机平台N/A，不是跨平台等价或Linux运行PASS。",
+      "consumer": "cfg(not(unix)) alternate source function; no compiled macOS consumer",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 25,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:382:5: replace file_identity -> (u64, u64) with (0, 1)",
+      "classification": "platform_not_applicable_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (0, 1)\n@@ -374,10 +374,10 @@\n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    (0, metadata.len())\n+    (0, 1) /* ~ changed by cargo-mutants ~ */\n }\n",
+      "proof_or_difference": "file_identity定义处带#[cfg(not(unix))]；本候选macOS aarch64是unix，实际编译/执行的是:376 UnixMetadataExt dev/ino函数，:382这个定义未进入目标crate。仅本机平台N/A，不是跨平台等价或Linux运行PASS。",
+      "consumer": "cfg(not(unix)) alternate source function; no compiled macOS consumer",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 26,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:382:5: replace file_identity -> (u64, u64) with (1, 0)",
+      "classification": "platform_not_applicable_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (1, 0)\n@@ -374,10 +374,10 @@\n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    (0, metadata.len())\n+    (1, 0) /* ~ changed by cargo-mutants ~ */\n }\n",
+      "proof_or_difference": "file_identity定义处带#[cfg(not(unix))]；本候选macOS aarch64是unix，实际编译/执行的是:376 UnixMetadataExt dev/ino函数，:382这个定义未进入目标crate。仅本机平台N/A，不是跨平台等价或Linux运行PASS。",
+      "consumer": "cfg(not(unix)) alternate source function; no compiled macOS consumer",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 27,
+      "name": "crates/sheltie-runtime/src/store/mod.rs:382:5: replace file_identity -> (u64, u64) with (1, 1)",
+      "classification": "platform_not_applicable_reviewed",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (1, 1)\n@@ -374,10 +374,10 @@\n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    (0, metadata.len())\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n",
+      "proof_or_difference": "file_identity定义处带#[cfg(not(unix))]；本候选macOS aarch64是unix，实际编译/执行的是:376 UnixMetadataExt dev/ino函数，:382这个定义未进入目标crate。仅本机平台N/A，不是跨平台等价或Linux运行PASS。",
+      "consumer": "cfg(not(unix)) alternate source function; no compiled macOS consumer",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 28,
+      "name": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/workbook_digest.rs\n+++ replace || with && in stream_file_into\n@@ -112,17 +112,17 @@\n         if n == 0 {\n             break;\n         }\n         actual = actual\n             .checked_add(n as u64)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: format!(\"{path} 读取字节数溢出\"),\n             })?;\n-        if actual > declared || actual > MAX_FILE_BYTES {\n+        if actual > declared && /* ~ changed by cargo-mutants ~ */ actual > MAX_FILE_BYTES {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{path} 在读取间变大，与帧头不符\"),\n             });\n         }\n         hasher.update(&buf[..n]);\n         file_hasher.update(&buf[..n]);\n         utf8.push(&buf[..n]);\n     }\n",
+      "proof_or_difference": "actual字节超过声明但不超MAX时AND不早停，最终actual!=declared仍拒，接受集合可能相同但读次数/额外内存/work量不同。N14受限观察义务不能仅用最终is_err关闭；现有Read计数oracle可证第一越界chunk后无追加read。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function stream_file_into",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    },
+    {
+      "index": 29,
+      "name": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+      "classification": "needs_workspace_reproduction",
+      "reviewer": "/root/m1_spec",
+      "mutation_diff": "--- crates/sheltie-runtime/src/workbook_digest.rs\n+++ replace match guard error.error_len().is_none() with true in Utf8State::push\n@@ -155,17 +155,17 @@\n     fn push(&mut self, chunk: &[u8]) {\n         if !self.valid {\n             return;\n         }\n         let mut combined = std::mem::take(&mut self.pending);\n         combined.extend_from_slice(chunk);\n         match std::str::from_utf8(&combined) {\n             Ok(_) => self.valid = true,\n-            Err(error) if error.error_len().is_none() => {\n+            Err(error) if true /* ~ changed by cargo-mutants ~ */ => {\n                 self.valid = true;\n                 self.pending\n                     .extend_from_slice(&combined[error.valid_up_to()..]);\n             }\n             Err(_) => {\n                 self.valid = false;\n                 self.pending.clear();\n             }\n",
+      "proof_or_difference": "Utf8State完整非法UTF8 error_len Some被当incomplete，pending保留坏前缀，追加任何后续chunk无法修复该非法前缀，因此is_valid最终仍false；合法/不完整UTF8输出也相同。但pending可累计坏文件后续全部bytes而原valid=false立刻停止UTF8处理，内存行为改变（仍被MAX_FILE_BYTES硬界限制）。需明确N14是否要求此额外缓冲义务，不能把最终bool相同当无条件严格等价。",
+      "consumer": "current Store/WorkService/selfmgmt through runtime+CLI; see exact function Utf8State::push",
+      "executed_result": "not_run_by_reviewer; pending final current workspace"
+    }
+  ],
+  "scope": "30 runtime-shard6 first-stage survivors. Static proofs only, no old runtime caught reused."
+}

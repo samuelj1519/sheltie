@@ -1,0 +1,2968 @@
+{
+  "count": 269,
+  "mapped_unique_current": 267,
+  "errors": [],
+  "items": [
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:774:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:774:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:927:5: replace verify_publish_final_state -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:927:5: replace verify_publish_final_state -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:929:23: replace || with && in verify_publish_final_state",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:929:23: replace || with && in verify_publish_final_state"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:965:9: replace || with && in verify_publish_object",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:965:9: replace || with && in verify_publish_object"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1022:5: replace verify_owned_digest -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1022:5: replace verify_owned_digest -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1061:27: replace || with && in delete_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1061:27: replace || with && in delete_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1068:13: replace || with && in delete_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1068:13: replace || with && in delete_dir"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1081:8: delete ! in delete_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1081:8: delete ! in delete_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1118:9: replace || with && in delete_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1118:9: replace || with && in delete_dir"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1127:9: replace || with && in delete_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1127:9: replace || with && in delete_dir"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1141:9: replace || with && in pending_internal_id",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1141:9: replace || with && in pending_internal_id"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1140:9: replace || with && in pending_internal_id",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1140:9: replace || with && in pending_internal_id"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/effects.rs:1139:9: replace || with && in pending_internal_id",
+      "current_names": [
+        "crates/sheltie-runtime/src/effects.rs:1139:9: replace || with && in pending_internal_id"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/failpoint.rs:171:42: replace && with || in rendezvous",
+      "current_names": [
+        "crates/sheltie-runtime/src/failpoint.rs:170:42: replace && with || in rendezvous"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with & in ManagedDir::write_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with & in ManagedDir::write_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with ^ in ManagedDir::write_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with ^ in ManagedDir::write_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:128:60: replace | with & in ManagedDir::write_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:128:60: replace | with & in ManagedDir::write_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:160:9: replace ManagedDir::check_lock -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:160:9: replace ManagedDir::check_lock -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:206:29: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Symlink with false in ManagedFs::traverse_root",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:206:29: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Symlink with false in ManagedFs::traverse_root"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:211:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::traverse_root",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:211:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::traverse_root"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with true in ManagedFs::traverse_root",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with true in ManagedFs::traverse_root"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:254:81: replace | with & in ManagedFs::open_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:254:81: replace | with & in ManagedFs::open_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:254:62: replace | with & in ManagedFs::open_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:254:62: replace | with & in ManagedFs::open_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:254:43: replace | with ^ in ManagedFs::open_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:254:43: replace | with ^ in ManagedFs::open_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:254:26: replace | with ^ in ManagedFs::open_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:254:26: replace | with ^ in ManagedFs::open_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:260:75: replace || with && in ManagedFs::open_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:260:75: replace || with && in ManagedFs::open_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:280:13: replace || with && in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:280:13: replace || with && in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:289:64: replace | with & in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:289:64: replace | with & in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:289:45: replace | with ^ in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:289:45: replace | with ^ in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:289:26: replace | with & in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:289:26: replace | with & in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:289:26: replace | with ^ in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:289:26: replace | with ^ in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:297:13: replace || with && in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:297:13: replace || with && in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:296:13: replace || with && in ManagedFs::open_existing_lock_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:296:13: replace || with && in ManagedFs::open_existing_lock_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with String::new()",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with String::new()"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:407:52: replace || with && in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:407:52: replace || with && in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:426:79: replace | with & in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:426:79: replace | with & in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:426:79: replace | with ^ in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:426:79: replace | with ^ in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:426:60: replace | with & in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:426:60: replace | with & in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:426:40: replace | with & in ManagedFs::ensure_dir_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:426:40: replace | with & in ManagedFs::ensure_dir_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:494:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:494:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:544:17: delete match arm FileType::Symlink in ManagedFs::directory_entries",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:544:17: delete match arm FileType::Symlink in ManagedFs::directory_entries"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:568:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:568:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:576:13: replace || with && in ManagedFs::verify_tree_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:576:13: replace || with && in ManagedFs::verify_tree_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:617:13: replace || with && in ManagedFs::rename_tree_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:617:13: replace || with && in ManagedFs::rename_tree_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:616:13: replace || with && in ManagedFs::rename_tree_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:616:13: replace || with && in ManagedFs::rename_tree_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:737:37: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:737:37: replace || with && in ManagedFs::sync_regular_file_handle_locked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:813:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:813:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:813:35: replace || with && in ManagedFs::check_tree_root",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:813:35: replace || with && in ManagedFs::check_tree_root"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:870:77: replace | with & in ManagedFs::write_new_observed_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:870:77: replace | with & in ManagedFs::write_new_observed_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:891:13: replace || with && in ManagedFs::write_new_observed_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:891:13: replace || with && in ManagedFs::write_new_observed_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:890:13: replace || with && in ManagedFs::write_new_observed_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:890:13: replace || with && in ManagedFs::write_new_observed_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:952:79: replace | with & in ManagedFs::write_atomic_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:952:79: replace | with & in ManagedFs::write_atomic_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:952:79: replace | with ^ in ManagedFs::write_atomic_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:952:79: replace | with ^ in ManagedFs::write_atomic_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:952:60: replace | with & in ManagedFs::write_atomic_unlocked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:952:60: replace | with & in ManagedFs::write_atomic_unlocked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:995:37: replace || with && in ManagedFs::rename_verified_new",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:995:37: replace || with && in ManagedFs::rename_verified_new"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1043:37: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1043:37: replace || with && in ManagedFs::replace_verified_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1369:33: replace match guard (stat.st_dev as u64, stat.st_ino) == locked_ident with true in ManagedFs::purge_contents",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1369:33: replace match guard (stat.st_dev as u64, stat.st_ino) == locked_ident with true in ManagedFs::purge_contents"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1405:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1405:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1519:13: delete match arm FileType::Symlink in sync_dir_tree",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1519:13: delete match arm FileType::Symlink in sync_dir_tree"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1545:18: replace == with != in check_rename_source",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1545:18: replace == with != in check_rename_source"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1594:9: replace || with && in verify_tree_entry_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1594:9: replace || with && in verify_tree_entry_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1779:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1789:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1807:52: replace || with && in ExternalReadTree::validate_unchanged",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1817:52: replace || with && in ExternalReadTree::validate_unchanged"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1858:13: replace || with && in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1870:13: replace || with && in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1857:13: replace || with && in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1869:13: replace || with && in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1867:66: replace | with & in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1881:66: replace | with & in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1867:47: replace | with & in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1881:47: replace | with & in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1867:28: replace | with & in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1881:28: replace | with & in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1867:28: replace | with ^ in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1881:28: replace | with ^ in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1875:13: replace || with && in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1889:13: replace || with && in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1874:13: replace || with && in ExternalReadTree::open_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1888:13: replace || with && in ExternalReadTree::open_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1898:24: replace > with == in ExternalReadTree::read_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1912:24: replace > with == in ExternalReadTree::read_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1898:24: replace > with >= in ExternalReadTree::read_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1912:24: replace > with >= in ExternalReadTree::read_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1905:29: replace + with - in ExternalReadTree::read_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1919:29: replace + with - in ExternalReadTree::read_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:1905:29: replace + with * in ExternalReadTree::read_file",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:1919:29: replace + with * in ExternalReadTree::read_file"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2183:5: replace verify_managed_file_bound -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2197:5: replace verify_managed_file_bound -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2192:69: replace || with && in verify_managed_file_bound",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2206:69: replace || with && in verify_managed_file_bound"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2192:31: replace || with && in verify_managed_file_bound",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2206:31: replace || with && in verify_managed_file_bound"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2227:24: replace |= with &= in validate_store_files_locked",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2241:24: replace |= with &= in validate_store_files_locked"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2299:21: replace == with != in map_std_error",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2313:21: replace == with != in map_std_error"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2320:62: replace | with & in open_regular_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2336:62: replace | with & in open_regular_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2320:43: replace | with & in open_regular_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2336:43: replace | with & in open_regular_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2320:43: replace | with ^ in open_regular_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2336:43: replace | with ^ in open_regular_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2320:24: replace | with & in open_regular_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2336:24: replace | with & in open_regular_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2326:38: replace || with && in open_regular_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2344:38: replace || with && in open_regular_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2357:63: replace | with & in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2377:63: replace | with & in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2357:44: replace | with & in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2377:44: replace | with & in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2357:44: replace | with ^ in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2377:44: replace | with ^ in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2357:24: replace | with & in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2377:24: replace | with & in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2357:24: replace | with ^ in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2377:24: replace | with ^ in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2362:38: replace || with && in open_directory_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2384:38: replace || with && in open_directory_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2422:63: replace | with & in remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2444:63: replace | with & in remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2422:44: replace | with & in remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2444:44: replace | with & in remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2422:44: replace | with ^ in remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2444:44: replace | with ^ in remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2422:24: replace | with & in remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2444:24: replace | with & in remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2428:37: replace || with && in remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2450:37: replace || with && in remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2480:5: replace unlink_created_at -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2502:5: replace unlink_created_at -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2484:47: replace || with && in unlink_created_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2506:47: replace || with && in unlink_created_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2484:30: replace != with == in unlink_created_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2506:30: replace != with == in unlink_created_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2484:72: replace != with == in unlink_created_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2494:5: replace preflight_remove_at -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2516:5: replace preflight_remove_at -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2497:9: delete match arm FileType::Symlink in preflight_remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2519:9: delete match arm FileType::Symlink in preflight_remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2499:9: delete match arm FileType::RegularFile in preflight_remove_at",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2521:9: delete match arm FileType::RegularFile in preflight_remove_at"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2639:13: replace || with && in SafeFile::verify_seal_reference",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2661:13: replace || with && in SafeFile::verify_seal_reference"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2655:13: replace || with && in SafeFile::verify_seal_reference",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2677:13: replace || with && in SafeFile::verify_seal_reference"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2748:5: replace verify_managed_tree_at -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2770:5: replace verify_managed_tree_at -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2928:34: replace + with * in copy_tree_confined",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:2950:34: replace + with * in copy_tree_confined"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2986:63: replace | with & in make_directories_writable",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3008:63: replace | with & in make_directories_writable"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2986:44: replace | with & in make_directories_writable",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3008:44: replace | with & in make_directories_writable"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:2986:24: replace | with & in make_directories_writable",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3008:24: replace | with & in make_directories_writable"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3057:71: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3079:71: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3057:71: replace | with ^ in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3079:71: replace | with ^ in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3057:52: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3079:52: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3057:32: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3079:32: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3063:45: replace || with && in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3085:45: replace || with && in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_function_and_relative_span",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3071:35: replace && with || in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3093:35: replace && with || in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_function_and_relative_span",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3085:70: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3107:70: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3085:70: replace | with ^ in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3107:70: replace | with ^ in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3085:51: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3107:51: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3085:32: replace | with & in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3107:32: replace | with & in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3091:45: replace || with && in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3113:45: replace || with && in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_function_and_relative_span",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/fsx.rs:3099:35: replace && with || in set_dir_tree_mode",
+      "current_names": [
+        "crates/sheltie-runtime/src/fsx.rs:3121:35: replace && with || in set_dir_tree_mode"
+      ],
+      "mapping": "identical_changed_lines_function_and_relative_span",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:26:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with true in Home::confine",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:181:28: replace match guard p != base.as_path() with true in Home::confine"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:244:24: delete ! in Home::acquire_lock",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:259:24: delete ! in Home::acquire_lock"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:342:13: delete match arm Error::Io{path, source} in Home::is_lock_setup_path_missing",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:357:13: delete match arm Error::Io{path, source} in Home::is_lock_setup_path_missing"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:343:34: replace && with || in Home::is_lock_setup_path_missing",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:358:34: replace && with || in Home::is_lock_setup_path_missing"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/home.rs:343:51: replace == with != in Home::is_lock_setup_path_missing",
+      "current_names": [
+        "crates/sheltie-runtime/src/home.rs:358:51: replace == with != in Home::is_lock_setup_path_missing"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/load.rs:190:33: replace match guard !declaration.required() with true in validate_work_paths",
+      "current_names": [
+        "crates/sheltie-runtime/src/load.rs:190:33: replace match guard !declaration.required() with true in validate_work_paths"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/load.rs:279:9: replace || with && in compile_frozen_workbook",
+      "current_names": [
+        "crates/sheltie-runtime/src/load.rs:279:9: replace || with && in compile_frozen_workbook"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/observe.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok(None)",
+      "current_names": [],
+      "mapping": "retired_api_requires_review",
+      "semantic_candidate_count": 0,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:214:30: replace && with || in locate_publish_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:214:30: replace && with || in locate_publish_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:218:28: replace && with || in locate_publish_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:218:28: replace && with || in locate_publish_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:221:31: replace && with || in locate_publish_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:221:31: replace && with || in locate_publish_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:227:25: replace && with || in locate_publish_dir",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:227:25: replace && with || in locate_publish_dir"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:890:5: replace validate_delete_reference -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:890:5: replace validate_delete_reference -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:910:9: replace || with && in validate_delete_reference",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:910:9: replace || with && in validate_delete_reference"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:909:9: replace || with && in validate_delete_reference",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:909:9: replace || with && in validate_delete_reference"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/pending.rs:908:9: replace || with && in validate_delete_reference",
+      "current_names": [
+        "crates/sheltie-runtime/src/pending.rs:908:9: replace || with && in validate_delete_reference"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:79:23: replace match guard current_identity.is_some() with true in before_write",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:79:23: replace match guard current_identity.is_some() with true in before_write"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:88:21: replace match guard current_identity.is_some() with false in before_write",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:88:21: replace match guard current_identity.is_some() with false in before_write"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:108:23: replace match guard current_identity.is_some() with false in before_write",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:108:23: replace match guard current_identity.is_some() with false in before_write"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:135:31: replace == with != in before_write",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:135:31: replace == with != in before_write"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:166:39: replace == with != in before_write",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:166:39: replace == with != in before_write"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:399:32: replace != with == in original_snapshot_parts",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:395:32: replace != with == in original_snapshot_parts"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/recovery.rs:408:42: replace || with && in original_snapshot_parts",
+      "current_names": [
+        "crates/sheltie-runtime/src/recovery.rs:404:42: replace || with && in original_snapshot_parts"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/request.rs:70:9: replace RequestIntent::work -> Option<&WorkId> with None",
+      "current_names": [],
+      "mapping": "retired_api_requires_review",
+      "semantic_candidate_count": 0,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:52:23: replace == with != in ReleaseSource::asset_url",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:52:23: replace == with != in ReleaseSource::asset_url"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:469:9: replace || with && in checked_version",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:477:9: replace || with && in checked_version"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:468:9: replace || with && in checked_version",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:476:9: replace || with && in checked_version"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:467:9: replace || with && in checked_version",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:475:9: replace || with && in checked_version"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:465:9: replace || with && in checked_version",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:473:9: replace || with && in checked_version"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:485:9: replace || with && in checked_asset_name",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:493:9: replace || with && in checked_asset_name"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:482:9: replace || with && in checked_asset_name",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:490:9: replace || with && in checked_asset_name"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:481:9: replace || with && in checked_asset_name",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:489:9: replace || with && in checked_asset_name"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:573:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:581:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:607:32: replace && with || in adapt_cargo_dist_manifest",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:615:32: replace && with || in adapt_cargo_dist_manifest"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:665:39: replace > with == in download",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:673:39: replace > with == in download"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:678:5: replace curl -> std::result::Result<String, String> with Ok(\"xyzzy\".into())",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:686:5: replace curl -> std::result::Result<String, String> with Ok(\"xyzzy\".into())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:688:8: delete ! in curl",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:696:8: delete ! in curl"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:830:24: replace > with == in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:838:24: replace > with == in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:830:24: replace > with < in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:838:24: replace > with < in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:830:24: replace > with >= in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:838:24: replace > with >= in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with == in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:855:24: replace > with == in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with < in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:855:24: replace > with < in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with >= in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:855:24: replace > with >= in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/selfmgmt.rs:919:28: replace > with >= in wait_bounded_child",
+      "current_names": [
+        "crates/sheltie-runtime/src/selfmgmt.rs:927:28: replace > with >= in wait_bounded_child"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:271:13: replace || with && in WorkService::start",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:271:13: replace || with && in WorkService::start"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:561:20: delete ! in WorkService::resolve_work_for_request",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:561:20: delete ! in WorkService::resolve_work_for_request"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with true in WorkService::load_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with true in WorkService::load_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with false in WorkService::load_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with false in WorkService::load_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:601:51: delete ! in WorkService::load_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:601:51: delete ! in WorkService::load_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:714:13: replace || with && in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:714:13: replace || with && in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:713:13: replace || with && in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:713:13: replace || with && in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:712:13: replace || with && in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:712:13: replace || with && in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:767:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with false in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:767:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with false in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:768:56: replace == with != in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:768:56: replace == with != in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:769:55: replace == with != in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:769:55: replace == with != in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:770:57: replace == with != in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:770:57: replace == with != in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:771:52: replace == with != in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:771:52: replace == with != in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:772:47: replace == with != in WorkService::workbook_publication",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:772:47: replace == with != in WorkService::workbook_publication"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:1005:31: replace < with <= in WorkService::load_checked_request",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:983:31: replace < with <= in WorkService::load_checked_request"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:1243:17: replace && with || in validate_command_owner",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:1221:17: replace && with || in validate_command_owner"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:1242:17: replace && with || in validate_command_owner",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:1220:17: replace && with || in validate_command_owner"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:1253:17: replace && with || in validate_command_owner",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:1231:17: replace && with || in validate_command_owner"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/service.rs:1586:12: replace > with >= in observe_output",
+      "current_names": [
+        "crates/sheltie-runtime/src/service.rs:1563:12: replace > with >= in observe_output"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:34:52: replace | with ^ in validate_readonly",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:34:52: replace | with ^ in validate_readonly"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with true in Store::open_for_home",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with true in Store::open_for_home"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:150:72: replace == with != in Store::open_for_home",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:150:72: replace == with != in Store::open_for_home"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:249:27: replace match guard error.kind() == std::io::ErrorKind::NotFound with true in Store::connect",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:249:27: replace match guard error.kind() == std::io::ErrorKind::NotFound with true in Store::connect"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:305:9: replace Store::verify_owner_binding -> Result<()> with Ok(())",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:307:9: replace Store::verify_owner_binding -> Result<()> with Ok(())"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:321:47: replace || with && in Store::verify_owner_binding",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:323:47: replace || with && in Store::verify_owner_binding"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 0))",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 0))"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 1))",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 1))"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0))",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0))"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 1))",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 1))"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (0, 0)",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 0)"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (0, 1)",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 1)"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (1, 0)",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 0)"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (1, 1)",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 1)"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:54:35: replace || with && in decode_added_snapshot",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:54:35: replace || with && in decode_added_snapshot"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:69:35: replace || with && in decode_removed_snapshot",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:69:35: replace || with && in decode_removed_snapshot"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:347:60: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:347:60: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:356:54: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:356:54: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 2,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:374:21: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:374:21: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:370:21: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:370:21: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:369:21: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:369:21: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:377:72: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:377:72: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:442:34: replace || with && in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:442:34: replace || with && in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:494:28: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:494:28: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:495:52: replace == with != in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:495:52: replace == with != in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:496:51: replace == with != in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:496:51: replace == with != in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:497:53: replace == with != in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:497:53: replace == with != in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:498:48: replace == with != in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:498:48: replace == with != in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:499:43: replace == with != in WorkbookRepo::checked_effects_for",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:499:43: replace == with != in WorkbookRepo::checked_effects_for"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:633:29: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:633:29: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:639:25: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:639:25: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_function_and_id",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:638:28: replace == with != in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:638:28: replace == with != in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:649:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:649:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:671:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:671:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:670:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:670:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:669:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:669:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:711:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:711:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:710:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:710:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:751:20: delete ! in WorkbookRepo::load_row_from_directory",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:751:20: delete ! in WorkbookRepo::load_row_from_directory"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:775:52: replace || with && in WorkbookRepo::load_row_from_directory",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:775:52: replace || with && in WorkbookRepo::load_row_from_directory"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/workbook_repo.rs:1097:12: delete ! in WorkbookRepo::remove",
+      "current_names": [
+        "crates/sheltie-runtime/src/workbook_repo.rs:1097:12: delete ! in WorkbookRepo::remove"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with >= in Store::commit",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with >= in Store::commit"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    },
+    {
+      "old_name": "crates/sheltie-runtime/src/store/read.rs:383:38: replace > with >= in decode_row",
+      "current_names": [
+        "crates/sheltie-runtime/src/store/read.rs:383:38: replace > with >= in decode_row"
+      ],
+      "mapping": "identical_changed_lines_and_function",
+      "semantic_candidate_count": 1,
+      "errors": [],
+      "mapping_result": "PASS",
+      "execution_result": "pending"
+    }
+  ],
+  "retired_api_review": {
+    "commit": "326cbbb7d5cb365fadc9408fed2c8af311c46216",
+    "observe_optional": "Former sole caller observe_loaded_input external fallback removed; frozen inputs must belong managed root. Explicit @file first-read remains observe_file and bounded ExternalReadFile. No current symbol/consumer. Not a waiver of external input or frozen path validation obligations.",
+    "RequestIntent::work": "No former call sites; deleted accessor only. WorkId fields remain in typed intents/hash and actual commit/replay Store work binding. Not a waiver of target identity obligations."
+  },
+  "scope": "Mapping and retirement review only; current per-ID execution/disposition pending"
+}

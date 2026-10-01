@@ -17,6 +17,39 @@ pub struct WorkbookRow {
     pub added_at: String,
 }
 
+/// 请求快照的元数据；与效果载荷和完成标记分别解码。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RequestMetadata {
+    pub intent_hash: String,
+    pub reply_json: String,
+    pub work_id: Option<String>,
+    pub at: String,
+}
+
+impl RequestMetadata {
+    fn from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Self> {
+        Ok(Self {
+            intent_hash: row.get(0)?,
+            reply_json: row.get(1)?,
+            work_id: row.get(2)?,
+            at: row.get(3)?,
+        })
+    }
+
+    pub(crate) fn check_row(&self, request_id: &str, row: &RequestRow) -> Result<()> {
+        if self.intent_hash != row.intent_hash
+            || self.reply_json != row.reply_json
+            || self.work_id != row.work_id
+            || self.at != row.at
+        {
+            return Err(Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的元数据在校验期间改变"),
+            });
+        }
+        Ok(())
+    }
+}
+
 /// `requests` 表一行的重核视图。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RequestRow {
@@ -156,18 +189,6 @@ impl Store {
         Ok(())
     }
 
-    /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。
-    pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {
-        let conn = self.connect()?;
-        Ok(conn
-            .query_row(
-                "SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1",
-                [request_id],
-                |r| Ok((r.get(0)?, r.get(1)?)),
-            )
-            .optional()?)
-    }
-
     /// Read only the idempotency identity. A malformed reply payload must not hide the fact
     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.
     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {
@@ -192,34 +213,60 @@ impl Store {
             .optional()?)
     }
 
+    pub(crate) fn inspect_request_metadata(
+        &self,
+        request_id: &str,
+    ) -> Result<Option<RequestMetadata>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT intent_hash, reply_json, work_id, at FROM requests WHERE request_id = ?1",
+                [request_id],
+                RequestMetadata::from_row,
+            )
+            .optional()?)
+    }
+
+    pub(crate) fn lookup_request_effects(&self, request_id: &str) -> Result<Option<String>> {
+        let conn = self.connect()?;
+        Ok(conn
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get(0),
+            )
+            .optional()?)
+    }
+
     /// 锁内重核请求。
     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {
         let conn = self.connect()?;
         Ok(conn
             .query_row(
-                "SELECT intent_hash, reply_json, effects_json, published, work_id, at
+                "SELECT intent_hash, reply_json, work_id, at, effects_json, published
                  FROM requests WHERE request_id = ?1",
                 [request_id],
                 |r| {
-                    let published = r.get::<_, i64>(3)?;
+                    let published = r.get::<_, i64>(5)?;
                     let published = match published {
                         0 => false,
                         1 => true,
                         _ => {
                             return Err(rusqlite::Error::FromSqlConversionFailure(
-                                3,
+                                5,
                                 rusqlite::types::Type::Integer,
                                 Box::new(std::io::Error::other("published必须为0或1")),
                             ));
                         }
                     };
+                    let metadata = RequestMetadata::from_row(r)?;
                     Ok(RequestRow {
-                        intent_hash: r.get(0)?,
-                        reply_json: r.get(1)?,
-                        effects_json: r.get(2)?,
+                        intent_hash: metadata.intent_hash,
+                        reply_json: metadata.reply_json,
+                        effects_json: r.get(4)?,
                         published,
-                        work_id: r.get(4)?,
-                        at: r.get(5)?,
+                        work_id: metadata.work_id,
+                        at: metadata.at,
                     })
                 },
             )

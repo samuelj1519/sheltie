@@ -1,16 +1,16 @@
 # M1 证据矩阵
 
-原实现候选：`ca6d92fa83494feeb9ea55840bfd4bca5f14629c`。独立证据Reviewer `/root/m1_evidence`核实167项源码SHA全部匹配T31冻结输入`49d3a191`。本轮精简改变了3项Rust源码；原变异结果只保留为原候选证据，不套用于精简后的输入。新输入见[candidate-input.json](candidate-input.json)，当前运行见[final-gates/gate-results.json](final-gates/gate-results.json)。
+原实现候选：`ca6d92fa83494feeb9ea55840bfd4bca5f14629c`。T31输入与各历史候选原文分别保留。当前T34 source门禁输入为`8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f`，见[T34输入](t34/candidate-input.json)。T33的2497项变异归档为[旧输入](mutants/superseded-before-t34/source-input.json)，其runtime workspace未启动；T34改变core/runtime，新的全量变异待提交后冻结，不套用旧结果。
 
 独立Reviewer：`/root/m1_spec`核规格、caller和停止路线，`/root/m1_standards`核工程质量与恢复链，`/root/m1_evidence`核证据、源码SHA和变异账目；均未参与本轮实施。
 
 ## 原文入口与结果范围
 
-G：当前精简候选全仓原文[gate-nextest.stdout.txt](final-gates/gate-nextest.stdout.txt)。H：原实现候选最终run `533e3964-510e-4433-a8ef-a65e7e604858`的[原文](../repairs/t31/final-acceptance-gates/final-governance-nextest.stdout.txt)，675/675、零skip；独立证据Reviewer逐名核实下表显式测试均存在且PASS。旧642/645/647项运行只作历史证据，不复用为当前通过。
+G：当前冻结候选全仓[原文](t34/gates/nextest.stdout.txt)，run `79c91669-2f11-422e-9cc8-4b91b7de5df3`，699/699、零skip。T33提交门禁另见`t33/gates/`；`final-gates/`只保留早期候选原文。H：原实现候选最终run `533e3964-510e-4433-a8ef-a65e7e604858`的[原文](../repairs/t31/final-acceptance-gates/final-governance-nextest.stdout.txt)，675/675、零skip；独立证据Reviewer逐名核实下表显式测试均存在且PASS。旧642/645/647项运行只作历史证据，不复用为当前通过。
 
-Hnn表示原任务`evidence/tnn/`；P19/P20表示`evidence/t19-managed-fs-2026-09-28/`与`evidence/t20-trusted-load-2026-09-28/`；P21–P30表示`evidence/repairs/tnn/`。这些目录的README定位原始task/nextest输出与独立任务审查。精确历史缩写见[T31准备矩阵](../repairs/t31/spec-review-preparation.md#3-证据缩写)。下表逐行列真实入口、独立oracle及正反例，最终运行只证明覆盖的用例；完整能力结论需结合caller审查。
+Hnn表示原任务`evidence/tnn/`；P19/P20表示`evidence/t19-managed-fs-2026-09-28/`与`evidence/t20-trusted-load-2026-09-28/`；P21–P30表示`evidence/repairs/tnn/`。这些目录的README定位原始task/nextest输出与独立任务审查。精确历史缩写见[T31准备矩阵](../repairs/t31/spec-review-preparation.md#3-证据缩写)。下表逐行列真实入口、独立oracle及正反例，最终运行只证明覆盖的用例；完整能力结论需结合caller审查。T33历史候选的[补充窗口原文](crash-windows/stdout.txt)run `339f54ca-7b4f-4d72-8b7e-8601d8c26390`为19/19、零skip，含56次实际终止（30 exit70、26 signal9），必要双模式窗口齐全，[独立审计](crash-windows/independent-audit.json)核SHA及逐对象。序列化CRASH_ORACLE仅覆盖Start/Add20次；其余窗口的Store/字节/错误停止断言由固定源码及成功父测试核实，不扩大该标签范围。
 
-下表caller由两位源码Reviewer按各自覆盖范围静态复核；路径安全行同时引用独立任务原证据，不声称本轮逐项新增动态安全验证。G已确认675/675、零skip。源码Reviewer核实现与caller，证据Reviewer核逐测试原文，两者职责不混同。安全变异暂缓是共享限制，不能由其他行局部PASS消除；Linux全部`not_run`。真实Host、远端CI及发布保持T16/T17边界。
+下表caller由两位源码Reviewer按各自覆盖范围静态复核；路径安全行同时引用独立任务原证据，不声称本轮逐项新增动态安全验证。G已确认699/699、零skip；独立证据Reviewer已核实T33基线48行的98个显式测试引用均PASS；当前T34逐行原文对应待最终证据复核，详见[m1-baseline-coverage-audit.json](m1-baseline-coverage-audit.json)。源码Reviewer核实现与caller，证据Reviewer核逐测试原文，两者职责不混同。原269项暂缓已获授权恢复；当前完整变异及逐项处置仍待关闭，不能由其他行局部PASS消除。Linux全部`not_run`。真实Host、远端CI及发布保持T16/T17边界。
 
 | Finding | 修复提交 | 真实入口、正反例与独立oracle | 原文、结果与剩余边界 |
 | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ Hnn表示原任务`evidence/tnn/`；P19/P20表示`evidence/t19-managed-fs-2026-0
 | R14 树装入/摘要 | `ee78118`、`543f9d2` | add source、installed load/verify、Start frozen copy、Work load、publish verify 共用受限快照；独立 Python framing 向量、碰撞对、exact/+1、root/parent/leaf 链接与 FIFO；`digest_matches_independent_vectors_on_disk`、`tree_reader_rejects_symlinked_parent_directory`、`total_limit_rejects_before_staging_or_registering_source_files` | 列明源码与离线oracle通过；P21、当前候选全仓原文 G；历史原文 H；不声称性能量化 |
 | R15 stats 快照 | `a4f1968` | 真 CLI stats 装入后暂停，writer begin 已完成再释放；手写旧 stats/旧 next 同一 revision；`stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load` | 列明源码与离线oracle通过；P29、当前候选全仓原文 G；历史原文 H；`red.*` 和 `stop-route-mutation.*` |
 | R16 replan | `b926789` | 真 CLI+临时 Git+只读绑定 JSON 的冷 worker；原字节镜像、累计前缀、原基线、Git 祖先、审批/原始 gate；`fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files`、`fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles` | 列明源码与离线oracle通过；P30、当前候选全仓原文 G；历史原文 H；模拟 worker，不替代 T16 agent 质量 |
-| R17 全验证闭包 | `b926789` 迁移＋`ca6d92f` | barrier/真实子进程窗口，exit70 与 signal9 分别核；反实现摘锁、删父 sync、删 same-rid preparation 必须失败；完整 core/runtime inventory 两阶段 | 未关闭；T31 task、负控制 raw、`mutants/final-dispositions.json`、`mutants/source-input.json`及各stage原文（旧superseded仅历史）；269项deferred_by_user；完整安全变异未通过 |
+| R17 全验证闭包 | `b926789` 迁移＋`ca6d92f` | barrier/真实子进程窗口，exit70 与 signal9 分别核；反实现摘锁、删父 sync、删 same-rid preparation 必须失败；完整 core/runtime inventory 两阶段 | 未关闭；T31负控制原文保留，当前`mutants/source-input.json`、完整阶段及逐项处置正在执行；原269项已恢复，不预先跳过，实际安全跳过清单含SK01 Spec后续复核 |
 | R18 必需 sync | `ee78118`、`5a9d430`、`3dd224d`、`ca6d92f` | pending/final-only 两格重复同一 fault；source/target parent sync 失败不 mark，重试 inode 不变；`publication_sync_failures_leave_effect_pending_and_retry_same_object`、`start_replay_sync_failure_preserves_own_commit_snapshot`、`moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload` | 列明源码与离线oracle通过；P26/P27、当前候选全仓原文 G；历史原文 H、`missing-delete-parent-sync.*`；不声称掉电证明 |
 | R19 锁内建库 | `5d2d051`、`edb86f1`、`ca6d92f` | WriteSession 持同根锁后 RW Store；旧 schema 无新锁、main/WAL 不变；真 add↔install 初始化，旧 Work 等 purge 后不 CREATE；`real_install_waits_for_a_concurrent_workbook_add_store_initializer`、`real_workbook_add_waits_for_a_concurrent_install_store_initializer`、`old_work_waiting_behind_purge_does_not_recreate_the_removed_store` | 列明源码与离线oracle通过；P24、`repairs/t24-followup/`、当前候选全仓原文 G；历史原文 H |
 | O01 根隔离 | `ee78118`、`22942ee`、`543f9d2`、`fd21a63`、`7e9178e` | add/start/submit/self 全链；单路径/父链接/叶换绑，外部 bytes/mode；R01–R03/R14 上述测试 | 列明源码与离线oracle通过；P19–P24、当前候选全仓原文 G；历史原文 H；同账户搬对象边界按合同 |
@@ -58,9 +58,14 @@ Hnn表示原任务`evidence/tnn/`；P19/P20表示`evidence/t19-managed-fs-2026-0
 | N10 冻结根/元数据 | `d38b6e1`、`543f9d2`、`7e9178e` | 目录0555/文件0444、DS_Store 拒绝、改 bytes digest 停止、删仓库仍从冻结副本读；`readonly_bits_reduce_accidents_but_digest_is_the_guard`、`ds_store_rejected_by_name_at_add`、`work_readable_after_workbook_removed` | 列明源码与离线oracle通过；H05/P21/P23、当前候选全仓原文 G；历史原文 H；不是同账户防篡改 |
 | N11 治理历史/版本 | `2320020` | 真临时浅/完整 Git、active/RC、越目标、缺 changelog/tag；`check_specs_shallow_clone_reports_missing_history`、`check_specs_accepts_active_target_without_tag`、`check_specs_rejects_version_outside_active_target` | 列明源码与离线oracle通过；H15、当前候选全仓原文 G；历史原文 H；远端 CI not_run |
 | N12 同 SHA 质量/MSRV | `2320020`、`ca6d92f` 门禁 | 工作流删 needs/if 单条件反例、MSRV locked 实编译、dist plan 形状；`release_workflow_gates_announce_on_quality_job`、`release_workflow_quality_failure_blocks_announce` | 列明源码与离线oracle通过；H15、当前候选全仓原文 G；历史原文 H、T31 `msrv.stdout.txt`、`dist-plan.metadata.json`/JSON；dist argv/exit 缺口已关闭，T17 not_run |
-| N13 自证/假并发/窗口 | `b926789` 迁移＋`ca6d92f` | barrier 两参与者、真 exit70/SIGKILL、3 条反实现失败、独立 bytes/SQL/Git；全部 reliability_crash 窗口和全 inventory | 未关闭；T31 task、负控制 metadata/stdout、`mutants/final-dispositions.json`、`mutants/source-input.json`及各stage原文（旧superseded仅历史）；269项deferred_by_user；完整安全变异未通过 |
+| N13 自证/假并发/窗口 | `b926789` 迁移＋`ca6d92f` | barrier 两参与者、真 exit70/SIGKILL、3 条反实现失败、独立 bytes/SQL/Git；全部 reliability_crash 窗口和全 inventory | 未关闭；T31负控制metadata/stdout保留，当前`mutants/source-input.json`、完整阶段及逐项处置正在执行；原269项已恢复，不预先跳过，实际安全跳过清单含SK01 Spec后续复核 |
 | N14 限额/重复扫描 | `5196cb1`、`429cb1d`、`543f9d2`、`a4f1968` | exact/+1 file/tree、先核总量、单次快照编译+digest、stats 真 writer 交错；`file_size_limit_is_exactly_32_mib`、`total_size_limit_is_exactly_256_mib`、`total_limit_rejects_before_staging_or_registering_source_files`、T29 stats 测试 | 列明源码与离线oracle通过；H04/H09/P21/P29、当前候选全仓原文 G；历史原文 H；不宣称 OOM/性能收益量化 |
 | R20 持久计数 | `ca6d92f` | V33：合法Gate count=1、approve后NoLegalEdge count=2；MAX/0/上界+1单字段反例，真实status/stats/list/write均返回STORE_CORRUPT、原state和业务行不变；纯core checked增量返回错误而非panic | 列明源码与离线oracle通过；G/H；T31 blocked-count/counter-core/counter-diagnostic-order原文及独立探针；计数必要界不宣称重建全部历史 |
+| R21 根解析错误 | `06c3af3` | 真实Home::resolve/confine权限反例、非法环境值及显式CLI优先序、真实CLI子进程cwd消失；I/O只对NotFound退让，其他错误保留路径/原因，state/seq/requests不变；独立原bytes及错误码oracle | T33权限红绿、confine/home/lexical-cwd原文，当前G；独立Spec/Standards增量通过；物理非UTF8目录fixture在本机创建EPERM，保留环境限制，严格转换仅静态/API复核；Linux not_run |
+
+| R22 原响应业务绑定 | T34（待任务提交） | 真实CLI同rid，合法id/version/digest单字段漂移；本人original和旧A的pending_original拒绝伪成功，合法后效果错误保留捕获原响应，Store/业务bytes不变；`corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original`、`corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original`、`add_snapshot_target_is_bound_before_an_original_response_is_released` | T34红色probe/CLI回归、G、target-projection-controls；Standards通过；Spec后续SK01实际暂停按授权跳过，不记Spec通过 |
+| R23 历史状态 | T34（待任务提交） | 真start/begin/fail，首次active、末次blocked；随后cancel仍可重放历史，非法status单字段拒绝且原响应不可核；`fail_snapshot_status_matches_the_original_retry_even_after_later_progress` | T34原实现probe、G；core共享规则不重建历史visits；SK01及Linux边界 |
+| R24 节点资源 | T34（待任务提交） | 真begin及同rid合法对照；Reply/data一致但与冻结节点不符的requires拒绝，业务行/原bytes不变；`begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree` | T34原实现probe、G；core生成/验证同一节点资源函数；SK01及Linux边界 |
 
 ## 变异证据
 
@@ -68,4 +73,4 @@ Hnn表示原任务`evidence/tnn/`；P19/P20表示`evidence/t19-managed-fs-2026-0
 
 1824个正式caught逐日志均为Build Success后Test Failure100；其中18项是测试进程SIGABRT/stack overflow，其余有FAIL标记，不把abort写成断言失败。第一阶段2499=1803 caught+311 unviable+385 missed；第二阶段只有245项终态，不宣称完整执行。
 
-原处分的`acceptance_scope`明确仅T31豁免范围完成、`security_validation_pass=false`。R17/N13仍缺完整变异验证；新源码也改变了变异输入闭包。未得到本次M1范围澄清前，不扩大T31豁免，不将M1标done或安全PASS。
+以上2499项是T31历史处分，`acceptance_scope`仅T31当时豁免范围，`security_validation_pass=false`。用户已明确恢复M1剩余验证，T33的2497项输入与阶段运行见`mutants/superseded-before-t34/`。其core720保留原run身份、core4完成workspace，runtime1773完成直接阶段但workspace未启动。T34新core/runtime完整inventory必须全量重跑，不能保留旧core720作为当前通过。当前R17/N13未关闭，待完整执行及逐项独立处置。安全提示实际跳过按[safety-skips.json](safety-skips.json)记录，SK01独立Spec后续复核按授权跳过；不记Spec通过。

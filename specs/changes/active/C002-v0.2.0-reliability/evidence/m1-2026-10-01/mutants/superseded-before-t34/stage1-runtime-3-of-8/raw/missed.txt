@@ -1,0 +1,46 @@
+crates/sheltie-runtime/src/fsx.rs:2444:24: replace | with & in remove_at
+crates/sheltie-runtime/src/fsx.rs:2450:37: replace || with && in remove_at
+crates/sheltie-runtime/src/fsx.rs:2444:24: replace | with ^ in remove_at
+crates/sheltie-runtime/src/fsx.rs:2502:5: replace unlink_created_at -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:2506:47: replace || with && in unlink_created_at
+crates/sheltie-runtime/src/fsx.rs:2506:30: replace != with == in unlink_created_at
+crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at
+crates/sheltie-runtime/src/fsx.rs:2516:5: replace preflight_remove_at -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:2519:9: delete match arm FileType::Symlink in preflight_remove_at
+crates/sheltie-runtime/src/fsx.rs:2521:9: delete match arm FileType::RegularFile in preflight_remove_at
+crates/sheltie-runtime/src/fsx.rs:2520:34: replace match guard stat.st_nlink == 1 with true in preflight_remove_at
+crates/sheltie-runtime/src/fsx.rs:2661:13: replace || with && in SafeFile::verify_seal_reference
+crates/sheltie-runtime/src/fsx.rs:2660:13: replace || with && in SafeFile::verify_seal_reference
+crates/sheltie-runtime/src/fsx.rs:2677:13: replace || with && in SafeFile::verify_seal_reference
+crates/sheltie-runtime/src/fsx.rs:2676:13: replace || with && in SafeFile::verify_seal_reference
+crates/sheltie-runtime/src/fsx.rs:2770:5: replace verify_managed_tree_at -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:2950:34: replace + with * in copy_tree_confined
+crates/sheltie-runtime/src/fsx.rs:3008:63: replace | with & in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3008:63: replace | with ^ in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3008:44: replace | with & in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3008:44: replace | with ^ in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3008:24: replace | with & in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3008:24: replace | with ^ in make_directories_writable
+crates/sheltie-runtime/src/fsx.rs:3079:71: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3079:71: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3079:52: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3079:52: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3079:32: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3079:32: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3085:45: replace || with && in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3093:35: replace && with || in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:70: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:70: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:51: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:51: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:32: replace | with & in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3107:32: replace | with ^ in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3113:45: replace || with && in set_dir_tree_mode
+crates/sheltie-runtime/src/fsx.rs:3121:35: replace && with || in set_dir_tree_mode
+crates/sheltie-runtime/src/home.rs:169:27: replace match guard error.kind() == std::io::ErrorKind::NotFound with false in Home::confine
+crates/sheltie-runtime/src/home.rs:181:28: replace match guard p != base.as_path() with true in Home::confine
+crates/sheltie-runtime/src/home.rs:259:24: delete ! in Home::acquire_lock
+crates/sheltie-runtime/src/home.rs:357:13: delete match arm Error::Io{path, source} in Home::is_lock_setup_path_missing
+crates/sheltie-runtime/src/home.rs:358:34: replace && with || in Home::is_lock_setup_path_missing
+crates/sheltie-runtime/src/home.rs:358:51: replace == with != in Home::is_lock_setup_path_missing
+crates/sheltie-runtime/src/load.rs:190:33: replace match guard !declaration.required() with true in validate_work_paths

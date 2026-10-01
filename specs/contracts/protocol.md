@@ -249,6 +249,8 @@ Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `tr
 
 调用者据此知道**本次请求**已提交，用同一 `request_id` 重试触发恢复，不能当成未提交而换新请求。示例是 Work 写操作；Workbook 写操作的 `EFFECT_PENDING` 省略 `revision`，仍带 `request_id`、`committed` 与 `original`。
 
+`original` 和 `pending_original` 只提供已核实的提交快照。字段类型合法、Reply与data相互一致，还不足以证明业务绑定；须核请求、audit、目标及冻结定义中的对应事实。元数据或绑定损坏时省略无法核实的原响应及revision，保留已确认的提交身份和准确cause，不构造成功回复、不修写历史记录。已核合法快照遇到效果载荷、路径、sync或完成标记错误时，仍提供原响应。若Start或add的发布登记本身使快照身份无法独立核实，也省略原响应，不改用当前已装Workbook或猜测载荷。
+
 若新请求 B 取得写锁后被旧请求 A 的未完成效果阻断，B 尚未提交。此时仍用 `EFFECT_PENDING`，但返回 `committed = false`、`request_id = B`，且 `error.detail.pending_request_id = A`、`error.detail.pending_original` 是 A 的提交时响应；不在顶层放 B 的 `original` 或 revision。调用者修复 A 的效果后，用 B 原来的 request-id 重试 B。不能把 A 的快照当作 B 的成功结果：
 
 ```json

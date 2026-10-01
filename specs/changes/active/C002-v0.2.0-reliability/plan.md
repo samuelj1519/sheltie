@@ -69,7 +69,8 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T31 | done | 确定性交错、正常窗口与变异登记（含2026-10-01用户安全验证豁免） | T19–T30 |
 | C002-T32 | done | M1审查反馈精简与真实caller回归 | T31 |
 | C002-T33 | done | 根解析修复与M1存活体的真实caller回归 | T32 |
-| C002-M1 | doing | 修复后固定候选全链审查 | T02–T15、T18–T33 |
+| C002-T34 | done | 快照业务绑定修复与M1存活项回归 | T33；699项与工程门禁、Standards通过；Spec后续实际平台暂停按SK01授权跳过 |
+| C002-M1 | doing | 修复后固定候选全链审查 | T02–T15、T18–T34 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 
@@ -204,7 +205,7 @@ Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；�
 1. 冻结候选 commit 与输入闭包。对 O01–O13/N01–N14 建矩阵：每行写 finding、修复 commit、正例、单条件反例、真实入口、原始 run、结果、Owner 与剩余风险。没有独立 oracle、真实 caller 或失败停止路径的项保持未关闭，不由 task `done` 或测试数量推成 PASS。
 2. 在同一候选运行 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV 与 `cargo dist plan`。并发测试先同时启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节用独立 oracle。补 Work/Workbook 的 COMMIT 前后、发布前后故障窗口；删除后但完成标记前被杀的“结果不明”必须准确停止并返回已提交错误，不能记自动恢复 PASS。core/runtime 突变按能力处置每个存活体，不机械要求每个都加测试。
 3. Reviewer 逐项检查不变式、三 crate 边界、合同与实际 caller、证据原文和实现者答复。审查后若修改影响候选输入闭包，按影响链重跑并记录新 hash。review.md 结论只用“通过 / 需修改 / 阻断”，M1 通过只证明源码与离线闭环，不能代表 Host 或发布。
-4. 同时关闭R01–R20；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
+4. 同时关闭R01–R24；R21是T33确认的根解析错误，R22–R24是T34确认的原响应、状态及节点资源绑定缺口，详见[审查记录](review-m1-2026-10-01.md)。按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
 
 ## 5. C002-T16 rc 真实宿主回归
 
@@ -231,3 +232,7 @@ Owner：Codex；Reviewer：未参与修改的Spec/Standards Reviewer。承接本
 ## M1追加验证 C002-T33
 
 Owner：Codex；独立Reviewer：Spec/Standards Reviewer。本任务集中补M1逐ID审查确认的真实caller测试缺口，保留独立oracle与合法对照；必要观察点只在既有failpoint feature下生效，不引入新的业务状态或生产协议。新候选改变测试输入后，旧部分变异原文保留，不套用新输入PASS。完成工程门禁、独立审查与任务提交后，重新冻结M1完整验证输入。
+
+## M1追加修复 C002-T34
+
+Owner：Codex；独立Reviewer：Spec/Standards Reviewer。R22由未变异T33候选的真实CLI复现：历史remove快照的合法id/version改为与audit不符后，业务正确拒绝，但错误仍附错误的成功`original`。修复runtime原响应投影的请求、审计与业务绑定；同一义务覆盖`pending_original`。R23/R24的真实CLI又确认Fail重放接受不可能状态、Begin重放接受冻结节点未声明的资源；core提供现有状态/资源规则的同一纯函数，runtime只核历史记录与这些事实，不重建当前状态或复制业务决策。core源码改变后不再复用旧720项core变异，重新执行core/runtime完整inventory。保留已提交身份、冲突优先序及合法效果失败的原响应，不修写坏Store、不让CLI重建业务规则。复用并分离现有可信装入规则，避免第二套校验或状态；补真实CLI单字段反例、合法I/O失败对照及存活项必要回归。工程门禁与独立review通过后提交；旧冻结变异原文保留为历史，新输入按影响链重跑，不复用改变依赖闭包的PASS。实际平台安全跳过与Linux/T16/T17边界不变。

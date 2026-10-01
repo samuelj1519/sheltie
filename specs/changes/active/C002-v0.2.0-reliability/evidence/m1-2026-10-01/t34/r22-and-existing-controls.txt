@@ -1,0 +1,57 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+warning: method `lookup_request` is never used
+   --> crates/sheltie-runtime/src/store/read.rs:193:19
+    |
+ 90 | impl Store {
+    | ---------- method in this implementation
+...
+193 |     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {
+    |                   ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sheltie-runtime` (lib test) generated 1 warning (1 duplicate)
+warning: `sheltie-runtime` (lib) generated 1 warning
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.93s
+────────────
+ Nextest run ID 197fb82d-7191-473f-8152-30815dc8c81e with nextest profile: default
+    Starting 36 tests across 41 binaries (659 tests skipped)
+        PASS [   0.667s] ( 1/36) sheltie-runtime::effect_contracts cleanup_warns_about_unpublished_reference_even_when_all_metadata_is_missing
+        PASS [   0.808s] ( 2/36) sheltie-runtime::effect_contracts cleanup_preserves_unreferenced_objects_claiming_a_committed_request
+        PASS [   1.223s] ( 3/36) sheltie-runtime::effect_contracts cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan
+        PASS [   0.576s] ( 4/36) sheltie-runtime::effect_contracts unpublished_workbook_publish_checks_registered_digest_and_audit_time
+        PASS [   1.859s] ( 5/36) sheltie-runtime::effect_contracts readonly_work_loading_checks_the_start_effect_shape_and_digest
+        PASS [   2.005s] ( 6/36) sheltie-runtime::effect_contracts persisted_start_command_cannot_claim_a_different_flow_than_the_frozen_work
+        PASS [   1.865s] ( 7/36) sheltie-runtime::effect_contracts unpublished_work_cannot_use_the_completed_owner_cleanup_fallback
+        PASS [   2.652s] ( 8/36) sheltie-runtime::effect_contracts begin_recovery_checks_required_prepare_and_history_effects_before_io
+        PASS [   2.770s] ( 9/36) sheltie-runtime::effect_contracts completed_workbook_replay_checks_effect_shape_identity_and_pending_path
+        PASS [   1.709s] (10/36) sheltie-runtime::effect_contracts workbook_replay_rejects_audit_and_snapshot_single_field_drift
+        PASS [   3.134s] (11/36) sheltie-cli::reliability_crash corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original
+        PASS [   3.400s] (12/36) sheltie-runtime::effect_contracts cleanup_checks_the_entire_request_index_before_removing_a_legitimate_orphan
+        PASS [   3.405s] (13/36) sheltie-runtime::effect_contracts begin_replay_rejects_audit_and_snapshot_metadata_drift_without_business_changes
+        PASS [   3.866s] (14/36) sheltie-runtime::effect_contracts submit_snapshot_data_must_match_the_committed_reply_output_references
+        PASS [   2.678s] (15/36) sheltie-runtime::service malformed_cancelled_status_is_not_projected_as_success
+        PASS [   2.579s] (16/36) sheltie-runtime::service malformed_current_owner_column_keeps_committed_request_identity
+        PASS [   4.444s] (17/36) sheltie-cli::reliability_crash corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original
+        PASS [   4.585s] (18/36) sheltie-runtime::effect_contracts cleanup_validates_completed_remove_metadata_before_any_deletion_and_is_repeatable
+        PASS [   4.710s] (19/36) sheltie-runtime::effect_contracts approval_snapshot_data_must_match_the_approved_node_and_occurrence
+        PASS [   2.771s] (20/36) sheltie-runtime::service malformed_current_reply_keeps_commit_identity_and_request_conflict_priority
+        PASS [   2.081s] (21/36) sheltie-runtime::service malformed_started_name_is_not_projected_as_success
+        PASS [   1.973s] (22/36) sheltie-runtime::service malformed_started_workbook_ref_is_not_projected_as_success
+        PASS [   0.571s] (23/36) sheltie-runtime::workbook_repo remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal
+        PASS [   0.735s] (24/36) sheltie-runtime::workbook_repo malformed_historical_workbook_snapshot_is_not_projected_as_success
+        PASS [   0.533s] (25/36) sheltie-runtime::workbook_txn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed
+        PASS [   2.517s] (26/36) sheltie-runtime::service malformed_old_reply_is_attributed_to_the_blocking_request
+        PASS [   2.730s] (27/36) sheltie-runtime::service malformed_old_effect_row_is_attributed_to_the_blocking_request
+        PASS [   1.993s] (28/36) sheltie-runtime::service missing_frozen_copy_is_store_corrupt_for_begin_and_status
+        PASS [   0.776s] (29/36) sheltie-runtime::workbook_txn remove_stops_on_corrupt_reference_row
+        PASS [   2.195s] (30/36) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error
+        PASS [   5.781s] (31/36) sheltie-runtime::effect_contracts begin_replay_checks_content_and_hash_even_when_the_existing_brief_matches
+        PASS [   1.917s] (32/36) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+        PASS [   1.737s] (33/36) sheltie-runtime::service start_replay_sync_failure_preserves_own_commit_snapshot
+        PASS [   3.344s] (34/36) sheltie-runtime::service malformed_gate_principal_is_not_projected_as_success
+        PASS [   1.778s] (35/36) sheltie-runtime::service tampered_resource_input_is_store_corrupt_not_artifact_modified
+        PASS [   7.134s] (36/36) sheltie-runtime::effect_contracts submit_replay_requires_exactly_the_committed_output_references_and_seal
+────────────
+     Summary [   7.140s] 36 tests run: 36 passed, 659 skipped

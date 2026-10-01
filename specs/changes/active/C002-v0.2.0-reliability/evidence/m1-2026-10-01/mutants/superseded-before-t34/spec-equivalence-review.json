@@ -1,0 +1,61 @@
+{
+  "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+  "reviewer": "/root/m1_spec",
+  "mode": "immutable source and exact inventory-name review",
+  "inventory_count": 2497,
+  "items": [
+    {
+      "name": "crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source",
+      "classification": "equivalent_reviewed",
+      "reviewer": "/root/m1_spec",
+      "proof": "该mutant仅改变Node来源分支rest为空或含点的预检。rest.is_empty()与rest.contains(.)不能同时true，因此AND不提前拒绝；但所有空rest被validate_id(rest,output)非空规则拒绝，所有含点rest被其ASCII kebab字符规则拒绝。NodeId::new(head)也只做纯验证；无I/O、状态或副作用。合法rest非空且无点时原/mutant都到相同NodeId/output验证并构造相同InputSource。非法rest两者均为同一invalid闭包产生FlowInvalid(rule=parse,path=调用者传入path)，错误码和路径相同；reason可分别由node/output检查产生，不承诺逐字message。",
+      "consumer": "parse_flow nodes[i].inputs[j].from -> parse_input_source; public pure parse_input_source",
+      "oracle": "对任意UTF8 value按split_once及head分支分析；非法empty/dotted rest必经NodeId/validate_id拒；合法rest返回相同结构。已有reject malformed source caller测试独立于这一早期guard。",
+      "scope_limit": "只对本mutation作等价判定，不扩展到validate_id本身的其他mutation；错误reason逐字不同明确保留。"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/store/mod.rs:34:52: replace | with ^ in validate_readonly",
+      "classification": "equivalent_reviewed",
+      "reviewer": "/root/m1_spec",
+      "proof": "SQLITE_OPEN_READ_ONLY=0x00000001，SQLITE_OPEN_NOFOLLOW=0x01000000，常量bit intersection为0。固定A/B满足A|B=A^B=0x01000001，传给Connection::open_with_flags的flags逐bit相同，后续checkpoint配置/schema识别完全不变。核本地rusqlite0.40.2 OpenFlags定义及libsqlite3-sys0.38.2 bundled SQLITE_OPEN_READONLY=1。",
+      "consumer": "Store::open_existing_inner -> validate_readonly -> rusqlite Connection::open_with_flags",
+      "oracle": "静态常量精确bit值计算，与平台文件行为无关。",
+      "scope_limit": "只适用于这两个固定互斥bit常量，不将所有|/^ mutation判为等价。"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/recovery.rs:135:31: replace == with != in before_write",
+      "classification": "no_current_producer_obligation_reviewed",
+      "reviewer": "/root/m1_spec",
+      "proof": "被改条件仅在unpublished_request_ids已返回rid、随后inspect_request该rid得到Ok(None)时。before_write全程持同一HomeLock；requests生产写面为事务INSERT及published更新，不删单request；purge也受同锁。SQLite SELECT ids后本engine不能在下一SELECT前移除该行，查询malformed行只产生Err，不是Ok(None)。当前自身request更在循环前检查并校验。故当前协作engine无producer产生这个消失窗口；这是锁外人工SQL删除才可制造的防御分支，而非现有engine义务。",
+      "consumer": "all Work/Workbook WriteSession -> recovery::before_write; store/read unpublished_request_ids/inspect_request",
+      "oracle": "源码producer审计：唯一request登记在store/commit.rs INSERT，mark_published只UPDATE；根写锁覆盖恢复与purge。合法并发/损坏字段测试不应虚构missing-row fake。",
+      "scope_limit": "不宣称mutation对任意锁外SQL行删除等价，不削弱root/Store文件换绑检测义务；若采用单request删除或锁外维护API需重新建立此consumer义务。"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home",
+      "classification": "no_current_producer_obligation_reviewed",
+      "reviewer": "/root/m1_spec",
+      "proof": "该条件只决定RO预检已见StoreSchemaMismatch后是否等待现有HomeLock并重识别。storage§1.1当前初始化先内存生成完整schema2，私有tmp写完整字节并sync，NOREPLACE原子发布；可见store.db为不存在或完整schema2，已无先创建空sqlite/schema0再DDL的producer。已存在schema0/1拒绝，不迁移/初始化/删除；所有合法engine写者都不能把其升级为2。当前open_for_home生产caller全部ReadOnly，写连接另走open_existing_locked。因此当前无“合法写者将可见schema不匹配库变为匹配”的恢复义务；误配旧schema仍返回StoreSchemaMismatch，字节保持。",
+      "consumer": "self install readonly recognition; WorkService/WorkbookRepo preflight; WriteSession readonly preflight. RW path open_existing_locked不经过本guard。",
+      "oracle": "session.rs open_or_create完整空库发布源链、storage§1.1显式合同；现有real add/install并发初始化等待同锁测试保留正常producer，不用暴露半schema fixture证明已退役机制。",
+      "scope_limit": "不是严格任意轨迹等价：删除guard可改变旧schema且.lock存在时的等待时长，也不覆盖锁外手改SQLite schema；该分类仅声明当前协作producer不存在这项transition义务。"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/store/mod.rs:150:72: replace == with != in Store::open_for_home",
+      "classification": "no_current_producer_obligation_reviewed",
+      "reviewer": "/root/m1_spec",
+      "proof": "该条件只决定RO预检已见StoreSchemaMismatch后是否等待现有HomeLock并重识别。storage§1.1当前初始化先内存生成完整schema2，私有tmp写完整字节并sync，NOREPLACE原子发布；可见store.db为不存在或完整schema2，已无先创建空sqlite/schema0再DDL的producer。已存在schema0/1拒绝，不迁移/初始化/删除；所有合法engine写者都不能把其升级为2。当前open_for_home生产caller全部ReadOnly，写连接另走open_existing_locked。因此当前无“合法写者将可见schema不匹配库变为匹配”的恢复义务；误配旧schema仍返回StoreSchemaMismatch，字节保持。",
+      "consumer": "self install readonly recognition; WorkService/WorkbookRepo preflight; WriteSession readonly preflight. RW path open_existing_locked不经过本guard。",
+      "oracle": "session.rs open_or_create完整空库发布源链、storage§1.1显式合同；现有real add/install并发初始化等待同锁测试保留正常producer，不用暴露半schema fixture证明已退役机制。",
+      "scope_limit": "不是严格任意轨迹等价：删除guard可改变旧schema且.lock存在时的等待时长，也不覆盖锁外手改SQLite schema；该分类仅声明当前协作producer不存在这项transition义务。"
+    }
+  ],
+  "counts": {
+    "equivalent_reviewed": 2,
+    "no_current_producer_obligation_reviewed": 3
+  },
+  "acceptance_scope": "Only these five IDs. No blanket mutation or M1 PASS. Final executed outcomes must be recorded independently.",
+  "product_candidate": "06c3af3106e6669d788a2a718df01d12e0c51fb9",
+  "source_sha_verified_count": 167,
+  "source_sha_mismatches": []
+}

@@ -108,6 +108,22 @@ impl Graph {
         self.out_edges(id).is_empty()
     }
 
+    /// 本节点引用的完整宿主声明，保留节点引用顺序。
+    pub fn node_requires(&self, node: &NodeId) -> Option<Vec<HostRequire>> {
+        Some(
+            self.node(node)?
+                .requires()
+                .iter()
+                .filter_map(|(kind, name)| {
+                    self.requires
+                        .iter()
+                        .find(|require| require.kind == *kind && require.name == *name)
+                        .cloned()
+                })
+                .collect(),
+        )
+    }
+
     /// Workbook 声明的全部宿主资源，按 manifest 声明顺序。
     pub fn requires(&self) -> &[HostRequire] {
         &self.requires

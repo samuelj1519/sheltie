@@ -1,0 +1,24 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+error[E0308]: mismatched types
+   --> crates/sheltie-runtime/tests/fs_boundary.rs:641:29
+    |
+641 |         assert_eq!(snapshot(directory.path().join("works/slot/legal")), before);
+    |                    -------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `&Path`, found `PathBuf`
+    |                    |
+    |                    arguments to this function are incorrect
+    |
+note: function defined here
+   --> crates/sheltie-runtime/tests/fs_boundary.rs:22:4
+    |
+ 22 | fn snapshot(path: &Path) -> (Vec<u8>, u32) {
+    |    ^^^^^^^^ -----------
+help: consider borrowing here
+    |
+641 |         assert_eq!(snapshot(&directory.path().join("works/slot/legal")), before);
+    |                             +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `sheltie-runtime` (test "fs_boundary") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --all-features` exited with code 101

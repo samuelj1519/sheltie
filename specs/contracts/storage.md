@@ -156,6 +156,8 @@ COMMIT
 
 恢复顺序：按`audit.seq`处理未完成请求；在第一个I/O动作前校验整组效果闭包。依序发布、prepare、写历史文件、封存/删除、刷新最新状态卡；所有必需文件/目录sync成功后才置`published=1`，随后清理元数据。已完成请求的纯快照重放不执行目录效果；显式重放begin只核自己的write_file字节。本人效果失败返回顶层`committed=true`、request_id和原响应，Work另带revision；旧A阻断未提交新B时返回`committed=false`、B的request_id及detail.pending_request_id/pending_original。状态卡永远按最新WorkState生成。清理失败通过stderr维护诊断报告，不改成功JSON或历史快照。已清owner不妨碍根据当前行读取已完成final。
 
+原响应资格与效果完成分别校验。快照元数据、唯一audit及业务绑定合法后，效果载荷损坏不得丢掉已核快照；元数据或业务绑定损坏则不得把原始JSON投影成成功original。remove目标来自audit；add身份还须与提交时的PublishDir目标、owner和digest相符。Begin的宿主声明与冻结节点精确一致；历史Work状态核core可确定的操作/重试/冻结图约束，不和当前状态、后来的visits混同。无法独立核实快照时按协议省略原响应，保留已确认的提交身份和损坏原因，不猜历史或改写Store。
+
 ### 3.3 pending 与清理
 
 `pending/`只放引擎持锁创建的私有暂存：未提交准备区、已提交未发布的Work/Workbook原件、待删除目录。每次操作生成内部UUID v7。`.owner`是单行UTF-8 JSON加换行，字段顺序固定为`format`、`internal_id`、`request_id`、`op`；`format = "pending/v1"`，`internal_id`与目录名相同，`request_id`是本次请求id，`op`只取`start_work | add_workbook | remove_workbook`。侧车不进入最终Work或Workbook；效果记录payload路径和业务归属。
