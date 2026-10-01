@@ -83,7 +83,7 @@ pub fn abs(p: &Path) -> AbsPath {
 /// 一个全新的临时管理根。返回 `TempDir` 保活。
 pub fn temp_home() -> (OwnedTempDir, Home) {
     let dir = OwnedTempDir::new();
-    let home = Home::at(abs(dir.path()));
+    let home = Home::resolve(Some((abs(dir.path())).as_str())).unwrap();
     (dir, home)
 }
 
@@ -171,5 +171,41 @@ pub fn output_dir_of(resp: &sheltie_runtime::Response) -> AbsPath {
     match &resp.reply {
         sheltie_core::work::Reply::AttemptBegun { output_dir, .. } => output_dir.clone(),
         other => panic!("不是 AttemptBegun：{other:?}"),
+    }
+}
+
+#[cfg(feature = "failpoint")]
+pub struct RendezvousWorker {
+    releases: [PathBuf; 2],
+    worker: Option<std::thread::JoinHandle<()>>,
+}
+
+#[cfg(feature = "failpoint")]
+impl RendezvousWorker {
+    pub fn new(worker: std::thread::JoinHandle<()>, before: &Path, after: &Path) -> Self {
+        Self {
+            releases: [before.join("release"), after.join("release")],
+            worker: Some(worker),
+        }
+    }
+
+    pub fn finish(&mut self) -> std::thread::Result<()> {
+        for release in &self.releases {
+            let _ = std::fs::write(release, b"release");
+        }
+        let result = self
+            .worker
+            .take()
+            .map(|worker| worker.join())
+            .unwrap_or(Ok(()));
+        let _ = sheltie_runtime::failpoint::disarm_rendezvous();
+        result
+    }
+}
+
+#[cfg(feature = "failpoint")]
+impl Drop for RendezvousWorker {
+    fn drop(&mut self) {
+        let _ = self.finish();
     }
 }

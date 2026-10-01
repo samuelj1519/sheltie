@@ -736,7 +736,10 @@ fn moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload() {
     );
     let pending = container(&env, id);
     let before = tree(&pending.join("payload"));
-    let home = sheltie_runtime::Home::at(sheltie_core::path::AbsPath::new(env.home()).unwrap());
+    let home = sheltie_runtime::Home::resolve(Some(
+        (sheltie_core::path::AbsPath::new(env.home()).unwrap()).as_str(),
+    ))
+    .unwrap();
     for sync_point in ["publish_source_parent_sync", "publish_target_parent_sync"] {
         sheltie_runtime::failpoint::arm_sync_error(home.root().as_str(), sync_point).unwrap();
         struct Guard;
@@ -1303,5 +1306,322 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
         assert!(record(&env, id).is_none());
         assert_eq!(counter_store_facts(&env), before);
         same_files(&env.dir.path().join("works"), &files);
+    }
+}
+
+// Task: C002-T33
+#[test]
+fn file_inputs_reject_same_volume_replacement_links_and_special_files_at_open() {
+    for change in ["normal", "replace", "hardlink", "symlink", "fifo"] {
+        let env = Env::new();
+        env.add_example("two-step");
+        let source = tempfile::tempdir().unwrap();
+        let input = source.path().join("input.txt");
+        let original = b"original input";
+        std::fs::write(&input, original).unwrap();
+        let selector = format!("topic=@{}", input.display());
+        let id = format!("input-open-{change}");
+        let sync = tempfile::tempdir().unwrap();
+        let mut process = Process::spawn(
+            &env,
+            &[
+                "--request-id",
+                &id,
+                "work",
+                "start",
+                "--workbook",
+                "two-step",
+                "--flow",
+                "default",
+                "--input",
+                &selector,
+            ],
+            Some((
+                "regular_open_after_stat",
+                input.to_str().unwrap(),
+                sync.path(),
+            )),
+        );
+        process.reached(sync.path(), "regular_open_after_stat");
+        let parked = source.path().join("original.txt");
+        match change {
+            "normal" => {}
+            "hardlink" => std::fs::hard_link(&input, &parked).unwrap(),
+            "replace" | "symlink" | "fifo" => {
+                std::fs::rename(&input, &parked).unwrap();
+                match change {
+                    "replace" => std::fs::write(&input, b"replaced input").unwrap(),
+                    "symlink" => std::os::unix::fs::symlink(&parked, &input).unwrap(),
+                    "fifo" => assert!(
+                        Command::new("mkfifo")
+                            .arg(&input)
+                            .status()
+                            .unwrap()
+                            .success()
+                    ),
+                    _ => unreachable!(),
+                }
+            }
+            _ => unreachable!(),
+        }
+        process.release();
+        let output = process.finish();
+        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
+        if change == "normal" {
+            assert!(output.status.success(), "{reply}");
+        } else {
+            assert!(!output.status.success(), "{change}: {reply}");
+            assert_eq!(
+                connection(&env)
+                    .query_row("SELECT count(*) FROM works", [], |row| row.get::<_, i64>(0))
+                    .unwrap(),
+                0
+            );
+            assert_eq!(
+                connection(&env)
+                    .query_row(
+                        "SELECT count(*) FROM requests WHERE request_id=?1",
+                        [&id],
+                        |row| row.get::<_, i64>(0)
+                    )
+                    .unwrap(),
+                0
+            );
+        }
+        assert_eq!(
+            std::fs::read(if change == "normal" { &input } else { &parked }).unwrap(),
+            original
+        );
+    }
+}
+
+// Task: C002-T33
+#[test]
+fn workbook_source_rejects_a_replaced_directory_at_the_open_boundary() {
+    for replace in [false, true] {
+        let env = Env::new();
+        let source_root = tempfile::tempdir().unwrap();
+        let source = copy_example("two-step", source_root.path());
+        let scope = std::fs::canonicalize(&source).unwrap().join("flows");
+        let sync = tempfile::tempdir().unwrap();
+        let mut process = Process::spawn(
+            &env,
+            &[
+                "--request-id",
+                "source-directory",
+                "workbook",
+                "add",
+                source.to_str().unwrap(),
+            ],
+            Some((
+                "directory_open_after_stat",
+                scope.to_str().unwrap(),
+                sync.path(),
+            )),
+        );
+        process.reached(sync.path(), "directory_open_after_stat");
+        if replace {
+            let parked = source_root.path().join("original-flows");
+            std::fs::rename(&scope, &parked).unwrap();
+            copy_dir(&parked, &scope);
+        }
+        process.release();
+        let output = process.finish();
+        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(output.status.success(), !replace, "{reply}");
+        if replace {
+            assert!(!Path::new(&env.home()).join("store.db").exists());
+        }
+    }
+}
+
+// Task: C002-T33
+#[test]
+fn readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes() {
+    for change in ["normal", "store", "root"] {
+        let env = Env::new();
+        env.add_example("two-step");
+        Connection::open(env.dir.path().join("store.db"))
+            .unwrap()
+            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE); PRAGMA journal_mode=DELETE;")
+            .unwrap();
+        let home = std::fs::canonicalize(Path::new(&env.home())).unwrap();
+        let store = home.join("store.db");
+        let original = std::fs::read(&store).unwrap();
+        let sync = tempfile::tempdir().unwrap();
+        let mut process = Process::spawn(
+            &env,
+            &["workbook", "list"],
+            Some((
+                "store_before_sqlite_open",
+                store.to_str().unwrap(),
+                sync.path(),
+            )),
+        );
+        process.reached(sync.path(), "store_before_sqlite_open");
+        let parking = tempfile::tempdir().unwrap();
+        match change {
+            "normal" => {}
+            "store" => {
+                let old = parking.path().join("original.db");
+                std::fs::rename(&store, &old).unwrap();
+                std::fs::copy(&old, &store).unwrap();
+                assert_eq!(std::fs::read(old).unwrap(), original);
+            }
+            "root" => {
+                let old = parking.path().join("original-root");
+                std::fs::rename(&home, &old).unwrap();
+                std::fs::create_dir(&home).unwrap();
+                for entry in std::fs::read_dir(&old).unwrap() {
+                    let entry = entry.unwrap();
+                    std::fs::rename(entry.path(), home.join(entry.file_name())).unwrap();
+                }
+            }
+            _ => unreachable!(),
+        }
+        process.release();
+        let output = process.finish();
+        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(
+            output.status.success(),
+            change == "normal",
+            "{change}: {reply}"
+        );
+        if change != "normal" {
+            assert_eq!(reply["error"]["code"], "INVALID_REQUEST");
+        }
+        assert_eq!(std::fs::read(&store).unwrap(), original);
+    }
+}
+
+// Task: C002-T33
+#[test]
+fn zero_work_revision_is_rejected_by_readonly_and_write_cli_entries() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let started = env.ok(&[
+        "work",
+        "start",
+        "--workbook",
+        "two-step",
+        "--flow",
+        "default",
+        "--input",
+        "topic=revision",
+    ]);
+    let work = started["data"]["work_id"].as_str().unwrap();
+    let conn = Connection::open(env.dir.path().join("store.db")).unwrap();
+    conn.execute("UPDATE works SET revision=0 WHERE work_id=?1", [work])
+        .unwrap();
+    let before: String = conn
+        .query_row(
+            "SELECT state_json FROM works WHERE work_id=?1",
+            [work],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let requests: i64 = conn
+        .query_row("SELECT count(*) FROM requests", [], |row| row.get(0))
+        .unwrap();
+    for args in [
+        vec!["work", "status", work],
+        vec!["work", "stats", work],
+        vec!["work", "list"],
+        vec!["--request-id", "zero-cancel", "work", "cancel", work],
+        vec![
+            "--request-id",
+            "zero-begin",
+            "attempt",
+            "begin",
+            work,
+            "--node",
+            "outline",
+        ],
+    ] {
+        let (reply, _) = env.fail(&args);
+        assert_eq!(reply["error"]["code"], "STORE_CORRUPT");
+        assert_eq!(
+            conn.query_row(
+                "SELECT state_json FROM works WHERE work_id=?1",
+                [work],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+            before
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT revision FROM works WHERE work_id=?1",
+                [work],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(
+            conn.query_row("SELECT count(*) FROM requests", [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            requests
+        );
+    }
+}
+
+// Task: C002-T33
+#[test]
+fn relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let cwd = tempfile::tempdir().unwrap();
+    let sync = tempfile::tempdir().unwrap();
+    let child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
+        .args([
+            "--home",
+            &env.home(),
+            "--json",
+            "--request-id",
+            "removed-cwd",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=@input.txt",
+        ])
+        .current_dir(cwd.path())
+        .env("SHELTIE_TEST_RENDEZVOUS_NAME", "lexical_before_cwd")
+        .env("SHELTIE_TEST_RENDEZVOUS_ID", "input.txt")
+        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut process = Process {
+        child: Some(child),
+        release: Some(sync.path().join("release")),
+    };
+    process.reached(sync.path(), "lexical_before_cwd");
+    std::fs::remove_dir(cwd.path()).unwrap();
+    process.release();
+    let output = process.finish();
+    let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert!(!output.status.success());
+    assert_eq!(reply["error"]["code"], "INVALID_REQUEST");
+    assert!(
+        reply["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("current_dir")
+    );
+    let conn = connection(&env);
+    for table in ["works", "work_sequence", "requests"] {
+        assert_eq!(
+            conn.query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
+                .get::<_, i64>(0))
+                .unwrap(),
+            if table == "requests" { 1 } else { 0 }
+        );
     }
 }

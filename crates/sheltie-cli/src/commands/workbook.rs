@@ -23,13 +23,7 @@ pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
 
 /// 相对目录按当前工作目录转成绝对路径；`AbsPath` 只收绝对的。
 fn abs_arg(value: &str) -> Result<AbsPath, Error> {
-    let joined = if std::path::Path::new(value).is_absolute() {
-        value.to_string()
-    } else {
-        let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
-        cwd.join(value).to_string_lossy().into_owned()
-    };
-    AbsPath::new(joined).map_err(Error::from)
+    AbsPath::new(sheltie_runtime::request::lexical_abs(value)?).map_err(Error::from)
 }
 
 /// `workbook add <dir>`（协议 §3：成功返回 `{ id, version, digest, flows, requires }`）。

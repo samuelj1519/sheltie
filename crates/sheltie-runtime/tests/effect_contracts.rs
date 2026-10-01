@@ -1074,3 +1074,119 @@ fn cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan() {
     assert!(repository.cleanup_pending().unwrap().is_empty());
     assert!(!payload.exists());
 }
+
+// Task: C002-T33
+#[test]
+fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
+    for remove in [false, true] {
+        let (_directory, home) = temp_home();
+        let repository = repo(&home);
+        let source = abs(&example_dir("two-step"));
+        let rid = "snapshot-drift";
+        repository
+            .add(
+                &source,
+                Some(if remove { "drift-setup" } else { rid }.into()),
+            )
+            .unwrap();
+        if remove {
+            repository
+                .remove("two-step", "1.0.0", Some(rid.into()))
+                .unwrap();
+        }
+        let connection = Connection::open(home.store_path().as_str()).unwrap();
+        let reply: String = connection
+            .query_row(
+                "SELECT reply_json FROM requests WHERE request_id=?1",
+                [rid],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let audit: String = connection
+            .query_row(
+                "SELECT command_json FROM audit WHERE request_id=?1",
+                [rid],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let hash: String = connection
+            .query_row(
+                "SELECT intent_hash FROM requests WHERE request_id=?1",
+                [rid],
+                |row| row.get(0),
+            )
+            .unwrap();
+        for corruption in ["rid", "replayed", "source", "requires", "id", "version"] {
+            if remove && matches!(corruption, "source" | "requires")
+                || !remove && matches!(corruption, "id" | "version")
+            {
+                continue;
+            }
+            let mut snapshot: Value = serde_json::from_str(&reply).unwrap();
+            match corruption {
+                "rid" => snapshot["request_id"] = json!("another-request"),
+                "replayed" => snapshot["replayed"] = json!(true),
+                "requires" => snapshot["data"]["requires"] = json!(["invalid-without-colon"]),
+                "id" => snapshot["data"]["id"] = json!("other-step"),
+                "version" => snapshot["data"]["version"] = json!("2.0.0"),
+                "source" => {
+                    let replacement = if hash == "0".repeat(64) {
+                        "1".repeat(64)
+                    } else {
+                        "0".repeat(64)
+                    };
+                    let mut command: Value = serde_json::from_str(&audit).unwrap();
+                    command["source"] = json!(replacement);
+                    connection
+                        .execute(
+                            "UPDATE audit SET command_json=?1 WHERE request_id=?2",
+                            rusqlite::params![command.to_string(), rid],
+                        )
+                        .unwrap();
+                }
+                _ => unreachable!(),
+            }
+            connection
+                .execute(
+                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                    rusqlite::params![snapshot.to_string(), rid],
+                )
+                .unwrap();
+            let before_rows = rows(&connection);
+            let before_files = files(home.root().as_path().as_std_path());
+            let error = if remove {
+                repository
+                    .remove("two-step", "1.0.0", Some(rid.into()))
+                    .unwrap_err()
+            } else {
+                repository.add(&source, Some(rid.into())).unwrap_err()
+            };
+            assert_eq!(
+                error.code(),
+                sheltie_core::ErrorCode::EffectPending,
+                "{corruption}: {error}"
+            );
+            assert_unchanged(&home, &connection, before_rows, before_files);
+            connection
+                .execute(
+                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                    rusqlite::params![reply, rid],
+                )
+                .unwrap();
+            connection
+                .execute(
+                    "UPDATE audit SET command_json=?1 WHERE request_id=?2",
+                    rusqlite::params![audit, rid],
+                )
+                .unwrap();
+        }
+        assert!(if remove {
+            repository
+                .remove("two-step", "1.0.0", Some(rid.into()))
+                .unwrap()
+                .replayed
+        } else {
+            repository.add(&source, Some(rid.into())).unwrap().replayed
+        });
+    }
+}

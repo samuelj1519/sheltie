@@ -303,7 +303,7 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
 fn exclusive_atomic_write_creates_and_replaces_target_only() {
     let dir = tempfile::tempdir().unwrap();
     let base = canonical_abs(dir.path());
-    let home = sheltie_runtime::Home::at(base);
+    let home = sheltie_runtime::Home::resolve(Some((base).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let target = ManagedRelPath::new("card.md").unwrap();
@@ -333,7 +333,7 @@ fn directory_handle_remains_anchored_after_parent_path_is_replaced() {
     let outside = tempfile::tempdir().unwrap();
     let sentinel = sentinel(outside.path(), "outside");
     let before = snapshot(&sentinel);
-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let held = fs
@@ -368,8 +368,10 @@ fn directory_handle_remains_anchored_after_parent_path_is_replaced() {
 fn managed_operations_reject_a_lock_from_another_home() {
     let first = tempfile::tempdir().unwrap();
     let second = tempfile::tempdir().unwrap();
-    let home = sheltie_runtime::Home::at(canonical_abs(first.path()));
-    let other = sheltie_runtime::Home::at(canonical_abs(second.path()));
+    let home =
+        sheltie_runtime::Home::resolve(Some((canonical_abs(first.path())).as_str())).unwrap();
+    let other =
+        sheltie_runtime::Home::resolve(Some((canonical_abs(second.path())).as_str())).unwrap();
     let wrong_lock = other.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let target = ManagedRelPath::new("never-created").unwrap();
@@ -386,7 +388,7 @@ fn managed_operations_reject_a_lock_from_another_home() {
 fn readonly_rechecks_hardlink_count_before_chmod() {
     let dir = tempfile::tempdir().unwrap();
     let outside = tempfile::tempdir().unwrap();
-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let rel = ManagedRelPath::new("payload").unwrap();
@@ -409,7 +411,7 @@ fn readonly_rechecks_hardlink_count_before_chmod() {
 #[test]
 fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
     let dir = tempfile::tempdir().unwrap();
-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     // 软链段。
@@ -421,7 +423,8 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
     }
     // 文件占位段。
     let dir2 = tempfile::tempdir().unwrap();
-    let home2 = sheltie_runtime::Home::at(canonical_abs(dir2.path()));
+    let home2 =
+        sheltie_runtime::Home::resolve(Some((canonical_abs(dir2.path())).as_str())).unwrap();
     let lock2 = home2.acquire_lock().unwrap();
     let fs2 = ManagedFs::open_existing(&home2).unwrap();
     std::fs::write(home2.root().as_path().join("bin"), b"not a dir").unwrap();
@@ -443,7 +446,7 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
 #[test]
 fn exclusive_atomic_write_creates_nested_parents() {
     let dir = tempfile::tempdir().unwrap();
-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
+    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let target = ManagedRelPath::new("works/w/attempts/d/0/brief.md").unwrap();

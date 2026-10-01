@@ -73,16 +73,21 @@ impl RequestIntent {
     }
 }
 
-/// 词法规范化一个绝对路径：解析 `.` 段并拼接，不访问文件系统、不解析软链
-///（重放不要求源路径仍存在，canonicalize 会引入这个依赖）。
-pub fn lexical_abs(path: &str) -> String {
+/// 将路径词法展开为绝对路径；不读取目标文件或解析软链，重放不依赖源文件存在。
+/// 相对路径的当前目录无法获取或表示为UTF-8时，保留错误而不猜测位置。
+pub fn lexical_abs(path: &str) -> crate::Result<String> {
     let p = camino::Utf8Path::new(path);
     let base = if p.is_absolute() {
         camino::Utf8PathBuf::from("/")
     } else {
         // 相对路径按当前目录词法展开。
-        let cwd = std::env::current_dir().unwrap_or_default();
-        camino::Utf8PathBuf::from(cwd.to_string_lossy().into_owned())
+        crate::failpoint::rendezvous("lexical_before_cwd", path)
+            .map_err(|error| crate::Error::io("current_dir", error))?;
+        let cwd =
+            std::env::current_dir().map_err(|error| crate::Error::io("current_dir", error))?;
+        camino::Utf8PathBuf::from_path_buf(cwd).map_err(|path| crate::Error::InvalidRequest {
+            reason: format!("路径展开的当前目录 {} 不是UTF-8路径", path.display()),
+        })?
     };
     let mut out = base;
     for seg in p.components() {
@@ -95,5 +100,5 @@ pub fn lexical_abs(path: &str) -> String {
             camino::Utf8Component::Normal(name) => out = out.join(name),
         }
     }
-    out.to_string()
+    Ok(out.to_string())
 }

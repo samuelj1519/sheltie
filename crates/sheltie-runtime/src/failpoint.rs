@@ -49,7 +49,7 @@ struct SyncFailure {
 #[cfg(all(test, feature = "failpoint"))]
 pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-/// Arm a test-only COMMIT/effect rendezvous. No environment or host setting is modified.
+/// 设置按名称与作用域匹配的测试同步点；不修改环境变量或宿主配置。
 pub fn arm_rendezvous(
     name: &str,
     request_id: &str,
@@ -152,8 +152,7 @@ pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {
     Ok(())
 }
 
-/// Test-only rendezvous used to mutate an observed object after COMMIT and before effects.
-/// The request-id guard prevents unrelated commands in a parallel test process from pausing.
+/// 仅匹配指定测试名称与作用域，避免并行进程中的无关I/O进入同步点。
 pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
     #[cfg(feature = "failpoint")]
     {

@@ -805,3 +805,147 @@ fn installed_manifest_accepts_exact_file_limit_and_rejects_one_more_byte() {
         }
     }
 }
+
+// Task: C002-T33
+#[test]
+fn removing_an_unrelated_workbook_preserves_the_registered_neighbor() {
+    let (directory, home) = temp_home();
+    let repository = repo(&home);
+    repository
+        .add(&abs(&example_dir("two-step")), Some("neighbor-a".into()))
+        .unwrap();
+    let second = copy_example("two-step", directory.path());
+    let manifest = std::fs::read_to_string(second.join("workbook.toml")).unwrap();
+    std::fs::write(
+        second.join("workbook.toml"),
+        manifest.replace("id = \"two-step\"", "id = \"other-step\""),
+    )
+    .unwrap();
+    repository
+        .add(&abs(&second), Some("neighbor-b".into()))
+        .unwrap();
+    repository
+        .remove("other-step", "1.0.0", Some("remove-neighbor-b".into()))
+        .unwrap();
+    let rows = repository.list().unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].id, "two-step");
+    assert_eq!(
+        repository
+            .load("two-step", Some("1.0.0"))
+            .unwrap()
+            .manifest
+            .id()
+            .as_str(),
+        "two-step"
+    );
+    assert_eq!(
+        repository.verify(Some(("two-step", "1.0.0"))).unwrap()[0].status,
+        VerifyStatus::Ok
+    );
+}
+
+// Task: C002-T33
+#[test]
+fn missing_installed_manifest_is_tampered_instead_of_a_missing_workbook() {
+    let (_directory, home) = temp_home();
+    let repository = repo(&home);
+    repository
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
+    let installed = home.workbook_dir("two-step", "1.0.0");
+    use std::os::unix::fs::PermissionsExt as _;
+    std::fs::set_permissions(installed.as_path(), std::fs::Permissions::from_mode(0o755)).unwrap();
+    std::fs::remove_file(installed.as_path().join("workbook.toml")).unwrap();
+    let rows = repository.verify(Some(("two-step", "1.0.0"))).unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].status, VerifyStatus::Tampered);
+    assert_eq!(rows[0].id, "two-step");
+    assert!(installed.as_path().is_dir());
+}
+
+// Task: C002-T33
+#[cfg(feature = "failpoint")]
+#[test]
+fn workbook_copy_rejects_an_observed_replacement_even_if_the_original_is_restored_before_open() {
+    use sheltie_runtime::failpoint;
+    use std::sync::mpsc;
+    use std::time::{Duration, Instant};
+    struct Reset;
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            let _ = failpoint::disarm_rendezvous();
+        }
+    }
+    let _reset = Reset;
+    let (directory, home) = temp_home();
+    let source = copy_example("two-step", directory.path());
+    let manifest = std::fs::canonicalize(source.join("workbook.toml")).unwrap();
+    let original = std::fs::read(&manifest).unwrap();
+    let before = tempfile::tempdir().unwrap();
+    let after = tempfile::tempdir().unwrap();
+    failpoint::arm_rendezvous(
+        "external_tree_before_stat",
+        manifest.to_str().unwrap(),
+        before.path(),
+    )
+    .unwrap();
+    let repository = repo(&home);
+    let (sender, receiver) = mpsc::channel();
+    let worker = std::thread::spawn(move || {
+        sender
+            .send(repository.add(&abs(&source), Some("copy-observed-replacement".into())))
+            .unwrap()
+    });
+    let mut worker = RendezvousWorker::new(worker, before.path(), after.path());
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !before.path().join("reached").exists() {
+        assert!(Instant::now() < deadline);
+        assert!(
+            receiver.try_recv().is_err(),
+            "copy finished before observing the selected source file"
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    let parked = directory.path().join("original-manifest");
+    std::fs::rename(&manifest, &parked).unwrap();
+    std::fs::write(&manifest, &original).unwrap();
+    failpoint::arm_rendezvous(
+        "external_tree_after_stat",
+        manifest.to_str().unwrap(),
+        after.path(),
+    )
+    .unwrap();
+    std::fs::write(before.path().join("release"), b"release").unwrap();
+    let result = loop {
+        if let Ok(result) = receiver.try_recv() {
+            break result;
+        }
+        if after.path().join("reached").exists() {
+            std::fs::remove_file(&manifest).unwrap();
+            std::fs::rename(&parked, &manifest).unwrap();
+            std::fs::write(after.path().join("release"), b"release").unwrap();
+            break receiver.recv_timeout(Duration::from_secs(10)).unwrap();
+        }
+        assert!(Instant::now() < deadline);
+        std::thread::sleep(Duration::from_millis(1));
+    };
+    worker.finish().unwrap();
+    if parked.exists() {
+        std::fs::remove_file(&manifest).unwrap();
+        std::fs::rename(&parked, &manifest).unwrap();
+    }
+    assert!(matches!(result, Err(Error::InvalidRequest { .. })));
+    assert_eq!(std::fs::read(&manifest).unwrap(), original);
+    if home.store_path().as_path().exists() {
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        for table in ["workbooks", "requests", "audit"] {
+            assert_eq!(
+                conn.query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
+                    .get::<_, i64>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+}

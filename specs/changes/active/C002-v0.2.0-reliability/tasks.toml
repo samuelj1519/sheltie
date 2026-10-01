@@ -198,3 +198,8 @@ allow_test_changes = true
 files = ["crates/sheltie-runtime/src", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
+
+[C002-T33]
+files = ["crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/commands/workbook.rs", "crates/sheltie-runtime/src", "specs/architecture.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true

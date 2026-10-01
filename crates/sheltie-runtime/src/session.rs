@@ -77,7 +77,10 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let home_root = directory.path().join("home");
         std::fs::create_dir(&home_root).unwrap();
-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let session = WriteSession::open_or_create(&home).unwrap();
         session.store.list_workbooks().unwrap();
         let db_before = std::fs::read(home.store_path().as_path()).unwrap();
@@ -101,7 +104,10 @@ mod tests {
         let home_root = directory.path().join("home");
         let moved_root = directory.path().join("moved-home");
         std::fs::create_dir(&home_root).unwrap();
-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let session = WriteSession::open_or_create(&home).unwrap();
         session.store.list_workbooks().unwrap();
         std::fs::rename(&home_root, &moved_root).unwrap();
@@ -139,7 +145,10 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let home_root = directory.path().join("home");
         std::fs::create_dir(&home_root).unwrap();
-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
 
         let first_sync = tempfile::tempdir().unwrap();
         crate::failpoint::arm_rendezvous(

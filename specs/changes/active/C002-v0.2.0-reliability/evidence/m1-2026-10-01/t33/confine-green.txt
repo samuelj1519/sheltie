@@ -1,0 +1,9 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.26s
+────────────
+ Nextest run ID 8a4bb025-ad2e-4785-9c77-fd59e2d7c4e5 with nextest profile: default
+    Starting 1 test across 41 binaries (691 tests skipped)
+        PASS [   0.016s] (1/1) sheltie-runtime::home_observe confine_does_not_treat_an_unreadable_existing_base_as_missing
+────────────
+     Summary [   0.017s] 1 test run: 1 passed, 691 skipped

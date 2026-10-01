@@ -159,7 +159,7 @@ impl WorkbookRepo {
     pub fn add(&self, dir: &AbsPath, request_id: Option<String>) -> Result<AddedSnapshot> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
         let intent = RequestIntent::AddWorkbook {
-            source: lexical_abs(dir.as_str()),
+            source: lexical_abs(dir.as_str())?,
         };
         let command_json = match &intent {
             RequestIntent::AddWorkbook { .. } => {

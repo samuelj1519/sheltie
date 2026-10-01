@@ -133,3 +133,9 @@ T14 独立审查首轮发现两项状态校验反例：唯一 running Attempt �
 ## 2026-10-01 T32 M1审查反馈修复
 
 用户授权恢复剩余M1验证，实际平台安全拦截才逐项记录跳过。追加T32承接审查反馈：4项runtime源码精简、Store CAS合同统一及3项真实caller回归。Spec/Standards独立最终增量review通过；678/678零skip、fmt/check/Clippy、MSRV1.85 locked、离线deny、docs/specs/core-vocab/tests/skill/dist门禁通过，原文见[T32证据](evidence/m1-2026-10-01/t32/README.md)。旧instruction正例违反64KiB合同的设计错误与编译错误均保留，不当产品失败。最终变异由M1重新冻结输入执行，未据本任务门禁判caught或M1通过。Linux/T16/T17边界不变。
+
+## 2026-10-01 T33 根与路径解析、M1漏检回归
+
+T33修复真实R21：Home::resolve/confine吞I/O或保留原路径，lexical_abs猜测cwd/用lossy字符串解释路径。统一失败传播、严格UTF8和唯一解析caller；删除只测试使用的Home::at并迁完caller。新增15项真实caller回归及既有Row校验补revision0；693/693零skip，Rust四门禁/MSRV/离线deny/规范/skill/dist通过，独立Spec/Standards最终增量review通过，见[T33证据](evidence/m1-2026-10-01/t33/README.md)。实际非UTF8实体路径fixture在当前APFS创建EPERM原文保留，不当安全拦截或实际验证PASS。
+
+旧5261e0d/2495输入原文保留为superseded：core4完整3caught1missed、runtime第0片222项167caught/13unviable/42missed均经独立证据Reviewer核实际build/test/diagnostic及逐成员SHA；源码变化检测在下片启动前停止，不套新候选。最终完整变异由M1重新冻结本任务提交后输入执行。Linux not_run，T16/T17 not_run，实际平台安全拦截记录为空。

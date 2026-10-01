@@ -100,3 +100,47 @@ fn audit_principal_ignores_spoofed_user_env() {
     assert_ne!(principal, "spoofed-auditor");
     assert_eq!(principal, account_name_oracle());
 }
+
+// Task: C002-T33
+#[test]
+fn home_resolution_rejects_unrepresentable_roots_without_selecting_an_alternative() {
+    use std::os::unix::ffi::OsStringExt as _;
+    use std::process::Command;
+    let directory = tempfile::tempdir().unwrap();
+    let invalid = std::ffi::OsString::from_vec(vec![0xff]);
+    for case in ["environment", "home_environment", "override"] {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_sheltie"));
+        command.args(["--json", "workbook", "list"]);
+        match case {
+            "environment" => {
+                command
+                    .env("SHELTIE_HOME", &invalid)
+                    .env("HOME", directory.path());
+            }
+            "home_environment" => {
+                command.env_remove("SHELTIE_HOME").env("HOME", &invalid);
+            }
+            "override" => {
+                command
+                    .arg("--home")
+                    .arg(directory.path().join("valid-root"))
+                    .env("SHELTIE_HOME", &invalid);
+            }
+            _ => unreachable!(),
+        }
+        let output = command.output().unwrap();
+        let reply: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert!(!output.status.success(), "{case}");
+        assert_eq!(
+            reply["error"]["code"],
+            if case == "override" {
+                "NOT_FOUND"
+            } else {
+                "INVALID_REQUEST"
+            },
+            "{case}: {reply}"
+        );
+    }
+    assert!(!directory.path().join("valid-root").exists());
+    assert!(!directory.path().join(".sheltie").exists());
+}

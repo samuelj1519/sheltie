@@ -1,0 +1,16 @@
+{
+  "candidate": "5261e0d15e14b57742020fe894617cd395f84c67",
+  "reason": "T33 production path normalization repair, API migration, failpoint callers and regression inputs changed. Pipeline completed runtime shard0 then verified root source SHA mismatch before starting next shard. Not a safety skip.",
+  "complete_inventory": false,
+  "core_workspace": {
+    "caught": 3,
+    "missed": 1
+  },
+  "runtime_shard0": {
+    "processed": 222,
+    "caught": 167,
+    "unviable": 13,
+    "missed": 42
+  },
+  "reused_for_t33_acceptance": false
+}

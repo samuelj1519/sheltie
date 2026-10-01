@@ -269,6 +269,8 @@ impl Store {
         }
         let root_identity = self.owner_home.as_ref().map(root_identity).transpose()?;
         self.verify_owner_binding(root_identity, file_identity(&metadata))?;
+        crate::failpoint::rendezvous("store_before_sqlite_open", self.path.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
         let conn = match self.mode {
             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(
                 self.path.as_str(),

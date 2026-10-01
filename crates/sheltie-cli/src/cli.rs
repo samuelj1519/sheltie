@@ -167,7 +167,7 @@ pub fn parse_input_arg(
         if path.is_empty() {
             return Err(format!("--input 的值 {arg:?} 的 @ 后要有路径"));
         }
-        let abs = sheltie_runtime::request::lexical_abs(path);
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
         sheltie_runtime::request::InputValue::AtFile { path: abs }
     } else {
         sheltie_runtime::request::InputValue::Literal {
@@ -200,7 +200,7 @@ pub fn parse_text_arg(value: &str) -> Result<sheltie_runtime::request::InputValu
         if path.is_empty() {
             return Err("@ 后要有路径".to_string());
         }
-        let abs = sheltie_runtime::request::lexical_abs(path);
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
         Ok(sheltie_runtime::request::InputValue::AtFile { path: abs })
     } else {
         Ok(sheltie_runtime::request::InputValue::Literal {
