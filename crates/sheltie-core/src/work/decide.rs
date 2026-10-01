@@ -69,6 +69,17 @@ fn guard_not_terminal(state: &WorkState) -> Result<()> {
     Ok(())
 }
 
+fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
+    state.blocked_count =
+        state
+            .blocked_count
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "累计受阻次数超出可表示范围".to_string(),
+            })?;
+    Ok(())
+}
+
 /// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
 /// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
 /// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
@@ -407,7 +418,7 @@ fn decide_submit(
         new_state.status,
         WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
     ) {
-        new_state.blocked_count += 1;
+        increment_blocked_count(&mut new_state)?;
     }
     new_state.updated_at = ctx.now.clone();
 
@@ -526,7 +537,7 @@ fn decide_fail(
     }
     if attempt.retry >= max_retries {
         new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
-        new_state.blocked_count += 1;
+        increment_blocked_count(&mut new_state)?;
     }
     new_state.updated_at = ctx.now.clone();
 
@@ -571,7 +582,7 @@ fn decide_approve(
         new_state.status,
         WorkStatus::Blocked(BlockedReason::NoLegalEdge)
     ) {
-        new_state.blocked_count += 1;
+        increment_blocked_count(&mut new_state)?;
     }
     new_state.updated_at = ctx.now.clone();
 

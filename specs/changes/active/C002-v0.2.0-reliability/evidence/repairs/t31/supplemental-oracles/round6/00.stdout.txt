@@ -1,0 +1,38 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+warning: unused variable: `home`
+    --> crates/sheltie-runtime/src/fsx.rs:2218:5
+     |
+2218 |     home: &crate::home::Home,
+     |     ^^^^ help: if this is intentional, prefix it with an underscore: `_home`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lock`
+    --> crates/sheltie-runtime/src/fsx.rs:2219:5
+     |
+2219 |     lock: &crate::home::HomeLock,
+     |     ^^^^ help: if this is intentional, prefix it with an underscore: `_lock`
+
+warning: `sheltie-runtime` (lib) generated 2 warnings (run `cargo fix --lib -p sheltie-runtime` to apply 2 suggestions)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.51s
+     Running tests/disposition_remote.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_remote-38275bbaa83f7685)
+
+running 1 test
+test supplemental_locked_sqlite_validation_rejects_a_late_wal_hardlink ... FAILED
+
+failures:
+
+---- supplemental_locked_sqlite_validation_rejects_a_late_wal_hardlink stdout ----
+
+thread 'supplemental_locked_sqlite_validation_rejects_a_late_wal_hardlink' (30470960) panicked at crates/sheltie-cli/tests/disposition_remote.rs:223:5:
+assertion failed: !out.status.success()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_locked_sqlite_validation_rejects_a_late_wal_hardlink
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.67s
+
+error: test failed, to rerun pass `-p sheltie-cli --test disposition_remote`

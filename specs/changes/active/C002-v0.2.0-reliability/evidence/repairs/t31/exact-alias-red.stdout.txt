@@ -1,0 +1,33 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+────────────
+ Nextest run ID d296401e-883e-4abd-be71-da79e8dc1713 with nextest profile: default
+    Starting 1 test across 35 binaries (638 tests skipped)
+        FAIL [   0.418s] (1/1) sheltie-cli::reliability_crash exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks
+  stdout ───
+
+    running 1 test
+    test exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks ... FAILED
+
+    failures:
+
+    failures:
+        exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.40s
+
+  stderr ───
+
+    thread 'exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks' (67545816) panicked at crates/sheltie-cli/tests/common/mod.rs:44:9:
+    命令失败：["work", "start", "--workbook", "two-step", "--flow", "default", "--input", "topic=@/tmp/.tmpmD8jVw"]
+    exit: Some(2)
+    stdout: {"error":{"code":"INVALID_REQUEST","detail":{"path":"/tmp/.tmpmD8jVw","reason":"管理根段 /tmp 是符号链接"},"message":"读不了输入文件 /tmp/.tmpmD8jVw：管理根段 /tmp 是符号链接"},"next":[],"ok":false}
+
+    stderr:
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   0.420s] 1 test run: 0 passed, 1 failed, 638 skipped
+        FAIL [   0.418s] (1/1) sheltie-cli::reliability_crash exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks
+error: test run failed

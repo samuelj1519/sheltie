@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.17s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_valid_snapshot_is_retained_when_its_effect_batch_is_invalid ... FAILED
+
+failures:
+
+---- supplemental_valid_snapshot_is_retained_when_its_effect_batch_is_invalid stdout ----
+
+thread 'supplemental_valid_snapshot_is_retained_when_its_effect_batch_is_invalid' (34250419) panicked at crates/sheltie-runtime/tests/common/mod.rs:42:80:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_valid_snapshot_is_retained_when_its_effect_batch_is_invalid
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 31 filtered out; finished in 0.41s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

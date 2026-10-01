@@ -9,6 +9,7 @@ use crate::effects::{execute, execute_with_observed_outputs};
 use crate::error::{Error, Result};
 use crate::fsx::SafeFile;
 use crate::home::{Home, HomeLock};
+use crate::snapshot::PersistedResponse;
 use crate::store::Store;
 use crate::store::read::RequestRow;
 
@@ -17,15 +18,10 @@ pub(crate) trait RecoveryAccess {
     fn refresh_cards(&self, effects: &CheckedEffects, lock: &HomeLock) -> Result<()>;
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct PersistedResponse {
-    pub(crate) request_id: String,
-    pub(crate) revision: u64,
-    pub(crate) replayed: bool,
-    pub(crate) reply: sheltie_core::work::Reply,
-    pub(crate) data: serde_json::Value,
-    pub(crate) next: Vec<sheltie_core::work::NextOp>,
+pub(crate) struct CheckedRequestEffects<'a> {
+    pub(crate) request_id: &'a str,
+    pub(crate) row: &'a RequestRow,
+    pub(crate) effects: &'a CheckedEffects,
 }
 
 #[derive(Debug, Deserialize)]
@@ -217,6 +213,10 @@ pub(crate) fn before_write(
             ));
         }
     }
+    // A retry must retire its own uncommitted originals before registering the same id.
+    if current.is_none() {
+        crate::pending::prepare_new_request(home, store, lock, request_id)?;
+    }
     Ok(())
 }
 
@@ -294,21 +294,51 @@ pub(crate) fn finish_request(
     let effects = access
         .load_effects(request_id, &row)
         .map_err(|cause| own_pending(request_id, original.clone(), cause))?;
+    finish_checked_request(
+        home,
+        store,
+        lock,
+        CheckedRequestEffects {
+            request_id,
+            row: &row,
+            effects: &effects,
+        },
+        observed_outputs,
+        access,
+    )
+}
+
+/// 调用者已在同一写锁内核过请求与整组效果；不重复装入冻结图和历史载荷。
+pub(crate) fn finish_checked_request(
+    home: &Home,
+    store: &Store,
+    lock: &HomeLock,
+    checked: CheckedRequestEffects<'_>,
+    observed_outputs: Option<&BTreeMap<String, SafeFile>>,
+    access: &dyn RecoveryAccess,
+) -> Result<()> {
+    let CheckedRequestEffects {
+        request_id,
+        row,
+        effects,
+    } = checked;
+    let original = original_snapshot(request_id, row);
     let complete = !row.published;
     let execution = match observed_outputs {
         Some(observed) if complete => {
-            execute_with_observed_outputs(home, lock, &effects, true, Some(observed))
+            execute_with_observed_outputs(home, lock, effects, true, Some(observed))
         }
-        _ => execute(home, lock, &effects, complete),
+        _ => execute(home, lock, effects, complete),
     };
     execution.map_err(|cause| own_pending(request_id, original.clone(), cause))?;
     if complete {
         access
-            .refresh_cards(&effects, lock)
+            .refresh_cards(effects, lock)
             .map_err(|cause| own_pending(request_id, original.clone(), cause))?;
         store
             .mark_published(request_id)
             .map_err(|cause| own_pending(request_id, original, cause))?;
+        crate::failpoint::maybe_exit("request_published_before_cleanup");
     }
     Ok(())
 }
@@ -450,7 +480,7 @@ fn work_original_snapshot(request_id: &str, work_id: &str, reply_json: &str) -> 
         return None;
     }
     let work = sheltie_core::ids::WorkId::parse(work_id).ok()?;
-    if !persisted_response_data_is_well_formed(&response, &work) {
+    if crate::snapshot::check_data(&response.reply, &response.data, &work).is_err() {
         return None;
     }
     let mut data = response.data;
@@ -460,7 +490,7 @@ fn work_original_snapshot(request_id: &str, work_id: &str, reply_json: &str) -> 
     let next = response
         .next
         .iter()
-        .map(|op| next_item(work_id, op))
+        .map(|op| sheltie_core::work::render::next_item_json(&work, op))
         .collect::<Vec<_>>();
     Some(
         serde_json::json!({
@@ -472,184 +502,4 @@ fn work_original_snapshot(request_id: &str, work_id: &str, reply_json: &str) -> 
         })
         .to_string(),
     )
-}
-
-fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {
-    let Some(object) = data.as_object() else {
-        return false;
-    };
-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))
-}
-
-fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {
-    serde_json::from_value::<sheltie_core::work::WorkStatus>(value.clone())
-        .ok()
-        .and_then(|status| serde_json::to_value(status).ok())
-        .is_some_and(|canonical| canonical == *value)
-}
-
-fn persisted_response_data_is_well_formed(
-    response: &PersistedResponse,
-    work_id: &sheltie_core::ids::WorkId,
-) -> bool {
-    use sheltie_core::work::{Reply, WorkStatus};
-
-    let data = &response.data;
-    let fields_valid = match &response.reply {
-        Reply::Started {
-            work_id: reply_work,
-            work_dir,
-            requires,
-        } => {
-            let workbook =
-                serde_json::from_value::<sheltie_core::work::WorkbookRef>(data["workbook"].clone());
-            let name = serde_json::from_value::<sheltie_core::ids::WorkName>(data["name"].clone());
-            snapshot_data_has_exact_fields(
-                data,
-                &[
-                    "work_id", "name", "workbook", "flow", "work_dir", "requires",
-                ],
-            ) && reply_work == work_id
-                && data["work_id"].as_str() == Some(work_id.as_str())
-                && data["work_dir"].as_str() == Some(work_dir.as_str())
-                && name.is_ok_and(|name| {
-                    work_id
-                        .as_str()
-                        .get(15..)
-                        .is_some_and(|suffix| suffix == name.as_str())
-                })
-                && data["flow"]
-                    .as_str()
-                    .is_some_and(|flow| sheltie_core::ids::FlowId::new(flow).is_ok())
-                && workbook
-                    .is_ok_and(|workbook| crate::load::valid_workbook_version(&workbook.version))
-                && serde_json::to_value(requires).is_ok_and(|expected| data["requires"] == expected)
-        }
-        Reply::AttemptBegun {
-            attempt,
-            brief_path,
-            output_dir,
-            inputs,
-            outputs,
-            requires,
-        } => {
-            let attempt_text = attempt.to_string();
-            let expected_inputs: serde_json::Map<String, serde_json::Value> = inputs
-                .iter()
-                .map(|(name, path)| {
-                    (
-                        name.clone(),
-                        path.as_ref().map_or(serde_json::Value::Null, |path| {
-                            serde_json::json!(path.as_str())
-                        }),
-                    )
-                })
-                .collect();
-            snapshot_data_has_exact_fields(
-                data,
-                &[
-                    "attempt",
-                    "node",
-                    "occurrence",
-                    "retry",
-                    "brief_path",
-                    "output_dir",
-                    "inputs",
-                    "outputs",
-                    "requires",
-                ],
-            ) && data["attempt"].as_str() == Some(attempt_text.as_str())
-                && data["node"].as_str() == Some(attempt.node.as_str())
-                && data["occurrence"].as_u64() == Some(u64::from(attempt.occurrence))
-                && data["retry"].as_u64() == Some(u64::from(attempt.retry))
-                && data["brief_path"].as_str() == Some(brief_path.as_str())
-                && data["output_dir"].as_str() == Some(output_dir.as_str())
-                && data["inputs"] == serde_json::Value::Object(expected_inputs)
-                && serde_json::to_value(outputs).is_ok_and(|expected| data["outputs"] == expected)
-                && serde_json::to_value(requires).is_ok_and(|expected| data["requires"] == expected)
-        }
-        Reply::AttemptSubmitted { attempt, outputs } => {
-            let attempt_text = attempt.to_string();
-            snapshot_data_has_exact_fields(data, &["attempt", "outputs", "work_status"])
-                && data["attempt"].as_str() == Some(attempt_text.as_str())
-                && serde_json::to_value(outputs).is_ok_and(|expected| data["outputs"] == expected)
-        }
-        Reply::AttemptFailed { attempt } => {
-            let attempt_text = attempt.to_string();
-            snapshot_data_has_exact_fields(data, &["attempt", "work_status"])
-                && data["attempt"].as_str() == Some(attempt_text.as_str())
-        }
-        Reply::GateApproved { node, occurrence } => {
-            let principal =
-                serde_json::from_value::<sheltie_core::work::Principal>(data["by"].clone());
-            let at = data["at"]
-                .as_str()
-                .and_then(|value| sheltie_core::work::Timestamp::parse(value).ok());
-            snapshot_data_has_exact_fields(data, &["node", "occurrence", "by", "at", "work_status"])
-                && data["node"].as_str() == Some(node.as_str())
-                && data["occurrence"].as_u64() == Some(u64::from(*occurrence))
-                && principal.is_ok_and(|principal| !principal.0.is_empty())
-                && at.is_some()
-        }
-        Reply::Cancelled => {
-            snapshot_data_has_exact_fields(data, &["work_id", "work_status"])
-                && data["work_id"].as_str() == Some(work_id.as_str())
-                && serde_json::from_value::<WorkStatus>(data["work_status"].clone()).is_ok_and(
-                    |status| {
-                        status == WorkStatus::Cancelled
-                            && work_status_value_is_canonical(&data["work_status"])
-                    },
-                )
-        }
-    };
-    let has_status = matches!(
-        &response.reply,
-        Reply::AttemptSubmitted { .. }
-            | Reply::AttemptFailed { .. }
-            | Reply::GateApproved { .. }
-            | Reply::Cancelled
-    );
-    fields_valid && (!has_status || work_status_value_is_canonical(&data["work_status"]))
-}
-
-fn next_item(work_id: &str, op: &sheltie_core::work::NextOp) -> serde_json::Value {
-    use sheltie_core::work::NextOp;
-
-    match op {
-        NextOp::BeginAttempt {
-            node,
-            edge,
-            executor,
-            tier,
-        } => {
-            let mut item = serde_json::json!({
-                "op": "attempt begin",
-                "args": { "work": work_id, "node": node.as_str() },
-            });
-            if let Some(edge) = edge {
-                item["edge"] = serde_json::json!(edge.as_str());
-            }
-            item["executor"] = serde_json::json!(executor.as_str());
-            if let Some(tier) = tier {
-                item["tier"] = serde_json::json!(tier.as_str());
-            }
-            item
-        }
-        NextOp::SubmitAttempt { attempt } => serde_json::json!({
-            "op": "attempt submit",
-            "args": { "work": work_id, "attempt": attempt.to_string() },
-        }),
-        NextOp::FailAttempt { attempt } => serde_json::json!({
-            "op": "attempt fail",
-            "args": { "work": work_id, "attempt": attempt.to_string() },
-        }),
-        NextOp::ApproveGate { node } => serde_json::json!({
-            "op": "gate approve",
-            "args": { "work": work_id, "node": node.as_str() },
-        }),
-        NextOp::Cancel => serde_json::json!({
-            "op": "work cancel",
-            "args": { "work": work_id },
-        }),
-    }
 }

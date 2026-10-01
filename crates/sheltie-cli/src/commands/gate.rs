@@ -46,6 +46,6 @@ pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        wid.as_str(),
+        &wid,
     )
 }

@@ -101,16 +101,61 @@ fn add_failure_leaves_no_staging_and_no_row() {
     assert_eq!(repo.list().unwrap().len(), before_rows, "失败不得插入新行");
 }
 
-// Task: C002-T24
+// T31按GF-17/GF-30替换T24的内容错误不建库断言；原始T24证据保留。
+// Task: C002-T31
 #[test]
-fn invalid_add_on_new_home_does_not_create_store_or_lock() {
+fn invalid_source_structure_on_new_home_does_not_create_store_or_lock() {
     let (d, home) = temp_home();
     let source = copy_example("two-step", d.path());
-    std::fs::write(source.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
+    std::fs::remove_file(source.join("workbook.toml")).unwrap();
     assert!(repo(&home).add(&abs(&source), None).is_err());
     assert!(!home.store_path().as_path().exists());
     assert!(!home.lock_path().as_path().exists());
     assert!(!home.staging_dir().as_path().exists());
+}
+
+// Task: C002-T31
+#[test]
+fn invalid_private_copy_has_no_business_rows_and_the_same_request_can_retry() {
+    let (directory, home) = temp_home();
+    let source = copy_example("two-step", directory.path());
+    let manifest = std::fs::read(source.join("workbook.toml")).unwrap();
+    std::fs::write(source.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
+    let repository = repo(&home);
+    let request = "invalid-content";
+    assert!(repository.add(&abs(&source), Some(request.into())).is_err());
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    for table in ["workbooks", "works", "requests", "audit", "work_sequence"] {
+        assert_eq!(
+            connection
+                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0,
+            "{table}"
+        );
+    }
+    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    std::fs::write(source.join("workbook.toml"), manifest).unwrap();
+    let added = repository.add(&abs(&source), Some(request.into())).unwrap();
+    assert_eq!(added.data["id"], "two-step");
+    assert!(!added.replayed);
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT COUNT(*) FROM requests WHERE request_id=?1",
+                [request],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        1
+    );
+    assert!(
+        repository
+            .add(&abs(&source), Some(request.into()))
+            .unwrap()
+            .replayed
+    );
 }
 
 // Task: T14

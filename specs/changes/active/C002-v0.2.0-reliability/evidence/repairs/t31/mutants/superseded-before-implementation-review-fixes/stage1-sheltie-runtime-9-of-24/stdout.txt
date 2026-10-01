@@ -1,0 +1,19 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2616:13: replace || with && in SafeFile::verify_seal_reference in 10s build + 32s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2615:13: replace || with && in SafeFile::verify_seal_reference in 31s build + 70s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2632:13: replace || with && in SafeFile::verify_seal_reference in 9s build + 70s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2631:13: replace || with && in SafeFile::verify_seal_reference in 12s build + 64s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2725:5: replace verify_managed_tree_at -> Result<()> with Ok(()) in 7s build + 106s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2794:5: replace sync_managed_regular_file_handle -> Result<()> with Ok(()) in 10s build + 103s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2897:34: replace + with * in copy_tree_confined in 10s build + 52s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:63: replace | with & in make_directories_writable in 7s build + 165s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:44: replace | with ^ in make_directories_writable in 8s build + 163s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:44: replace | with & in make_directories_writable in 11s build + 160s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:24: replace | with & in make_directories_writable in 13s build + 158s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:63: replace | with ^ in make_directories_writable in 14s build + 158s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2955:24: replace | with ^ in make_directories_writable in 14s build + 154s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:71: replace | with ^ in set_dir_tree_mode in 6s build + 69s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:52: replace | with & in set_dir_tree_mode in 7s build + 68s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:71: replace | with & in set_dir_tree_mode in 7s build + 68s test
+78 mutants tested in 13m: 16 missed, 55 caught, 7 unviable

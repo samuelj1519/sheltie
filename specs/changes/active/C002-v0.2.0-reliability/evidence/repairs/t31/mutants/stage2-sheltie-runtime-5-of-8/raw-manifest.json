@@ -1,0 +1,88 @@
+{
+  "archive": "raw.tar.gz",
+  "archive_sha256": "bd6e4943825ca591c309cbeeac2a8e79f36f4a5e21c659db9ef178e93b955e11",
+  "members": {
+    "caught.txt": {
+      "sha256": "0df0db89a3b52dbe6abbcba82ffef60f7c00ccb0c3ead6c05b65551633826875",
+      "bytes": 73
+    },
+    "debug.log": {
+      "sha256": "f7bc230ebc5704e35de3638b6ed5f9c09c2a588a1df190140a0223e4b6408907",
+      "bytes": 39767
+    },
+    "diff/crates__sheltie-runtime__src__effects.rs_line_1068_col_13.diff": {
+      "sha256": "24cf81a231209ea2d738aeb40434095444d4bb5bd787bcc0529a2706ba8c4b66",
+      "bytes": 954
+    },
+    "diff/crates__sheltie-runtime__src__effects.rs_line_159_col_21.diff": {
+      "sha256": "42b0120770b926e064c16c0dcd828a60074e54baef0eeb39de329a28000c3c26",
+      "bytes": 1114
+    },
+    "diff/crates__sheltie-runtime__src__effects.rs_line_510_col_5.diff": {
+      "sha256": "73b25536eb4cd1a3be77d3b907f5447e0c6c6d008061661d4f4cc554140ad77a",
+      "bytes": 965
+    },
+    "diff/crates__sheltie-runtime__src__failpoint.rs_line_13_col_5.diff": {
+      "sha256": "24427deb8f36d38a2444846c9426cca11a58040901bccbcf30b87c9bcd741f36",
+      "bytes": 1216
+    },
+    "diff/crates__sheltie-runtime__src__fsx.rs_line_128_col_79.diff": {
+      "sha256": "c0b104c625a17f26a1212fe8b9e5e7601a5d6caf1a06a3f2f29e20e6a919ddee",
+      "bytes": 1006
+    },
+    "lock.json": {
+      "sha256": "59dee561e9ab9afa050e408d564bbbb72949b0a4eab2222f366047d3c3bb2d94",
+      "bytes": 155
+    },
+    "log/baseline.log": {
+      "sha256": "a8bc809d4a3e680725d6d087fc972a1eda5b2640fedb3696f531200a2dd5a624",
+      "bytes": 149855
+    },
+    "log/crates__sheltie-runtime__src__effects.rs_line_1068_col_13.log": {
+      "sha256": "e5933925f7028162bd9f8101e78c9f51ca3c3df9cd19c656091ed6a22f658254",
+      "bytes": 50758
+    },
+    "log/crates__sheltie-runtime__src__effects.rs_line_159_col_21.log": {
+      "sha256": "0011c37f28349aadf0e10bcf3a784ced322728d625ce6a33ac890219f5a98d5b",
+      "bytes": 53479
+    },
+    "log/crates__sheltie-runtime__src__effects.rs_line_510_col_5.log": {
+      "sha256": "3635fa56ed580341a8e0dae61184662376b96e0396787566dc97efb6b47c16e2",
+      "bytes": 51488
+    },
+    "log/crates__sheltie-runtime__src__failpoint.rs_line_13_col_5.log": {
+      "sha256": "07eeb095ff75734b519a1527fe46b2b2fb68f346a99eb16bdc30fe6740781bc0",
+      "bytes": 10068
+    },
+    "log/crates__sheltie-runtime__src__fsx.rs_line_128_col_79.log": {
+      "sha256": "a2cee0cc3853decfedec3087f9a4c61d55f35e3f69df28d4575ddb143bd64898",
+      "bytes": 46528
+    },
+    "missed.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "mutants.json": {
+      "sha256": "256d7c142ff0d4343c61386306a9518ee2715effb9017b13d1ace0d2eca2eeeb",
+      "bytes": 83902
+    },
+    "outcomes.json": {
+      "sha256": "3426598f71f91fcc7269266635523bf780760502e595fe513cc768d89a94b415",
+      "bytes": 3149
+    },
+    "timeout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "unviable.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "verified_all_members": true,
+  "loose_index_files": [
+    "outcomes.json",
+    "mutants.json"
+  ],
+  "reason": "Lossless packing of finished or user-stopped owned execution artifacts. Run outcomes and original bytes unchanged; restore members under raw/ to inspect logs/diffs."
+}

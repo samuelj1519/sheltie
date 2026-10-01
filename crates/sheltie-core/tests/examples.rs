@@ -274,3 +274,75 @@ fn spec_dev_replanning_uses_required_review_copies_and_reachable_optional_histor
         assert_ne!(source, "plan", "保持既有禁止自来源规则");
     }
 }
+
+// Task: C002-T31
+#[test]
+fn declared_node_requirements_remain_visible_through_validated_definition_and_graph() {
+    let flow = parse_flow(
+        r#"schema = "flow/v1"
+id = "default"
+entry = "draft"
+[[nodes]]
+id = "draft"
+title = "Draft"
+executor = "agent"
+instruction = { text = "write" }
+requires = ["skill:beta", "mcp:alpha"]
+"#,
+    )
+    .unwrap();
+    let expected = vec![
+        (
+            sheltie_core::workbook::RequireKind::Skill,
+            "beta".to_string(),
+        ),
+        (
+            sheltie_core::workbook::RequireKind::Mcp,
+            "alpha".to_string(),
+        ),
+    ];
+    assert_eq!(flow.nodes()[0].requires(), expected);
+    let manifest = parse_manifest(
+        r#"schema = "workbook/v1"
+id = "requirements"
+version = "1.0.0"
+name = "Requirements"
+flows = ["flows/default.toml"]
+[[requires]]
+kind = "skill"
+name = "beta"
+[[requires]]
+kind = "mcp"
+name = "alpha"
+"#,
+    )
+    .unwrap();
+    let graph = compile(
+        &flow,
+        &manifest,
+        &sheltie_core::flow::ResourceIndex::default(),
+    )
+    .unwrap();
+    assert_eq!(graph.node(&id("draft")).unwrap().requires(), expected);
+}
+
+// Task: C002-T31
+#[test]
+fn public_legal_next_does_not_offer_retry_at_the_node_retry_limit() {
+    use sheltie_core::work::{NextOp, WorkStatus, legal_next};
+    let mut fixture =
+        sheltie_core::testkit::Fixture::two_step().started_with(&[("topic", "retry")]);
+    fixture.begin("outline").unwrap();
+    fixture.fail("outline#1.0", "failed").unwrap();
+    assert!(
+        legal_next(fixture.state(), &fixture.graph)
+            .iter()
+            .any(|next| matches!(next, NextOp::BeginAttempt { .. }))
+    );
+    fixture.begin("outline").unwrap();
+    fixture.fail("outline#1.1", "failed again").unwrap();
+    let mut boundary = fixture.state().clone();
+    boundary.status = WorkStatus::Active;
+    boundary.validate_persisted().unwrap();
+    assert_eq!(legal_next(&boundary, &fixture.graph), vec![NextOp::Cancel]);
+}

@@ -14,14 +14,25 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn copy_tree(src: &Path, dst: &Path) {
+fn copy_tree(src: &Path, dst: &Path, relative: &Path) {
     fs::create_dir_all(dst).unwrap();
     for entry in fs::read_dir(src).unwrap() {
         let entry = entry.unwrap();
         let from = entry.path();
         let to = dst.join(entry.file_name());
+        let relative = relative.join(entry.file_name());
+        // 版本/历史夹具保留完整Markdown扫描输入，不复制与治理无关的原始运行产物。
+        if relative.starts_with("specs")
+            && relative
+                .components()
+                .any(|part| part.as_os_str() == "evidence")
+            && from.is_file()
+            && from.extension() != Some(std::ffi::OsStr::new("md"))
+        {
+            continue;
+        }
         if from.is_dir() {
-            copy_tree(&from, &to);
+            copy_tree(&from, &to, &relative);
         } else {
             fs::copy(&from, &to).unwrap();
         }
@@ -32,7 +43,7 @@ fn copy_tree(src: &Path, dst: &Path) {
 fn copy_governance_tree(base: &Path) -> PathBuf {
     let tree = base.join("gov");
     for name in ["scripts", "specs", ".github"] {
-        copy_tree(&repo_root().join(name), &tree.join(name));
+        copy_tree(&repo_root().join(name), &tree.join(name), Path::new(name));
     }
     fs::create_dir_all(&tree).unwrap();
     for name in [

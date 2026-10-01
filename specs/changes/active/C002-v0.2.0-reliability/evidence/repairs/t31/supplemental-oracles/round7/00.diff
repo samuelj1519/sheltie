@@ -1,0 +1,17 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ crates/sheltie-runtime/src/pending.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]
+@@ -178,13 +178,7 @@
+         &self,
+         owner: &str,
+         final_path: &str,
+-    ) -> Vec<&PendingReference> {
+-        self.references
+-            .values()
+-            .flatten()
+-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)
+-            .collect()
+-    }
++    ) -> Vec<&PendingReference> { vec![] }
+ }
+ 
+ /// Locate the single registered directory through the rename window without creating a lock or

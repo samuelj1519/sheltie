@@ -1,0 +1,4 @@
+{"gate": "fmt", "argv": ["cargo", "fmt", "--all", "--", "--check"], "exit": 0, "seconds": 0.31}
+{"gate": "check", "argv": ["cargo", "check", "--all-targets", "--all-features"], "exit": 0, "seconds": 5.8}
+{"gate": "clippy", "argv": ["cargo", "clippy", "--all-targets", "--all-features", "--", "-D", "warnings"], "exit": 0, "seconds": 5.808}
+{"gate": "nextest", "argv": ["cargo", "nextest", "run", "--all-features", "--no-tests=pass"], "exit": 100, "seconds": 68.539}

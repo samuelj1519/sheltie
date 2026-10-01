@@ -1,0 +1,7 @@
+Found 5 mutants to test
+ok       Unmutated baseline in 22s build + 38s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:219:21: replace || with && in check_work_effects in 52s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:281:21: replace || with && in check_work_effects in 94s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:374:17: replace && with || in validate_effect_shape in 34s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:412:57: replace || with && in check_workbook_effects in 19s build + 600s test
+5 mutants tested in 33m: 1 caught, 4 timeouts

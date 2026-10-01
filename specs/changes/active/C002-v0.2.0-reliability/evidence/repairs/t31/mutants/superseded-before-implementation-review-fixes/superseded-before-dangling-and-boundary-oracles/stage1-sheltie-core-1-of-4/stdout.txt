@@ -1,0 +1,8 @@
+Found 177 mutants to test
+ok       Unmutated baseline in 13s build + 0s test
+MISSED   crates/sheltie-core/src/flow/def.rs:258:9: replace FlowDef::edges -> &[EdgeDef] with Vec::leak(Vec::new()) in 10s build + 1s test
+MISSED   crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source in 2s build + 0s test
+MISSED   crates/sheltie-core/src/work/decide.rs:574:33: replace += with -= in decide_approve in 2s build + 0s test
+MISSED   crates/sheltie-core/src/work/decide.rs:574:33: replace += with *= in decide_approve in 2s build + 0s test
+MISSED   crates/sheltie-core/src/work/next.rs:101:45: replace < with <= in legal_next in 3s build + 0s test
+177 mutants tested in 3m: 5 missed, 123 caught, 49 unviable

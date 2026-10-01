@@ -222,20 +222,12 @@ impl Store {
         Ok(store)
     }
 
-    pub(crate) fn initialize_existing(
-        home: &Home,
-        lock: &HomeLock,
-        path: &AbsPath,
-        created: &crate::fsx::SafeFile,
-    ) -> Result<()> {
-        crate::fsx::verify_managed_file_bound(home, lock, path, created)?;
-        let conn = rusqlite::Connection::open_with_flags(
-            path.as_str(),
-            rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
-        )?;
-        crate::fsx::verify_managed_file_bound(home, lock, path, created)?;
+    pub(crate) fn empty_database_bytes() -> Result<Vec<u8>> {
+        let conn = rusqlite::Connection::open_in_memory()?;
         conn.execute_batch(&schema::create_script())?;
-        Ok(())
+        check_schema(&conn)?;
+        let bytes = conn.serialize(rusqlite::MAIN_DB)?.to_vec();
+        Ok(bytes)
     }
 
     #[cfg(test)]

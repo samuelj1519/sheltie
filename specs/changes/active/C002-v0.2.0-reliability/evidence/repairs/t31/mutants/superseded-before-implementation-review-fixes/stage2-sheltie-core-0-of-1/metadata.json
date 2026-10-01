@@ -1,0 +1,31 @@
+{
+  "name": "stage2-sheltie-core-0-of-1",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-core",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "8",
+    "--test-workspace",
+    "true",
+    "--re",
+    "^(?:crates/sheltie-core/src/flow/parse\\.rs:140:32: replace \\|\\| with && in parse_input_source)$"
+  ],
+  "exit": 2,
+  "seconds": 105.657,
+  "listed": 1,
+  "processed": 1,
+  "counts": {
+    "MissedMutant": 1
+  },
+  "candidate": "da2bd13979df88dd987596d7ed726ef99bb89651",
+  "profile": {
+    "opt-level": 1,
+    "debug": 0,
+    "debug-assertions": true,
+    "overflow-checks": true
+  },
+  "timeout_seconds": 600
+}

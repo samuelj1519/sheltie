@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
-use crate::flow::EdgeKind;
+use crate::flow::{EdgeKind, Graph};
 use crate::ids::{AttemptId, FlowId, NodeId, WorkId, WorkName, WorkbookId};
 use crate::path::AbsPath;
 use crate::text::Summary;
@@ -396,6 +396,58 @@ impl WorkState {
             })
         {
             return Err("当前 gate 已批准却仍受阻".to_string());
+        }
+        // Each blocking event belongs to an ended Attempt or a Gate Approval.
+        // These are necessary bounds, not a reconstruction of the stored total.
+        let maximum = self.attempts.len().saturating_add(self.approvals.len());
+        let minimum = self
+            .approvals
+            .len()
+            .saturating_add(usize::from(matches!(self.status, WorkStatus::Blocked(_))));
+        let count = u64::from(self.blocked_count);
+        if count < minimum as u64 || count > maximum as u64 {
+            return Err("blocked_count 与 Attempt/Approval 受阻事实不一致".to_string());
+        }
+        Ok(())
+    }
+
+    /// 冻结图提供门槛定义；持久状态只能引用已有批准事实，不能推断或补造批准。
+    pub fn validate_gate_facts(&self, graph: &Graph) -> std::result::Result<(), String> {
+        let approved = |node: &NodeId, occurrence: u32| {
+            self.approvals
+                .iter()
+                .any(|approval| &approval.node == node && approval.occurrence == occurrence)
+        };
+        for approval in &self.approvals {
+            if !graph.node(&approval.node).is_some_and(|node| node.gate()) {
+                return Err(format!(
+                    "{}#{} 的批准没有对应门槛",
+                    approval.node, approval.occurrence
+                ));
+            }
+        }
+        let current = graph
+            .node(&self.current.node)
+            .ok_or_else(|| format!("当前Occurrence {} 不在冻结图中", self.current))?;
+        if self.status == WorkStatus::Blocked(BlockedReason::Gate) && !current.gate() {
+            return Err(format!("当前非门槛 {} 不能是Gate受阻", self.current));
+        }
+        for attempt in &self.attempts {
+            let occurrence = attempt.occurrence();
+            let has_left_or_can_leave = occurrence != self.current
+                || matches!(
+                    self.status,
+                    WorkStatus::Active
+                        | WorkStatus::Succeeded
+                        | WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+                );
+            if attempt.status == AttemptStatus::Succeeded
+                && graph.node(&attempt.id.node).is_some_and(|node| node.gate())
+                && has_left_or_can_leave
+                && !approved(&occurrence.node, occurrence.n)
+            {
+                return Err(format!("已离开或可离开的门槛 {occurrence} 缺少批准"));
+            }
         }
         Ok(())
     }

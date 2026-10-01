@@ -1,0 +1,43 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+warning: function `prepare_new_request` is never used
+   --> crates/sheltie-runtime/src/pending.rs:271:15
+    |
+271 | pub(crate) fn prepare_new_request(
+    |               ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sheltie-runtime` (lib test) generated 1 warning
+warning: `sheltie-runtime` (lib) generated 1 warning (1 duplicate)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.63s
+────────────
+ Nextest run ID 4cf32cc6-bb8b-420e-888b-41056cc90b79 with nextest profile: default
+    Starting 1 test across 35 binaries (641 tests skipped)
+        FAIL [   4.790s] (1/1) sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-clean-fail-start-pending_owner_synced_before_payload","work","start","--workbook","two-step","--flow","default","--input","topic=cleanup"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    test same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned ... FAILED
+
+    failures:
+
+    failures:
+        same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 4.78s
+
+  stderr ───
+
+    thread 'same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned' (71116208) panicked at crates/sheltie-cli/tests/reliability_crash.rs:817:13:
+    assertion `left == right` failed: Output { status: ExitStatus(unix_wait_status(0)), stdout: "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp9XRd6v/works/2026-09-29-001-default\",\"work_id\":\"2026-09-29-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-09-29-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-29-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"t31-clean-fail-start-pending_owner_synced_before_payload\",\"revision\":1}\n", stderr: "warning: pending维护：request_id=t31-clean-fail-start-pending_owner_synced_before_payload object=pending/01a0edc1f8d474af9512e0404ad1012d reason=owner与Store引用不一致或引用缺失，保留原件\nwarning: pending维护：request_id=t31-clean-fail-start-pending_owner_synced_before_payload object=pending/01a0edc1fd4371edb8d2e35648a9dd8d reason=清理失败，保留原件：pending cleanup：injected cleanup failure: pending_cleanup_before_remove\n" }
+      left: Some(0)
+     right: Some(1)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   4.808s] 1 test run: 0 passed, 1 failed, 641 skipped
+        FAIL [   4.790s] (1/1) sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned
+error: test run failed

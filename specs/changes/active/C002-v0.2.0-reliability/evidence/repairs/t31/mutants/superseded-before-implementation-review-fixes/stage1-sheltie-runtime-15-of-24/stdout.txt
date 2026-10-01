@@ -1,0 +1,25 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:18:41: replace * with / in 4s build + 25s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:34:9: replace ReleaseSource::is_local -> bool with true in 59s build + 109s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:34:43: replace && with || in ReleaseSource::is_local in 67s build + 102s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:42:23: replace == with != in ReleaseSource::manifest_url in 30s build + 101s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:52:23: replace == with != in ReleaseSource::asset_url in 18s build + 98s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:469:9: replace || with && in checked_version in 18s build + 79s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:468:9: replace || with && in checked_version in 6s build + 121s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:466:9: replace || with && in checked_version in 8s build + 118s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:467:9: replace || with && in checked_version in 11s build + 114s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:465:9: replace || with && in checked_version in 13s build + 113s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:485:9: replace || with && in checked_asset_name in 4s build + 98s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:481:9: replace || with && in checked_asset_name in 6s build + 96s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:482:9: replace || with && in checked_asset_name in 7s build + 95s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:653:12: delete ! in download in 5s build + 193s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:607:32: replace && with || in adapt_cargo_dist_manifest in 6s build + 192s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:607:26: replace == with != in adapt_cargo_dist_manifest in 6s build + 192s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:665:39: replace > with == in download in 5s build + 192s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:573:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest in 12s build + 186s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:678:5: replace curl -> std::result::Result<String, String> with Ok(String::new()) in 13s build + 184s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:665:39: replace > with >= in download in 18s build + 179s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:678:5: replace curl -> std::result::Result<String, String> with Ok("xyzzy".into()) in 6s build + 84s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:688:8: delete ! in curl in 6s build + 81s test
+78 mutants tested in 14m: 22 missed, 43 caught, 13 unviable

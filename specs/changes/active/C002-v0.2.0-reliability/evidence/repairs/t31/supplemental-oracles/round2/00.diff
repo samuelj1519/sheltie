@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root
+@@ -214,7 +214,7 @@
+                     });
+                 }
+                 Ok(_) => open_directory_at(&current, segment, &display)?,
+-                Err(rustix::io::Errno::NOENT) if create_missing => {
++                Err(rustix::io::Errno::NOENT) if false => {
+                     match mkdirat(&current, segment, Mode::from_raw_mode(0o700)) {
+                         Ok(()) | Err(rustix::io::Errno::EXIST) => {
+                             fsync(&current).map_err(|e| map_fs_error(&display, e))?;

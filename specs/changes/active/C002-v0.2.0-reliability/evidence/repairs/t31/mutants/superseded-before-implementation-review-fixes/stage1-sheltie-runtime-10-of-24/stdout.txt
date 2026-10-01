@@ -1,0 +1,18 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:52: replace | with ^ in set_dir_tree_mode in 9s build + 23s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with & in set_dir_tree_mode in 40s build + 107s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with ^ in set_dir_tree_mode in 58s build + 138s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3040:35: replace && with || in set_dir_tree_mode in 70s build + 133s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3032:45: replace || with && in set_dir_tree_mode in 73s build + 131s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with & in set_dir_tree_mode in 21s build + 157s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with ^ in set_dir_tree_mode in 19s build + 157s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with & in set_dir_tree_mode in 11s build + 167s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with ^ in set_dir_tree_mode in 11s build + 167s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with & in set_dir_tree_mode in 14s build + 163s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with ^ in set_dir_tree_mode in 18s build + 157s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3060:45: replace || with && in set_dir_tree_mode in 21s build + 154s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3068:35: replace && with || in set_dir_tree_mode in 25s build + 79s test
+MISSED   crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest in 14s build + 81s test
+MISSED   crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with true in Home::confine in 10s build + 48s test
+78 mutants tested in 10m: 15 missed, 46 caught, 17 unviable

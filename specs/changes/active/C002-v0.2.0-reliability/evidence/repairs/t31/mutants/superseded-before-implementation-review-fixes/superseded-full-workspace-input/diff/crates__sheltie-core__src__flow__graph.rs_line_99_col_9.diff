@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/flow/graph.rs
++++ replace Graph::out_edges -> &[EdgeDef] with Vec::leak(Vec::new())
+@@ -91,17 +91,17 @@
+     }
+ 
+     pub fn node_count(&self) -> usize {
+         self.nodes.len()
+     }
+ 
+     /// 从某节点出发的全部边，按声明顺序。
+     pub fn out_edges(&self, id: &NodeId) -> &[EdgeDef] {
+-        self.out_edges.get(id).map(Vec::as_slice).unwrap_or(&[])
++        Vec::leak(Vec::new()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub fn edge_count(&self) -> usize {
+         self.out_edges.values().map(Vec::len).sum()
+     }
+ 
+     /// 没有出边的节点是终点。
+     pub fn is_terminal(&self, id: &NodeId) -> bool {

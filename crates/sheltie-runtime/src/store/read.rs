@@ -245,13 +245,31 @@ impl Store {
     /// All request effect rows, including completed requests that may still own cleanup metadata.
     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.
     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {
+        self.request_effect_rows(
+            "SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id",
+            [],
+        )
+    }
+
+    pub(crate) fn work_start_effect_rows(&self, work: &WorkId) -> Result<Vec<RequestEffectRow>> {
+        self.request_effect_rows(
+            "SELECT DISTINCT r.request_id, r.published, r.effects_json, r.work_id
+             FROM requests r JOIN audit a ON a.request_id = r.request_id
+             WHERE r.work_id = ?1 AND a.revision = 1 ORDER BY r.request_id",
+            [work.as_str()],
+        )
+    }
+
+    fn request_effect_rows(
+        &self,
+        sql: &str,
+        params: impl rusqlite::Params,
+    ) -> Result<Vec<RequestEffectRow>> {
         use rusqlite::types::ValueRef;
 
         let conn = self.connect()?;
-        let mut stmt = conn.prepare(
-            "SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id",
-        )?;
-        let mut rows = stmt.query([])?;
+        let mut stmt = conn.prepare(sql)?;
+        let mut rows = stmt.query(params)?;
         let mut out = Vec::new();
         while let Some(row) = rows.next()? {
             let request_id: String = row.get(0)?;

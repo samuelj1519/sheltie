@@ -13,11 +13,11 @@
 打开时：
 
 1. 先以只读方式识别：库文件不存在时，只读操作报 `NOT_FOUND`，不建库；写操作在取得管理根写锁后才建库（§2）。
-2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 2` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。WAL共享内存`store.db-shm`是D-039明定的唯一SQLite控制文件例外；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
+2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 2` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。`store.db-shm`维护与缺失WAL的零字节创建是D-039明定的SQLite控制文件例外，不能写WAL header/frame或改已有WAL字节；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
 3. 结构校验通过后，读写连接才设置 WAL 与 `synchronous = FULL`。
 4. 不自动迁移，不清空。测试放一个 schema 1 的库作负例，断言拒绝且文件字节不变。
 
-建库的 DDL 与 `PRAGMA user_version = 2` 在**同一个事务**里执行，避免半结构库；首次并发建库由管理根写锁串行化。
+建库的 DDL 与 `PRAGMA user_version = 2` 在**同一个事务**里执行。首次建库在内存 SQLite 中生成并核对完整空库，以安全公开的序列化 API 取数据库字节，持锁独占写入自有 `tmp/store-init-<随机 id>/store.db` 并同步文件和父目录，再按同一打开对象以 NOREPLACE 发布为根下 `store.db`，同步源与目标父目录。SQLite 不按暂存绝对路径打开文件，不在暂存阶段切换 WAL；异常中断只留下自有 tmp，最终端点不存在或已经具有完整 schema。后续写操作可以重新创建独立暂存库；不得解释、初始化或删除任意既有 schema 0/1 文件。首次并发建库由管理根写锁串行化。
 
 ### 1.2 表
 
@@ -96,7 +96,7 @@ runtime在进入写路径前构造`RequestIntent`，一个枚举覆盖全部写�
 ### 2.3 一次写事务
 
 ```text
-只读预检（无锁）：解析用户参数与目标身份、识别 schema、查 request_id 可重放项；未命中才读取 @file/Workbook 并做确定性校验
+只读预检（无锁）：解析用户参数与目标身份、识别 schema、查 request_id 可重放项；未命中才读取 @file/Workbook 并做对应预检；Workbook add只核源结构/类型/限额，内容在锁内私有副本校验
 取得管理根写锁（合法写操作才创建管理根与 .lock）
 锁内重核：schema、request_id、受并发影响的前置事实；先恢复未完成效果
 BEGIN IMMEDIATE
@@ -130,7 +130,7 @@ COMMIT
 | --- | --- | --- | --- |
 | 只读预检失败 | 无变化（不存在的新根不建库） | 无变化 | 修参数或补输入后重试，可用同 request-id |
 | 序号分配后、staging 完成 | 无 Work 行；可能留空号与本操作的 `pending/<内部 id>/` | 只有本操作的私有暂存；最终目录不存在 | 持写锁时核对暂存标记与「无 Store 引用」后清理；空号不回收 |
-| COMMIT 前 | 无变化 | 同上 | 同 request-id 重试或换新请求，均从预检重走 |
+| COMMIT 前 | 本请求未新增业务行/request/audit；首次合法初始化可留空schema 2 Store | 只有自有暂存与控制对象，无最终业务目录 | 同 request-id 重试或换新请求，均从预检重走 |
 | COMMIT 后、发布前 | 已提交；`requests.published = 0` | `pending/<内部 id>/payload/` 是唯一原件，**永不按年龄清理** | 下一次写操作在锁内先按 `effects_json` 发布，再处理新命令；同请求重放返回原响应 |
 | 发布中（rename 后、标记前） | `published = 0` | 最终对象在位 | 恢复核对最终对象归属与摘要：同对象视为已完成；不同对象报错，不覆盖 |
 | 发布失败（磁盘满、权限） | 已提交 | 部分 | 响应报 `EFFECT_PENDING`，携带 `committed = true`、request-id 与原响应；Work 写操作另带 revision，不回滚状态 |
@@ -204,9 +204,9 @@ BE64(file_count)
 
 `workbook add <dir>`：
 
-1. 只读预检：源目录可读、结构粗检（§5.3 限额、拒绝链接）。
+1. 只读预检：源目录可读、根下有普通`workbook.toml`、结构粗检（§5.3 限额、拒绝链接），失败不创建Home/Store/锁。
 2. 取写锁；按 §3.3 先持久化本操作的 `pending/<内部 id>.owner` 侧车及 `pending/` 目录项，再独占创建 `pending/<内部 id>/payload/`，受限复制源目录到 payload，逐文件 fsync。
-3. **只对最终副本** parse manifest、parse+compile 每个 Flow、算 `workbook-digest/v2`；登记的 id/version/digest 全部来自副本。复制期间源目录变化造成不完整或非法副本时拒绝；副本完整合法时登记它的实际字节，不以预检时的源元数据冒充最终身份。
+3. **只对最终副本** parse manifest、parse+compile 每个 Flow、算 `workbook-digest/v2`；登记的 id/version/digest 全部来自副本。复制期间源目录变化造成不完整或非法副本时拒绝；副本完整合法时登记它的实际字节，不以预检时的源元数据冒充最终身份。副本内容校验失败允许保留控制对象与自有未提交pending，但不得新增业务行、request、audit或最终Workbook；修复来源后可用原request-id重试。
 4. 一个事务：requests 查重（重放）→ `INSERT workbooks` + audit + requests（`effects_json = publish_dir`，`published = 0`）。主键冲突报 `WORKBOOK_EXISTS`。
 5. COMMIT 后 rename `pending/<内部 id>/payload/ → workbooks/<id>/<version>/`，整棵含根置只读（目录 0555、文件 0444）；其他效果完成后先标 `published = 1`，再清理空容器与侧车。
 
@@ -237,7 +237,7 @@ BE64(file_count)
 
 ## 6. 历史文件与当前投影
 
-`brief.md` 与 `engine/stats.json` 是历史事实：内容在提交前确定，精确字节存进 `requests.effects_json`，未完成效果恢复和已完成请求的显式重放都按 §3.2 的 `write_file` 核对或补齐，不从最新状态重算；已完成 `submit` 的重放不重做输出封存。`status-card.md` 是当前状态的投影：`refresh_status_card` 每次从最新 `WorkState` 生成，失败保留 `published = 0` 供下次写操作恢复；任何请求重放都不回写旧版本。
+`brief.md` 与 `engine/stats.json` 是历史事实：内容在提交前确定，精确字节存进 `requests.effects_json`，未完成效果恢复和已完成请求的显式重放都按 §3.2 的 `write_file` 核对或补齐，不从最新状态重算。显式历史核对同步同一个文件对象及父目录，即使请求已经published；这是为了完成先前补缺rename后失败的sync，不改匹配字节，也不重做目录发布/PrepareAttempt/输出封存；已完成 `submit` 的重放不重做输出封存。`status-card.md` 是当前状态的投影：`refresh_status_card` 每次从最新 `WorkState` 生成，失败保留 `published = 0` 供下次写操作恢复；任何请求重放都不回写旧版本。
 
 ## 7. 时间与 ID
 
@@ -301,3 +301,7 @@ purge成功后仅保留空管理根及原`.lock`；`store.db`与WAL sidecars、w
 `self update`不改`store.db`。新binary若带更高`SCHEMA_VERSION`，下次操作按§1.1报`STORE_SCHEMA_MISMATCH`；v0.2.0说明旧binary也拒绝schema 2。rollback到旧binary须配套旧管理根；新管理根不被旧binary误写。binary版本回退不等于Store schema降级。
 
 发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台压缩包、sha256 清单、`install.sh`。`self update` 读发布清单 `dist-manifest.json`，认两种写法：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }`（本地发布目录与测试用，`SHELTIE_RELEASE_BASE` 指向本地目录时不联网），以及 cargo-dist 发布的完整清单（在 `selfmgmt` 里适配成同一形状）。本地发布目录按 `latest/dist-manifest.json` 与 `v<version>/dist-manifest.json` 镜像 tag 布局，与远端走同一解析路径。网络下载用系统 `curl`。不引 `axoupdater`（D-30）。二进制只包含 `sheltie` 一个可执行文件。
+
+### 累计受阻事实的内部界
+
+`blocked_count` 是GF-29的显式累计事实，不能重算或修正。可信装入核必要界：`approvals.len() + 当前是否Blocked <= blocked_count <= attempts.len() + approvals.len()`。每次受阻至多归属一次Attempt结束或一次Gate Approval，每条Approval证明先前Gate受阻，当前Blocked证明另一次事件。不满足时为STORE_CORRUPT，保留原数据；不是按历史重建精确计数。core增量不得溢出panic或回绕。

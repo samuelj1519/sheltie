@@ -399,15 +399,22 @@ fn two_writers_serialize_under_home_lock() {
 
     // 并发取消 + 提交：取消使 Work 终态；提交要么先发生（成功），要么后发生
     //（WorkTerminal / RequestConflict-free 失败）。任何结果都不能留下半写状态。
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
     let a = {
         let svc = svc.clone();
         let wid = wid.clone();
-        std::thread::spawn(move || svc.cancel(&wid, None))
+        let barrier = barrier.clone();
+        std::thread::spawn(move || {
+            barrier.wait();
+            svc.cancel(&wid, None)
+        })
     };
     let b = {
         let svc = svc.clone();
         let wid = wid.clone();
+        let barrier = barrier.clone();
         std::thread::spawn(move || {
+            barrier.wait();
             svc.submit(
                 &wid,
                 &AttemptId::parse("outline#1.0").unwrap(),
@@ -416,8 +423,12 @@ fn two_writers_serialize_under_home_lock() {
             )
         })
     };
-    let _ = a.join().unwrap();
-    let _ = b.join().unwrap();
+    barrier.wait();
+    a.join().unwrap().unwrap();
+    let submitted = b.join().unwrap();
+    assert!(
+        submitted.is_ok() || submitted.unwrap_err().code() == sheltie_core::ErrorCode::WorkTerminal
+    );
 
     // 终态一致：取消必然生效；状态卡与库一致。
     let (_, card) = svc.status(&wid).unwrap();

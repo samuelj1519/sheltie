@@ -1,0 +1,130 @@
+[
+  {
+    "path": ".config/nextest.toml",
+    "sha256": "a589f0617678bfa1828d2fa93424e68f724e09b3017088e0a4c9c67b939d0c7f"
+  },
+  {
+    "path": "Cargo.lock",
+    "sha256": "76621d1d7ec8056f3817c3e647dd5f34fca13f6c14345353ce550f7b4dc6de19"
+  },
+  {
+    "path": "crates/sheltie-cli/Cargo.toml",
+    "sha256": "12260219d9b1bc7c763466ad88349c2f5f08ea4d8100ef6f5f451751dc924491"
+  },
+  {
+    "path": "crates/sheltie-cli/tests/common/mod.rs",
+    "sha256": "c16aad68051b31d6a4811af3f66238ebfedc942081360b8db780efc7c3549ae8"
+  },
+  {
+    "path": "crates/sheltie-cli/tests/reliability_crash.rs",
+    "sha256": "387a1035e4e44cf58ec1de873d96251da794a311bb970983c7aafa11dc56d8bc"
+  },
+  {
+    "path": "crates/sheltie-core/src/work/decide.rs",
+    "sha256": "c0d1d5d305dba0cd0d9a66b756628108ef99dfcb4b3997fb1e3040237490fb8f"
+  },
+  {
+    "path": "crates/sheltie-core/src/work/state.rs",
+    "sha256": "1b3a75ed4e9317b96c48bfcb97e82b5bba2bd6b3b2896c553dbfe196056ddbfc"
+  },
+  {
+    "path": "crates/sheltie-core/tests/examples.rs",
+    "sha256": "025b5a25f8a8e08ad49806e89bf00104b4a85585b269447148b8353a8f1d1957"
+  },
+  {
+    "path": "crates/sheltie-core/tests/persisted_contracts.rs",
+    "sha256": "b32a0e45b34d2bd690143329dfdc1f3c111f91145b27e96380da448df30649f8"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/effects.rs",
+    "sha256": "bae6647c305288df7d35c74972305c5e16c795f7caa96f7328679744e30b9636"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/failpoint.rs",
+    "sha256": "5226e162c5f280eb4fbba03e6f75668729062e8741da0543ace95650b2f25057"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/fsx.rs",
+    "sha256": "d29fdfb1b6eb84d1bdac69d7201704e9b81925ff215041692acbdb22443c0f44"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/pending.rs",
+    "sha256": "59698b69178ddb58f439b8027bc8890adedc4c43ed38374ebb7d3539bc15111e"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/recovery.rs",
+    "sha256": "6c776e8ab0233f573b7a0ae268f2e9b78ea41fb9247e2fc3c9161dc8f1d25bd9"
+  },
+  {
+    "path": "crates/sheltie-runtime/src/service.rs",
+    "sha256": "a778df19105aac2ec8bd531513bd090d6d422267d40670e6a0f0b66d43561d6f"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/common/mod.rs",
+    "sha256": "44571a30502a77baa891f76d492371bf4ec1c4abff2a0c6a5992565d76801a62"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/common/owned_tempdir.rs",
+    "sha256": "c1fbc74d80e9db9567f43ae773ed867f3b908261bc931191301e3c76e7ac9e20"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/crash.rs",
+    "sha256": "77a534c8fd3af1c183b7e9dfe8fcd83cfb5853519cd118b4290065c4a9814dc4"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/schema2_replay.rs",
+    "sha256": "aca9068a3baa9fe64871a313b828bd3123a1a8c8fdec10e0e7549b989ce59b1e"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/selfmgmt.rs",
+    "sha256": "663168646030532ffaea97af144daf282a4d41cec6104aa7223bf3c99a1bb52c"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "sha256": "79ceee643a90aaf7acac171a9e47dbfcd7549e7eafdc9a5e4412175f579ff1fc"
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/workbook_txn.rs",
+    "sha256": "d4d05bca422bf197b345df47e67de9482628bf13f57043aa48a16e1d099a805a"
+  },
+  {
+    "path": "scripts/check-task.sh",
+    "sha256": "38d50ca929accf876aaab4ce68c3c2d7fe9fce97ab79913ea3f1d9e170ccdf33"
+  },
+  {
+    "path": "specs/changes/active/C002-v0.2.0-reliability/plan.md",
+    "sha256": "bf0655606a48c091837a54a3218a1d3bb6f5554dcfe57b7fd7df69f3071468de"
+  },
+  {
+    "path": "specs/changes/active/C002-v0.2.0-reliability/repair-design.md",
+    "sha256": "1e1b78c052d71e9e1c4ef9ce69d16326c9afc1d7e8be87f00607f6fd4c0334ad"
+  },
+  {
+    "path": "specs/changes/active/C002-v0.2.0-reliability/repair-plan.md",
+    "sha256": "8b747729cc2d0f55fcbfc5fac94359fc14f3fafbaf36a230d611b0b569725a1e"
+  },
+  {
+    "path": "specs/changes/active/C002-v0.2.0-reliability/repair-validation.md",
+    "sha256": "b60f636b00dbfe6b6784b15341a3b437c588bfc90fd93828197ac5c8aa2e228a"
+  },
+  {
+    "path": "specs/changes/active/C002-v0.2.0-reliability/tasks.toml",
+    "sha256": "c4b5136db381d3118ea19a2e2e303e5b3591f4d66f3a929a45c96c26c162e9b3"
+  },
+  {
+    "path": "specs/contracts/protocol.md",
+    "sha256": "17b307cd3ed827b1f379c0cf324023e5bdd8379be3484fca89a0f0d5f2490f89"
+  },
+  {
+    "path": "specs/contracts/storage.md",
+    "sha256": "f2850977e27030fa583e0d54f85a64005343fd3f0d582f046222cdc18ce83880"
+  },
+  {
+    "path": "specs/decisions/D-039-sqlite-read-control-files.md",
+    "sha256": "a76fdb6fe46f8cafdda14b44a9ed45231d280a5d10ede0fe4375e0c110626ae3"
+  },
+  {
+    "path": "specs/spec.md",
+    "sha256": "ba43bb1c4f3b899d574f16cfd07e7d2a03f5519353dbf24579005283f044bca8"
+  }
+]

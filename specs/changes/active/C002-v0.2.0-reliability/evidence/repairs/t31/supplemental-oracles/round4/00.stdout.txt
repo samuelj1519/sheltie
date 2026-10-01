@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.90s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate ... FAILED
+
+failures:
+
+---- supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate stdout ----
+
+thread 'supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate' (30037574) panicked at crates/sheltie-runtime/tests/disposition_oracles.rs:218:5:
+WorkbookExists { id: "two-step", version: "1.0.0" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

@@ -1,0 +1,17 @@
+{
+  "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+  "argv": [
+    "cargo",
+    "nextest",
+    "run",
+    "-p",
+    "sheltie-runtime",
+    "--all-features",
+    "--test-threads",
+    "2",
+    "--no-tests=pass"
+  ],
+  "exit": 100,
+  "seconds": 473.305,
+  "purpose": "Measure validation resource contention; not part of mutation result and not reused for a differently configured run."
+}

@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/recovery.rs
++++ crates/sheltie-runtime/src/recovery.rs:479:28: replace != with == in work_original_snapshot
+@@ -476,7 +476,7 @@
+ 
+ fn work_original_snapshot(request_id: &str, work_id: &str, reply_json: &str) -> Option<String> {
+     let response: PersistedResponse = serde_json::from_str(reply_json).ok()?;
+-    if response.request_id != request_id || response.revision == 0 || response.replayed {
++    if response.request_id == request_id || response.revision == 0 || response.replayed {
+         return None;
+     }
+     let work = sheltie_core::ids::WorkId::parse(work_id).ok()?;

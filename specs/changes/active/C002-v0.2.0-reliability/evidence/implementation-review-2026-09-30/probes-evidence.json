@@ -1,0 +1,173 @@
+[
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/initialization-home",
+      "--json",
+      "--request-id",
+      "init-kill",
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "exit": -9,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/initialization-home",
+      "--json",
+      "--request-id",
+      "init-kill",
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/two-step"
+    ],
+    "exit": 1,
+    "stdout": "{\"error\":{\"code\":\"STORE_SCHEMA_MISMATCH\",\"detail\":{\"detail\":\"user_version 是 0，期望 2\"},\"message\":\"数据库结构与 SCHEMA_VERSION 不符：user_version 是 0，期望 2\"},\"next\":[],\"ok\":false}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "workbook",
+      "add",
+      "/Users/shushu/orca/workspaces/sheltie/codex/examples/gated-release"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0f07c-23c1-7478-be70-17c2c2ee8068\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "gated-release",
+      "--flow",
+      "default",
+      "--input",
+      "version=vtest"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default\",\"work_id\":\"2026-09-30-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-09-30-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f07c-3420-7692-a04a-7ec184f66e22\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-09-30-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/start-inputs/version\"},\"node\":\"notes\",\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-09-30-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-09-30-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f07c-52de-77e2-b04a-864e8c81a8d8\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "attempt",
+      "submit",
+      "2026-09-30-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "done"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":14,\"path\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"48b1a29e44eeff814abc6250e43395bf8ac81827f5791261378cb13b6699e37f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-09-30-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f07c-6c52-7796-ac93-3ce7076668e8\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "gate",
+      "approve",
+      "2026-09-30-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"at\":\"2026-09-30T04:04:48Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-09-30-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f07c-831c-7277-9395-ecd3cb914d30\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "work",
+      "status",
+      "2026-09-30-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"blocked\":null,\"current\":\"notes#1\",\"done\":[\"notes#1\"],\"flow\":\"default\",\"last_attempt\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":14,\"path\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"48b1a29e44eeff814abc6250e43395bf8ac81827f5791261378cb13b6699e37f\"}},\"reason\":null,\"status\":\"succeeded\",\"summary\":\"done\"},\"name\":\"default\",\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-09-30-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"pending\":[\"archive\"],\"pending_publish\":false,\"status\":{\"kind\":\"active\"},\"visits\":{\"archive\":\"0/1\",\"notes\":\"1/1\"},\"work_id\":\"2026-09-30-001-default\",\"workbook\":\"gated-release@1.0.0\"},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-09-30-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "changed_field": "state_json.approvals",
+    "before": [
+      {
+        "node": "notes",
+        "occurrence": 1,
+        "by": "shushu",
+        "at": "2026-09-30T04:04:48Z"
+      }
+    ],
+    "after": []
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "work",
+      "status",
+      "2026-09-30-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"blocked\":null,\"current\":\"notes#1\",\"done\":[\"notes#1\"],\"flow\":\"default\",\"last_attempt\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":14,\"path\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"48b1a29e44eeff814abc6250e43395bf8ac81827f5791261378cb13b6699e37f\"}},\"reason\":null,\"status\":\"succeeded\",\"summary\":\"done\"},\"name\":\"default\",\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-09-30-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"pending\":[\"archive\"],\"pending_publish\":false,\"status\":{\"kind\":\"active\"},\"visits\":{\"archive\":\"0/1\",\"notes\":\"1/1\"},\"work_id\":\"2026-09-30-001-default\",\"workbook\":\"gated-release@1.0.0\"},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-09-30-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-c002-review-9NZouweW/target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-09-30-001-default",
+      "--node",
+      "archive"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"archive#1.0\",\"brief_path\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/archive/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"notes\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"node\":\"archive\",\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/archive/occurrence-001/attempt-000/outputs\",\"outputs\":{\"archive\":\"/private/tmp/sheltie-c002-review-probes-7g3ji5ws/gate-home/works/2026-09-30-001-default/attempts/archive/occurrence-001/attempt-000/outputs/archive.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"archive#1.0\",\"work\":\"2026-09-30-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"archive#1.0\",\"work\":\"2026-09-30-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-09-30-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f07c-9aea-7643-8a0e-2d16102df8c5\",\"revision\":5}\n",
+    "stderr": ""
+  }
+]

@@ -244,8 +244,20 @@ fn failed_store_initialization_never_deletes_a_replaced_database_leaf() {
         let _ = add.join();
         panic!("WriteSession 未到达Store叶创建后的同步点");
     }
-    std::fs::remove_file(home.store_path().as_path()).unwrap();
-    let replacement = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert!(!home.store_path().as_path().exists());
+    let staging = std::fs::read_dir(home.tmp_dir().as_path())
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .find(|path| {
+            path.file_name()
+                .unwrap()
+                .to_string_lossy()
+                .starts_with("store-init-")
+        })
+        .unwrap()
+        .join("store.db");
+    std::fs::remove_file(&staging).unwrap();
+    let replacement = rusqlite::Connection::open(&staging).unwrap();
     replacement
         .execute_batch(
             "CREATE TABLE user_records(value TEXT);
@@ -254,17 +266,15 @@ fn failed_store_initialization_never_deletes_a_replaced_database_leaf() {
         )
         .unwrap();
     drop(replacement);
-    let old_database = std::fs::read(home.store_path().as_path()).unwrap();
+    let old_database = std::fs::read(&staging).unwrap();
     std::fs::write(&release, b"release").unwrap();
     assert!(matches!(
         add.join().unwrap(),
         Err(Error::RecoveryRequired { .. })
     ));
-    assert_eq!(
-        std::fs::read(home.store_path().as_path()).unwrap(),
-        old_database
-    );
-    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert_eq!(std::fs::read(&staging).unwrap(), old_database);
+    assert!(!home.store_path().as_path().exists());
+    let connection = rusqlite::Connection::open(&staging).unwrap();
     let schema: i64 = connection
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .unwrap();

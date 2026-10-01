@@ -1,0 +1,23 @@
+{
+  "candidate": "49d3a191aa4c918aab279617fa2bf7d9b3b36a0e",
+  "manifest_sha256": "ddc0d27002fe0917956790f499d6ec18a7a6ebc33e8706f496375de57aff85b2",
+  "pipeline_sha256": "0b1b6e87c9b6fc089bc46f1ed5bd78a6dc6f11b81c912192733604cbbd8aa3cf",
+  "source_files": 167,
+  "features": "all-features",
+  "profile": {
+    "opt-level": 1,
+    "debug": 0,
+    "debug-assertions": true,
+    "overflow-checks": true
+  },
+  "jobs": 8,
+  "timeout_seconds": 600,
+  "target": "relative target in each mutant source",
+  "tools": {
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "nextest": "cargo-nextest 0.9.146 (8af696ddc 2026-09-21)",
+    "mutants": "cargo-mutants 27.1.0"
+  },
+  "sha256": "d528a6e79f65148e11ad5abc1cef1b836e75dcc7c35703fce42c5ce4175438db"
+}

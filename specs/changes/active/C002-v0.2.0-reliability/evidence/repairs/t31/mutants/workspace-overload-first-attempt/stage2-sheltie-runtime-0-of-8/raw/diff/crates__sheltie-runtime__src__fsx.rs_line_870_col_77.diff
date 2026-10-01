@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace | with ^ in ManagedFs::write_new_observed_unlocked
+@@ -862,17 +862,17 @@
+     }
+ 
+     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {
+         let (parent, leaf) = self.open_parent(path)?;
+         let display = self.display_path(path);
+         let fd = openat(
+             &parent,
+             &leaf,
+-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
++            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW ^ /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,
+             Mode::from_raw_mode(0o600),
+         )
+         .map_err(|e| map_fs_error(&display, e))?;
+         let mut file = std::fs::File::from(fd);
+         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;
+         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {
+             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {
+                 Ok(()) => Err(Error::io(&display, error)),

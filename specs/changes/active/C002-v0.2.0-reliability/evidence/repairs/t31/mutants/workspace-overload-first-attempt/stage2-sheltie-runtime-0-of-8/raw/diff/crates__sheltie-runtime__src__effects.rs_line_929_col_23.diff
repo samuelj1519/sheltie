@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace || with && in verify_publish_final_state
+@@ -921,17 +921,17 @@
+     home: &Home,
+     lock: &crate::home::HomeLock,
+     pending: &str,
+     final_path: &str,
+     tree: &fsx::ManagedTree,
+ ) -> Result<()> {
+     let pending_exists = fsx::managed_directory_exists(home, lock, pending)?;
+     let final_exists = fsx::managed_directory_exists(home, lock, final_path)?;
+-    if pending_exists || !final_exists {
++    if pending_exists && /* ~ changed by cargo-mutants ~ */ !final_exists {
+         return Err(Error::StoreCorrupt {
+             detail: format!(
+                 "发布完成前四格状态改变：pending={pending_exists}, final={final_exists}"
+             ),
+         });
+     }
+     fsx::verify_managed_tree_at(home, tree, final_path)
+         .map_err(|error| integrity_error(format!("发布终态 {final_path} 不再绑定原件"), error))?;

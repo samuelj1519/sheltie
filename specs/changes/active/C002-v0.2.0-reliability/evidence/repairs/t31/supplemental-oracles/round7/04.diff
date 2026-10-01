@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ crates/sheltie-runtime/src/workbook_repo.rs:597:34: replace && with || in WorkbookRepo::publication_for_row
+@@ -594,7 +594,7 @@
+                 raw.get("intent").and_then(serde_json::Value::as_str),
+                 Some("add_workbook" | "remove_workbook")
+             );
+-            if !workbook_command && !publisher_ids.contains(audit.request_id.as_str()) {
++            if !workbook_command || !publisher_ids.contains(audit.request_id.as_str()) {
+                 continue;
+             }
+             let command: WorkbookAuditCommand =

@@ -1,0 +1,1318 @@
+diff --git a/.config/nextest.toml b/.config/nextest.toml
+index e48b938..fbabeb5 100644
+--- a/.config/nextest.toml
++++ b/.config/nextest.toml
+@@ -1,5 +1,7 @@
++nextest-version = { required = "0.9.145" }
++
+ [profile.default]
+-# 崩溃测试用子进程改同一个二进制与临时目录，串行跑。
++# 崩溃测试使用Cargo注入binary，各例独立临时目录；限制故障进程的资源并发。
+ [[profile.default.overrides]]
+ filter = "binary(crash)"
+ test-group = "serial"
+diff --git a/Cargo.lock b/Cargo.lock
+index 2b9ec0d..0def187 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -807,6 +807,7 @@ dependencies = [
+  "clap",
+  "predicates",
+  "rusqlite",
++ "rustix",
+  "serde",
+  "serde_json",
+  "sheltie-core",
+diff --git a/crates/sheltie-cli/Cargo.toml b/crates/sheltie-cli/Cargo.toml
+index 13d7dae..762f95b 100644
+--- a/crates/sheltie-cli/Cargo.toml
++++ b/crates/sheltie-cli/Cargo.toml
+@@ -22,6 +22,7 @@ sheltie-core = { workspace = true }
+ sheltie-runtime = { workspace = true }
+ 
+ [dev-dependencies]
++rustix = { workspace = true }
+ assert_cmd = { workspace = true }
+ predicates = { workspace = true }
+ rusqlite = { workspace = true }
+diff --git a/crates/sheltie-cli/tests/common/mod.rs b/crates/sheltie-cli/tests/common/mod.rs
+index 22e9231..966fb35 100644
+--- a/crates/sheltie-cli/tests/common/mod.rs
++++ b/crates/sheltie-cli/tests/common/mod.rs
+@@ -5,16 +5,18 @@ use std::path::{Path, PathBuf};
+ 
+ use assert_cmd::Command;
+ use serde_json::Value;
+-use tempfile::TempDir;
++#[path = "../../../sheltie-runtime/tests/common/owned_tempdir.rs"]
++mod owned_tempdir;
++pub use owned_tempdir::OwnedTempDir;
+ 
+ pub struct Env {
+-    pub dir: TempDir,
++    pub dir: OwnedTempDir,
+ }
+ 
+ impl Env {
+     pub fn new() -> Self {
+         Self {
+-            dir: tempfile::tempdir().unwrap(),
++            dir: OwnedTempDir::new(),
+         }
+     }
+ 
+@@ -166,3 +168,21 @@ pub fn next_begin_nodes(v: &Value) -> Vec<String> {
+         .map(|n| n["args"]["node"].as_str().unwrap().to_string())
+         .collect()
+ }
++
++pub fn copy_example(name: &str, into: &Path) -> PathBuf {
++    fn copy(source: &Path, target: &Path) {
++        std::fs::create_dir_all(target).unwrap();
++        for entry in std::fs::read_dir(source).unwrap() {
++            let entry = entry.unwrap();
++            let destination = target.join(entry.file_name());
++            if entry.file_type().unwrap().is_dir() {
++                copy(&entry.path(), &destination);
++            } else {
++                std::fs::copy(entry.path(), destination).unwrap();
++            }
++        }
++    }
++    let target = into.join(name);
++    copy(&example_dir(name), &target);
++    target
++}
+diff --git a/crates/sheltie-core/src/work/decide.rs b/crates/sheltie-core/src/work/decide.rs
+index 4d5415c..8ab6ca4 100644
+--- a/crates/sheltie-core/src/work/decide.rs
++++ b/crates/sheltie-core/src/work/decide.rs
+@@ -69,6 +69,17 @@ fn guard_not_terminal(state: &WorkState) -> Result<()> {
+     Ok(())
+ }
+ 
++fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
++    state.blocked_count =
++        state
++            .blocked_count
++            .checked_add(1)
++            .ok_or_else(|| Error::InvalidRequest {
++                reason: "累计受阻次数超出可表示范围".to_string(),
++            })?;
++    Ok(())
++}
++
+ /// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
+ /// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
+ /// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
+@@ -407,7 +418,7 @@ fn decide_submit(
+         new_state.status,
+         WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+     ) {
+-        new_state.blocked_count += 1;
++        increment_blocked_count(&mut new_state)?;
+     }
+     new_state.updated_at = ctx.now.clone();
+ 
+@@ -526,7 +537,7 @@ fn decide_fail(
+     }
+     if attempt.retry >= max_retries {
+         new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+-        new_state.blocked_count += 1;
++        increment_blocked_count(&mut new_state)?;
+     }
+     new_state.updated_at = ctx.now.clone();
+ 
+@@ -571,7 +582,7 @@ fn decide_approve(
+         new_state.status,
+         WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+     ) {
+-        new_state.blocked_count += 1;
++        increment_blocked_count(&mut new_state)?;
+     }
+     new_state.updated_at = ctx.now.clone();
+ 
+diff --git a/crates/sheltie-core/src/work/state.rs b/crates/sheltie-core/src/work/state.rs
+index ebc5bd3..181af32 100644
+--- a/crates/sheltie-core/src/work/state.rs
++++ b/crates/sheltie-core/src/work/state.rs
+@@ -397,6 +397,17 @@ impl WorkState {
+         {
+             return Err("当前 gate 已批准却仍受阻".to_string());
+         }
++        // Each blocking event belongs to an ended Attempt or a Gate Approval.
++        // These are necessary bounds, not a reconstruction of the stored total.
++        let maximum = self.attempts.len().saturating_add(self.approvals.len());
++        let minimum = self
++            .approvals
++            .len()
++            .saturating_add(usize::from(matches!(self.status, WorkStatus::Blocked(_))));
++        let count = u64::from(self.blocked_count);
++        if count < minimum as u64 || count > maximum as u64 {
++            return Err("blocked_count 与 Attempt/Approval 受阻事实不一致".to_string());
++        }
+         Ok(())
+     }
+ 
+diff --git a/crates/sheltie-core/tests/examples.rs b/crates/sheltie-core/tests/examples.rs
+index b9e50ec..3cd58ec 100644
+--- a/crates/sheltie-core/tests/examples.rs
++++ b/crates/sheltie-core/tests/examples.rs
+@@ -274,3 +274,75 @@ fn spec_dev_replanning_uses_required_review_copies_and_reachable_optional_histor
+         assert_ne!(source, "plan", "保持既有禁止自来源规则");
+     }
+ }
++
++// Task: C002-T31
++#[test]
++fn declared_node_requirements_remain_visible_through_validated_definition_and_graph() {
++    let flow = parse_flow(
++        r#"schema = "flow/v1"
++id = "default"
++entry = "draft"
++[[nodes]]
++id = "draft"
++title = "Draft"
++executor = "agent"
++instruction = { text = "write" }
++requires = ["skill:beta", "mcp:alpha"]
++"#,
++    )
++    .unwrap();
++    let expected = vec![
++        (
++            sheltie_core::workbook::RequireKind::Skill,
++            "beta".to_string(),
++        ),
++        (
++            sheltie_core::workbook::RequireKind::Mcp,
++            "alpha".to_string(),
++        ),
++    ];
++    assert_eq!(flow.nodes()[0].requires(), expected);
++    let manifest = parse_manifest(
++        r#"schema = "workbook/v1"
++id = "requirements"
++version = "1.0.0"
++name = "Requirements"
++flows = ["flows/default.toml"]
++[[requires]]
++kind = "skill"
++name = "beta"
++[[requires]]
++kind = "mcp"
++name = "alpha"
++"#,
++    )
++    .unwrap();
++    let graph = compile(
++        &flow,
++        &manifest,
++        &sheltie_core::flow::ResourceIndex::default(),
++    )
++    .unwrap();
++    assert_eq!(graph.node(&id("draft")).unwrap().requires(), expected);
++}
++
++// Task: C002-T31
++#[test]
++fn public_legal_next_does_not_offer_retry_at_the_node_retry_limit() {
++    use sheltie_core::work::{NextOp, WorkStatus, legal_next};
++    let mut fixture =
++        sheltie_core::testkit::Fixture::two_step().started_with(&[("topic", "retry")]);
++    fixture.begin("outline").unwrap();
++    fixture.fail("outline#1.0", "failed").unwrap();
++    assert!(
++        legal_next(fixture.state(), &fixture.graph)
++            .iter()
++            .any(|next| matches!(next, NextOp::BeginAttempt { .. }))
++    );
++    fixture.begin("outline").unwrap();
++    fixture.fail("outline#1.1", "failed again").unwrap();
++    let mut boundary = fixture.state().clone();
++    boundary.status = WorkStatus::Active;
++    boundary.validate_persisted().unwrap();
++    assert_eq!(legal_next(&boundary, &fixture.graph), vec![NextOp::Cancel]);
++}
+diff --git a/crates/sheltie-runtime/src/effects.rs b/crates/sheltie-runtime/src/effects.rs
+index 2e29989..fdb7fe2 100644
+--- a/crates/sheltie-runtime/src/effects.rs
++++ b/crates/sheltie-runtime/src/effects.rs
+@@ -640,7 +640,10 @@ pub(crate) fn execute_with_observed_outputs(
+                     continue;
+                 }
+                 for rel in dirs {
+-                    fsx::ensure_dirs_under(home, lock, &home.rel(rel)?)?;
++                    let target = home.rel(rel)?;
++                    fsx::ensure_dirs_under(home, lock, &target).map_err(|error| {
++                        classify_committed_path_error("Attempt目录", &target, error)
++                    })?;
+                 }
+             }
+             EffectOp::WriteFile {
+@@ -649,10 +652,14 @@ pub(crate) fn execute_with_observed_outputs(
+                 content,
+             } => {
+                 let target = home.rel(path)?;
+-                if target.as_path().exists() {
+-                    // 存在且摘要相同不写；不同是完整性错误，不掩盖修改。
+-                    let f = fsx::open_managed_regular(home, &target)?;
+-                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
++                if let Some(f) = fsx::open_managed_optional(home, &target)
++                    .map_err(|error| classify_committed_path_error("历史文件", &target, error))?
++                {
++                    // No-follow inspection distinguishes a missing leaf from an abnormal object.
++                    // A matching existing original is verified and left unchanged.
++                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
++                        classify_committed_path_error("历史文件", &target, error)
++                    })?;
+                     if got.as_str() != sha256 {
+                         return Err(Error::StoreCorrupt {
+                             detail: format!("历史文件 {path} 的摘要与登记不符（被修改）"),
+@@ -672,20 +679,28 @@ pub(crate) fn execute_with_observed_outputs(
+                             detail: format!("历史文件 {path} 的父目录缺失，不能恢复"),
+                         });
+                     }
+-                    fsx::write_exclusive_atomic(home, lock, &target, content.as_bytes())?;
+-                    let f = fsx::open_managed_regular(home, &target)?;
+-                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
++                    fsx::write_new_atomic_file(home, lock, &target, content.as_bytes()).map_err(
++                        |error| classify_committed_path_error("历史文件", &target, error),
++                    )?;
++                    let f = fsx::open_managed_regular(home, &target).map_err(|error| {
++                        classify_committed_path_error("历史文件", &target, error)
++                    })?;
++                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
++                        classify_committed_path_error("历史文件", &target, error)
++                    })?;
+                     if got.as_str() != sha256 {
+                         return Err(Error::StoreCorrupt {
+                             detail: format!("历史文件 {path} 恢复后摘要与登记不符"),
+                         });
+                     }
+                 }
++                crate::failpoint::maybe_exit("after_first_history_file_write");
+             }
+             EffectOp::SealOutputs { refs } => {
+                 if !publish {
+                     continue;
+                 }
++                crate::failpoint::maybe_exit("submit_before_seal");
+                 for r in refs {
+                     let target = home.rel(&r.path)?;
+                     if let Some(observed) = observed {
+@@ -741,19 +756,24 @@ fn seal_output(
+     reference: &RefJson,
+ ) -> Result<()> {
+     file.verify_seal_reference(&reference.sha256, reference.bytes)
+-        .map_err(|error| classify_seal_integrity_error(target, error))?;
++        .map_err(|error| classify_committed_path_error("封存", target, error))?;
+     fsx::ManagedFs::open_existing(home)?
+         .set_readonly(lock, file)
+-        .map_err(|error| classify_seal_integrity_error(target, error))
++        .map_err(|error| classify_committed_path_error("封存", target, error))
+ }
+ 
+-fn classify_seal_integrity_error(target: &AbsPath, error: Error) -> Error {
++fn classify_committed_path_error(operation: &str, target: &AbsPath, error: Error) -> Error {
+     match error {
++        Error::Io { source, .. } if source.kind() == std::io::ErrorKind::AlreadyExists => {
++            Error::StoreCorrupt {
++                detail: format!("{operation}路径 {target} 在恢复落位前出现已有对象：{source}"),
++            }
++        }
+         Error::InvalidRequest { reason } => Error::StoreCorrupt {
+-            detail: format!("封存路径 {target} 的对象身份或类型不符：{reason}"),
++            detail: format!("{operation}路径 {target} 的对象身份或类型不符：{reason}"),
+         },
+         Error::NotFound { what } => Error::StoreCorrupt {
+-            detail: format!("封存路径 {target} 在完成前消失：{what}"),
++            detail: format!("{operation}路径 {target} 在完成前消失：{what}"),
+         },
+         other => other,
+     }
+@@ -1071,15 +1091,19 @@ fn delete_dir(
+         fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
+         fsx::verify_managed_tree_at(home, &tree, pending)?;
+         verify_publish_object(home, &pending_dir, owner, digest)?;
++        crate::failpoint::maybe_exit("delete_payload_verified_before_remove");
+         fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+     } else {
+         let tree = fsx::open_managed_tree(home, lock, pending)?;
+         fsx::verify_managed_tree_at(home, &tree, pending)?;
++        // A crash may have moved the original before either rename parent was synced.
++        fsx::sync_publish_parents(home, lock, final_path, pending)?;
+         let pending_dir = home.rel(pending)?;
+         verify_publish_object(home, &pending_dir, owner, digest)?;
+         fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
+         fsx::verify_managed_tree_at(home, &tree, pending)?;
+         verify_publish_object(home, &pending_dir, owner, digest)?;
++        crate::failpoint::maybe_exit("delete_payload_verified_before_remove");
+         fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+     }
+     crate::failpoint::maybe_exit("delete_after_tree_removed_before_marker");
+@@ -1091,6 +1115,7 @@ fn delete_dir(
+         });
+     }
+     write_deleted_marker(home, lock, internal_id, request_id)?;
++    crate::failpoint::maybe_exit("delete_marker_synced_before_mark");
+     if fsx::managed_directory_exists(home, lock, pending)?
+         || fsx::managed_directory_exists(home, lock, final_path)?
+     {
+diff --git a/crates/sheltie-runtime/src/failpoint.rs b/crates/sheltie-runtime/src/failpoint.rs
+index 2162d17..c338b6e 100644
+--- a/crates/sheltie-runtime/src/failpoint.rs
++++ b/crates/sheltie-runtime/src/failpoint.rs
+@@ -9,6 +9,11 @@
+ /// 若开启特性且环境变量 `SHELTIE_FAILPOINT` 等于 `name`，以退出码 70 结束进程。否则什么都不做。
+ #[cfg(feature = "failpoint")]
+ pub fn maybe_exit(name: &str) {
++    // A subprocess can pause at exactly the same point before the parent sends SIGKILL.
++    if let Err(error) = rendezvous(name, name) {
++        eprintln!("test checkpoint {name} failed: {error}");
++        std::process::exit(71);
++    }
+     if std::env::var("SHELTIE_FAILPOINT").ok().as_deref() == Some(name) {
+         std::process::exit(EXIT_CODE);
+     }
+@@ -172,7 +177,11 @@ pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
+         let Some(configured) = configured else {
+             return Ok(());
+         };
+-        std::fs::write(configured.directory.join("reached"), name.as_bytes())?;
++        let temporary = configured
++            .directory
++            .join(format!("reached-{}.tmp", uuid::Uuid::now_v7().simple()));
++        std::fs::write(&temporary, name.as_bytes())?;
++        std::fs::rename(&temporary, configured.directory.join("reached"))?;
+         while !configured.directory.join("release").exists() {
+             std::thread::sleep(std::time::Duration::from_millis(1));
+         }
+diff --git a/crates/sheltie-runtime/src/fsx.rs b/crates/sheltie-runtime/src/fsx.rs
+index 1f4e917..737f940 100644
+--- a/crates/sheltie-runtime/src/fsx.rs
++++ b/crates/sheltie-runtime/src/fsx.rs
+@@ -623,6 +623,7 @@ impl ManagedFs {
+             RenameFlags::NOREPLACE,
+         )
+         .map_err(|error| map_fs_error(&self.display_path(to), error))?;
++        crate::failpoint::maybe_exit("tree_rename_before_parent_sync");
+         self.verify_tree_at(tree, to)
+             .map_err(|error| Error::RecoveryRequired {
+                 path: self.display_path(to),
+@@ -893,10 +894,25 @@ impl ManagedFs {
+         bytes: &[u8],
+     ) -> Result<()> {
+         self.check_lock(lock)?;
+-        self.write_atomic_unlocked(path, bytes)
++        self.write_atomic_unlocked(path, bytes, RenameFlags::empty())
+     }
+ 
+-    fn write_atomic_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<()> {
++    pub(crate) fn write_new_atomic(
++        &self,
++        lock: &crate::home::HomeLock,
++        path: &ManagedRelPath,
++        bytes: &[u8],
++    ) -> Result<()> {
++        self.check_lock(lock)?;
++        self.write_atomic_unlocked(path, bytes, RenameFlags::NOREPLACE)
++    }
++
++    fn write_atomic_unlocked(
++        &self,
++        path: &ManagedRelPath,
++        bytes: &[u8],
++        rename_flags: RenameFlags,
++    ) -> Result<()> {
+         if let Some(parent_path) = path.parent() {
+             self.ensure_dir_unlocked(&parent_path)?;
+         }
+@@ -916,7 +932,7 @@ impl ManagedFs {
+             return Err(Error::io(&display, e));
+         }
+         drop(file);
+-        if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, RenameFlags::empty()) {
++        if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, rename_flags) {
+             let _ = unlinkat(&parent, &tmp, AtFlags::empty());
+             return Err(map_fs_error(&display, e));
+         }
+@@ -1220,6 +1236,7 @@ impl ManagedFs {
+                 return Err(partial_purge_error(&self.root, name, &removed_roots, error));
+             }
+             removed_roots.push(name.clone());
++            crate::failpoint::maybe_exit("purge_after_top_level_delete");
+             if let Err(error) =
+                 crate::failpoint::rendezvous("purge_after_top_level_delete", self.root.as_str())
+             {
+@@ -1241,7 +1258,8 @@ impl ManagedFs {
+                 )
+             },
+         )?;
+-        // Read-only SQLite may create store.db-shm without HomeLock (D-039). It can appear
++        // Read-only SQLite may create SHM or an absent zero-byte WAL without HomeLock (D-039).
++        // These control files can appear
+         // after the initial listing, so re-scan once the main Store was removed. No other new
+         // root entry is expected; preserve it and report a partial purge instead of guessing.
+         for _ in 0..3 {
+@@ -1264,7 +1282,21 @@ impl ManagedFs {
+                 break;
+             }
+             for name in extras {
+-                if !name.eq_ignore_ascii_case("store.db-shm") {
++                let stat =
++                    statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW).map_err(|error| {
++                        partial_purge_error(
++                            &self.root,
++                            &name,
++                            &removed_roots,
++                            map_fs_error(&format!("{}/{name}", self.root), error),
++                        )
++                    })?;
++                let single_regular = FileType::from_raw_mode(stat.st_mode) == FileType::RegularFile
++                    && stat.st_nlink == 1;
++                let late_control = single_regular
++                    && (name.eq_ignore_ascii_case("store.db-shm")
++                        || (name.eq_ignore_ascii_case("store.db-wal") && stat.st_size == 0));
++                if !late_control {
+                     return Err(partial_purge_error(
+                         &self.root,
+                         &name,
+@@ -1286,11 +1318,11 @@ impl ManagedFs {
+                         error,
+                     ));
+                 }
+-                removed_roots.push(name);
++                removed_roots.push(name.clone());
+                 fsync(&self.root_dir).map_err(|error| {
+                     partial_purge_error(
+                         &self.root,
+-                        "store.db-shm",
++                        &name,
+                         &removed_roots,
+                         map_fs_error(self.root.as_str(), error),
+                     )
+@@ -1939,11 +1971,11 @@ fn tree_entry_name(raw: &[u8], display: &str) -> Result<String> {
+ fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
+     let mut value = crate::request::lexical_abs(root.as_str());
+     for (alias, target) in [("/var/", "/private/var/"), ("/tmp/", "/private/tmp/")] {
+-        if !value.starts_with(alias) {
+-            continue;
+-        }
+         let alias_root = alias.trim_end_matches('/');
+         let target_root = target.trim_end_matches('/');
++        if value != alias_root && !value.starts_with(alias) {
++            continue;
++        }
+         if std::fs::read_link(alias_root).is_ok_and(|link| {
+             let resolved = if link.is_absolute() {
+                 link
+@@ -1952,7 +1984,11 @@ fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
+             };
+             resolved == std::path::Path::new(target_root)
+         }) {
+-            value = format!("{target}{}", &value[alias.len()..]);
++            value = if value == alias_root {
++                target_root.to_string()
++            } else {
++                format!("{target}{}", &value[alias.len()..])
++            };
+         }
+         break;
+     }
+@@ -2636,6 +2672,16 @@ pub(crate) fn write_exclusive_atomic(
+     ManagedFs::open_existing(home)?.write_atomic(lock, &rel, content)
+ }
+ 
++pub(crate) fn write_new_atomic_file(
++    home: &crate::home::Home,
++    lock: &crate::home::HomeLock,
++    path: &AbsPath,
++    content: &[u8],
++) -> Result<()> {
++    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
++    ManagedFs::open_existing(home)?.write_new_atomic(lock, &rel, content)
++}
++
+ pub(crate) fn managed_directory_exists(
+     home: &crate::home::Home,
+     lock: &crate::home::HomeLock,
+@@ -3036,3 +3082,40 @@ fn set_dir_tree_mode(
+     }
+     Ok(())
+ }
++
++#[cfg(test)]
++mod new_atomic_tests {
++    use super::*;
++
++    // Task: C002-T31
++    #[test]
++    fn new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf() {
++        let directory = tempfile::tempdir().unwrap();
++        let home = crate::home::Home::at(
++            AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),
++        );
++        let lock = home.acquire_lock().unwrap();
++        let fs = ManagedFs::open_existing(&home).unwrap();
++        let path = ManagedRelPath::new("history.txt").unwrap();
++        fs.write_new_atomic(&lock, &path, b"original").unwrap();
++        assert!(fs.write_new_atomic(&lock, &path, b"replacement").is_err());
++        assert_eq!(
++            std::fs::read(directory.path().join("history.txt")).unwrap(),
++            b"original"
++        );
++        std::fs::remove_file(directory.path().join("history.txt")).unwrap();
++        std::os::unix::fs::symlink("missing", directory.path().join("history.txt")).unwrap();
++        assert!(fs.write_new_atomic(&lock, &path, b"replacement").is_err());
++        assert_eq!(
++            std::fs::read_link(directory.path().join("history.txt")).unwrap(),
++            std::path::PathBuf::from("missing")
++        );
++        assert!(!std::fs::read_dir(directory.path()).unwrap().any(|entry| {
++            entry
++                .unwrap()
++                .file_name()
++                .to_string_lossy()
++                .contains(".tmp-")
++        }));
++    }
++}
+diff --git a/crates/sheltie-runtime/src/pending.rs b/crates/sheltie-runtime/src/pending.rs
+index ce9901f..a2a1fa4 100644
+--- a/crates/sheltie-runtime/src/pending.rs
++++ b/crates/sheltie-runtime/src/pending.rs
+@@ -268,7 +268,74 @@ pub(crate) fn read_publish_dir<T>(
+     ))
+ }
+ 
++pub(crate) fn prepare_new_request(
++    home: &Home,
++    store: &Store,
++    lock: &HomeLock,
++    request_id: &str,
++) -> Result<()> {
++    if !fsx::managed_directory_exists(home, lock, "pending")? {
++        return Ok(());
++    }
++    let mut selected = BTreeSet::new();
++    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
++        let Some(id) = entry
++            .name
++            .strip_suffix(".owner")
++            .filter(|id| valid_internal_id(id))
++        else {
++            continue;
++        };
++        if entry.kind != ManagedEntryKind::RegularFile {
++            continue;
++        }
++        if let Ok(owner) = read_owner(home, id) {
++            if owner.request_id == request_id {
++                selected.insert(id.to_string());
++            }
++        }
++    }
++    if selected.is_empty() {
++        return Ok(());
++    }
++    let warnings = cleanup_selected(home, store, lock, Some(&selected))?;
++    if !warnings.is_empty() {
++        return Err(Error::io(
++            home.pending_dir().as_str(),
++            std::io::Error::other(format!(
++                "当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}",
++                warnings.join("; ")
++            )),
++        ));
++    }
++    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
++        let id = entry
++            .name
++            .strip_suffix(".owner")
++            .or_else(|| entry.name.strip_suffix(".deleted"))
++            .unwrap_or(&entry.name);
++        if selected.contains(id) {
++            return Err(Error::StoreCorrupt {
++                detail: format!(
++                    "当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求",
++                    entry.name
++                ),
++            });
++        }
++    }
++    Ok(())
++}
++
+ pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {
++    cleanup_selected(home, store, lock, None)
++}
++
++fn cleanup_selected(
++    home: &Home,
++    store: &Store,
++    lock: &HomeLock,
++    selected: Option<&BTreeSet<String>>,
++) -> Result<Vec<String>> {
+     // Parse every Store reference before deleting any path. A single undecodable row makes
+     // absence unprovable for the entire pass.
+     let references = PendingReferenceIndex::load(store)?;
+@@ -293,6 +360,16 @@ pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec
+     let mut roots = BTreeMap::<String, PendingRootRecord>::new();
+     let mut warnings = Vec::new();
+     for entry in entries {
++        if let Some(selected) = selected {
++            let id = entry
++                .name
++                .strip_suffix(".owner")
++                .or_else(|| entry.name.strip_suffix(".deleted"))
++                .unwrap_or(&entry.name);
++            if !selected.contains(id) {
++                continue;
++            }
++        }
+         if let Some(id) = entry.name.strip_suffix(".owner") {
+             if valid_internal_id(id) {
+                 roots.entry(id.to_string()).or_default().owner = Some(entry.kind);
+diff --git a/crates/sheltie-runtime/src/recovery.rs b/crates/sheltie-runtime/src/recovery.rs
+index 4359f89..91a43f7 100644
+--- a/crates/sheltie-runtime/src/recovery.rs
++++ b/crates/sheltie-runtime/src/recovery.rs
+@@ -217,6 +217,10 @@ pub(crate) fn before_write(
+             ));
+         }
+     }
++    // A retry must retire its own uncommitted originals before registering the same id.
++    if current.is_none() {
++        crate::pending::prepare_new_request(home, store, lock, request_id)?;
++    }
+     Ok(())
+ }
+ 
+@@ -309,6 +313,7 @@ pub(crate) fn finish_request(
+         store
+             .mark_published(request_id)
+             .map_err(|cause| own_pending(request_id, original, cause))?;
++        crate::failpoint::maybe_exit("request_published_before_cleanup");
+     }
+     Ok(())
+ }
+diff --git a/crates/sheltie-runtime/src/service.rs b/crates/sheltie-runtime/src/service.rs
+index 73baf1c..37502d1 100644
+--- a/crates/sheltie-runtime/src/service.rs
++++ b/crates/sheltie-runtime/src/service.rs
+@@ -127,6 +127,7 @@ pub(crate) fn stage_pending(
+     fs.write_new(lock, &sidecar, &content)?;
+     fs.sync_dir_locked(lock, &pending_root)?;
+     fs.ensure_dir(lock, &container)?;
++    crate::failpoint::maybe_exit("pending_owner_synced_before_payload");
+     let payload = ManagedRelPath::new(format!("pending/{internal_id}/payload"))?;
+     if create_payload {
+         fs.ensure_dir(lock, &payload)?;
+diff --git a/crates/sheltie-runtime/tests/common/mod.rs b/crates/sheltie-runtime/tests/common/mod.rs
+index 66181d3..9b785c5 100644
+--- a/crates/sheltie-runtime/tests/common/mod.rs
++++ b/crates/sheltie-runtime/tests/common/mod.rs
+@@ -5,7 +5,8 @@ use std::path::{Path, PathBuf};
+ 
+ use sheltie_core::path::AbsPath;
+ use sheltie_runtime::{Error, Home, WorkService, WorkbookRepo};
+-use tempfile::TempDir;
++mod owned_tempdir;
++pub use owned_tempdir::OwnedTempDir;
+ 
+ pub fn assert_effect_pending(
+     error: Error,
+@@ -80,8 +81,8 @@ pub fn abs(p: &Path) -> AbsPath {
+ }
+ 
+ /// 一个全新的临时管理根。返回 `TempDir` 保活。
+-pub fn temp_home() -> (TempDir, Home) {
+-    let dir = tempfile::tempdir().unwrap();
++pub fn temp_home() -> (OwnedTempDir, Home) {
++    let dir = OwnedTempDir::new();
+     let home = Home::at(abs(dir.path()));
+     (dir, home)
+ }
+@@ -124,7 +125,7 @@ pub fn service(home: &Home) -> WorkService {
+ }
+ 
+ /// 装好一个样例并返回服务。
+-pub fn home_with_example(name: &str) -> (TempDir, Home, WorkService) {
++pub fn home_with_example(name: &str) -> (OwnedTempDir, Home, WorkService) {
+     let (dir, home) = temp_home();
+     repo(&home).add(&abs(&example_dir(name)), None).unwrap();
+     let svc = service(&home);
+diff --git a/crates/sheltie-runtime/tests/crash.rs b/crates/sheltie-runtime/tests/crash.rs
+index 0c5e2b3..554c6cb 100644
+--- a/crates/sheltie-runtime/tests/crash.rs
++++ b/crates/sheltie-runtime/tests/crash.rs
+@@ -2,8 +2,10 @@
+ #![allow(clippy::unwrap_used, clippy::expect_used)]
+ mod common;
+ use common::*;
++#[cfg(feature = "failpoint")]
+ use sheltie_core::error::ErrorCode;
+ use sheltie_core::ids::NodeId;
++#[cfg(feature = "failpoint")]
+ use sheltie_runtime::{Error, WorkbookRepo};
+ 
+ // Task: T23
+diff --git a/crates/sheltie-runtime/tests/schema2_replay.rs b/crates/sheltie-runtime/tests/schema2_replay.rs
+index 310f857..e44c4af 100644
+--- a/crates/sheltie-runtime/tests/schema2_replay.rs
++++ b/crates/sheltie-runtime/tests/schema2_replay.rs
+@@ -399,15 +399,22 @@ fn two_writers_serialize_under_home_lock() {
+ 
+     // 并发取消 + 提交：取消使 Work 终态；提交要么先发生（成功），要么后发生
+     //（WorkTerminal / RequestConflict-free 失败）。任何结果都不能留下半写状态。
++    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
+     let a = {
+         let svc = svc.clone();
+         let wid = wid.clone();
+-        std::thread::spawn(move || svc.cancel(&wid, None))
++        let barrier = barrier.clone();
++        std::thread::spawn(move || {
++            barrier.wait();
++            svc.cancel(&wid, None)
++        })
+     };
+     let b = {
+         let svc = svc.clone();
+         let wid = wid.clone();
++        let barrier = barrier.clone();
+         std::thread::spawn(move || {
++            barrier.wait();
+             svc.submit(
+                 &wid,
+                 &AttemptId::parse("outline#1.0").unwrap(),
+@@ -416,8 +423,12 @@ fn two_writers_serialize_under_home_lock() {
+             )
+         })
+     };
+-    let _ = a.join().unwrap();
+-    let _ = b.join().unwrap();
++    barrier.wait();
++    a.join().unwrap().unwrap();
++    let submitted = b.join().unwrap();
++    assert!(
++        submitted.is_ok() || submitted.unwrap_err().code() == sheltie_core::ErrorCode::WorkTerminal
++    );
+ 
+     // 终态一致：取消必然生效；状态卡与库一致。
+     let (_, card) = svc.status(&wid).unwrap();
+diff --git a/crates/sheltie-runtime/tests/selfmgmt.rs b/crates/sheltie-runtime/tests/selfmgmt.rs
+index ad62bb9..8a1d098 100644
+--- a/crates/sheltie-runtime/tests/selfmgmt.rs
++++ b/crates/sheltie-runtime/tests/selfmgmt.rs
+@@ -1358,3 +1358,87 @@ fn self_install_and_work_writes_serialize_under_home_lock() {
+         assert!(json.last_attempt.is_some(), "Work {} 状态被并发写坏", wid);
+     }
+ }
++
++// Task: C002-T31
++#[cfg(feature = "failpoint")]
++#[test]
++fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm() {
++    use std::time::{Duration, Instant};
++    for kind in [
++        "empty-wal",
++        "nonempty-wal",
++        "linked-wal",
++        "symlink-wal",
++        "regular-shm",
++        "linked-shm",
++        "symlink-shm",
++        "directory-shm",
++    ] {
++        let (directory, home) = temp_home();
++        repo(&home)
++            .add(&abs(&example_dir("two-step")), None)
++            .unwrap();
++        let point = tempfile::tempdir().unwrap();
++        sheltie_runtime::failpoint::arm_rendezvous(
++            "purge_before_final_rescan",
++            home.root().as_str(),
++            point.path(),
++        )
++        .unwrap();
++        struct Guard {
++            release: std::path::PathBuf,
++            thread: Option<std::thread::JoinHandle<sheltie_runtime::Result<()>>>,
++        }
++        impl Drop for Guard {
++            fn drop(&mut self) {
++                let _ = std::fs::write(&self.release, b"release");
++                if let Some(thread) = self.thread.take() {
++                    let _ = thread.join();
++                }
++                let _ = sheltie_runtime::failpoint::disarm_rendezvous();
++            }
++        }
++        let worker_home = home.clone();
++        let worker =
++            std::thread::spawn(move || selfmgmt::uninstall(&worker_home, true, true).map(|_| ()));
++        let mut guard = Guard {
++            release: point.path().join("release"),
++            thread: Some(worker),
++        };
++        let deadline = Instant::now() + Duration::from_secs(10);
++        while !point.path().join("reached").exists() {
++            assert!(Instant::now() < deadline);
++            std::thread::sleep(Duration::from_millis(1));
++        }
++        assert!(!home.store_path().as_path().exists());
++        let outside = tempfile::tempdir().unwrap();
++        let sentinel = outside.path().join("sentinel");
++        std::fs::write(&sentinel, b"").unwrap();
++        let wal = directory.path().join(if kind.ends_with("shm") {
++            "store.db-shm"
++        } else {
++            "store.db-wal"
++        });
++        match kind {
++            "empty-wal" => std::fs::write(&wal, b"").unwrap(),
++            "regular-shm" => std::fs::write(&wal, b"SQLite shared index").unwrap(),
++            "directory-shm" => std::fs::create_dir(&wal).unwrap(),
++            "nonempty-wal" => std::fs::write(&wal, b"preserve late WAL records").unwrap(),
++            "linked-wal" | "linked-shm" => std::fs::hard_link(&sentinel, &wal).unwrap(),
++            _ => std::os::unix::fs::symlink(&sentinel, &wal).unwrap(),
++        }
++        std::fs::write(&guard.release, b"release").unwrap();
++        let result = guard.thread.take().unwrap().join().unwrap();
++        if matches!(kind, "empty-wal" | "regular-shm") {
++            result.unwrap();
++            assert!(!wal.exists());
++        } else {
++            assert!(result.is_err());
++            assert!(std::fs::symlink_metadata(&wal).is_ok());
++            if kind == "nonempty-wal" {
++                assert_eq!(std::fs::read(&wal).unwrap(), b"preserve late WAL records");
++            }
++        }
++        assert_eq!(std::fs::read(&sentinel).unwrap(), b"");
++    }
++}
+diff --git a/crates/sheltie-runtime/tests/service.rs b/crates/sheltie-runtime/tests/service.rs
+index 3670c8f..9f4cf2b 100644
+--- a/crates/sheltie-runtime/tests/service.rs
++++ b/crates/sheltie-runtime/tests/service.rs
+@@ -35,7 +35,7 @@ fn two_step_start_args() -> StartArgs {
+ }
+ 
+ fn unpublished_start_fixture() -> (
+-    tempfile::TempDir,
++    OwnedTempDir,
+     sheltie_runtime::Home,
+     sheltie_runtime::WorkService,
+     sheltie_core::ids::WorkId,
+@@ -331,16 +331,20 @@ fn concurrent_writers_one_gets_revision_conflict() {
+     let wid = work_id_of(&start_two_step(&svc));
+     let b = svc.begin(&wid, &node("outline"), None).unwrap();
+     write_output(&output_dir_of(&b), "outline.md", "x");
+-    let results: Vec<_> = (0..2)
++    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
++    let handles: Vec<_> = (0..2)
+         .map(|_| {
+             let svc = svc.clone();
+             let wid = wid.clone();
++            let barrier = barrier.clone();
+             std::thread::spawn(move || {
++                barrier.wait();
+                 svc.submit(&wid, &attempt("outline#1.0"), &lit("并发"), None)
+             })
+         })
+-        .map(|h| h.join().unwrap())
+         .collect();
++    barrier.wait();
++    let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
+     let ok = results.iter().filter(|r| r.is_ok()).count();
+     assert_eq!(ok, 1);
+     assert!(results.iter().any(|r| matches!(
+@@ -1116,7 +1120,7 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
+ }
+ 
+ fn committed_unpublished_submit() -> (
+-    tempfile::TempDir,
++    OwnedTempDir,
+     sheltie_runtime::Home,
+     sheltie_core::ids::WorkId,
+     std::path::PathBuf,
+@@ -1702,7 +1706,7 @@ fn malformed_old_reply_is_attributed_to_the_blocking_request() {
+ fn submit_at_seal_sync_point(
+     mutate: impl FnOnce(&Path),
+ ) -> (
+-    tempfile::TempDir,
++    OwnedTempDir,
+     sheltie_runtime::Home,
+     sheltie_core::ids::WorkId,
+     std::path::PathBuf,
+diff --git a/crates/sheltie-runtime/tests/workbook_txn.rs b/crates/sheltie-runtime/tests/workbook_txn.rs
+index 49ab8f4..6a32809 100644
+--- a/crates/sheltie-runtime/tests/workbook_txn.rs
++++ b/crates/sheltie-runtime/tests/workbook_txn.rs
+@@ -85,24 +85,37 @@ fn remove_stops_on_corrupt_reference_row() {
+ #[test]
+ fn parallel_adds_do_not_delete_each_others_staging() {
+     let (_d, home) = temp_home();
+-    // 先串行建库（建库窗口本身由管理根写锁串行化；这里避免测试代码在锁外抢建）。
++    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
+     let a = {
+         let home = home.clone();
++        let barrier = barrier.clone();
+         std::thread::spawn(move || {
++            barrier.wait();
+             WorkbookRepo::new(home.clone()).add(&abs(&example_dir("two-step")), None)
+         })
+     };
+     let b = {
+         let home = home.clone();
++        let barrier = barrier.clone();
+         std::thread::spawn(move || {
++            barrier.wait();
+             WorkbookRepo::new(home.clone()).add(&abs(&example_dir("gated-release")), None)
+         })
+     };
++    barrier.wait();
+     a.join().unwrap().unwrap();
+     b.join().unwrap().unwrap();
+     let rows = WorkbookRepo::new(home.clone()).list().unwrap();
+     assert_eq!(rows.len(), 2, "两个 Workbook 都在：{rows:?}");
+-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().exists());
++    assert_eq!(
++        std::fs::read(
++            home.workbook_dir("two-step", "1.0.0")
++                .join_segment("workbook.toml")
++                .as_path()
++        )
++        .unwrap(),
++        std::fs::read(example_dir("two-step").join("workbook.toml")).unwrap()
++    );
+     assert!(
+         home.workbook_dir("gated-release", "1.0.0")
+             .as_path()
+diff --git a/scripts/check-task.sh b/scripts/check-task.sh
+index a2fcb5e..0159c67 100755
+--- a/scripts/check-task.sh
++++ b/scripts/check-task.sh
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ # 提交前核对一个任务没有越界。用法：scripts/check-task.sh <task> [基准提交] [--staged]
+-# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn 默认取 change package README 的基线。
++# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn / Cnnn-Mn 默认取 change package README 的基线。
+ #
+ # 检查：
+ #   1. 改动范围是并集：基准以来提交说明含当前 `Task:` 的提交改动 ∪ 未提交改动。
+@@ -47,7 +47,7 @@ cd "$(dirname "$0")/.."
+ task_table="specs/releases/v0.1.0/tasks.toml"
+ plan_file="specs/releases/v0.1.0/plan.md"
+ case "$task" in
+-C[0-9][0-9][0-9]-T[0-9][0-9])
++C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
+ 	change_id="${task%%-*}"
+ 	change_dir="$(find specs/changes/active specs/changes/completed -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
+ 	if [ -z "$change_dir" ] || [ "$(printf '%s\n' "$change_dir" | grep -c .)" -ne 1 ]; then
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/evidence/repairs/t26/deny.stdout.txt b/specs/changes/active/C002-v0.2.0-reliability/evidence/repairs/t26/deny.stdout.txt
+index cb6818c..56ea20b 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/evidence/repairs/t26/deny.stdout.txt
++++ b/specs/changes/active/C002-v0.2.0-reliability/evidence/repairs/t26/deny.stdout.txt
+@@ -1,4 +1,4 @@
+-warning[license-not-encountered]: license was not encountered
++2026-09-29 02:45:40-encountered]: license was not encountered
+    ┌─ /Users/shushu/orca/workspaces/sheltie/codex/deny.toml:23:6
+    │
+ 23 │     "BSD-2-Clause",
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/plan.md b/specs/changes/active/C002-v0.2.0-reliability/plan.md
+index 1d57880..ecc6812 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/plan.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/plan.md
+@@ -4,7 +4,7 @@
+ 
+ 本计划供第一次接触仓库、具备 Rust 基础的实现者逐任务执行。先按 [CONTEXT.md](../../../../CONTEXT.md) 使用项目词汇，再读 [specs/README.md](../../../README.md)、[工程规范](../../../engineering.md)、本 package 的 [spec.md](spec.md)、[design.md](design.md) 与 [findings.md](findings.md)。产品行为和机制以根规格、架构及三份合同为准；本计划只规定实施顺序、Owner、验证和交接。任务白名单见 [tasks.toml](tasks.toml)，跨会话入口见 [progress.md](progress.md)，原始运行与结论记入 [validation.md](validation.md)。
+ 
+-2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。这些任务尚未实施；T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
++2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。追加任务采用时尚未实施；当前完成情况以第2节状态表为准。T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
+ 
+ 2026-09-28 用户明确豁免T18–T31与最终M1中的Linux运行。此授权覆盖本计划及repair-plan中对Linux原生运行的要求；各Linux项保留`not_run`，结论只针对macOS测试，不写成跨平台PASS。其余任务、反例、独立review和Rust门禁照常执行。
+ 
+@@ -62,7 +62,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
+ | C002-T28 | done | pending安全清理与只读发现 | T25–T27；[macOS全仓门禁与双轴独立Review](evidence/repairs/t28/README.md)，Linux `not_run` |
+ | C002-T29 | done | stats与next同次装入 | T25、T28；[macOS真实CLI交错与双轴Review](evidence/repairs/t29/README.md)，Linux `not_run` |
+ | C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](evidence/repairs/t30/README.md)；Linux `not_run` |
+-| C002-T31 | not_run | 确定性交错、完整窗口与突变处置 | T19–T30 |
++| C002-T31 | doing | 确定性交错、完整窗口与突变处置 | T19–T30 |
+ | C002-M1 | not_run | 修复后固定候选全链审查 | T02–T15、T18–T31 |
+ | C002-T16 | not_run | rc 真实宿主回归 | M1 |
+ | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
+@@ -198,7 +198,7 @@ Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；
+ 1. 冻结候选 commit 与输入闭包。对 O01–O13/N01–N14 建矩阵：每行写 finding、修复 commit、正例、单条件反例、真实入口、原始 run、结果、Owner 与剩余风险。没有独立 oracle、真实 caller 或失败停止路径的项保持未关闭，不由 task `done` 或测试数量推成 PASS。
+ 2. 在同一候选运行 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV 与 `cargo dist plan`。并发测试先同时启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节用独立 oracle。补 Work/Workbook 的 COMMIT 前后、发布前后故障窗口；删除后但完成标记前被杀的“结果不明”必须准确停止并返回已提交错误，不能记自动恢复 PASS。core/runtime 突变按能力处置每个存活体，不机械要求每个都加测试。
+ 3. Reviewer 逐项检查不变式、三 crate 边界、合同与实际 caller、证据原文和实现者答复。审查后若修改影响候选输入闭包，按影响链重跑并记录新 hash。review.md 结论只用“通过 / 需修改 / 阻断”，M1 通过只证明源码与离线闭环，不能代表 Host 或发布。
+-4. 同时关闭R01–R19；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
++4. 同时关闭R01–R20；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
+ 
+ ## 5. C002-T16 rc 真实宿主回归
+ 
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/progress.md b/specs/changes/active/C002-v0.2.0-reliability/progress.md
+index ff088a6..fe49eaa 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/progress.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/progress.md
+@@ -20,3 +20,5 @@
+ - skill 交付是生成物：`scripts/skill-delivery.sh pack|tar|verify` 从 `skills/sheltie` 与 `specs/contracts/` 生成/校验自包含交付（发布资产名 `sheltie-skill.tar.gz`）。仓库内 `skills/sheltie/SKILL.md` 保留指向合同的链接；T16 准备「自包含 skill」用 `pack`，核已装副本用 `check-skill.sh --delivery <dir>`（校验对象要与当前树同源；`storage.md` 类文件不随包发布，是去链接后的文字提法）。
+ 
+ T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成required被审镜像、递归累计交接与真实CLI/Git冷读正反例；全仓验收暴露测试内Cargo重建共享CLI的ENOENT，已提前完整迁入T31原定binary注入步骤，Owner与断言保留。T30双轴独立Review及macOS门禁通过，详见 [T30证据](evidence/repairs/t30/README.md)。下一入口为repair-plan的T31：确定性交错、完整窗口、完整mutant inventory及存活处置，再固定M1候选。Linux仍为用户豁免的not_run。
++
++2026-09-30 T31仍为WIP。macOS默认profile全仓 `6e03fa98-0535-4d68-bc1f-f4412a609ac8` 647/647，T31 `27ffc52b-c5a0-472b-ac1e-07c262c3abb0` 22/22；同源码优化测试profile普通clone全仓 `36cf2302-efc8-48f8-a1a4-1d5eb1770eb9` 647/647。新增R20的独立CLI探针确认不可能的blocked_count会使gate approve panic，现用已有Attempt/Approval与当前Blocked事实的必要界在可信装入时拒绝，core三处增量checked，结构化错误/零业务写与纯core回归已通过两位独立Reviewer增量复核。旧候选的partial mutants均归档、不复用；当前持久普通clone临时输入`da2bd13979df88dd987596d7ed726ef99bb89651`的2573个变异待新647项baseline通过后完整重跑；先前0aee的core结果归档、不复用，存活体处置和独立M1仍未完成。详见[evidence/repairs/t31](evidence/repairs/t31/README.md)。Linux按用户要求`not_run`，T16真实Host与T17发布仍`not_run`。
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/repair-design.md b/specs/changes/active/C002-v0.2.0-reliability/repair-design.md
+index d65e87c..02b7589 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/repair-design.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/repair-design.md
+@@ -1,6 +1,6 @@
+ # M1 问题修复方案
+ 
+-依据：[2026-09-28 独立审查](review-m1-2026-09-28.md)，被审候选 `e1a8126a432981df40023628dd06feec7884d458`。本文件给出 R01–R19 的解决方案；任务步骤见 [repair-plan.md](repair-plan.md)，验收样例见 [repair-validation.md](repair-validation.md)。实际进度只看 [plan.md](plan.md)。
++依据：[2026-09-28 独立审查](review-m1-2026-09-28.md)，被审候选 `e1a8126a432981df40023628dd06feec7884d458`。本文件给出 R01–R19 的解决方案，并记录 T31 新发现的 R20；任务步骤见 [repair-plan.md](repair-plan.md)，验收样例见 [repair-validation.md](repair-validation.md)。实际进度只看 [plan.md](plan.md)。
+ 
+ 这里描述待实施目标，不表示已支持。既有产品与机制仍以上游规格、架构和合同为准。T18 先固定本文点明的合同调整与 API 选型，再开始代码任务；初级工程师不得自行在矛盾之间选择。其他方案均落实已采用的 C002 行为，不另建兼容格式、业务状态或宿主适配框架。
+ 
+@@ -118,7 +118,7 @@ Store的RW创建/连接入口收进runtime内部。只读识别不用可能CREAT
+ 
+ SQLite只读连接可能建立/维护WAL的store.db-shm，READ_ONLY不等于文件系统零写。用户已授权T18采用的合同是：只读/预检/拒旧不得写主数据库、WAL记录、schema、业务文件或引擎.lock，不得创建新管理根；允许SQLite在已存在根内维护该数据库的常规共享内存控制文件，单独记录其变化。schema1的main/WAL及用户记录仍逐字节保留，不迁移、不checkpoint、不清空；不声称整个旧根逐字节不变。不能使用immutable=1或自写VFS。
+ 
+-T18必须在真实bundled rusqlite上验证主库+WAL的ro读取、缺shm、活动写者、main/WAL/shm软硬链接、schema1拒绝前后main/WAL字节及关闭连接后的变化。只读识别连接在首次查询前用安全set_db_config(SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,true)禁止关闭时checkpoint。不能只按main文件长度拒绝：macOS实测当短main对应有效且含完整已提交快照的WAL时，SQLite可从WAL读出数据库；若WAL header损坏但main有效，bundled SQLite忽略WAL并返回main中的旧快照。运行时遵循SQLite可查询视图，不自写WAL解析来猜测忽略原因；任何open/query/close路径仍须保持main/WAL字节不变。链接/特殊对象调用SQLite前拒绝；缺shm允许的创建只属于上述控制文件。immutable=1忽略锁与变化检测，不是默认替代；参考 [SQLite连接语义](https://www.sqlite.org/c3ref/open.html) 与 [WAL只读数据库](https://www.sqlite.org/wal.html#read_only_databases)。控制文件例外不放宽引擎创建库/目录/锁的顺序，API无法守住main/WAL原字节时T18停止。
++T18必须在真实bundled rusqlite上验证主库+WAL的ro读取、缺shm、活动写者、main/WAL/shm软硬链接、schema1拒绝前后main/WAL字节及关闭连接后的变化。只读识别连接在首次查询前用安全set_db_config(SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,true)禁止关闭时checkpoint。不能只按main文件长度拒绝：macOS实测当短main对应有效且含完整已提交快照的WAL时，SQLite可从WAL读出数据库；若WAL header损坏但main有效，bundled SQLite忽略WAL并返回main中的旧快照。运行时遵循SQLite可查询视图，不自写WAL解析来猜测忽略原因；任何open/query/close路径仍须保持main/WAL字节不变。链接/特殊对象调用SQLite前拒绝；缺shm维护与缺失WAL的零字节创建只属于上述控制文件。immutable=1忽略锁与变化检测，不是默认替代；参考 [SQLite连接语义](https://www.sqlite.org/c3ref/open.html) 与 [WAL只读数据库](https://www.sqlite.org/wal.html#read_only_databases)。控制文件例外不放宽引擎创建库/目录/锁的顺序，API无法守住main/WAL原字节时T18停止。
+ 
+ 历史 Work 前缀先查 request_id 的 work_id，要求该完整 id 以用户前缀开头，再构造意图；不匹配则 REQUEST_CONFLICT。无请求记录才解析当前唯一前缀。所有 Work 写动词都走此入口，不能只修 attempt begin。
+ 
+@@ -176,6 +176,8 @@ remove 准备阶段创建并 sync owner 和私有 container，**不预建空 pay
+ 
+ 新增 `runtime/pending.rs`，仅集中 owner/marker、Store引用索引、对象发现与清理，不新增业务状态。扫描全部请求的效果而非只查 unpublished：完成请求也可能有待清理元数据。先把全部路径/归属/引用校验完再删除，不能边读遇损坏记录边猜未引用。
+ 
++同request-id的COMMIT前崩溃重试，必须在新请求登记前清掉已核合法、未被任何Store引用的本rid原件。若必需清理失败，尚未提交的新请求停止，保留可用证据；不能先登记新row再把旧原件当异常。同rid以外的普通维护仍由CLI独立stderr诊断，不改变已成功业务结果。
++
+ - 合法 owner + 无 Store 引用：删除本操作的未提交私有树与 owner；不能动旁边另一操作的树。
+ - published=0 且被 Store 引用：保留原件，只交 recovery；年龄不参与判断。
+ - published=1：只清本请求空 container/owner/deleted；非空 payload 或不同对象保留并报告，不能重做业务效果。
+@@ -209,6 +211,14 @@ plan还绑定optional previous_verification←verify.report、previous_change←
+ 
+ ## 9. 验证与交付
+ 
+-每个行为任务都包含合法例、单条件反例、独立 oracle、真实 CLI/文件/SQLite 状态和失败停止路线。修复通过只覆盖本任务能力；最终 R01–R19 与原 O/N 矩阵由独立 M1 Reviewer 合并。并发用同步点制造确定性交错；同一候选的 crash binary 只构建一次，从 Cargo JSON 获取路径，测试期间不再重链接共享 binary。
++每个行为任务都包含合法例、单条件反例、独立 oracle、真实 CLI/文件/SQLite 状态和失败停止路线。修复通过只覆盖本任务能力；最终 R01–R20 与原 O/N 矩阵由独立 M1 Reviewer 合并。并发用同步点制造确定性交错；同一候选的 crash binary 只构建一次，从 Cargo JSON 获取路径，测试期间不再重链接共享 binary。
+ 
+ 最后运行core/runtime突变，先列候选再分批执行，记录每个存活体对应的当前能力和处置；不按存活数强行加镜像测试。完整Work/Workbook kill窗口、macOS文件API、本地发布形状和MSRV仍是M1必需证据。Linux运行按用户指示豁免，保留`not_run`与平台风险，不作跨平台PASS。真实宿主、usage与四平台发布资产分别留T16/T17，不能替其填PASS。
++
++## 12. T31 增量发现 R20：持久受阻次数触发溢出
++
++2026-09-30 独立 CLI 探针从合法 Gate 状态只把 `blocked_count` 的 1 改成 `u32::MAX`。status/stats 接受该值，gate approve 在 core 增量时 panic，stdout 没有协议响应；2cfe8027 固定二进制复验一致。原始证据见 [计数探针](evidence/repairs/t31/blocked-count-independent-probe.json)。这不是新产品功能或任意篡改检测承诺，而是 GF-29 与可信装入的内部事实约束缺口。
++
++修复使用已有状态中的必要界：每次受阻至多归属一次 Attempt 结束或一次 Gate Approval；所以累计不超过 `attempts.len() + approvals.len()`。每条 Approval 已经历一次 Gate 受阻；当前 Blocked 状态还证明一次新的受阻，因此累计至少为 `approvals.len() + 当前是否Blocked`。仅校验必要界，不重算精确次数，不改原事实、不读 audit、不添字段。runtime 的现有 decode/commit caller 将不一致映射为 STORE_CORRUPT；core 三处增量使用同一 checked helper，避免独立 API 输入触发 panic 或 release wrap。
++
++实施归 C002-T31：先补真实 CLI 的合法 count=1→2 与单字段 MAX/0 反例，核 status/stats/list/approve、原 works/revision/requests/audit 和业务文件；再补纯 core submit/fail/approve 的溢出正反例，最后核合法 Gate 重访和取消仍保持累计。保留红输出，固定新源码/测试/配置候选，再跑默认/优化完整基线及新完整变异清单；旧 2cfe 部分结果不作为新候选通过。
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/repair-plan.md b/specs/changes/active/C002-v0.2.0-reliability/repair-plan.md
+index a521cb9..5be8311 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/repair-plan.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/repair-plan.md
+@@ -1,6 +1,6 @@
+ # 初次接触项目的工程师：M1 修复执行手册
+ 
+-目标读者：会使用 Rust、Cargo、Git，尚未接触 Sheltie 的初级工程师。目标：关闭 [M1 审查](review-m1-2026-09-28.md) 的 R01–R19，再完成 C002-M1。方案见 [repair-design.md](repair-design.md)，具体 oracle、窗口和证据模板见 [repair-validation.md](repair-validation.md)。任务状态只在 [plan.md](plan.md) 的主表维护；本手册不另建状态表。
++目标读者：会使用 Rust、Cargo、Git，尚未接触 Sheltie 的初级工程师。目标：关闭 [M1 审查](review-m1-2026-09-28.md) 的 R01–R19 及 T31 新发现的 R20，再完成 C002-M1。方案见 [repair-design.md](repair-design.md)，具体 oracle、窗口和证据模板见 [repair-validation.md](repair-validation.md)。任务状态只在 [plan.md](plan.md) 的主表维护；本手册不另建状态表。
+ 
+ 2026-09-28 用户已明确授权按本计划修复全部问题，并明确豁免本修复线的Linux验证。macOS arm64/Rust 1.85.0探针已通过，原始证据见[evidence/t18-api-probe-2026-09-28](evidence/t18-api-probe-2026-09-28/README.md)。Linux继续记录为`not_run`，所有修复结论明确限定为macOS验证；不把单平台结果说成跨平台PASS。
+ 
+@@ -333,7 +333,8 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
+ 4. 在macOS以同候选/lockfile/feature运行文件/删除/publish/锁相关用例。Linux运行按用户明确指示豁免，保留`not_run`并将最终结论限定为macOS。
+ 5. 为core/runtime新候选生成完整mutant列表，按能力分片执行并记录每个存活体；保留安全/恢复/real-entry不同oracle测试，删除死代码只在consumer与义务已不存在的证据下进行。
+ 6. 若替换或改归属触及legacy测试卡，保留归档完成事实，用明确replacement注记链接新覆盖，不能改历史PASS。任务脚本如需支持C002-M1，按现有Tnn的active-package路径路由扩展Mnn，验证它使用本package白名单/状态；不拿legacy表检查新里程碑。
+-7. 完成所有公共门禁、deny、MSRV、dist plan；固定candidate hash并交独立M1 reviewer。T31 done只证明验证任务自己的清单满足，M1由另一个门槛决定。
++7. T31增量R20：按repair-design §12和V33修复不可能blocked_count被接受并溢出panic；只用既有状态必要界和checked增量，不重建计数或引入新事实源。
++8. 完成所有公共门禁、deny、MSRV、dist plan；固定candidate hash并交独立M1 reviewer。T31 done只证明验证任务自己的清单满足，M1由另一个门槛决定。
+ 
+ **停止与交接。** 存活体无处置、运行共享未变异binary、kill被模拟窗口代替、失败输出被覆盖、真实新反例FAIL，全部停止关闭对应义务。Linux已由用户豁免，记`not_run`并列为剩余平台风险。给M1完整修复commit与V/R/O/N矩阵、macOS raw runs、突变处置、实现者逐条答复。
+ 
+@@ -345,16 +346,18 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
+ 
+ ```bash
+ cargo mutants -p sheltie-core -p sheltie-runtime --list --json --exclude 'crates/*/src/testkit.rs'
+-scripts/mutants.sh sheltie-core --all-features --test-workspace true --copy-vcs true --jobs 1 --shard 1/4
++scripts/mutants.sh sheltie-core --all-features --test-workspace true --copy-vcs true --jobs 1 --shard 0/4
+ ```
+ 
+-按1/4至4/4、core/runtime分别运行；可按实际机器能力调整片数，但必须证明集合无漏无重。每片结束先保存target/mutants.out的日志/JSON到本片evidence再运行下一片，避免覆盖。先验证未变异baseline绿与真实binary来自该副本；Git元数据/fixture指向不正确时停止这片。旧候选的1137只是历史列表，当前生成数以当前输入为准，不能据此挑少数当完整突变。
++cargo-mutants 27.1的索引从0开始，按0/4至3/4、core/runtime分别运行；可按实际机器能力调整片数，但必须证明集合无漏无重。每片结束先保存target/mutants.out的日志/JSON到本片evidence再运行下一片，避免覆盖。先验证未变异baseline绿与真实binary来自该副本；Git元数据/fixture指向不正确时停止这片。旧候选的1137只是历史列表，当前生成数以当前输入为准，不能据此挑少数当完整突变。
++
++执行顺序可先跑变异crate的完整直接合同/API测试，再把全部存活体（以及无法判断的超时体）送全workspace真实入口复验。两阶段都必须保存同候选input closure、完整清单和逐mutant结果；第二阶段不能漏掉任何第一阶段存活体。已被独立直接oracle捕获的突变无需重复全workspace；这是测试排序优化，不是抽样或排除mutation。最终caught必须注明在哪一阶段，存活仍逐项处置。
+ 
+ 每个存活体记录函数/变异diff、影响能力、真实consumer、现有oracle为什么漏、补测或等价/无当前义务理由、Reviewer处置。等价或不适用不是测试PASS；超时/不可构建另记，不能静默当caught。中断后只从同输入闭包且raw run可追踪的片续接；改生产代码先重新核哪些片输入失效。
+ 
+ ## 6. M1 最终关闭与后续
+ 
+-先确认主plan T18–T31均满足各自门槛，固定最终commit与输入闭包。Reviewer按照repair-validation的R01–R19矩阵及原O01–O13/N01–N14逐行复核；不把task done当证据，不把T31自己的自查当独立M1。
++先确认主plan T18–T31均满足各自门槛，固定最终commit与输入闭包。Reviewer按照repair-validation的R01–R20矩阵及原O01–O13/N01–N14逐行复核；不把task done当证据，不把T31自己的自查当独立M1。
+ 
+ 按原M1门禁在同候选跑Rust四门禁、deny、docs/specs/core-vocab/tests/skill、MSRV和 `dist plan --output-format=json`。已有同闭包raw run可复用时写清executed/reused及相同输入证据；有代码/fixture/feature/工具链变更就按影响链重验。完整窗口和mutant处置缺失时M1不能通过。
+ 
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/repair-validation.md b/specs/changes/active/C002-v0.2.0-reliability/repair-validation.md
+index f169e9f..2507089 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/repair-validation.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/repair-validation.md
+@@ -1,6 +1,6 @@
+ # 修复验收样例与证据
+ 
+-供 [repair-plan.md](repair-plan.md) 的 T18–T31 使用。这里是待执行的验收清单，所有新增用例和修复结果均为 `not_run`。历史失败原文在 [M1 evidence](evidence/m1-2026-09-28/README.md)；原始探针证明旧候选的问题，不是新候选的通过证据。
++供 [repair-plan.md](repair-plan.md) 的 T18–T31 使用。这里规定验收清单；各项当前结果只看 [plan.md](plan.md) 与 [validation.md](validation.md) 的固定候选记录，未执行的样例仍为 `not_run`。历史失败原文在 [M1 evidence](evidence/m1-2026-09-28/README.md)；原始探针证明旧候选的问题，不是新候选的通过证据。
+ 
+ ## 1. 每条样例怎样写成测试
+ 
+@@ -73,6 +73,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
+ | V30 / T30 / R16 | task1提交并经独立verify记累计表后重规划 | 仅改整体基线；另例丢verify累计表中一条完成记录/原始证据 | fresh worker只读brief输入+真实Git得到Task/commit/原基线，非法材料停止；最终范围仍含task1；不从冻结tasks或测试闭包猜完成事实 |
+ | V31 / T31 / R17 | 先启动全部参与者、同步事件控制窗口 | 独立审查旧lazy spawn→join及sleep | 两个线程确实同时到达指定窗口，最后才join；否定控制摘掉锁/同步应暴露违规，不靠重复运行碰运气 |
+ | V32 / T31 / R17 | 每个能力有生产入口与独立oracle | mutant移除/改变单一保护条件 | 被正确反例捕获；存活逐一说明当前义务、consumer、oracle与保留/删除理由；未运行不能PASS |
++| V33 / T31 / R20 | 合法Gate提交count=1，批准后NoLegalEdge count=2；纯core合法submit/fail/approve | 仅把当前持久count改MAX或0；纯core仅改同一字段 | status/stats/list/写命令均准确STORE_CORRUPT而非panic；works/revision/requests/audit与业务文件不变，无新rid；纯core返回既有取值错误且原state不变 |
+ 
+ ## 3.1 前置任务与最终闭环
+ 
+@@ -86,7 +87,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
+ | V19/V20 | T26：完整发布闭包与sync失败停止 | T28：pending读取/标记的只读入口；不能要求T26先通过后继读功能 |
+ | V11 | T23：含冻结树purge的同锁与结果 | T31：等待者到指定窗口的实际同步事件，分别核初始化/旧Work拒绝 |
+ 
+-## 3.2 R01–R19 的最终关闭Owner
++## 3.2 R01–R20 的最终关闭Owner
+ 
+ | finding | 修复任务 | 验收入口 | 最后关闭前必须具备 |
+ | --- | --- | --- | --- |
+@@ -109,6 +110,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
+ | R17 | T31及独立M1 | V31/V32、§4 | 真实同步点、macOS窗口、Linux豁免/not_run、存活体处置 |
+ | R18 | T19、T26、T27 | V20及§4 | 必需sync传播与标完成次序；不把kill当断电 |
+ | R19 | T24 | V04/V11 | 除根/.lock外锁前不初始化；purge后的旧Work不CREATE |
++| R20 | T31及独立M1 | V33 | 非法持久blocked_count在真实只读与写入口均拒绝；合法计数推进、纯core溢出与原状态不变 |
+ 
+ ## 4. 真实 crash 矩阵
+ 
+@@ -146,4 +148,6 @@ T31 把下面窗口做成子进程测试；生产 feature 名使用现有 `shelt
+ | 审查 | 未参与实现的Reviewer、读取的diff/caller/合同、问题答复、复核结论 |
+ | 交接 | 新接口及已迁移caller、下一任务输入、剩余失败Owner，不把依赖任务覆盖写成独立执行 |
+ 
+-R01–R19 每行最终包含：修复task/commit、V样例、真实入口、独立oracle、原始run、Reviewer、结论及剩余风险。原O/N矩阵同期更新，只关闭义务已满足的行。完整kill或突变仍缺时，M1保持未通过。Linux运行已由用户明确豁免，保留`not_run`与平台风险，不阻挡M1但不得作跨平台通过结论。
++R01–R20 每行最终包含：修复task/commit、V样例、真实入口、独立oracle、原始run、Reviewer、结论及剩余风险。原O/N矩阵同期更新，只关闭义务已满足的行。完整kill或突变仍缺时，M1保持未通过。Linux运行已由用户明确豁免，保留`not_run`与平台风险，不阻挡M1但不得作跨平台通过结论。
++
++R20由T31负责V33；独立探针与修复结果必须同样记录固定候选、真实入口、单字段反例、原始run和Reviewer，未完成仍WIP。
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/tasks.toml b/specs/changes/active/C002-v0.2.0-reliability/tasks.toml
+index 775754d..0dbeb6d 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/tasks.toml
++++ b/specs/changes/active/C002-v0.2.0-reliability/tasks.toml
+@@ -101,7 +101,7 @@ allow_test_changes = true
+ [C002-M1]
+ files = ["specs/changes/active/C002-v0.2.0-reliability"]
+ test_files = []
+-allow_test_changes = true
++allow_test_changes = false
+ 
+ [C002-T16]
+ files = ["specs/changes/active/C002-v0.2.0-reliability"]
+@@ -187,6 +187,7 @@ test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cl
+ allow_test_changes = true
+ 
+ [C002-T31]
+-files = ["crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
++# 真实purge等待者暴露SQLite只读可创建零字节WAL，先澄清上游物理控制文件边界，不改变业务只读不变式。
++files = ["crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/decide.rs","specs/spec.md","specs/contracts/storage.md","specs/contracts/protocol.md","specs/decisions/D-039-sqlite-read-control-files.md","crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
+ test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests","crates/sheltie-core/tests","crates/sheltie-core/src"]
+ allow_test_changes = true
+diff --git a/specs/changes/active/C002-v0.2.0-reliability/validation.md b/specs/changes/active/C002-v0.2.0-reliability/validation.md
+index d6138e8..707ae3d 100644
+--- a/specs/changes/active/C002-v0.2.0-reliability/validation.md
++++ b/specs/changes/active/C002-v0.2.0-reliability/validation.md
+@@ -91,6 +91,7 @@
+ | C002-T28 | `4526b7e`，基线`3dd224d`；最终任务提交附本行及[原始证据](evidence/repairs/t28/README.md)，源码输入sha见candidate-input.txt | fmt/check/Clippy/MSRV1.85/deny/docs/specs/core-vocab/tests/skill exit0；全仓run `6e159189-3ad3-42c1-a4c8-e41a0b85304f`：615 passed、0 skipped、1 slow；T28 run `348c5ee9-71fb-473e-920a-b5a53ec80d7e`：22 passed、593 task-filtered | V24–V27覆盖全部effects引用、readonly孤儿、异常/非空树保留、同句柄empty清理、真实rename与mark/cleanup交错、当前publisher全闭包、same-second lifecycle反例、只读主库字节/.lock与完整stderr维护载荷；审查期间四项回归失败原文保留 | Spec `/root/spec_review` PASS；Standards `/root/standards_review` task-local PASS；仅关闭T28。Linux `not_run`，早期Nextest LEAK原因未确认交T31；T29–T31/M1边界保留 |
+ | C002-T29 | `a4f1968`，基线`4526b7e`；最终任务提交附本行及[原始证据](evidence/repairs/t29/README.md) | fmt/check/Clippy/MSRV1.85/deny/docs/specs/core-vocab/tests/skill exit0；全仓run `85201df7-8fc1-456c-9620-a9b345dc14e3`：616 passed、0 skipped、1 slow、1 leaky；T29 run `ce4bf2ae-5c76-4f19-ab7e-3627391a13aa`：1 passed、615 task-filtered | V28真实CLI装入后writer begin交错；手写旧stats/next和新查询oracle；原代码红run `62afea1c-9e02-47ba-896c-bad43181426e`；reader读锁反实现被writer5秒timeout捕获并回收，源码逐字节恢复 | Spec与Standards独立PASS；只关闭R15/T29。静态文档测试LEAK原因未确认交T31。Linux `not_run`；T30/T31/M1边界保留 |
+ | C002-T30 | 基线`a4f1968`；[当前输入闭包及原始证据](evidence/repairs/t30/README.md) | fmt/check/Clippy/MSRV1.85/deny/docs/specs/core-vocab/tests/skill exit0；全仓run `2aa8b4a7-65f2-4953-8222-4894e81ff4b2`：625 passed、0 skipped、1 slow、无LEAK；Task run `94c227dc-78a8-4b5b-867c-7b4fbbf247ab`：9 passed、616 task-filtered | V29/V30 required原字节镜像、递归冷读前缀/Git/门禁、失败缺字段及人工更正、真实升级继续/整体旧fix及深历史拒绝；验收中nested Cargo构建竞态原文保留并完整迁移所有真实CLI测试 | 独立Spec/Standards含迁移增量PASS；只关闭T30/R16。Linux `not_run`；模拟worker不代表T16；T31窗口/突变与M1仍待完成 |
++| C002-T31 | 基线`b926789`，当前持久普通clone临时输入`da2bd13`；[WIP证据](evidence/repairs/t31/README.md) | macOS默认全仓run `6e03fa98`：647/647，T31 run `27ffc52b`：22/22；当前持久普通clone优化profile全仓run `32ac9a76`：647/647；fmt/check/Clippy/MSRV1.85/deny等公共门禁exit0 | 确定性交错、真实exit70/SIGKILL窗口、删除parent sync/同rid残留/写锁反实现；R20非法计数真实panic红证据及纯core/CLI绿证据，保留原Store与文件；完整2573 mutants正在执行 | Spec/Standards仅增量PASS；T31全量变异/存活处置、最终提交及M1均WIP，Linux`not_run` |
+ | C002-M1 | not_run | not_run | not_run | not_run |
+ | C002-T16 | not_run | not_run | not_run | not_run |
+ | C002-T17 | not_run | not_run | not_run | not_run |
+diff --git a/specs/contracts/protocol.md b/specs/contracts/protocol.md
+index 3a850b4..1ccbef9 100644
+--- a/specs/contracts/protocol.md
++++ b/specs/contracts/protocol.md
+@@ -16,7 +16,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
+ 
+ **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
+ 
+-**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件。写操作确定性拒绝不建Home（GF-30）。
++**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。写操作确定性拒绝不建Home（GF-30）。
+ 
+ ## 2. 操作一览
+ 
+@@ -80,7 +80,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
+ 
+ ### `work start`
+ 
+-以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`，且不因此创建管理根、`.lock`或数据库。
++以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`或创建缺失的零字节`store.db-wal`，且不因此创建管理根、`.lock`或数据库。
+ 
+ 1. 解析 `--input` 的键和字面值或 `@file` 词法路径，以用户提供的name原值及省略状态构造 `RequestIntent`；此时不规范化 `WorkName`、不读 `@file` 内容、不装入 Workbook。名字参数是意图的一部分，省略与显式flow名不同，见存储合同 §2.1。
+ 2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。
+diff --git a/specs/contracts/storage.md b/specs/contracts/storage.md
+index 15d9a7d..78b55f8 100644
+--- a/specs/contracts/storage.md
++++ b/specs/contracts/storage.md
+@@ -13,7 +13,7 @@
+ 打开时：
+ 
+ 1. 先以只读方式识别：库文件不存在时，只读操作报 `NOT_FOUND`，不建库；写操作在取得管理根写锁后才建库（§2）。
+-2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 2` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。WAL共享内存`store.db-shm`是D-039明定的唯一SQLite控制文件例外；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
++2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 2` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。`store.db-shm`维护与缺失WAL的零字节创建是D-039明定的SQLite控制文件例外，不能写WAL header/frame或改已有WAL字节；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
+ 3. 结构校验通过后，读写连接才设置 WAL 与 `synchronous = FULL`。
+ 4. 不自动迁移，不清空。测试放一个 schema 1 的库作负例，断言拒绝且文件字节不变。
+ 
+@@ -301,3 +301,7 @@ purge成功后仅保留空管理根及原`.lock`；`store.db`与WAL sidecars、w
+ `self update`不改`store.db`。新binary若带更高`SCHEMA_VERSION`，下次操作按§1.1报`STORE_SCHEMA_MISMATCH`；v0.2.0说明旧binary也拒绝schema 2。rollback到旧binary须配套旧管理根；新管理根不被旧binary误写。binary版本回退不等于Store schema降级。
+ 
+ 发布链用 `cargo-dist`：从 git tag 生成 GitHub Release、各平台压缩包、sha256 清单、`install.sh`。`self update` 读发布清单 `dist-manifest.json`，认两种写法：瘦格式 `{ version, assets: [{ platform, name, sha256 }] }`（本地发布目录与测试用，`SHELTIE_RELEASE_BASE` 指向本地目录时不联网），以及 cargo-dist 发布的完整清单（在 `selfmgmt` 里适配成同一形状）。本地发布目录按 `latest/dist-manifest.json` 与 `v<version>/dist-manifest.json` 镜像 tag 布局，与远端走同一解析路径。网络下载用系统 `curl`。不引 `axoupdater`（D-30）。二进制只包含 `sheltie` 一个可执行文件。
++
++### 累计受阻事实的内部界
++
++`blocked_count` 是GF-29的显式累计事实，不能重算或修正。可信装入核必要界：`approvals.len() + 当前是否Blocked <= blocked_count <= attempts.len() + approvals.len()`。每次受阻至多归属一次Attempt结束或一次Gate Approval，每条Approval证明先前Gate受阻，当前Blocked证明另一次事件。不满足时为STORE_CORRUPT，保留原数据；不是按历史重建精确计数。core增量不得溢出panic或回绕。
+diff --git a/specs/decisions/D-039-sqlite-read-control-files.md b/specs/decisions/D-039-sqlite-read-control-files.md
+index 97e4502..5d256ae 100644
+--- a/specs/decisions/D-039-sqlite-read-control-files.md
++++ b/specs/decisions/D-039-sqlite-read-control-files.md
+@@ -1,4 +1,4 @@
+-# D-039 只读SQLite允许共享内存控制文件
++# D-039 只读SQLite的控制文件边界
+ 
+ 状态：`accepted`
+ 日期：`2026-09-28`
+@@ -10,14 +10,14 @@ M1发现WAL下SQLite只读连接在`-shm`缺失时可于已存在的可写目录
+ 
+ ## 选择
+ 
+-只读SQLite连接可在已存在、Home身份已核验的管理根中创建/维护`store.db-shm`共享内存控制文件。不能创建Home、`.lock`、Store、WAL数据记录或业务文件。schema 1拒绝前`store.db`和已有WAL逐字节不变，不checkpoint旧库。不能仅以main文件长度拒绝：若短main对应的WAL有效且包含完整已提交数据库快照，SQLite可从WAL提供逻辑数据库视图。若WAL header损坏但main自身有效，bundled SQLite可忽略WAL并从main返回旧快照；运行时接受SQLite给出的可查询视图，不另行猜测“被忽略”状态或解析WAL格式，且main/WAL字节仍必须不变。查询失败时准确拒绝，不能修复或删除旧文件。
++只读SQLite连接可在已存在、Home身份已核验的管理根中创建/维护`store.db-shm`共享内存控制文件；已有Store处于WAL模式且WAL文件缺失时，可由SQLite只读连接创建零字节`store.db-wal`控制载体。不能给空WAL写入header/frame或改已有WAL字节。不能创建Home、`.lock`、Store、WAL数据记录或业务文件。schema 1拒绝前`store.db`和已有WAL逐字节不变，不checkpoint旧库。不能仅以main文件长度拒绝：若短main对应的WAL有效且包含完整已提交数据库快照，SQLite可从WAL提供逻辑数据库视图。若WAL header损坏但main自身有效，bundled SQLite可忽略WAL并从main返回旧快照；运行时接受SQLite给出的可查询视图，不另行猜测“被忽略”状态或解析WAL格式，且main/WAL字节仍必须不变。查询失败时准确拒绝，不能修复或删除旧文件。
+ 
+ schema识别连接在第一次查询前使用安全rusqlite `Connection::set_db_config(DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE, true)`。拒绝叶/sidecar链接与特殊对象后才打开SQLite；不自动降级RW。`SQLITE_OPEN_NOFOLLOW`强度不等同rustix目录fd锚定；不得使用`immutable=1`、自动RW fallback或自写SQLite VFS。
+ 
+ ## 后果
+ 
+-只读不改Work/Workbook/audit/request/main数据库/WAL业务状态，不取引擎HomeLock，不创建Home或`.lock`。允许的`-shm`变化单独记录，不作为第二状态源；schema和数据格式不变。
++只读不改Work/Workbook/audit/request/main数据库/WAL业务状态，不取引擎HomeLock，不创建Home或`.lock`。允许的`-shm`变化和缺失WAL的零字节创建单独记录，不作为第二状态源；schema和数据格式不变。
+ 
+ ## 确认方式
+ 
+-以Cargo.lock对应的bundled SQLite版本测试WAL已存在、缺shm、活动写者、schema 1前后main/WAL字节、sidecar链接、连接close后的字节。macOS探针已运行；Linux运行依用户明确指示豁免，记`not_run`，不写成Linux/跨平台PASS。API文档不代替已执行平台的实测。
++以Cargo.lock对应的bundled SQLite版本测试WAL已存在、缺shm、活动写者、schema 1前后main/WAL字节、sidecar链接、连接close后的字节。macOS探针已运行；Linux运行依用户明确指示豁免，记`not_run`，不写成Linux/跨平台PASS。API文档不代替已执行平台的实测。新增确认项：原WAL缺失时，核合法只读预检创建的WAL长度为零、主库字节不变。purge在删除Store后复扫时，只接受合法单链接SHM或零字节WAL，保留非空晚到WAL及其他异常对象并报部分清理。实际运行与审查记录只写C002 package的evidence/repairs/t31。
+diff --git a/specs/spec.md b/specs/spec.md
+index a4541ef..fcddc44 100644
+--- a/specs/spec.md
++++ b/specs/spec.md
+@@ -117,7 +117,7 @@ Sheltie 把这批机械活固定下来。人把做事方法写成一份 **Workbo
+ 
+ `GF-29` **引擎给事实，Workbook 做反思，人做演进。** 引擎提供只读的事实视图（`work stats`）：每个节点到达、尝试、失败几次，平均耗时，从哪个节点经哪种边进来（来源节点加边的类型），累计受阻与批准次数。受阻次数是累计事实，由状态转换在发生时记录，不随取消或后续推进减少。Workbook 可以用 `engine.stats` 输入把这份视图交给一个普通节点，由它读各步报告写出对本 Workbook 的具体修改建议（每条有证据、有落点）。引擎不据统计调任何参数、不改任何 Workbook；改进由人审后以新版本 `workbook add` 生效。同一 Workbook 版本在每次运行里行为相同。
+ 
+-`GF-30` **输入先验，拒绝无业务副作用。** `workbook show`公开全部有序start键；`work start`确定性拒绝在序号分配和业务目录创建前发生。不创建Home或引擎`.lock`；已有WAL Store识别只允许D-039共享内存控制文件例外。补齐输入可用原request-id重试。
++`GF-30` **输入先验，拒绝无业务副作用。** `workbook show`公开全部有序start键；`work start`确定性拒绝在序号分配和业务目录创建前发生。不创建Home或引擎`.lock`；已有WAL Store识别只允许D-039明定的SQLite控制文件例外。补齐输入可用原request-id重试。
+ 
+ `GF-31` **持久恢复闭合。** 提交前无业务行/最终目录；序号已分配后的准备失败可留空号但不回收。pending只按归属与Store引用清理，不按年龄清理。提交后效果无法证明就准确报错停止。历史文件按提交字节恢复，状态卡按最新状态生成。引擎不自动清理旧根或用户数据；purge仅在显式确认后执行并保留根锁。
+ 

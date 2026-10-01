@@ -1,0 +1,77 @@
+Found 223 mutants to test
+ok       Unmutated baseline in 17s build + 21s test
+MISSED   crates/sheltie-runtime/src/load.rs:257:9: replace && with || in valid_workbook_version in 3s build + 26s test
+MISSED   crates/sheltie-runtime/src/load.rs:256:9: replace && with || in valid_workbook_version in 44s build + 52s test
+MISSED   crates/sheltie-runtime/src/load.rs:279:9: replace || with && in compile_frozen_workbook in 75s build + 54s test
+MISSED   crates/sheltie-runtime/src/observe.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok(None) in 7s build + 58s test
+MISSED   crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows in 10s build + 42s test
+MISSED   crates/sheltie-runtime/src/pending.rs:161:9: replace PendingReferenceIndex::contains_request -> bool with false in 11s build + 99s test
+MISSED   crates/sheltie-runtime/src/pending.rs:165:9: replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::empty() in 17s build + 97s test
+MISSED   crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work in 18s build + 84s test
+MISSED   crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook in 8s build + 157s test
+MISSED   crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook in 6s build + 156s test
+MISSED   crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook in 6s build + 156s test
+MISSED   crates/sheltie-runtime/src/pending.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![] in 14s build + 154s test
+MISSED   crates/sheltie-runtime/src/pending.rs:214:30: replace && with || in locate_publish_dir in 15s build + 146s test
+MISSED   crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir in 19s build + 143s test
+MISSED   crates/sheltie-runtime/src/pending.rs:218:28: replace && with || in locate_publish_dir in 8s build + 117s test
+MISSED   crates/sheltie-runtime/src/pending.rs:227:25: replace && with || in locate_publish_dir in 8s build + 116s test
+MISSED   crates/sheltie-runtime/src/pending.rs:221:31: replace && with || in locate_publish_dir in 8s build + 116s test
+MISSED   crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(()) in 5s build + 144s test
+MISSED   crates/sheltie-runtime/src/pending.rs:297:23: replace != with == in prepare_new_request in 6s build + 142s test
+MISSED   crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected in 9s build + 190s test
+MISSED   crates/sheltie-runtime/src/pending.rs:444:40: replace match guard reference.published with false in cleanup_selected in 10s build + 189s test
+MISSED   crates/sheltie-runtime/src/pending.rs:444:40: replace match guard reference.published with true in cleanup_selected in 10s build + 189s test
+MISSED   crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected in 18s build + 182s test
+MISSED   crates/sheltie-runtime/src/pending.rs:505:36: replace == with != in cleanup_selected in 26s build + 174s test
+MISSED   crates/sheltie-runtime/src/pending.rs:514:32: replace != with == in cleanup_selected in 5s build + 218s test
+MISSED   crates/sheltie-runtime/src/pending.rs:522:40: replace == with != in cleanup_selected in 6s build + 218s test
+MISSED   crates/sheltie-runtime/src/pending.rs:670:26: replace == with != in cleanup_selected in 9s build + 214s test
+MISSED   crates/sheltie-runtime/src/pending.rs:671:13: replace && with || in cleanup_selected in 8s build + 215s test
+MISSED   crates/sheltie-runtime/src/pending.rs:706:5: replace valid_internal_id -> bool with true in 10s build + 213s test
+MISSED   crates/sheltie-runtime/src/pending.rs:671:70: replace == with != in cleanup_selected in 13s build + 210s test
+MISSED   crates/sheltie-runtime/src/pending.rs:718:5: replace owner_matches_reference -> bool with true in 6s build + 211s test
+MISSED   crates/sheltie-runtime/src/pending.rs:721:9: replace && with || in owner_matches_reference in 8s build + 209s test
+MISSED   crates/sheltie-runtime/src/pending.rs:720:9: replace && with || in owner_matches_reference in 8s build + 209s test
+MISSED   crates/sheltie-runtime/src/pending.rs:719:9: replace && with || in owner_matches_reference in 9s build + 208s test
+MISSED   crates/sheltie-runtime/src/pending.rs:723:17: delete match arm "delete" in owner_matches_reference in 8s build + 205s test
+MISSED   crates/sheltie-runtime/src/pending.rs:731:5: replace maybe_fail_cleanup -> Result<()> with Ok(()) in 10s build + 202s test
+MISSED   crates/sheltie-runtime/src/pending.rs:738:5: replace validate_publish_request_work_id -> Result<()> with Ok(()) in 6s build + 112s test
+MISSED   crates/sheltie-runtime/src/pending.rs:777:13: replace && with || in validate_other_effect_paths in 7s build + 112s test
+MISSED   crates/sheltie-runtime/src/pending.rs:850:5: replace validate_publish_reference -> Result<()> with Ok(()) in 8s build + 110s test
+MISSED   crates/sheltie-runtime/src/pending.rs:810:20: delete ! in validate_other_effect_paths in 10s build + 110s test
+MISSED   crates/sheltie-runtime/src/pending.rs:861:13: replace || with && in validate_publish_reference in 10s build + 108s test
+MISSED   crates/sheltie-runtime/src/pending.rs:860:13: replace || with && in validate_publish_reference in 8s build + 109s test
+MISSED   crates/sheltie-runtime/src/pending.rs:859:13: replace || with && in validate_publish_reference in 5s build + 108s test
+MISSED   crates/sheltie-runtime/src/pending.rs:886:9: replace || with && in validate_publish_reference in 15s build + 97s test
+MISSED   crates/sheltie-runtime/src/pending.rs:887:9: replace || with && in validate_publish_reference in 19s build + 93s test
+MISSED   crates/sheltie-runtime/src/pending.rs:885:9: replace || with && in validate_publish_reference in 8s build + 80s test
+MISSED   crates/sheltie-runtime/src/pending.rs:897:5: replace validate_delete_reference -> Result<()> with Ok(()) in 5s build + 79s test
+MISSED   crates/sheltie-runtime/src/pending.rs:884:9: replace || with && in validate_publish_reference in 9s build + 79s test
+MISSED   crates/sheltie-runtime/src/pending.rs:917:9: replace || with && in validate_delete_reference in 6s build + 170s test
+MISSED   crates/sheltie-runtime/src/pending.rs:916:9: replace || with && in validate_delete_reference in 7s build + 170s test
+MISSED   crates/sheltie-runtime/src/pending.rs:915:9: replace || with && in validate_delete_reference in 8s build + 169s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:79:23: replace match guard current_identity.is_some() with true in before_write in 8s build + 92s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:108:23: replace match guard current_identity.is_some() with true in before_write in 9s build + 90s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:88:21: replace match guard current_identity.is_some() with false in before_write in 8s build + 91s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:108:23: replace match guard current_identity.is_some() with false in before_write in 9s build + 110s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:166:39: replace == with != in before_write in 6s build + 108s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:135:31: replace == with != in before_write in 17s build + 98s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:290:25: delete ! in finish_request in 7s build + 78s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:328:27: replace match guard complete with true in finish_checked_request in 7s build + 77s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:408:42: replace || with && in original_snapshot_parts in 15s build + 118s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:399:32: replace != with == in original_snapshot_parts in 21s build + 114s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:437:13: replace || with && in strict_workbook_data in 14s build + 192s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:441:13: replace || with && in strict_workbook_data in 25s build + 187s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:436:13: replace || with && in strict_workbook_data in 21s build + 189s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:435:13: replace || with && in strict_workbook_data in 19s build + 188s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:447:13: replace || with && in strict_workbook_data in 26s build + 187s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:434:13: replace || with && in strict_workbook_data in 31s build + 173s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:463:31: replace || with && in strict_workbook_data in 16s build + 166s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:450:64: replace || with && in strict_workbook_data in 21s build + 163s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:479:68: replace || with && in work_original_snapshot in 8s build + 127s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:479:42: replace || with && in work_original_snapshot in 7s build + 129s test
+MISSED   crates/sheltie-runtime/src/request.rs:70:9: replace RequestIntent::work -> Option<&WorkId> with None in 11s build + 125s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:18:41: replace * with + in 17s build + 94s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:18:41: replace * with / in 16s build + 90s test
+223 mutants tested in 58m: 74 missed, 126 caught, 23 unviable

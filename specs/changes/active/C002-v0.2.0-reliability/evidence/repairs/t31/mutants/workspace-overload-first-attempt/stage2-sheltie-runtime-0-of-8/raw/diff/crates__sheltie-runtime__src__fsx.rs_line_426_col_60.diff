@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace | with & in ManagedFs::ensure_dir_unlocked
+@@ -418,17 +418,17 @@
+                         self.root.as_str(),
+                         &format!("directory_parent_sync:{}", rel.as_str()),
+                     )
+                     .map_err(|error| Error::io(self.display_path(&rel), error))?;
+                     fsync(&current).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                     let fd = openat(
+                         &current,
+                         segment,
+-                        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
++                        OFlags::RDONLY | OFlags::DIRECTORY & /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,
+                         Mode::empty(),
+                     )
+                     .map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                     current = std::fs::File::from(fd);
+                 }
+                 Err(e) => return Err(map_fs_error(&self.display_path(&rel), e)),
+             }
+         }

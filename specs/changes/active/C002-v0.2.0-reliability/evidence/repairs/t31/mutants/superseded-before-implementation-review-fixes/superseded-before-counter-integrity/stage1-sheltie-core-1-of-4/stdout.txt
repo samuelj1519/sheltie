@@ -1,0 +1,6 @@
+Found 177 mutants to test
+ok       Unmutated baseline in 8s build + 0s test
+MISSED   crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source in 3s build + 0s test
+MISSED   crates/sheltie-core/src/work/decide.rs:574:33: replace += with -= in decide_approve in 2s build + 0s test
+MISSED   crates/sheltie-core/src/work/decide.rs:574:33: replace += with *= in decide_approve in 2s build + 0s test
+177 mutants tested in 2m: 3 missed, 125 caught, 49 unviable

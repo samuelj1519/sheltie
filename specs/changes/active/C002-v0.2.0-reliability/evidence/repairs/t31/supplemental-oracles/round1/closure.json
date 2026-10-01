@@ -1,0 +1,27 @@
+{
+  "candidate": "49d3a191aa4c918aab279617fa2bf7d9b3b36a0e",
+  "source_manifest_sha256": "ddc0d27002fe0917956790f499d6ec18a7a6ebc33e8706f496375de57aff85b2",
+  "extra_tests": [
+    {
+      "path": "crates/sheltie-runtime/tests/disposition_oracles.rs",
+      "sha256": "b8ad5b33331566d521cca9307001867239053a129e938d4a21a1693e9a3ec2b5"
+    },
+    {
+      "path": "crates/sheltie-cli/tests/disposition_remote.rs",
+      "sha256": "795eee13ef28215a82118dca31d45295fd80f5622c6f7346b26cde7544b9e281"
+    }
+  ],
+  "features": [
+    "all-features"
+  ],
+  "profile": "default cargo test debug assertions and overflow checks",
+  "source": "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source",
+  "tools": {
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "nextest": "cargo-nextest 0.9.146 (8af696ddc 2026-09-21)",
+    "mutants": "cargo-mutants 27.1.0"
+  },
+  "scope": "Supplemental real consumer oracles only. Separate input identity; neither replacement nor retroactive PASS for immutable full-workspace runs.",
+  "sha256": "3e792d08d8bab7844223a1fcde4c5f769014513721f87a16ecde92f5b831a923"
+}

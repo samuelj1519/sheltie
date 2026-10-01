@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.34s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_start_requires_are_bound_to_the_frozen_manifest ... FAILED
+
+failures:
+
+---- supplemental_start_requires_are_bound_to_the_frozen_manifest stdout ----
+
+thread 'supplemental_start_requires_are_bound_to_the_frozen_manifest' (29714253) panicked at crates/sheltie-runtime/tests/disposition_oracles.rs:122:43:
+called `Result::unwrap_err()` on an `Ok` value: Response { request_id: "01a0f466-6a28-705d-9fdb-558b896b9b3b", revision: 1, replayed: true, reply: Started { work_id: WorkId("2026-09-30-001-default"), work_dir: AbsPath("/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp7P5tg6/works/2026-09-30-001-default"), requires: [] }, data: Object {"flow": String("default"), "name": String("default"), "requires": Array [], "work_dir": String("/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp7P5tg6/works/2026-09-30-001-default"), "work_id": String("2026-09-30-001-default"), "workbook": Object {"digest": String("b933abdc9848ef51854cfd260b82e851ddb052aef9d3a33efe17c8571bfedd40"), "id": String("two-step"), "version": String("1.0.0")}}, next: [BeginAttempt { node: NodeId("outline"), edge: None, executor: Agent, tier: Some(Standard) }, Cancel] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_start_requires_are_bound_to_the_frozen_manifest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.65s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

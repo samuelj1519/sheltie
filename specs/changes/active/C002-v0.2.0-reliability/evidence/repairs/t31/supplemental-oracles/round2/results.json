@@ -1,0 +1,98 @@
+[
+  {
+    "name": "crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root",
+    "closure_sha256": "602f351500daa5a1b731eb068e7d25cc984318ab61fa6d4c8ac84bb159976a96",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-cli",
+      "--all-features",
+      "--test",
+      "disposition_remote",
+      "supplemental_install_creates",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 2.989,
+    "caught_by_real_oracle": true,
+    "diff": "00.diff",
+    "stdout": "00.stdout.txt",
+    "restored_source_sha256": "0d147c6b90e7c5f4a119a1078ac4d9dd860391cdfe2e21570d01f617c2a986b6"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source",
+    "closure_sha256": "602f351500daa5a1b731eb068e7d25cc984318ab61fa6d4c8ac84bb159976a96",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-cli",
+      "--all-features",
+      "--test",
+      "disposition_remote",
+      "supplemental_rollback_rejects",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 3.037,
+    "caught_by_real_oracle": false,
+    "diff": "01.diff",
+    "stdout": "01.stdout.txt",
+    "restored_source_sha256": "0d147c6b90e7c5f4a119a1078ac4d9dd860391cdfe2e21570d01f617c2a986b6"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/fsx.rs:2498:34: replace match guard stat.st_nlink == 1 with true in preflight_remove_at",
+    "closure_sha256": "602f351500daa5a1b731eb068e7d25cc984318ab61fa6d4c8ac84bb159976a96",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-cli",
+      "--all-features",
+      "--test",
+      "disposition_remote",
+      "supplemental_purge_rejects",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 3.206,
+    "caught_by_real_oracle": true,
+    "diff": "02.diff",
+    "stdout": "02.stdout.txt",
+    "restored_source_sha256": "0d147c6b90e7c5f4a119a1078ac4d9dd860391cdfe2e21570d01f617c2a986b6"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/store/mod.rs:332:9: replace Store::validate -> Result<()> with Ok(())",
+    "closure_sha256": "602f351500daa5a1b731eb068e7d25cc984318ab61fa6d4c8ac84bb159976a96",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-cli",
+      "--all-features",
+      "--test",
+      "disposition_remote",
+      "supplemental_install_creates",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 4.133,
+    "caught_by_real_oracle": true,
+    "diff": "03.diff",
+    "stdout": "03.stdout.txt",
+    "restored_source_sha256": "0a5be079a64c3370b16b5ff59419c95c3ced7fd141d84302d90e34349f3bdbf1"
+  }
+]

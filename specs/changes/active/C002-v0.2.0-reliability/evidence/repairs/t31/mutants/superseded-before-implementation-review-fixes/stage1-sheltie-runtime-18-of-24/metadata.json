@@ -1,0 +1,33 @@
+{
+  "name": "stage1-sheltie-runtime-18-of-24",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-runtime",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "8",
+    "--test-workspace",
+    "false",
+    "--shard",
+    "18/24"
+  ],
+  "exit": 2,
+  "seconds": 1074.955,
+  "listed": 78,
+  "processed": 78,
+  "counts": {
+    "Unviable": 4,
+    "MissedMutant": 23,
+    "CaughtMutant": 51
+  },
+  "candidate": "da2bd13979df88dd987596d7ed726ef99bb89651",
+  "profile": {
+    "opt-level": 1,
+    "debug": 0,
+    "debug-assertions": true,
+    "overflow-checks": true
+  },
+  "timeout_seconds": 600
+}

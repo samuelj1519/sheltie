@@ -1,0 +1,145 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+────────────
+ Nextest run ID 2c2f0f7d-3204-4b91-8ab6-7b92e2b0b305 with nextest profile: default
+    Starting 7 tests across 35 binaries (625 tests skipped)
+        FAIL [   0.831s] (1/7) sheltie-cli::reliability_crash installed_prev_rolls_back_after_update_termination_without_changing_store_bytes
+  stdout ───
+
+    running 1 test
+    test installed_prev_rolls_back_after_update_termination_without_changing_store_bytes ... FAILED
+
+    failures:
+
+    failures:
+        installed_prev_rolls_back_after_update_termination_without_changing_store_bytes
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.81s
+
+  stderr ───
+
+    thread 'installed_prev_rolls_back_after_update_termination_without_changing_store_bytes' (66771553) panicked at crates/sheltie-cli/tests/reliability_crash.rs:558:13:
+    assertion `left == right` failed: Output { status: ExitStatus(unix_wait_status(256)), stdout: "{\"error\":{\"code\":\"UPDATE_UNAVAILABLE\",\"detail\":{\"reason\":\"读不了发布清单 /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpciiaRA/release-source/latest/dist-manifest.json：/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpciiaRA/release-source/latest/dist-manifest.json 不存在\"},\"message\":\"没有可用的更新：读不了发布清单 /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpciiaRA/release-source/latest/dist-manifest.json：/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpciiaRA/release-source/latest/dist-manifest.json 不存在\"},\"next\":[],\"ok\":false}\n", stderr: "" }
+      left: Some(1)
+     right: Some(70)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 6 tests still running
+        PASS [   0.883s] (2/7) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-delete-parent-sync","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    test moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.86s
+
+
+        FAIL [   0.921s] (3/7) sheltie-cli::reliability_crash start_and_add_recover_each_publication_window_after_exit70_and_actual_kill
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-start-pending_owner_synced_before_payload-Exit70","work","start","--workbook","two-step","--flow","default","--input","topic=starter"],"exit":70,"mode":"Exit70","point":"pending_owner_synced_before_payload","signal":null,"stderr":[],"stdout":[]}
+    test start_and_add_recover_each_publication_window_after_exit70_and_actual_kill ... FAILED
+
+    failures:
+
+    failures:
+        start_and_add_recover_each_publication_window_after_exit70_and_actual_kill
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.89s
+
+  stderr ───
+
+    thread 'start_and_add_recover_each_publication_window_after_exit70_and_actual_kill' (66771579) panicked at crates/sheltie-cli/tests/reliability_crash.rs:307:17:
+    无引用旧容器/完成元数据应清理
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.131s] (4/7) sheltie-cli::reliability_crash begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-begin-after_commit_before_effects-Exit70","attempt","begin","2026-09-29-001-default","--node","outline"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    test begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination ... FAILED
+
+    failures:
+
+    failures:
+        begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.11s
+
+  stderr ───
+
+    thread 'begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination' (66771548) panicked at crates/sheltie-cli/tests/reliability_crash.rs:215:9:
+    assertion `left == right` failed
+      left: Array [Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-09-29-001-default")}, "op": String("attempt submit")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-09-29-001-default")}, "op": String("attempt fail")}, Object {"args": Object {"work": String("2026-09-29-001-default")}, "op": String("work cancel")}]
+     right: Array [Object {"attempt": Object {"node": String("outline"), "occurrence": Number(1), "retry": Number(0)}, "op": String("attempt submit")}, Object {"attempt": Object {"node": String("outline"), "occurrence": Number(1), "retry": Number(0)}, "op": String("attempt fail")}, Object {"op": String("work cancel")}]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   1.285s] (5/7) sheltie-cli::reliability_crash purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["self","uninstall","--purge","--yes"],"exit":70,"mode":"Exit70","point":"purge_after_top_level_delete","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["self","uninstall","--purge","--yes"],"exit":null,"mode":"Kill","point":"purge_after_top_level_delete","signal":9,"stderr":[],"stdout":[]}
+    test purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving_work ... ok
+
+    test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.25s
+
+
+        FAIL [   2.392s] (6/7) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-remove-after_commit_before_effects-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"after_commit_before_effects","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-after_commit_before_effects-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"after_commit_before_effects","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-tree_rename_before_parent_sync-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"tree_rename_before_parent_sync","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-tree_rename_before_parent_sync-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_payload_verified_before_remove-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_payload_verified_before_remove","signal":null,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_payload_verified_before_remove-Kill","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"delete_payload_verified_before_remove","signal":9,"stderr":[],"stdout":[]}
+    CRASH_RAW {"argv":["--request-id","t31-remove-delete_after_first_payload_child-Exit70","workbook","remove","two-step@1.0.0"],"exit":70,"mode":"Exit70","point":"delete_after_first_payload_child","signal":null,"stderr":[],"stdout":[]}
+    test remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle ... FAILED
+
+    failures:
+
+    failures:
+        remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.36s
+
+  stderr ───
+
+    thread 'remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle' (66771564) panicked at crates/sheltie-cli/tests/reliability_crash.rs:452:17:
+    assertion `left == right` failed
+      left: Null
+     right: true
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [  10.899s] (7/7) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection
+  stdout ───
+
+    running 1 test
+    test purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection ... FAILED
+
+    failures:
+
+    failures:
+        purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 10.87s
+
+  stderr ───
+
+    thread 'purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection' (66771565) panicked at crates/sheltie-cli/tests/reliability_crash.rs:65:13:
+    未到精确同步点home_lock_waiting
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [  10.901s] 7 tests run: 2 passed, 5 failed, 625 skipped
+        FAIL [   0.831s] (1/7) sheltie-cli::reliability_crash installed_prev_rolls_back_after_update_termination_without_changing_store_bytes
+        FAIL [   0.921s] (3/7) sheltie-cli::reliability_crash start_and_add_recover_each_publication_window_after_exit70_and_actual_kill
+        FAIL [   1.131s] (4/7) sheltie-cli::reliability_crash begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination
+        FAIL [   2.392s] (6/7) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
+        FAIL [  10.899s] (7/7) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection
+error: test run failed

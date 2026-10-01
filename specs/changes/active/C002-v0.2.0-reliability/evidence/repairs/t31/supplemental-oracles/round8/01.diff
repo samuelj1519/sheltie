@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/recovery.rs
++++ crates/sheltie-runtime/src/recovery.rs:447:13: replace || with && in strict_workbook_data
+@@ -444,7 +444,7 @@
+                 .collect::<std::collections::BTreeSet<_>>()
+                 .len()
+                 != data.flows.len()
+-            || data.requires.iter().any(|requirement| {
++            && data.requires.iter().any(|requirement| {
+                 requirement
+                     .split_once(':')
+                     .is_none_or(|(kind, name)| kind.is_empty() || name.is_empty())

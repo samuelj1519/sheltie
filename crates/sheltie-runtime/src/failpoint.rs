@@ -9,6 +9,11 @@
 /// 若开启特性且环境变量 `SHELTIE_FAILPOINT` 等于 `name`，以退出码 70 结束进程。否则什么都不做。
 #[cfg(feature = "failpoint")]
 pub fn maybe_exit(name: &str) {
+    // A subprocess can pause at exactly the same point before the parent sends SIGKILL.
+    if let Err(error) = rendezvous(name, name) {
+        eprintln!("test checkpoint {name} failed: {error}");
+        std::process::exit(71);
+    }
     if std::env::var("SHELTIE_FAILPOINT").ok().as_deref() == Some(name) {
         std::process::exit(EXIT_CODE);
     }
@@ -172,7 +177,11 @@ pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
         let Some(configured) = configured else {
             return Ok(());
         };
-        std::fs::write(configured.directory.join("reached"), name.as_bytes())?;
+        let temporary = configured
+            .directory
+            .join(format!("reached-{}.tmp", uuid::Uuid::now_v7().simple()));
+        std::fs::write(&temporary, name.as_bytes())?;
+        std::fs::rename(&temporary, configured.directory.join("reached"))?;
         while !configured.directory.join("release").exists() {
             std::thread::sleep(std::time::Duration::from_millis(1));
         }

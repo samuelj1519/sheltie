@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ExternalReadTree::open_file
+@@ -1849,17 +1849,17 @@
+                 current = child;
+             }
+         }
+         let display = format!("{}/{}", self.root, entry.relative);
+         let stat = statat(&current, &entry.name, AtFlags::SYMLINK_NOFOLLOW)
+             .map_err(|e| map_fs_error(&display, e))?;
+         check_regular_stat(&display, &stat)?;
+         if stat.st_dev as u64 != entry.device
+-            || stat.st_ino != entry.inode
++            && /* ~ changed by cargo-mutants ~ */ stat.st_ino != entry.inode
+             || stat.st_size as u64 != entry.bytes
+         {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{display} 在读取前被替换或改变"),
+             });
+         }
+         let fd = openat(
+             &current,

@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/flow/def.rs
++++ replace NodeDef::requires -> &[(RequireKind, String)] with Vec::leak(vec![(Default::default(), String::new())])
+@@ -197,17 +197,17 @@
+         self.tier
+     }
+ 
+     pub fn inputs(&self) -> &[InputDecl] {
+         &self.inputs
+     }
+ 
+     pub fn requires(&self) -> &[(RequireKind, String)] {
+-        &self.requires
++        Vec::leak(vec![(Default::default(), String::new())]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub const DEFAULT_MAX_VISITS: u32 = 1;
+     pub const MAX_MAX_VISITS: u32 = 32;
+     pub const DEFAULT_MAX_RETRIES: u32 = 1;
+     pub const MAX_MAX_RETRIES: u32 = 8;
+     /// `instruction.text` ≤ 8 KiB。
+     pub const TEXT_MAX_BYTES: usize = 8192;

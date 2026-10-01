@@ -1,6 +1,6 @@
 # 初次接触项目的工程师：M1 修复执行手册
 
-目标读者：会使用 Rust、Cargo、Git，尚未接触 Sheltie 的初级工程师。目标：关闭 [M1 审查](review-m1-2026-09-28.md) 的 R01–R19，再完成 C002-M1。方案见 [repair-design.md](repair-design.md)，具体 oracle、窗口和证据模板见 [repair-validation.md](repair-validation.md)。任务状态只在 [plan.md](plan.md) 的主表维护；本手册不另建状态表。
+目标读者：会使用 Rust、Cargo、Git，尚未接触 Sheltie 的初级工程师。目标：关闭 [M1 审查](review-m1-2026-09-28.md) 的 R01–R19 及 T31 新发现的 R20，再完成 C002-M1。方案见 [repair-design.md](repair-design.md)，具体 oracle、窗口和证据模板见 [repair-validation.md](repair-validation.md)。任务状态只在 [plan.md](plan.md) 的主表维护；本手册不另建状态表。
 
 2026-09-28 用户已明确授权按本计划修复全部问题，并明确豁免本修复线的Linux验证。macOS arm64/Rust 1.85.0探针已通过，原始证据见[evidence/t18-api-probe-2026-09-28](evidence/t18-api-probe-2026-09-28/README.md)。Linux继续记录为`not_run`，所有修复结论明确限定为macOS验证；不把单平台结果说成跨平台PASS。
 
@@ -224,7 +224,7 @@ Owner：请求入口/CLI/Store；依赖T20、T21。完成现象：同请求不�
 **定位。** cli::parse_input_arg/parse_text_arg/check_at_file；commands::Ctx::store与commands/work::service/resolve；WorkService::new/start/submit/fail；WorkbookRepo::new/add/remove；Store::open/connect。
 
 1. 将Service/Repo构造改为Home-only、无I/O，迁移全部生产CLI、public tests、common fixtures；删除Ctx里写命令先开RW的流程，不保留旧构造兼容入口。
-2. 新增内部WriteSession拥有HomeLock与锁内RW Store；先只读预检，合法新请求才创建根/.lock。固定install/add可初始化，其他Work写动词和remove只打开存在库。所有RW/PRAGMA在锁内，旧Work等待purge结束后NOT_FOUND且不能建新库。
+2. 新增内部WriteSession拥有HomeLock与锁内RW Store；先只读预检；Work start确定性输入合法后、Workbook add源结构/类型/限额粗检通过后才创建根/.lock。add内容校验在锁内私有副本完成，失败只可留控制对象/自有未提交pending，不登记业务。固定install/add可初始化，其他Work写动词和remove只打开存在库。所有RW/PRAGMA在锁内，旧Work等待purge结束后NOT_FOUND且不能建新库。
 3. 历史request的完整WorkId先于当前前缀解析；所有begin/submit/fail/approve/cancel走同一resolver。原前缀不匹配该Work即RequestConflict。
 4. CLI只解析@path，不stat/open；submit/fail读取放查重后build。新请求@file拒绝叶/祖先链接、硬链接、不可读、非UTF8、非普通文件及超过storage §5.3所定32 MiB单文件上限，报专用INVALID_REQUEST/exit2与path/reason；普通managed IO仍exit1，已读摘要超过4096字节仍SUMMARY_TOO_LONG/exit1。保持RequestIntent固定字段/序列化和既有独立向量；名字参数含省略状态仍进意图，规范化产物名进state/snapshot，文件bytes不进指纹，不能自动改旧hash。
 5. 只读Store用正确READ_ONLY/NOFOLLOW flags，无CREATE数据库与RW fallback；叶/侧文件及根/锁身份按T18限定，SQLite共享内存控制文件变化单独报告。老schema拒绝前不写PRAGMA/main/WAL/业务文件，不清空旧根；不存在根不因只读而创建。
@@ -333,9 +333,13 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
 4. 在macOS以同候选/lockfile/feature运行文件/删除/publish/锁相关用例。Linux运行按用户明确指示豁免，保留`not_run`并将最终结论限定为macOS。
 5. 为core/runtime新候选生成完整mutant列表，按能力分片执行并记录每个存活体；保留安全/恢复/real-entry不同oracle测试，删除死代码只在consumer与义务已不存在的证据下进行。
 6. 若替换或改归属触及legacy测试卡，保留归档完成事实，用明确replacement注记链接新覆盖，不能改历史PASS。任务脚本如需支持C002-M1，按现有Tnn的active-package路径路由扩展Mnn，验证它使用本package白名单/状态；不拿legacy表检查新里程碑。
-7. 完成所有公共门禁、deny、MSRV、dist plan；固定candidate hash并交独立M1 reviewer。T31 done只证明验证任务自己的清单满足，M1由另一个门槛决定。
+7. T31增量R20：按repair-design §12和V33修复不可能blocked_count被接受并溢出panic；只用既有状态必要界和checked增量，不重建计数或引入新事实源。
+   2026-09-30 用户要求修复[本轮实现审查](review-implementation-2026-09-30.md)全部七项并完成T31，实施Owner接续为Codex。七项纳入本任务：CR-S01补历史文件与PrepareAttempt目录链的必要同步；CR-P01用自有tmp完整初始化后按同对象发布Store；CR-P02用冻结Graph校验门槛批准与已推进事实；CR-S02统一NextOp映射；CR-S03集中快照结构解码与共有校验；CR-S04减少同一锁内重复装入、按当前目标定位发布请求；CR-P03源只做结构/限额粗检，最终副本单次parse/compile/digest。三个正确性问题先红后绿，后四项以原协议/拒绝边界及真实caller回归约束精简。旧候选变异原文保留，不计新输入通过；修复后重新生成完整inventory及两阶段结果。只读装入仍拒损坏事实，不补造批准、不改变历史响应或持久格式。
+8. 完成所有公共门禁、deny、MSRV、dist plan；固定candidate hash并交独立M1 reviewer。T31 done只证明验证任务自己的清单满足，M1由另一个门槛决定。
 
 **停止与交接。** 存活体无处置、运行共享未变异binary、kill被模拟窗口代替、失败输出被覆盖、真实新反例FAIL，全部停止关闭对应义务。Linux已由用户豁免，记`not_run`并列为剩余平台风险。给M1完整修复commit与V/R/O/N矩阵、macOS raw runs、突变处置、实现者逐条答复。
+
+2026-10-01新增用户豁免以[主计划](plan.md)为准：暂停可能触发额外安全检查的新增复现/插桩及未完成runtime变异续跑。已完成结果仍按真实输入闭包核验；暂缓项以明确逐ID的`deferred_by_user`处分交接，不当等价、捕获或安全PASS。本次T31其余门槛照常完成，完成状态须注明包含此豁免；本条不关闭M1。
 
 ## 5. 突变运行与长任务续接
 
@@ -345,16 +349,18 @@ Owner：测试/平台操作者；Reviewer未参与T19–T30代码。依赖所有
 
 ```bash
 cargo mutants -p sheltie-core -p sheltie-runtime --list --json --exclude 'crates/*/src/testkit.rs'
-scripts/mutants.sh sheltie-core --all-features --test-workspace true --copy-vcs true --jobs 1 --shard 1/4
+scripts/mutants.sh sheltie-core --all-features --test-workspace true --copy-vcs true --jobs 1 --shard 0/4
 ```
 
-按1/4至4/4、core/runtime分别运行；可按实际机器能力调整片数，但必须证明集合无漏无重。每片结束先保存target/mutants.out的日志/JSON到本片evidence再运行下一片，避免覆盖。先验证未变异baseline绿与真实binary来自该副本；Git元数据/fixture指向不正确时停止这片。旧候选的1137只是历史列表，当前生成数以当前输入为准，不能据此挑少数当完整突变。
+cargo-mutants 27.1的索引从0开始，按0/4至3/4、core/runtime分别运行；可按实际机器能力调整片数，但必须证明集合无漏无重。每片结束先保存target/mutants.out的日志/JSON到本片evidence再运行下一片，避免覆盖。先验证未变异baseline绿与真实binary来自该副本；Git元数据/fixture指向不正确时停止这片。旧候选的1137只是历史列表，当前生成数以当前输入为准，不能据此挑少数当完整突变。
+
+执行顺序可先跑变异crate的完整直接合同/API测试，再把全部存活体（以及无法判断的超时体）送全workspace真实入口复验。两阶段都必须保存同候选input closure、完整清单和逐mutant结果；第二阶段不能漏掉任何第一阶段存活体。已被独立直接oracle捕获的突变无需重复全workspace；这是测试排序优化，不是抽样或排除mutation。最终caught必须注明在哪一阶段，存活仍逐项处置。
 
 每个存活体记录函数/变异diff、影响能力、真实consumer、现有oracle为什么漏、补测或等价/无当前义务理由、Reviewer处置。等价或不适用不是测试PASS；超时/不可构建另记，不能静默当caught。中断后只从同输入闭包且raw run可追踪的片续接；改生产代码先重新核哪些片输入失效。
 
 ## 6. M1 最终关闭与后续
 
-先确认主plan T18–T31均满足各自门槛，固定最终commit与输入闭包。Reviewer按照repair-validation的R01–R19矩阵及原O01–O13/N01–N14逐行复核；不把task done当证据，不把T31自己的自查当独立M1。
+先确认主plan T18–T31均满足各自门槛，固定最终commit与输入闭包。Reviewer按照repair-validation的R01–R20矩阵及原O01–O13/N01–N14逐行复核；不把task done当证据，不把T31自己的自查当独立M1。
 
 按原M1门禁在同候选跑Rust四门禁、deny、docs/specs/core-vocab/tests/skill、MSRV和 `dist plan --output-format=json`。已有同闭包raw run可复用时写清executed/reused及相同输入证据；有代码/fixture/feature/工具链变更就按影响链重验。完整窗口和mutant处置缺失时M1不能通过。
 

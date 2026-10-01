@@ -1,0 +1,14 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.68s
+     Running tests/disposition_remote.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_remote-38275bbaa83f7685)
+
+running 5 tests
+test supplemental_install_creates_an_absent_home_and_a_wal_store ... ok
+test supplemental_locked_sqlite_validation_rejects_a_late_wal_hardlink ... ok
+test supplemental_purge_rejects_all_hardlinks_before_removing_any_root ... ok
+test supplemental_remote_invalid_version_is_rejected_before_transport ... ok
+test supplemental_rollback_rejects_a_hardlinked_previous_binary ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.60s
+

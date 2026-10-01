@@ -1,0 +1,415 @@
+[
+  {
+    "name": "baseline",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 194.709,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3"
+  },
+  {
+    "name": "stage1-sheltie-core-0-of-4",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "0/4"
+    ],
+    "exit": 0,
+    "seconds": 183.976,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 181,
+    "processed": 181,
+    "counts": {
+      "Unviable": 31,
+      "CaughtMutant": 150
+    },
+    "outcomes_sha256": "19a119bc11508cf77ec22cbf23cadd82f8438edec150571a3a1ccf1ebf670880",
+    "mutants_sha256": "ac3c24e72f2cce65c22356e90d28f8e01be03a665329b88f89c317b2e3546bbf"
+  },
+  {
+    "name": "stage1-sheltie-core-1-of-4",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "1/4"
+    ],
+    "exit": 2,
+    "seconds": 180.877,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 181,
+    "processed": 181,
+    "counts": {
+      "CaughtMutant": 134,
+      "Unviable": 46,
+      "MissedMutant": 1
+    },
+    "outcomes_sha256": "04ea09efa2bcc12b2d41dad6fb10688aa4db30fcabb844a2942d6c0d44125375",
+    "mutants_sha256": "8b7706291187bd9947ff556f701843a084638bb006bbda39435f95411d9b7519"
+  },
+  {
+    "name": "stage1-sheltie-core-2-of-4",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "2/4"
+    ],
+    "exit": 0,
+    "seconds": 216.41,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 181,
+    "processed": 181,
+    "counts": {
+      "CaughtMutant": 178,
+      "Unviable": 3
+    },
+    "outcomes_sha256": "76465c1748e555d4322711312c6f67b2c3d6f6502f10b9d2427d1d93ebf2304f",
+    "mutants_sha256": "c12ea75bf3e6a777e99d45626ec2254721eb02795ae4a96fdf1dfe5df5b0a5b5"
+  },
+  {
+    "name": "stage1-sheltie-core-3-of-4",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "3/4"
+    ],
+    "exit": 2,
+    "seconds": 194.201,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 181,
+    "processed": 181,
+    "counts": {
+      "CaughtMutant": 160,
+      "Unviable": 18,
+      "MissedMutant": 3
+    },
+    "outcomes_sha256": "988e1125b57dcf2da778b6f20d724cc57397ffc84190d50813b5b1323b219f07",
+    "mutants_sha256": "439da20031a3641f055a80847e1a2cc916759b071bdaf60394f32a720736f5ad"
+  },
+  {
+    "name": "stage2-sheltie-core-0-of-1",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "true",
+      "--re",
+      "^(?:crates/sheltie-core/src/flow/parse\\.rs:140:32: replace \\|\\| with && in parse_input_source|crates/sheltie-core/src/work/state\\.rs:419:56: replace && with \\|\\| in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:438:17: replace \\|\\| with && in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:444:31: replace == with != in WorkState::validate_gate_facts)$"
+    ],
+    "exit": 2,
+    "seconds": 234.012,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 4,
+    "processed": 4,
+    "counts": {
+      "CaughtMutant": 3,
+      "MissedMutant": 1
+    },
+    "outcomes_sha256": "2ba80c3dfbf2539bfdb9837f82ab6b8c6792f96d4504d2463f9e7dfc9c04f7dd",
+    "mutants_sha256": "87f3b9c6e91eebe89703bff549a920a3a4a2fa0f3ab4b34c53ef02d31f34bc22"
+  },
+  {
+    "name": "stage1-sheltie-runtime-0-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "0/8"
+    ],
+    "exit": 2,
+    "seconds": 2422.335,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "CaughtMutant": 146,
+      "Unviable": 13,
+      "MissedMutant": 64
+    },
+    "outcomes_sha256": "a32711196b31d37df9ef5f030f94d642c5f5195dc3094f41e917b94438cefd06",
+    "mutants_sha256": "733eeff3923c4dfb08356df4bc22a218f8705ad06f448914f5b74e460b8bba3b"
+  },
+  {
+    "name": "stage1-sheltie-runtime-1-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "1/8"
+    ],
+    "exit": 2,
+    "seconds": 3303.692,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "CaughtMutant": 132,
+      "Unviable": 21,
+      "MissedMutant": 70
+    },
+    "outcomes_sha256": "4f3f2a2d2b1b319ed427451a05cf424960b04a1f9ffd46a35071d5ad6dc840b2",
+    "mutants_sha256": "5bd1f28af227d6d5d15a898697b6f0a1e31dc7ce738ce1990cbb97ace193ae63"
+  },
+  {
+    "name": "stage1-sheltie-runtime-2-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "2/8"
+    ],
+    "exit": 2,
+    "seconds": 2026.173,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "CaughtMutant": 147,
+      "MissedMutant": 55,
+      "Unviable": 21
+    },
+    "outcomes_sha256": "f5491bcb40a6ee430bd9c19852c23dd4518d6dd76115b495c3a1af70d8d4c993",
+    "mutants_sha256": "04eebd5061af48673bdada53dd3f9ce3f2837529637b804fcc1653f7fecda200"
+  },
+  {
+    "name": "stage1-sheltie-runtime-3-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "3/8"
+    ],
+    "exit": 2,
+    "seconds": 1994.417,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "MissedMutant": 48,
+      "CaughtMutant": 145,
+      "Unviable": 30
+    },
+    "outcomes_sha256": "1e0b58c76dfc6e6c5848dbc3bf05550a6299890793a1ca8c47792e7a7319cff2",
+    "mutants_sha256": "4889d90d18f5e7969a38bc88508b208c498ea6136e1e877baaed846f9ace23b9"
+  },
+  {
+    "name": "stage1-sheltie-runtime-4-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "4/8"
+    ],
+    "exit": 2,
+    "seconds": 3500.016,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "MissedMutant": 74,
+      "Unviable": 23,
+      "CaughtMutant": 126
+    },
+    "outcomes_sha256": "23fce8699cc50bc027381595b20bf83b9bb528af649762992075c755202a423e",
+    "mutants_sha256": "d59920de5fd8779e820fb36a56580f60773bc20d3cf9841d99c097f8da00d93b"
+  },
+  {
+    "name": "stage1-sheltie-runtime-5-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "5/8"
+    ],
+    "exit": 2,
+    "seconds": 2413.993,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "Unviable": 47,
+      "MissedMutant": 64,
+      "CaughtMutant": 112
+    },
+    "outcomes_sha256": "cf03c10e6075fe580acb2b4434e640ff2c4cf25dd45c41d8c5c4537a72632653",
+    "mutants_sha256": "0a3ab1dfb5c288a65f39080df2fb35379f1e8abb9026775341d22c28ccb45356"
+  },
+  {
+    "name": "stage1-sheltie-runtime-6-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "6/8"
+    ],
+    "exit": 2,
+    "seconds": 2414.588,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 223,
+    "processed": 223,
+    "counts": {
+      "CaughtMutant": 143,
+      "Unviable": 26,
+      "MissedMutant": 54
+    },
+    "outcomes_sha256": "3d7985d9ed2fed6632a4c179e3cc8838697e78008a5e8694e8d8360788d80501",
+    "mutants_sha256": "2b44cdc5aa7737e647564514a2fd061141f25670bcc5299571b007265309ea88"
+  },
+  {
+    "name": "stage1-sheltie-runtime-7-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "7/8"
+    ],
+    "exit": 2,
+    "seconds": 2238.128,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 216,
+    "processed": 216,
+    "counts": {
+      "MissedMutant": 47,
+      "Unviable": 33,
+      "CaughtMutant": 136
+    },
+    "outcomes_sha256": "d4107300cdb5e1f5536fdceea7752dda6a4e142acb951c5612095e4566d2a016",
+    "mutants_sha256": "5b7b803503e024e7e1d9c824b91e1982689f9d1f6d1b2f074966a4d5567f9721"
+  },
+  {
+    "name": "stage2-sheltie-runtime-0-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "8",
+      "--test-workspace",
+      "true",
+      "--re",
+      "^(?:crates/sheltie-runtime/src/effects\\.rs:123:9: delete match arm Command::SubmitAttempt\\{attempt, \\.\\.\\} \\| Command::FailAttempt\\{attempt, \\.\\.\\} in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:156:21: replace \\|\\| with && in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:374:17: replace && with \\|\\| in validate_effect_shape|crates/sheltie-runtime/src/effects\\.rs:442:21: replace \\|\\| with && in check_workbook_effects|crates/sheltie-runtime/src/effects\\.rs:495:9: replace \\|\\| with && in validate_pending_payload|crates/sheltie-runtime/src/effects\\.rs:1068:13: replace \\|\\| with && in delete_dir|crates/sheltie-runtime/src/effects\\.rs:1214:46: replace \\|\\| with && in validate_deleted_marker_file|crates/sheltie-runtime/src/failpoint\\.rs:171:59: replace == with != in rendezvous|crates/sheltie-runtime/src/fsx\\.rs:198:31: replace \\|\\| with && in ManagedFs::traverse_root|crates/sheltie-runtime/src/fsx\\.rs:254:62: replace \\| with & in ManagedFs::open_lock_file|crates/sheltie-runtime/src/fsx\\.rs:289:64: replace \\| with \\^ in ManagedFs::open_existing_lock_file|crates/sheltie-runtime/src/fsx\\.rs:357:9: replace ManagedFs::display_path -> String with String::new\\(\\)|crates/sheltie-runtime/src/fsx\\.rs:426:40: replace \\| with \\^ in ManagedFs::ensure_dir_unlocked|crates/sheltie-runtime/src/fsx\\.rs:737:37: replace \\|\\| with && in ManagedFs::sync_regular_file_handle_locked|crates/sheltie-runtime/src/fsx\\.rs:870:26: replace \\| with \\^ in ManagedFs::write_new_observed_unlocked|crates/sheltie-runtime/src/fsx\\.rs:952:28: replace \\| with \\^ in ManagedFs::write_atomic_unlocked|crates/sheltie-runtime/src/fsx\\.rs:1141:13: replace \\|\\| with && in ManagedFs::replace_regular_file|crates/sheltie-runtime/src/fsx\\.rs:1431:37: replace \\|\\| with && in ManagedFs::set_mode|crates/sheltie-runtime/src/fsx\\.rs:1595:9: replace \\|\\| with && in verify_tree_entry_at|crates/sheltie-runtime/src/fsx\\.rs:1875:66: replace \\| with \\^ in ExternalReadTree::open_file|crates/sheltie-runtime/src/fsx\\.rs:1913:29: replace \\+ with - in ExternalReadTree::read_file|crates/sheltie-runtime/src/fsx\\.rs:2328:62: replace \\| with & in open_regular_at|crates/sheltie-runtime/src/fsx\\.rs:2365:63: replace \\| with & in open_directory_at|crates/sheltie-runtime/src/fsx\\.rs:2430:63: replace \\| with \\^ in remove_at|crates/sheltie-runtime/src/fsx\\.rs:2488:5: replace unlink_created_at -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/fsx\\.rs:2647:13: replace \\|\\| with && in SafeFile::verify_seal_reference|crates/sheltie-runtime/src/fsx\\.rs:2994:44: replace \\| with \\^ in make_directories_writable|crates/sheltie-runtime/src/fsx\\.rs:3065:32: replace \\| with \\^ in set_dir_tree_mode|crates/sheltie-runtime/src/fsx\\.rs:3093:32: replace \\| with \\^ in set_dir_tree_mode|crates/sheltie-runtime/src/load\\.rs:185:54: replace && with \\|\\| in validate_work_paths|crates/sheltie-runtime/src/observe\\.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok\\(None\\)|crates/sheltie-runtime/src/pending\\.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec!\\[\\]|crates/sheltie-runtime/src/pending\\.rs:356:41: delete ! in cleanup_selected|crates/sheltie-runtime/src/pending\\.rs:671:13: replace && with \\|\\| in cleanup_selected|crates/sheltie-runtime/src/pending\\.rs:731:5: replace maybe_fail_cleanup -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/pending\\.rs:886:9: replace \\|\\| with && in validate_publish_reference|crates/sheltie-runtime/src/recovery\\.rs:79:23: replace match guard current_identity\\.is_some\\(\\) with true in before_write|crates/sheltie-runtime/src/recovery\\.rs:408:42: replace \\|\\| with && in original_snapshot_parts|crates/sheltie-runtime/src/recovery\\.rs:463:31: replace \\|\\| with && in strict_workbook_data|crates/sheltie-runtime/src/selfmgmt\\.rs:34:43: replace && with \\|\\| in ReleaseSource::is_local|crates/sheltie-runtime/src/selfmgmt\\.rs:485:9: replace \\|\\| with && in checked_asset_name|crates/sheltie-runtime/src/selfmgmt\\.rs:665:39: replace > with >= in download|crates/sheltie-runtime/src/selfmgmt\\.rs:847:24: replace > with < in wait_bounded_child|crates/sheltie-runtime/src/service\\.rs:680:18: replace match guard owner == &format!\\(\"work:\\{work\\}\"\\) with true in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:712:13: replace \\|\\| with && in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:769:33: replace && with \\|\\| in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:987:13: replace \\|\\| with && in WorkService::load_checked_request|crates/sheltie-runtime/src/service\\.rs:1231:17: replace && with \\|\\| in validate_command_owner|crates/sheltie-runtime/src/service\\.rs:1268:25: replace && with \\|\\| in validate_command_owner|crates/sheltie-runtime/src/snapshot\\.rs:233:17: replace && with \\|\\| in start_matches|crates/sheltie-runtime/src/snapshot\\.rs:225:17: replace && with \\|\\| in start_matches|crates/sheltie-runtime/src/store/mod\\.rs:150:72: replace == with != in Store::open_for_home|crates/sheltie-runtime/src/store/mod\\.rs:362:5: replace root_identity -> Result<\\(u64, u64\\)> with Ok\\(\\(0, 1\\)\\)|crates/sheltie-runtime/src/store/mod\\.rs:380:5: replace file_identity -> \\(u64, u64\\) with \\(0, 1\\)|crates/sheltie-runtime/src/workbook_repo\\.rs:286:12: delete ! in WorkbookRepo::add|crates/sheltie-runtime/src/workbook_repo\\.rs:442:34: replace \\|\\| with && in WorkbookRepo::checked_effects_for|crates/sheltie-runtime/src/workbook_repo\\.rs:633:29: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:681:46: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:727:13: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/store/read\\.rs:383:38: replace > with >= in decode_row)$"
+    ],
+    "exit": 1,
+    "seconds": 383.783,
+    "candidate": "c31dcb390c15496f6e9586a92b3b73fa2d199061",
+    "closure_sha256": "f4a87883be9cac864942d2f6c7d91e67e230a68a6870746477bf538bdbe4bde3",
+    "listed": 60,
+    "processed": 0,
+    "counts": {},
+    "outcomes_sha256": "b631558824b38ec174a328669c08623e75d20fc5fab570533219b58cc7bc5bb7",
+    "mutants_sha256": "3262dd592fcc1bcc76b26ab5e57ed89f9ca9e3528e464e93993d917df2c21312"
+  }
+]

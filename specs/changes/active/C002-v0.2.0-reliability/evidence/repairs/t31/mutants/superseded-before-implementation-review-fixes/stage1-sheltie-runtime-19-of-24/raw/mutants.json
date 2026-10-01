@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1343,17 +1343,17 @@\n                     \"inputs\",\n                     \"outputs\",\n                     \"requires\",\n                 ],\n             ) && record.id.node == *node\n                 && brief_path == &state.attempt_dir(attempt).join_segment(\"brief.md\")\n                 && output_dir\n                     == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))\n-                && inputs == &expected_inputs\n+                && inputs != /* ~ changed by cargo-mutants ~ */ &expected_inputs\n                 && outputs == &expected_outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1351:27: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 1351
+      },
+      "start": {
+        "column": 27,
+        "line": 1351
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1344,17 +1344,17 @@\n                     \"outputs\",\n                     \"requires\",\n                 ],\n             ) && record.id.node == *node\n                 && brief_path == &state.attempt_dir(attempt).join_segment(\"brief.md\")\n                 && output_dir\n                     == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))\n                 && inputs == &expected_inputs\n-                && outputs == &expected_outputs\n+                && outputs != /* ~ changed by cargo-mutants ~ */ &expected_outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"node\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1352:28: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1352
+      },
+      "start": {
+        "column": 28,
+        "line": 1352
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1349,17 +1349,17 @@\n                 && output_dir\n                     == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))\n                 && inputs == &expected_inputs\n                 && outputs == &expected_outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(attempt_text.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"node\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(node.as_str())\n                 && snapshot\n                     .data\n                     .get(\"occurrence\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1357:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1357
+      },
+      "start": {
+        "column": 21,
+        "line": 1357
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1354,17 +1354,17 @@\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"node\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(node.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(node.as_str())\n                 && snapshot\n                     .data\n                     .get(\"occurrence\")\n                     .and_then(serde_json::Value::as_u64)\n                     == Some(u64::from(attempt.occurrence))\n                 && snapshot\n                     .data\n                     .get(\"retry\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1362:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1362
+      },
+      "start": {
+        "column": 21,
+        "line": 1362
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1359,17 +1359,17 @@\n                     .data\n                     .get(\"node\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(node.as_str())\n                 && snapshot\n                     .data\n                     .get(\"occurrence\")\n                     .and_then(serde_json::Value::as_u64)\n-                    == Some(u64::from(attempt.occurrence))\n+                    != /* ~ changed by cargo-mutants ~ */ Some(u64::from(attempt.occurrence))\n                 && snapshot\n                     .data\n                     .get(\"retry\")\n                     .and_then(serde_json::Value::as_u64)\n                     == Some(u64::from(attempt.retry))\n                 && snapshot\n                     .data\n                     .get(\"brief_path\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1367:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1367
+      },
+      "start": {
+        "column": 21,
+        "line": 1367
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1364,17 +1364,17 @@\n                     .data\n                     .get(\"occurrence\")\n                     .and_then(serde_json::Value::as_u64)\n                     == Some(u64::from(attempt.occurrence))\n                 && snapshot\n                     .data\n                     .get(\"retry\")\n                     .and_then(serde_json::Value::as_u64)\n-                    == Some(u64::from(attempt.retry))\n+                    != /* ~ changed by cargo-mutants ~ */ Some(u64::from(attempt.retry))\n                 && snapshot\n                     .data\n                     .get(\"brief_path\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1372:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1372
+      },
+      "start": {
+        "column": 21,
+        "line": 1372
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1369,17 +1369,17 @@\n                     .data\n                     .get(\"retry\")\n                     .and_then(serde_json::Value::as_u64)\n                     == Some(u64::from(attempt.retry))\n                 && snapshot\n                     .data\n                     .get(\"brief_path\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(brief_path.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(output_dir.as_str())\n                 && snapshot.data.get(\"inputs\") == expected_inputs_data.as_ref()\n                 && snapshot.data.get(\"outputs\") == expected_outputs_data.as_ref()\n                 && snapshot.data.get(\"requires\") == expected_requires_data.as_ref()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1377:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1377
+      },
+      "start": {
+        "column": 21,
+        "line": 1377
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1374,17 +1374,17 @@\n                     .data\n                     .get(\"brief_path\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(output_dir.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(output_dir.as_str())\n                 && snapshot.data.get(\"inputs\") == expected_inputs_data.as_ref()\n                 && snapshot.data.get(\"outputs\") == expected_outputs_data.as_ref()\n                 && snapshot.data.get(\"requires\") == expected_requires_data.as_ref()\n         }\n         (\n             Command::SubmitAttempt { attempt, .. },\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1382:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1382
+      },
+      "start": {
+        "column": 21,
+        "line": 1382
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1375,17 +1375,17 @@\n                     .get(\"brief_path\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(output_dir.as_str())\n-                && snapshot.data.get(\"inputs\") == expected_inputs_data.as_ref()\n+                && snapshot.data.get(\"inputs\") != /* ~ changed by cargo-mutants ~ */ expected_inputs_data.as_ref()\n                 && snapshot.data.get(\"outputs\") == expected_outputs_data.as_ref()\n                 && snapshot.data.get(\"requires\") == expected_requires_data.as_ref()\n         }\n         (\n             Command::SubmitAttempt { attempt, .. },\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n                 outputs,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1383:48: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 1383
+      },
+      "start": {
+        "column": 48,
+        "line": 1383
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1376,17 +1376,17 @@\n                     .and_then(serde_json::Value::as_str)\n                     == Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(output_dir.as_str())\n                 && snapshot.data.get(\"inputs\") == expected_inputs_data.as_ref()\n-                && snapshot.data.get(\"outputs\") == expected_outputs_data.as_ref()\n+                && snapshot.data.get(\"outputs\") != /* ~ changed by cargo-mutants ~ */ expected_outputs_data.as_ref()\n                 && snapshot.data.get(\"requires\") == expected_requires_data.as_ref()\n         }\n         (\n             Command::SubmitAttempt { attempt, .. },\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n                 outputs,\n             },\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1384:49: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 1384
+      },
+      "start": {
+        "column": 49,
+        "line": 1384
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1377,17 +1377,17 @@\n                     == Some(brief_path.as_str())\n                 && snapshot\n                     .data\n                     .get(\"output_dir\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(output_dir.as_str())\n                 && snapshot.data.get(\"inputs\") == expected_inputs_data.as_ref()\n                 && snapshot.data.get(\"outputs\") == expected_outputs_data.as_ref()\n-                && snapshot.data.get(\"requires\") == expected_requires_data.as_ref()\n+                && snapshot.data.get(\"requires\") != /* ~ changed by cargo-mutants ~ */ expected_requires_data.as_ref()\n         }\n         (\n             Command::SubmitAttempt { attempt, .. },\n             Reply::AttemptSubmitted {\n                 attempt: reply_attempt,\n                 outputs,\n             },\n         ) => {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1385:50: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 1385
+      },
+      "start": {
+        "column": 50,
+        "line": 1385
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1403,17 +1403,17 @@\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1411:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1411
+      },
+      "start": {
+        "column": 17,
+        "line": 1411
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1402,17 +1402,17 @@\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n-                && snapshot.data.get(\"outputs\") == output_data.as_ref()\n+                || /* ~ changed by cargo-mutants ~ */ snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }\n         (\n             Command::FailAttempt { attempt, .. },\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1410:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1410
+      },
+      "start": {
+        "column": 17,
+        "line": 1410
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1397,17 +1397,17 @@\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1405:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1405
+      },
+      "start": {
+        "column": 17,
+        "line": 1405
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1396,17 +1396,17 @@\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n-                && outputs == &record.outputs\n+                || /* ~ changed by cargo-mutants ~ */ outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n                     .data\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1404:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1404
+      },
+      "start": {
+        "column": 17,
+        "line": 1404
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1395,17 +1395,17 @@\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n-                && record.status == sheltie_core::work::AttemptStatus::Succeeded\n+                || /* ~ changed by cargo-mutants ~ */ record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1403:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1403
+      },
+      "start": {
+        "column": 17,
+        "line": 1403
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1394,17 +1394,17 @@\n             let Some(record) = state.attempt(attempt) else {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n-                && reply_attempt == attempt\n+                || /* ~ changed by cargo-mutants ~ */ reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1402:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1402
+      },
+      "start": {
+        "column": 17,
+        "line": 1402
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1394,17 +1394,17 @@\n             let Some(record) = state.attempt(attempt) else {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n-                && reply_attempt == attempt\n+                && reply_attempt != /* ~ changed by cargo-mutants ~ */ attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1402:34: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 1402
+      },
+      "start": {
+        "column": 34,
+        "line": 1402
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1395,17 +1395,17 @@\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n-                && record.status == sheltie_core::work::AttemptStatus::Succeeded\n+                && record.status != /* ~ changed by cargo-mutants ~ */ sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1403:34: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 1403
+      },
+      "start": {
+        "column": 34,
+        "line": 1403
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1396,17 +1396,17 @@\n                     detail: format!(\"请求 {request_id} 的snapshot引用未知Attempt {attempt}\"),\n                 });\n             };\n             let attempt_text = attempt.to_string();\n             let output_data = serde_json::to_value(outputs).ok();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n-                && outputs == &record.outputs\n+                && outputs != /* ~ changed by cargo-mutants ~ */ &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n                     .data\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1404:28: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1404
+      },
+      "start": {
+        "column": 28,
+        "line": 1404
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1401,17 +1401,17 @@\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"outputs\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(attempt_text.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(attempt_text.as_str())\n                 && snapshot.data.get(\"outputs\") == output_data.as_ref()\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }\n         (\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1409:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1409
+      },
+      "start": {
+        "column": 21,
+        "line": 1409
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1402,17 +1402,17 @@\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Succeeded\n                 && outputs == &record.outputs\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n-                && snapshot.data.get(\"outputs\") == output_data.as_ref()\n+                && snapshot.data.get(\"outputs\") != /* ~ changed by cargo-mutants ~ */ output_data.as_ref()\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }\n         (\n             Command::FailAttempt { attempt, .. },\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1410:49: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 1410
+      },
+      "start": {
+        "column": 49,
+        "line": 1410
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1424,17 +1424,17 @@\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }),\n         (\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1432:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1432
+      },
+      "start": {
+        "column": 17,
+        "line": 1432
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1419,17 +1419,17 @@\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n         ) => state.attempt(attempt).is_some_and(|record| {\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Failed\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1427:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1427
+      },
+      "start": {
+        "column": 17,
+        "line": 1427
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1418,17 +1418,17 @@\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n         ) => state.attempt(attempt).is_some_and(|record| {\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n                 && reply_attempt == attempt\n-                && record.status == sheltie_core::work::AttemptStatus::Failed\n+                || /* ~ changed by cargo-mutants ~ */ record.status == sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1426:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1426
+      },
+      "start": {
+        "column": 17,
+        "line": 1426
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1417,17 +1417,17 @@\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n         ) => state.attempt(attempt).is_some_and(|record| {\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n-                && reply_attempt == attempt\n+                || /* ~ changed by cargo-mutants ~ */ reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1425:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1425
+      },
+      "start": {
+        "column": 17,
+        "line": 1425
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1417,17 +1417,17 @@\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n         ) => state.attempt(attempt).is_some_and(|record| {\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n-                && reply_attempt == attempt\n+                && reply_attempt != /* ~ changed by cargo-mutants ~ */ attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1425:34: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 1425
+      },
+      "start": {
+        "column": 34,
+        "line": 1425
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1418,17 +1418,17 @@\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n         ) => state.attempt(attempt).is_some_and(|record| {\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n                 && reply_attempt == attempt\n-                && record.status == sheltie_core::work::AttemptStatus::Failed\n+                && record.status != /* ~ changed by cargo-mutants ~ */ sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1426:34: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 1426
+      },
+      "start": {
+        "column": 34,
+        "line": 1426
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1423,17 +1423,17 @@\n             let attempt_text = attempt.to_string();\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"attempt\", \"work_status\"])\n                 && reply_attempt == attempt\n                 && record.status == sheltie_core::work::AttemptStatus::Failed\n                 && snapshot\n                     .data\n                     .get(\"attempt\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(attempt_text.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(attempt_text.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| work_status_value_is_canonical(&value))\n         }),\n         (\n             Command::ApproveGate { node },\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1431:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1431
+      },
+      "start": {
+        "column": 21,
+        "line": 1431
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1439,17 +1439,17 @@\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n                 node: reply_node,\n                 occurrence,\n             },\n         ) => state\n             .approvals\n             .iter()\n-            .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n+            .find(|approval| approval.node == *node || /* ~ changed by cargo-mutants ~ */ approval.occurrence == *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1447:53: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 1447
+      },
+      "start": {
+        "column": 53,
+        "line": 1447
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1439,17 +1439,17 @@\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n                 node: reply_node,\n                 occurrence,\n             },\n         ) => state\n             .approvals\n             .iter()\n-            .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n+            .find(|approval| approval.node != /* ~ changed by cargo-mutants ~ */ *node && approval.occurrence == *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1447:44: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 1447
+      },
+      "start": {
+        "column": 44,
+        "line": 1447
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1439,17 +1439,17 @@\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n                 node: reply_node,\n                 occurrence,\n             },\n         ) => state\n             .approvals\n             .iter()\n-            .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n+            .find(|approval| approval.node == *node && approval.occurrence != /* ~ changed by cargo-mutants ~ */ *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1447:76: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 78,
+        "line": 1447
+      },
+      "start": {
+        "column": 76,
+        "line": 1447
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1459,17 +1459,17 @@\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n-                    && snapshot\n+                    || /* ~ changed by cargo-mutants ~ */ snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n                 && state.status == WorkStatus::Cancelled\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1467:21: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1467
+      },
+      "start": {
+        "column": 21,
+        "line": 1467
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1457,17 +1457,17 @@\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n-                    && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n+                    || /* ~ changed by cargo-mutants ~ */ snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1465:21: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1465
+      },
+      "start": {
+        "column": 21,
+        "line": 1465
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1455,17 +1455,17 @@\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n-                    && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n+                    || /* ~ changed by cargo-mutants ~ */ snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1463:21: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1463
+      },
+      "start": {
+        "column": 21,
+        "line": 1463
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1450,17 +1450,17 @@\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n-                    && snapshot\n+                    || /* ~ changed by cargo-mutants ~ */ snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1458:21: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1458
+      },
+      "start": {
+        "column": 21,
+        "line": 1458
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1445,17 +1445,17 @@\n             .approvals\n             .iter()\n             .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n-                    && snapshot\n+                    || /* ~ changed by cargo-mutants ~ */ snapshot\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1453:21: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1453
+      },
+      "start": {
+        "column": 21,
+        "line": 1453
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1444,17 +1444,17 @@\n         ) => state\n             .approvals\n             .iter()\n             .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n-                ) && reply_node == node\n+                ) || /* ~ changed by cargo-mutants ~ */ reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1452:19: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 1452
+      },
+      "start": {
+        "column": 19,
+        "line": 1452
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1444,17 +1444,17 @@\n         ) => state\n             .approvals\n             .iter()\n             .find(|approval| approval.node == *node && approval.occurrence == *occurrence)\n             .is_some_and(|approval| {\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n-                ) && reply_node == node\n+                ) && reply_node != /* ~ changed by cargo-mutants ~ */ node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1452:33: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 1452
+      },
+      "start": {
+        "column": 33,
+        "line": 1452
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1449,17 +1449,17 @@\n                 snapshot_data_has_exact_fields(\n                     &snapshot.data,\n                     &[\"node\", \"occurrence\", \"by\", \"at\", \"work_status\"],\n                 ) && reply_node == node\n                     && snapshot\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n-                        == Some(node.as_str())\n+                        != /* ~ changed by cargo-mutants ~ */ Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1457:25: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1457
+      },
+      "start": {
+        "column": 25,
+        "line": 1457
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1454,17 +1454,17 @@\n                         .data\n                         .get(\"node\")\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n-                        == Some(u64::from(*occurrence))\n+                        != /* ~ changed by cargo-mutants ~ */ Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1462:25: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1462
+      },
+      "start": {
+        "column": 25,
+        "line": 1462
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1456,17 +1456,17 @@\n                         .and_then(serde_json::Value::as_str)\n                         == Some(node.as_str())\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n-                        == Some(approval.by.0.as_str())\n+                        != /* ~ changed by cargo-mutants ~ */ Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n                         == Some(approval.at.as_str())\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1464:25: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1464
+      },
+      "start": {
+        "column": 25,
+        "line": 1464
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1458,17 +1458,17 @@\n                     && snapshot\n                         .data\n                         .get(\"occurrence\")\n                         .and_then(serde_json::Value::as_u64)\n                         == Some(u64::from(*occurrence))\n                     && snapshot.data.get(\"by\").and_then(serde_json::Value::as_str)\n                         == Some(approval.by.0.as_str())\n                     && snapshot.data.get(\"at\").and_then(serde_json::Value::as_str)\n-                        == Some(approval.at.as_str())\n+                        != /* ~ changed by cargo-mutants ~ */ Some(approval.at.as_str())\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1466:25: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1466
+      },
+      "start": {
+        "column": 25,
+        "line": 1466
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1473,17 +1473,17 @@\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n                 && state.status == WorkStatus::Cancelled\n                 && snapshot\n                     .data\n                     .get(\"work_id\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(work_id.as_str())\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| {\n                         serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {\n                             status == WorkStatus::Cancelled\n                                 && work_status_value_is_canonical(&value)\n                         })\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1481:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1481
+      },
+      "start": {
+        "column": 17,
+        "line": 1481
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1468,17 +1468,17 @@\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n                 && state.status == WorkStatus::Cancelled\n-                && snapshot\n+                || /* ~ changed by cargo-mutants ~ */ snapshot\n                     .data\n                     .get(\"work_id\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1476:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1476
+      },
+      "start": {
+        "column": 17,
+        "line": 1476
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1467,17 +1467,17 @@\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n-                && state.status == WorkStatus::Cancelled\n+                || /* ~ changed by cargo-mutants ~ */ state.status == WorkStatus::Cancelled\n                 && snapshot\n                     .data\n                     .get(\"work_id\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1475:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1475
+      },
+      "start": {
+        "column": 17,
+        "line": 1475
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1467,17 +1467,17 @@\n                     && snapshot\n                         .data\n                         .get(\"work_status\")\n                         .cloned()\n                         .is_some_and(|value| work_status_value_is_canonical(&value))\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n-                && state.status == WorkStatus::Cancelled\n+                && state.status != /* ~ changed by cargo-mutants ~ */ WorkStatus::Cancelled\n                 && snapshot\n                     .data\n                     .get(\"work_id\")\n                     .and_then(serde_json::Value::as_str)\n                     == Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1475:33: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 1475
+      },
+      "start": {
+        "column": 33,
+        "line": 1475
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1472,17 +1472,17 @@\n             }),\n         (Command::Cancel, Reply::Cancelled) => {\n             snapshot_data_has_exact_fields(&snapshot.data, &[\"work_id\", \"work_status\"])\n                 && state.status == WorkStatus::Cancelled\n                 && snapshot\n                     .data\n                     .get(\"work_id\")\n                     .and_then(serde_json::Value::as_str)\n-                    == Some(work_id.as_str())\n+                    != /* ~ changed by cargo-mutants ~ */ Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| {\n                         serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {\n                             status == WorkStatus::Cancelled\n                                 && work_status_value_is_canonical(&value)\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1480:21: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 1480
+      },
+      "start": {
+        "column": 21,
+        "line": 1480
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1480,17 +1480,17 @@\n                     == Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| {\n                         serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {\n                             status == WorkStatus::Cancelled\n-                                && work_status_value_is_canonical(&value)\n+                                || /* ~ changed by cargo-mutants ~ */ work_status_value_is_canonical(&value)\n                         })\n                     })\n         }\n         _ => false,\n     };\n     if !valid {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"请求 {request_id} 的audit命令与Work {work_id}状态不一致\"),\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1488:33: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 1488
+      },
+      "start": {
+        "column": 33,
+        "line": 1488
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in validate_command_owner\n@@ -1479,17 +1479,17 @@\n                     .and_then(serde_json::Value::as_str)\n                     == Some(work_id.as_str())\n                 && snapshot\n                     .data\n                     .get(\"work_status\")\n                     .cloned()\n                     .is_some_and(|value| {\n                         serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {\n-                            status == WorkStatus::Cancelled\n+                            status != /* ~ changed by cargo-mutants ~ */ WorkStatus::Cancelled\n                                 && work_status_value_is_canonical(&value)\n                         })\n                     })\n         }\n         _ => false,\n     };\n     if !valid {\n         return Err(Error::StoreCorrupt {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1487:36: replace == with != in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 1487
+      },
+      "start": {
+        "column": 36,
+        "line": 1487
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ delete ! in validate_command_owner\n@@ -1486,17 +1486,17 @@\n                         serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {\n                             status == WorkStatus::Cancelled\n                                 && work_status_value_is_canonical(&value)\n                         })\n                     })\n         }\n         _ => false,\n     };\n-    if !valid {\n+    if  /* ~ changed by cargo-mutants ~ */valid {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"请求 {request_id} 的audit命令与Work {work_id}状态不一致\"),\n         });\n     }\n     Ok(())\n }\n \n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1500
+        },
+        "start": {
+          "column": 1,
+          "line": 1227
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1494:8: delete ! in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 1494
+      },
+      "start": {
+        "column": 8,
+        "line": 1494
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace snapshot_data_has_exact_fields -> bool with true\n@@ -1495,20 +1495,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"请求 {request_id} 的audit命令与Work {work_id}状态不一致\"),\n         });\n     }\n     Ok(())\n }\n \n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n-    let Some(object) = data.as_object() else {\n-        return false;\n-    };\n-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "snapshot_data_has_exact_fields",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1507
+        },
+        "start": {
+          "column": 1,
+          "line": 1502
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1503:5: replace snapshot_data_has_exact_fields -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 93,
+        "line": 1506
+      },
+      "start": {
+        "column": 5,
+        "line": 1503
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace snapshot_data_has_exact_fields -> bool with false\n@@ -1495,20 +1495,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"请求 {request_id} 的audit命令与Work {work_id}状态不一致\"),\n         });\n     }\n     Ok(())\n }\n \n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n-    let Some(object) = data.as_object() else {\n-        return false;\n-    };\n-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "snapshot_data_has_exact_fields",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1507
+        },
+        "start": {
+          "column": 1,
+          "line": 1502
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1503:5: replace snapshot_data_has_exact_fields -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 93,
+        "line": 1506
+      },
+      "start": {
+        "column": 5,
+        "line": 1503
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in snapshot_data_has_exact_fields\n@@ -1498,17 +1498,17 @@\n     }\n     Ok(())\n }\n \n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n     let Some(object) = data.as_object() else {\n         return false;\n     };\n-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n+    object.len() == expected.len() || /* ~ changed by cargo-mutants ~ */ expected.iter().all(|name| object.contains_key(*name))\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "snapshot_data_has_exact_fields",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1507
+        },
+        "start": {
+          "column": 1,
+          "line": 1502
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1506:36: replace && with || in snapshot_data_has_exact_fields",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 1506
+      },
+      "start": {
+        "column": 36,
+        "line": 1506
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in snapshot_data_has_exact_fields\n@@ -1498,17 +1498,17 @@\n     }\n     Ok(())\n }\n \n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n     let Some(object) = data.as_object() else {\n         return false;\n     };\n-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n+    object.len() != /* ~ changed by cargo-mutants ~ */ expected.len() && expected.iter().all(|name| object.contains_key(*name))\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "snapshot_data_has_exact_fields",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1507
+        },
+        "start": {
+          "column": 1,
+          "line": 1502
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1506:18: replace == with != in snapshot_data_has_exact_fields",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 1506
+      },
+      "start": {
+        "column": 18,
+        "line": 1506
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace work_status_value_is_canonical -> bool with true\n@@ -1502,20 +1502,17 @@\n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n     let Some(object) = data.as_object() else {\n         return false;\n     };\n     object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n-    serde_json::from_value::<WorkStatus>(value.clone())\n-        .ok()\n-        .and_then(|status| serde_json::to_value(status).ok())\n-        .is_some_and(|canonical| canonical == *value)\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n     let mut out = BTreeMap::new();\n     for (key, value) in inputs {\n         out.insert(key.clone(), materialize_summary(value)?);\n     }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "work_status_value_is_canonical",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1514
+        },
+        "start": {
+          "column": 1,
+          "line": 1509
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1510:5: replace work_status_value_is_canonical -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 1513
+      },
+      "start": {
+        "column": 5,
+        "line": 1510
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace work_status_value_is_canonical -> bool with false\n@@ -1502,20 +1502,17 @@\n fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {\n     let Some(object) = data.as_object() else {\n         return false;\n     };\n     object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n-    serde_json::from_value::<WorkStatus>(value.clone())\n-        .ok()\n-        .and_then(|status| serde_json::to_value(status).ok())\n-        .is_some_and(|canonical| canonical == *value)\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n     let mut out = BTreeMap::new();\n     for (key, value) in inputs {\n         out.insert(key.clone(), materialize_summary(value)?);\n     }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "work_status_value_is_canonical",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1514
+        },
+        "start": {
+          "column": 1,
+          "line": 1509
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1510:5: replace work_status_value_is_canonical -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 1513
+      },
+      "start": {
+        "column": 5,
+        "line": 1510
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in work_status_value_is_canonical\n@@ -1505,17 +1505,17 @@\n     };\n     object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))\n }\n \n fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n-        .is_some_and(|canonical| canonical == *value)\n+        .is_some_and(|canonical| canonical != /* ~ changed by cargo-mutants ~ */ *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n     let mut out = BTreeMap::new();\n     for (key, value) in inputs {\n         out.insert(key.clone(), materialize_summary(value)?);\n     }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "work_status_value_is_canonical",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1514
+        },
+        "start": {
+          "column": 1,
+          "line": 1509
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1513:44: replace == with != in work_status_value_is_canonical",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 1513
+      },
+      "start": {
+        "column": 44,
+        "line": 1513
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::new())\n@@ -1510,21 +1510,17 @@\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n-    let mut out = BTreeMap::new();\n-    for (key, value) in inputs {\n-        out.insert(key.clone(), materialize_summary(value)?);\n-    }\n-    Ok(out)\n+    Ok(BTreeMap::new()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n     match value {\n         InputValue::Literal { text } => Ok(text.clone()),\n         InputValue::AtFile { path } => {\n             let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n                 &AbsPath::new(path.clone()).map_err(Error::Core)?,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_inputs",
+      "return_type": "-> Result<BTreeMap<String, String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1523
+        },
+        "start": {
+          "column": 1,
+          "line": 1516
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1518:5: replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::new())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(BTreeMap::new())",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1522
+      },
+      "start": {
+        "column": 5,
+        "line": 1518
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(String::new(), String::new())]))\n@@ -1510,21 +1510,17 @@\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n-    let mut out = BTreeMap::new();\n-    for (key, value) in inputs {\n-        out.insert(key.clone(), materialize_summary(value)?);\n-    }\n-    Ok(out)\n+    Ok(BTreeMap::from_iter([(String::new(), String::new())])) /* ~ changed by cargo-mutants ~ */\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n     match value {\n         InputValue::Literal { text } => Ok(text.clone()),\n         InputValue::AtFile { path } => {\n             let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n                 &AbsPath::new(path.clone()).map_err(Error::Core)?,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_inputs",
+      "return_type": "-> Result<BTreeMap<String, String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1523
+        },
+        "start": {
+          "column": 1,
+          "line": 1516
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1518:5: replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(String::new(), String::new())]))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(BTreeMap::from_iter([(String::new(), String::new())]))",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1522
+      },
+      "start": {
+        "column": 5,
+        "line": 1518
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(String::new(), \"xyzzy\".into())]))\n@@ -1510,21 +1510,17 @@\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n-    let mut out = BTreeMap::new();\n-    for (key, value) in inputs {\n-        out.insert(key.clone(), materialize_summary(value)?);\n-    }\n-    Ok(out)\n+    Ok(BTreeMap::from_iter([(String::new(), \"xyzzy\".into())])) /* ~ changed by cargo-mutants ~ */\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n     match value {\n         InputValue::Literal { text } => Ok(text.clone()),\n         InputValue::AtFile { path } => {\n             let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n                 &AbsPath::new(path.clone()).map_err(Error::Core)?,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_inputs",
+      "return_type": "-> Result<BTreeMap<String, String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1523
+        },
+        "start": {
+          "column": 1,
+          "line": 1516
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1518:5: replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(String::new(), \"xyzzy\".into())]))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(BTreeMap::from_iter([(String::new(), \"xyzzy\".into())]))",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1522
+      },
+      "start": {
+        "column": 5,
+        "line": 1518
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(\"xyzzy\".into(), String::new())]))\n@@ -1510,21 +1510,17 @@\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n-    let mut out = BTreeMap::new();\n-    for (key, value) in inputs {\n-        out.insert(key.clone(), materialize_summary(value)?);\n-    }\n-    Ok(out)\n+    Ok(BTreeMap::from_iter([(\"xyzzy\".into(), String::new())])) /* ~ changed by cargo-mutants ~ */\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n     match value {\n         InputValue::Literal { text } => Ok(text.clone()),\n         InputValue::AtFile { path } => {\n             let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n                 &AbsPath::new(path.clone()).map_err(Error::Core)?,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_inputs",
+      "return_type": "-> Result<BTreeMap<String, String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1523
+        },
+        "start": {
+          "column": 1,
+          "line": 1516
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1518:5: replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(\"xyzzy\".into(), String::new())]))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(BTreeMap::from_iter([(\"xyzzy\".into(), String::new())]))",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1522
+      },
+      "start": {
+        "column": 5,
+        "line": 1518
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(\"xyzzy\".into(), \"xyzzy\".into())]))\n@@ -1510,21 +1510,17 @@\n     serde_json::from_value::<WorkStatus>(value.clone())\n         .ok()\n         .and_then(|status| serde_json::to_value(status).ok())\n         .is_some_and(|canonical| canonical == *value)\n }\n \n /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。\n fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {\n-    let mut out = BTreeMap::new();\n-    for (key, value) in inputs {\n-        out.insert(key.clone(), materialize_summary(value)?);\n-    }\n-    Ok(out)\n+    Ok(BTreeMap::from_iter([(\"xyzzy\".into(), \"xyzzy\".into())])) /* ~ changed by cargo-mutants ~ */\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n     match value {\n         InputValue::Literal { text } => Ok(text.clone()),\n         InputValue::AtFile { path } => {\n             let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n                 &AbsPath::new(path.clone()).map_err(Error::Core)?,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_inputs",
+      "return_type": "-> Result<BTreeMap<String, String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1523
+        },
+        "start": {
+          "column": 1,
+          "line": 1516
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1518:5: replace materialize_inputs -> Result<BTreeMap<String, String>> with Ok(BTreeMap::from_iter([(\"xyzzy\".into(), \"xyzzy\".into())]))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(BTreeMap::from_iter([(\"xyzzy\".into(), \"xyzzy\".into())]))",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1522
+      },
+      "start": {
+        "column": 5,
+        "line": 1518
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_summary -> Result<String> with Ok(String::new())\n@@ -1518,38 +1518,17 @@\n     let mut out = BTreeMap::new();\n     for (key, value) in inputs {\n         out.insert(key.clone(), materialize_summary(value)?);\n     }\n     Ok(out)\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n-    match value {\n-        InputValue::Literal { text } => Ok(text.clone()),\n-        InputValue::AtFile { path } => {\n-            let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n-                &AbsPath::new(path.clone()).map_err(Error::Core)?,\n-            )\n-            .map_err(|error| Error::InputFileInvalid {\n-                path: path.clone(),\n-                reason: error.to_string(),\n-            })?;\n-            let bytes = f\n-                .read_bounded(crate::fsx::MAX_FILE_BYTES)\n-                .map_err(|error| Error::InputFileInvalid {\n-                    path: path.clone(),\n-                    reason: error.to_string(),\n-                })?;\n-            String::from_utf8(bytes).map_err(|_| Error::InputFileInvalid {\n-                path: path.clone(),\n-                reason: \"不是 UTF-8\".to_string(),\n-            })\n-        }\n-    }\n+    Ok(String::new()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。\n fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {\n     let state = &decision.state;\n     let mut ops = Vec::new();\n     // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。\n     if let Reply::AttemptBegun {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_summary",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1548
+        },
+        "start": {
+          "column": 1,
+          "line": 1525
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1526:5: replace materialize_summary -> Result<String> with Ok(String::new())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(String::new())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 1547
+      },
+      "start": {
+        "column": 5,
+        "line": 1526
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace materialize_summary -> Result<String> with Ok(\"xyzzy\".into())\n@@ -1518,38 +1518,17 @@\n     let mut out = BTreeMap::new();\n     for (key, value) in inputs {\n         out.insert(key.clone(), materialize_summary(value)?);\n     }\n     Ok(out)\n }\n \n fn materialize_summary(value: &InputValue) -> Result<String> {\n-    match value {\n-        InputValue::Literal { text } => Ok(text.clone()),\n-        InputValue::AtFile { path } => {\n-            let f = crate::fsx::ExternalReadFile::open_regular_no_follow(\n-                &AbsPath::new(path.clone()).map_err(Error::Core)?,\n-            )\n-            .map_err(|error| Error::InputFileInvalid {\n-                path: path.clone(),\n-                reason: error.to_string(),\n-            })?;\n-            let bytes = f\n-                .read_bounded(crate::fsx::MAX_FILE_BYTES)\n-                .map_err(|error| Error::InputFileInvalid {\n-                    path: path.clone(),\n-                    reason: error.to_string(),\n-                })?;\n-            String::from_utf8(bytes).map_err(|_| Error::InputFileInvalid {\n-                path: path.clone(),\n-                reason: \"不是 UTF-8\".to_string(),\n-            })\n-        }\n-    }\n+    Ok(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。\n fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {\n     let state = &decision.state;\n     let mut ops = Vec::new();\n     // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。\n     if let Reply::AttemptBegun {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "materialize_summary",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1548
+        },
+        "start": {
+          "column": 1,
+          "line": 1525
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1526:5: replace materialize_summary -> Result<String> with Ok(\"xyzzy\".into())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\".into())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 1547
+      },
+      "start": {
+        "column": 5,
+        "line": 1526
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace core_effects_to_ops -> Result<Vec<EffectOp>> with Ok(vec![])\n@@ -1544,105 +1544,17 @@\n                 reason: \"不是 UTF-8\".to_string(),\n             })\n         }\n     }\n }\n \n /// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。\n fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {\n-    let state = &decision.state;\n-    let mut ops = Vec::new();\n-    // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。\n-    if let Reply::AttemptBegun {\n-        attempt,\n-        brief_path,\n-        output_dir,\n-        outputs,\n-        ..\n-    } = &decision.reply\n-    {\n-        let _ = brief_path;\n-        let mut dirs: Vec<String> = Vec::new();\n-        let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| -> Result<()> {\n-            let rel = home.to_rel(abs)?;\n-            let mut acc = String::new();\n-            for seg in rel.split('/') {\n-                if seg.is_empty() {\n-                    continue;\n-                }\n-                acc = if acc.is_empty() {\n-                    seg.to_string()\n-                } else {\n-                    format!(\"{acc}/{seg}\")\n-                };\n-                dirs.push(acc.clone());\n-            }\n-            Ok(())\n-        };\n-        push_chain(output_dir, &mut dirs)?;\n-        for p in outputs.values() {\n-            if let Some(parent) = p.as_path().parent() {\n-                push_chain(\n-                    &AbsPath::new(parent.to_string()).map_err(Error::Core)?,\n-                    &mut dirs,\n-                )?;\n-            }\n-        }\n-        // 引擎生成文件（brief.md、engine/stats.json）的父目录也在骨架里。\n-        for effect in &decision.effects {\n-            if let Effect::WriteBrief { path, .. } | Effect::WriteFile { path, .. } = effect {\n-                if let Some(parent) = path.as_path().parent() {\n-                    push_chain(\n-                        &AbsPath::new(parent.to_string()).map_err(Error::Core)?,\n-                        &mut dirs,\n-                    )?;\n-                }\n-            }\n-        }\n-        dirs.sort();\n-        dirs.dedup();\n-        ops.push(EffectOp::PrepareAttempt {\n-            work_id: state.work_id.as_str().to_string(),\n-            attempt_id: attempt.to_string(),\n-            dirs,\n-        });\n-    }\n-    for effect in &decision.effects {\n-        match effect {\n-            Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {\n-                ops.push(EffectOp::WriteFile {\n-                    path: home.to_rel(path)?,\n-                    sha256: Sha256Hex::of_bytes(content.as_bytes()).as_str().to_string(),\n-                    content: content.clone(),\n-                });\n-            }\n-            Effect::SealOutputs { .. } => {\n-                // refs 从提交后的状态取（含精确 ArtifactRef）。\n-                let attempt = state.attempts.last().ok_or_else(|| Error::StoreCorrupt {\n-                    detail: \"封存效果没有对应 Attempt\".to_string(),\n-                })?;\n-                let mut refs = Vec::new();\n-                for r in attempt.outputs.values() {\n-                    refs.push(RefJson {\n-                        path: home.to_rel(&r.path)?,\n-                        sha256: r.sha256.as_str().to_string(),\n-                        bytes: r.bytes,\n-                    });\n-                }\n-                ops.push(EffectOp::SealOutputs { refs });\n-            }\n-            Effect::RefreshStatusCard => {\n-                ops.push(EffectOp::RefreshStatusCard {\n-                    work_id: state.work_id.as_str().to_string(),\n-                });\n-            }\n-        }\n-    }\n-    Ok(ops)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。\n fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {\n     let state = &decision.state;\n     let _ = next;\n     match &decision.reply {\n         Reply::Started {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "core_effects_to_ops",
+      "return_type": "-> Result<Vec<EffectOp>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1641
+        },
+        "start": {
+          "column": 1,
+          "line": 1550
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1552:5: replace core_effects_to_ops -> Result<Vec<EffectOp>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1640
+      },
+      "start": {
+        "column": 5,
+        "line": 1552
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace core_effects_to_ops -> Result<Vec<EffectOp>> with Ok(vec![Default::default()])\n@@ -1544,105 +1544,17 @@\n                 reason: \"不是 UTF-8\".to_string(),\n             })\n         }\n     }\n }\n \n /// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。\n fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {\n-    let state = &decision.state;\n-    let mut ops = Vec::new();\n-    // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。\n-    if let Reply::AttemptBegun {\n-        attempt,\n-        brief_path,\n-        output_dir,\n-        outputs,\n-        ..\n-    } = &decision.reply\n-    {\n-        let _ = brief_path;\n-        let mut dirs: Vec<String> = Vec::new();\n-        let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| -> Result<()> {\n-            let rel = home.to_rel(abs)?;\n-            let mut acc = String::new();\n-            for seg in rel.split('/') {\n-                if seg.is_empty() {\n-                    continue;\n-                }\n-                acc = if acc.is_empty() {\n-                    seg.to_string()\n-                } else {\n-                    format!(\"{acc}/{seg}\")\n-                };\n-                dirs.push(acc.clone());\n-            }\n-            Ok(())\n-        };\n-        push_chain(output_dir, &mut dirs)?;\n-        for p in outputs.values() {\n-            if let Some(parent) = p.as_path().parent() {\n-                push_chain(\n-                    &AbsPath::new(parent.to_string()).map_err(Error::Core)?,\n-                    &mut dirs,\n-                )?;\n-            }\n-        }\n-        // 引擎生成文件（brief.md、engine/stats.json）的父目录也在骨架里。\n-        for effect in &decision.effects {\n-            if let Effect::WriteBrief { path, .. } | Effect::WriteFile { path, .. } = effect {\n-                if let Some(parent) = path.as_path().parent() {\n-                    push_chain(\n-                        &AbsPath::new(parent.to_string()).map_err(Error::Core)?,\n-                        &mut dirs,\n-                    )?;\n-                }\n-            }\n-        }\n-        dirs.sort();\n-        dirs.dedup();\n-        ops.push(EffectOp::PrepareAttempt {\n-            work_id: state.work_id.as_str().to_string(),\n-            attempt_id: attempt.to_string(),\n-            dirs,\n-        });\n-    }\n-    for effect in &decision.effects {\n-        match effect {\n-            Effect::WriteBrief { path, content } | Effect::WriteFile { path, content } => {\n-                ops.push(EffectOp::WriteFile {\n-                    path: home.to_rel(path)?,\n-                    sha256: Sha256Hex::of_bytes(content.as_bytes()).as_str().to_string(),\n-                    content: content.clone(),\n-                });\n-            }\n-            Effect::SealOutputs { .. } => {\n-                // refs 从提交后的状态取（含精确 ArtifactRef）。\n-                let attempt = state.attempts.last().ok_or_else(|| Error::StoreCorrupt {\n-                    detail: \"封存效果没有对应 Attempt\".to_string(),\n-                })?;\n-                let mut refs = Vec::new();\n-                for r in attempt.outputs.values() {\n-                    refs.push(RefJson {\n-                        path: home.to_rel(&r.path)?,\n-                        sha256: r.sha256.as_str().to_string(),\n-                        bytes: r.bytes,\n-                    });\n-                }\n-                ops.push(EffectOp::SealOutputs { refs });\n-            }\n-            Effect::RefreshStatusCard => {\n-                ops.push(EffectOp::RefreshStatusCard {\n-                    work_id: state.work_id.as_str().to_string(),\n-                });\n-            }\n-        }\n-    }\n-    Ok(ops)\n+    Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。\n fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {\n     let state = &decision.state;\n     let _ = next;\n     match &decision.reply {\n         Reply::Started {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "core_effects_to_ops",
+      "return_type": "-> Result<Vec<EffectOp>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1641
+        },
+        "start": {
+          "column": 1,
+          "line": 1550
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1552:5: replace core_effects_to_ops -> Result<Vec<EffectOp>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 1640
+      },
+      "start": {
+        "column": 5,
+        "line": 1552
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace snapshot_data -> serde_json::Value with Default::default()\n@@ -1637,112 +1637,17 @@\n             }\n         }\n     }\n     Ok(ops)\n }\n \n /// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。\n fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {\n-    let state = &decision.state;\n-    let _ = next;\n-    match &decision.reply {\n-        Reply::Started {\n-            work_id,\n-            work_dir,\n-            requires,\n-        } => serde_json::json!({\n-            \"work_id\": work_id.as_str(),\n-            \"name\": state.name.as_str(),\n-            \"workbook\": {\n-                \"id\": state.workbook.id.as_str(),\n-                \"version\": state.workbook.version,\n-                \"digest\": state.workbook.digest.as_str(),\n-            },\n-            \"flow\": state.flow.as_str(),\n-            \"work_dir\": work_dir.as_str(),\n-            \"requires\": requires,\n-        }),\n-        Reply::AttemptBegun {\n-            attempt,\n-            brief_path,\n-            output_dir,\n-            inputs,\n-            outputs,\n-            requires,\n-        } => {\n-            let inputs: serde_json::Map<String, serde_json::Value> = inputs\n-                .iter()\n-                .map(|(k, v)| {\n-                    (\n-                        k.clone(),\n-                        v.as_ref()\n-                            .map_or(serde_json::Value::Null, |p| serde_json::json!(p.as_str())),\n-                    )\n-                })\n-                .collect();\n-            let outputs: serde_json::Map<String, serde_json::Value> = outputs\n-                .iter()\n-                .map(|(k, p)| (k.clone(), serde_json::json!(p.as_str())))\n-                .collect();\n-            serde_json::json!({\n-                \"attempt\": attempt.to_string(),\n-                \"node\": attempt.node.as_str(),\n-                \"occurrence\": attempt.occurrence,\n-                \"retry\": attempt.retry,\n-                \"brief_path\": brief_path.as_str(),\n-                \"output_dir\": output_dir.as_str(),\n-                \"inputs\": inputs,\n-                \"outputs\": outputs,\n-                \"requires\": requires,\n-            })\n-        }\n-        Reply::AttemptSubmitted { attempt, outputs } => {\n-            let outs: serde_json::Map<String, serde_json::Value> = outputs\n-                .iter()\n-                .map(|(k, r)| {\n-                    (\n-                        k.clone(),\n-                        serde_json::json!({\n-                            \"path\": r.path.as_str(),\n-                            \"sha256\": r.sha256.as_str(),\n-                            \"bytes\": r.bytes,\n-                        }),\n-                    )\n-                })\n-                .collect();\n-            serde_json::json!({\n-                \"attempt\": attempt.to_string(),\n-                \"outputs\": outs,\n-                \"work_status\": state.status,\n-            })\n-        }\n-        Reply::AttemptFailed { attempt } => serde_json::json!({\n-            \"attempt\": attempt.to_string(),\n-            \"work_status\": state.status,\n-        }),\n-        Reply::GateApproved { node, occurrence } => {\n-            let approval = state\n-                .approvals\n-                .last()\n-                .cloned()\n-                .unwrap_or_else(|| unreachable!(\"批准回复必有批准记录\"));\n-            serde_json::json!({\n-                \"node\": node.as_str(),\n-                \"occurrence\": occurrence,\n-                \"by\": approval.by.0,\n-                \"at\": approval.at.as_str(),\n-                \"work_status\": state.status,\n-            })\n-        }\n-        Reply::Cancelled => serde_json::json!({\n-            \"work_id\": state.work_id.as_str(),\n-            \"work_status\": state.status,\n-        }),\n-    }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n /// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。\n fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {\n     let def = loaded.graph.node(node).ok_or_else(|| Error::NotFound {\n         what: format!(\"节点 {node}\"),\n     })?;\n     match def.instruction() {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "snapshot_data",
+      "return_type": "-> serde_json::Value",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1741
+        },
+        "start": {
+          "column": 1,
+          "line": 1643
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1645:5: replace snapshot_data -> serde_json::Value with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 1740
+      },
+      "start": {
+        "column": 5,
+        "line": 1645
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace instruction_text_of -> Result<String> with Ok(String::new())\n@@ -1737,29 +1737,17 @@\n             \"work_id\": state.work_id.as_str(),\n             \"work_status\": state.status,\n         }),\n     }\n }\n \n /// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。\n fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {\n-    let def = loaded.graph.node(node).ok_or_else(|| Error::NotFound {\n-        what: format!(\"节点 {node}\"),\n-    })?;\n-    match def.instruction() {\n-        sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),\n-        sheltie_core::flow::Instruction::File(rel) => loaded\n-            .instructions\n-            .get(rel)\n-            .cloned()\n-            .ok_or_else(|| Error::StoreCorrupt {\n-                detail: format!(\"冻结副本装入时缺少节点 {node} 的说明书 {rel}\"),\n-            }),\n-    }\n+    Ok(String::new()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn observe_loaded_input(\n     home: &Home,\n     loaded: &Loaded,\n     node: &NodeId,\n     name: &str,\n     path: &AbsPath,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "instruction_text_of",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1758
+        },
+        "start": {
+          "column": 1,
+          "line": 1743
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1745:5: replace instruction_text_of -> Result<String> with Ok(String::new())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(String::new())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 1757
+      },
+      "start": {
+        "column": 5,
+        "line": 1745
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace instruction_text_of -> Result<String> with Ok(\"xyzzy\".into())\n@@ -1737,29 +1737,17 @@\n             \"work_id\": state.work_id.as_str(),\n             \"work_status\": state.status,\n         }),\n     }\n }\n \n /// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。\n fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {\n-    let def = loaded.graph.node(node).ok_or_else(|| Error::NotFound {\n-        what: format!(\"节点 {node}\"),\n-    })?;\n-    match def.instruction() {\n-        sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),\n-        sheltie_core::flow::Instruction::File(rel) => loaded\n-            .instructions\n-            .get(rel)\n-            .cloned()\n-            .ok_or_else(|| Error::StoreCorrupt {\n-                detail: format!(\"冻结副本装入时缺少节点 {node} 的说明书 {rel}\"),\n-            }),\n-    }\n+    Ok(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn observe_loaded_input(\n     home: &Home,\n     loaded: &Loaded,\n     node: &NodeId,\n     name: &str,\n     path: &AbsPath,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "instruction_text_of",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1758
+        },
+        "start": {
+          "column": 1,
+          "line": 1743
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1745:5: replace instruction_text_of -> Result<String> with Ok(\"xyzzy\".into())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\".into())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 1757
+      },
+      "start": {
+        "column": 5,
+        "line": 1745
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_loaded_input -> Result<Option<ObservedFile>> with Ok(None)\n@@ -1759,51 +1759,17 @@\n \n fn observe_loaded_input(\n     home: &Home,\n     loaded: &Loaded,\n     node: &NodeId,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<Option<ObservedFile>> {\n-    let declaration = loaded\n-        .graph\n-        .node(node)\n-        .and_then(|definition| {\n-            definition\n-                .inputs()\n-                .iter()\n-                .find(|input| input.name() == name)\n-        })\n-        .ok_or_else(|| Error::StoreCorrupt {\n-            detail: format!(\"冻结Flow缺少节点 {node} 的输入声明 {name}\"),\n-        })?;\n-    if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {\n-        if path != &loaded.state.workbook_dir().join(relative) {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"资源输入 {name} 的路径与冻结Workbook不一致\"),\n-            });\n-        }\n-        return loaded\n-            .resource_files\n-            .get(relative)\n-            .cloned()\n-            .map(Some)\n-            .ok_or_else(|| Error::StoreCorrupt {\n-                detail: format!(\"冻结副本装入时缺少资源 {relative}\"),\n-            });\n-    }\n-    if path.as_path().starts_with(home.root().as_path()) {\n-        let Some(file) = crate::fsx::open_managed_optional(home, path)? else {\n-            return Ok(None);\n-        };\n-        let (sha256, bytes) = file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-        return Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)));\n-    }\n-    observe_optional(path)\n+    Ok(None) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_loaded_input",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1802
+        },
+        "start": {
+          "column": 1,
+          "line": 1760
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1767:5: replace observe_loaded_input -> Result<Option<ObservedFile>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1801
+      },
+      "start": {
+        "column": 5,
+        "line": 1767
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_loaded_input -> Result<Option<ObservedFile>> with Ok(Some(Default::default()))\n@@ -1759,51 +1759,17 @@\n \n fn observe_loaded_input(\n     home: &Home,\n     loaded: &Loaded,\n     node: &NodeId,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<Option<ObservedFile>> {\n-    let declaration = loaded\n-        .graph\n-        .node(node)\n-        .and_then(|definition| {\n-            definition\n-                .inputs()\n-                .iter()\n-                .find(|input| input.name() == name)\n-        })\n-        .ok_or_else(|| Error::StoreCorrupt {\n-            detail: format!(\"冻结Flow缺少节点 {node} 的输入声明 {name}\"),\n-        })?;\n-    if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {\n-        if path != &loaded.state.workbook_dir().join(relative) {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"资源输入 {name} 的路径与冻结Workbook不一致\"),\n-            });\n-        }\n-        return loaded\n-            .resource_files\n-            .get(relative)\n-            .cloned()\n-            .map(Some)\n-            .ok_or_else(|| Error::StoreCorrupt {\n-                detail: format!(\"冻结副本装入时缺少资源 {relative}\"),\n-            });\n-    }\n-    if path.as_path().starts_with(home.root().as_path()) {\n-        let Some(file) = crate::fsx::open_managed_optional(home, path)? else {\n-            return Ok(None);\n-        };\n-        let (sha256, bytes) = file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-        return Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)));\n-    }\n-    observe_optional(path)\n+    Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_loaded_input",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1802
+        },
+        "start": {
+          "column": 1,
+          "line": 1760
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1767:5: replace observe_loaded_input -> Result<Option<ObservedFile>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1801
+      },
+      "start": {
+        "column": 5,
+        "line": 1767
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in observe_loaded_input\n@@ -1766,17 +1766,17 @@\n ) -> Result<Option<ObservedFile>> {\n     let declaration = loaded\n         .graph\n         .node(node)\n         .and_then(|definition| {\n             definition\n                 .inputs()\n                 .iter()\n-                .find(|input| input.name() == name)\n+                .find(|input| input.name() != /* ~ changed by cargo-mutants ~ */ name)\n         })\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"冻结Flow缺少节点 {node} 的输入声明 {name}\"),\n         })?;\n     if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {\n         if path != &loaded.state.workbook_dir().join(relative) {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"资源输入 {name} 的路径与冻结Workbook不一致\"),\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_loaded_input",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1802
+        },
+        "start": {
+          "column": 1,
+          "line": 1760
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1774:44: replace == with != in observe_loaded_input",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 1774
+      },
+      "start": {
+        "column": 44,
+        "line": 1774
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace != with == in observe_loaded_input\n@@ -1772,17 +1772,17 @@\n                 .inputs()\n                 .iter()\n                 .find(|input| input.name() == name)\n         })\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"冻结Flow缺少节点 {node} 的输入声明 {name}\"),\n         })?;\n     if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {\n-        if path != &loaded.state.workbook_dir().join(relative) {\n+        if path == /* ~ changed by cargo-mutants ~ */ &loaded.state.workbook_dir().join(relative) {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"资源输入 {name} 的路径与冻结Workbook不一致\"),\n             });\n         }\n         return loaded\n             .resource_files\n             .get(relative)\n             .cloned()\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_loaded_input",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1802
+        },
+        "start": {
+          "column": 1,
+          "line": 1760
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1780:17: replace != with == in observe_loaded_input",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1780
+      },
+      "start": {
+        "column": 17,
+        "line": 1780
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((None, None))\n@@ -1804,32 +1804,17 @@\n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n-    let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n-        return Ok((None, None));\n-    };\n-    let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n-        return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n-            output: name.to_string(),\n-            max_bytes: crate::fsx::MAX_FILE_BYTES,\n-            actual: len,\n-        }));\n-    }\n-    let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-    Ok((\n-        Some(ObservedFile::new(path.clone(), sha256, bytes)),\n-        Some(f),\n-    ))\n+    Ok((None, None)) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。\n fn audit_json(cmd: &Command) -> Result<String> {\n     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"序列化命令失败：{e}\"),\n     })?;\n     if let serde_json::Value::Object(map) = &mut value {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_output",
+      "return_type": "-> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1828
+        },
+        "start": {
+          "column": 1,
+          "line": 1804
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1812:5: replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((None, None))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((None, None))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 1827
+      },
+      "start": {
+        "column": 5,
+        "line": 1812
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((None, Some(Default::default())))\n@@ -1804,32 +1804,17 @@\n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n-    let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n-        return Ok((None, None));\n-    };\n-    let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n-        return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n-            output: name.to_string(),\n-            max_bytes: crate::fsx::MAX_FILE_BYTES,\n-            actual: len,\n-        }));\n-    }\n-    let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-    Ok((\n-        Some(ObservedFile::new(path.clone(), sha256, bytes)),\n-        Some(f),\n-    ))\n+    Ok((None, Some(Default::default()))) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。\n fn audit_json(cmd: &Command) -> Result<String> {\n     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"序列化命令失败：{e}\"),\n     })?;\n     if let serde_json::Value::Object(map) = &mut value {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_output",
+      "return_type": "-> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1828
+        },
+        "start": {
+          "column": 1,
+          "line": 1804
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1812:5: replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((None, Some(Default::default())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((None, Some(Default::default())))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 1827
+      },
+      "start": {
+        "column": 5,
+        "line": 1812
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((Some(Default::default()), None))\n@@ -1804,32 +1804,17 @@\n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n-    let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n-        return Ok((None, None));\n-    };\n-    let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n-        return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n-            output: name.to_string(),\n-            max_bytes: crate::fsx::MAX_FILE_BYTES,\n-            actual: len,\n-        }));\n-    }\n-    let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-    Ok((\n-        Some(ObservedFile::new(path.clone(), sha256, bytes)),\n-        Some(f),\n-    ))\n+    Ok((Some(Default::default()), None)) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。\n fn audit_json(cmd: &Command) -> Result<String> {\n     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"序列化命令失败：{e}\"),\n     })?;\n     if let serde_json::Value::Object(map) = &mut value {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_output",
+      "return_type": "-> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1828
+        },
+        "start": {
+          "column": 1,
+          "line": 1804
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1812:5: replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((Some(Default::default()), None))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Some(Default::default()), None))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 1827
+      },
+      "start": {
+        "column": 5,
+        "line": 1812
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((Some(Default::default()), Some(Default::default())))\n@@ -1804,32 +1804,17 @@\n /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的\n /// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按\n /// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。\n fn observe_output(\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n-    let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n-        return Ok((None, None));\n-    };\n-    let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n-        return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n-            output: name.to_string(),\n-            max_bytes: crate::fsx::MAX_FILE_BYTES,\n-            actual: len,\n-        }));\n-    }\n-    let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n-    Ok((\n-        Some(ObservedFile::new(path.clone(), sha256, bytes)),\n-        Some(f),\n-    ))\n+    Ok((Some(Default::default()), Some(Default::default()))) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。\n fn audit_json(cmd: &Command) -> Result<String> {\n     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"序列化命令失败：{e}\"),\n     })?;\n     if let serde_json::Value::Object(map) = &mut value {\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_output",
+      "return_type": "-> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1828
+        },
+        "start": {
+          "column": 1,
+          "line": 1804
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/service.rs:1812:5: replace observe_output -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> with Ok((Some(Default::default()), Some(Default::default())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Some(Default::default()), Some(Default::default())))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 1827
+      },
+      "start": {
+        "column": 5,
+        "line": 1812
+      }
+    }
+  }
+]

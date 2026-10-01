@@ -1,0 +1,7 @@
+Found 177 mutants to test
+ok       Unmutated baseline in 11s build + 1s test
+MISSED   crates/sheltie-core/src/path.rs:47:9: replace RelPath::as_str -> &str with "" in 2s build + 0s test
+MISSED   crates/sheltie-core/src/path.rs:47:9: replace RelPath::as_str -> &str with "xyzzy" in 2s build + 0s test
+MISSED   crates/sheltie-core/src/flow/def.rs:181:9: replace NodeDef::title -> &str with "" in 3s build + 0s test
+MISSED   crates/sheltie-core/src/flow/def.rs:181:9: replace NodeDef::title -> &str with "xyzzy" in 3s build + 0s test
+177 mutants tested in 3m: 4 missed, 145 caught, 28 unviable

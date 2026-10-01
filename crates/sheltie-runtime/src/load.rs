@@ -75,6 +75,9 @@ pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPa
 /// Verify all persisted references against the checked graph and their owning Attempt.
 pub(crate) fn validate_work_paths(home: &Home, state: &WorkState, graph: &Graph) -> Result<()> {
     let work_dir = validate_work_root(home, state)?;
+    state
+        .validate_gate_facts(graph)
+        .map_err(|detail| corrupt(&state.work_id, detail))?;
     validate_start_inputs(graph, state.inputs.keys())
         .map_err(|error| corrupt(&state.work_id, format!("state_json.inputs: {error}")))?;
     for (key, reference) in &state.inputs {

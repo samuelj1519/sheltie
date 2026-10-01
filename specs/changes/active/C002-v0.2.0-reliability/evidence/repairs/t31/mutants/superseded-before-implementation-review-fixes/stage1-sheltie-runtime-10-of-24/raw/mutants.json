@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in set_dir_tree_mode\n@@ -3018,17 +3018,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{child_display} 是符号链接\"),\n             });\n         }\n         if file_type == FileType::Directory {\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+                OFlags::RDONLY | OFlags::DIRECTORY ^ /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3026:52: replace | with ^ in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 3026
+      },
+      "start": {
+        "column": 52,
+        "line": 3026
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in set_dir_tree_mode\n@@ -3018,17 +3018,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{child_display} 是符号链接\"),\n             });\n         }\n         if file_type == FileType::Directory {\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+                OFlags::RDONLY & /* ~ changed by cargo-mutants ~ */ OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with & in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 3026
+      },
+      "start": {
+        "column": 32,
+        "line": 3026
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in set_dir_tree_mode\n@@ -3018,17 +3018,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{child_display} 是符号链接\"),\n             });\n         }\n         if file_type == FileType::Directory {\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+                OFlags::RDONLY ^ /* ~ changed by cargo-mutants ~ */ OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with ^ in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 3026
+      },
+      "start": {
+        "column": 32,
+        "line": 3026
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in set_dir_tree_mode\n@@ -3024,17 +3024,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev != stat.st_dev && /* ~ changed by cargo-mutants ~ */ opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3032:45: replace || with && in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 3032
+      },
+      "start": {
+        "column": 45,
+        "line": 3032
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in set_dir_tree_mode\n@@ -3024,17 +3024,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev == /* ~ changed by cargo-mutants ~ */ stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3032:30: replace != with == in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 3032
+      },
+      "start": {
+        "column": 30,
+        "line": 3032
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in set_dir_tree_mode\n@@ -3024,17 +3024,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let child = std::fs::File::from(fd);\n             let opened = fstat(&child).map_err(|e| map_fs_error(&child_display, e))?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev != stat.st_dev || opened.st_ino == /* ~ changed by cargo-mutants ~ */ stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3032:62: replace != with == in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 3032
+      },
+      "start": {
+        "column": 62,
+        "line": 3032
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace && with || in set_dir_tree_mode\n@@ -3032,17 +3032,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode == 0o444 || /* ~ changed by cargo-mutants ~ */ directory_mode == 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_nested_dir_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但嵌套目录同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3040:35: replace && with || in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 3040
+      },
+      "start": {
+        "column": 35,
+        "line": 3040
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in set_dir_tree_mode\n@@ -3032,17 +3032,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode != /* ~ changed by cargo-mutants ~ */ 0o444 && directory_mode == 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_nested_dir_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但嵌套目录同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3040:26: replace == with != in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 3040
+      },
+      "start": {
+        "column": 26,
+        "line": 3040
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in set_dir_tree_mode\n@@ -3032,17 +3032,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在遍历期间被替换\"),\n                 });\n             }\n             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;\n             fchmod(&child, Mode::from_raw_mode(directory_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode == 0o444 && directory_mode != /* ~ changed by cargo-mutants ~ */ 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_nested_dir_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但嵌套目录同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3040:53: replace == with != in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 3040
+      },
+      "start": {
+        "column": 53,
+        "line": 3040
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in set_dir_tree_mode\n@@ -3041,17 +3041,17 @@\n                 crate::failpoint::sync_error(root, \"publish_readonly_nested_dir_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但嵌套目录同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n-        } else if file_type == FileType::RegularFile {\n+        } else if file_type != /* ~ changed by cargo-mutants ~ */ FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3049:29: replace == with != in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 3049
+      },
+      "start": {
+        "column": 29,
+        "line": 3049
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK & /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with & in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 3054
+      },
+      "start": {
+        "column": 70,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK ^ /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with ^ in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 3054
+      },
+      "start": {
+        "column": 70,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY | OFlags::NOFOLLOW & /* ~ changed by cargo-mutants ~ */ OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with & in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 3054
+      },
+      "start": {
+        "column": 51,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY | OFlags::NOFOLLOW ^ /* ~ changed by cargo-mutants ~ */ OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with ^ in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 3054
+      },
+      "start": {
+        "column": 51,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY & /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with & in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 3054
+      },
+      "start": {
+        "column": 32,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in set_dir_tree_mode\n@@ -3046,17 +3046,17 @@\n                 )?;\n             }\n             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;\n         } else if file_type == FileType::RegularFile {\n             check_regular_stat(&child_display, &stat)?;\n             let fd = openat(\n                 directory,\n                 name,\n-                OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n+                OFlags::RDONLY ^ /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with ^ in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 3054
+      },
+      "start": {
+        "column": 32,
+        "line": 3054
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in set_dir_tree_mode\n@@ -3052,17 +3052,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev != stat.st_dev && /* ~ changed by cargo-mutants ~ */ opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3060:45: replace || with && in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 3060
+      },
+      "start": {
+        "column": 45,
+        "line": 3060
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in set_dir_tree_mode\n@@ -3052,17 +3052,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev == /* ~ changed by cargo-mutants ~ */ stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3060:30: replace != with == in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 3060
+      },
+      "start": {
+        "column": 30,
+        "line": 3060
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in set_dir_tree_mode\n@@ -3052,17 +3052,17 @@\n                 directory,\n                 name,\n                 OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,\n                 Mode::empty(),\n             )\n             .map_err(|e| map_fs_error(&child_display, e))?;\n             let opened = fstat(&fd).map_err(|e| map_fs_error(&child_display, e))?;\n             check_regular_stat(&child_display, &opened)?;\n-            if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n+            if opened.st_dev != stat.st_dev || opened.st_ino == /* ~ changed by cargo-mutants ~ */ stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n             if file_mode == 0o444 && directory_mode == 0o555 {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3060:62: replace != with == in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 3060
+      },
+      "start": {
+        "column": 62,
+        "line": 3060
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace && with || in set_dir_tree_mode\n@@ -3060,17 +3060,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode == 0o444 || /* ~ changed by cargo-mutants ~ */ directory_mode == 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_file_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但文件同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3068:35: replace && with || in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 3068
+      },
+      "start": {
+        "column": 35,
+        "line": 3068
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in set_dir_tree_mode\n@@ -3060,17 +3060,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode != /* ~ changed by cargo-mutants ~ */ 0o444 && directory_mode == 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_file_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但文件同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3068:26: replace == with != in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 3068
+      },
+      "start": {
+        "column": 26,
+        "line": 3068
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in set_dir_tree_mode\n@@ -3060,17 +3060,17 @@\n             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"{child_display} 在封存期间被替换\"),\n                 });\n             }\n             let file = std::fs::File::from(fd);\n             fchmod(&file, Mode::from_raw_mode(file_mode))\n                 .map_err(|e| map_fs_error(&child_display, e))?;\n-            if file_mode == 0o444 && directory_mode == 0o555 {\n+            if file_mode == 0o444 && directory_mode != /* ~ changed by cargo-mutants ~ */ 0o555 {\n                 crate::failpoint::sync_error(root, \"publish_readonly_file_sync\").map_err(\n                     |error| Error::RecoveryRequired {\n                         path: child_display.clone(),\n                         detail: format!(\"只读权限已设置但文件同步失败：{error}\"),\n                     },\n                 )?;\n             }\n             fsync(&file).map_err(|e| map_fs_error(&child_display, e))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "set_dir_tree_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 3084
+        },
+        "start": {
+          "column": 1,
+          "line": 2996
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:3068:53: replace == with != in set_dir_tree_mode",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 3068
+      },
+      "start": {
+        "column": 53,
+        "line": 3068
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace canonicalize_deepest -> camino::Utf8PathBuf with Default::default()\n@@ -3,40 +3,17 @@\n use sheltie_core::ids::WorkId;\n use sheltie_core::path::{AbsPath, RelPath};\n \n use crate::error::{Error, Result};\n \n /// 把路径规范化到「最深已存在祖先的真实位置 + 余下原样段」。\n /// 全路径已存在时等价于 `canonicalize`；尚不存在的尾部保持词法形式。\n fn canonicalize_deepest(path: &camino::Utf8Path) -> camino::Utf8PathBuf {\n-    let mut probe = path.to_path_buf();\n-    let mut tail: Vec<String> = Vec::new();\n-    loop {\n-        match std::fs::canonicalize(&probe) {\n-            Ok(real) => {\n-                let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());\n-                for seg in tail.iter().rev() {\n-                    out = out.join(seg);\n-                }\n-                return out;\n-            }\n-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {\n-                let Some(name) = probe.file_name().map(|n| n.to_string()) else {\n-                    return path.to_path_buf();\n-                };\n-                tail.push(name);\n-                let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {\n-                    return path.to_path_buf();\n-                };\n-                probe = parent;\n-            }\n-            Err(_) => return path.to_path_buf(),\n-        }\n-    }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n /// 管理根。只有 runtime 能在它下面写东西。\n #[derive(Debug, Clone, PartialEq, Eq)]\n pub struct Home {\n     root: AbsPath,\n }\n \n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "canonicalize_deepest",
+      "return_type": "-> camino::Utf8PathBuf",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 35
+        },
+        "start": {
+          "column": 1,
+          "line": 8
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:11:5: replace canonicalize_deepest -> camino::Utf8PathBuf with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 34
+      },
+      "start": {
+        "column": 5,
+        "line": 11
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest\n@@ -14,17 +14,17 @@\n         match std::fs::canonicalize(&probe) {\n             Ok(real) => {\n                 let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());\n                 for seg in tail.iter().rev() {\n                     out = out.join(seg);\n                 }\n                 return out;\n             }\n-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {\n+            Err(e) if true /* ~ changed by cargo-mutants ~ */ => {\n                 let Some(name) = probe.file_name().map(|n| n.to_string()) else {\n                     return path.to_path_buf();\n                 };\n                 tail.push(name);\n                 let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {\n                     return path.to_path_buf();\n                 };\n                 probe = parent;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "canonicalize_deepest",
+      "return_type": "-> camino::Utf8PathBuf",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 35
+        },
+        "start": {
+          "column": 1,
+          "line": 8
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 22
+      },
+      "start": {
+        "column": 23,
+        "line": 22
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::NotFound with false in canonicalize_deepest\n@@ -14,17 +14,17 @@\n         match std::fs::canonicalize(&probe) {\n             Ok(real) => {\n                 let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());\n                 for seg in tail.iter().rev() {\n                     out = out.join(seg);\n                 }\n                 return out;\n             }\n-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {\n+            Err(e) if false /* ~ changed by cargo-mutants ~ */ => {\n                 let Some(name) = probe.file_name().map(|n| n.to_string()) else {\n                     return path.to_path_buf();\n                 };\n                 tail.push(name);\n                 let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {\n                     return path.to_path_buf();\n                 };\n                 probe = parent;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "canonicalize_deepest",
+      "return_type": "-> camino::Utf8PathBuf",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 35
+        },
+        "start": {
+          "column": 1,
+          "line": 8
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with false in canonicalize_deepest",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 22
+      },
+      "start": {
+        "column": 23,
+        "line": 22
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in canonicalize_deepest\n@@ -14,17 +14,17 @@\n         match std::fs::canonicalize(&probe) {\n             Ok(real) => {\n                 let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());\n                 for seg in tail.iter().rev() {\n                     out = out.join(seg);\n                 }\n                 return out;\n             }\n-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {\n+            Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::NotFound => {\n                 let Some(name) = probe.file_name().map(|n| n.to_string()) else {\n                     return path.to_path_buf();\n                 };\n                 tail.push(name);\n                 let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {\n                     return path.to_path_buf();\n                 };\n                 probe = parent;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "canonicalize_deepest",
+      "return_type": "-> camino::Utf8PathBuf",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 35
+        },
+        "start": {
+          "column": 1,
+          "line": 8
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:22:32: replace == with != in canonicalize_deepest",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 22
+      },
+      "start": {
+        "column": 32,
+        "line": 22
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::resolve -> Result<Self> with Ok(Default::default())\n@@ -43,33 +43,17 @@\n impl Home {\n     /// 解析管理根：`cli` 参数 > 环境变量 `SHELTIE_HOME` > `$HOME/.sheltie`。\n     /// 相对路径按当前目录转成绝对路径。不建目录。\n     ///\n     /// 根在入口一次规范化：对最深已存在祖先做 `canonicalize`，再拼回余下段。\n     /// 之后所有 managed 路径都从这个规范根派生，祖先软链（如 `/tmp` 一类）不会\n     /// 让派生路径与 `confine` 的前缀比较失真（架构 §5）。\n     pub fn resolve(cli: Option<&str>) -> Result<Self> {\n-        let given = match cli.map(str::to_string) {\n-            Some(p) => p,\n-            None => std::env::var(\"SHELTIE_HOME\")\n-                .or_else(|_| std::env::var(\"HOME\").map(|h| format!(\"{h}/.sheltie\")))\n-                .map_err(|_| Error::InvalidRequest {\n-                    reason: \"既没有 --home 与 SHELTIE_HOME，也取不到 $HOME\".to_string(),\n-                })?,\n-        };\n-        let root = if camino::Utf8Path::new(&given).is_absolute() {\n-            camino::Utf8PathBuf::from(given)\n-        } else {\n-            let cwd = std::env::current_dir().map_err(|e| Error::io(\".\", e))?;\n-            camino::Utf8PathBuf::from(cwd.join(&given).to_string_lossy().into_owned())\n-        };\n-        Ok(Self {\n-            root: AbsPath::new(canonicalize_deepest(&root).to_string())?,\n-        })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 直接用一个绝对路径当根（测试用）。与 `resolve` 一样把根规范化到真实形式，\n     /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。\n     pub fn at(root: AbsPath) -> Self {\n         Self {\n             root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),\n         }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::resolve",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 68
+        },
+        "start": {
+          "column": 5,
+          "line": 44
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:51:9: replace Home::resolve -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 67
+      },
+      "start": {
+        "column": 9,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::at -> Self with Default::default()\n@@ -65,19 +65,17 @@\n         Ok(Self {\n             root: AbsPath::new(canonicalize_deepest(&root).to_string())?,\n         })\n     }\n \n     /// 直接用一个绝对路径当根（测试用）。与 `resolve` 一样把根规范化到真实形式，\n     /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。\n     pub fn at(root: AbsPath) -> Self {\n-        Self {\n-            root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn root(&self) -> &AbsPath {\n         &self.root\n     }\n \n     pub fn store_path(&self) -> AbsPath {\n         self.root.join_segment(\"store.db\")\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::at",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 76
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:73:9: replace Home::at -> Self with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 75
+      },
+      "start": {
+        "column": 9,
+        "line": 73
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::root -> &AbsPath with Box::leak(Box::new(Default::default()))\n@@ -71,17 +71,17 @@\n     /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。\n     pub fn at(root: AbsPath) -> Self {\n         Self {\n             root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),\n         }\n     }\n \n     pub fn root(&self) -> &AbsPath {\n-        &self.root\n+        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn store_path(&self) -> AbsPath {\n         self.root.join_segment(\"store.db\")\n     }\n \n     pub fn workbooks_dir(&self) -> AbsPath {\n         self.root.join_segment(\"workbooks\")\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::root",
+      "return_type": "-> &AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 80
+        },
+        "start": {
+          "column": 5,
+          "line": 78
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:79:9: replace Home::root -> &AbsPath with Box::leak(Box::new(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 79
+      },
+      "start": {
+        "column": 9,
+        "line": 79
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::store_path -> AbsPath with Default::default()\n@@ -75,17 +75,17 @@\n         }\n     }\n \n     pub fn root(&self) -> &AbsPath {\n         &self.root\n     }\n \n     pub fn store_path(&self) -> AbsPath {\n-        self.root.join_segment(\"store.db\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn workbooks_dir(&self) -> AbsPath {\n         self.root.join_segment(\"workbooks\")\n     }\n \n     pub fn staging_dir(&self) -> AbsPath {\n         self.workbooks_dir().join_segment(\".staging\")\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::store_path",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 84
+        },
+        "start": {
+          "column": 5,
+          "line": 82
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:83:9: replace Home::store_path -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 83
+      },
+      "start": {
+        "column": 9,
+        "line": 83
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::workbooks_dir -> AbsPath with Default::default()\n@@ -79,17 +79,17 @@\n         &self.root\n     }\n \n     pub fn store_path(&self) -> AbsPath {\n         self.root.join_segment(\"store.db\")\n     }\n \n     pub fn workbooks_dir(&self) -> AbsPath {\n-        self.root.join_segment(\"workbooks\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn staging_dir(&self) -> AbsPath {\n         self.workbooks_dir().join_segment(\".staging\")\n     }\n \n     pub fn works_dir(&self) -> AbsPath {\n         self.root.join_segment(\"works\")\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::workbooks_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 88
+        },
+        "start": {
+          "column": 5,
+          "line": 86
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:87:9: replace Home::workbooks_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 87
+      },
+      "start": {
+        "column": 9,
+        "line": 87
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::staging_dir -> AbsPath with Default::default()\n@@ -83,17 +83,17 @@\n         self.root.join_segment(\"store.db\")\n     }\n \n     pub fn workbooks_dir(&self) -> AbsPath {\n         self.root.join_segment(\"workbooks\")\n     }\n \n     pub fn staging_dir(&self) -> AbsPath {\n-        self.workbooks_dir().join_segment(\".staging\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn works_dir(&self) -> AbsPath {\n         self.root.join_segment(\"works\")\n     }\n \n     pub fn tmp_dir(&self) -> AbsPath {\n         self.root.join_segment(\"tmp\")\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::staging_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 92
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:91:9: replace Home::staging_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 91
+      },
+      "start": {
+        "column": 9,
+        "line": 91
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::works_dir -> AbsPath with Default::default()\n@@ -87,17 +87,17 @@\n         self.root.join_segment(\"workbooks\")\n     }\n \n     pub fn staging_dir(&self) -> AbsPath {\n         self.workbooks_dir().join_segment(\".staging\")\n     }\n \n     pub fn works_dir(&self) -> AbsPath {\n-        self.root.join_segment(\"works\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn tmp_dir(&self) -> AbsPath {\n         self.root.join_segment(\"tmp\")\n     }\n \n     /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。\n     pub fn lock_path(&self) -> AbsPath {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::works_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 96
+        },
+        "start": {
+          "column": 5,
+          "line": 94
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:95:9: replace Home::works_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 95
+      },
+      "start": {
+        "column": 9,
+        "line": 95
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::tmp_dir -> AbsPath with Default::default()\n@@ -91,17 +91,17 @@\n         self.workbooks_dir().join_segment(\".staging\")\n     }\n \n     pub fn works_dir(&self) -> AbsPath {\n         self.root.join_segment(\"works\")\n     }\n \n     pub fn tmp_dir(&self) -> AbsPath {\n-        self.root.join_segment(\"tmp\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。\n     pub fn lock_path(&self) -> AbsPath {\n         self.root.join_segment(\".lock\")\n     }\n \n     /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::tmp_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 100
+        },
+        "start": {
+          "column": 5,
+          "line": 98
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:99:9: replace Home::tmp_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 99
+      },
+      "start": {
+        "column": 9,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::lock_path -> AbsPath with Default::default()\n@@ -96,17 +96,17 @@\n     }\n \n     pub fn tmp_dir(&self) -> AbsPath {\n         self.root.join_segment(\"tmp\")\n     }\n \n     /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。\n     pub fn lock_path(&self) -> AbsPath {\n-        self.root.join_segment(\".lock\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。\n     pub fn pending_dir(&self) -> AbsPath {\n         self.root.join_segment(\"pending\")\n     }\n \n     /// 把经过校验的根内路径拼回绝对路径。非法登记路径必须报错，不能退回管理根。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::lock_path",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 102
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:104:9: replace Home::lock_path -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 104
+      },
+      "start": {
+        "column": 9,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::pending_dir -> AbsPath with Default::default()\n@@ -101,17 +101,17 @@\n \n     /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。\n     pub fn lock_path(&self) -> AbsPath {\n         self.root.join_segment(\".lock\")\n     }\n \n     /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。\n     pub fn pending_dir(&self) -> AbsPath {\n-        self.root.join_segment(\"pending\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 把经过校验的根内路径拼回绝对路径。非法登记路径必须报错，不能退回管理根。\n     pub fn rel(&self, rel: &str) -> Result<AbsPath> {\n         let rel = crate::fsx::ManagedRelPath::new(rel)?;\n         AbsPath::new(format!(\n             \"{}/{}\",\n             self.root.as_str().trim_end_matches('/'),\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::pending_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 110
+        },
+        "start": {
+          "column": 5,
+          "line": 107
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:109:9: replace Home::pending_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 109
+      },
+      "start": {
+        "column": 9,
+        "line": 109
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::rel -> Result<AbsPath> with Ok(Default::default())\n@@ -106,23 +106,17 @@\n \n     /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。\n     pub fn pending_dir(&self) -> AbsPath {\n         self.root.join_segment(\"pending\")\n     }\n \n     /// 把经过校验的根内路径拼回绝对路径。非法登记路径必须报错，不能退回管理根。\n     pub fn rel(&self, rel: &str) -> Result<AbsPath> {\n-        let rel = crate::fsx::ManagedRelPath::new(rel)?;\n-        AbsPath::new(format!(\n-            \"{}/{}\",\n-            self.root.as_str().trim_end_matches('/'),\n-            rel.as_str()\n-        ))\n-        .map_err(Error::Core)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 绝对路径相对管理根的形式；不在根内时报错。\n     pub fn to_rel(&self, path: &AbsPath) -> Result<String> {\n         path.as_path()\n             .strip_prefix(self.root.as_path())\n             .map(|p| p.to_string())\n             .map_err(|_| Error::InvalidRequest {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::rel",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 121
+        },
+        "start": {
+          "column": 5,
+          "line": 112
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:114:9: replace Home::rel -> Result<AbsPath> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 120
+      },
+      "start": {
+        "column": 9,
+        "line": 114
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::to_rel -> Result<String> with Ok(String::new())\n@@ -117,22 +117,17 @@\n             self.root.as_str().trim_end_matches('/'),\n             rel.as_str()\n         ))\n         .map_err(Error::Core)\n     }\n \n     /// 绝对路径相对管理根的形式；不在根内时报错。\n     pub fn to_rel(&self, path: &AbsPath) -> Result<String> {\n-        path.as_path()\n-            .strip_prefix(self.root.as_path())\n-            .map(|p| p.to_string())\n-            .map_err(|_| Error::InvalidRequest {\n-                reason: format!(\"{path} 不在管理根 {} 之内\", self.root),\n-            })\n+        Ok(String::new()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn bin_dir(&self) -> AbsPath {\n         self.root.join_segment(\"bin\")\n     }\n \n     pub fn work_dir(&self, id: &WorkId) -> AbsPath {\n         self.works_dir().join_segment(id.as_str())\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::to_rel",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 131
+        },
+        "start": {
+          "column": 5,
+          "line": 123
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:125:9: replace Home::to_rel -> Result<String> with Ok(String::new())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(String::new())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 130
+      },
+      "start": {
+        "column": 9,
+        "line": 125
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::to_rel -> Result<String> with Ok(\"xyzzy\".into())\n@@ -117,22 +117,17 @@\n             self.root.as_str().trim_end_matches('/'),\n             rel.as_str()\n         ))\n         .map_err(Error::Core)\n     }\n \n     /// 绝对路径相对管理根的形式；不在根内时报错。\n     pub fn to_rel(&self, path: &AbsPath) -> Result<String> {\n-        path.as_path()\n-            .strip_prefix(self.root.as_path())\n-            .map(|p| p.to_string())\n-            .map_err(|_| Error::InvalidRequest {\n-                reason: format!(\"{path} 不在管理根 {} 之内\", self.root),\n-            })\n+        Ok(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn bin_dir(&self) -> AbsPath {\n         self.root.join_segment(\"bin\")\n     }\n \n     pub fn work_dir(&self, id: &WorkId) -> AbsPath {\n         self.works_dir().join_segment(id.as_str())\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::to_rel",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 131
+        },
+        "start": {
+          "column": 5,
+          "line": 123
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:125:9: replace Home::to_rel -> Result<String> with Ok(\"xyzzy\".into())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\".into())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 130
+      },
+      "start": {
+        "column": 9,
+        "line": 125
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::bin_dir -> AbsPath with Default::default()\n@@ -126,17 +126,17 @@\n             .strip_prefix(self.root.as_path())\n             .map(|p| p.to_string())\n             .map_err(|_| Error::InvalidRequest {\n                 reason: format!(\"{path} 不在管理根 {} 之内\", self.root),\n             })\n     }\n \n     pub fn bin_dir(&self) -> AbsPath {\n-        self.root.join_segment(\"bin\")\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn work_dir(&self, id: &WorkId) -> AbsPath {\n         self.works_dir().join_segment(id.as_str())\n     }\n \n     pub fn workbook_dir(&self, id: &str, version: &str) -> AbsPath {\n         self.workbooks_dir().join_segment(id).join_segment(version)\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::bin_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 135
+        },
+        "start": {
+          "column": 5,
+          "line": 133
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:134:9: replace Home::bin_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 134
+      },
+      "start": {
+        "column": 9,
+        "line": 134
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::work_dir -> AbsPath with Default::default()\n@@ -130,17 +130,17 @@\n             })\n     }\n \n     pub fn bin_dir(&self) -> AbsPath {\n         self.root.join_segment(\"bin\")\n     }\n \n     pub fn work_dir(&self, id: &WorkId) -> AbsPath {\n-        self.works_dir().join_segment(id.as_str())\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn workbook_dir(&self, id: &str, version: &str) -> AbsPath {\n         self.workbooks_dir().join_segment(id).join_segment(version)\n     }\n \n     /// 把外部给的相对路径限制在 `base` 之下。\n     ///\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::work_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 139
+        },
+        "start": {
+          "column": 5,
+          "line": 137
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:138:9: replace Home::work_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 138
+      },
+      "start": {
+        "column": 9,
+        "line": 138
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::workbook_dir -> AbsPath with Default::default()\n@@ -134,17 +134,17 @@\n         self.root.join_segment(\"bin\")\n     }\n \n     pub fn work_dir(&self, id: &WorkId) -> AbsPath {\n         self.works_dir().join_segment(id.as_str())\n     }\n \n     pub fn workbook_dir(&self, id: &str, version: &str) -> AbsPath {\n-        self.workbooks_dir().join_segment(id).join_segment(version)\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 把外部给的相对路径限制在 `base` 之下。\n     ///\n     /// 拒绝：绝对路径、含 `..`、空段。若拼出的路径已存在，`canonicalize` 后必须仍以 `base` 的\n     /// 规范形式为前缀（防符号链接逃逸）。失败返回 `Error::Core(InvalidPath)`。\n     pub fn confine(base: &AbsPath, rel: &str) -> Result<AbsPath> {\n         // 先按写法拒绝：`RelPath` 的构造就是这套检查。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::workbook_dir",
+      "return_type": "-> AbsPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 143
+        },
+        "start": {
+          "column": 5,
+          "line": 141
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:142:9: replace Home::workbook_dir -> AbsPath with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 68,
+        "line": 142
+      },
+      "start": {
+        "column": 9,
+        "line": 142
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::confine -> Result<AbsPath> with Ok(Default::default())\n@@ -143,44 +143,17 @@\n     }\n \n     /// 把外部给的相对路径限制在 `base` 之下。\n     ///\n     /// 拒绝：绝对路径、含 `..`、空段。若拼出的路径已存在，`canonicalize` 后必须仍以 `base` 的\n     /// 规范形式为前缀（防符号链接逃逸）。失败返回 `Error::Core(InvalidPath)`。\n     pub fn confine(base: &AbsPath, rel: &str) -> Result<AbsPath> {\n         // 先按写法拒绝：`RelPath` 的构造就是这套检查。\n-        let rel = RelPath::new(rel)?;\n-        let joined = base.join(&rel);\n-        // base 不存在时其下不可能有已存在路径，写法检查已足够。\n-        let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {\n-            return Ok(joined);\n-        };\n-        // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。\n-        let mut probe = joined.as_path().to_path_buf();\n-        loop {\n-            match std::fs::symlink_metadata(probe.as_std_path()) {\n-                Ok(_) => break,\n-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n-                Err(e) => return Err(Error::io(probe.as_str(), e)),\n-            }\n-            match probe.parent() {\n-                Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n-                _ => return Ok(joined),\n-            }\n-        }\n-        let canon =\n-            std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;\n-        if !canon.starts_with(&base_canon) {\n-            return Err(Error::Core(sheltie_core::Error::InvalidPath {\n-                path: joined.to_string(),\n-                reason: \"经符号链接逃出了根\",\n-            }));\n-        }\n-        Ok(joined)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// 管理根写锁的守卫（存储合同 §2.2，D-035 的 `fs4`）。取得锁前只创建管理根与\n /// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。守卫记下取得锁时的管理根与\n /// 锁对象身份（dev/inode），供获锁后的 §2.2 复核用。\n #[derive(Debug)]\n pub struct HomeLock {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:151:9: replace Home::confine -> Result<AbsPath> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 178
+      },
+      "start": {
+        "column": 9,
+        "line": 151
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::NotFound with true in Home::confine\n@@ -154,17 +154,17 @@\n         let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {\n             return Ok(joined);\n         };\n         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n+                Err(e) if true /* ~ changed by cargo-mutants ~ */ => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n                 Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:162:27: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 67,
+        "line": 162
+      },
+      "start": {
+        "column": 27,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::NotFound with false in Home::confine\n@@ -154,17 +154,17 @@\n         let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {\n             return Ok(joined);\n         };\n         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n+                Err(e) if false /* ~ changed by cargo-mutants ~ */ => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n                 Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:162:27: replace match guard e.kind() == std::io::ErrorKind::NotFound with false in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 67,
+        "line": 162
+      },
+      "start": {
+        "column": 27,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in Home::confine\n@@ -154,17 +154,17 @@\n         let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {\n             return Ok(joined);\n         };\n         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n+                Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::NotFound => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n                 Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:162:36: replace == with != in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 162
+      },
+      "start": {
+        "column": 36,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard p != base.as_path() with true in Home::confine\n@@ -158,17 +158,17 @@\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n-                Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n+                Some(p) if true /* ~ changed by cargo-mutants ~ */ => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n             std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;\n         if !canon.starts_with(&base_canon) {\n             return Err(Error::Core(sheltie_core::Error::InvalidPath {\n                 path: joined.to_string(),\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with true in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 166
+      },
+      "start": {
+        "column": 28,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace match guard p != base.as_path() with false in Home::confine\n@@ -158,17 +158,17 @@\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n-                Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n+                Some(p) if false /* ~ changed by cargo-mutants ~ */ => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n             std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;\n         if !canon.starts_with(&base_canon) {\n             return Err(Error::Core(sheltie_core::Error::InvalidPath {\n                 path: joined.to_string(),\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with false in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 166
+      },
+      "start": {
+        "column": 28,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace != with == in Home::confine\n@@ -158,17 +158,17 @@\n         let mut probe = joined.as_path().to_path_buf();\n         loop {\n             match std::fs::symlink_metadata(probe.as_std_path()) {\n                 Ok(_) => break,\n                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}\n                 Err(e) => return Err(Error::io(probe.as_str(), e)),\n             }\n             match probe.parent() {\n-                Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n+                Some(p) if p == /* ~ changed by cargo-mutants ~ */ base.as_path() => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n             std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;\n         if !canon.starts_with(&base_canon) {\n             return Err(Error::Core(sheltie_core::Error::InvalidPath {\n                 path: joined.to_string(),\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:166:30: replace != with == in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 166
+      },
+      "start": {
+        "column": 30,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ delete ! in Home::confine\n@@ -164,17 +164,17 @@\n             }\n             match probe.parent() {\n                 Some(p) if p != base.as_path() => probe = p.to_path_buf(),\n                 _ => return Ok(joined),\n             }\n         }\n         let canon =\n             std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;\n-        if !canon.starts_with(&base_canon) {\n+        if  /* ~ changed by cargo-mutants ~ */canon.starts_with(&base_canon) {\n             return Err(Error::Core(sheltie_core::Error::InvalidPath {\n                 path: joined.to_string(),\n                 reason: \"经符号链接逃出了根\",\n             }));\n         }\n         Ok(joined)\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::confine",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 145
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:172:12: delete ! in Home::confine",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 172
+      },
+      "start": {
+        "column": 12,
+        "line": 172
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace file_ident -> Option<(u64, u64)> with None\n@@ -187,18 +187,17 @@\n     _file: std::fs::File,\n     root: AbsPath,\n     lock_path: AbsPath,\n     locked_ident: (u64, u64),\n     root_ident: (u64, u64),\n }\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n-    use std::os::unix::fs::MetadataExt as _;\n-    file.metadata().ok().map(|m| (m.dev(), m.ino()))\n+    None /* ~ changed by cargo-mutants ~ */\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "file_ident",
+      "return_type": "-> Option<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 194
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with None",
+    "package": "sheltie-runtime",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace file_ident -> Option<(u64, u64)> with Some((0, 0))\n@@ -187,18 +187,17 @@\n     _file: std::fs::File,\n     root: AbsPath,\n     lock_path: AbsPath,\n     locked_ident: (u64, u64),\n     root_ident: (u64, u64),\n }\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n-    use std::os::unix::fs::MetadataExt as _;\n-    file.metadata().ok().map(|m| (m.dev(), m.ino()))\n+    Some((0, 0)) /* ~ changed by cargo-mutants ~ */\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "file_ident",
+      "return_type": "-> Option<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 194
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((0, 0))",
+    "package": "sheltie-runtime",
+    "replacement": "Some((0, 0))",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace file_ident -> Option<(u64, u64)> with Some((0, 1))\n@@ -187,18 +187,17 @@\n     _file: std::fs::File,\n     root: AbsPath,\n     lock_path: AbsPath,\n     locked_ident: (u64, u64),\n     root_ident: (u64, u64),\n }\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n-    use std::os::unix::fs::MetadataExt as _;\n-    file.metadata().ok().map(|m| (m.dev(), m.ino()))\n+    Some((0, 1)) /* ~ changed by cargo-mutants ~ */\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "file_ident",
+      "return_type": "-> Option<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 194
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((0, 1))",
+    "package": "sheltie-runtime",
+    "replacement": "Some((0, 1))",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace file_ident -> Option<(u64, u64)> with Some((1, 0))\n@@ -187,18 +187,17 @@\n     _file: std::fs::File,\n     root: AbsPath,\n     lock_path: AbsPath,\n     locked_ident: (u64, u64),\n     root_ident: (u64, u64),\n }\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n-    use std::os::unix::fs::MetadataExt as _;\n-    file.metadata().ok().map(|m| (m.dev(), m.ino()))\n+    Some((1, 0)) /* ~ changed by cargo-mutants ~ */\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "file_ident",
+      "return_type": "-> Option<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 194
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((1, 0))",
+    "package": "sheltie-runtime",
+    "replacement": "Some((1, 0))",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace file_ident -> Option<(u64, u64)> with Some((1, 1))\n@@ -187,18 +187,17 @@\n     _file: std::fs::File,\n     root: AbsPath,\n     lock_path: AbsPath,\n     locked_ident: (u64, u64),\n     root_ident: (u64, u64),\n }\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n-    use std::os::unix::fs::MetadataExt as _;\n-    file.metadata().ok().map(|m| (m.dev(), m.ino()))\n+    Some((1, 1)) /* ~ changed by cargo-mutants ~ */\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "file_ident",
+      "return_type": "-> Option<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 194
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((1, 1))",
+    "package": "sheltie-runtime",
+    "replacement": "Some((1, 1))",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::locked_identity -> (u64, u64) with (0, 0)\n@@ -193,17 +193,17 @@\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n     use std::os::unix::fs::MetadataExt as _;\n     file.metadata().ok().map(|m| (m.dev(), m.ino()))\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n-        self.locked_ident\n+        (0, 0) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::locked_identity",
+      "return_type": "-> (u64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 202
+        },
+        "start": {
+          "column": 5,
+          "line": 200
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (0, 0)",
+    "package": "sheltie-runtime",
+    "replacement": "(0, 0)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 201
+      },
+      "start": {
+        "column": 9,
+        "line": 201
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::locked_identity -> (u64, u64) with (0, 1)\n@@ -193,17 +193,17 @@\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n     use std::os::unix::fs::MetadataExt as _;\n     file.metadata().ok().map(|m| (m.dev(), m.ino()))\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n-        self.locked_ident\n+        (0, 1) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::locked_identity",
+      "return_type": "-> (u64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 202
+        },
+        "start": {
+          "column": 5,
+          "line": 200
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (0, 1)",
+    "package": "sheltie-runtime",
+    "replacement": "(0, 1)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 201
+      },
+      "start": {
+        "column": 9,
+        "line": 201
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::locked_identity -> (u64, u64) with (1, 0)\n@@ -193,17 +193,17 @@\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n     use std::os::unix::fs::MetadataExt as _;\n     file.metadata().ok().map(|m| (m.dev(), m.ino()))\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n-        self.locked_ident\n+        (1, 0) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::locked_identity",
+      "return_type": "-> (u64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 202
+        },
+        "start": {
+          "column": 5,
+          "line": 200
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (1, 0)",
+    "package": "sheltie-runtime",
+    "replacement": "(1, 0)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 201
+      },
+      "start": {
+        "column": 9,
+        "line": 201
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::locked_identity -> (u64, u64) with (1, 1)\n@@ -193,17 +193,17 @@\n \n fn file_ident(file: &std::fs::File) -> Option<(u64, u64)> {\n     use std::os::unix::fs::MetadataExt as _;\n     file.metadata().ok().map(|m| (m.dev(), m.ino()))\n }\n \n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n-        self.locked_ident\n+        (1, 1) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::locked_identity",
+      "return_type": "-> (u64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 202
+        },
+        "start": {
+          "column": 5,
+          "line": 200
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (1, 1)",
+    "package": "sheltie-runtime",
+    "replacement": "(1, 1)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 201
+      },
+      "start": {
+        "column": 9,
+        "line": 201
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::identity_still_valid -> bool with true\n@@ -199,28 +199,17 @@\n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n-        use std::os::unix::fs::MetadataExt as _;\n-        let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n-            return false;\n-        };\n-        let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n-            return false;\n-        };\n-        lock.file_type().is_file()\n-            && lock.nlink() == 1\n-            && (lock.dev(), lock.ino()) == self.locked_ident\n-            && root.file_type().is_dir()\n-            && (root.dev(), root.ino()) == self.root_ident\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:207:9: replace HomeLock::identity_still_valid -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 218
+      },
+      "start": {
+        "column": 9,
+        "line": 207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::identity_still_valid -> bool with false\n@@ -199,28 +199,17 @@\n impl HomeLock {\n     pub(crate) fn locked_identity(&self) -> (u64, u64) {\n         self.locked_ident\n     }\n \n     /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。\n     /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。\n     pub fn identity_still_valid(&self) -> bool {\n-        use std::os::unix::fs::MetadataExt as _;\n-        let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n-            return false;\n-        };\n-        let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n-            return false;\n-        };\n-        lock.file_type().is_file()\n-            && lock.nlink() == 1\n-            && (lock.dev(), lock.ino()) == self.locked_ident\n-            && root.file_type().is_dir()\n-            && (root.dev(), root.ino()) == self.root_ident\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:207:9: replace HomeLock::identity_still_valid -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 218
+      },
+      "start": {
+        "column": 9,
+        "line": 207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::identity_still_valid\n@@ -210,17 +210,17 @@\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n-            && (root.dev(), root.ino()) == self.root_ident\n+            || /* ~ changed by cargo-mutants ~ */ (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:218:13: replace && with || in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 218
+      },
+      "start": {
+        "column": 13,
+        "line": 218
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::identity_still_valid\n@@ -209,17 +209,17 @@\n             return false;\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n-            && root.file_type().is_dir()\n+            || /* ~ changed by cargo-mutants ~ */ root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:217:13: replace && with || in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 217
+      },
+      "start": {
+        "column": 13,
+        "line": 217
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::identity_still_valid\n@@ -208,17 +208,17 @@\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n-            && (lock.dev(), lock.ino()) == self.locked_ident\n+            || /* ~ changed by cargo-mutants ~ */ (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:216:13: replace && with || in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 216
+      },
+      "start": {
+        "column": 13,
+        "line": 216
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::identity_still_valid\n@@ -207,17 +207,17 @@\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n-            && lock.nlink() == 1\n+            || /* ~ changed by cargo-mutants ~ */ lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:215:13: replace && with || in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 215
+      },
+      "start": {
+        "column": 13,
+        "line": 215
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in HomeLock::identity_still_valid\n@@ -207,17 +207,17 @@\n         use std::os::unix::fs::MetadataExt as _;\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n-            && lock.nlink() == 1\n+            && lock.nlink() != /* ~ changed by cargo-mutants ~ */ 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:215:29: replace == with != in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 215
+      },
+      "start": {
+        "column": 29,
+        "line": 215
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in HomeLock::identity_still_valid\n@@ -208,17 +208,17 @@\n         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {\n             return false;\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n-            && (lock.dev(), lock.ino()) == self.locked_ident\n+            && (lock.dev(), lock.ino()) != /* ~ changed by cargo-mutants ~ */ self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:216:41: replace == with != in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 216
+      },
+      "start": {
+        "column": 41,
+        "line": 216
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in HomeLock::identity_still_valid\n@@ -210,17 +210,17 @@\n         };\n         let Ok(root) = std::fs::symlink_metadata(self.root.as_path()) else {\n             return false;\n         };\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n-            && (root.dev(), root.ino()) == self.root_ident\n+            && (root.dev(), root.ino()) != /* ~ changed by cargo-mutants ~ */ self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::identity_still_valid",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 219
+        },
+        "start": {
+          "column": 5,
+          "line": 204
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:218:41: replace == with != in HomeLock::identity_still_valid",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 218
+      },
+      "start": {
+        "column": 41,
+        "line": 218
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::matches_root -> bool with true\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:222:9: replace HomeLock::matches_root -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 86,
+        "line": 222
+      },
+      "start": {
+        "column": 9,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace HomeLock::matches_root -> bool with false\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:222:9: replace HomeLock::matches_root -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 86,
+        "line": 222
+      },
+      "start": {
+        "column": 9,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::matches_root\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        self.root == *root && self.root_ident == ident || /* ~ changed by cargo-mutants ~ */ self.identity_still_valid()\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:222:56: replace && with || in HomeLock::matches_root",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 58,
+        "line": 222
+      },
+      "start": {
+        "column": 56,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in HomeLock::matches_root\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        self.root == *root || /* ~ changed by cargo-mutants ~ */ self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:222:28: replace && with || in HomeLock::matches_root",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 222
+      },
+      "start": {
+        "column": 28,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in HomeLock::matches_root\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        self.root != /* ~ changed by cargo-mutants ~ */ *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:222:19: replace == with != in HomeLock::matches_root",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 222
+      },
+      "start": {
+        "column": 19,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in HomeLock::matches_root\n@@ -214,17 +214,17 @@\n         lock.file_type().is_file()\n             && lock.nlink() == 1\n             && (lock.dev(), lock.ino()) == self.locked_ident\n             && root.file_type().is_dir()\n             && (root.dev(), root.ino()) == self.root_ident\n     }\n \n     pub(crate) fn matches_root(&self, root: &AbsPath, ident: (u64, u64)) -> bool {\n-        self.root == *root && self.root_ident == ident && self.identity_still_valid()\n+        self.root == *root && self.root_ident != /* ~ changed by cargo-mutants ~ */ ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n         const RETRY_LIMIT: u32 = 16;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "HomeLock::matches_root",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 223
+        },
+        "start": {
+          "column": 5,
+          "line": 221
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:222:47: replace == with != in HomeLock::matches_root",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 222
+      },
+      "start": {
+        "column": 47,
+        "line": 222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::acquire_lock -> Result<HomeLock> with Ok(Default::default())\n@@ -222,44 +222,17 @@\n         self.root == *root && self.root_ident == ident && self.identity_still_valid()\n     }\n }\n \n impl Home {\n     /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。\n     /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。\n     pub fn acquire_lock(&self) -> Result<HomeLock> {\n-        const RETRY_LIMIT: u32 = 16;\n-        let mut last_miss = None;\n-        for _ in 0..RETRY_LIMIT {\n-            match self.acquire_lock_once() {\n-                Ok(guard) => {\n-                    if guard.identity_still_valid() {\n-                        return Ok(guard);\n-                    }\n-                    // drop(guard)：释放落在旧 inode 上的锁，下一轮在新根上重建 .lock。\n-                }\n-                Err(e) => {\n-                    // 建根/建 .lock 的窗口里根被锁外移除同样需要整体重试；\n-                    // 不把锁外替换/移除误报成普通 I/O 失败。\n-                    let gone = self.is_lock_setup_path_missing(&e);\n-                    if !gone {\n-                        return Err(e);\n-                    }\n-                    last_miss = Some(e);\n-                }\n-            }\n-        }\n-        Err(Error::io(\n-            self.lock_path().as_str(),\n-            std::io::Error::other(match last_miss {\n-                Some(e) => format!(\"取管理根写锁连续被锁外替换打断（{e}）\"),\n-                None => \"复核管理根写锁身份连续失败（根或.lock可能正被锁外替换）\".to_string(),\n-            }),\n-        ))\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wait on an existing managed-root lock without creating the root or `.lock` file.\n     pub(crate) fn acquire_existing_lock(&self) -> Result<Option<HomeLock>> {\n         let managed = crate::fsx::ManagedFs::open_existing(self)?;\n         let Some(file) = managed.open_existing_lock_file()? else {\n             return Ok(None);\n         };\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_lock",
+      "return_type": "-> Result<HomeLock>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 258
+        },
+        "start": {
+          "column": 5,
+          "line": 227
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:230:9: replace Home::acquire_lock -> Result<HomeLock> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 257
+      },
+      "start": {
+        "column": 9,
+        "line": 230
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ delete ! in Home::acquire_lock\n@@ -236,17 +236,17 @@\n                         return Ok(guard);\n                     }\n                     // drop(guard)：释放落在旧 inode 上的锁，下一轮在新根上重建 .lock。\n                 }\n                 Err(e) => {\n                     // 建根/建 .lock 的窗口里根被锁外移除同样需要整体重试；\n                     // 不把锁外替换/移除误报成普通 I/O 失败。\n                     let gone = self.is_lock_setup_path_missing(&e);\n-                    if !gone {\n+                    if  /* ~ changed by cargo-mutants ~ */gone {\n                         return Err(e);\n                     }\n                     last_miss = Some(e);\n                 }\n             }\n         }\n         Err(Error::io(\n             self.lock_path().as_str(),\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_lock",
+      "return_type": "-> Result<HomeLock>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 258
+        },
+        "start": {
+          "column": 5,
+          "line": 227
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:244:24: delete ! in Home::acquire_lock",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 244
+      },
+      "start": {
+        "column": 24,
+        "line": 244
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(None)\n@@ -254,53 +254,17 @@\n                 Some(e) => format!(\"取管理根写锁连续被锁外替换打断（{e}）\"),\n                 None => \"复核管理根写锁身份连续失败（根或.lock可能正被锁外替换）\".to_string(),\n             }),\n         ))\n     }\n \n     /// Wait on an existing managed-root lock without creating the root or `.lock` file.\n     pub(crate) fn acquire_existing_lock(&self) -> Result<Option<HomeLock>> {\n-        let managed = crate::fsx::ManagedFs::open_existing(self)?;\n-        let Some(file) = managed.open_existing_lock_file()? else {\n-            return Ok(None);\n-        };\n-        let lock_path = self.lock_path();\n-        crate::failpoint::rendezvous(\"home_existing_lock_opened\", lock_path.as_str())\n-            .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-        let Some(locked_ident) = file_ident(&file) else {\n-            return Err(Error::io(\n-                lock_path.as_str(),\n-                std::io::Error::other(\"无法读取已存在.lock的文件身份\"),\n-            ));\n-        };\n-        let root_ident = managed.identity();\n-        match fs4::fs_std::FileExt::try_lock_exclusive(&file) {\n-            Ok(true) => {}\n-            Ok(false) => {\n-                crate::failpoint::rendezvous(\"home_lock_waiting\", lock_path.as_str())\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-                fs4::fs_std::FileExt::lock_exclusive(&file)\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-            }\n-            Err(error) => return Err(Error::io(lock_path.as_str(), error)),\n-        }\n-        let guard = HomeLock {\n-            _file: file,\n-            root: self.root.clone(),\n-            lock_path,\n-            locked_ident,\n-            root_ident,\n-        };\n-        if !guard.identity_still_valid() {\n-            return Err(Error::InvalidRequest {\n-                reason: \"等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store\".into(),\n-            });\n-        }\n-        Ok(Some(guard))\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn acquire_lock_once(&self) -> Result<HomeLock> {\n         let lock_path = self.lock_path();\n         let managed = crate::fsx::ManagedFs::create_root(&self.root)?;\n         // 不跟随叶链接、不接受FIFO或多链接；不得截断已存在的锁文件。\n         let file = managed.open_lock_file()?;\n         // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_existing_lock",
+      "return_type": "-> Result<Option<HomeLock>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 299
+        },
+        "start": {
+          "column": 5,
+          "line": 260
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:262:9: replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 298
+      },
+      "start": {
+        "column": 9,
+        "line": 262
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(Some(Default::default()))\n@@ -254,53 +254,17 @@\n                 Some(e) => format!(\"取管理根写锁连续被锁外替换打断（{e}）\"),\n                 None => \"复核管理根写锁身份连续失败（根或.lock可能正被锁外替换）\".to_string(),\n             }),\n         ))\n     }\n \n     /// Wait on an existing managed-root lock without creating the root or `.lock` file.\n     pub(crate) fn acquire_existing_lock(&self) -> Result<Option<HomeLock>> {\n-        let managed = crate::fsx::ManagedFs::open_existing(self)?;\n-        let Some(file) = managed.open_existing_lock_file()? else {\n-            return Ok(None);\n-        };\n-        let lock_path = self.lock_path();\n-        crate::failpoint::rendezvous(\"home_existing_lock_opened\", lock_path.as_str())\n-            .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-        let Some(locked_ident) = file_ident(&file) else {\n-            return Err(Error::io(\n-                lock_path.as_str(),\n-                std::io::Error::other(\"无法读取已存在.lock的文件身份\"),\n-            ));\n-        };\n-        let root_ident = managed.identity();\n-        match fs4::fs_std::FileExt::try_lock_exclusive(&file) {\n-            Ok(true) => {}\n-            Ok(false) => {\n-                crate::failpoint::rendezvous(\"home_lock_waiting\", lock_path.as_str())\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-                fs4::fs_std::FileExt::lock_exclusive(&file)\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-            }\n-            Err(error) => return Err(Error::io(lock_path.as_str(), error)),\n-        }\n-        let guard = HomeLock {\n-            _file: file,\n-            root: self.root.clone(),\n-            lock_path,\n-            locked_ident,\n-            root_ident,\n-        };\n-        if !guard.identity_still_valid() {\n-            return Err(Error::InvalidRequest {\n-                reason: \"等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store\".into(),\n-            });\n-        }\n-        Ok(Some(guard))\n+        Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn acquire_lock_once(&self) -> Result<HomeLock> {\n         let lock_path = self.lock_path();\n         let managed = crate::fsx::ManagedFs::create_root(&self.root)?;\n         // 不跟随叶链接、不接受FIFO或多链接；不得截断已存在的锁文件。\n         let file = managed.open_lock_file()?;\n         // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_existing_lock",
+      "return_type": "-> Result<Option<HomeLock>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 299
+        },
+        "start": {
+          "column": 5,
+          "line": 260
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:262:9: replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 298
+      },
+      "start": {
+        "column": 9,
+        "line": 262
+      }
+    }
+  }
+]

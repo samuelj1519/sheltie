@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/recovery.rs
++++ crates/sheltie-runtime/src/recovery.rs:434:13: replace || with && in strict_workbook_data
+@@ -431,7 +431,7 @@
+             return false;
+         };
+         if id.as_str() != data.id
+-            || !crate::load::valid_workbook_version(&data.version)
++            && !crate::load::valid_workbook_version(&data.version)
+             || sheltie_core::digest::Sha256Hex::new(data.digest.clone()).is_err()
+             || data.flows.is_empty()
+             || data

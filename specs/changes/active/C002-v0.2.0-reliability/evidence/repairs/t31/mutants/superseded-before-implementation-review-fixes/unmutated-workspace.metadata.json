@@ -1,0 +1,19 @@
+{
+  "candidate": "6baee53376f8ba631d5c92777881ec82692576de",
+  "argv": [
+    "cargo",
+    "nextest",
+    "run",
+    "--workspace",
+    "--all-features",
+    "--no-tests=pass"
+  ],
+  "exit": 0,
+  "run_id": "533d2ac5-5816-4156-bdb4-d7a7a70c9fa4",
+  "passed": 642,
+  "skipped": 0,
+  "slow": 3,
+  "test_seconds": 204.193,
+  "target": "/private/tmp/sheltie-c002-t31-baseline-target",
+  "note": "Explicit complete unmutated clone workspace; isolated target independent of mutation copies"
+}

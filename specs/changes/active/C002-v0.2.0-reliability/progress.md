@@ -20,3 +20,15 @@
 - skill 交付是生成物：`scripts/skill-delivery.sh pack|tar|verify` 从 `skills/sheltie` 与 `specs/contracts/` 生成/校验自包含交付（发布资产名 `sheltie-skill.tar.gz`）。仓库内 `skills/sheltie/SKILL.md` 保留指向合同的链接；T16 准备「自包含 skill」用 `pack`，核已装副本用 `check-skill.sh --delivery <dir>`（校验对象要与当前树同源；`storage.md` 类文件不随包发布，是去链接后的文字提法）。
 
 T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成required被审镜像、递归累计交接与真实CLI/Git冷读正反例；全仓验收暴露测试内Cargo重建共享CLI的ENOENT，已提前完整迁入T31原定binary注入步骤，Owner与断言保留。T30双轴独立Review及macOS门禁通过，详见 [T30证据](evidence/repairs/t30/README.md)。下一入口为repair-plan的T31：确定性交错、完整窗口、完整mutant inventory及存活处置，再固定M1候选。Linux仍为用户豁免的not_run。
+
+2026-09-30 T31仍为WIP。macOS默认profile全仓 `6e03fa98-0535-4d68-bc1f-f4412a609ac8` 647/647，T31 `27ffc52b-c5a0-472b-ac1e-07c262c3abb0` 22/22；同源码优化测试profile普通clone全仓 `36cf2302-efc8-48f8-a1a4-1d5eb1770eb9` 647/647。新增R20的独立CLI探针确认不可能的blocked_count会使gate approve panic，现用已有Attempt/Approval与当前Blocked事实的必要界在可信装入时拒绝，core三处增量checked，结构化错误/零业务写与纯core回归已通过两位独立Reviewer增量复核。旧候选的partial mutants均归档、不复用；当前持久普通clone临时输入`da2bd13979df88dd987596d7ed726ef99bb89651`的2573个变异待新647项baseline通过后完整重跑；先前0aee的core结果归档、不复用，存活体处置和独立M1仍未完成。详见[evidence/repairs/t31](evidence/repairs/t31/README.md)。Linux按用户要求`not_run`，T16真实Host与T17发布仍`not_run`。
+
+2026-09-30 用户授权修复实现审查全部七项并继续完成T31，Codex接续实施。逐条答复见 [review-response-implementation-2026-09-30.md](review-response-implementation-2026-09-30.md)。最终654项默认门禁及MSRV/deny/规范/dist plan均通过，两位未参与实施的Reviewer复核七项通过；已published历史补缺sync的追加反例已红→绿。此前da2bd变异原始结果归档为superseded，不计新输入；新普通clone临时提交3a9f689固定170项源码/fixture/配置，完整mutation与存活体处置执行中，T31仍以plan的doing为准。Linux仍not_run，M1/T16/T17未关闭。
+
+## 2026-10-01 续接
+
+当前源码已冻结为普通clone临时候选`49d3a191aa4c918aab279617fa2bf7d9b3b36a0e`，167项源码/fixture/配置/脚本与root一致、164项治理输入在clone冻结。默认675项测试及Rust/MSRV/离线deny/规范/dist门禁通过，Spec/Standards增量审查通过；完整mutation与处分仍在运行，不能关闭T31。接续入口为[evidence/repairs/t31/mutants/closure.md](evidence/repairs/t31/mutants/closure.md)：完成runtime片和全部workspace复验，逐missed/timeout/unviable建立准确处分与独立复核，再运行任务门禁并提交。新输入完整inventory为2499（core724/runtime1775），旧c31的2501项结果完整归档、不复用为最终PASS。Linux/M1/T16/T17边界不变。
+
+## 2026-10-01 本次收尾
+
+用户明确要求暂缓可能触发额外安全检查的相关任务并完成T31，主计划已记录豁免。混合runtime变异流水线精确停止并核进程结束；完整2499项第一阶段与第二阶段245项终态原文保留，全部ID分类守恒，269项为deferred_by_user而非PASS。正常675项与Rust/治理/MSRV/离线deny/dist门禁通过，独立Spec/Standards认可七项修复及本次豁免范围内提交。最终证据见[evidence/repairs/t31/README.md](evidence/repairs/t31/README.md)；任务/staged门禁与治理树绑定随提交收尾。T31主表done仅针对本次授权范围，M1/T16/T17及Linuxnot_run不变。

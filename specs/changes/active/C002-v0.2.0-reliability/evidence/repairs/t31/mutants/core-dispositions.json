@@ -1,0 +1,20 @@
+{
+  "candidate": "49d3a191aa4c918aab279617fa2bf7d9b3b36a0e",
+  "source_sha256": "a8f20eefca697466989c3f5165a28ecc2dc5f2e8bfcbaec07e027ac4eea89f3c",
+  "inventory": 724,
+  "caught": 625,
+  "unviable_compiler_confirmed": 98,
+  "equivalent": 1,
+  "platform_not_applicable": 0,
+  "unresolved": 0,
+  "equivalent_survivor": {
+    "name": "crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source",
+    "outcome": "MissedMutant",
+    "raw_directory": "stage2-sheltie-core-0-of-1/raw",
+    "log_path": "log/crates__sheltie-core__src__flow__parse.rs_line_140_col_32.log",
+    "diff_path": "diff/crates__sheltie-core__src__flow__parse.rs_line_140_col_32.diff",
+    "reviewer": "spec_review",
+    "proof": "parse-input-source-equivalence-review.md",
+    "classification": "contract-equivalent; accurate diagnostic reason text can differ; not caught/PASS"
+  }
+}

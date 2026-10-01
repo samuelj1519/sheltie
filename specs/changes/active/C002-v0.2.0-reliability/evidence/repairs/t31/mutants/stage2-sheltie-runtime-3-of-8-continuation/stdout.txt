@@ -1,0 +1,16 @@
+Found 13 mutants to test
+ok       Unmutated baseline in 19s build + 27s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with < in wait_bounded_child in 38s build + 216s test
+MISSED   crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!("work:{work}") with true in WorkService::workbook_publication in 53s build + 231s test
+MISSED   crates/sheltie-runtime/src/service.rs:770:57: replace == with != in WorkService::workbook_publication in 60s build + 233s test
+MISSED   crates/sheltie-runtime/src/service.rs:1253:17: replace && with || in validate_command_owner in 61s build + 234s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:276:21: replace | with ^ in Store::connect in 6s build + 231s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0)) in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (1, 1) in 5s build + 229s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:356:54: replace || with && in WorkbookRepo::checked_effects_for in 7s build + 231s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:495:52: replace == with != in WorkbookRepo::checked_effects_for in 7s build + 227s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:638:28: replace == with != in WorkbookRepo::publication_for_row in 6s build + 228s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:690:30: replace || with && in WorkbookRepo::publication_for_row in 6s build + 226s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:725:13: replace || with && in WorkbookRepo::publication_for_row in 6s build + 224s test
+MISSED   crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql in 6s build + 105s test
+13 mutants tested in 15m: 13 missed

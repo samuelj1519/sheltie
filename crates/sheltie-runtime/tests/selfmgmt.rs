@@ -1358,3 +1358,87 @@ fn self_install_and_work_writes_serialize_under_home_lock() {
         assert!(json.last_attempt.is_some(), "Work {} 状态被并发写坏", wid);
     }
 }
+
+// Task: C002-T31
+#[cfg(feature = "failpoint")]
+#[test]
+fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm() {
+    use std::time::{Duration, Instant};
+    for kind in [
+        "empty-wal",
+        "nonempty-wal",
+        "linked-wal",
+        "symlink-wal",
+        "regular-shm",
+        "linked-shm",
+        "symlink-shm",
+        "directory-shm",
+    ] {
+        let (directory, home) = temp_home();
+        repo(&home)
+            .add(&abs(&example_dir("two-step")), None)
+            .unwrap();
+        let point = tempfile::tempdir().unwrap();
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "purge_before_final_rescan",
+            home.root().as_str(),
+            point.path(),
+        )
+        .unwrap();
+        struct Guard {
+            release: std::path::PathBuf,
+            thread: Option<std::thread::JoinHandle<sheltie_runtime::Result<()>>>,
+        }
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                let _ = std::fs::write(&self.release, b"release");
+                if let Some(thread) = self.thread.take() {
+                    let _ = thread.join();
+                }
+                let _ = sheltie_runtime::failpoint::disarm_rendezvous();
+            }
+        }
+        let worker_home = home.clone();
+        let worker =
+            std::thread::spawn(move || selfmgmt::uninstall(&worker_home, true, true).map(|_| ()));
+        let mut guard = Guard {
+            release: point.path().join("release"),
+            thread: Some(worker),
+        };
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !point.path().join("reached").exists() {
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert!(!home.store_path().as_path().exists());
+        let outside = tempfile::tempdir().unwrap();
+        let sentinel = outside.path().join("sentinel");
+        std::fs::write(&sentinel, b"").unwrap();
+        let wal = directory.path().join(if kind.ends_with("shm") {
+            "store.db-shm"
+        } else {
+            "store.db-wal"
+        });
+        match kind {
+            "empty-wal" => std::fs::write(&wal, b"").unwrap(),
+            "regular-shm" => std::fs::write(&wal, b"SQLite shared index").unwrap(),
+            "directory-shm" => std::fs::create_dir(&wal).unwrap(),
+            "nonempty-wal" => std::fs::write(&wal, b"preserve late WAL records").unwrap(),
+            "linked-wal" | "linked-shm" => std::fs::hard_link(&sentinel, &wal).unwrap(),
+            _ => std::os::unix::fs::symlink(&sentinel, &wal).unwrap(),
+        }
+        std::fs::write(&guard.release, b"release").unwrap();
+        let result = guard.thread.take().unwrap().join().unwrap();
+        if matches!(kind, "empty-wal" | "regular-shm") {
+            result.unwrap();
+            assert!(!wal.exists());
+        } else {
+            assert!(result.is_err());
+            assert!(std::fs::symlink_metadata(&wal).is_ok());
+            if kind == "nonempty-wal" {
+                assert_eq!(std::fs::read(&wal).unwrap(), b"preserve late WAL records");
+            }
+        }
+        assert_eq!(std::fs::read(&sentinel).unwrap(), b"");
+    }
+}

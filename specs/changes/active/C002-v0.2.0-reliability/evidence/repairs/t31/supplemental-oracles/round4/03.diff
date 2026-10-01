@@ -1,0 +1,9 @@
+--- crates/sheltie-runtime/src/store/schema.rs
++++ crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql
+@@ -79,5 +79,5 @@
+ 
+ /// 去掉全部空白，用于比对。
+ pub fn normalize_sql(sql: &str) -> String {
+-    sql.chars().filter(|c| !c.is_whitespace()).collect()
++    sql.chars().filter(|c| c.is_whitespace()).collect()
+ }

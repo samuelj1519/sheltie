@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in open_directory_at
+@@ -2354,17 +2354,17 @@
+     let fd = openat(
+         parent,
+         name,
+         OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+         Mode::empty(),
+     )
+     .map_err(|e| map_fs_error(display, e))?;
+     let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
+-    if after.st_dev != before.st_dev || after.st_ino != before.st_ino {
++    if after.st_dev != before.st_dev && /* ~ changed by cargo-mutants ~ */ after.st_ino != before.st_ino {
+         return Err(Error::InvalidRequest {
+             reason: format!("{display} 在打开期间被替换"),
+         });
+     }
+     Ok(std::fs::File::from(fd))
+ }
+ 
+ fn remove_directory_contents(directory: &std::fs::File, display: &str) -> Result<()> {

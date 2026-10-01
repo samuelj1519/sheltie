@@ -1,0 +1,24 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.83s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 16 tests
+test supplemental_completed_start_replays_after_normal_owner_cleanup ... ok
+test supplemental_completed_workbook_replay_rejects_consistently_invalid_version ... ok
+test supplemental_duplicate_flow_snapshot_is_not_exposed_as_an_original ... ok
+test supplemental_existing_schema_requires_exact_table_definitions ... ok
+test supplemental_file_mode_rejects_a_previous_home_epoch_before_chmod ... ok
+test supplemental_invalid_workbook_data_is_not_projected_as_an_original ... ok
+test supplemental_managed_rename_rejects_a_hardlinked_regular_source ... ok
+test supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner ... ok
+test supplemental_same_rid_retry_removes_its_old_uncommitted_private_copy ... ok
+test supplemental_schema_whitespace_does_not_change_recognition ... ok
+test supplemental_start_requires_are_bound_to_the_frozen_manifest ... ok
+test supplemental_valid_snapshot_is_retained_when_its_effect_batch_is_invalid ... ok
+test supplemental_work_publish_index_rejects_another_final_before_orphan_cleanup ... ok
+test supplemental_work_snapshot_identity_controls_its_original_projection ... ok
+test supplemental_workbook_lookup_rejects_a_second_requests_conflicting_claim ... ok
+test supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 11.96s
+

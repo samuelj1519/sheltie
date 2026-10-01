@@ -1,0 +1,418 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/selfmgmt.rs\n+++ replace > with < in wait_bounded_child\n@@ -839,17 +839,17 @@\n         .ok_or_else(|| std::io::Error::other(\"missing child stderr pipe\"))?;\n     let stderr_limit = usize::try_from(max_stderr.saturating_add(1)).unwrap_or(usize::MAX);\n     let stderr_thread = std::thread::spawn(move || {\n         let mut bytes = Vec::new();\n         if let Err(error) = stderr.take(stderr_limit as u64).read_to_end(&mut bytes) {\n             stderr_stop.store(true, Ordering::Release);\n             return Err(error);\n         }\n-        if bytes.len() > stderr_limit.saturating_sub(1) {\n+        if bytes.len() < /* ~ changed by cargo-mutants ~ */ stderr_limit.saturating_sub(1) {\n             stderr_stop.store(true, Ordering::Release);\n         }\n         Ok::<_, std::io::Error>(bytes)\n     });\n     let input_thread = input.map(|bytes| {\n         let mut stdin = child.stdin.take();\n         let bytes = bytes.to_vec();\n         let input_stop = Arc::clone(&stop);\n",
+    "file": "crates/sheltie-runtime/src/selfmgmt.rs",
+    "function": {
+      "function_name": "wait_bounded_child",
+      "return_type": "-> std::io::Result<std::process::Output>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 929
+        },
+        "start": {
+          "column": 1,
+          "line": 811
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with < in wait_bounded_child",
+    "package": "sheltie-runtime",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 847
+      },
+      "start": {
+        "column": 24,
+        "line": 847
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication\n@@ -672,17 +672,17 @@\n         let ops = decode_effects(&request.effects_json)?;\n         let publish = ops.iter().find_map(|op| match op {\n             EffectOp::PublishDir {\n                 pending,\n                 final_path,\n                 owner,\n                 digest,\n                 digest_root,\n-            } if owner == &format!(\"work:{work}\") => {\n+            } if true /* ~ changed by cargo-mutants ~ */ => {\n                 Some((pending, final_path, owner, digest, digest_root))\n             }\n             _ => None,\n         });\n         let Some((pending, final_path, owner, digest, digest_root)) = publish else {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"Work {work} 的引用索引与Start效果不一致\"),\n             });\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "WorkService::workbook_publication",
+      "return_type": "-> Result<crate::pending::PublishLocation>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 786
+        },
+        "start": {
+          "column": 5,
+          "line": 642
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 680
+      },
+      "start": {
+        "column": 18,
+        "line": 680
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace == with != in WorkService::workbook_publication\n@@ -762,17 +762,17 @@\n                 Ok(()) => {}\n                 Err(owner_error) => {\n                     let current = self.store.inspect_request(request_id)?;\n                     match current {\n                         Some(current)\n                             if current.published\n                                 && current.intent_hash == request.intent_hash\n                                 && current.reply_json == request.reply_json\n-                                && current.effects_json == request.effects_json\n+                                && current.effects_json != /* ~ changed by cargo-mutants ~ */ request.effects_json\n                                 && current.work_id == request.work_id\n                                 && current.at == request.at =>\n                         {\n                             request = current;\n                         }\n                         _ => return Err(owner_error),\n                     }\n                 }\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "WorkService::workbook_publication",
+      "return_type": "-> Result<crate::pending::PublishLocation>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 786
+        },
+        "start": {
+          "column": 5,
+          "line": 642
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:770:57: replace == with != in WorkService::workbook_publication",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 770
+      },
+      "start": {
+        "column": 57,
+        "line": 770
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace && with || in validate_command_owner\n@@ -1245,17 +1245,17 @@\n         (\n             Command::FailAttempt { attempt, .. },\n             Reply::AttemptFailed {\n                 attempt: reply_attempt,\n             },\n             CheckedData::Failed,\n         ) => {\n             reply_attempt == attempt\n-                && state.attempt(attempt).is_some_and(|record| {\n+                || /* ~ changed by cargo-mutants ~ */ state.attempt(attempt).is_some_and(|record| {\n                     record.status == sheltie_core::work::AttemptStatus::Failed\n                 })\n         }\n         (\n             Command::ApproveGate { node },\n             Reply::GateApproved {\n                 node: reply_node,\n                 occurrence,\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "validate_command_owner",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1284
+        },
+        "start": {
+          "column": 1,
+          "line": 1181
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1253:17: replace && with || in validate_command_owner",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1253
+      },
+      "start": {
+        "column": 17,
+        "line": 1253
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace | with ^ in Store::connect\n@@ -268,17 +268,17 @@\n             }\n         }\n         let root_identity = self.owner_home.as_ref().map(root_identity).transpose()?;\n         self.verify_owner_binding(root_identity, file_identity(&metadata))?;\n         let conn = match self.mode {\n             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY\n-                    | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n+                    ^ /* ~ changed by cargo-mutants ~ */ rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n             OpenMode::ReadWrite => rusqlite::Connection::open_with_flags(\n                 self.path.as_str(),\n                 rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE\n                     | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n             ),\n         }?;\n         self.verify_owner_binding(root_identity, file_identity(&metadata))?;\n",
+    "file": "crates/sheltie-runtime/src/store/mod.rs",
+    "function": {
+      "function_name": "Store::connect",
+      "return_type": "-> Result<rusqlite::Connection>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 298
+        },
+        "start": {
+          "column": 5,
+          "line": 238
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/mod.rs:276:21: replace | with ^ in Store::connect",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 276
+      },
+      "start": {
+        "column": 21,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace root_identity -> Result<(u64, u64)> with Ok((1, 0))\n@@ -354,24 +354,17 @@\n             });\n         }\n         tx.commit()?;\n         Ok(last as u32)\n     }\n }\n \n fn root_identity(home: &Home) -> Result<(u64, u64)> {\n-    let metadata = std::fs::symlink_metadata(home.root().as_path())\n-        .map_err(|error| Error::io(home.root().as_str(), error))?;\n-    if !metadata.file_type().is_dir() {\n-        return Err(Error::InvalidRequest {\n-            reason: format!(\"管理根 {} 必须是目录\", home.root()),\n-        });\n-    }\n-    Ok(file_identity(&metadata))\n+    Ok((1, 0)) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n",
+    "file": "crates/sheltie-runtime/src/store/mod.rs",
+    "function": {
+      "function_name": "root_identity",
+      "return_type": "-> Result<(u64, u64)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 370
+        },
+        "start": {
+          "column": 1,
+          "line": 361
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((1, 0))",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 369
+      },
+      "start": {
+        "column": 5,
+        "line": 362
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace file_identity -> (u64, u64) with (1, 1)\n@@ -372,10 +372,10 @@\n #[cfg(unix)]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n     use std::os::unix::fs::MetadataExt as _;\n     (metadata.dev(), metadata.ino())\n }\n \n #[cfg(not(unix))]\n fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {\n-    (0, metadata.len())\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/store/mod.rs",
+    "function": {
+      "function_name": "file_identity",
+      "return_type": "-> (u64, u64)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 381
+        },
+        "start": {
+          "column": 1,
+          "line": 378
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (1, 1)",
+    "package": "sheltie-runtime",
+    "replacement": "(1, 1)",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 380
+      },
+      "start": {
+        "column": 5,
+        "line": 380
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/workbook_repo.rs\n+++ replace || with && in WorkbookRepo::checked_effects_for\n@@ -348,17 +348,17 @@\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"Workbook add请求 {request_id} 的intent_hash与audit不一致\"),\n                     });\n                 }\n                 let snapshot: AddedSnapshot =\n                     serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {\n                         detail: format!(\"Workbook add请求 {request_id} snapshot解不开：{error}\"),\n                     })?;\n-                if snapshot.request_id != request_id || snapshot.replayed {\n+                if snapshot.request_id != request_id && /* ~ changed by cargo-mutants ~ */ snapshot.replayed {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"Workbook add请求 {request_id} snapshot身份无效\"),\n                     });\n                 }\n                 let data: crate::recovery::AddedSnapshotData =\n                     serde_json::from_value(snapshot.data).map_err(|error| Error::StoreCorrupt {\n                         detail: format!(\n                             \"Workbook add请求 {request_id} snapshot.data不符合合同：{error}\"\n",
+    "file": "crates/sheltie-runtime/src/workbook_repo.rs",
+    "function": {
+      "function_name": "WorkbookRepo::checked_effects_for",
+      "return_type": "-> Result<(crate::store::read::RequestRow, crate::effects::CheckedEffects,)>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 508
+        },
+        "start": {
+          "column": 5,
+          "line": 303
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/workbook_repo.rs:356:54: replace || with && in WorkbookRepo::checked_effects_for",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 356
+      },
+      "start": {
+        "column": 54,
+        "line": 356
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/workbook_repo.rs\n+++ replace == with != in WorkbookRepo::checked_effects_for\n@@ -487,17 +487,17 @@\n         if !row.published {\n             if let Err(owner_error) =\n                 crate::service::verify_pending_owner(&self.home, internal_id, request_id, operation)\n             {\n                 let current = self.store.inspect_request(request_id)?;\n                 match current {\n                     Some(current)\n                         if current.published\n-                            && current.intent_hash == row.intent_hash\n+                            && current.intent_hash != /* ~ changed by cargo-mutants ~ */ row.intent_hash\n                             && current.reply_json == row.reply_json\n                             && current.effects_json == row.effects_json\n                             && current.work_id == row.work_id\n                             && current.at == row.at =>\n                     {\n                         row = current;\n                     }\n                     _ => return Err(owner_error),\n",
+    "file": "crates/sheltie-runtime/src/workbook_repo.rs",
+    "function": {
+      "function_name": "WorkbookRepo::checked_effects_for",
+      "return_type": "-> Result<(crate::store::read::RequestRow, crate::effects::CheckedEffects,)>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 508
+        },
+        "start": {
+          "column": 5,
+          "line": 303
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/workbook_repo.rs:495:52: replace == with != in WorkbookRepo::checked_effects_for",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 495
+      },
+      "start": {
+        "column": 52,
+        "line": 495
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/workbook_repo.rs\n+++ replace == with != in WorkbookRepo::publication_for_row\n@@ -630,17 +630,17 @@\n                         })?;\n                     (\n                         (data.id == row.id && data.version == row.version)\n                             || publisher_ids.contains(audit.request_id.as_str()),\n                         true,\n                     )\n                 }\n                 WorkbookAuditCommand::RemoveWorkbook { target } => (\n-                    target == &format!(\"{}@{}\", row.id, row.version)\n+                    target != /* ~ changed by cargo-mutants ~ */ &format!(\"{}@{}\", row.id, row.version)\n                         || publisher_ids.contains(audit.request_id.as_str()),\n                     false,\n                 ),\n             };\n             if matches {\n                 latest = Some((audit.seq, audit.request_id, is_add));\n             }\n         }\n",
+    "file": "crates/sheltie-runtime/src/workbook_repo.rs",
+    "function": {
+      "function_name": "WorkbookRepo::publication_for_row",
+      "return_type": "-> Result<crate::pending::PublishLocation>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 740
+        },
+        "start": {
+          "column": 5,
+          "line": 574
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/workbook_repo.rs:638:28: replace == with != in WorkbookRepo::publication_for_row",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 638
+      },
+      "start": {
+        "column": 28,
+        "line": 638
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/workbook_repo.rs\n+++ replace || with && in WorkbookRepo::publication_for_row\n@@ -682,17 +682,17 @@\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"Workbook add请求 {request_id} snapshot身份无效\"),\n             });\n         }\n         let data: crate::recovery::AddedSnapshotData = serde_json::from_value(snapshot.data)\n             .map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"Workbook add请求 {request_id} snapshot.data解不开：{error}\"),\n             })?;\n-        if data.id != row.id || data.version != row.version || data.digest != row.digest {\n+        if data.id != row.id && /* ~ changed by cargo-mutants ~ */ data.version != row.version || data.digest != row.digest {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"Workbook {owner} 与当前add响应身份/摘要不一致\"),\n             });\n         }\n         let [\n             EffectOp::PublishDir {\n                 pending,\n                 final_path,\n",
+    "file": "crates/sheltie-runtime/src/workbook_repo.rs",
+    "function": {
+      "function_name": "WorkbookRepo::publication_for_row",
+      "return_type": "-> Result<crate::pending::PublishLocation>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 740
+        },
+        "start": {
+          "column": 5,
+          "line": 574
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/workbook_repo.rs:690:30: replace || with && in WorkbookRepo::publication_for_row",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 690
+      },
+      "start": {
+        "column": 30,
+        "line": 690
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/workbook_repo.rs\n+++ replace || with && in WorkbookRepo::publication_for_row\n@@ -717,17 +717,17 @@\n         }\n         let internal_id = crate::effects::pending_internal_id(pending)?;\n         let Some(reference) = references.get(internal_id) else {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"Workbook add请求 {request_id} 缺少pending引用索引项\"),\n             });\n         };\n         if reference.request_id != request_id\n-            || reference.pending != *pending\n+            && /* ~ changed by cargo-mutants ~ */ reference.pending != *pending\n             || reference.final_path != *final_path\n             || reference.owner != *effect_owner\n             || reference.digest != *digest\n             || reference.digest_root != *digest_root\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"Workbook add请求 {request_id} 与pending引用索引不一致\"),\n             });\n",
+    "file": "crates/sheltie-runtime/src/workbook_repo.rs",
+    "function": {
+      "function_name": "WorkbookRepo::publication_for_row",
+      "return_type": "-> Result<crate::pending::PublishLocation>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 740
+        },
+        "start": {
+          "column": 5,
+          "line": 574
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/workbook_repo.rs:725:13: replace || with && in WorkbookRepo::publication_for_row",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 725
+      },
+      "start": {
+        "column": 13,
+        "line": 725
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ delete ! in normalize_sql\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    sql.chars().filter(|c|  /* ~ changed by cargo-mutants ~ */c.is_whitespace()).collect()\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 82
+      },
+      "start": {
+        "column": 28,
+        "line": 82
+      }
+    }
+  }
+]

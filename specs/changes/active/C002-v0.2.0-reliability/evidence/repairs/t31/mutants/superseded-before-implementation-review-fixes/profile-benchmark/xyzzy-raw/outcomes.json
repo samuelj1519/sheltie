@@ -1,0 +1,117 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 27.179695292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 21.868573875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with \"xyzzy\".into()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "ManagedFs::display_path",
+            "return_type": "-> String",
+            "span": {
+              "start": {
+                "line": 356,
+                "column": 5
+              },
+              "end": {
+                "line": 362,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 357,
+              "column": 9
+            },
+            "end": {
+              "line": 361,
+              "column": 10
+            }
+          },
+          "replacement": "\"xyzzy\".into()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_357_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_357_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.384969834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.042507042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 1,
+  "missed": 0,
+  "caught": 1,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-09-29T15:30:47.48657Z",
+  "end_time": "2026-09-29T15:31:45.456273Z",
+  "cargo_mutants_version": "27.1.0"
+}

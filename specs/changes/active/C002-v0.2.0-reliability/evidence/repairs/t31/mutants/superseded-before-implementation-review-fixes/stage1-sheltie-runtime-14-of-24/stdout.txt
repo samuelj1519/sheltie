@@ -1,0 +1,21 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 17s build + 21s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:438:31: replace || with && in strict_workbook_data in 6s build + 24s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:454:68: replace || with && in work_original_snapshot in 43s build + 93s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:454:42: replace || with && in work_original_snapshot in 73s build + 107s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:483:5: replace snapshot_data_has_exact_fields -> bool with true in 7s build + 145s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:490:5: replace work_status_value_is_canonical -> bool with false in 9s build + 145s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:486:36: replace && with || in snapshot_data_has_exact_fields in 18s build + 138s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:580:17: replace && with || in persisted_response_data_is_well_formed in 6s build + 98s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:579:17: replace && with || in persisted_response_data_is_well_formed in 7s build + 181s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:579:45: replace == with != in persisted_response_data_is_well_formed in 6s build + 180s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:585:45: replace == with != in persisted_response_data_is_well_formed in 10s build + 177s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:585:17: replace && with || in persisted_response_data_is_well_formed in 7s build + 180s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:580:87: replace == with != in persisted_response_data_is_well_formed in 13s build + 174s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:594:42: replace == with != in persisted_response_data_is_well_formed in 4s build + 155s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:595:48: replace == with != in persisted_response_data_is_well_formed in 6s build + 153s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:596:52: delete ! in persisted_response_data_is_well_formed in 7s build + 152s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:601:45: replace == with != in persisted_response_data_is_well_formed in 11s build + 148s test
+MISSED   crates/sheltie-runtime/src/request.rs:70:9: replace RequestIntent::work -> Option<&WorkId> with None in 8s build + 106s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:18:41: replace * with + in 26s build + 79s test
+78 mutants tested in 22m: 18 missed, 58 caught, 2 unviable

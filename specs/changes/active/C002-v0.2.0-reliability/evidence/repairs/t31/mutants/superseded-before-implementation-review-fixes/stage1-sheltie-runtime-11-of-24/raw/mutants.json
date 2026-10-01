@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ delete ! in Home::acquire_existing_lock\n@@ -285,17 +285,17 @@\n         }\n         let guard = HomeLock {\n             _file: file,\n             root: self.root.clone(),\n             lock_path,\n             locked_ident,\n             root_ident,\n         };\n-        if !guard.identity_still_valid() {\n+        if  /* ~ changed by cargo-mutants ~ */guard.identity_still_valid() {\n             return Err(Error::InvalidRequest {\n                 reason: \"等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store\".into(),\n             });\n         }\n         Ok(Some(guard))\n     }\n \n     fn acquire_lock_once(&self) -> Result<HomeLock> {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_existing_lock",
+      "return_type": "-> Result<Option<HomeLock>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 299
+        },
+        "start": {
+          "column": 5,
+          "line": 260
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:293:12: delete ! in Home::acquire_existing_lock",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 293
+      },
+      "start": {
+        "column": 12,
+        "line": 293
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::acquire_lock_once -> Result<HomeLock> with Ok(Default::default())\n@@ -294,49 +294,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: \"等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store\".into(),\n             });\n         }\n         Ok(Some(guard))\n     }\n \n     fn acquire_lock_once(&self) -> Result<HomeLock> {\n-        let lock_path = self.lock_path();\n-        let managed = crate::fsx::ManagedFs::create_root(&self.root)?;\n-        // 不跟随叶链接、不接受FIFO或多链接；不得截断已存在的锁文件。\n-        let file = managed.open_lock_file()?;\n-        // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。\n-        // 取不到身份说明根或锁在打开窗口中消失，整体重试（§2.2）。\n-        let Some(locked_ident) = file_ident(&file) else {\n-            return Err(Error::io(\n-                lock_path.as_str(),\n-                std::io::Error::new(\n-                    std::io::ErrorKind::NotFound,\n-                    \"取不到 .lock 的文件身份（根在记身份时消失？）\",\n-                ),\n-            ));\n-        };\n-        let root_ident = managed.identity();\n-        match fs4::fs_std::FileExt::try_lock_exclusive(&file) {\n-            Ok(true) => {}\n-            Ok(false) => {\n-                crate::failpoint::rendezvous(\"home_lock_waiting\", lock_path.as_str())\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-                fs4::fs_std::FileExt::lock_exclusive(&file)\n-                    .map_err(|error| Error::io(lock_path.as_str(), error))?;\n-            }\n-            Err(error) => return Err(Error::io(lock_path.as_str(), error)),\n-        }\n-        Ok(HomeLock {\n-            _file: file,\n-            root: self.root.clone(),\n-            lock_path,\n-            locked_ident,\n-            root_ident,\n-        })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n         let under_root =\n             |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n         match error {\n             Error::NotFound { what } => under_root(what),\n             Error::Io { path, source } => {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::acquire_lock_once",
+      "return_type": "-> Result<HomeLock>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 335
+        },
+        "start": {
+          "column": 5,
+          "line": 301
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:302:9: replace Home::acquire_lock_once -> Result<HomeLock> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 334
+      },
+      "start": {
+        "column": 9,
+        "line": 302
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::is_lock_setup_path_missing -> bool with true\n@@ -330,25 +330,17 @@\n             root: self.root.clone(),\n             lock_path,\n             locked_ident,\n             root_ident,\n         })\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n-        let under_root =\n-            |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n-        match error {\n-            Error::NotFound { what } => under_root(what),\n-            Error::Io { path, source } => {\n-                under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n-            }\n-            _ => false,\n-        }\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n #[cfg(test)]\n mod lock_retry_tests {\n     use super::Home;\n     use crate::error::Error;\n     use sheltie_core::path::AbsPath;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:338:9: replace Home::is_lock_setup_path_missing -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 346
+      },
+      "start": {
+        "column": 9,
+        "line": 338
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace Home::is_lock_setup_path_missing -> bool with false\n@@ -330,25 +330,17 @@\n             root: self.root.clone(),\n             lock_path,\n             locked_ident,\n             root_ident,\n         })\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n-        let under_root =\n-            |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n-        match error {\n-            Error::NotFound { what } => under_root(what),\n-            Error::Io { path, source } => {\n-                under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n-            }\n-            _ => false,\n-        }\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n #[cfg(test)]\n mod lock_retry_tests {\n     use super::Home;\n     use crate::error::Error;\n     use sheltie_core::path::AbsPath;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/home.rs:338:9: replace Home::is_lock_setup_path_missing -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 346
+      },
+      "start": {
+        "column": 9,
+        "line": 338
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ delete match arm Error::NotFound{what} in Home::is_lock_setup_path_missing\n@@ -333,17 +333,17 @@\n             root_ident,\n         })\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n         let under_root =\n             |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n         match error {\n-            Error::NotFound { what } => under_root(what),\n+             /* ~ changed by cargo-mutants ~ */\n             Error::Io { path, source } => {\n                 under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n             }\n             _ => false,\n         }\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/home.rs:341:13: delete match arm Error::NotFound{what} in Home::is_lock_setup_path_missing",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 58,
+        "line": 341
+      },
+      "start": {
+        "column": 13,
+        "line": 341
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ delete match arm Error::Io{path, source} in Home::is_lock_setup_path_missing\n@@ -334,19 +334,17 @@\n         })\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n         let under_root =\n             |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n         match error {\n             Error::NotFound { what } => under_root(what),\n-            Error::Io { path, source } => {\n-                under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n-            }\n+             /* ~ changed by cargo-mutants ~ */\n             _ => false,\n         }\n     }\n }\n \n #[cfg(test)]\n mod lock_retry_tests {\n     use super::Home;\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/home.rs:342:13: delete match arm Error::Io{path, source} in Home::is_lock_setup_path_missing",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 344
+      },
+      "start": {
+        "column": 13,
+        "line": 342
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace && with || in Home::is_lock_setup_path_missing\n@@ -335,17 +335,17 @@\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n         let under_root =\n             |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n         match error {\n             Error::NotFound { what } => under_root(what),\n             Error::Io { path, source } => {\n-                under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n+                under_root(path) || /* ~ changed by cargo-mutants ~ */ source.kind() == std::io::ErrorKind::NotFound\n             }\n             _ => false,\n         }\n     }\n }\n \n #[cfg(test)]\n mod lock_retry_tests {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:343:34: replace && with || in Home::is_lock_setup_path_missing",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 343
+      },
+      "start": {
+        "column": 34,
+        "line": 343
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/home.rs\n+++ replace == with != in Home::is_lock_setup_path_missing\n@@ -335,17 +335,17 @@\n     }\n \n     fn is_lock_setup_path_missing(&self, error: &Error) -> bool {\n         let under_root =\n             |path: &str| std::path::Path::new(path).starts_with(self.root.as_path().as_std_path());\n         match error {\n             Error::NotFound { what } => under_root(what),\n             Error::Io { path, source } => {\n-                under_root(path) && source.kind() == std::io::ErrorKind::NotFound\n+                under_root(path) && source.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::NotFound\n             }\n             _ => false,\n         }\n     }\n }\n \n #[cfg(test)]\n mod lock_retry_tests {\n",
+    "file": "crates/sheltie-runtime/src/home.rs",
+    "function": {
+      "function_name": "Home::is_lock_setup_path_missing",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 347
+        },
+        "start": {
+          "column": 5,
+          "line": 337
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/home.rs:343:51: replace == with != in Home::is_lock_setup_path_missing",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 343
+      },
+      "start": {
+        "column": 51,
+        "line": 343
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace refresh_status_cards -> Result<()> with Ok(())\n@@ -14,32 +14,17 @@\n \n /// Refresh cards from freshly loaded Work state after the effect batch has completed.\n pub(crate) fn refresh_status_cards(\n     home: &Home,\n     effects: &crate::effects::CheckedEffects,\n     lock: &crate::home::HomeLock,\n     mut load_work: impl FnMut(&WorkId) -> Result<(WorkState, Graph)>,\n ) -> Result<()> {\n-    for op in effects.as_slice() {\n-        if let crate::effects::EffectOp::RefreshStatusCard { work_id } = op {\n-            let id = WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {\n-                detail: format!(\"效果里的 work_id {work_id} 不合法：{error}\"),\n-            })?;\n-            let (state, graph) = load_work(&id)?;\n-            let card = sheltie_core::work::render_status_card(&state, &graph);\n-            crate::fsx::write_exclusive_atomic(\n-                home,\n-                lock,\n-                &state.status_card_path(),\n-                card.as_bytes(),\n-            )?;\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Check path-bearing Work fields against the Work identity before opening any referenced file.\n pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPath> {\n     let expected = home.work_dir(&state.work_id);\n     if state.work_dir != expected {\n         return Err(corrupt(\n             &state.work_id,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "refresh_status_cards",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 38
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:22:5: replace refresh_status_cards -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 37
+      },
+      "start": {
+        "column": 5,
+        "line": 22
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace validate_work_root -> Result<AbsPath> with Ok(Default::default())\n@@ -34,47 +34,17 @@\n             )?;\n         }\n     }\n     Ok(())\n }\n \n /// Check path-bearing Work fields against the Work identity before opening any referenced file.\n pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPath> {\n-    let expected = home.work_dir(&state.work_id);\n-    if state.work_dir != expected {\n-        return Err(corrupt(\n-            &state.work_id,\n-            format!(\n-                \"state_json.work_dir 是 {}，期望 {}\",\n-                state.work_dir, expected\n-            ),\n-        ));\n-    }\n-\n-    if !valid_workbook_version(&state.workbook.version) {\n-        return Err(corrupt(\n-            &state.work_id,\n-            \"state_json.workbook.version不是合法单路径段\".to_string(),\n-        ));\n-    }\n-    ManagedRelPath::new(format!(\n-        \"workbooks/{}/{}\",\n-        state.workbook.id, state.workbook.version\n-    ))\n-    .map_err(|error| corrupt(&state.work_id, format!(\"workbook身份路径无效：{error}\")))?;\n-    let expected_frozen = expected.join_segment(\"workbook\");\n-    let stored_frozen = state.workbook_dir();\n-    if stored_frozen != expected_frozen {\n-        return Err(corrupt(\n-            &state.work_id,\n-            format!(\"冻结副本路径 {stored_frozen} 与Work路径不一致\"),\n-        ));\n-    }\n-    Ok(expected)\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Verify all persisted references against the checked graph and their owning Attempt.\n pub(crate) fn validate_work_paths(home: &Home, state: &WorkState, graph: &Graph) -> Result<()> {\n     let work_dir = validate_work_root(home, state)?;\n     validate_start_inputs(graph, state.inputs.keys())\n         .map_err(|error| corrupt(&state.work_id, format!(\"state_json.inputs: {error}\")))?;\n     for (key, reference) in &state.inputs {\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_root",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 73
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:42:5: replace validate_work_root -> Result<AbsPath> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 72
+      },
+      "start": {
+        "column": 5,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_work_root\n@@ -35,17 +35,17 @@\n         }\n     }\n     Ok(())\n }\n \n /// Check path-bearing Work fields against the Work identity before opening any referenced file.\n pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPath> {\n     let expected = home.work_dir(&state.work_id);\n-    if state.work_dir != expected {\n+    if state.work_dir == /* ~ changed by cargo-mutants ~ */ expected {\n         return Err(corrupt(\n             &state.work_id,\n             format!(\n                 \"state_json.work_dir 是 {}，期望 {}\",\n                 state.work_dir, expected\n             ),\n         ));\n     }\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_root",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 73
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:43:23: replace != with == in validate_work_root",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 43
+      },
+      "start": {
+        "column": 23,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ delete ! in validate_work_root\n@@ -45,17 +45,17 @@\n             &state.work_id,\n             format!(\n                 \"state_json.work_dir 是 {}，期望 {}\",\n                 state.work_dir, expected\n             ),\n         ));\n     }\n \n-    if !valid_workbook_version(&state.workbook.version) {\n+    if  /* ~ changed by cargo-mutants ~ */valid_workbook_version(&state.workbook.version) {\n         return Err(corrupt(\n             &state.work_id,\n             \"state_json.workbook.version不是合法单路径段\".to_string(),\n         ));\n     }\n     ManagedRelPath::new(format!(\n         \"workbooks/{}/{}\",\n         state.workbook.id, state.workbook.version\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_root",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 73
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:53:8: delete ! in validate_work_root",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 53
+      },
+      "start": {
+        "column": 8,
+        "line": 53
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_work_root\n@@ -58,17 +58,17 @@\n     }\n     ManagedRelPath::new(format!(\n         \"workbooks/{}/{}\",\n         state.workbook.id, state.workbook.version\n     ))\n     .map_err(|error| corrupt(&state.work_id, format!(\"workbook身份路径无效：{error}\")))?;\n     let expected_frozen = expected.join_segment(\"workbook\");\n     let stored_frozen = state.workbook_dir();\n-    if stored_frozen != expected_frozen {\n+    if stored_frozen == /* ~ changed by cargo-mutants ~ */ expected_frozen {\n         return Err(corrupt(\n             &state.work_id,\n             format!(\"冻结副本路径 {stored_frozen} 与Work路径不一致\"),\n         ));\n     }\n     Ok(expected)\n }\n \n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_root",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 73
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:66:22: replace != with == in validate_work_root",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 66
+      },
+      "start": {
+        "column": 22,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace validate_work_paths -> Result<()> with Ok(())\n@@ -69,146 +69,17 @@\n             format!(\"冻结副本路径 {stored_frozen} 与Work路径不一致\"),\n         ));\n     }\n     Ok(expected)\n }\n \n /// Verify all persisted references against the checked graph and their owning Attempt.\n pub(crate) fn validate_work_paths(home: &Home, state: &WorkState, graph: &Graph) -> Result<()> {\n-    let work_dir = validate_work_root(home, state)?;\n-    validate_start_inputs(graph, state.inputs.keys())\n-        .map_err(|error| corrupt(&state.work_id, format!(\"state_json.inputs: {error}\")))?;\n-    for (key, reference) in &state.inputs {\n-        let expected = work_dir.join_segment(\"start-inputs\").join_segment(key);\n-        require_path(&state.work_id, \"inputs\", &reference.path, &expected)?;\n-    }\n-\n-    for (index, attempt) in state.attempts.iter().enumerate() {\n-        let node = graph.node(&attempt.id.node).ok_or_else(|| {\n-            corrupt(\n-                &state.work_id,\n-                format!(\"state_json.attempts[{index}].id.node 不在冻结图中\"),\n-            )\n-        })?;\n-        let attempt_dir = state.attempt_dir(&attempt.id);\n-        let declared_outputs = output_paths_for(state, graph, &attempt.id).map_err(|error| {\n-            corrupt(\n-                &state.work_id,\n-                format!(\"state_json.attempts[{index}].outputs: {error}\"),\n-            )\n-        })?;\n-        for (name, reference) in &attempt.outputs {\n-            let expected = declared_outputs.get(name).ok_or_else(|| {\n-                corrupt(\n-                    &state.work_id,\n-                    format!(\"state_json.attempts[{index}].outputs.{name} 未在冻结图声明\"),\n-                )\n-            })?;\n-            require_path(\n-                &state.work_id,\n-                &format!(\"attempts[{index}].outputs.{name}\"),\n-                &reference.path,\n-                expected,\n-            )?;\n-        }\n-\n-        if attempt.inputs.len() != node.inputs().len() {\n-            return Err(corrupt(\n-                &state.work_id,\n-                format!(\"state_json.attempts[{index}].inputs 键集合与冻结图不一致\"),\n-            ));\n-        }\n-        for declaration in node.inputs() {\n-            let actual = attempt\n-                .inputs\n-                .get(declaration.name())\n-                .ok_or_else(|| {\n-                    corrupt(\n-                        &state.work_id,\n-                        format!(\n-                            \"state_json.attempts[{index}].inputs 缺少 {}\",\n-                            declaration.name()\n-                        ),\n-                    )\n-                })?\n-                .as_ref();\n-            let expected = match declaration.source() {\n-                InputSource::Start { key } => state.inputs.get(key),\n-                InputSource::Resource { path } => {\n-                    let expected = state.workbook_dir().join(path);\n-                    if let Some(reference) = actual {\n-                        require_path(\n-                            &state.work_id,\n-                            &format!(\"attempts[{index}].inputs.{}\", declaration.name()),\n-                            &reference.path,\n-                            &expected,\n-                        )?;\n-                    } else {\n-                        return Err(corrupt(\n-                            &state.work_id,\n-                            format!(\n-                                \"attempts[{index}].inputs.{} 资源引用缺失\",\n-                                declaration.name()\n-                            ),\n-                        ));\n-                    }\n-                    continue;\n-                }\n-                InputSource::EngineStats => {\n-                    let expected_path = sheltie_core::work::layout::engine_stats_path(&attempt_dir);\n-                    let reference = actual.ok_or_else(|| {\n-                        corrupt(\n-                            &state.work_id,\n-                            format!(\n-                                \"attempts[{index}].inputs.{} 缺少引擎stats\",\n-                                declaration.name()\n-                            ),\n-                        )\n-                    })?;\n-                    require_path(\n-                        &state.work_id,\n-                        &format!(\"attempts[{index}].inputs.{}\", declaration.name()),\n-                        &reference.path,\n-                        &expected_path,\n-                    )?;\n-                    continue;\n-                }\n-                InputSource::Node {\n-                    node: source,\n-                    output,\n-                } => state.attempts[..index]\n-                    .iter()\n-                    .rev()\n-                    .find(|candidate| {\n-                        candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n-                    })\n-                    .and_then(|candidate| candidate.outputs.get(output)),\n-            };\n-            match (actual, expected) {\n-                (None, None) if !declaration.required() => {}\n-                (Some(actual), Some(expected)) if actual == expected => {\n-                    ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n-                        corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n-                    })?)\n-                    .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n-                }\n-                _ => {\n-                    return Err(corrupt(\n-                        &state.work_id,\n-                        format!(\n-                            \"state_json.attempts[{index}].inputs.{} 与冻结定义或历史产物不一致\",\n-                            declaration.name()\n-                        ),\n-                    ));\n-                }\n-            }\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn validate_workbook_row(\n     home: &Home,\n     row: &crate::store::WorkbookRow,\n ) -> Result<AbsPath> {\n     let id = WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"workbooks行id不合法：{error}\"),\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:77:5: replace validate_work_paths -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 206
+      },
+      "start": {
+        "column": 5,
+        "line": 77
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_work_paths\n@@ -106,17 +106,17 @@\n             require_path(\n                 &state.work_id,\n                 &format!(\"attempts[{index}].outputs.{name}\"),\n                 &reference.path,\n                 expected,\n             )?;\n         }\n \n-        if attempt.inputs.len() != node.inputs().len() {\n+        if attempt.inputs.len() == /* ~ changed by cargo-mutants ~ */ node.inputs().len() {\n             return Err(corrupt(\n                 &state.work_id,\n                 format!(\"state_json.attempts[{index}].inputs 键集合与冻结图不一致\"),\n             ));\n         }\n         for declaration in node.inputs() {\n             let actual = attempt\n                 .inputs\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:114:33: replace != with == in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 114
+      },
+      "start": {
+        "column": 33,
+        "line": 114
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace && with || in validate_work_paths\n@@ -174,17 +174,17 @@\n                 }\n                 InputSource::Node {\n                     node: source,\n                     output,\n                 } => state.attempts[..index]\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n-                        candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n+                        candidate.id.node == *source || /* ~ changed by cargo-mutants ~ */ candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:182:54: replace && with || in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 182
+      },
+      "start": {
+        "column": 54,
+        "line": 182
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace == with != in validate_work_paths\n@@ -174,17 +174,17 @@\n                 }\n                 InputSource::Node {\n                     node: source,\n                     output,\n                 } => state.attempts[..index]\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n-                        candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n+                        candidate.id.node != /* ~ changed by cargo-mutants ~ */ *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:182:43: replace == with != in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 182
+      },
+      "start": {
+        "column": 43,
+        "line": 182
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace == with != in validate_work_paths\n@@ -174,17 +174,17 @@\n                 }\n                 InputSource::Node {\n                     node: source,\n                     output,\n                 } => state.attempts[..index]\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n-                        candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n+                        candidate.id.node == *source && candidate.status != /* ~ changed by cargo-mutants ~ */ AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:182:74: replace == with != in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 76,
+        "line": 182
+      },
+      "start": {
+        "column": 74,
+        "line": 182
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace match guard !declaration.required() with true in validate_work_paths\n@@ -179,17 +179,17 @@\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n-                (None, None) if !declaration.required() => {}\n+                (None, None) if true /* ~ changed by cargo-mutants ~ */ => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/load.rs:187:33: replace match guard !declaration.required() with true in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 187
+      },
+      "start": {
+        "column": 33,
+        "line": 187
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace match guard !declaration.required() with false in validate_work_paths\n@@ -179,17 +179,17 @@\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n-                (None, None) if !declaration.required() => {}\n+                (None, None) if false /* ~ changed by cargo-mutants ~ */ => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/load.rs:187:33: replace match guard !declaration.required() with false in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 187
+      },
+      "start": {
+        "column": 33,
+        "line": 187
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace match guard actual == expected with true in validate_work_paths\n@@ -180,17 +180,17 @@\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n-                (Some(actual), Some(expected)) if actual == expected => {\n+                (Some(actual), Some(expected)) if true /* ~ changed by cargo-mutants ~ */ => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n                         &state.work_id,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/load.rs:188:51: replace match guard actual == expected with true in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 188
+      },
+      "start": {
+        "column": 51,
+        "line": 188
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace match guard actual == expected with false in validate_work_paths\n@@ -180,17 +180,17 @@\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n-                (Some(actual), Some(expected)) if actual == expected => {\n+                (Some(actual), Some(expected)) if false /* ~ changed by cargo-mutants ~ */ => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n                         &state.work_id,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/load.rs:188:51: replace match guard actual == expected with false in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 188
+      },
+      "start": {
+        "column": 51,
+        "line": 188
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ delete ! in validate_work_paths\n@@ -179,17 +179,17 @@\n                     .iter()\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n-                (None, None) if !declaration.required() => {}\n+                (None, None) if  /* ~ changed by cargo-mutants ~ */declaration.required() => {}\n                 (Some(actual), Some(expected)) if actual == expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:187:33: delete ! in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 187
+      },
+      "start": {
+        "column": 33,
+        "line": 187
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace == with != in validate_work_paths\n@@ -180,17 +180,17 @@\n                     .rev()\n                     .find(|candidate| {\n                         candidate.id.node == *source && candidate.status == AttemptStatus::Succeeded\n                     })\n                     .and_then(|candidate| candidate.outputs.get(output)),\n             };\n             match (actual, expected) {\n                 (None, None) if !declaration.required() => {}\n-                (Some(actual), Some(expected)) if actual == expected => {\n+                (Some(actual), Some(expected)) if actual != /* ~ changed by cargo-mutants ~ */ expected => {\n                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {\n                         corrupt(&state.work_id, format!(\"受管输入路径无效：{error}\"))\n                     })?)\n                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;\n                 }\n                 _ => {\n                     return Err(corrupt(\n                         &state.work_id,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_work_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 207
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:188:58: replace == with != in validate_work_paths",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 188
+      },
+      "start": {
+        "column": 58,
+        "line": 188
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace validate_workbook_row -> Result<AbsPath> with Ok(Default::default())\n@@ -205,50 +205,17 @@\n     }\n     Ok(())\n }\n \n pub(crate) fn validate_workbook_row(\n     home: &Home,\n     row: &crate::store::WorkbookRow,\n ) -> Result<AbsPath> {\n-    let id = WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"workbooks行id不合法：{error}\"),\n-    })?;\n-    if id.as_str() != row.id {\n-        return Err(Error::StoreCorrupt {\n-            detail: \"workbooks行id不是规范表示\".to_string(),\n-        });\n-    }\n-    if !valid_workbook_version(&row.version) {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"workbooks行version {:?} 不符合Workbook合同\", row.version),\n-        });\n-    }\n-    ManagedRelPath::new(format!(\"workbooks/{}/{}\", row.id, row.version)).map_err(|error| {\n-        Error::StoreCorrupt {\n-            detail: format!(\"workbooks行version不能用作受管路径：{error}\"),\n-        }\n-    })?;\n-    Sha256Hex::new(row.digest.clone()).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"workbooks行digest不合法：{error}\"),\n-    })?;\n-    Timestamp::parse(&row.added_at).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"workbooks行added_at不合法：{error}\"),\n-    })?;\n-    let expected_rel = format!(\"workbooks/{}/{}\", row.id, row.version);\n-    if row.dir != expected_rel {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\n-                \"workbooks行dir {} 与登记身份 {expected_rel} 不一致\",\n-                row.dir\n-            ),\n-        });\n-    }\n-    Ok(home.workbook_dir(&row.id, &row.version))\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_workbook_row",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 247
+        },
+        "start": {
+          "column": 1,
+          "line": 209
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:213:5: replace validate_workbook_row -> Result<AbsPath> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 246
+      },
+      "start": {
+        "column": 5,
+        "line": 213
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_workbook_row\n@@ -208,17 +208,17 @@\n \n pub(crate) fn validate_workbook_row(\n     home: &Home,\n     row: &crate::store::WorkbookRow,\n ) -> Result<AbsPath> {\n     let id = WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"workbooks行id不合法：{error}\"),\n     })?;\n-    if id.as_str() != row.id {\n+    if id.as_str() == /* ~ changed by cargo-mutants ~ */ row.id {\n         return Err(Error::StoreCorrupt {\n             detail: \"workbooks行id不是规范表示\".to_string(),\n         });\n     }\n     if !valid_workbook_version(&row.version) {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"workbooks行version {:?} 不符合Workbook合同\", row.version),\n         });\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_workbook_row",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 247
+        },
+        "start": {
+          "column": 1,
+          "line": 209
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:216:20: replace != with == in validate_workbook_row",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 216
+      },
+      "start": {
+        "column": 20,
+        "line": 216
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ delete ! in validate_workbook_row\n@@ -213,17 +213,17 @@\n     let id = WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"workbooks行id不合法：{error}\"),\n     })?;\n     if id.as_str() != row.id {\n         return Err(Error::StoreCorrupt {\n             detail: \"workbooks行id不是规范表示\".to_string(),\n         });\n     }\n-    if !valid_workbook_version(&row.version) {\n+    if  /* ~ changed by cargo-mutants ~ */valid_workbook_version(&row.version) {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"workbooks行version {:?} 不符合Workbook合同\", row.version),\n         });\n     }\n     ManagedRelPath::new(format!(\"workbooks/{}/{}\", row.id, row.version)).map_err(|error| {\n         Error::StoreCorrupt {\n             detail: format!(\"workbooks行version不能用作受管路径：{error}\"),\n         }\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_workbook_row",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 247
+        },
+        "start": {
+          "column": 1,
+          "line": 209
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:221:8: delete ! in validate_workbook_row",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 221
+      },
+      "start": {
+        "column": 8,
+        "line": 221
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_workbook_row\n@@ -230,17 +230,17 @@\n     })?;\n     Sha256Hex::new(row.digest.clone()).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"workbooks行digest不合法：{error}\"),\n     })?;\n     Timestamp::parse(&row.added_at).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"workbooks行added_at不合法：{error}\"),\n     })?;\n     let expected_rel = format!(\"workbooks/{}/{}\", row.id, row.version);\n-    if row.dir != expected_rel {\n+    if row.dir == /* ~ changed by cargo-mutants ~ */ expected_rel {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\n                 \"workbooks行dir {} 与登记身份 {expected_rel} 不一致\",\n                 row.dir\n             ),\n         });\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "validate_workbook_row",
+      "return_type": "-> Result<AbsPath>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 247
+        },
+        "start": {
+          "column": 1,
+          "line": 209
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:238:16: replace != with == in validate_workbook_row",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 238
+      },
+      "start": {
+        "column": 16,
+        "line": 238
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace valid_workbook_version -> bool with true\n@@ -242,24 +242,17 @@\n                 row.dir\n             ),\n         });\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n-    use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n-\n-    !value.is_empty()\n-        && value.len() <= VERSION_MAX_BYTES\n-        && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n-        && value\n-            .bytes()\n-            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n     state: &WorkState,\n ) -> Result<crate::workbook_repo::LoadedWorkbook> {\n     let workbook =\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:250:5: replace valid_workbook_version -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 257
+      },
+      "start": {
+        "column": 5,
+        "line": 250
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace valid_workbook_version -> bool with false\n@@ -242,24 +242,17 @@\n                 row.dir\n             ),\n         });\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n-    use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n-\n-    !value.is_empty()\n-        && value.len() <= VERSION_MAX_BYTES\n-        && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n-        && value\n-            .bytes()\n-            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n     state: &WorkState,\n ) -> Result<crate::workbook_repo::LoadedWorkbook> {\n     let workbook =\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:250:5: replace valid_workbook_version -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 257
+      },
+      "start": {
+        "column": 5,
+        "line": 250
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace && with || in valid_workbook_version\n@@ -247,17 +247,17 @@\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n-        && value\n+        || /* ~ changed by cargo-mutants ~ */ value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n     state: &WorkState,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:255:9: replace && with || in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 255
+      },
+      "start": {
+        "column": 9,
+        "line": 255
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace && with || in valid_workbook_version\n@@ -246,17 +246,17 @@\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n-        && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n+        || /* ~ changed by cargo-mutants ~ */ !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:254:9: replace && with || in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 254
+      },
+      "start": {
+        "column": 9,
+        "line": 254
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace && with || in valid_workbook_version\n@@ -245,17 +245,17 @@\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n-        && value.len() <= VERSION_MAX_BYTES\n+        || /* ~ changed by cargo-mutants ~ */ value.len() <= VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:253:9: replace && with || in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 253
+      },
+      "start": {
+        "column": 9,
+        "line": 253
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ delete ! in valid_workbook_version\n@@ -244,17 +244,17 @@\n         });\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n-    !value.is_empty()\n+     /* ~ changed by cargo-mutants ~ */value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:252:5: delete ! in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 252
+      },
+      "start": {
+        "column": 5,
+        "line": 252
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace <= with > in valid_workbook_version\n@@ -245,17 +245,17 @@\n     }\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n-        && value.len() <= VERSION_MAX_BYTES\n+        && value.len() > /* ~ changed by cargo-mutants ~ */ VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:253:24: replace <= with > in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 253
+      },
+      "start": {
+        "column": 24,
+        "line": 253
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ delete ! in valid_workbook_version\n@@ -246,17 +246,17 @@\n     Ok(home.workbook_dir(&row.id, &row.version))\n }\n \n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n-        && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n+        &&  /* ~ changed by cargo-mutants ~ */matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:254:12: delete ! in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 254
+      },
+      "start": {
+        "column": 12,
+        "line": 254
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace || with && in valid_workbook_version\n@@ -249,17 +249,17 @@\n pub(crate) fn valid_workbook_version(value: &str) -> bool {\n     use sheltie_core::workbook::manifest::{RESERVED_VERSION, VERSION_MAX_BYTES};\n \n     !value.is_empty()\n         && value.len() <= VERSION_MAX_BYTES\n         && !matches!(value, \".\" | \"..\" | RESERVED_VERSION)\n         && value\n             .bytes()\n-            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n+            .all(|byte| byte.is_ascii_alphanumeric() && /* ~ changed by cargo-mutants ~ */ matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n     state: &WorkState,\n ) -> Result<crate::workbook_repo::LoadedWorkbook> {\n     let workbook =\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "valid_workbook_version",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 258
+        },
+        "start": {
+          "column": 1,
+          "line": 249
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:257:54: replace || with && in valid_workbook_version",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 257
+      },
+      "start": {
+        "column": 54,
+        "line": 257
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace compile_frozen_workbook -> Result<crate::workbook_repo::LoadedWorkbook> with Ok(Default::default())\n@@ -257,39 +257,17 @@\n             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'+' | b'-'))\n }\n \n pub(crate) fn compile_frozen_workbook(\n     home: &Home,\n     frozen: &AbsPath,\n     state: &WorkState,\n ) -> Result<crate::workbook_repo::LoadedWorkbook> {\n-    let workbook =\n-        crate::workbook_repo::WorkbookRepo::load_managed_dir(home, frozen).map_err(|error| {\n-            match error {\n-                Error::NotFound { .. } | Error::Io { .. } => error,\n-                other => Error::StoreCorrupt {\n-                    detail: format!(\"冻结副本读不了：{other}\"),\n-                },\n-            }\n-        })?;\n-    let manifest = &workbook.manifest;\n-    if manifest.id().as_str() != state.workbook.id.as_str()\n-        || manifest.version() != state.workbook.version\n-    {\n-        return Err(Error::StoreCorrupt {\n-            detail: \"冻结副本manifest身份与WorkState不一致\".to_string(),\n-        });\n-    }\n-    if workbook.flow(state.flow.as_str()).is_none() {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"冻结副本里没有Flow {}\", state.flow),\n-        });\n-    }\n-    Ok(workbook)\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath) -> Result<()> {\n     if actual != expected {\n         return Err(corrupt(\n             work,\n             format!(\"state_json.{field} 路径 {actual} 与所属对象 {expected} 不一致\"),\n         ));\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "compile_frozen_workbook",
+      "return_type": "-> Result<crate::workbook_repo::LoadedWorkbook>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 288
+        },
+        "start": {
+          "column": 1,
+          "line": 260
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:265:5: replace compile_frozen_workbook -> Result<crate::workbook_repo::LoadedWorkbook> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 287
+      },
+      "start": {
+        "column": 5,
+        "line": 265
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace || with && in compile_frozen_workbook\n@@ -268,17 +268,17 @@\n                 Error::NotFound { .. } | Error::Io { .. } => error,\n                 other => Error::StoreCorrupt {\n                     detail: format!(\"冻结副本读不了：{other}\"),\n                 },\n             }\n         })?;\n     let manifest = &workbook.manifest;\n     if manifest.id().as_str() != state.workbook.id.as_str()\n-        || manifest.version() != state.workbook.version\n+        && /* ~ changed by cargo-mutants ~ */ manifest.version() != state.workbook.version\n     {\n         return Err(Error::StoreCorrupt {\n             detail: \"冻结副本manifest身份与WorkState不一致\".to_string(),\n         });\n     }\n     if workbook.flow(state.flow.as_str()).is_none() {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"冻结副本里没有Flow {}\", state.flow),\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "compile_frozen_workbook",
+      "return_type": "-> Result<crate::workbook_repo::LoadedWorkbook>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 288
+        },
+        "start": {
+          "column": 1,
+          "line": 260
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:276:9: replace || with && in compile_frozen_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 276
+      },
+      "start": {
+        "column": 9,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in compile_frozen_workbook\n@@ -267,17 +267,17 @@\n             match error {\n                 Error::NotFound { .. } | Error::Io { .. } => error,\n                 other => Error::StoreCorrupt {\n                     detail: format!(\"冻结副本读不了：{other}\"),\n                 },\n             }\n         })?;\n     let manifest = &workbook.manifest;\n-    if manifest.id().as_str() != state.workbook.id.as_str()\n+    if manifest.id().as_str() == /* ~ changed by cargo-mutants ~ */ state.workbook.id.as_str()\n         || manifest.version() != state.workbook.version\n     {\n         return Err(Error::StoreCorrupt {\n             detail: \"冻结副本manifest身份与WorkState不一致\".to_string(),\n         });\n     }\n     if workbook.flow(state.flow.as_str()).is_none() {\n         return Err(Error::StoreCorrupt {\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "compile_frozen_workbook",
+      "return_type": "-> Result<crate::workbook_repo::LoadedWorkbook>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 288
+        },
+        "start": {
+          "column": 1,
+          "line": 260
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:275:31: replace != with == in compile_frozen_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 275
+      },
+      "start": {
+        "column": 31,
+        "line": 275
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in compile_frozen_workbook\n@@ -268,17 +268,17 @@\n                 Error::NotFound { .. } | Error::Io { .. } => error,\n                 other => Error::StoreCorrupt {\n                     detail: format!(\"冻结副本读不了：{other}\"),\n                 },\n             }\n         })?;\n     let manifest = &workbook.manifest;\n     if manifest.id().as_str() != state.workbook.id.as_str()\n-        || manifest.version() != state.workbook.version\n+        || manifest.version() == /* ~ changed by cargo-mutants ~ */ state.workbook.version\n     {\n         return Err(Error::StoreCorrupt {\n             detail: \"冻结副本manifest身份与WorkState不一致\".to_string(),\n         });\n     }\n     if workbook.flow(state.flow.as_str()).is_none() {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"冻结副本里没有Flow {}\", state.flow),\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "compile_frozen_workbook",
+      "return_type": "-> Result<crate::workbook_repo::LoadedWorkbook>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 288
+        },
+        "start": {
+          "column": 1,
+          "line": 260
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:276:31: replace != with == in compile_frozen_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 276
+      },
+      "start": {
+        "column": 31,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace require_path -> Result<()> with Ok(())\n@@ -283,22 +283,16 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"冻结副本里没有Flow {}\", state.flow),\n         });\n     }\n     Ok(workbook)\n }\n \n fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath) -> Result<()> {\n-    if actual != expected {\n-        return Err(corrupt(\n-            work,\n-            format!(\"state_json.{field} 路径 {actual} 与所属对象 {expected} 不一致\"),\n-        ));\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn corrupt(work: &WorkId, detail: String) -> Error {\n     Error::StoreCorrupt {\n         detail: format!(\"Work {work} 的持久路径校验失败：{detail}\"),\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "require_path",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 298
+        },
+        "start": {
+          "column": 1,
+          "line": 290
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:291:5: replace require_path -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 297
+      },
+      "start": {
+        "column": 5,
+        "line": 291
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in require_path\n@@ -283,17 +283,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"冻结副本里没有Flow {}\", state.flow),\n         });\n     }\n     Ok(workbook)\n }\n \n fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath) -> Result<()> {\n-    if actual != expected {\n+    if actual == /* ~ changed by cargo-mutants ~ */ expected {\n         return Err(corrupt(\n             work,\n             format!(\"state_json.{field} 路径 {actual} 与所属对象 {expected} 不一致\"),\n         ));\n     }\n     Ok(())\n }\n \n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "require_path",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 298
+        },
+        "start": {
+          "column": 1,
+          "line": 290
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/load.rs:291:15: replace != with == in require_path",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 291
+      },
+      "start": {
+        "column": 15,
+        "line": 291
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace corrupt -> Error with Default::default()\n@@ -293,12 +293,10 @@\n             work,\n             format!(\"state_json.{field} 路径 {actual} 与所属对象 {expected} 不一致\"),\n         ));\n     }\n     Ok(())\n }\n \n fn corrupt(work: &WorkId, detail: String) -> Error {\n-    Error::StoreCorrupt {\n-        detail: format!(\"Work {work} 的持久路径校验失败：{detail}\"),\n-    }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/load.rs",
+    "function": {
+      "function_name": "corrupt",
+      "return_type": "-> Error",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 304
+        },
+        "start": {
+          "column": 1,
+          "line": 300
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/load.rs:301:5: replace corrupt -> Error with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 303
+      },
+      "start": {
+        "column": 5,
+        "line": 301
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace observe_file -> Result<ObservedFile> with Ok(Default::default())\n@@ -6,19 +6,17 @@\n use sheltie_core::work::{ObservedFile, Principal, Timestamp};\n \n use crate::error::Result;\n use crate::fsx::{ExternalReadFile, ExternalReadTree, MAX_FILE_BYTES};\n \n /// 观察一个文件：`SafeFile` 句柄核对身份（拒绝软链、目录、硬链），再在句柄上\n /// 限额读取并算 sha256 与字节数。不存在返回 `Error::NotFound`。\n pub fn observe_file(path: &AbsPath) -> Result<ObservedFile> {\n-    let f = ExternalReadFile::open_regular(path)?;\n-    let (sha256, bytes) = f.sha256_bounded(MAX_FILE_BYTES)?;\n-    Ok(ObservedFile::new(path.clone(), sha256, bytes))\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 观察一个文件，不存在时返回 `Ok(None)`，其他错误照常返回。\n pub fn observe_optional(path: &AbsPath) -> Result<Option<ObservedFile>> {\n     match observe_file(path) {\n         Ok(f) => Ok(Some(f)),\n         Err(crate::Error::NotFound { .. }) => Ok(None),\n         Err(e) => Err(e),\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "observe_file",
+      "return_type": "-> Result<ObservedFile>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 17
+        },
+        "start": {
+          "column": 1,
+          "line": 11
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:14:5: replace observe_file -> Result<ObservedFile> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 16
+      },
+      "start": {
+        "column": 5,
+        "line": 14
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace observe_optional -> Result<Option<ObservedFile>> with Ok(None)\n@@ -13,21 +13,17 @@\n pub fn observe_file(path: &AbsPath) -> Result<ObservedFile> {\n     let f = ExternalReadFile::open_regular(path)?;\n     let (sha256, bytes) = f.sha256_bounded(MAX_FILE_BYTES)?;\n     Ok(ObservedFile::new(path.clone(), sha256, bytes))\n }\n \n /// 观察一个文件，不存在时返回 `Ok(None)`，其他错误照常返回。\n pub fn observe_optional(path: &AbsPath) -> Result<Option<ObservedFile>> {\n-    match observe_file(path) {\n-        Ok(f) => Ok(Some(f)),\n-        Err(crate::Error::NotFound { .. }) => Ok(None),\n-        Err(e) => Err(e),\n-    }\n+    Ok(None) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 递归列出目录下全部普通文件，建 `ResourceIndex`。跳过目录，拒绝软链（返回错误）。\n /// 键是相对 `dir` 的路径。每个文件经句柄限额读取，只为字节数与 UTF-8 判定，\n /// 不把资源全文转成字符串（design §4）。\n pub fn build_resource_index(dir: &AbsPath) -> Result<ResourceIndex> {\n     let tree = ExternalReadTree::open(dir)?;\n     build_resource_index_from_tree(&tree)\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "observe_optional",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 26
+        },
+        "start": {
+          "column": 1,
+          "line": 19
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 25
+      },
+      "start": {
+        "column": 5,
+        "line": 21
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace observe_optional -> Result<Option<ObservedFile>> with Ok(Some(Default::default()))\n@@ -13,21 +13,17 @@\n pub fn observe_file(path: &AbsPath) -> Result<ObservedFile> {\n     let f = ExternalReadFile::open_regular(path)?;\n     let (sha256, bytes) = f.sha256_bounded(MAX_FILE_BYTES)?;\n     Ok(ObservedFile::new(path.clone(), sha256, bytes))\n }\n \n /// 观察一个文件，不存在时返回 `Ok(None)`，其他错误照常返回。\n pub fn observe_optional(path: &AbsPath) -> Result<Option<ObservedFile>> {\n-    match observe_file(path) {\n-        Ok(f) => Ok(Some(f)),\n-        Err(crate::Error::NotFound { .. }) => Ok(None),\n-        Err(e) => Err(e),\n-    }\n+    Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 递归列出目录下全部普通文件，建 `ResourceIndex`。跳过目录，拒绝软链（返回错误）。\n /// 键是相对 `dir` 的路径。每个文件经句柄限额读取，只为字节数与 UTF-8 判定，\n /// 不把资源全文转成字符串（design §4）。\n pub fn build_resource_index(dir: &AbsPath) -> Result<ResourceIndex> {\n     let tree = ExternalReadTree::open(dir)?;\n     build_resource_index_from_tree(&tree)\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "observe_optional",
+      "return_type": "-> Result<Option<ObservedFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 26
+        },
+        "start": {
+          "column": 1,
+          "line": 19
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 25
+      },
+      "start": {
+        "column": 5,
+        "line": 21
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace build_resource_index -> Result<ResourceIndex> with Ok(Default::default())\n@@ -24,18 +24,17 @@\n         Err(e) => Err(e),\n     }\n }\n \n /// 递归列出目录下全部普通文件，建 `ResourceIndex`。跳过目录，拒绝软链（返回错误）。\n /// 键是相对 `dir` 的路径。每个文件经句柄限额读取，只为字节数与 UTF-8 判定，\n /// 不把资源全文转成字符串（design §4）。\n pub fn build_resource_index(dir: &AbsPath) -> Result<ResourceIndex> {\n-    let tree = ExternalReadTree::open(dir)?;\n-    build_resource_index_from_tree(&tree)\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn build_resource_index_from_tree(tree: &ExternalReadTree) -> Result<ResourceIndex> {\n     let (_, resources, _) =\n         crate::workbook_digest::inspect_tree_v2(tree, &std::collections::BTreeMap::new())?;\n     Ok(resources)\n }\n \n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "build_resource_index",
+      "return_type": "-> Result<ResourceIndex>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 34
+        },
+        "start": {
+          "column": 1,
+          "line": 28
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:32:5: replace build_resource_index -> Result<ResourceIndex> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 33
+      },
+      "start": {
+        "column": 5,
+        "line": 32
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace build_resource_index_from_tree -> Result<ResourceIndex> with Ok(Default::default())\n@@ -29,19 +29,17 @@\n /// 键是相对 `dir` 的路径。每个文件经句柄限额读取，只为字节数与 UTF-8 判定，\n /// 不把资源全文转成字符串（design §4）。\n pub fn build_resource_index(dir: &AbsPath) -> Result<ResourceIndex> {\n     let tree = ExternalReadTree::open(dir)?;\n     build_resource_index_from_tree(&tree)\n }\n \n pub(crate) fn build_resource_index_from_tree(tree: &ExternalReadTree) -> Result<ResourceIndex> {\n-    let (_, resources, _) =\n-        crate::workbook_digest::inspect_tree_v2(tree, &std::collections::BTreeMap::new())?;\n-    Ok(resources)\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 当前操作主体：发起进程的真实 OS 身份（D-036）。unix 上取 effective uid 对应的\n /// 账户名；查不到账户条目或名称不是 UTF-8 时记 `uid:<数值>`，不落到猜测值。\n /// 依赖是维护中的同 API 分支 `uzers`（见 D-036 勘误）。\n /// 完全不读 `USER`/`USERNAME`——环境变量由调用方任意可设。\n pub fn principal() -> Principal {\n     #[cfg(unix)]\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "build_resource_index_from_tree",
+      "return_type": "-> Result<ResourceIndex>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 40
+        },
+        "start": {
+          "column": 1,
+          "line": 36
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:37:5: replace build_resource_index_from_tree -> Result<ResourceIndex> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 39
+      },
+      "start": {
+        "column": 5,
+        "line": 37
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace principal -> Principal with Default::default()\n@@ -39,31 +39,17 @@\n     Ok(resources)\n }\n \n /// 当前操作主体：发起进程的真实 OS 身份（D-036）。unix 上取 effective uid 对应的\n /// 账户名；查不到账户条目或名称不是 UTF-8 时记 `uid:<数值>`，不落到猜测值。\n /// 依赖是维护中的同 API 分支 `uzers`（见 D-036 勘误）。\n /// 完全不读 `USER`/`USERNAME`——环境变量由调用方任意可设。\n pub fn principal() -> Principal {\n-    #[cfg(unix)]\n-    {\n-        let uid = uzers::get_effective_uid();\n-        match uzers::get_user_by_uid(uid) {\n-            Some(user) => match user.name().to_str() {\n-                Some(name) => Principal(name.to_string()),\n-                None => Principal(format!(\"uid:{uid}\")),\n-            },\n-            None => Principal(format!(\"uid:{uid}\")),\n-        }\n-    }\n-    #[cfg(not(unix))]\n-    {\n-        Principal(\"unknown\".to_string())\n-    }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n /// 当前 UTC 时间，秒精度。格式化在 core 的 `Timestamp::from_unix_secs`。\n pub fn now() -> Timestamp {\n     let secs = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .map(|d| d.as_secs())\n         .unwrap_or(0);\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "principal",
+      "return_type": "-> Principal",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 42
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:47:5: replace principal -> Principal with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 61
+      },
+      "start": {
+        "column": 5,
+        "line": 47
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/observe.rs\n+++ replace now -> Timestamp with Default::default()\n@@ -58,14 +58,10 @@\n     #[cfg(not(unix))]\n     {\n         Principal(\"unknown\".to_string())\n     }\n }\n \n /// 当前 UTC 时间，秒精度。格式化在 core 的 `Timestamp::from_unix_secs`。\n pub fn now() -> Timestamp {\n-    let secs = std::time::SystemTime::now()\n-        .duration_since(std::time::UNIX_EPOCH)\n-        .map(|d| d.as_secs())\n-        .unwrap_or(0);\n-    Timestamp::from_unix_secs(secs)\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/observe.rs",
+    "function": {
+      "function_name": "now",
+      "return_type": "-> Timestamp",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 71
+        },
+        "start": {
+          "column": 1,
+          "line": 64
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/observe.rs:66:5: replace now -> Timestamp with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 70
+      },
+      "start": {
+        "column": 5,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::load -> Result<Self> with Ok(Default::default())\n@@ -51,101 +51,17 @@\n struct PendingRootRecord {\n     owner: Option<ManagedEntryKind>,\n     container: Option<ManagedEntryKind>,\n     marker: Option<ManagedEntryKind>,\n }\n \n impl PendingReferenceIndex {\n     pub(crate) fn load(store: &Store) -> Result<Self> {\n-        let mut index = Self::default();\n-        for request in store.all_request_effect_rows()? {\n-            index.request_ids.insert(request.request_id.clone());\n-            let effects =\n-                decode_effects(&request.effects_json).map_err(|error| Error::StoreCorrupt {\n-                    detail: maintenance_warning(\n-                        &request.request_id,\n-                        &format!(\"requests/{}.effects_json\", request.request_id),\n-                        &error.to_string(),\n-                    ),\n-                })?;\n-            let mut seen_internal_ids = BTreeSet::new();\n-            for effect in effects {\n-                let (pending, final_path, owner, operation, digest, digest_root) = match effect {\n-                    EffectOp::PublishDir {\n-                        pending,\n-                        final_path,\n-                        owner,\n-                        digest,\n-                        digest_root,\n-                    } => {\n-                        validate_publish_reference(&owner, &final_path, &digest, &digest_root)?;\n-                        validate_publish_request_work_id(&request, &owner)?;\n-                        (pending, final_path, owner, \"publish\", digest, digest_root)\n-                    }\n-                    EffectOp::DeleteDir {\n-                        pending,\n-                        final_path,\n-                        owner,\n-                        digest,\n-                    } => {\n-                        validate_delete_reference(&owner, &final_path, &digest)?;\n-                        if request.work_id.is_some() {\n-                            return Err(Error::StoreCorrupt {\n-                                detail: format!(\n-                                    \"remove Workbook请求 {} 带有Work归属\",\n-                                    request.request_id\n-                                ),\n-                            });\n-                        }\n-                        (pending, final_path, owner, \"delete\", digest, String::new())\n-                    }\n-                    other => {\n-                        validate_other_effect_paths(&request, &other)?;\n-                        continue;\n-                    }\n-                };\n-                let internal_id = crate::effects::pending_internal_id(&pending)?.to_string();\n-                if !seen_internal_ids.insert(internal_id.clone())\n-                    || Sha256Hex::new(digest.clone()).is_err()\n-                {\n-                    return Err(Error::StoreCorrupt {\n-                        detail: format!(\n-                            \"请求 {} 的pending引用有重复internal_id或无效digest\",\n-                            request.request_id\n-                        ),\n-                    });\n-                }\n-                index\n-                    .references\n-                    .entry(internal_id)\n-                    .or_default()\n-                    .push(PendingReference {\n-                        request_id: request.request_id.clone(),\n-                        published: request.published,\n-                        operation: operation.to_string(),\n-                        pending,\n-                        final_path,\n-                        owner,\n-                        digest,\n-                        digest_root,\n-                    });\n-            }\n-        }\n-        for (internal_id, references) in &index.references {\n-            if references.len() != 1 {\n-                return Err(Error::StoreCorrupt {\n-                    detail: format!(\n-                        \"pending/{internal_id} 被 {} 个requests效果引用\",\n-                        references.len()\n-                    ),\n-                });\n-            }\n-        }\n-        Ok(index)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn get(&self, internal_id: &str) -> Option<&PendingReference> {\n         self.references\n             .get(internal_id)\n             .and_then(|references| references.first())\n     }\n \n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::load",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 144
+        },
+        "start": {
+          "column": 5,
+          "line": 58
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:59:9: replace PendingReferenceIndex::load -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 143
+      },
+      "start": {
+        "column": 9,
+        "line": 59
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in PendingReferenceIndex::load\n@@ -100,17 +100,17 @@\n                     }\n                     other => {\n                         validate_other_effect_paths(&request, &other)?;\n                         continue;\n                     }\n                 };\n                 let internal_id = crate::effects::pending_internal_id(&pending)?.to_string();\n                 if !seen_internal_ids.insert(internal_id.clone())\n-                    || Sha256Hex::new(digest.clone()).is_err()\n+                    && /* ~ changed by cargo-mutants ~ */ Sha256Hex::new(digest.clone()).is_err()\n                 {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\n                             \"请求 {} 的pending引用有重复internal_id或无效digest\",\n                             request.request_id\n                         ),\n                     });\n                 }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::load",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 144
+        },
+        "start": {
+          "column": 5,
+          "line": 58
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:108:21: replace || with && in PendingReferenceIndex::load",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 108
+      },
+      "start": {
+        "column": 21,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in PendingReferenceIndex::load\n@@ -99,17 +99,17 @@\n                         (pending, final_path, owner, \"delete\", digest, String::new())\n                     }\n                     other => {\n                         validate_other_effect_paths(&request, &other)?;\n                         continue;\n                     }\n                 };\n                 let internal_id = crate::effects::pending_internal_id(&pending)?.to_string();\n-                if !seen_internal_ids.insert(internal_id.clone())\n+                if  /* ~ changed by cargo-mutants ~ */seen_internal_ids.insert(internal_id.clone())\n                     || Sha256Hex::new(digest.clone()).is_err()\n                 {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\n                             \"请求 {} 的pending引用有重复internal_id或无效digest\",\n                             request.request_id\n                         ),\n                     });\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::load",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 144
+        },
+        "start": {
+          "column": 5,
+          "line": 58
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:107:20: delete ! in PendingReferenceIndex::load",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 107
+      },
+      "start": {
+        "column": 20,
+        "line": 107
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in PendingReferenceIndex::load\n@@ -126,17 +126,17 @@\n                         final_path,\n                         owner,\n                         digest,\n                         digest_root,\n                     });\n             }\n         }\n         for (internal_id, references) in &index.references {\n-            if references.len() != 1 {\n+            if references.len() == /* ~ changed by cargo-mutants ~ */ 1 {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\n                         \"pending/{internal_id} 被 {} 个requests效果引用\",\n                         references.len()\n                     ),\n                 });\n             }\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::load",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 144
+        },
+        "start": {
+          "column": 5,
+          "line": 58
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:134:33: replace != with == in PendingReferenceIndex::load",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 134
+      },
+      "start": {
+        "column": 33,
+        "line": 134
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::get -> Option<&PendingReference> with None\n@@ -139,19 +139,17 @@\n                     ),\n                 });\n             }\n         }\n         Ok(index)\n     }\n \n     pub(crate) fn get(&self, internal_id: &str) -> Option<&PendingReference> {\n-        self.references\n-            .get(internal_id)\n-            .and_then(|references| references.first())\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::get",
+      "return_type": "-> Option<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 150
+        },
+        "start": {
+          "column": 5,
+          "line": 146
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:147:9: replace PendingReferenceIndex::get -> Option<&PendingReference> with None",
+    "package": "sheltie-runtime",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 149
+      },
+      "start": {
+        "column": 9,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::get -> Option<&PendingReference> with Some(Box::leak(Box::new(Default::default())))\n@@ -139,19 +139,17 @@\n                     ),\n                 });\n             }\n         }\n         Ok(index)\n     }\n \n     pub(crate) fn get(&self, internal_id: &str) -> Option<&PendingReference> {\n-        self.references\n-            .get(internal_id)\n-            .and_then(|references| references.first())\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::get",
+      "return_type": "-> Option<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 150
+        },
+        "start": {
+          "column": 5,
+          "line": 146
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:147:9: replace PendingReferenceIndex::get -> Option<&PendingReference> with Some(Box::leak(Box::new(Default::default())))",
+    "package": "sheltie-runtime",
+    "replacement": "Some(Box::leak(Box::new(Default::default())))",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 149
+      },
+      "start": {
+        "column": 9,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::contains_request -> bool with true\n@@ -145,17 +145,17 @@\n \n     pub(crate) fn get(&self, internal_id: &str) -> Option<&PendingReference> {\n         self.references\n             .get(internal_id)\n             .and_then(|references| references.first())\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n-        self.request_ids.contains(request_id)\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::contains_request",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 154
+        },
+        "start": {
+          "column": 5,
+          "line": 152
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:153:9: replace PendingReferenceIndex::contains_request -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 153
+      },
+      "start": {
+        "column": 9,
+        "line": 153
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::contains_request -> bool with false\n@@ -145,17 +145,17 @@\n \n     pub(crate) fn get(&self, internal_id: &str) -> Option<&PendingReference> {\n         self.references\n             .get(internal_id)\n             .and_then(|references| references.first())\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n-        self.request_ids.contains(request_id)\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::contains_request",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 154
+        },
+        "start": {
+          "column": 5,
+          "line": 152
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:153:9: replace PendingReferenceIndex::contains_request -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 153
+      },
+      "start": {
+        "column": 9,
+        "line": 153
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::empty()\n@@ -149,17 +149,17 @@\n             .and_then(|references| references.first())\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n-        self.references.keys()\n+        ::std::iter::empty() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n             .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::internal_ids",
+      "return_type": "-> impl Iterator<Item =&String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 158
+        },
+        "start": {
+          "column": 5,
+          "line": 156
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:157:9: replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::empty()",
+    "package": "sheltie-runtime",
+    "replacement": "::std::iter::empty()",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 157
+      },
+      "start": {
+        "column": 9,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::once(Box::leak(Box::new(String::new())))\n@@ -149,17 +149,17 @@\n             .and_then(|references| references.first())\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n-        self.references.keys()\n+        ::std::iter::once(Box::leak(Box::new(String::new()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n             .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::internal_ids",
+      "return_type": "-> impl Iterator<Item =&String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 158
+        },
+        "start": {
+          "column": 5,
+          "line": 156
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:157:9: replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::once(Box::leak(Box::new(String::new())))",
+    "package": "sheltie-runtime",
+    "replacement": "::std::iter::once(Box::leak(Box::new(String::new())))",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 157
+      },
+      "start": {
+        "column": 9,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::once(Box::leak(Box::new(\"xyzzy\".into())))\n@@ -149,17 +149,17 @@\n             .and_then(|references| references.first())\n     }\n \n     pub(crate) fn contains_request(&self, request_id: &str) -> bool {\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n-        self.references.keys()\n+        ::std::iter::once(Box::leak(Box::new(\"xyzzy\".into()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n             .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::internal_ids",
+      "return_type": "-> impl Iterator<Item =&String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 158
+        },
+        "start": {
+          "column": 5,
+          "line": 156
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:157:9: replace PendingReferenceIndex::internal_ids -> impl Iterator<Item =&String> with ::std::iter::once(Box::leak(Box::new(\"xyzzy\".into())))",
+    "package": "sheltie-runtime",
+    "replacement": "::std::iter::once(Box::leak(Box::new(\"xyzzy\".into())))",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 157
+      },
+      "start": {
+        "column": 9,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::publish_references_for_work -> Vec<&PendingReference> with vec![]\n@@ -153,22 +153,17 @@\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n-        let owner = format!(\"work:{work}\");\n-        self.references\n-            .values()\n-            .flatten()\n-            .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n-            .collect()\n+        vec![] /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n         self.references\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::publish_references_for_work",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 167
+        },
+        "start": {
+          "column": 5,
+          "line": 160
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:161:9: replace PendingReferenceIndex::publish_references_for_work -> Vec<&PendingReference> with vec![]",
+    "package": "sheltie-runtime",
+    "replacement": "vec![]",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 166
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::publish_references_for_work -> Vec<&PendingReference> with vec![Box::leak(Box::new(Default::default()))]\n@@ -153,22 +153,17 @@\n         self.request_ids.contains(request_id)\n     }\n \n     pub(crate) fn internal_ids(&self) -> impl Iterator<Item = &String> {\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n-        let owner = format!(\"work:{work}\");\n-        self.references\n-            .values()\n-            .flatten()\n-            .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n-            .collect()\n+        vec![Box::leak(Box::new(Default::default()))] /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n         self.references\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::publish_references_for_work",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 167
+        },
+        "start": {
+          "column": 5,
+          "line": 160
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:161:9: replace PendingReferenceIndex::publish_references_for_work -> Vec<&PendingReference> with vec![Box::leak(Box::new(Default::default()))]",
+    "package": "sheltie-runtime",
+    "replacement": "vec![Box::leak(Box::new(Default::default()))]",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 166
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in PendingReferenceIndex::publish_references_for_work\n@@ -157,17 +157,17 @@\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n+            .filter(|reference| reference.operation == \"publish\" || /* ~ changed by cargo-mutants ~ */ reference.owner == owner)\n             .collect()\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::publish_references_for_work",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 167
+        },
+        "start": {
+          "column": 5,
+          "line": 160
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:165:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 68,
+        "line": 165
+      },
+      "start": {
+        "column": 66,
+        "line": 165
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in PendingReferenceIndex::publish_references_for_work\n@@ -157,17 +157,17 @@\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n+            .filter(|reference| reference.operation != /* ~ changed by cargo-mutants ~ */ \"publish\" && reference.owner == owner)\n             .collect()\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::publish_references_for_work",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 167
+        },
+        "start": {
+          "column": 5,
+          "line": 160
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:165:53: replace == with != in PendingReferenceIndex::publish_references_for_work",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 165
+      },
+      "start": {
+        "column": 53,
+        "line": 165
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in PendingReferenceIndex::publish_references_for_work\n@@ -157,17 +157,17 @@\n         self.references.keys()\n     }\n \n     pub(crate) fn publish_references_for_work(&self, work: &str) -> Vec<&PendingReference> {\n         let owner = format!(\"work:{work}\");\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.operation == \"publish\" && reference.owner == owner)\n+            .filter(|reference| reference.operation == \"publish\" && reference.owner != /* ~ changed by cargo-mutants ~ */ owner)\n             .collect()\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::publish_references_for_work",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 167
+        },
+        "start": {
+          "column": 5,
+          "line": 160
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:165:85: replace == with != in PendingReferenceIndex::publish_references_for_work",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 87,
+        "line": 165
+      },
+      "start": {
+        "column": 85,
+        "line": 165
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]\n@@ -166,21 +166,17 @@\n             .collect()\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n-        self.references\n-            .values()\n-            .flatten()\n-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)\n-            .collect()\n+        vec![] /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n     pending: &str,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::lifecycle_references_for_workbook",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 169
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:174:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]",
+    "package": "sheltie-runtime",
+    "replacement": "vec![]",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 178
+      },
+      "start": {
+        "column": 9,
+        "line": 174
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![Box::leak(Box::new(Default::default()))]\n@@ -166,21 +166,17 @@\n             .collect()\n     }\n \n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n-        self.references\n-            .values()\n-            .flatten()\n-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)\n-            .collect()\n+        vec![Box::leak(Box::new(Default::default()))] /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n     pending: &str,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::lifecycle_references_for_workbook",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 169
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:174:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![Box::leak(Box::new(Default::default()))]",
+    "package": "sheltie-runtime",
+    "replacement": "vec![Box::leak(Box::new(Default::default()))]",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 178
+      },
+      "start": {
+        "column": 9,
+        "line": 174
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook\n@@ -169,17 +169,17 @@\n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)\n+            .filter(|reference| reference.owner == owner || /* ~ changed by cargo-mutants ~ */ reference.final_path == final_path)\n             .collect()\n     }\n }\n \n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::lifecycle_references_for_workbook",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 169
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:177:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 177
+      },
+      "start": {
+        "column": 58,
+        "line": 177
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook\n@@ -169,17 +169,17 @@\n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)\n+            .filter(|reference| reference.owner != /* ~ changed by cargo-mutants ~ */ owner && reference.final_path == final_path)\n             .collect()\n     }\n }\n \n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::lifecycle_references_for_workbook",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 169
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:177:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 177
+      },
+      "start": {
+        "column": 49,
+        "line": 177
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook\n@@ -169,17 +169,17 @@\n     pub(crate) fn lifecycle_references_for_workbook(\n         &self,\n         owner: &str,\n         final_path: &str,\n     ) -> Vec<&PendingReference> {\n         self.references\n             .values()\n             .flatten()\n-            .filter(|reference| reference.owner == owner && reference.final_path == final_path)\n+            .filter(|reference| reference.owner == owner && reference.final_path != /* ~ changed by cargo-mutants ~ */ final_path)\n             .collect()\n     }\n }\n \n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "PendingReferenceIndex::lifecycle_references_for_workbook",
+      "return_type": "-> Vec<&PendingReference>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 179
+        },
+        "start": {
+          "column": 5,
+          "line": 169
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:177:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 84,
+        "line": 177
+      },
+      "start": {
+        "column": 82,
+        "line": 177
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace locate_publish_dir -> Result<(sheltie_core::path::AbsPath, bool)> with Ok((Default::default(), true))\n@@ -182,57 +182,17 @@\n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n     pending: &str,\n     final_path: &str,\n     pending_publish: bool,\n ) -> Result<(sheltie_core::path::AbsPath, bool)> {\n-    for _ in 0..3 {\n-        let final_before = fsx::managed_directory_exists_readonly(home, final_path)?;\n-        if !pending_publish {\n-            if final_before {\n-                let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-                if final_after {\n-                    return Ok((home.rel(final_path)?, false));\n-                }\n-            }\n-            std::thread::sleep(std::time::Duration::from_millis(2));\n-            continue;\n-        }\n-        let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n-        if pending_before && !final_before {\n-            let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            if pending_after && !final_after {\n-                return Ok((home.rel(pending)?, true));\n-            }\n-        }\n-        if !pending_before && final_before {\n-            let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            if !pending_after && final_after {\n-                return Ok((home.rel(final_path)?, true));\n-            }\n-        }\n-        std::thread::sleep(std::time::Duration::from_millis(2));\n-    }\n-    if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n-        return Err(Error::NotFound {\n-            what: final_path.to_string(),\n-        });\n-    }\n-    Err(Error::io(\n-        final_path,\n-        std::io::Error::new(\n-            std::io::ErrorKind::WouldBlock,\n-            \"发布目录在只读定位期间处于rename交错窗口\",\n-        ),\n-    ))\n+    Ok((Default::default(), true)) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Read one registered tree across its pending-to-final rename without taking the engine lock.\n /// A path that disappears after the locator's final observation is retried a bounded number of\n /// times; a persistent race becomes a temporary I/O error instead of a fallback to another tree.\n pub(crate) fn read_publish_dir<T>(\n     home: &Home,\n     location: &PublishLocation,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:190:5: replace locate_publish_dir -> Result<(sheltie_core::path::AbsPath, bool)> with Ok((Default::default(), true))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Default::default(), true))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 230
+      },
+      "start": {
+        "column": 5,
+        "line": 190
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace locate_publish_dir -> Result<(sheltie_core::path::AbsPath, bool)> with Ok((Default::default(), false))\n@@ -182,57 +182,17 @@\n /// Locate the single registered directory through the rename window without creating a lock or\n /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n     pending: &str,\n     final_path: &str,\n     pending_publish: bool,\n ) -> Result<(sheltie_core::path::AbsPath, bool)> {\n-    for _ in 0..3 {\n-        let final_before = fsx::managed_directory_exists_readonly(home, final_path)?;\n-        if !pending_publish {\n-            if final_before {\n-                let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-                if final_after {\n-                    return Ok((home.rel(final_path)?, false));\n-                }\n-            }\n-            std::thread::sleep(std::time::Duration::from_millis(2));\n-            continue;\n-        }\n-        let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n-        if pending_before && !final_before {\n-            let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            if pending_after && !final_after {\n-                return Ok((home.rel(pending)?, true));\n-            }\n-        }\n-        if !pending_before && final_before {\n-            let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            if !pending_after && final_after {\n-                return Ok((home.rel(final_path)?, true));\n-            }\n-        }\n-        std::thread::sleep(std::time::Duration::from_millis(2));\n-    }\n-    if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n-        return Err(Error::NotFound {\n-            what: final_path.to_string(),\n-        });\n-    }\n-    Err(Error::io(\n-        final_path,\n-        std::io::Error::new(\n-            std::io::ErrorKind::WouldBlock,\n-            \"发布目录在只读定位期间处于rename交错窗口\",\n-        ),\n-    ))\n+    Ok((Default::default(), false)) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Read one registered tree across its pending-to-final rename without taking the engine lock.\n /// A path that disappears after the locator's final observation is retried a bounded number of\n /// times; a persistent race becomes a temporary I/O error instead of a fallback to another tree.\n pub(crate) fn read_publish_dir<T>(\n     home: &Home,\n     location: &PublishLocation,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:190:5: replace locate_publish_dir -> Result<(sheltie_core::path::AbsPath, bool)> with Ok((Default::default(), false))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Default::default(), false))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 230
+      },
+      "start": {
+        "column": 5,
+        "line": 190
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -184,17 +184,17 @@\n pub(crate) fn locate_publish_dir(\n     home: &Home,\n     pending: &str,\n     final_path: &str,\n     pending_publish: bool,\n ) -> Result<(sheltie_core::path::AbsPath, bool)> {\n     for _ in 0..3 {\n         let final_before = fsx::managed_directory_exists_readonly(home, final_path)?;\n-        if !pending_publish {\n+        if  /* ~ changed by cargo-mutants ~ */pending_publish {\n             if final_before {\n                 let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n                 if final_after {\n                     return Ok((home.rel(final_path)?, false));\n                 }\n             }\n             std::thread::sleep(std::time::Duration::from_millis(2));\n             continue;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:192:12: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 192
+      },
+      "start": {
+        "column": 12,
+        "line": 192
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in locate_publish_dir\n@@ -195,17 +195,17 @@\n                 if final_after {\n                     return Ok((home.rel(final_path)?, false));\n                 }\n             }\n             std::thread::sleep(std::time::Duration::from_millis(2));\n             continue;\n         }\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n-        if pending_before && !final_before {\n+        if pending_before || /* ~ changed by cargo-mutants ~ */ !final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:203:27: replace && with || in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 203
+      },
+      "start": {
+        "column": 27,
+        "line": 203
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -195,17 +195,17 @@\n                 if final_after {\n                     return Ok((home.rel(final_path)?, false));\n                 }\n             }\n             std::thread::sleep(std::time::Duration::from_millis(2));\n             continue;\n         }\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n-        if pending_before && !final_before {\n+        if pending_before &&  /* ~ changed by cargo-mutants ~ */final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:203:30: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 203
+      },
+      "start": {
+        "column": 30,
+        "line": 203
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in locate_publish_dir\n@@ -198,17 +198,17 @@\n             }\n             std::thread::sleep(std::time::Duration::from_millis(2));\n             continue;\n         }\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n         if pending_before && !final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            if pending_after && !final_after {\n+            if pending_after || /* ~ changed by cargo-mutants ~ */ !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:206:30: replace && with || in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 206
+      },
+      "start": {
+        "column": 30,
+        "line": 206
+      }
+    }
+  }
+]

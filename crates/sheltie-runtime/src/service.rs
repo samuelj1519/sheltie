@@ -127,6 +127,7 @@ pub(crate) fn stage_pending(
     fs.write_new(lock, &sidecar, &content)?;
     fs.sync_dir_locked(lock, &pending_root)?;
     fs.ensure_dir(lock, &container)?;
+    crate::failpoint::maybe_exit("pending_owner_synced_before_payload");
     let payload = ManagedRelPath::new(format!("pending/{internal_id}/payload"))?;
     if create_payload {
         fs.ensure_dir(lock, &payload)?;
@@ -500,18 +501,21 @@ impl WorkService {
 
     /// 只读：全部 Work 摘要。
     pub fn list(&self) -> Result<Vec<WorkSummary>> {
-        Ok(self
-            .store
+        self.store
             .list_works()?
             .into_iter()
-            .map(|row| WorkSummary {
-                work_id: row.state.work_id.clone(),
-                name: row.state.name.to_string(),
-                status: row.state.status,
-                current: row.state.current.to_string(),
-                updated_at: row.state.updated_at.as_str().to_string(),
+            .map(|row| {
+                let work = row.state.work_id.clone();
+                let loaded = self.load_row(&work, row)?;
+                Ok(WorkSummary {
+                    work_id: loaded.state.work_id.clone(),
+                    name: loaded.state.name.to_string(),
+                    status: loaded.state.status,
+                    current: loaded.state.current.to_string(),
+                    updated_at: loaded.state.updated_at.as_str().to_string(),
+                })
             })
-            .collect())
+            .collect()
     }
 
     /// 只读：按完整 id 或唯一前缀解析。多个匹配报 `InvalidRequest` 并列出候选。
@@ -573,6 +577,10 @@ impl WorkService {
     /// 从受 Store 保护的 pending 原件读取（存储合同 §3.3）。
     fn load(&self, work: &WorkId) -> Result<Loaded> {
         let row = self.store.load_work(work)?;
+        self.load_row(work, row)
+    }
+
+    fn load_row(&self, work: &WorkId, row: crate::store::read::WorkRow) -> Result<Loaded> {
         let location = self.workbook_publication(work, &row.state)?;
         let (workbook, pending_publish) =
             crate::pending::read_publish_dir(&self.home, &location, |root| {
@@ -637,7 +645,7 @@ impl WorkService {
         work: &WorkId,
         state: &WorkState,
     ) -> Result<crate::pending::PublishLocation> {
-        let references = crate::pending::PendingReferenceIndex::load(&self.store)?;
+        let references = crate::pending::PendingReferenceIndex::load_work_start(&self.store, work)?;
         crate::failpoint::rendezvous("pending_after_reference_index", &format!("works/{work}"))
             .map_err(|error| Error::io(state.work_dir.as_str(), error))?;
         let work_references = references.publish_references_for_work(work.as_str());
@@ -728,7 +736,7 @@ impl WorkService {
                 detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
             });
         };
-        let response: crate::recovery::PersistedResponse =
+        let response: crate::snapshot::PersistedResponse =
             serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
             })?;
@@ -736,71 +744,14 @@ impl WorkService {
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
             })?;
-        let valid_start = match (&command, &response.reply) {
-            (
-                Command::Start {
-                    work_id: command_work,
-                    name,
-                    workbook,
-                    flow,
-                    work_dir,
-                    inputs,
-                },
-                Reply::Started {
-                    work_id: reply_work,
-                    work_dir: reply_dir,
-                    requires,
-                },
-            ) => {
-                snapshot_data_has_exact_fields(
-                    &response.data,
-                    &[
-                        "work_id", "name", "workbook", "flow", "work_dir", "requires",
-                    ],
-                ) && command_work == work
-                    && reply_work == work
-                    && name == &state.name
-                    && workbook == &state.workbook
-                    && flow == &state.flow
-                    && inputs == &state.inputs
-                    && work_dir == &state.work_dir
-                    && reply_dir == &state.work_dir
-                    && response.request_id == request_id
-                    && response.revision == 1
-                    && !response.replayed
-                    && audit.work_id == work.as_str()
-                    && audit.revision == 1
-                    && audit.at == request.at
-                    && response
-                        .data
-                        .get("work_id")
-                        .and_then(serde_json::Value::as_str)
-                        == Some(work.as_str())
-                    && response
-                        .data
-                        .get("work_dir")
-                        .and_then(serde_json::Value::as_str)
-                        == Some(state.work_dir.as_str())
-                    && response
-                        .data
-                        .get("name")
-                        .and_then(serde_json::Value::as_str)
-                        == Some(state.name.as_str())
-                    && response
-                        .data
-                        .get("flow")
-                        .and_then(serde_json::Value::as_str)
-                        == Some(state.flow.as_str())
-                    && response.data.get("workbook")
-                        == Some(&serde_json::json!({
-                            "id": state.workbook.id.as_str(),
-                            "version": state.workbook.version.as_str(),
-                            "digest": state.workbook.digest.as_str(),
-                        }))
-                    && response.data.get("requires") == serde_json::to_value(requires).ok().as_ref()
-            }
-            _ => false,
-        };
+        let data = crate::snapshot::check_data(&response.reply, &response.data, work)?;
+        let valid_start = crate::snapshot::start_matches(state, &command, &response.reply, &data)
+            && response.request_id == request_id
+            && response.revision == 1
+            && !response.replayed
+            && audit.work_id == work.as_str()
+            && audit.revision == 1
+            && audit.at == request.at;
         if !valid_start {
             return Err(Error::StoreCorrupt {
                 detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
@@ -1027,7 +978,7 @@ impl WorkService {
             .ok_or_else(|| Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的audit.revision无效"),
             })?;
-        let persisted: crate::recovery::PersistedResponse =
+        let persisted: crate::snapshot::PersistedResponse =
             serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的reply_json解不开：{error}"),
             })?;
@@ -1173,7 +1124,7 @@ impl WorkService {
                     detail: format!("重放请求 {request_id} 在requests中消失"),
                 })?;
         let original = crate::recovery::original_snapshot(&request_id, &stored);
-        let (row, ..) = self
+        let (row, mut resp, effects) = self
             .load_checked_request(&request_id)
             .map_err(|cause| crate::recovery::own_pending(&request_id, original.clone(), cause))?;
         if row.reply_json != reply_json {
@@ -1186,14 +1137,18 @@ impl WorkService {
                 cause,
             ));
         }
-        self.recover_finish_request(lock, &request_id, None, true)?;
-        let (_, mut resp, _) = self.load_checked_request(&request_id).map_err(|cause| {
-            crate::recovery::own_pending(
-                &request_id,
-                crate::recovery::original_snapshot(&request_id, &row),
-                cause,
-            )
-        })?;
+        crate::recovery::finish_checked_request(
+            &self.home,
+            &self.store,
+            lock,
+            crate::recovery::CheckedRequestEffects {
+                request_id: &request_id,
+                row: &row,
+                effects: &effects,
+            },
+            None,
+            self,
+        )?;
         resp.request_id = request_id.clone();
         resp.replayed = true;
         Ok(resp)
@@ -1231,70 +1186,13 @@ fn validate_command_owner(
     command: &Command,
     snapshot: &Response,
 ) -> Result<()> {
-    let valid = match (command, &snapshot.reply) {
-        (
-            Command::Start {
-                work_id: command_work,
-                name,
-                workbook,
-                flow,
-                work_dir,
-                inputs,
-            },
-            Reply::Started {
-                work_id: reply_work,
-                work_dir: reply_dir,
-                requires,
-            },
-        ) => {
-            let snapshot_name = snapshot
-                .data
-                .get("name")
-                .and_then(serde_json::Value::as_str);
-            snapshot_data_has_exact_fields(
-                &snapshot.data,
-                &[
-                    "work_id", "name", "workbook", "flow", "work_dir", "requires",
-                ],
-            ) && command_work == work_id
-                && reply_work == work_id
-                && name == &state.name
-                && work_id
-                    .as_str()
-                    .get(15..)
-                    .is_some_and(|suffix| snapshot_name == Some(suffix))
-                && workbook == &state.workbook
-                && flow == &state.flow
-                && work_dir == &state.work_dir
-                && inputs == &state.inputs
-                && reply_dir == &state.work_dir
-                && snapshot
-                    .data
-                    .get("work_id")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(work_id.as_str())
-                && snapshot
-                    .data
-                    .get("work_dir")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(state.work_dir.as_str())
-                && snapshot
-                    .data
-                    .get("name")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(state.name.as_str())
-                && snapshot
-                    .data
-                    .get("flow")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(state.flow.as_str())
-                && snapshot.data.get("workbook")
-                    == Some(&serde_json::json!({
-                        "id": state.workbook.id.as_str(),
-                        "version": state.workbook.version.as_str(),
-                        "digest": state.workbook.digest.as_str(),
-                    }))
-                && snapshot.data.get("requires") == serde_json::to_value(requires).ok().as_ref()
+    use crate::snapshot::CheckedData;
+
+    let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
+    let valid = match (command, &snapshot.reply, &data) {
+        (Command::Start { .. }, Reply::Started { requires, .. }, CheckedData::Started(_)) => {
+            crate::snapshot::start_matches(state, command, &snapshot.reply, &data)
+                && requires == graph.requires()
         }
         (
             Command::BeginAttempt { node, .. },
@@ -1304,14 +1202,13 @@ fn validate_command_owner(
                 output_dir,
                 inputs,
                 outputs,
-                requires,
+                ..
             },
+            CheckedData::Begun,
         ) => {
-            let Some(record) = state.attempt(attempt) else {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
-                });
-            };
+            let record = state.attempt(attempt).ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
+            })?;
             let expected_outputs = sheltie_core::work::output_paths_for(state, graph, attempt)
                 .map_err(|error| Error::StoreCorrupt {
                     detail: format!("Work {work_id} 的冻结输出定义无效：{error}"),
@@ -1326,62 +1223,12 @@ fn validate_command_owner(
                     )
                 })
                 .collect::<BTreeMap<_, _>>();
-            let expected_inputs_data = serde_json::to_value(inputs).ok();
-            let expected_outputs_data = serde_json::to_value(outputs).ok();
-            let expected_requires_data = serde_json::to_value(requires).ok();
-            let attempt_text = attempt.to_string();
-            snapshot_data_has_exact_fields(
-                &snapshot.data,
-                &[
-                    "attempt",
-                    "node",
-                    "occurrence",
-                    "retry",
-                    "brief_path",
-                    "output_dir",
-                    "inputs",
-                    "outputs",
-                    "requires",
-                ],
-            ) && record.id.node == *node
+            record.id.node == *node
                 && brief_path == &state.attempt_dir(attempt).join_segment("brief.md")
                 && output_dir
                     == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))
                 && inputs == &expected_inputs
                 && outputs == &expected_outputs
-                && snapshot
-                    .data
-                    .get("attempt")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(attempt_text.as_str())
-                && snapshot
-                    .data
-                    .get("node")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(node.as_str())
-                && snapshot
-                    .data
-                    .get("occurrence")
-                    .and_then(serde_json::Value::as_u64)
-                    == Some(u64::from(attempt.occurrence))
-                && snapshot
-                    .data
-                    .get("retry")
-                    .and_then(serde_json::Value::as_u64)
-                    == Some(u64::from(attempt.retry))
-                && snapshot
-                    .data
-                    .get("brief_path")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(brief_path.as_str())
-                && snapshot
-                    .data
-                    .get("output_dir")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(output_dir.as_str())
-                && snapshot.data.get("inputs") == expected_inputs_data.as_ref()
-                && snapshot.data.get("outputs") == expected_outputs_data.as_ref()
-                && snapshot.data.get("requires") == expected_requires_data.as_ref()
         }
         (
             Command::SubmitAttempt { attempt, .. },
@@ -1389,104 +1236,42 @@ fn validate_command_owner(
                 attempt: reply_attempt,
                 outputs,
             },
-        ) => {
-            let Some(record) = state.attempt(attempt) else {
-                return Err(Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
-                });
-            };
-            let attempt_text = attempt.to_string();
-            let output_data = serde_json::to_value(outputs).ok();
-            snapshot_data_has_exact_fields(&snapshot.data, &["attempt", "outputs", "work_status"])
-                && reply_attempt == attempt
+            CheckedData::Submitted,
+        ) => state.attempt(attempt).is_some_and(|record| {
+            reply_attempt == attempt
                 && record.status == sheltie_core::work::AttemptStatus::Succeeded
                 && outputs == &record.outputs
-                && snapshot
-                    .data
-                    .get("attempt")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(attempt_text.as_str())
-                && snapshot.data.get("outputs") == output_data.as_ref()
-                && snapshot
-                    .data
-                    .get("work_status")
-                    .cloned()
-                    .is_some_and(|value| work_status_value_is_canonical(&value))
-        }
+        }),
         (
             Command::FailAttempt { attempt, .. },
             Reply::AttemptFailed {
                 attempt: reply_attempt,
             },
-        ) => state.attempt(attempt).is_some_and(|record| {
-            let attempt_text = attempt.to_string();
-            snapshot_data_has_exact_fields(&snapshot.data, &["attempt", "work_status"])
-                && reply_attempt == attempt
-                && record.status == sheltie_core::work::AttemptStatus::Failed
-                && snapshot
-                    .data
-                    .get("attempt")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(attempt_text.as_str())
-                && snapshot
-                    .data
-                    .get("work_status")
-                    .cloned()
-                    .is_some_and(|value| work_status_value_is_canonical(&value))
-        }),
+            CheckedData::Failed,
+        ) => {
+            reply_attempt == attempt
+                && state.attempt(attempt).is_some_and(|record| {
+                    record.status == sheltie_core::work::AttemptStatus::Failed
+                })
+        }
         (
             Command::ApproveGate { node },
             Reply::GateApproved {
                 node: reply_node,
                 occurrence,
             },
-        ) => state
-            .approvals
-            .iter()
-            .find(|approval| approval.node == *node && approval.occurrence == *occurrence)
-            .is_some_and(|approval| {
-                snapshot_data_has_exact_fields(
-                    &snapshot.data,
-                    &["node", "occurrence", "by", "at", "work_status"],
-                ) && reply_node == node
-                    && snapshot
-                        .data
-                        .get("node")
-                        .and_then(serde_json::Value::as_str)
-                        == Some(node.as_str())
-                    && snapshot
-                        .data
-                        .get("occurrence")
-                        .and_then(serde_json::Value::as_u64)
-                        == Some(u64::from(*occurrence))
-                    && snapshot.data.get("by").and_then(serde_json::Value::as_str)
-                        == Some(approval.by.0.as_str())
-                    && snapshot.data.get("at").and_then(serde_json::Value::as_str)
-                        == Some(approval.at.as_str())
-                    && snapshot
-                        .data
-                        .get("work_status")
-                        .cloned()
-                        .is_some_and(|value| work_status_value_is_canonical(&value))
-            }),
-        (Command::Cancel, Reply::Cancelled) => {
-            snapshot_data_has_exact_fields(&snapshot.data, &["work_id", "work_status"])
-                && state.status == WorkStatus::Cancelled
-                && snapshot
-                    .data
-                    .get("work_id")
-                    .and_then(serde_json::Value::as_str)
-                    == Some(work_id.as_str())
-                && snapshot
-                    .data
-                    .get("work_status")
-                    .cloned()
-                    .is_some_and(|value| {
-                        serde_json::from_value::<WorkStatus>(value.clone()).is_ok_and(|status| {
-                            status == WorkStatus::Cancelled
-                                && work_status_value_is_canonical(&value)
-                        })
-                    })
+            CheckedData::Approved(data),
+        ) => {
+            reply_node == node
+                && state.approvals.iter().any(|approval| {
+                    approval.node == *node
+                        && approval.occurrence == *occurrence
+                        && approval.by == data.by
+                        && approval.at == data.at
+                })
+        }
+        (Command::Cancel, Reply::Cancelled, CheckedData::Cancelled) => {
+            state.status == WorkStatus::Cancelled
         }
         _ => false,
     };
@@ -1496,20 +1281,6 @@ fn validate_command_owner(
         });
     }
     Ok(())
-}
-
-fn snapshot_data_has_exact_fields(data: &serde_json::Value, expected: &[&str]) -> bool {
-    let Some(object) = data.as_object() else {
-        return false;
-    };
-    object.len() == expected.len() && expected.iter().all(|name| object.contains_key(*name))
-}
-
-fn work_status_value_is_canonical(value: &serde_json::Value) -> bool {
-    serde_json::from_value::<WorkStatus>(value.clone())
-        .ok()
-        .and_then(|status| serde_json::to_value(status).ok())
-        .is_some_and(|canonical| canonical == *value)
 }
 
 /// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。

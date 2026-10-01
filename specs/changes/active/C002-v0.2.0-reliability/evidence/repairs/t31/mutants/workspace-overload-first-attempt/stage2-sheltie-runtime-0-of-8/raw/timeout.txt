@@ -1,0 +1,15 @@
+crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects
+crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:128:60: replace | with ^ in ManagedDir::write_new
+crates/sheltie-runtime/src/effects.rs:929:23: replace || with && in verify_publish_final_state
+crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root
+crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:1127:9: replace || with && in delete_dir
+crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:426:60: replace | with & in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at
+crates/sheltie-runtime/src/fsx.rs:870:77: replace | with ^ in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:60: replace | with & in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same
+crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source

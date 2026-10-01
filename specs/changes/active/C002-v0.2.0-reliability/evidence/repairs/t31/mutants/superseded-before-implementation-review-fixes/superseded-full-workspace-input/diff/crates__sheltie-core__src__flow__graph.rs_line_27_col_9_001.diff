@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/flow/graph.rs
++++ replace ResourceIndex::get -> Option<&ResourceMeta> with Some(Box::leak(Box::new(Default::default())))
+@@ -19,17 +19,17 @@
+ /// Workbook 目录里全部普通文件的索引，键是相对路径。
+ #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+ pub struct ResourceIndex {
+     pub files: BTreeMap<RelPath, ResourceMeta>,
+ }
+ 
+ impl ResourceIndex {
+     pub fn get(&self, path: &RelPath) -> Option<&ResourceMeta> {
+-        self.files.get(path)
++        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// 测试夹具登记 UTF-8 小文件，不暴露为生产 API。
+     #[cfg(any(test, feature = "testkit"))]
+     pub(crate) fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
+         if let Ok(p) = RelPath::new(path) {
+             self.files.insert(
+                 p,

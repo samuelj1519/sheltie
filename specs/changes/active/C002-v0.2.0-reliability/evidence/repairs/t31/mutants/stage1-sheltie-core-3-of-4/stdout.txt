@@ -1,0 +1,6 @@
+Found 181 mutants to test
+ok       Unmutated baseline in 9s build + 0s test
+MISSED   crates/sheltie-core/src/work/state.rs:419:56: replace && with || in WorkState::validate_gate_facts in 3s build + 0s test
+MISSED   crates/sheltie-core/src/work/state.rs:438:17: replace || with && in WorkState::validate_gate_facts in 3s build + 1s test
+MISSED   crates/sheltie-core/src/work/state.rs:444:31: replace == with != in WorkState::validate_gate_facts in 3s build + 1s test
+181 mutants tested in 2m: 3 missed, 160 caught, 18 unviable

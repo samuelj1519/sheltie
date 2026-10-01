@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ crates/sheltie-runtime/src/selfmgmt.rs:466:9: replace || with && in checked_version
+@@ -463,7 +463,7 @@
+     let v = raw.strip_prefix('v').unwrap_or(raw);
+     if v.is_empty()
+         || v == "."
+-        || v == ".."
++        && v == ".."
+         || v.contains('/')
+         || v.contains('\\')
+         || v.contains('\0')

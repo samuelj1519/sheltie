@@ -1,0 +1,31 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.76s
+────────────
+ Nextest run ID 01982751-4295-4a77-91b6-44aceffaa941 with nextest profile: default
+    Starting 1 test across 35 binaries (641 tests skipped)
+        FAIL [  27.768s] (1/1) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload
+  stdout ───
+
+    running 1 test
+    CRASH_RAW {"argv":["--request-id","t31-delete-parent-sync","workbook","remove","two-step@1.0.0"],"exit":null,"mode":"Kill","point":"tree_rename_before_parent_sync","signal":9,"stderr":[],"stdout":[]}
+    test moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload ... FAILED
+
+    failures:
+
+    failures:
+        moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 27.76s
+
+  stderr ───
+
+    thread 'moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload' (71080148) panicked at crates/sheltie-cli/tests/reliability_crash.rs:751:14:
+    called `Result::unwrap_err()` on an `Ok` value: RemovedSnapshot { request_id: "t31-delete-parent-sync", replayed: true, data: Object {"id": String("two-step"), "version": String("1.0.0")} }
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [  27.769s] 1 test run: 0 passed, 1 failed, 641 skipped
+        FAIL [  27.768s] (1/1) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload
+error: test run failed

@@ -150,12 +150,13 @@ runtime 另有**目录效果**，不是 core Effect：`publish_dir`（把 `pendi
 
 ## 4. 一次写操作的流程
 
-写操作分三段：只读预检、持锁执行、提交后发布（[存储合同 §2](contracts/storage.md)）。
+写操作分三段：只读预检、持锁执行、提交后发布（[存储合同 §2](contracts/storage.md)）。`work start`的确定性输入拒绝在创建Home/锁和业务目录之前完成；`workbook add`只在锁前做源结构、类型和限额粗检，内容解析、编译与摘要在锁内私有副本进行。副本内容失败可保留控制Store/锁及自有暂存，业务行、请求、审计与最终Workbook不得出现。
 
 ```text
 CLI 解析参数（只解析 @file 路径，不读内容）
  → 只读预检：识别已有 schema、解析目标身份、构造 RequestIntent，先按 request_id
-   查可重放请求；未命中才读 @file、装入 Workbook/Flow 并完成确定性校验。
+   查可重放请求；未命中的Work写操作才读 @file、装入 Workbook/Flow 并完成确定性校验；
+   Workbook add此处仅做源结构/类型/限额粗检。
    @file 读取失败退出码 2。不建目录、不建锁、不写 PRAGMA。
  → 取得管理根写锁（合法写操作才创建管理根与 .lock；只读命令永远不碰）
  → 锁内：

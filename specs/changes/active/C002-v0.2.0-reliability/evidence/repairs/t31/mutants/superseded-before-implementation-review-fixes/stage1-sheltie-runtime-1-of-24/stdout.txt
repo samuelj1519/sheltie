@@ -1,0 +1,29 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/effects.rs:446:17: replace || with && in check_workbook_effects in 9s build + 22s test
+MISSED   crates/sheltie-runtime/src/effects.rs:443:16: replace || with && in check_workbook_effects in 44s build + 127s test
+MISSED   crates/sheltie-runtime/src/effects.rs:440:21: replace || with && in check_workbook_effects in 50s build + 165s test
+MISSED   crates/sheltie-runtime/src/effects.rs:445:17: replace || with && in check_workbook_effects in 60s build + 167s test
+MISSED   crates/sheltie-runtime/src/effects.rs:444:17: replace || with && in check_workbook_effects in 63s build + 166s test
+MISSED   crates/sheltie-runtime/src/effects.rs:442:21: replace || with && in check_workbook_effects in 64s build + 165s test
+MISSED   crates/sheltie-runtime/src/effects.rs:439:21: replace || with && in check_workbook_effects in 69s build + 160s test
+MISSED   crates/sheltie-runtime/src/effects.rs:441:21: replace || with && in check_workbook_effects in 69s build + 160s test
+MISSED   crates/sheltie-runtime/src/effects.rs:470:17: replace || with && in check_workbook_effects in 8s build + 65s test
+MISSED   crates/sheltie-runtime/src/effects.rs:493:5: replace validate_pending_payload -> Result<()> with Ok(()) in 11s build + 108s test
+MISSED   crates/sheltie-runtime/src/effects.rs:497:9: replace || with && in validate_pending_payload in 10s build + 115s test
+MISSED   crates/sheltie-runtime/src/effects.rs:496:9: replace || with && in validate_pending_payload in 10s build + 114s test
+MISSED   crates/sheltie-runtime/src/effects.rs:495:9: replace || with && in validate_pending_payload in 12s build + 110s test
+MISSED   crates/sheltie-runtime/src/effects.rs:510:5: replace validate_workbook_identity -> Result<()> with Ok(()) in 21s build + 90s test
+MISSED   crates/sheltie-runtime/src/effects.rs:767:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with true in classify_committed_path_error in 18s build + 123s test
+MISSED   crates/sheltie-runtime/src/effects.rs:767:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error in 8s build + 137s test
+MISSED   crates/sheltie-runtime/src/effects.rs:767:51: replace == with != in classify_committed_path_error in 10s build + 136s test
+MISSED   crates/sheltie-runtime/src/effects.rs:920:5: replace verify_publish_final_state -> Result<()> with Ok(()) in 9s build + 137s test
+MISSED   crates/sheltie-runtime/src/effects.rs:922:23: replace || with && in verify_publish_final_state in 13s build + 135s test
+MISSED   crates/sheltie-runtime/src/effects.rs:958:9: replace || with && in verify_publish_object in 12s build + 75s test
+MISSED   crates/sheltie-runtime/src/effects.rs:988:45: replace || with && in verify_start_input_references in 14s build + 67s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1015:5: replace verify_owned_digest -> Result<()> with Ok(()) in 17s build + 67s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1054:27: replace || with && in delete_dir in 7s build + 94s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1061:13: replace || with && in delete_dir in 9s build + 95s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1074:8: delete ! in delete_dir in 17s build + 90s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1111:9: replace || with && in delete_dir in 15s build + 70s test
+78 mutants tested in 15m: 26 missed, 50 caught, 2 unviable

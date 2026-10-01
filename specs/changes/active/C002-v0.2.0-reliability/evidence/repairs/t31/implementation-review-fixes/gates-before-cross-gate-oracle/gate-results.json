@@ -1,0 +1,125 @@
+[
+  {
+    "name": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.366
+  },
+  {
+    "name": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 1.488
+  },
+  {
+    "name": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 1.432
+  },
+  {
+    "name": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 139.203
+  },
+  {
+    "name": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--workspace",
+      "--all-features",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 1.104
+  },
+  {
+    "name": "deny",
+    "argv": [
+      "cargo",
+      "deny",
+      "--offline",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.418
+  },
+  {
+    "name": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.121
+  },
+  {
+    "name": "specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.44
+  },
+  {
+    "name": "core-vocab",
+    "argv": [
+      "scripts/check-core-vocab.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.189
+  },
+  {
+    "name": "tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.172
+  },
+  {
+    "name": "skill",
+    "argv": [
+      "scripts/check-skill.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.653
+  },
+  {
+    "name": "dist",
+    "argv": [
+      "dist",
+      "plan",
+      "--output-format=json"
+    ],
+    "exit": 0,
+    "seconds": 0.904
+  }
+]

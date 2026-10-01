@@ -85,24 +85,37 @@ fn remove_stops_on_corrupt_reference_row() {
 #[test]
 fn parallel_adds_do_not_delete_each_others_staging() {
     let (_d, home) = temp_home();
-    // 先串行建库（建库窗口本身由管理根写锁串行化；这里避免测试代码在锁外抢建）。
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
     let a = {
         let home = home.clone();
+        let barrier = barrier.clone();
         std::thread::spawn(move || {
+            barrier.wait();
             WorkbookRepo::new(home.clone()).add(&abs(&example_dir("two-step")), None)
         })
     };
     let b = {
         let home = home.clone();
+        let barrier = barrier.clone();
         std::thread::spawn(move || {
+            barrier.wait();
             WorkbookRepo::new(home.clone()).add(&abs(&example_dir("gated-release")), None)
         })
     };
+    barrier.wait();
     a.join().unwrap().unwrap();
     b.join().unwrap().unwrap();
     let rows = WorkbookRepo::new(home.clone()).list().unwrap();
     assert_eq!(rows.len(), 2, "两个 Workbook 都在：{rows:?}");
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert_eq!(
+        std::fs::read(
+            home.workbook_dir("two-step", "1.0.0")
+                .join_segment("workbook.toml")
+                .as_path()
+        )
+        .unwrap(),
+        std::fs::read(example_dir("two-step").join("workbook.toml")).unwrap()
+    );
     assert!(
         home.workbook_dir("gated-release", "1.0.0")
             .as_path()

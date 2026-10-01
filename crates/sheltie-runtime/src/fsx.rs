@@ -414,6 +414,11 @@ impl ManagedFs {
                 Err(rustix::io::Errno::NOENT) => {
                     mkdirat(&current, segment, Mode::from_raw_mode(0o700))
                         .map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    crate::failpoint::sync_error(
+                        self.root.as_str(),
+                        &format!("directory_parent_sync:{}", rel.as_str()),
+                    )
+                    .map_err(|error| Error::io(self.display_path(&rel), error))?;
                     fsync(&current).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
                     let fd = openat(
                         &current,
@@ -623,6 +628,7 @@ impl ManagedFs {
             RenameFlags::NOREPLACE,
         )
         .map_err(|error| map_fs_error(&self.display_path(to), error))?;
+        crate::failpoint::maybe_exit("tree_rename_before_parent_sync");
         self.verify_tree_at(tree, to)
             .map_err(|error| Error::RecoveryRequired {
                 path: self.display_path(to),
@@ -742,7 +748,29 @@ impl ManagedFs {
                 detail: format!("文件同步期间marker路径被替换：{error}"),
             }
         })?;
+        crate::failpoint::sync_error(self.root.as_str(), "managed_file_parent_sync")
+            .map_err(|error| Error::io(self.display_path(path), error))?;
         fsync(&parent).map_err(|error| map_fs_error(&self.display_path(path), error))
+    }
+
+    pub(crate) fn sync_directory_entry_locked(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let (parent, leaf) = self.open_parent(path)?;
+        let display = self.display_path(path);
+        let directory = open_directory_at(&parent, &leaf, &display)?;
+        fsync(&directory).map_err(|error| map_fs_error(&display, error))?;
+        verify_tree_entry_at(&parent, &leaf, &directory, &display)?;
+        crate::failpoint::sync_error(
+            self.root.as_str(),
+            &format!("directory_parent_sync:{}", path.as_str()),
+        )
+        .map_err(|error| Error::io(&display, error))?;
+        fsync(&parent).map_err(|error| map_fs_error(&display, error))?;
+        verify_tree_entry_at(&parent, &leaf, &directory, &display)
     }
 
     pub(crate) fn sync_publish_parents_locked(
@@ -893,10 +921,25 @@ impl ManagedFs {
         bytes: &[u8],
     ) -> Result<()> {
         self.check_lock(lock)?;
-        self.write_atomic_unlocked(path, bytes)
+        self.write_atomic_unlocked(path, bytes, RenameFlags::empty())
     }
 
-    fn write_atomic_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<()> {
+    pub(crate) fn write_new_atomic(
+        &self,
+        lock: &crate::home::HomeLock,
+        path: &ManagedRelPath,
+        bytes: &[u8],
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        self.write_atomic_unlocked(path, bytes, RenameFlags::NOREPLACE)
+    }
+
+    fn write_atomic_unlocked(
+        &self,
+        path: &ManagedRelPath,
+        bytes: &[u8],
+        rename_flags: RenameFlags,
+    ) -> Result<()> {
         if let Some(parent_path) = path.parent() {
             self.ensure_dir_unlocked(&parent_path)?;
         }
@@ -916,9 +959,13 @@ impl ManagedFs {
             return Err(Error::io(&display, e));
         }
         drop(file);
-        if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, RenameFlags::empty()) {
+        if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, rename_flags) {
             let _ = unlinkat(&parent, &tmp, AtFlags::empty());
             return Err(map_fs_error(&display, e));
+        }
+        if rename_flags == RenameFlags::NOREPLACE {
+            crate::failpoint::sync_error(self.root.as_str(), "managed_file_parent_sync")
+                .map_err(|error| Error::io(&display, error))?;
         }
         fsync(&parent).map_err(|e| map_fs_error(&display, e))
     }
@@ -1220,6 +1267,7 @@ impl ManagedFs {
                 return Err(partial_purge_error(&self.root, name, &removed_roots, error));
             }
             removed_roots.push(name.clone());
+            crate::failpoint::maybe_exit("purge_after_top_level_delete");
             if let Err(error) =
                 crate::failpoint::rendezvous("purge_after_top_level_delete", self.root.as_str())
             {
@@ -1241,7 +1289,8 @@ impl ManagedFs {
                 )
             },
         )?;
-        // Read-only SQLite may create store.db-shm without HomeLock (D-039). It can appear
+        // Read-only SQLite may create SHM or an absent zero-byte WAL without HomeLock (D-039).
+        // These control files can appear
         // after the initial listing, so re-scan once the main Store was removed. No other new
         // root entry is expected; preserve it and report a partial purge instead of guessing.
         for _ in 0..3 {
@@ -1264,7 +1313,21 @@ impl ManagedFs {
                 break;
             }
             for name in extras {
-                if !name.eq_ignore_ascii_case("store.db-shm") {
+                let stat =
+                    statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW).map_err(|error| {
+                        partial_purge_error(
+                            &self.root,
+                            &name,
+                            &removed_roots,
+                            map_fs_error(&format!("{}/{name}", self.root), error),
+                        )
+                    })?;
+                let single_regular = FileType::from_raw_mode(stat.st_mode) == FileType::RegularFile
+                    && stat.st_nlink == 1;
+                let late_control = single_regular
+                    && (name.eq_ignore_ascii_case("store.db-shm")
+                        || (name.eq_ignore_ascii_case("store.db-wal") && stat.st_size == 0));
+                if !late_control {
                     return Err(partial_purge_error(
                         &self.root,
                         &name,
@@ -1286,11 +1349,11 @@ impl ManagedFs {
                         error,
                     ));
                 }
-                removed_roots.push(name);
+                removed_roots.push(name.clone());
                 fsync(&self.root_dir).map_err(|error| {
                     partial_purge_error(
                         &self.root,
-                        "store.db-shm",
+                        &name,
                         &removed_roots,
                         map_fs_error(self.root.as_str(), error),
                     )
@@ -1591,14 +1654,6 @@ impl ExternalReadFile {
             path.as_str(),
             path.clone(),
         )?))
-    }
-
-    pub fn open_optional(path: &AbsPath) -> Result<Option<Self>> {
-        match Self::open_regular(path) {
-            Ok(file) => Ok(Some(file)),
-            Err(Error::NotFound { .. }) => Ok(None),
-            Err(error) => Err(error),
-        }
     }
 
     pub fn read_bounded(&self, max_bytes: u64) -> Result<Vec<u8>> {
@@ -1939,11 +1994,11 @@ fn tree_entry_name(raw: &[u8], display: &str) -> Result<String> {
 fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
     let mut value = crate::request::lexical_abs(root.as_str());
     for (alias, target) in [("/var/", "/private/var/"), ("/tmp/", "/private/tmp/")] {
-        if !value.starts_with(alias) {
-            continue;
-        }
         let alias_root = alias.trim_end_matches('/');
         let target_root = target.trim_end_matches('/');
+        if value != alias_root && !value.starts_with(alias) {
+            continue;
+        }
         if std::fs::read_link(alias_root).is_ok_and(|link| {
             let resolved = if link.is_absolute() {
                 link
@@ -1952,7 +2007,11 @@ fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
             };
             resolved == std::path::Path::new(target_root)
         }) {
-            value = format!("{target}{}", &value[alias.len()..]);
+            value = if value == alias_root {
+                target_root.to_string()
+            } else {
+                format!("{target}{}", &value[alias.len()..])
+            };
         }
         break;
     }
@@ -2636,6 +2695,16 @@ pub(crate) fn write_exclusive_atomic(
     ManagedFs::open_existing(home)?.write_atomic(lock, &rel, content)
 }
 
+pub(crate) fn write_new_atomic_file(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &AbsPath,
+    content: &[u8],
+) -> Result<()> {
+    let rel = ManagedRelPath::new(home.to_rel(path)?)?;
+    ManagedFs::open_existing(home)?.write_new_atomic(lock, &rel, content)
+}
+
 pub(crate) fn managed_directory_exists(
     home: &crate::home::Home,
     lock: &crate::home::HomeLock,
@@ -2747,6 +2816,14 @@ pub(crate) fn sync_managed_regular_file_handle(
 ) -> Result<()> {
     let path = ManagedRelPath::new(path)?;
     ManagedFs::open_existing(home)?.sync_regular_file_handle_locked(lock, &path, file)
+}
+
+pub(crate) fn sync_managed_directory_entry(
+    home: &crate::home::Home,
+    lock: &crate::home::HomeLock,
+    path: &str,
+) -> Result<()> {
+    ManagedFs::open_existing(home)?.sync_directory_entry_locked(lock, &ManagedRelPath::new(path)?)
 }
 
 pub(crate) fn sync_publish_parents(
@@ -3035,4 +3112,41 @@ fn set_dir_tree_mode(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod new_atomic_tests {
+    use super::*;
+
+    // Task: C002-T31
+    #[test]
+    fn new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf() {
+        let directory = tempfile::tempdir().unwrap();
+        let home = crate::home::Home::at(
+            AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),
+        );
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let path = ManagedRelPath::new("history.txt").unwrap();
+        fs.write_new_atomic(&lock, &path, b"original").unwrap();
+        assert!(fs.write_new_atomic(&lock, &path, b"replacement").is_err());
+        assert_eq!(
+            std::fs::read(directory.path().join("history.txt")).unwrap(),
+            b"original"
+        );
+        std::fs::remove_file(directory.path().join("history.txt")).unwrap();
+        std::os::unix::fs::symlink("missing", directory.path().join("history.txt")).unwrap();
+        assert!(fs.write_new_atomic(&lock, &path, b"replacement").is_err());
+        assert_eq!(
+            std::fs::read_link(directory.path().join("history.txt")).unwrap(),
+            std::path::PathBuf::from("missing")
+        );
+        assert!(!std::fs::read_dir(directory.path()).unwrap().any(|entry| {
+            entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .contains(".tmp-")
+        }));
+    }
 }

@@ -1,0 +1,56 @@
+   Compiling syn v3.0.6
+   Compiling serde_derive v1.0.229
+   Compiling thiserror-impl v2.0.21
+   Compiling thiserror v2.0.21
+   Compiling serde v1.0.229
+   Compiling sheltie-core v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+   Compiling insta v1.48.0
+error[E0599]: no method named `len` found for opaque type `impl Iterator<Item = &NodeDef>` in the current scope
+    --> crates/sheltie-core/tests/persisted_contracts.rs:58:30
+     |
+  58 |     assert_eq!(graph.nodes().len(), 2);
+     |                              ^^^
+     |
+help: there is a method `le` with a similar name, but with different arguments
+    --> /Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs:3977:5
+     |
+3977 | /     fn le<I>(self, other: I) -> bool
+3978 | |     where
+3979 | |         I: IntoIterator,
+3980 | |         Self::Item: PartialOrd<I::Item>,
+3981 | |         Self: Sized,
+     | |____________________^
+
+error[E0624]: associated function `from_texts` is private
+   --> crates/sheltie-core/tests/persisted_contracts.rs:88:14
+    |
+ 88 |     Fixture::from_texts(MANIFEST, flow, &[]).started()
+    |              ^^^^^^^^^^ private associated function
+    |
+   ::: crates/sheltie-core/src/testkit.rs:251:5
+    |
+251 |     fn from_texts(manifest_text: &str, flow_text: &str, files: &[(&str, &str)]) -> Self {
+    |     ----------------------------------------------------------------------------------- private associated function defined here
+
+error[E0599]: no associated function or constant named `new` found for struct `WorkName` in the current scope
+   --> crates/sheltie-core/tests/persisted_contracts.rs:119:28
+    |
+119 |         s.name = WorkName::new("different").unwrap();
+    |                            ^^^ associated function or constant not found in `WorkName`
+    |
+note: if you're trying to build a new `WorkName`, consider using `WorkName::normalize` which returns `Result<WorkName, sheltie_core::Error>`
+   --> crates/sheltie-core/src/ids.rs:146:5
+    |
+146 |     pub fn normalize(raw: &str) -> Result<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is a method `ne` with a similar name
+    |
+119 -         s.name = WorkName::new("different").unwrap();
+119 +         s.name = WorkName::ne("different").unwrap();
+    |
+
+Some errors have detailed explanations: E0599, E0624.
+For more information about an error, try `rustc --explain E0599`.
+error: could not compile `sheltie-core` (test "persisted_contracts") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package sheltie-core --all-features` exited with code 101

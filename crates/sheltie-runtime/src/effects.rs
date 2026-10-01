@@ -640,7 +640,13 @@ pub(crate) fn execute_with_observed_outputs(
                     continue;
                 }
                 for rel in dirs {
-                    fsx::ensure_dirs_under(home, lock, &home.rel(rel)?)?;
+                    let target = home.rel(rel)?;
+                    fsx::ensure_dirs_under(home, lock, &target).map_err(|error| {
+                        classify_committed_path_error("Attempt目录", &target, error)
+                    })?;
+                    fsx::sync_managed_directory_entry(home, lock, rel).map_err(|error| {
+                        classify_committed_path_error("Attempt目录", &target, error)
+                    })?;
                 }
             }
             EffectOp::WriteFile {
@@ -649,15 +655,23 @@ pub(crate) fn execute_with_observed_outputs(
                 content,
             } => {
                 let target = home.rel(path)?;
-                if target.as_path().exists() {
-                    // 存在且摘要相同不写；不同是完整性错误，不掩盖修改。
-                    let f = fsx::open_managed_regular(home, &target)?;
-                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
+                if let Some(f) = fsx::open_managed_optional(home, &target)
+                    .map_err(|error| classify_committed_path_error("历史文件", &target, error))?
+                {
+                    // No-follow inspection distinguishes a missing leaf from an abnormal object.
+                    // A matching existing original is verified and left unchanged.
+                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
+                        classify_committed_path_error("历史文件", &target, error)
+                    })?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
                             detail: format!("历史文件 {path} 的摘要与登记不符（被修改）"),
                         });
                     }
+                    // A completed request can still have an interrupted explicit history repair.
+                    fsx::sync_managed_regular_file_handle(home, lock, path, &f).map_err(
+                        |error| classify_committed_path_error("历史文件", &target, error),
+                    )?;
                 } else {
                     // 父目录缺失或不可信时不臆造。
                     let parent = target
@@ -672,20 +686,28 @@ pub(crate) fn execute_with_observed_outputs(
                             detail: format!("历史文件 {path} 的父目录缺失，不能恢复"),
                         });
                     }
-                    fsx::write_exclusive_atomic(home, lock, &target, content.as_bytes())?;
-                    let f = fsx::open_managed_regular(home, &target)?;
-                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES)?;
+                    fsx::write_new_atomic_file(home, lock, &target, content.as_bytes()).map_err(
+                        |error| classify_committed_path_error("历史文件", &target, error),
+                    )?;
+                    let f = fsx::open_managed_regular(home, &target).map_err(|error| {
+                        classify_committed_path_error("历史文件", &target, error)
+                    })?;
+                    let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
+                        classify_committed_path_error("历史文件", &target, error)
+                    })?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
                             detail: format!("历史文件 {path} 恢复后摘要与登记不符"),
                         });
                     }
                 }
+                crate::failpoint::maybe_exit("after_first_history_file_write");
             }
             EffectOp::SealOutputs { refs } => {
                 if !publish {
                     continue;
                 }
+                crate::failpoint::maybe_exit("submit_before_seal");
                 for r in refs {
                     let target = home.rel(&r.path)?;
                     if let Some(observed) = observed {
@@ -741,19 +763,24 @@ fn seal_output(
     reference: &RefJson,
 ) -> Result<()> {
     file.verify_seal_reference(&reference.sha256, reference.bytes)
-        .map_err(|error| classify_seal_integrity_error(target, error))?;
+        .map_err(|error| classify_committed_path_error("封存", target, error))?;
     fsx::ManagedFs::open_existing(home)?
         .set_readonly(lock, file)
-        .map_err(|error| classify_seal_integrity_error(target, error))
+        .map_err(|error| classify_committed_path_error("封存", target, error))
 }
 
-fn classify_seal_integrity_error(target: &AbsPath, error: Error) -> Error {
+fn classify_committed_path_error(operation: &str, target: &AbsPath, error: Error) -> Error {
     match error {
+        Error::Io { source, .. } if source.kind() == std::io::ErrorKind::AlreadyExists => {
+            Error::StoreCorrupt {
+                detail: format!("{operation}路径 {target} 在恢复落位前出现已有对象：{source}"),
+            }
+        }
         Error::InvalidRequest { reason } => Error::StoreCorrupt {
-            detail: format!("封存路径 {target} 的对象身份或类型不符：{reason}"),
+            detail: format!("{operation}路径 {target} 的对象身份或类型不符：{reason}"),
         },
         Error::NotFound { what } => Error::StoreCorrupt {
-            detail: format!("封存路径 {target} 在完成前消失：{what}"),
+            detail: format!("{operation}路径 {target} 在完成前消失：{what}"),
         },
         other => other,
     }
@@ -1071,15 +1098,19 @@ fn delete_dir(
         fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
         fsx::verify_managed_tree_at(home, &tree, pending)?;
         verify_publish_object(home, &pending_dir, owner, digest)?;
+        crate::failpoint::maybe_exit("delete_payload_verified_before_remove");
         fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
     } else {
         let tree = fsx::open_managed_tree(home, lock, pending)?;
         fsx::verify_managed_tree_at(home, &tree, pending)?;
+        // A crash may have moved the original before either rename parent was synced.
+        fsx::sync_publish_parents(home, lock, final_path, pending)?;
         let pending_dir = home.rel(pending)?;
         verify_publish_object(home, &pending_dir, owner, digest)?;
         fsx::make_managed_tree_writable(home, lock, &tree, pending)?;
         fsx::verify_managed_tree_at(home, &tree, pending)?;
         verify_publish_object(home, &pending_dir, owner, digest)?;
+        crate::failpoint::maybe_exit("delete_payload_verified_before_remove");
         fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
     }
     crate::failpoint::maybe_exit("delete_after_tree_removed_before_marker");
@@ -1091,6 +1122,7 @@ fn delete_dir(
         });
     }
     write_deleted_marker(home, lock, internal_id, request_id)?;
+    crate::failpoint::maybe_exit("delete_marker_synced_before_mark");
     if fsx::managed_directory_exists(home, lock, pending)?
         || fsx::managed_directory_exists(home, lock, final_path)?
     {

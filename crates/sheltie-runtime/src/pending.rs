@@ -56,8 +56,16 @@ struct PendingRootRecord {
 
 impl PendingReferenceIndex {
     pub(crate) fn load(store: &Store) -> Result<Self> {
+        Self::from_rows(store.all_request_effect_rows()?)
+    }
+
+    pub(crate) fn load_work_start(store: &Store, work: &sheltie_core::ids::WorkId) -> Result<Self> {
+        Self::from_rows(store.work_start_effect_rows(work)?)
+    }
+
+    fn from_rows(rows: Vec<crate::store::read::RequestEffectRow>) -> Result<Self> {
         let mut index = Self::default();
-        for request in store.all_request_effect_rows()? {
+        for request in rows {
             index.request_ids.insert(request.request_id.clone());
             let effects =
                 decode_effects(&request.effects_json).map_err(|error| Error::StoreCorrupt {
@@ -268,7 +276,74 @@ pub(crate) fn read_publish_dir<T>(
     ))
 }
 
+pub(crate) fn prepare_new_request(
+    home: &Home,
+    store: &Store,
+    lock: &HomeLock,
+    request_id: &str,
+) -> Result<()> {
+    if !fsx::managed_directory_exists(home, lock, "pending")? {
+        return Ok(());
+    }
+    let mut selected = BTreeSet::new();
+    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
+        let Some(id) = entry
+            .name
+            .strip_suffix(".owner")
+            .filter(|id| valid_internal_id(id))
+        else {
+            continue;
+        };
+        if entry.kind != ManagedEntryKind::RegularFile {
+            continue;
+        }
+        if let Ok(owner) = read_owner(home, id) {
+            if owner.request_id == request_id {
+                selected.insert(id.to_string());
+            }
+        }
+    }
+    if selected.is_empty() {
+        return Ok(());
+    }
+    let warnings = cleanup_selected(home, store, lock, Some(&selected))?;
+    if !warnings.is_empty() {
+        return Err(Error::io(
+            home.pending_dir().as_str(),
+            std::io::Error::other(format!(
+                "当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}",
+                warnings.join("; ")
+            )),
+        ));
+    }
+    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
+        let id = entry
+            .name
+            .strip_suffix(".owner")
+            .or_else(|| entry.name.strip_suffix(".deleted"))
+            .unwrap_or(&entry.name);
+        if selected.contains(id) {
+            return Err(Error::StoreCorrupt {
+                detail: format!(
+                    "当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求",
+                    entry.name
+                ),
+            });
+        }
+    }
+    Ok(())
+}
+
 pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {
+    cleanup_selected(home, store, lock, None)
+}
+
+fn cleanup_selected(
+    home: &Home,
+    store: &Store,
+    lock: &HomeLock,
+    selected: Option<&BTreeSet<String>>,
+) -> Result<Vec<String>> {
     // Parse every Store reference before deleting any path. A single undecodable row makes
     // absence unprovable for the entire pass.
     let references = PendingReferenceIndex::load(store)?;
@@ -293,6 +368,16 @@ pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec
     let mut roots = BTreeMap::<String, PendingRootRecord>::new();
     let mut warnings = Vec::new();
     for entry in entries {
+        if let Some(selected) = selected {
+            let id = entry
+                .name
+                .strip_suffix(".owner")
+                .or_else(|| entry.name.strip_suffix(".deleted"))
+                .unwrap_or(&entry.name);
+            if !selected.contains(id) {
+                continue;
+            }
+        }
         if let Some(id) = entry.name.strip_suffix(".owner") {
             if valid_internal_id(id) {
                 roots.entry(id.to_string()).or_default().owner = Some(entry.kind);
@@ -448,13 +533,6 @@ pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec
                         }
                     }
                 }
-            } else if record.marker.is_some() {
-                warnings.push(maintenance_warning(
-                    "unknown",
-                    &format!("pending/{id}.deleted"),
-                    "删除marker没有Store引用，保留原件",
-                ));
-                continue;
             }
         } else if record.marker.is_some() {
             warnings.push(maintenance_warning(

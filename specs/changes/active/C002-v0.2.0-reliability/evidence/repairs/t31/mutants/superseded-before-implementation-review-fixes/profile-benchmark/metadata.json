@@ -1,0 +1,24 @@
+{
+  "candidate": "6baee53376f8ba631d5c92777881ec82692576de",
+  "argv": [
+    "cargo",
+    "nextest",
+    "run",
+    "--workspace",
+    "--all-features",
+    "--no-tests=pass"
+  ],
+  "workspace_exit": 0,
+  "workspace_run_id": "5b8a8235-0ca8-4f05-9914-ad1929116e1e",
+  "passed": 642,
+  "test_seconds": 141.825,
+  "build_seconds": 169,
+  "test_profile": {
+    "opt-level": 1,
+    "debug": 0,
+    "debug-assertions": true,
+    "overflow-checks": true
+  },
+  "runtime_limit_test_seconds": 10.984,
+  "scope": "profile benchmark, not complete mutation execution"
+}
