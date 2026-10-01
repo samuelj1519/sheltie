@@ -1,0 +1,130 @@
+[
+  {
+    "diff": "--- crates/sheltie-core/src/flow/parse.rs\n+++ replace || with && in parse_input_source\n@@ -132,17 +132,17 @@\n         }\n         \"engine\" => {\n             if rest != \"stats\" {\n                 return Err(invalid(\"engine. 之后只允许 stats\".to_string()));\n             }\n             Ok(InputSource::EngineStats)\n         }\n         _ => {\n-            if rest.is_empty() || rest.contains('.') {\n+            if rest.is_empty() && /* ~ changed by cargo-mutants ~ */ rest.contains('.') {\n                 return Err(invalid(\n                     \"<node>.<output> 必须恰好一个点，两边都非空\".to_string(),\n                 ));\n             }\n             let node = NodeId::new(head).map_err(|e| invalid(e.to_string()))?;\n             validate_id(rest, \"output\").map_err(|e| invalid(e.to_string()))?;\n             Ok(InputSource::Node {\n                 node,\n",
+    "file": "crates/sheltie-core/src/flow/parse.rs",
+    "function": {
+      "function_name": "parse_input_source",
+      "return_type": "-> Result<InputSource>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 153
+        },
+        "start": {
+          "column": 1,
+          "line": 99
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source",
+    "package": "sheltie-core",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 140
+      },
+      "start": {
+        "column": 32,
+        "line": 140
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/work/state.rs\n+++ replace && with || in WorkState::validate_gate_facts\n@@ -411,17 +411,17 @@\n         Ok(())\n     }\n \n     /// 冻结图提供门槛定义；持久状态只能引用已有批准事实，不能推断或补造批准。\n     pub fn validate_gate_facts(&self, graph: &Graph) -> std::result::Result<(), String> {\n         let approved = |node: &NodeId, occurrence: u32| {\n             self.approvals\n                 .iter()\n-                .any(|approval| &approval.node == node && approval.occurrence == occurrence)\n+                .any(|approval| &approval.node == node || /* ~ changed by cargo-mutants ~ */ approval.occurrence == occurrence)\n         };\n         for approval in &self.approvals {\n             if !graph.node(&approval.node).is_some_and(|node| node.gate()) {\n                 return Err(format!(\n                     \"{}#{} 的批准没有对应门槛\",\n                     approval.node, approval.occurrence\n                 ));\n             }\n",
+    "file": "crates/sheltie-core/src/work/state.rs",
+    "function": {
+      "function_name": "WorkState::validate_gate_facts",
+      "return_type": "-> std::result::Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 453
+        },
+        "start": {
+          "column": 5,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/work/state.rs:419:56: replace && with || in WorkState::validate_gate_facts",
+    "package": "sheltie-core",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 58,
+        "line": 419
+      },
+      "start": {
+        "column": 56,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/work/state.rs\n+++ replace || with && in WorkState::validate_gate_facts\n@@ -430,17 +430,17 @@\n             .node(&self.current.node)\n             .ok_or_else(|| format!(\"当前Occurrence {} 不在冻结图中\", self.current))?;\n         if self.status == WorkStatus::Blocked(BlockedReason::Gate) && !current.gate() {\n             return Err(format!(\"当前非门槛 {} 不能是Gate受阻\", self.current));\n         }\n         for attempt in &self.attempts {\n             let occurrence = attempt.occurrence();\n             let has_left_or_can_leave = occurrence != self.current\n-                || matches!(\n+                && /* ~ changed by cargo-mutants ~ */ matches!(\n                     self.status,\n                     WorkStatus::Active\n                         | WorkStatus::Succeeded\n                         | WorkStatus::Blocked(BlockedReason::NoLegalEdge)\n                 );\n             if attempt.status == AttemptStatus::Succeeded\n                 && graph.node(&attempt.id.node).is_some_and(|node| node.gate())\n                 && has_left_or_can_leave\n",
+    "file": "crates/sheltie-core/src/work/state.rs",
+    "function": {
+      "function_name": "WorkState::validate_gate_facts",
+      "return_type": "-> std::result::Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 453
+        },
+        "start": {
+          "column": 5,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/work/state.rs:438:17: replace || with && in WorkState::validate_gate_facts",
+    "package": "sheltie-core",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 438
+      },
+      "start": {
+        "column": 17,
+        "line": 438
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/work/state.rs\n+++ replace == with != in WorkState::validate_gate_facts\n@@ -436,17 +436,17 @@\n             let occurrence = attempt.occurrence();\n             let has_left_or_can_leave = occurrence != self.current\n                 || matches!(\n                     self.status,\n                     WorkStatus::Active\n                         | WorkStatus::Succeeded\n                         | WorkStatus::Blocked(BlockedReason::NoLegalEdge)\n                 );\n-            if attempt.status == AttemptStatus::Succeeded\n+            if attempt.status != /* ~ changed by cargo-mutants ~ */ AttemptStatus::Succeeded\n                 && graph.node(&attempt.id.node).is_some_and(|node| node.gate())\n                 && has_left_or_can_leave\n                 && !approved(&occurrence.node, occurrence.n)\n             {\n                 return Err(format!(\"已离开或可离开的门槛 {occurrence} 缺少批准\"));\n             }\n         }\n         Ok(())\n",
+    "file": "crates/sheltie-core/src/work/state.rs",
+    "function": {
+      "function_name": "WorkState::validate_gate_facts",
+      "return_type": "-> std::result::Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 453
+        },
+        "start": {
+          "column": 5,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/work/state.rs:444:31: replace == with != in WorkState::validate_gate_facts",
+    "package": "sheltie-core",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 444
+      },
+      "start": {
+        "column": 31,
+        "line": 444
+      }
+    }
+  }
+]

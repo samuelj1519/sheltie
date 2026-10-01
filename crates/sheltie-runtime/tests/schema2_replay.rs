@@ -69,7 +69,10 @@ fn schema1_store_rejected_without_touching_file() {
     let wal = dir.path().join("store.db-wal");
     let wal_before = std::fs::read(&wal).unwrap();
 
-    let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
+    let home = Home::resolve(Some(
+        (AbsPath::new(dir.path().to_str().unwrap()).unwrap()).as_str(),
+    ))
+    .unwrap();
     assert!(matches!(
         WorkService::new(home.clone()).list(),
         Err(Error::StoreSchemaMismatch { .. })

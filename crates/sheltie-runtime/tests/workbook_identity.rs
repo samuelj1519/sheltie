@@ -117,7 +117,7 @@ fn self_install_on_new_home_creates_root_store_and_bin() {
 #[test]
 fn readonly_open_never_creates_home() {
     let dir = tempfile::tempdir().unwrap();
-    let home = Home::at(abs(dir.path()));
+    let home = Home::resolve(Some((abs(dir.path())).as_str())).unwrap();
     assert!(matches!(
         WorkService::new(home.clone()).list(),
         Err(Error::NotFound { .. })

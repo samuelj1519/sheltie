@@ -40,3 +40,7 @@ T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成req
 ## 2026-10-01 恢复M1剩余验证
 
 用户明确授权恢复269项，实际平台提示暂停时记录具体项目跳过继续。T32承接M1精简及三条真实caller边界回归，独立增量review通过；门禁后提交并重新冻结输入，完整runtime变异重跑，core直接测试仅在精确依赖闭包一致时复用原阶段记录，core workspace仍重新运行。当前不会把旧变异套新输入，不预先跳过任何项。入口见[M1证据](evidence/m1-2026-10-01/README.md)及[T32](evidence/m1-2026-10-01/t32/README.md)。
+
+## T33收尾与M1重新冻结
+
+T33实际R21根/路径失败传播修复、全API迁移及新增真实caller回归已独立Spec/Standards复核通过；最终693项及工程门禁通过。旧5261e0d变异部分结果在M1 evidence/mutants/superseded-before-t33/，不复用新输入。提交T33后重新冻结同源码并运行完整runtime第一阶段+全部workspace存活复验；core720原直接测试只在精确依赖闭包不变时复用并保留原身份，core4消费者重跑。M1尚未通过，actual safety skip记录为空，Linux/T16/T17边界不变。

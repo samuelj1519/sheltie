@@ -176,7 +176,7 @@ CLI 解析参数（只解析 @file 路径，不读内容）
 
 ## 5. 目录布局
 
-管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。只有 runtime 能写这棵树。所有 managed 路径（Store、锁、workbooks、works、pending、tmp、bin 及恢复与删除目标）都从根派生并经 `confine` 检查。
+管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。入口通过 `Home::resolve` 将最深已存在祖先解析为真实路径，再拼接不存在的尾部；只有 `NotFound` 可向父目录退让，权限及其他 I/O 错误必须传播。无法表示为 UTF-8 的配置、当前目录或真实祖先路径明确拒绝，不替换字节或改选其他根。只有 runtime 能写这棵树。所有 managed 路径（Store、锁、workbooks、works、pending、tmp、bin 及恢复与删除目标）都从根派生并经 `confine` 检查。
 
 ```text
 ~/.sheltie/

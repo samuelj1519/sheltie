@@ -10,7 +10,10 @@ use sheltie_core::work::{Principal, Timestamp};
 
 fn temp_home() -> (tempfile::TempDir, Home) {
     let dir = tempfile::tempdir().unwrap();
-    let home = Home::at(AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap());
+    let home = Home::resolve(Some(
+        (AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap()).as_str(),
+    ))
+    .unwrap();
     (dir, home)
 }
 
@@ -441,7 +444,7 @@ fn allocate_seq_under_two_threads_yields_distinct_numbers() {
 // Task: C002-T14
 #[test]
 fn load_rejects_row_identity_status_and_revision_mismatch() {
-    for corruption in ["identity", "status", "revision"] {
+    for corruption in ["identity", "status", "revision", "revision_zero"] {
         let (_dir, home) = temp_home();
         let store = open_rw(&home);
         let state = state_fixture();
@@ -460,6 +463,9 @@ fn load_rejects_row_identity_status_and_revision_mismatch() {
             }
             "revision" => {
                 conn.execute("UPDATE works SET revision = -1", []).unwrap();
+            }
+            "revision_zero" => {
+                conn.execute("UPDATE works SET revision = 0", []).unwrap();
             }
             _ => unreachable!(),
         }

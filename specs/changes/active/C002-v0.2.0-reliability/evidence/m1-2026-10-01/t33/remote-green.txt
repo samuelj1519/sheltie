@@ -1,0 +1,12 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
+────────────
+ Nextest run ID b7e3ae0a-eb39-419e-b49b-e73b531bfdfc with nextest profile: default
+    Starting 5 tests across 1 binary (40 binaries skipped)
+        PASS [   0.865s] (1/5) sheltie-cli::remote_update remote_update_rejects_invalid_versions_before_invoking_transport
+        PASS [   1.269s] (2/5) sheltie-cli::remote_update failed_remote_manifest_or_asset_preserves_binaries_store_and_cleans_its_tmp
+        PASS [   1.577s] (3/5) sheltie-cli::remote_update remote_update_pins_latest_and_explicit_tags_and_accepts_exact_stderr_limit
+        PASS [   1.885s] (4/5) sheltie-cli::remote_update remote_update_accepts_exact_stream_limits_and_preserves_state_on_one_more_byte
+        PASS [   2.384s] (5/5) sheltie-cli::remote_update remote_update_accepts_exact_asset_limit_and_rejects_one_more_byte
+────────────
+     Summary [   2.384s] 5 tests run: 5 passed, 0 skipped

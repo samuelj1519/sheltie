@@ -112,7 +112,15 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
     }
     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
     let exe = crate::fsx::ExternalReadFile::open_regular(
-        &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
+        &AbsPath::new(
+            current
+                .to_str()
+                .ok_or_else(|| Error::InvalidRequest {
+                    reason: format!("当前可执行文件 {} 不是UTF-8路径", current.display()),
+                })?
+                .to_string(),
+        )
+        .map_err(Error::Core)?,
     )?;
     let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
     let session = crate::session::WriteSession::open_or_create(home)?;
@@ -520,7 +528,7 @@ struct ReleaseManifest {
 fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
     let url = source.manifest_url(tag);
     let text = if source.is_local() {
-        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
+        let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
             Error::UpdateUnavailable {
                 reason: format!("读不了发布清单 {url}：{error}"),
@@ -630,7 +638,7 @@ fn download(
     let url = source.asset_url(tag, name);
     let dst = tmp.join_segment(name);
     let bytes = if source.is_local() {
-        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
+        let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
             Error::UpdateUnavailable {
                 reason: format!("读不了发布包 {url}：{error}"),

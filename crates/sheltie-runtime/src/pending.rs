@@ -987,7 +987,10 @@ mod tests {
     #[test]
     fn read_publish_dir_retries_when_final_renames_after_location() {
         let temporary = tempfile::tempdir().unwrap();
-        let home = Home::at(AbsPath::new(temporary.path().to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(temporary.path().to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let internal_id = "0198f01a7f0070008000000000000004";
         let pending = format!("pending/{internal_id}/payload");
         let final_path = "works/2026-09-29-001-test";

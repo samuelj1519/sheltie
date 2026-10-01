@@ -1614,7 +1614,10 @@ mod pending_stage_tests {
     #[test]
     fn remove_stage_persists_owner_and_container_without_payload() {
         let temp = tempfile::tempdir().unwrap();
-        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let lock = home.acquire_lock().unwrap();
         let payload =
             stage_pending(&home, &lock, "internal-1", "request-1", "remove_workbook").unwrap();
@@ -1640,7 +1643,10 @@ mod pending_stage_tests {
     #[test]
     fn publish_stage_persists_owner_container_and_payload() {
         let temp = tempfile::tempdir().unwrap();
-        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let lock = home.acquire_lock().unwrap();
         let payload = stage_pending(&home, &lock, "internal-2", "request-2", "start_work").unwrap();
         assert!(std::path::Path::new(payload.as_str()).is_dir());

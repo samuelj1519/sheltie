@@ -1,0 +1,11 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+────────────
+ Nextest run ID e8e9cc9a-ca75-4555-8cfb-f8a2481a1339 with nextest profile: default
+    Starting 4 tests across 41 binaries (687 tests skipped)
+        PASS [   0.015s] (1/4) sheltie-runtime::home_observe home_resolution_preserves_permission_errors_from_an_existing_ancestor
+        PASS [   0.033s] (2/4) sheltie-runtime::home_observe external_reads_do_not_follow_a_temporary_alias_to_the_same_observed_object
+        PASS [   0.074s] (3/4) sheltie-runtime::workbook_repo workbook_copy_rejects_an_observed_replacement_even_if_the_original_is_restored_before_open
+        PASS [   0.513s] (4/4) sheltie-cli::os_process home_resolution_rejects_unrepresentable_roots_without_selecting_an_alternative
+────────────
+     Summary [   0.515s] 4 tests run: 4 passed, 687 skipped

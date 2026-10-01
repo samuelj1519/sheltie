@@ -1,0 +1,16 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.58s
+────────────
+ Nextest run ID 7ad3c5ad-3e42-46fe-be7e-9a0006901f98 with nextest profile: default
+    Starting 8 tests across 41 binaries (685 tests skipped)
+        PASS [   0.399s] (1/8) sheltie-runtime::workbook_txn old_add_replay_does_not_bind_to_a_readded_workbook_lifecycle
+        PASS [   0.445s] (2/8) sheltie-runtime::workbook_txn old_remove_replay_does_not_delete_readded_workbook
+        PASS [   0.535s] (3/8) sheltie-runtime::schema2_replay completed_submit_replay_does_not_seal_or_rewrite_the_output_again
+        PASS [   0.534s] (4/8) sheltie-runtime::schema2_replay replay_does_not_rewrite_status_card_to_old_revision
+        PASS [   0.881s] (5/8) sheltie-cli::reliability_crash relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request
+        PASS [   0.945s] (6/8) sheltie-cli::replay start_request_replay_does_not_require_the_original_input_file
+        PASS [   1.037s] (7/8) sheltie-cli::replay fail_request_replay_does_not_reread_a_deleted_reason_file
+        PASS [   1.038s] (8/8) sheltie-cli::replay submit_request_replay_does_not_reread_a_deleted_summary_file
+────────────
+     Summary [   1.039s] 8 tests run: 8 passed, 685 skipped

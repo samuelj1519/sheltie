@@ -1299,7 +1299,10 @@ mod seal_output_tests {
         u64,
     ) {
         let dir = tempfile::tempdir().unwrap();
-        let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(dir.path().to_str().unwrap()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let lock = home.acquire_lock().unwrap();
         let fs = ManagedFs::open_existing(&home).unwrap();
         let path = ManagedRelPath::new(

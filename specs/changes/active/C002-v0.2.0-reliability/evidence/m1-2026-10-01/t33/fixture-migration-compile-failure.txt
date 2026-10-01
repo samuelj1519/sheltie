@@ -1,0 +1,16 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+error[E0599]: no method named `as_str` found for tuple `(sheltie_core::path::AbsPath,)` in the current scope
+    --> crates/sheltie-runtime/src/fsx.rs:3138:87
+     |
+3138 |             (AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),).as_str(),
+     |                                                                                       ^^^^^^ method not found in `(sheltie_core::path::AbsPath,)`
+     |
+help: one of the expressions' fields has a method of the same name
+     |
+3138 |             (AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),).0.as_str(),
+     |                                                                                       ++
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `sheltie-runtime` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --all-features` exited with code 101

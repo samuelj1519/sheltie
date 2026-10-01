@@ -1,0 +1,75 @@
+[
+  {
+    "name": "baseline",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 163.393,
+    "candidate": "5261e0d15e14b57742020fe894617cd395f84c67",
+    "execution_closure_sha256": "dbc88c8fb954aa27cb83bd3491f1d59a9ba301d9a0f680eac78da7660612d0e5",
+    "run_id": "aeb8de82-4979-4508-97aa-e13dac67ece4",
+    "tests": 678
+  },
+  {
+    "name": "stage2-core-current-consumers",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-core",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "4",
+      "--test-workspace",
+      "true",
+      "--re",
+      "^(?:crates/sheltie-core/src/flow/parse\\.rs:140:32: replace \\|\\| with && in parse_input_source|crates/sheltie-core/src/work/state\\.rs:419:56: replace && with \\|\\| in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:438:17: replace \\|\\| with && in WorkState::validate_gate_facts|crates/sheltie-core/src/work/state\\.rs:444:31: replace == with != in WorkState::validate_gate_facts)$"
+    ],
+    "exit": 2,
+    "seconds": 142.052,
+    "candidate": "5261e0d15e14b57742020fe894617cd395f84c67",
+    "execution_closure_sha256": "dbc88c8fb954aa27cb83bd3491f1d59a9ba301d9a0f680eac78da7660612d0e5",
+    "listed": 4,
+    "processed": 4,
+    "counts": {
+      "CaughtMutant": 3,
+      "MissedMutant": 1
+    },
+    "outcomes_sha256": "88c1d108822f2f036cb7d6d30a9127abec4069fdede1f4d5a7bebe5c54954fcd",
+    "mutants_sha256": "87f3b9c6e91eebe89703bff549a920a3a4a2fa0f3ab4b34c53ef02d31f34bc22"
+  },
+  {
+    "name": "stage1-runtime-0-of-8",
+    "argv": [
+      "scripts/mutants.sh",
+      "sheltie-runtime",
+      "--all-features",
+      "--copy-vcs",
+      "true",
+      "--jobs",
+      "4",
+      "--test-workspace",
+      "false",
+      "--shard",
+      "0/8"
+    ],
+    "exit": 2,
+    "seconds": 1365.154,
+    "candidate": "5261e0d15e14b57742020fe894617cd395f84c67",
+    "execution_closure_sha256": "dbc88c8fb954aa27cb83bd3491f1d59a9ba301d9a0f680eac78da7660612d0e5",
+    "listed": 222,
+    "processed": 222,
+    "counts": {
+      "CaughtMutant": 167,
+      "Unviable": 13,
+      "MissedMutant": 42
+    },
+    "outcomes_sha256": "7dd2fb4cdc7a485832f8ebf77eb4a67fcf4ac23aca047b4b7a4065d748515ea0",
+    "mutants_sha256": "6125d31282ffc9e42a3aa3cd48d1be05e2ee9384a2885962c98dcdec8933cd88"
+  }
+]

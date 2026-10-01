@@ -1615,8 +1615,18 @@ impl ExternalReadFile {
             })?;
         let canonical_parent =
             std::fs::canonicalize(parent).map_err(|e| map_std_error(path.as_str(), e))?;
-        let parent =
-            AbsPath::new(canonical_parent.to_string_lossy().into_owned()).map_err(Error::Core)?;
+        let parent = AbsPath::new(
+            canonical_parent
+                .to_str()
+                .ok_or_else(|| Error::InvalidRequest {
+                    reason: format!(
+                        "输入文件的真实父目录 {} 不是UTF-8路径",
+                        canonical_parent.display()
+                    ),
+                })?
+                .to_string(),
+        )
+        .map_err(Error::Core)?;
         let fs = ManagedFs::open_root(&parent)?;
         let leaf = path
             .as_path()
@@ -1850,6 +1860,8 @@ impl ExternalReadTree {
             }
         }
         let display = format!("{}/{}", self.root, entry.relative);
+        crate::failpoint::rendezvous("external_tree_before_stat", &display)
+            .map_err(|error| Error::io(&display, error))?;
         let stat = statat(&current, &entry.name, AtFlags::SYMLINK_NOFOLLOW)
             .map_err(|e| map_fs_error(&display, e))?;
         check_regular_stat(&display, &stat)?;
@@ -1861,6 +1873,8 @@ impl ExternalReadTree {
                 reason: format!("{display} 在读取前被替换或改变"),
             });
         }
+        crate::failpoint::rendezvous("external_tree_after_stat", &display)
+            .map_err(|error| Error::io(&display, error))?;
         let fd = openat(
             &current,
             &entry.name,
@@ -1992,7 +2006,7 @@ fn tree_entry_name(raw: &[u8], display: &str) -> Result<String> {
 }
 
 fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
-    let mut value = crate::request::lexical_abs(root.as_str());
+    let mut value = crate::request::lexical_abs(root.as_str())?;
     for (alias, target) in [("/var/", "/private/var/"), ("/tmp/", "/private/tmp/")] {
         let alias_root = alias.trim_end_matches('/');
         let target_root = target.trim_end_matches('/');
@@ -2057,7 +2071,7 @@ mod seal_tests {
     ) {
         let dir = tempfile::tempdir().unwrap();
         let root = AbsPath::new(dir.path().to_str().unwrap()).unwrap();
-        let home = crate::home::Home::at(root);
+        let home = crate::home::Home::resolve(Some((root).as_str())).unwrap();
         let lock = home.acquire_lock().unwrap();
         let fs = ManagedFs::open_existing(&home).unwrap();
         let path = ManagedRelPath::new("works/w1/output.md").unwrap();
@@ -2314,6 +2328,8 @@ fn open_regular_at(
     let before =
         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
     check_regular_stat(display, &before)?;
+    crate::failpoint::rendezvous("regular_open_after_stat", display)
+        .map_err(|error| Error::io(display, error))?;
     let fd = openat(
         parent,
         leaf,
@@ -2321,6 +2337,8 @@ fn open_regular_at(
         Mode::empty(),
     )
     .map_err(|e| map_fs_error(display, e))?;
+    crate::failpoint::rendezvous("regular_open_after_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
     check_regular_stat(display, &after)?;
     if before.st_dev != after.st_dev || before.st_ino != after.st_ino {
@@ -2351,6 +2369,8 @@ fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Resul
             reason: format!("{display} 不是目录"),
         });
     }
+    crate::failpoint::rendezvous("directory_open_after_stat", display)
+        .map_err(|error| Error::io(display, error))?;
     let fd = openat(
         parent,
         name,
@@ -2358,6 +2378,8 @@ fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Resul
         Mode::empty(),
     )
     .map_err(|e| map_fs_error(display, e))?;
+    crate::failpoint::rendezvous("directory_open_after_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
     if after.st_dev != before.st_dev || after.st_ino != before.st_ino {
         return Err(Error::InvalidRequest {
@@ -3122,9 +3144,12 @@ mod new_atomic_tests {
     #[test]
     fn new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf() {
         let directory = tempfile::tempdir().unwrap();
-        let home = crate::home::Home::at(
-            AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),
-        );
+        let home = crate::home::Home::resolve(Some(
+            AbsPath::new(directory.path().to_string_lossy().into_owned())
+                .unwrap()
+                .as_str(),
+        ))
+        .unwrap();
         let lock = home.acquire_lock().unwrap();
         let fs = ManagedFs::open_existing(&home).unwrap();
         let path = ManagedRelPath::new("history.txt").unwrap();

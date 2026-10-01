@@ -68,7 +68,8 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](evidence/repairs/t30/README.md)；Linux `not_run` |
 | C002-T31 | done | 确定性交错、正常窗口与变异登记（含2026-10-01用户安全验证豁免） | T19–T30 |
 | C002-T32 | done | M1审查反馈精简与真实caller回归 | T31 |
-| C002-M1 | doing | 修复后固定候选全链审查 | T02–T15、T18–T32 |
+| C002-T33 | done | 根解析修复与M1存活体的真实caller回归 | T32 |
+| C002-M1 | doing | 修复后固定候选全链审查 | T02–T15、T18–T33 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 
@@ -226,3 +227,7 @@ Owner：发布操作者；发布动作需要用户授权，且 M1 与 T16 全部
 ## M1追加修复 C002-T32
 
 Owner：Codex；Reviewer：未参与修改的Spec/Standards Reviewer。承接本轮M1中已确认的接口冗余、Store合同冲突、测试辨别力缺口。范围包括runtime源码、对应真实caller测试及本package；上游Store合同只勘误CAS停止行为。补测采用原合同独立值，不为每个存活体镜像实现写测试。退役接口须核全仓consumer，保留历史变异ID与删除理由。按Rust四门禁、deny/MSRV/文档/skill/dist门禁及独立review完成任务提交，再固定M1变异输入。M1仍负责全部当前已完成任务的最终闭环，安全跳过仅适用于实际平台拦截。
+
+## M1追加验证 C002-T33
+
+Owner：Codex；独立Reviewer：Spec/Standards Reviewer。本任务集中补M1逐ID审查确认的真实caller测试缺口，保留独立oracle与合法对照；必要观察点只在既有failpoint feature下生效，不引入新的业务状态或生产协议。新候选改变测试输入后，旧部分变异原文保留，不套用新输入PASS。完成工程门禁、独立审查与任务提交后，重新冻结M1完整验证输入。

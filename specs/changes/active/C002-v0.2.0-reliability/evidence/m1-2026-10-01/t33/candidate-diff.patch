@@ -1,0 +1,1677 @@
+diff --git a/crates/sheltie-cli/src/cli.rs b/crates/sheltie-cli/src/cli.rs
+index 0e4ecf0..9248139 100644
+--- a/crates/sheltie-cli/src/cli.rs
++++ b/crates/sheltie-cli/src/cli.rs
+@@ -167,7 +167,7 @@ pub fn parse_input_arg(
+         if path.is_empty() {
+             return Err(format!("--input 的值 {arg:?} 的 @ 后要有路径"));
+         }
+-        let abs = sheltie_runtime::request::lexical_abs(path);
++        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+         sheltie_runtime::request::InputValue::AtFile { path: abs }
+     } else {
+         sheltie_runtime::request::InputValue::Literal {
+@@ -200,7 +200,7 @@ pub fn parse_text_arg(value: &str) -> Result<sheltie_runtime::request::InputValu
+         if path.is_empty() {
+             return Err("@ 后要有路径".to_string());
+         }
+-        let abs = sheltie_runtime::request::lexical_abs(path);
++        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+         Ok(sheltie_runtime::request::InputValue::AtFile { path: abs })
+     } else {
+         Ok(sheltie_runtime::request::InputValue::Literal {
+diff --git a/crates/sheltie-cli/src/commands/workbook.rs b/crates/sheltie-cli/src/commands/workbook.rs
+index 7876057..cece660 100644
+--- a/crates/sheltie-cli/src/commands/workbook.rs
++++ b/crates/sheltie-cli/src/commands/workbook.rs
+@@ -23,13 +23,7 @@ pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
+ 
+ /// 相对目录按当前工作目录转成绝对路径；`AbsPath` 只收绝对的。
+ fn abs_arg(value: &str) -> Result<AbsPath, Error> {
+-    let joined = if std::path::Path::new(value).is_absolute() {
+-        value.to_string()
+-    } else {
+-        let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
+-        cwd.join(value).to_string_lossy().into_owned()
+-    };
+-    AbsPath::new(joined).map_err(Error::from)
++    AbsPath::new(sheltie_runtime::request::lexical_abs(value)?).map_err(Error::from)
+ }
+ 
+ /// `workbook add <dir>`（协议 §3：成功返回 `{ id, version, digest, flows, requires }`）。
+diff --git a/crates/sheltie-cli/tests/os_process.rs b/crates/sheltie-cli/tests/os_process.rs
+index f49c3e4..6f8332d 100644
+--- a/crates/sheltie-cli/tests/os_process.rs
++++ b/crates/sheltie-cli/tests/os_process.rs
+@@ -100,3 +100,47 @@ fn audit_principal_ignores_spoofed_user_env() {
+     assert_ne!(principal, "spoofed-auditor");
+     assert_eq!(principal, account_name_oracle());
+ }
++
++// Task: C002-T33
++#[test]
++fn home_resolution_rejects_unrepresentable_roots_without_selecting_an_alternative() {
++    use std::os::unix::ffi::OsStringExt as _;
++    use std::process::Command;
++    let directory = tempfile::tempdir().unwrap();
++    let invalid = std::ffi::OsString::from_vec(vec![0xff]);
++    for case in ["environment", "home_environment", "override"] {
++        let mut command = Command::new(env!("CARGO_BIN_EXE_sheltie"));
++        command.args(["--json", "workbook", "list"]);
++        match case {
++            "environment" => {
++                command
++                    .env("SHELTIE_HOME", &invalid)
++                    .env("HOME", directory.path());
++            }
++            "home_environment" => {
++                command.env_remove("SHELTIE_HOME").env("HOME", &invalid);
++            }
++            "override" => {
++                command
++                    .arg("--home")
++                    .arg(directory.path().join("valid-root"))
++                    .env("SHELTIE_HOME", &invalid);
++            }
++            _ => unreachable!(),
++        }
++        let output = command.output().unwrap();
++        let reply: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
++        assert!(!output.status.success(), "{case}");
++        assert_eq!(
++            reply["error"]["code"],
++            if case == "override" {
++                "NOT_FOUND"
++            } else {
++                "INVALID_REQUEST"
++            },
++            "{case}: {reply}"
++        );
++    }
++    assert!(!directory.path().join("valid-root").exists());
++    assert!(!directory.path().join(".sheltie").exists());
++}
+diff --git a/crates/sheltie-cli/tests/reliability_crash.rs b/crates/sheltie-cli/tests/reliability_crash.rs
+index da207fa..7ded3e1 100644
+--- a/crates/sheltie-cli/tests/reliability_crash.rs
++++ b/crates/sheltie-cli/tests/reliability_crash.rs
+@@ -736,7 +736,10 @@ fn moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload() {
+     );
+     let pending = container(&env, id);
+     let before = tree(&pending.join("payload"));
+-    let home = sheltie_runtime::Home::at(sheltie_core::path::AbsPath::new(env.home()).unwrap());
++    let home = sheltie_runtime::Home::resolve(Some(
++        (sheltie_core::path::AbsPath::new(env.home()).unwrap()).as_str(),
++    ))
++    .unwrap();
+     for sync_point in ["publish_source_parent_sync", "publish_target_parent_sync"] {
+         sheltie_runtime::failpoint::arm_sync_error(home.root().as_str(), sync_point).unwrap();
+         struct Guard;
+@@ -1305,3 +1308,320 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
+         same_files(&env.dir.path().join("works"), &files);
+     }
+ }
++
++// Task: C002-T33
++#[test]
++fn file_inputs_reject_same_volume_replacement_links_and_special_files_at_open() {
++    for change in ["normal", "replace", "hardlink", "symlink", "fifo"] {
++        let env = Env::new();
++        env.add_example("two-step");
++        let source = tempfile::tempdir().unwrap();
++        let input = source.path().join("input.txt");
++        let original = b"original input";
++        std::fs::write(&input, original).unwrap();
++        let selector = format!("topic=@{}", input.display());
++        let id = format!("input-open-{change}");
++        let sync = tempfile::tempdir().unwrap();
++        let mut process = Process::spawn(
++            &env,
++            &[
++                "--request-id",
++                &id,
++                "work",
++                "start",
++                "--workbook",
++                "two-step",
++                "--flow",
++                "default",
++                "--input",
++                &selector,
++            ],
++            Some((
++                "regular_open_after_stat",
++                input.to_str().unwrap(),
++                sync.path(),
++            )),
++        );
++        process.reached(sync.path(), "regular_open_after_stat");
++        let parked = source.path().join("original.txt");
++        match change {
++            "normal" => {}
++            "hardlink" => std::fs::hard_link(&input, &parked).unwrap(),
++            "replace" | "symlink" | "fifo" => {
++                std::fs::rename(&input, &parked).unwrap();
++                match change {
++                    "replace" => std::fs::write(&input, b"replaced input").unwrap(),
++                    "symlink" => std::os::unix::fs::symlink(&parked, &input).unwrap(),
++                    "fifo" => assert!(
++                        Command::new("mkfifo")
++                            .arg(&input)
++                            .status()
++                            .unwrap()
++                            .success()
++                    ),
++                    _ => unreachable!(),
++                }
++            }
++            _ => unreachable!(),
++        }
++        process.release();
++        let output = process.finish();
++        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
++        if change == "normal" {
++            assert!(output.status.success(), "{reply}");
++        } else {
++            assert!(!output.status.success(), "{change}: {reply}");
++            assert_eq!(
++                connection(&env)
++                    .query_row("SELECT count(*) FROM works", [], |row| row.get::<_, i64>(0))
++                    .unwrap(),
++                0
++            );
++            assert_eq!(
++                connection(&env)
++                    .query_row(
++                        "SELECT count(*) FROM requests WHERE request_id=?1",
++                        [&id],
++                        |row| row.get::<_, i64>(0)
++                    )
++                    .unwrap(),
++                0
++            );
++        }
++        assert_eq!(
++            std::fs::read(if change == "normal" { &input } else { &parked }).unwrap(),
++            original
++        );
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn workbook_source_rejects_a_replaced_directory_at_the_open_boundary() {
++    for replace in [false, true] {
++        let env = Env::new();
++        let source_root = tempfile::tempdir().unwrap();
++        let source = copy_example("two-step", source_root.path());
++        let scope = std::fs::canonicalize(&source).unwrap().join("flows");
++        let sync = tempfile::tempdir().unwrap();
++        let mut process = Process::spawn(
++            &env,
++            &[
++                "--request-id",
++                "source-directory",
++                "workbook",
++                "add",
++                source.to_str().unwrap(),
++            ],
++            Some((
++                "directory_open_after_stat",
++                scope.to_str().unwrap(),
++                sync.path(),
++            )),
++        );
++        process.reached(sync.path(), "directory_open_after_stat");
++        if replace {
++            let parked = source_root.path().join("original-flows");
++            std::fs::rename(&scope, &parked).unwrap();
++            copy_dir(&parked, &scope);
++        }
++        process.release();
++        let output = process.finish();
++        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
++        assert_eq!(output.status.success(), !replace, "{reply}");
++        if replace {
++            assert!(!Path::new(&env.home()).join("store.db").exists());
++        }
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes() {
++    for change in ["normal", "store", "root"] {
++        let env = Env::new();
++        env.add_example("two-step");
++        Connection::open(env.dir.path().join("store.db"))
++            .unwrap()
++            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE); PRAGMA journal_mode=DELETE;")
++            .unwrap();
++        let home = std::fs::canonicalize(Path::new(&env.home())).unwrap();
++        let store = home.join("store.db");
++        let original = std::fs::read(&store).unwrap();
++        let sync = tempfile::tempdir().unwrap();
++        let mut process = Process::spawn(
++            &env,
++            &["workbook", "list"],
++            Some((
++                "store_before_sqlite_open",
++                store.to_str().unwrap(),
++                sync.path(),
++            )),
++        );
++        process.reached(sync.path(), "store_before_sqlite_open");
++        let parking = tempfile::tempdir().unwrap();
++        match change {
++            "normal" => {}
++            "store" => {
++                let old = parking.path().join("original.db");
++                std::fs::rename(&store, &old).unwrap();
++                std::fs::copy(&old, &store).unwrap();
++                assert_eq!(std::fs::read(old).unwrap(), original);
++            }
++            "root" => {
++                let old = parking.path().join("original-root");
++                std::fs::rename(&home, &old).unwrap();
++                std::fs::create_dir(&home).unwrap();
++                for entry in std::fs::read_dir(&old).unwrap() {
++                    let entry = entry.unwrap();
++                    std::fs::rename(entry.path(), home.join(entry.file_name())).unwrap();
++                }
++            }
++            _ => unreachable!(),
++        }
++        process.release();
++        let output = process.finish();
++        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
++        assert_eq!(
++            output.status.success(),
++            change == "normal",
++            "{change}: {reply}"
++        );
++        if change != "normal" {
++            assert_eq!(reply["error"]["code"], "INVALID_REQUEST");
++        }
++        assert_eq!(std::fs::read(&store).unwrap(), original);
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn zero_work_revision_is_rejected_by_readonly_and_write_cli_entries() {
++    let env = Env::new();
++    env.add_example("two-step");
++    let started = env.ok(&[
++        "work",
++        "start",
++        "--workbook",
++        "two-step",
++        "--flow",
++        "default",
++        "--input",
++        "topic=revision",
++    ]);
++    let work = started["data"]["work_id"].as_str().unwrap();
++    let conn = Connection::open(env.dir.path().join("store.db")).unwrap();
++    conn.execute("UPDATE works SET revision=0 WHERE work_id=?1", [work])
++        .unwrap();
++    let before: String = conn
++        .query_row(
++            "SELECT state_json FROM works WHERE work_id=?1",
++            [work],
++            |row| row.get(0),
++        )
++        .unwrap();
++    let requests: i64 = conn
++        .query_row("SELECT count(*) FROM requests", [], |row| row.get(0))
++        .unwrap();
++    for args in [
++        vec!["work", "status", work],
++        vec!["work", "stats", work],
++        vec!["work", "list"],
++        vec!["--request-id", "zero-cancel", "work", "cancel", work],
++        vec![
++            "--request-id",
++            "zero-begin",
++            "attempt",
++            "begin",
++            work,
++            "--node",
++            "outline",
++        ],
++    ] {
++        let (reply, _) = env.fail(&args);
++        assert_eq!(reply["error"]["code"], "STORE_CORRUPT");
++        assert_eq!(
++            conn.query_row(
++                "SELECT state_json FROM works WHERE work_id=?1",
++                [work],
++                |row| row.get::<_, String>(0)
++            )
++            .unwrap(),
++            before
++        );
++        assert_eq!(
++            conn.query_row(
++                "SELECT revision FROM works WHERE work_id=?1",
++                [work],
++                |row| row.get::<_, i64>(0)
++            )
++            .unwrap(),
++            0
++        );
++        assert_eq!(
++            conn.query_row("SELECT count(*) FROM requests", [], |row| row
++                .get::<_, i64>(0))
++                .unwrap(),
++            requests
++        );
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request() {
++    let env = Env::new();
++    env.add_example("two-step");
++    let cwd = tempfile::tempdir().unwrap();
++    let sync = tempfile::tempdir().unwrap();
++    let child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
++        .args([
++            "--home",
++            &env.home(),
++            "--json",
++            "--request-id",
++            "removed-cwd",
++            "work",
++            "start",
++            "--workbook",
++            "two-step",
++            "--flow",
++            "default",
++            "--input",
++            "topic=@input.txt",
++        ])
++        .current_dir(cwd.path())
++        .env("SHELTIE_TEST_RENDEZVOUS_NAME", "lexical_before_cwd")
++        .env("SHELTIE_TEST_RENDEZVOUS_ID", "input.txt")
++        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
++        .stdout(Stdio::piped())
++        .stderr(Stdio::piped())
++        .spawn()
++        .unwrap();
++    let mut process = Process {
++        child: Some(child),
++        release: Some(sync.path().join("release")),
++    };
++    process.reached(sync.path(), "lexical_before_cwd");
++    std::fs::remove_dir(cwd.path()).unwrap();
++    process.release();
++    let output = process.finish();
++    let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
++    assert!(!output.status.success());
++    assert_eq!(reply["error"]["code"], "INVALID_REQUEST");
++    assert!(
++        reply["error"]["message"]
++            .as_str()
++            .unwrap()
++            .contains("current_dir")
++    );
++    let conn = connection(&env);
++    for table in ["works", "work_sequence", "requests"] {
++        assert_eq!(
++            conn.query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
++                .get::<_, i64>(0))
++                .unwrap(),
++            if table == "requests" { 1 } else { 0 }
++        );
++    }
++}
+diff --git a/crates/sheltie-cli/tests/remote_update.rs b/crates/sheltie-cli/tests/remote_update.rs
+index 8906c35..873d557 100644
+--- a/crates/sheltie-cli/tests/remote_update.rs
++++ b/crates/sheltie-cli/tests/remote_update.rs
+@@ -28,10 +28,16 @@ fn expected_platform() -> &'static str {
+     }
+ }
+ const CURL: &str = r#"#!/usr/bin/env python3
+-import json,sys,os
++import json,sys,os,hashlib
+ from pathlib import Path
+ cfg=json.loads(Path(os.environ['FAKE_CURL_CONFIG']).read_text())
+ url=sys.argv[-1]
++expected=os.stat(Path(os.environ['FAKE_CURL_HOME'])/'.lock')
++for descriptor in range(128):
++ try:actual=os.fstat(descriptor)
++ except OSError:continue
++ if (actual.st_dev,actual.st_ino)==(expected.st_dev,expected.st_ino):
++  print('child inherited parent engine lock',file=sys.stderr);sys.exit(23)
+ log=Path(os.environ['FAKE_CURL_LOG'])
+ previous=log.read_text().splitlines() if log.exists() else []
+ with log.open('a') as f:f.write(url+'\n')
+@@ -40,18 +46,24 @@ if cfg['mode']=='manifest_failure' and url.endswith('dist-manifest.json') or cfg
+ if cfg['mode'] in ['stderr_exact','stderr_over']:sys.stderr.buffer.write(b'x'*(1024*1024+(cfg['mode']=='stderr_over')));sys.stderr.buffer.flush()
+ platform=cfg['platform']
+ version='9.9.9'
+-if url.endswith('/latest/download/dist-manifest.json'):
++if cfg['mode']=='invalid_version':
++ version=cfg['fixture_version']
++ if not url.startswith(cfg['base']+'/download/v'+version+'/'):
++  print('unexpected invalid fixture URL',file=sys.stderr);sys.exit(22)
++elif url.endswith('/latest/download/dist-manifest.json'):
+  if any('/latest/download/' in old for old in previous):version='8.8.8'
+ elif not url.startswith(cfg['base']+'/download/v9.9.9/'):
+  print('unexpected URL '+url,file=sys.stderr);sys.exit(22)
+ name='sheltie-'+version+'-'+platform
++payload=b'x'*(32*1024*1024+(cfg['mode']=='asset_over')) if cfg['mode'] in ['asset_exact','asset_over'] else b'remote pinned 9.9.9 payload\n'
+ if url.endswith('dist-manifest.json'):
+  digest='dec2fc95c56b937d66a20cf64c623531d22fdd4def9a52dfadd4ebec7a60a694' if version=='9.9.9' else 'e86b13466a0a635fbea915871a23ec4e888579f8aa1f233b6526fa0d8181ca73'
++ if cfg['mode'] in ['asset_exact','asset_over','invalid_version']:digest=hashlib.sha256(payload).hexdigest()
+  data=json.dumps({'version':version,'assets':[{'platform':platform,'name':name,'sha256':digest}]}).encode()
+  if cfg['mode'] in ['stdout_exact','stdout_over']:data+=b' '*(32*1024*1024+(cfg['mode']=='stdout_over')-len(data))
+  sys.stdout.buffer.write(data)
+-elif url==cfg['base']+'/download/v9.9.9/'+name:
+- sys.stdout.buffer.write(b'remote pinned 9.9.9 payload\n')
++elif url==cfg['base']+'/download/v'+version+'/'+name:
++ sys.stdout.buffer.write(payload)
+ else:
+  print('unexpected asset '+url,file=sys.stderr);sys.exit(22)
+ "#;
+@@ -92,6 +104,7 @@ impl Transport {
+         cmd.env("SHELTIE_RELEASE_BASE", BASE)
+             .env("FAKE_CURL_CONFIG", &self.config)
+             .env("FAKE_CURL_LOG", &self.log)
++            .env("FAKE_CURL_HOME", env.home())
+             .env(
+                 "PATH",
+                 format!("{}:{}", self.tool.display(), std::env::var("PATH").unwrap()),
+@@ -213,3 +226,63 @@ fn remote_update_accepts_exact_stream_limits_and_preserves_state_on_one_more_byt
+         assert_eq!(std::fs::read_dir(home.join("tmp")).unwrap().count(), 0);
+     }
+ }
++
++// Task: C002-T33
++#[test]
++fn remote_update_accepts_exact_asset_limit_and_rejects_one_more_byte() {
++    for mode in ["asset_exact", "asset_over"] {
++        let env = Env::new();
++        env.ok(&["self", "install"]);
++        let home = env.dir.path();
++        std::fs::write(
++            home.join("bin/sheltie.prev"),
++            b"previous asset fixture bytes",
++        )
++        .unwrap();
++        let original = read(home, "bin/sheltie");
++        let previous = read(home, "bin/sheltie.prev");
++        let store = read(home, "store.db");
++        let transport = Transport::new(mode);
++        let output = transport.update(&env, Some("9.9.9"));
++        let response: Value = serde_json::from_slice(&output.stdout).unwrap();
++        if mode == "asset_exact" {
++            assert!(output.status.success(), "{response}");
++            assert_eq!(read(home, "bin/sheltie"), vec![b'x'; 32 * 1024 * 1024]);
++            assert_eq!(read(home, "bin/sheltie.prev"), original);
++        } else {
++            assert!(!output.status.success());
++            assert_eq!(response["error"]["code"], "UPDATE_UNAVAILABLE");
++            assert_eq!(read(home, "bin/sheltie"), original);
++            assert_eq!(read(home, "bin/sheltie.prev"), previous);
++        }
++        assert_eq!(read(home, "store.db"), store);
++        assert_eq!(std::fs::read_dir(home.join("tmp")).unwrap().count(), 0);
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn remote_update_rejects_invalid_versions_before_invoking_transport() {
++    for version in ["", ".", "..", "9/9", "v\\v"] {
++        let env = Env::new();
++        env.ok(&["self", "install"]);
++        let home = env.dir.path();
++        let original = read(home, "bin/sheltie");
++        let store = read(home, "store.db");
++        let transport = Transport::new("invalid_version");
++        let mut config: Value =
++            serde_json::from_slice(&std::fs::read(&transport.config).unwrap()).unwrap();
++        config["fixture_version"] = json!(version);
++        std::fs::write(&transport.config, config.to_string()).unwrap();
++        let output = transport.update(&env, Some(version));
++        let response: Value = serde_json::from_slice(&output.stdout).unwrap();
++        assert!(!output.status.success(), "{version}");
++        assert_eq!(response["error"]["code"], "UPDATE_UNAVAILABLE");
++        assert!(
++            !transport.log.exists(),
++            "invalid version {version:?} reached transport"
++        );
++        assert_eq!(read(home, "bin/sheltie"), original);
++        assert_eq!(read(home, "store.db"), store);
++    }
++}
+diff --git a/crates/sheltie-runtime/src/effects.rs b/crates/sheltie-runtime/src/effects.rs
+index 0d57172..c9a71a0 100644
+--- a/crates/sheltie-runtime/src/effects.rs
++++ b/crates/sheltie-runtime/src/effects.rs
+@@ -1299,7 +1299,10 @@ mod seal_output_tests {
+         u64,
+     ) {
+         let dir = tempfile::tempdir().unwrap();
+-        let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(dir.path().to_str().unwrap()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let lock = home.acquire_lock().unwrap();
+         let fs = ManagedFs::open_existing(&home).unwrap();
+         let path = ManagedRelPath::new(
+diff --git a/crates/sheltie-runtime/src/failpoint.rs b/crates/sheltie-runtime/src/failpoint.rs
+index c338b6e..a86fcdd 100644
+--- a/crates/sheltie-runtime/src/failpoint.rs
++++ b/crates/sheltie-runtime/src/failpoint.rs
+@@ -49,7 +49,7 @@ struct SyncFailure {
+ #[cfg(all(test, feature = "failpoint"))]
+ pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+ 
+-/// Arm a test-only COMMIT/effect rendezvous. No environment or host setting is modified.
++/// 设置按名称与作用域匹配的测试同步点；不修改环境变量或宿主配置。
+ pub fn arm_rendezvous(
+     name: &str,
+     request_id: &str,
+@@ -152,8 +152,7 @@ pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {
+     Ok(())
+ }
+ 
+-/// Test-only rendezvous used to mutate an observed object after COMMIT and before effects.
+-/// The request-id guard prevents unrelated commands in a parallel test process from pausing.
++/// 仅匹配指定测试名称与作用域，避免并行进程中的无关I/O进入同步点。
+ pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
+     #[cfg(feature = "failpoint")]
+     {
+diff --git a/crates/sheltie-runtime/src/fsx.rs b/crates/sheltie-runtime/src/fsx.rs
+index 8d2b8b1..4089a04 100644
+--- a/crates/sheltie-runtime/src/fsx.rs
++++ b/crates/sheltie-runtime/src/fsx.rs
+@@ -1615,8 +1615,18 @@ impl ExternalReadFile {
+             })?;
+         let canonical_parent =
+             std::fs::canonicalize(parent).map_err(|e| map_std_error(path.as_str(), e))?;
+-        let parent =
+-            AbsPath::new(canonical_parent.to_string_lossy().into_owned()).map_err(Error::Core)?;
++        let parent = AbsPath::new(
++            canonical_parent
++                .to_str()
++                .ok_or_else(|| Error::InvalidRequest {
++                    reason: format!(
++                        "输入文件的真实父目录 {} 不是UTF-8路径",
++                        canonical_parent.display()
++                    ),
++                })?
++                .to_string(),
++        )
++        .map_err(Error::Core)?;
+         let fs = ManagedFs::open_root(&parent)?;
+         let leaf = path
+             .as_path()
+@@ -1850,6 +1860,8 @@ impl ExternalReadTree {
+             }
+         }
+         let display = format!("{}/{}", self.root, entry.relative);
++        crate::failpoint::rendezvous("external_tree_before_stat", &display)
++            .map_err(|error| Error::io(&display, error))?;
+         let stat = statat(&current, &entry.name, AtFlags::SYMLINK_NOFOLLOW)
+             .map_err(|e| map_fs_error(&display, e))?;
+         check_regular_stat(&display, &stat)?;
+@@ -1861,6 +1873,8 @@ impl ExternalReadTree {
+                 reason: format!("{display} 在读取前被替换或改变"),
+             });
+         }
++        crate::failpoint::rendezvous("external_tree_after_stat", &display)
++            .map_err(|error| Error::io(&display, error))?;
+         let fd = openat(
+             &current,
+             &entry.name,
+@@ -1992,7 +2006,7 @@ fn tree_entry_name(raw: &[u8], display: &str) -> Result<String> {
+ }
+ 
+ fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
+-    let mut value = crate::request::lexical_abs(root.as_str());
++    let mut value = crate::request::lexical_abs(root.as_str())?;
+     for (alias, target) in [("/var/", "/private/var/"), ("/tmp/", "/private/tmp/")] {
+         let alias_root = alias.trim_end_matches('/');
+         let target_root = target.trim_end_matches('/');
+@@ -2057,7 +2071,7 @@ mod seal_tests {
+     ) {
+         let dir = tempfile::tempdir().unwrap();
+         let root = AbsPath::new(dir.path().to_str().unwrap()).unwrap();
+-        let home = crate::home::Home::at(root);
++        let home = crate::home::Home::resolve(Some((root).as_str())).unwrap();
+         let lock = home.acquire_lock().unwrap();
+         let fs = ManagedFs::open_existing(&home).unwrap();
+         let path = ManagedRelPath::new("works/w1/output.md").unwrap();
+@@ -2314,6 +2328,8 @@ fn open_regular_at(
+     let before =
+         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+     check_regular_stat(display, &before)?;
++    crate::failpoint::rendezvous("regular_open_after_stat", display)
++        .map_err(|error| Error::io(display, error))?;
+     let fd = openat(
+         parent,
+         leaf,
+@@ -2321,6 +2337,8 @@ fn open_regular_at(
+         Mode::empty(),
+     )
+     .map_err(|e| map_fs_error(display, e))?;
++    crate::failpoint::rendezvous("regular_open_after_open", display)
++        .map_err(|error| Error::io(display, error))?;
+     let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
+     check_regular_stat(display, &after)?;
+     if before.st_dev != after.st_dev || before.st_ino != after.st_ino {
+@@ -2351,6 +2369,8 @@ fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Resul
+             reason: format!("{display} 不是目录"),
+         });
+     }
++    crate::failpoint::rendezvous("directory_open_after_stat", display)
++        .map_err(|error| Error::io(display, error))?;
+     let fd = openat(
+         parent,
+         name,
+@@ -2358,6 +2378,8 @@ fn open_directory_at(parent: &std::fs::File, name: &str, display: &str) -> Resul
+         Mode::empty(),
+     )
+     .map_err(|e| map_fs_error(display, e))?;
++    crate::failpoint::rendezvous("directory_open_after_open", display)
++        .map_err(|error| Error::io(display, error))?;
+     let after = fstat(&fd).map_err(|e| map_fs_error(display, e))?;
+     if after.st_dev != before.st_dev || after.st_ino != before.st_ino {
+         return Err(Error::InvalidRequest {
+@@ -3122,9 +3144,12 @@ mod new_atomic_tests {
+     #[test]
+     fn new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf() {
+         let directory = tempfile::tempdir().unwrap();
+-        let home = crate::home::Home::at(
+-            AbsPath::new(directory.path().to_string_lossy().into_owned()).unwrap(),
+-        );
++        let home = crate::home::Home::resolve(Some(
++            AbsPath::new(directory.path().to_string_lossy().into_owned())
++                .unwrap()
++                .as_str(),
++        ))
++        .unwrap();
+         let lock = home.acquire_lock().unwrap();
+         let fs = ManagedFs::open_existing(&home).unwrap();
+         let path = ManagedRelPath::new("history.txt").unwrap();
+diff --git a/crates/sheltie-runtime/src/home.rs b/crates/sheltie-runtime/src/home.rs
+index b2d40b4..1a4a76f 100644
+--- a/crates/sheltie-runtime/src/home.rs
++++ b/crates/sheltie-runtime/src/home.rs
+@@ -7,29 +7,33 @@ use crate::error::{Error, Result};
+ 
+ /// 把路径规范化到「最深已存在祖先的真实位置 + 余下原样段」。
+ /// 全路径已存在时等价于 `canonicalize`；尚不存在的尾部保持词法形式。
+-fn canonicalize_deepest(path: &camino::Utf8Path) -> camino::Utf8PathBuf {
++fn canonicalize_deepest(path: &camino::Utf8Path) -> Result<camino::Utf8PathBuf> {
+     let mut probe = path.to_path_buf();
+     let mut tail: Vec<String> = Vec::new();
+     loop {
+         match std::fs::canonicalize(&probe) {
+             Ok(real) => {
+-                let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());
++                let mut out = camino::Utf8PathBuf::from_path_buf(real).map_err(|path| {
++                    Error::InvalidRequest {
++                        reason: format!("管理根的真实祖先 {} 不是UTF-8路径", path.display()),
++                    }
++                })?;
+                 for seg in tail.iter().rev() {
+                     out = out.join(seg);
+                 }
+-                return out;
++                return Ok(out);
+             }
+             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                 let Some(name) = probe.file_name().map(|n| n.to_string()) else {
+-                    return path.to_path_buf();
++                    return Err(Error::io(probe.as_str(), e));
+                 };
+                 tail.push(name);
+                 let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {
+-                    return path.to_path_buf();
++                    return Err(Error::io(probe.as_str(), e));
+                 };
+                 probe = parent;
+             }
+-            Err(_) => return path.to_path_buf(),
++            Err(error) => return Err(Error::io(probe.as_str(), error)),
+         }
+     }
+ }
+@@ -48,33 +52,42 @@ impl Home {
+     /// 之后所有 managed 路径都从这个规范根派生，祖先软链（如 `/tmp` 一类）不会
+     /// 让派生路径与 `confine` 的前缀比较失真（架构 §5）。
+     pub fn resolve(cli: Option<&str>) -> Result<Self> {
+-        let given = match cli.map(str::to_string) {
+-            Some(p) => p,
+-            None => std::env::var("SHELTIE_HOME")
+-                .or_else(|_| std::env::var("HOME").map(|h| format!("{h}/.sheltie")))
+-                .map_err(|_| Error::InvalidRequest {
+-                    reason: "既没有 --home 与 SHELTIE_HOME，也取不到 $HOME".to_string(),
+-                })?,
++        let configured = |name: &str| -> Result<Option<String>> {
++            std::env::var_os(name)
++                .map(|value| {
++                    value.into_string().map_err(|_| Error::InvalidRequest {
++                        reason: format!("{name} 不是UTF-8文本"),
++                    })
++                })
++                .transpose()
++        };
++        let given = match cli {
++            Some(path) => path.to_string(),
++            None => match configured("SHELTIE_HOME")? {
++                Some(path) => path,
++                None => format!(
++                    "{}/.sheltie",
++                    configured("HOME")?.ok_or_else(|| Error::InvalidRequest {
++                        reason: "既没有 --home 与 SHELTIE_HOME，也取不到 $HOME".to_string(),
++                    })?
++                ),
++            },
+         };
+         let root = if camino::Utf8Path::new(&given).is_absolute() {
+             camino::Utf8PathBuf::from(given)
+         } else {
+             let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
+-            camino::Utf8PathBuf::from(cwd.join(&given).to_string_lossy().into_owned())
++            camino::Utf8PathBuf::from_path_buf(cwd.join(&given)).map_err(|path| {
++                Error::InvalidRequest {
++                    reason: format!("管理根的当前目录 {} 不是UTF-8路径", path.display()),
++                }
++            })?
+         };
+         Ok(Self {
+-            root: AbsPath::new(canonicalize_deepest(&root).to_string())?,
++            root: AbsPath::new(canonicalize_deepest(&root)?.to_string())?,
+         })
+     }
+ 
+-    /// 直接用一个绝对路径当根（测试用）。与 `resolve` 一样把根规范化到真实形式，
+-    /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。
+-    pub fn at(root: AbsPath) -> Self {
+-        Self {
+-            root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),
+-        }
+-    }
+-
+     pub fn root(&self) -> &AbsPath {
+         &self.root
+     }
+@@ -145,14 +158,16 @@ impl Home {
+     /// 把外部给的相对路径限制在 `base` 之下。
+     ///
+     /// 拒绝：绝对路径、含 `..`、空段。若拼出的路径已存在，`canonicalize` 后必须仍以 `base` 的
+-    /// 规范形式为前缀（防符号链接逃逸）。失败返回 `Error::Core(InvalidPath)`。
++    /// 规范形式为前缀。路径不合法返回 `Error::Core(InvalidPath)`，I/O 错误保留路径与原因。
+     pub fn confine(base: &AbsPath, rel: &str) -> Result<AbsPath> {
+         // 先按写法拒绝：`RelPath` 的构造就是这套检查。
+         let rel = RelPath::new(rel)?;
+         let joined = base.join(&rel);
+         // base 不存在时其下不可能有已存在路径，写法检查已足够。
+-        let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {
+-            return Ok(joined);
++        let base_canon = match std::fs::canonicalize(base.as_path()) {
++            Ok(path) => path,
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(joined),
++            Err(error) => return Err(Error::io(base.as_str(), error)),
+         };
+         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。
+         let mut probe = joined.as_path().to_path_buf();
+@@ -364,7 +379,8 @@ mod lock_retry_tests {
+                 .into_owned(),
+         )
+         .unwrap();
+-        let home = Home::at(parent.join_segment("sheltie-test-home"));
++        let home =
++            Home::resolve(Some((parent.join_segment("sheltie-test-home")).as_str())).unwrap();
+         assert!(home.is_lock_setup_path_missing(&Error::NotFound {
+             what: home.lock_path().to_string(),
+         }));
+@@ -386,7 +402,10 @@ mod lock_retry_tests {
+         let directory = tempfile::tempdir().unwrap();
+         let root = directory.path().join("home");
+         std::fs::create_dir(&root).unwrap();
+-        let home = Home::at(AbsPath::new(root.to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(root.to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let held = home.acquire_lock().unwrap();
+         let rendezvous = tempfile::tempdir().unwrap();
+         crate::failpoint::arm_rendezvous(
+diff --git a/crates/sheltie-runtime/src/pending.rs b/crates/sheltie-runtime/src/pending.rs
+index 2e0e19c..fe1fc4a 100644
+--- a/crates/sheltie-runtime/src/pending.rs
++++ b/crates/sheltie-runtime/src/pending.rs
+@@ -987,7 +987,10 @@ mod tests {
+     #[test]
+     fn read_publish_dir_retries_when_final_renames_after_location() {
+         let temporary = tempfile::tempdir().unwrap();
+-        let home = Home::at(AbsPath::new(temporary.path().to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(temporary.path().to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let internal_id = "0198f01a7f0070008000000000000004";
+         let pending = format!("pending/{internal_id}/payload");
+         let final_path = "works/2026-09-29-001-test";
+diff --git a/crates/sheltie-runtime/src/request.rs b/crates/sheltie-runtime/src/request.rs
+index 9c1b3b5..ca91b68 100644
+--- a/crates/sheltie-runtime/src/request.rs
++++ b/crates/sheltie-runtime/src/request.rs
+@@ -73,16 +73,21 @@ impl RequestIntent {
+     }
+ }
+ 
+-/// 词法规范化一个绝对路径：解析 `.` 段并拼接，不访问文件系统、不解析软链
+-///（重放不要求源路径仍存在，canonicalize 会引入这个依赖）。
+-pub fn lexical_abs(path: &str) -> String {
++/// 将路径词法展开为绝对路径；不读取目标文件或解析软链，重放不依赖源文件存在。
++/// 相对路径的当前目录无法获取或表示为UTF-8时，保留错误而不猜测位置。
++pub fn lexical_abs(path: &str) -> crate::Result<String> {
+     let p = camino::Utf8Path::new(path);
+     let base = if p.is_absolute() {
+         camino::Utf8PathBuf::from("/")
+     } else {
+         // 相对路径按当前目录词法展开。
+-        let cwd = std::env::current_dir().unwrap_or_default();
+-        camino::Utf8PathBuf::from(cwd.to_string_lossy().into_owned())
++        crate::failpoint::rendezvous("lexical_before_cwd", path)
++            .map_err(|error| crate::Error::io("current_dir", error))?;
++        let cwd =
++            std::env::current_dir().map_err(|error| crate::Error::io("current_dir", error))?;
++        camino::Utf8PathBuf::from_path_buf(cwd).map_err(|path| crate::Error::InvalidRequest {
++            reason: format!("路径展开的当前目录 {} 不是UTF-8路径", path.display()),
++        })?
+     };
+     let mut out = base;
+     for seg in p.components() {
+@@ -95,5 +100,5 @@ pub fn lexical_abs(path: &str) -> String {
+             camino::Utf8Component::Normal(name) => out = out.join(name),
+         }
+     }
+-    out.to_string()
++    Ok(out.to_string())
+ }
+diff --git a/crates/sheltie-runtime/src/selfmgmt.rs b/crates/sheltie-runtime/src/selfmgmt.rs
+index a56c91a..480f1b4 100644
+--- a/crates/sheltie-runtime/src/selfmgmt.rs
++++ b/crates/sheltie-runtime/src/selfmgmt.rs
+@@ -112,7 +112,15 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
+     }
+     let current = std::env::current_exe().map_err(|e| Error::io("current_exe", e))?;
+     let exe = crate::fsx::ExternalReadFile::open_regular(
+-        &AbsPath::new(current.to_string_lossy().into_owned()).map_err(Error::Core)?,
++        &AbsPath::new(
++            current
++                .to_str()
++                .ok_or_else(|| Error::InvalidRequest {
++                    reason: format!("当前可执行文件 {} 不是UTF-8路径", current.display()),
++                })?
++                .to_string(),
++        )
++        .map_err(Error::Core)?,
+     )?;
+     let bytes = exe.read_bounded(crate::fsx::MAX_FILE_BYTES)?;
+     let session = crate::session::WriteSession::open_or_create(home)?;
+@@ -520,7 +528,7 @@ struct ReleaseManifest {
+ fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
+     let url = source.manifest_url(tag);
+     let text = if source.is_local() {
+-        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
++        let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
+         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
+             Error::UpdateUnavailable {
+                 reason: format!("读不了发布清单 {url}：{error}"),
+@@ -630,7 +638,7 @@ fn download(
+     let url = source.asset_url(tag, name);
+     let dst = tmp.join_segment(name);
+     let bytes = if source.is_local() {
+-        let path = AbsPath::new(crate::request::lexical_abs(&url)).map_err(Error::Core)?;
++        let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
+         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
+             Error::UpdateUnavailable {
+                 reason: format!("读不了发布包 {url}：{error}"),
+diff --git a/crates/sheltie-runtime/src/service.rs b/crates/sheltie-runtime/src/service.rs
+index af35444..dbd8adf 100644
+--- a/crates/sheltie-runtime/src/service.rs
++++ b/crates/sheltie-runtime/src/service.rs
+@@ -1614,7 +1614,10 @@ mod pending_stage_tests {
+     #[test]
+     fn remove_stage_persists_owner_and_container_without_payload() {
+         let temp = tempfile::tempdir().unwrap();
+-        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let lock = home.acquire_lock().unwrap();
+         let payload =
+             stage_pending(&home, &lock, "internal-1", "request-1", "remove_workbook").unwrap();
+@@ -1640,7 +1643,10 @@ mod pending_stage_tests {
+     #[test]
+     fn publish_stage_persists_owner_container_and_payload() {
+         let temp = tempfile::tempdir().unwrap();
+-        let home = Home::at(AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(temp.path().to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let lock = home.acquire_lock().unwrap();
+         let payload = stage_pending(&home, &lock, "internal-2", "request-2", "start_work").unwrap();
+         assert!(std::path::Path::new(payload.as_str()).is_dir());
+diff --git a/crates/sheltie-runtime/src/session.rs b/crates/sheltie-runtime/src/session.rs
+index 58d4702..fbcc6a6 100644
+--- a/crates/sheltie-runtime/src/session.rs
++++ b/crates/sheltie-runtime/src/session.rs
+@@ -77,7 +77,10 @@ mod tests {
+         let directory = tempfile::tempdir().unwrap();
+         let home_root = directory.path().join("home");
+         std::fs::create_dir(&home_root).unwrap();
+-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let session = WriteSession::open_or_create(&home).unwrap();
+         session.store.list_workbooks().unwrap();
+         let db_before = std::fs::read(home.store_path().as_path()).unwrap();
+@@ -101,7 +104,10 @@ mod tests {
+         let home_root = directory.path().join("home");
+         let moved_root = directory.path().join("moved-home");
+         std::fs::create_dir(&home_root).unwrap();
+-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+         let session = WriteSession::open_or_create(&home).unwrap();
+         session.store.list_workbooks().unwrap();
+         std::fs::rename(&home_root, &moved_root).unwrap();
+@@ -139,7 +145,10 @@ mod tests {
+         let directory = tempfile::tempdir().unwrap();
+         let home_root = directory.path().join("home");
+         std::fs::create_dir(&home_root).unwrap();
+-        let home = Home::at(AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap());
++        let home = Home::resolve(Some(
++            (AbsPath::new(home_root.to_string_lossy().into_owned()).unwrap()).as_str(),
++        ))
++        .unwrap();
+ 
+         let first_sync = tempfile::tempdir().unwrap();
+         crate::failpoint::arm_rendezvous(
+diff --git a/crates/sheltie-runtime/src/store/mod.rs b/crates/sheltie-runtime/src/store/mod.rs
+index 822bd9b..cb47f3a 100644
+--- a/crates/sheltie-runtime/src/store/mod.rs
++++ b/crates/sheltie-runtime/src/store/mod.rs
+@@ -269,6 +269,8 @@ impl Store {
+         }
+         let root_identity = self.owner_home.as_ref().map(root_identity).transpose()?;
+         self.verify_owner_binding(root_identity, file_identity(&metadata))?;
++        crate::failpoint::rendezvous("store_before_sqlite_open", self.path.as_str())
++            .map_err(|error| Error::io(self.path.as_str(), error))?;
+         let conn = match self.mode {
+             OpenMode::ReadOnly => rusqlite::Connection::open_with_flags(
+                 self.path.as_str(),
+diff --git a/crates/sheltie-runtime/src/store/tests.rs b/crates/sheltie-runtime/src/store/tests.rs
+index cf2d5e1..9247b88 100644
+--- a/crates/sheltie-runtime/src/store/tests.rs
++++ b/crates/sheltie-runtime/src/store/tests.rs
+@@ -10,7 +10,10 @@ use sheltie_core::work::{Principal, Timestamp};
+ 
+ fn temp_home() -> (tempfile::TempDir, Home) {
+     let dir = tempfile::tempdir().unwrap();
+-    let home = Home::at(AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap());
++    let home = Home::resolve(Some(
++        (AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap()).as_str(),
++    ))
++    .unwrap();
+     (dir, home)
+ }
+ 
+@@ -441,7 +444,7 @@ fn allocate_seq_under_two_threads_yields_distinct_numbers() {
+ // Task: C002-T14
+ #[test]
+ fn load_rejects_row_identity_status_and_revision_mismatch() {
+-    for corruption in ["identity", "status", "revision"] {
++    for corruption in ["identity", "status", "revision", "revision_zero"] {
+         let (_dir, home) = temp_home();
+         let store = open_rw(&home);
+         let state = state_fixture();
+@@ -461,6 +464,9 @@ fn load_rejects_row_identity_status_and_revision_mismatch() {
+             "revision" => {
+                 conn.execute("UPDATE works SET revision = -1", []).unwrap();
+             }
++            "revision_zero" => {
++                conn.execute("UPDATE works SET revision = 0", []).unwrap();
++            }
+             _ => unreachable!(),
+         }
+         let error = store.load_work(&state.work_id).unwrap_err();
+diff --git a/crates/sheltie-runtime/src/workbook_repo.rs b/crates/sheltie-runtime/src/workbook_repo.rs
+index f9c4d7e..473d8e0 100644
+--- a/crates/sheltie-runtime/src/workbook_repo.rs
++++ b/crates/sheltie-runtime/src/workbook_repo.rs
+@@ -159,7 +159,7 @@ impl WorkbookRepo {
+     pub fn add(&self, dir: &AbsPath, request_id: Option<String>) -> Result<AddedSnapshot> {
+         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+         let intent = RequestIntent::AddWorkbook {
+-            source: lexical_abs(dir.as_str()),
++            source: lexical_abs(dir.as_str())?,
+         };
+         let command_json = match &intent {
+             RequestIntent::AddWorkbook { .. } => {
+diff --git a/crates/sheltie-runtime/tests/common/mod.rs b/crates/sheltie-runtime/tests/common/mod.rs
+index 9b785c5..70451cd 100644
+--- a/crates/sheltie-runtime/tests/common/mod.rs
++++ b/crates/sheltie-runtime/tests/common/mod.rs
+@@ -83,7 +83,7 @@ pub fn abs(p: &Path) -> AbsPath {
+ /// 一个全新的临时管理根。返回 `TempDir` 保活。
+ pub fn temp_home() -> (OwnedTempDir, Home) {
+     let dir = OwnedTempDir::new();
+-    let home = Home::at(abs(dir.path()));
++    let home = Home::resolve(Some((abs(dir.path())).as_str())).unwrap();
+     (dir, home)
+ }
+ 
+@@ -173,3 +173,39 @@ pub fn output_dir_of(resp: &sheltie_runtime::Response) -> AbsPath {
+         other => panic!("不是 AttemptBegun：{other:?}"),
+     }
+ }
++
++#[cfg(feature = "failpoint")]
++pub struct RendezvousWorker {
++    releases: [PathBuf; 2],
++    worker: Option<std::thread::JoinHandle<()>>,
++}
++
++#[cfg(feature = "failpoint")]
++impl RendezvousWorker {
++    pub fn new(worker: std::thread::JoinHandle<()>, before: &Path, after: &Path) -> Self {
++        Self {
++            releases: [before.join("release"), after.join("release")],
++            worker: Some(worker),
++        }
++    }
++
++    pub fn finish(&mut self) -> std::thread::Result<()> {
++        for release in &self.releases {
++            let _ = std::fs::write(release, b"release");
++        }
++        let result = self
++            .worker
++            .take()
++            .map(|worker| worker.join())
++            .unwrap_or(Ok(()));
++        let _ = sheltie_runtime::failpoint::disarm_rendezvous();
++        result
++    }
++}
++
++#[cfg(feature = "failpoint")]
++impl Drop for RendezvousWorker {
++    fn drop(&mut self) {
++        let _ = self.finish();
++    }
++}
+diff --git a/crates/sheltie-runtime/tests/effect_contracts.rs b/crates/sheltie-runtime/tests/effect_contracts.rs
+index 71306f1..20402a0 100644
+--- a/crates/sheltie-runtime/tests/effect_contracts.rs
++++ b/crates/sheltie-runtime/tests/effect_contracts.rs
+@@ -1074,3 +1074,119 @@ fn cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan() {
+     assert!(repository.cleanup_pending().unwrap().is_empty());
+     assert!(!payload.exists());
+ }
++
++// Task: C002-T33
++#[test]
++fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
++    for remove in [false, true] {
++        let (_directory, home) = temp_home();
++        let repository = repo(&home);
++        let source = abs(&example_dir("two-step"));
++        let rid = "snapshot-drift";
++        repository
++            .add(
++                &source,
++                Some(if remove { "drift-setup" } else { rid }.into()),
++            )
++            .unwrap();
++        if remove {
++            repository
++                .remove("two-step", "1.0.0", Some(rid.into()))
++                .unwrap();
++        }
++        let connection = Connection::open(home.store_path().as_str()).unwrap();
++        let reply: String = connection
++            .query_row(
++                "SELECT reply_json FROM requests WHERE request_id=?1",
++                [rid],
++                |row| row.get(0),
++            )
++            .unwrap();
++        let audit: String = connection
++            .query_row(
++                "SELECT command_json FROM audit WHERE request_id=?1",
++                [rid],
++                |row| row.get(0),
++            )
++            .unwrap();
++        let hash: String = connection
++            .query_row(
++                "SELECT intent_hash FROM requests WHERE request_id=?1",
++                [rid],
++                |row| row.get(0),
++            )
++            .unwrap();
++        for corruption in ["rid", "replayed", "source", "requires", "id", "version"] {
++            if remove && matches!(corruption, "source" | "requires")
++                || !remove && matches!(corruption, "id" | "version")
++            {
++                continue;
++            }
++            let mut snapshot: Value = serde_json::from_str(&reply).unwrap();
++            match corruption {
++                "rid" => snapshot["request_id"] = json!("another-request"),
++                "replayed" => snapshot["replayed"] = json!(true),
++                "requires" => snapshot["data"]["requires"] = json!(["invalid-without-colon"]),
++                "id" => snapshot["data"]["id"] = json!("other-step"),
++                "version" => snapshot["data"]["version"] = json!("2.0.0"),
++                "source" => {
++                    let replacement = if hash == "0".repeat(64) {
++                        "1".repeat(64)
++                    } else {
++                        "0".repeat(64)
++                    };
++                    let mut command: Value = serde_json::from_str(&audit).unwrap();
++                    command["source"] = json!(replacement);
++                    connection
++                        .execute(
++                            "UPDATE audit SET command_json=?1 WHERE request_id=?2",
++                            rusqlite::params![command.to_string(), rid],
++                        )
++                        .unwrap();
++                }
++                _ => unreachable!(),
++            }
++            connection
++                .execute(
++                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
++                    rusqlite::params![snapshot.to_string(), rid],
++                )
++                .unwrap();
++            let before_rows = rows(&connection);
++            let before_files = files(home.root().as_path().as_std_path());
++            let error = if remove {
++                repository
++                    .remove("two-step", "1.0.0", Some(rid.into()))
++                    .unwrap_err()
++            } else {
++                repository.add(&source, Some(rid.into())).unwrap_err()
++            };
++            assert_eq!(
++                error.code(),
++                sheltie_core::ErrorCode::EffectPending,
++                "{corruption}: {error}"
++            );
++            assert_unchanged(&home, &connection, before_rows, before_files);
++            connection
++                .execute(
++                    "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
++                    rusqlite::params![reply, rid],
++                )
++                .unwrap();
++            connection
++                .execute(
++                    "UPDATE audit SET command_json=?1 WHERE request_id=?2",
++                    rusqlite::params![audit, rid],
++                )
++                .unwrap();
++        }
++        assert!(if remove {
++            repository
++                .remove("two-step", "1.0.0", Some(rid.into()))
++                .unwrap()
++                .replayed
++        } else {
++            repository.add(&source, Some(rid.into())).unwrap().replayed
++        });
++    }
++}
+diff --git a/crates/sheltie-runtime/tests/fs_boundary.rs b/crates/sheltie-runtime/tests/fs_boundary.rs
+index 1c9f1e9..df4939b 100644
+--- a/crates/sheltie-runtime/tests/fs_boundary.rs
++++ b/crates/sheltie-runtime/tests/fs_boundary.rs
+@@ -303,7 +303,7 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
+ fn exclusive_atomic_write_creates_and_replaces_target_only() {
+     let dir = tempfile::tempdir().unwrap();
+     let base = canonical_abs(dir.path());
+-    let home = sheltie_runtime::Home::at(base);
++    let home = sheltie_runtime::Home::resolve(Some((base).as_str())).unwrap();
+     let lock = home.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     let target = ManagedRelPath::new("card.md").unwrap();
+@@ -333,7 +333,7 @@ fn directory_handle_remains_anchored_after_parent_path_is_replaced() {
+     let outside = tempfile::tempdir().unwrap();
+     let sentinel = sentinel(outside.path(), "outside");
+     let before = snapshot(&sentinel);
+-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
++    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
+     let lock = home.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     let held = fs
+@@ -368,8 +368,10 @@ fn directory_handle_remains_anchored_after_parent_path_is_replaced() {
+ fn managed_operations_reject_a_lock_from_another_home() {
+     let first = tempfile::tempdir().unwrap();
+     let second = tempfile::tempdir().unwrap();
+-    let home = sheltie_runtime::Home::at(canonical_abs(first.path()));
+-    let other = sheltie_runtime::Home::at(canonical_abs(second.path()));
++    let home =
++        sheltie_runtime::Home::resolve(Some((canonical_abs(first.path())).as_str())).unwrap();
++    let other =
++        sheltie_runtime::Home::resolve(Some((canonical_abs(second.path())).as_str())).unwrap();
+     let wrong_lock = other.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     let target = ManagedRelPath::new("never-created").unwrap();
+@@ -386,7 +388,7 @@ fn managed_operations_reject_a_lock_from_another_home() {
+ fn readonly_rechecks_hardlink_count_before_chmod() {
+     let dir = tempfile::tempdir().unwrap();
+     let outside = tempfile::tempdir().unwrap();
+-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
++    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
+     let lock = home.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     let rel = ManagedRelPath::new("payload").unwrap();
+@@ -409,7 +411,7 @@ fn readonly_rechecks_hardlink_count_before_chmod() {
+ #[test]
+ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
+     let dir = tempfile::tempdir().unwrap();
+-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
++    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
+     let lock = home.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     // 软链段。
+@@ -421,7 +423,8 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
+     }
+     // 文件占位段。
+     let dir2 = tempfile::tempdir().unwrap();
+-    let home2 = sheltie_runtime::Home::at(canonical_abs(dir2.path()));
++    let home2 =
++        sheltie_runtime::Home::resolve(Some((canonical_abs(dir2.path())).as_str())).unwrap();
+     let lock2 = home2.acquire_lock().unwrap();
+     let fs2 = ManagedFs::open_existing(&home2).unwrap();
+     std::fs::write(home2.root().as_path().join("bin"), b"not a dir").unwrap();
+@@ -443,7 +446,7 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
+ #[test]
+ fn exclusive_atomic_write_creates_nested_parents() {
+     let dir = tempfile::tempdir().unwrap();
+-    let home = sheltie_runtime::Home::at(canonical_abs(dir.path()));
++    let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
+     let lock = home.acquire_lock().unwrap();
+     let fs = ManagedFs::open_existing(&home).unwrap();
+     let target = ManagedRelPath::new("works/w/attempts/d/0/brief.md").unwrap();
+diff --git a/crates/sheltie-runtime/tests/home_observe.rs b/crates/sheltie-runtime/tests/home_observe.rs
+index 9974fb4..e92e42e 100644
+--- a/crates/sheltie-runtime/tests/home_observe.rs
++++ b/crates/sheltie-runtime/tests/home_observe.rs
+@@ -144,3 +144,144 @@ fn resource_index_marks_non_utf8() {
+     );
+     assert_eq!(idx.files.len(), 2);
+ }
++
++// Task: C002-T33
++#[test]
++fn home_resolution_preserves_permission_errors_from_an_existing_ancestor() {
++    use std::os::unix::fs::PermissionsExt as _;
++    let directory = tempfile::tempdir().unwrap();
++    let denied = directory.path().join("denied");
++    std::fs::create_dir(&denied).unwrap();
++    std::fs::set_permissions(&denied, std::fs::Permissions::from_mode(0o000)).unwrap();
++    let result = Home::resolve(Some(denied.join("child").to_str().unwrap()));
++    std::fs::set_permissions(&denied, std::fs::Permissions::from_mode(0o700)).unwrap();
++    assert!(
++        matches!(result, Err(Error::Io { source, .. }) if source.kind() == std::io::ErrorKind::PermissionDenied)
++    );
++}
++
++// Task: C002-T33
++#[cfg(feature = "failpoint")]
++#[test]
++fn external_reads_do_not_follow_a_temporary_alias_to_the_same_observed_object() {
++    use sheltie_runtime::failpoint;
++    use std::sync::mpsc;
++    use std::time::{Duration, Instant};
++    struct Reset;
++    impl Drop for Reset {
++        fn drop(&mut self) {
++            let _ = failpoint::disarm_rendezvous();
++        }
++    }
++    let _reset = Reset;
++    for directory in [false, true] {
++        let area = tempfile::tempdir().unwrap();
++        let source = area.path().join("source");
++        std::fs::create_dir(&source).unwrap();
++        let target = source.join(if directory { "nested" } else { "file.txt" });
++        if directory {
++            std::fs::create_dir(&target).unwrap();
++            std::fs::write(target.join("file.txt"), b"original bytes").unwrap();
++        } else {
++            std::fs::write(&target, b"original bytes").unwrap();
++        }
++        let target = if directory {
++            std::fs::canonicalize(&target).unwrap()
++        } else {
++            target
++        };
++        let scope = target.to_str().unwrap();
++        let before = tempfile::tempdir().unwrap();
++        let after = tempfile::tempdir().unwrap();
++        let prefix = if directory { "directory" } else { "regular" };
++        failpoint::arm_rendezvous(&format!("{prefix}_open_after_stat"), scope, before.path())
++            .unwrap();
++        let worker_source = abs(&source);
++        let worker_target = abs(&target);
++        let (sender, receiver) = mpsc::channel();
++        let worker = std::thread::spawn(move || {
++            let result = if directory {
++                build_resource_index(&worker_source).map(|_| ())
++            } else {
++                observe_file(&worker_target).map(|_| ())
++            };
++            sender.send(result).unwrap();
++        });
++        let mut worker = RendezvousWorker::new(worker, before.path(), after.path());
++        let deadline = Instant::now() + Duration::from_secs(10);
++        while !before.path().join("reached").exists() {
++            assert!(
++                Instant::now() < deadline,
++                "first open boundary was not reached"
++            );
++            assert!(
++                receiver.try_recv().is_err(),
++                "observer ended before its boundary"
++            );
++            std::thread::sleep(Duration::from_millis(1));
++        }
++        let parked = area.path().join("original");
++        std::fs::rename(&target, &parked).unwrap();
++        std::os::unix::fs::symlink(&parked, &target).unwrap();
++        failpoint::arm_rendezvous(&format!("{prefix}_open_after_open"), scope, after.path())
++            .unwrap();
++        std::fs::write(before.path().join("release"), b"release").unwrap();
++        let result = loop {
++            if let Ok(result) = receiver.try_recv() {
++                break result;
++            }
++            if after.path().join("reached").exists() {
++                std::fs::remove_file(&target).unwrap();
++                std::fs::rename(&parked, &target).unwrap();
++                std::fs::write(after.path().join("release"), b"release").unwrap();
++                break receiver.recv_timeout(Duration::from_secs(10)).unwrap();
++            }
++            assert!(
++                Instant::now() < deadline,
++                "observer did not reject or finish opening"
++            );
++            std::thread::sleep(Duration::from_millis(1));
++        };
++        worker.finish().unwrap();
++        if parked.exists() {
++            std::fs::remove_file(&target).unwrap();
++            std::fs::rename(&parked, &target).unwrap();
++        }
++        assert!(
++            result.is_err(),
++            "an alias must not be followed even when it names the original inode"
++        );
++        assert_eq!(
++            std::fs::read(if directory {
++                target.join("file.txt")
++            } else {
++                target
++            })
++            .unwrap(),
++            b"original bytes"
++        );
++        failpoint::disarm_rendezvous().unwrap();
++    }
++}
++
++// Task: C002-T33
++#[test]
++fn confine_does_not_treat_an_unreadable_existing_base_as_missing() {
++    use std::os::unix::fs::PermissionsExt as _;
++    let directory = tempfile::tempdir().unwrap();
++    let locked = directory.path().join("locked");
++    let base = locked.join("base");
++    std::fs::create_dir_all(&base).unwrap();
++    let root = abs(&base);
++    assert_eq!(
++        Home::confine(&root, "next.txt").unwrap(),
++        root.join_segment("next.txt")
++    );
++    std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o000)).unwrap();
++    let result = Home::confine(&root, "next.txt");
++    std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o700)).unwrap();
++    assert!(
++        matches!(result, Err(Error::Io { source, .. }) if source.kind() == std::io::ErrorKind::PermissionDenied)
++    );
++    assert!(!base.join("next.txt").exists());
++}
+diff --git a/crates/sheltie-runtime/tests/schema2_replay.rs b/crates/sheltie-runtime/tests/schema2_replay.rs
+index e44c4af..74f538d 100644
+--- a/crates/sheltie-runtime/tests/schema2_replay.rs
++++ b/crates/sheltie-runtime/tests/schema2_replay.rs
+@@ -69,7 +69,10 @@ fn schema1_store_rejected_without_touching_file() {
+     let wal = dir.path().join("store.db-wal");
+     let wal_before = std::fs::read(&wal).unwrap();
+ 
+-    let home = Home::at(AbsPath::new(dir.path().to_str().unwrap()).unwrap());
++    let home = Home::resolve(Some(
++        (AbsPath::new(dir.path().to_str().unwrap()).unwrap()).as_str(),
++    ))
++    .unwrap();
+     assert!(matches!(
+         WorkService::new(home.clone()).list(),
+         Err(Error::StoreSchemaMismatch { .. })
+diff --git a/crates/sheltie-runtime/tests/workbook_identity.rs b/crates/sheltie-runtime/tests/workbook_identity.rs
+index fe6320d..d7f1cf9 100644
+--- a/crates/sheltie-runtime/tests/workbook_identity.rs
++++ b/crates/sheltie-runtime/tests/workbook_identity.rs
+@@ -117,7 +117,7 @@ fn self_install_on_new_home_creates_root_store_and_bin() {
+ #[test]
+ fn readonly_open_never_creates_home() {
+     let dir = tempfile::tempdir().unwrap();
+-    let home = Home::at(abs(dir.path()));
++    let home = Home::resolve(Some((abs(dir.path())).as_str())).unwrap();
+     assert!(matches!(
+         WorkService::new(home.clone()).list(),
+         Err(Error::NotFound { .. })
+diff --git a/crates/sheltie-runtime/tests/workbook_repo.rs b/crates/sheltie-runtime/tests/workbook_repo.rs
+index 3052177..e8507e0 100644
+--- a/crates/sheltie-runtime/tests/workbook_repo.rs
++++ b/crates/sheltie-runtime/tests/workbook_repo.rs
+@@ -805,3 +805,147 @@ fn installed_manifest_accepts_exact_file_limit_and_rejects_one_more_byte() {
+         }
+     }
+ }
++
++// Task: C002-T33
++#[test]
++fn removing_an_unrelated_workbook_preserves_the_registered_neighbor() {
++    let (directory, home) = temp_home();
++    let repository = repo(&home);
++    repository
++        .add(&abs(&example_dir("two-step")), Some("neighbor-a".into()))
++        .unwrap();
++    let second = copy_example("two-step", directory.path());
++    let manifest = std::fs::read_to_string(second.join("workbook.toml")).unwrap();
++    std::fs::write(
++        second.join("workbook.toml"),
++        manifest.replace("id = \"two-step\"", "id = \"other-step\""),
++    )
++    .unwrap();
++    repository
++        .add(&abs(&second), Some("neighbor-b".into()))
++        .unwrap();
++    repository
++        .remove("other-step", "1.0.0", Some("remove-neighbor-b".into()))
++        .unwrap();
++    let rows = repository.list().unwrap();
++    assert_eq!(rows.len(), 1);
++    assert_eq!(rows[0].id, "two-step");
++    assert_eq!(
++        repository
++            .load("two-step", Some("1.0.0"))
++            .unwrap()
++            .manifest
++            .id()
++            .as_str(),
++        "two-step"
++    );
++    assert_eq!(
++        repository.verify(Some(("two-step", "1.0.0"))).unwrap()[0].status,
++        VerifyStatus::Ok
++    );
++}
++
++// Task: C002-T33
++#[test]
++fn missing_installed_manifest_is_tampered_instead_of_a_missing_workbook() {
++    let (_directory, home) = temp_home();
++    let repository = repo(&home);
++    repository
++        .add(&abs(&example_dir("two-step")), None)
++        .unwrap();
++    let installed = home.workbook_dir("two-step", "1.0.0");
++    use std::os::unix::fs::PermissionsExt as _;
++    std::fs::set_permissions(installed.as_path(), std::fs::Permissions::from_mode(0o755)).unwrap();
++    std::fs::remove_file(installed.as_path().join("workbook.toml")).unwrap();
++    let rows = repository.verify(Some(("two-step", "1.0.0"))).unwrap();
++    assert_eq!(rows.len(), 1);
++    assert_eq!(rows[0].status, VerifyStatus::Tampered);
++    assert_eq!(rows[0].id, "two-step");
++    assert!(installed.as_path().is_dir());
++}
++
++// Task: C002-T33
++#[cfg(feature = "failpoint")]
++#[test]
++fn workbook_copy_rejects_an_observed_replacement_even_if_the_original_is_restored_before_open() {
++    use sheltie_runtime::failpoint;
++    use std::sync::mpsc;
++    use std::time::{Duration, Instant};
++    struct Reset;
++    impl Drop for Reset {
++        fn drop(&mut self) {
++            let _ = failpoint::disarm_rendezvous();
++        }
++    }
++    let _reset = Reset;
++    let (directory, home) = temp_home();
++    let source = copy_example("two-step", directory.path());
++    let manifest = std::fs::canonicalize(source.join("workbook.toml")).unwrap();
++    let original = std::fs::read(&manifest).unwrap();
++    let before = tempfile::tempdir().unwrap();
++    let after = tempfile::tempdir().unwrap();
++    failpoint::arm_rendezvous(
++        "external_tree_before_stat",
++        manifest.to_str().unwrap(),
++        before.path(),
++    )
++    .unwrap();
++    let repository = repo(&home);
++    let (sender, receiver) = mpsc::channel();
++    let worker = std::thread::spawn(move || {
++        sender
++            .send(repository.add(&abs(&source), Some("copy-observed-replacement".into())))
++            .unwrap()
++    });
++    let mut worker = RendezvousWorker::new(worker, before.path(), after.path());
++    let deadline = Instant::now() + Duration::from_secs(10);
++    while !before.path().join("reached").exists() {
++        assert!(Instant::now() < deadline);
++        assert!(
++            receiver.try_recv().is_err(),
++            "copy finished before observing the selected source file"
++        );
++        std::thread::sleep(Duration::from_millis(1));
++    }
++    let parked = directory.path().join("original-manifest");
++    std::fs::rename(&manifest, &parked).unwrap();
++    std::fs::write(&manifest, &original).unwrap();
++    failpoint::arm_rendezvous(
++        "external_tree_after_stat",
++        manifest.to_str().unwrap(),
++        after.path(),
++    )
++    .unwrap();
++    std::fs::write(before.path().join("release"), b"release").unwrap();
++    let result = loop {
++        if let Ok(result) = receiver.try_recv() {
++            break result;
++        }
++        if after.path().join("reached").exists() {
++            std::fs::remove_file(&manifest).unwrap();
++            std::fs::rename(&parked, &manifest).unwrap();
++            std::fs::write(after.path().join("release"), b"release").unwrap();
++            break receiver.recv_timeout(Duration::from_secs(10)).unwrap();
++        }
++        assert!(Instant::now() < deadline);
++        std::thread::sleep(Duration::from_millis(1));
++    };
++    worker.finish().unwrap();
++    if parked.exists() {
++        std::fs::remove_file(&manifest).unwrap();
++        std::fs::rename(&parked, &manifest).unwrap();
++    }
++    assert!(matches!(result, Err(Error::InvalidRequest { .. })));
++    assert_eq!(std::fs::read(&manifest).unwrap(), original);
++    if home.store_path().as_path().exists() {
++        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
++        for table in ["workbooks", "requests", "audit"] {
++            assert_eq!(
++                conn.query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
++                    .get::<_, i64>(0))
++                    .unwrap(),
++                0
++            );
++        }
++    }
++}
+diff --git a/specs/architecture.md b/specs/architecture.md
+index e571dc6..c1de67a 100644
+--- a/specs/architecture.md
++++ b/specs/architecture.md
+@@ -176,7 +176,7 @@ CLI 解析参数（只解析 @file 路径，不读内容）
+ 
+ ## 5. 目录布局
+ 
+-管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。只有 runtime 能写这棵树。所有 managed 路径（Store、锁、workbooks、works、pending、tmp、bin 及恢复与删除目标）都从根派生并经 `confine` 检查。
++管理根默认 `~/.sheltie`，环境变量 `SHELTIE_HOME` 覆盖。入口通过 `Home::resolve` 将最深已存在祖先解析为真实路径，再拼接不存在的尾部；只有 `NotFound` 可向父目录退让，权限及其他 I/O 错误必须传播。无法表示为 UTF-8 的配置、当前目录或真实祖先路径明确拒绝，不替换字节或改选其他根。只有 runtime 能写这棵树。所有 managed 路径（Store、锁、workbooks、works、pending、tmp、bin 及恢复与删除目标）都从根派生并经 `confine` 检查。
+ 
+ ```text
+ ~/.sheltie/
+diff --git a/specs/contracts/storage.md b/specs/contracts/storage.md
+index 27cc54f..dbe586c 100644
+--- a/specs/contracts/storage.md
++++ b/specs/contracts/storage.md
+@@ -86,6 +86,8 @@ runtime在进入写路径前构造`RequestIntent`，一个枚举覆盖全部写
+ 
+ ### 2.2 管理根写锁
+ 
++管理根解析遵守[架构 §5](../architecture.md#5-目录布局)的规范根规则。已设置的非 UTF-8 `SHELTIE_HOME` 不得当作缺失而改选 `$HOME`；只读和写操作都先完成根解析，失败不初始化目录或 Store。
++
+ `<管理根>/.lock` 是整个管理根的排他文件锁（`fs4`）：
+ 
+ - 每个**写**操作（Work 与 Workbook 的写动词、`self` 的全部写动词）都使用这把锁；只在操作允许创建新管理根且预检通过时才创建根与 `.lock`。除这两个锁前置对象外，取得锁前不创建管理文件或目录。进程退出由 OS 释放。锁内依次：重核 schema → 查重放 → 恢复未完成效果（§3.2）→ 准备 → 事务 → 发布 → 标记完成。

@@ -7,29 +7,33 @@ use crate::error::{Error, Result};
 
 /// 把路径规范化到「最深已存在祖先的真实位置 + 余下原样段」。
 /// 全路径已存在时等价于 `canonicalize`；尚不存在的尾部保持词法形式。
-fn canonicalize_deepest(path: &camino::Utf8Path) -> camino::Utf8PathBuf {
+fn canonicalize_deepest(path: &camino::Utf8Path) -> Result<camino::Utf8PathBuf> {
     let mut probe = path.to_path_buf();
     let mut tail: Vec<String> = Vec::new();
     loop {
         match std::fs::canonicalize(&probe) {
             Ok(real) => {
-                let mut out = camino::Utf8PathBuf::from(real.to_string_lossy().into_owned());
+                let mut out = camino::Utf8PathBuf::from_path_buf(real).map_err(|path| {
+                    Error::InvalidRequest {
+                        reason: format!("管理根的真实祖先 {} 不是UTF-8路径", path.display()),
+                    }
+                })?;
                 for seg in tail.iter().rev() {
                     out = out.join(seg);
                 }
-                return out;
+                return Ok(out);
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 let Some(name) = probe.file_name().map(|n| n.to_string()) else {
-                    return path.to_path_buf();
+                    return Err(Error::io(probe.as_str(), e));
                 };
                 tail.push(name);
                 let Some(parent) = probe.parent().map(|p| p.to_path_buf()) else {
-                    return path.to_path_buf();
+                    return Err(Error::io(probe.as_str(), e));
                 };
                 probe = parent;
             }
-            Err(_) => return path.to_path_buf(),
+            Err(error) => return Err(Error::io(probe.as_str(), error)),
         }
     }
 }
@@ -48,31 +52,40 @@ impl Home {
     /// 之后所有 managed 路径都从这个规范根派生，祖先软链（如 `/tmp` 一类）不会
     /// 让派生路径与 `confine` 的前缀比较失真（架构 §5）。
     pub fn resolve(cli: Option<&str>) -> Result<Self> {
-        let given = match cli.map(str::to_string) {
-            Some(p) => p,
-            None => std::env::var("SHELTIE_HOME")
-                .or_else(|_| std::env::var("HOME").map(|h| format!("{h}/.sheltie")))
-                .map_err(|_| Error::InvalidRequest {
-                    reason: "既没有 --home 与 SHELTIE_HOME，也取不到 $HOME".to_string(),
-                })?,
+        let configured = |name: &str| -> Result<Option<String>> {
+            std::env::var_os(name)
+                .map(|value| {
+                    value.into_string().map_err(|_| Error::InvalidRequest {
+                        reason: format!("{name} 不是UTF-8文本"),
+                    })
+                })
+                .transpose()
+        };
+        let given = match cli {
+            Some(path) => path.to_string(),
+            None => match configured("SHELTIE_HOME")? {
+                Some(path) => path,
+                None => format!(
+                    "{}/.sheltie",
+                    configured("HOME")?.ok_or_else(|| Error::InvalidRequest {
+                        reason: "既没有 --home 与 SHELTIE_HOME，也取不到 $HOME".to_string(),
+                    })?
+                ),
+            },
         };
         let root = if camino::Utf8Path::new(&given).is_absolute() {
             camino::Utf8PathBuf::from(given)
         } else {
             let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
-            camino::Utf8PathBuf::from(cwd.join(&given).to_string_lossy().into_owned())
+            camino::Utf8PathBuf::from_path_buf(cwd.join(&given)).map_err(|path| {
+                Error::InvalidRequest {
+                    reason: format!("管理根的当前目录 {} 不是UTF-8路径", path.display()),
+                }
+            })?
         };
         Ok(Self {
-            root: AbsPath::new(canonicalize_deepest(&root).to_string())?,
+            root: AbsPath::new(canonicalize_deepest(&root)?.to_string())?,
         })
-    }
-
-    /// 直接用一个绝对路径当根（测试用）。与 `resolve` 一样把根规范化到真实形式，
-    /// 否则父进程记录的词法路径与子进程（`--home` 走 `resolve`）派生的路径对不上。
-    pub fn at(root: AbsPath) -> Self {
-        Self {
-            root: AbsPath::new(canonicalize_deepest(root.as_path()).to_string()).unwrap_or(root),
-        }
     }
 
     pub fn root(&self) -> &AbsPath {
@@ -145,14 +158,16 @@ impl Home {
     /// 把外部给的相对路径限制在 `base` 之下。
     ///
     /// 拒绝：绝对路径、含 `..`、空段。若拼出的路径已存在，`canonicalize` 后必须仍以 `base` 的
-    /// 规范形式为前缀（防符号链接逃逸）。失败返回 `Error::Core(InvalidPath)`。
+    /// 规范形式为前缀。路径不合法返回 `Error::Core(InvalidPath)`，I/O 错误保留路径与原因。
     pub fn confine(base: &AbsPath, rel: &str) -> Result<AbsPath> {
         // 先按写法拒绝：`RelPath` 的构造就是这套检查。
         let rel = RelPath::new(rel)?;
         let joined = base.join(&rel);
         // base 不存在时其下不可能有已存在路径，写法检查已足够。
-        let Ok(base_canon) = std::fs::canonicalize(base.as_path()) else {
-            return Ok(joined);
+        let base_canon = match std::fs::canonicalize(base.as_path()) {
+            Ok(path) => path,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(joined),
+            Err(error) => return Err(Error::io(base.as_str(), error)),
         };
         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。
         let mut probe = joined.as_path().to_path_buf();
@@ -364,7 +379,8 @@ mod lock_retry_tests {
                 .into_owned(),
         )
         .unwrap();
-        let home = Home::at(parent.join_segment("sheltie-test-home"));
+        let home =
+            Home::resolve(Some((parent.join_segment("sheltie-test-home")).as_str())).unwrap();
         assert!(home.is_lock_setup_path_missing(&Error::NotFound {
             what: home.lock_path().to_string(),
         }));
@@ -386,7 +402,10 @@ mod lock_retry_tests {
         let directory = tempfile::tempdir().unwrap();
         let root = directory.path().join("home");
         std::fs::create_dir(&root).unwrap();
-        let home = Home::at(AbsPath::new(root.to_string_lossy().into_owned()).unwrap());
+        let home = Home::resolve(Some(
+            (AbsPath::new(root.to_string_lossy().into_owned()).unwrap()).as_str(),
+        ))
+        .unwrap();
         let held = home.acquire_lock().unwrap();
         let rendezvous = tempfile::tempdir().unwrap();
         crate::failpoint::arm_rendezvous(
