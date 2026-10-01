@@ -1,6 +1,6 @@
 # C002 候选设计
 
-状态：`active`。机制细节以架构与三份合同为准；T01 首次提交的勘误仍待门禁与独立 review。本文件保留设计意图与取舍，不代替当前合同。此设计替换旧版 C002 的隐式双格式兼容、错误摘要固化和历史状态卡重放方案。
+状态：`active`。机制细节以架构与三份合同为准。本文件保留设计意图与取舍，不代替当前合同。此设计替换旧版 C002 的隐式双格式兼容、错误摘要固化和历史状态卡重放方案。
 
 ## 1. 保留的结构与版本边界
 
@@ -15,7 +15,7 @@ Store schema 从 1 升到 2，原子创建表和 user_version。旧 schema 先�
 runtime 提供内部 `RequestIntent`：操作种类、完整目标身份、用户参数。新 Work 请求的前缀只读解析为完整 WorkId；历史 request-id 从 `requests.work_id` 取原目标并核原始前缀，不因后来出现同前缀 Work 而改绑或拒绝。已有 Work 行即使终态也能解析，不能靠读取 Workbook 才解析。request-id 是有界、不作路径的 opaque key；内部 staging ID 由 runtime 随机生成。
 
 - Work intent 含完整 WorkId、node/attempt 与 summary/reason 等用户参数，不含重新计算的观察结果、时钟和模型自报事实。`--summary @file` 按文件路径记录意图，首次执行才读取内容；重放不要求源文件仍存在。
-- start intent 含用户给的 Workbook selector、Flow、规范化名字与起始输入参数。字面值按值记录；`@file` 按规范化绝对路径记录，文件内容是首次执行时的观察结果。没有显式版本时第一次解析的实际版本进入提交响应；重放先查记录，不读当前 `@file` 或 Workbook，也不重新解释“最新版本”。
+- start intent 含用户给的 Workbook selector、Flow、名字参数原值及省略状态与起始输入参数。字面值按值记录；`@file` 按规范化绝对路径记录，文件内容是首次执行时的观察结果。没有显式版本时第一次解析的实际版本进入提交响应；重放先查记录，不读当前 `@file` 或 Workbook，也不重新解释“最新版本”。
 - add intent 含不访问文件系统即可词法规范化的源目录绝对路径和明确操作；相同请求成功后源目录变化或消失也不重新安装，返回原结果。新 request-id 才表示新的安装意图；同 id/version 的另一安装遵守冲突规则。
 - remove intent 含完整 id/version。self 收到 request-id 直接参数错误，查询也不虚构 request-id。
 

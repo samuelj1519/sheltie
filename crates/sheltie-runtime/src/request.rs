@@ -6,12 +6,12 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::ids::{AttemptId, NodeId, WorkId};
 
 /// 起始输入的值：字面值，或 `@file` 的词法规范化绝对路径（不访问文件系统）。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case", tag = "value")]
 pub enum InputValue {
     Literal { text: String },
@@ -22,7 +22,7 @@ pub enum InputValue {
 pub type SummarySource = InputValue;
 
 /// 全部写操作的意图闭集。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case", tag = "intent")]
 pub enum RequestIntent {
     StartWork {
@@ -65,18 +65,6 @@ pub enum RequestIntent {
 }
 
 impl RequestIntent {
-    /// 绑定的完整 WorkId；Workbook 级写操作为 `None`。
-    pub fn work(&self) -> Option<&WorkId> {
-        match self {
-            Self::StartWork { .. } | Self::AddWorkbook { .. } | Self::RemoveWorkbook { .. } => None,
-            Self::BeginAttempt { work, .. }
-            | Self::SubmitAttempt { work, .. }
-            | Self::FailAttempt { work, .. }
-            | Self::ApproveGate { work, .. }
-            | Self::CancelWork { work } => Some(work),
-        }
-    }
-
     /// canonical JSON 的 sha256（裸 64 位小写十六进制）。以 `serde_json::to_vec`
     /// 字节为准：枚举固定 tag、字段顺序固定、输入键按字节排序、无浮点数。
     pub fn hash(&self) -> Sha256Hex {

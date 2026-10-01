@@ -37,7 +37,7 @@ previous=log.read_text().splitlines() if log.exists() else []
 with log.open('a') as f:f.write(url+'\n')
 if cfg['mode']=='manifest_failure' and url.endswith('dist-manifest.json') or cfg['mode']=='asset_failure' and not url.endswith('dist-manifest.json'):
  print('controlled curl failure',file=sys.stderr);sys.exit(22)
-if cfg['mode']=='stderr_exact':sys.stderr.buffer.write(b'x'*(1024*1024));sys.stderr.buffer.flush()
+if cfg['mode'] in ['stderr_exact','stderr_over']:sys.stderr.buffer.write(b'x'*(1024*1024+(cfg['mode']=='stderr_over')));sys.stderr.buffer.flush()
 platform=cfg['platform']
 version='9.9.9'
 if url.endswith('/latest/download/dist-manifest.json'):
@@ -47,7 +47,9 @@ elif not url.startswith(cfg['base']+'/download/v9.9.9/'):
 name='sheltie-'+version+'-'+platform
 if url.endswith('dist-manifest.json'):
  digest='dec2fc95c56b937d66a20cf64c623531d22fdd4def9a52dfadd4ebec7a60a694' if version=='9.9.9' else 'e86b13466a0a635fbea915871a23ec4e888579f8aa1f233b6526fa0d8181ca73'
- print(json.dumps({'version':version,'assets':[{'platform':platform,'name':name,'sha256':digest}]}))
+ data=json.dumps({'version':version,'assets':[{'platform':platform,'name':name,'sha256':digest}]}).encode()
+ if cfg['mode'] in ['stdout_exact','stdout_over']:data+=b' '*(32*1024*1024+(cfg['mode']=='stdout_over')-len(data))
+ sys.stdout.buffer.write(data)
 elif url==cfg['base']+'/download/v9.9.9/'+name:
  sys.stdout.buffer.write(b'remote pinned 9.9.9 payload\n')
 else:
@@ -164,6 +166,49 @@ fn failed_remote_manifest_or_asset_preserves_binaries_store_and_cleans_its_tmp()
         assert_eq!(response["error"]["code"], "UPDATE_UNAVAILABLE");
         assert_eq!(read(home, "bin/sheltie"), old);
         assert_eq!(read(home, "bin/sheltie.prev"), prev);
+        assert_eq!(read(home, "store.db"), store);
+        assert_eq!(std::fs::read_dir(home.join("tmp")).unwrap().count(), 0);
+    }
+}
+
+// Task: C002-T32
+#[test]
+fn remote_update_accepts_exact_stream_limits_and_preserves_state_on_one_more_byte() {
+    for mode in ["stdout_exact", "stdout_over", "stderr_exact", "stderr_over"] {
+        let env = Env::new();
+        env.ok(&["self", "install"]);
+        let home = env.dir.path();
+        std::fs::write(home.join("bin/sheltie.prev"), b"previous independent bytes").unwrap();
+        let old = read(home, "bin/sheltie");
+        let previous = read(home, "bin/sheltie.prev");
+        let store = read(home, "store.db");
+        let transport = Transport::new(mode);
+        let output = transport.update(&env, Some("9.9.9"));
+        let response: Value = serde_json::from_slice(&output.stdout).unwrap();
+        if mode.ends_with("exact") {
+            assert!(output.status.success(), "{mode}: {response}");
+            assert_eq!(read(home, "bin/sheltie"), PAYLOAD);
+            assert_eq!(read(home, "bin/sheltie.prev"), old);
+            assert_eq!(
+                transport.requests(),
+                vec![
+                    format!("{BASE}/download/v9.9.9/dist-manifest.json"),
+                    format!(
+                        "{BASE}/download/v9.9.9/sheltie-9.9.9-{}",
+                        expected_platform()
+                    )
+                ]
+            );
+        } else {
+            assert!(!output.status.success(), "{mode}");
+            assert_eq!(response["error"]["code"], "UPDATE_UNAVAILABLE");
+            assert_eq!(read(home, "bin/sheltie"), old);
+            assert_eq!(read(home, "bin/sheltie.prev"), previous);
+            assert_eq!(
+                transport.requests(),
+                vec![format!("{BASE}/download/v9.9.9/dist-manifest.json")]
+            );
+        }
         assert_eq!(read(home, "store.db"), store);
         assert_eq!(std::fs::read_dir(home.join("tmp")).unwrap().count(), 0);
     }

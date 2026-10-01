@@ -1023,3 +1023,54 @@ fn begin_replay_rejects_audit_and_snapshot_metadata_drift_without_business_chang
         .unwrap();
     }
 }
+
+// Task: C002-T32
+#[test]
+fn cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan() {
+    let (_directory, home) = temp_home();
+    let repository = repo(&home);
+    repository
+        .add(&abs(&example_dir("two-step")), Some("delete-source".into()))
+        .unwrap();
+    repository
+        .remove("two-step", "1.0.0", Some("delete-reference".into()))
+        .unwrap();
+    let connection = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine = effects(&connection, "delete-reference");
+    let id = "0198f01a7f00700080000000000000fb";
+    let pending = home.pending_dir();
+    let payload = pending.as_path().join(id).join("payload");
+    std::fs::create_dir_all(&payload).unwrap();
+    std::fs::write(payload.join("private"), b"orphan original").unwrap();
+    std::fs::write(pending.as_path().join(format!("{id}.owner")), json!({"format":"pending/v1","internal_id":id,"request_id":"uncommitted-delete-neighbor","op":"add_workbook"}).to_string()+"\n").unwrap();
+    for field in ["final", "digest", "version"] {
+        let mut changed = pristine.clone();
+        let deletion = changed
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|effect| effect["kind"] == "delete_dir")
+            .unwrap();
+        match field {
+            "final" => deletion["final"] = json!("workbooks/other/1.0.0"),
+            "digest" => deletion["digest"] = json!("not-a-digest"),
+            "version" => {
+                deletion["owner"] = json!("workbook:two-step@bad_");
+                deletion["final"] = json!("workbooks/two-step/bad_");
+            }
+            _ => unreachable!(),
+        }
+        set_effects(&connection, "delete-reference", &changed, 1);
+        let before_rows = rows(&connection);
+        let before_files = files(home.root().as_path().as_std_path());
+        assert_eq!(
+            repository.cleanup_pending().unwrap_err().code(),
+            sheltie_core::ErrorCode::StoreCorrupt,
+            "{field}"
+        );
+        assert_unchanged(&home, &connection, before_rows, before_files);
+    }
+    set_effects(&connection, "delete-reference", &pristine, 1);
+    assert!(repository.cleanup_pending().unwrap().is_empty());
+    assert!(!payload.exists());
+}

@@ -20,7 +20,7 @@ use crate::effects::{
 use crate::error::{Error, Result};
 use crate::fsx::ManagedRelPath;
 use crate::home::Home;
-use crate::observe::{now, observe_optional, principal};
+use crate::observe::{now, principal};
 use crate::request::{InputValue, RequestIntent};
 use crate::store::{CommitInput, CommitOutcome, Store};
 use crate::workbook_repo::WorkbookRepo;
@@ -825,50 +825,28 @@ impl WorkService {
             now: now(),
             principal: principal(),
         };
-        let mut last_conflict = Error::RevisionConflict {
-            expected: 0,
-            actual: 0,
-        };
-        for _ in 0..3 {
-            let loaded = svc.load(work)?;
-            let prepared = build(&loaded)?;
-            let cmd = &prepared.command;
-            let decision = decide(Some(&loaded.state), &loaded.graph, cmd, &ctx)?;
-            let effects = core_effects_to_ops(&svc.home, &decision, cmd)?;
-            match svc.commit(
-                decision,
-                &loaded.graph,
-                &request_id,
-                intent.hash().as_str().to_string(),
-                Some(loaded.revision),
-                effects,
-                &ctx,
-                cmd,
-                &session.lock,
-            ) {
-                Ok(resp) => {
-                    if matches!(cmd, Command::SubmitAttempt { .. }) {
-                        crate::failpoint::rendezvous(
-                            "submit_after_commit_before_seal",
-                            &request_id,
-                        )
-                        .map_err(|error| Error::io("submit sync point", error))?;
-                    }
-                    svc.finish_request_with_observed(
-                        &request_id,
-                        &session.lock,
-                        &prepared.observed_outputs,
-                    )?;
-                    return Ok(resp);
-                }
-                Err(Error::RevisionConflict { expected, actual }) => {
-                    last_conflict = Error::RevisionConflict { expected, actual };
-                    continue;
-                }
-                Err(e) => return Err(e),
-            }
+        let loaded = svc.load(work)?;
+        let prepared = build(&loaded)?;
+        let cmd = &prepared.command;
+        let decision = decide(Some(&loaded.state), &loaded.graph, cmd, &ctx)?;
+        let effects = core_effects_to_ops(&svc.home, &decision)?;
+        let resp = svc.commit(
+            decision,
+            &loaded.graph,
+            &request_id,
+            intent.hash().as_str().to_string(),
+            Some(loaded.revision),
+            effects,
+            &ctx,
+            cmd,
+            &session.lock,
+        )?;
+        if matches!(cmd, Command::SubmitAttempt { .. }) {
+            crate::failpoint::rendezvous("submit_after_commit_before_seal", &request_id)
+                .map_err(|error| Error::io("submit sync point", error))?;
         }
-        Err(last_conflict)
+        svc.finish_request_with_observed(&request_id, &session.lock, &prepared.observed_outputs)?;
+        Ok(resp)
     }
 
     /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
@@ -1063,7 +1041,7 @@ impl WorkService {
     ) -> Result<Response> {
         let revision = expected_revision.map_or(1, |r| r + 1);
         let next = legal_next(&decision.state, graph);
-        let data = snapshot_data(&decision, &next);
+        let data = snapshot_data(&decision);
         let snapshot = Response {
             request_id: request_id.to_string(),
             revision,
@@ -1318,19 +1296,17 @@ fn materialize_summary(value: &InputValue) -> Result<String> {
 }
 
 /// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。
-fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Result<Vec<EffectOp>> {
+fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>> {
     let state = &decision.state;
     let mut ops = Vec::new();
     // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。
     if let Reply::AttemptBegun {
         attempt,
-        brief_path,
         output_dir,
         outputs,
         ..
     } = &decision.reply
     {
-        let _ = brief_path;
         let mut dirs: Vec<String> = Vec::new();
         let push_chain = |abs: &AbsPath, dirs: &mut Vec<String>| -> Result<()> {
             let rel = home.to_rel(abs)?;
@@ -1411,9 +1387,8 @@ fn core_effects_to_ops(home: &Home, decision: &Decision, _cmd: &Command) -> Resu
 }
 
 /// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。
-fn snapshot_data(decision: &Decision, next: &[NextOp]) -> serde_json::Value {
+fn snapshot_data(decision: &Decision) -> serde_json::Value {
     let state = &decision.state;
-    let _ = next;
     match &decision.reply {
         Reply::Started {
             work_id,
@@ -1561,14 +1536,16 @@ fn observe_loaded_input(
                 detail: format!("冻结副本装入时缺少资源 {relative}"),
             });
     }
-    if path.as_path().starts_with(home.root().as_path()) {
-        let Some(file) = crate::fsx::open_managed_optional(home, path)? else {
-            return Ok(None);
-        };
-        let (sha256, bytes) = file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
-        return Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)));
+    if !path.as_path().starts_with(home.root().as_path()) {
+        return Err(Error::StoreCorrupt {
+            detail: format!("输入 {name} 的路径不属于管理根"),
+        });
     }
-    observe_optional(path)
+    let Some(file) = crate::fsx::open_managed_optional(home, path)? else {
+        return Ok(None);
+    };
+    let (sha256, bytes) = file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+    Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)))
 }
 
 /// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的

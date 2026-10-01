@@ -121,3 +121,15 @@ T14 独立审查首轮发现两项状态校验反例：唯一 running Attempt �
 用户授权直接修复全部七项并完成T31。逐条答复在 [review-response-implementation-2026-09-30.md](review-response-implementation-2026-09-30.md)，原始红/绿与门禁在 [implementation-review-fixes](evidence/repairs/t31/implementation-review-fixes/README.md)，独立 [Standards](evidence/repairs/t31/implementation-review-fixes/standards-final-review.md) 与 [Spec](evidence/repairs/t31/implementation-review-fixes/spec-final-review.md) 均关闭七项且未参与实施。最终默认全仓Nextest654/654、0 skipped，Rust四门禁、MSRV1.85 locked、取得既有缓存锁后的离线deny、规范脚本、dist plan均exit0；原T24合同矛盾FAIL与此前published补缺未闭合的653项运行原样归档，不覆盖。
 
 新普通clone临时输入3a9f689固定170个源码/fixture/配置/脚本，另由Git提交固定治理树，baseline在opt1且debug assertions/overflow checks开启时654/654；[完整变异入口](evidence/repairs/t31/mutants/closure.md)清单2501（core724/runtime1777）。旧da2bd结果标superseded，当前完整片、第二阶段与逐存活处置执行中，不能从基线或首片通过推断T31/M1完成。Linux按用户授权not_run，Host/usage与发布继续交T16/T17。
+
+## 2026-10-01 M1 独立全链审查与精简
+
+原实现候选`ca6d92f`；工作区起始干净。三位未参与实施的Reviewer分别核源码规格、Rust工程与原始证据，报告见[本轮审查](review-m1-2026-10-01.md)，O/N/R逐行矩阵与输入闭包见[证据](evidence/m1-2026-10-01/README.md)。原源码未发现新的高可信产品缺陷；本轮删除未使用参数、重复错误转发、未消费反序列化能力及持根锁后的自动CAS重算，保留单事务CAS；同步统一Store合同内部冲突并修正start意图名字描述、删除过时T01状态句。源码和合同增量独立审查通过。
+
+精简后的675/675测试、fmt/check/Clippy、MSRV1.85 locked、离线deny、docs/specs/core-vocab/tests/skill与dist plan通过，原文保存于本轮证据。最终治理文件调整后的复验独立保存，不套用旧T31变异输入。首次deny只读缓存锁失败原文保留，权限批准后离线运行exit0；不宣称公告数据实时更新。
+
+当前M1结论需修改：R17/N13的完整变异义务未关闭，269项仍deferred_by_user；现有授权仅明确T31在豁免范围收尾，不能自行扩大为M1通过。已请求用户明确本次M1是否恢复这些验证。Linux豁免仍not_run，T16/T17仍not_run。任务门禁要求M1 done；在范围澄清与完整门槛关闭前不伪造done来通过该门禁，也不宣称M1提交完成。
+
+## 2026-10-01 T32 M1审查反馈修复
+
+用户授权恢复剩余M1验证，实际平台安全拦截才逐项记录跳过。追加T32承接审查反馈：4项runtime源码精简、Store CAS合同统一及3项真实caller回归。Spec/Standards独立最终增量review通过；678/678零skip、fmt/check/Clippy、MSRV1.85 locked、离线deny、docs/specs/core-vocab/tests/skill/dist门禁通过，原文见[T32证据](evidence/m1-2026-10-01/t32/README.md)。旧instruction正例违反64KiB合同的设计错误与编译错误均保留，不当产品失败。最终变异由M1重新冻结输入执行，未据本任务门禁判caught或M1通过。Linux/T16/T17边界不变。

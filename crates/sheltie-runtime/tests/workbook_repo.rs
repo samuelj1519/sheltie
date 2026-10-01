@@ -766,3 +766,42 @@ fn walk(dir: &Path) -> Vec<std::path::PathBuf> {
     }
     out
 }
+
+// Task: C002-T32
+#[test]
+fn installed_manifest_accepts_exact_file_limit_and_rejects_one_more_byte() {
+    const LIMIT: usize = 32 * 1024 * 1024;
+    for extra in [0, 1] {
+        let (directory, home) = temp_home();
+        let source = directory.path().join("source");
+        write_minimal_workbook(&source);
+        let manifest_path = source.join("workbook.toml");
+        let mut expected = std::fs::read(&manifest_path).unwrap();
+        expected.extend_from_slice(b"\n#");
+        expected.resize(LIMIT + extra, b'x');
+        std::fs::write(&manifest_path, &expected).unwrap();
+        let repository = repo(&home);
+        let result = repository.add(&abs(&source), Some("manifest-limit".to_string()));
+        if extra == 0 {
+            let response = result.unwrap();
+            assert_eq!(response.data["id"], "big");
+            assert_eq!(
+                std::fs::read(
+                    home.workbook_dir("big", "1.0.0")
+                        .as_path()
+                        .join("workbook.toml")
+                )
+                .unwrap(),
+                expected
+            );
+            assert_eq!(
+                repository.verify(Some(("big", "1.0.0"))).unwrap()[0].status,
+                VerifyStatus::Ok
+            );
+        } else {
+            assert!(matches!(result, Err(Error::InvalidRequest { .. })));
+            assert!(!home.store_path().as_path().exists());
+            assert!(!home.pending_dir().as_path().exists());
+        }
+    }
+}

@@ -16,15 +16,6 @@ pub fn observe_file(path: &AbsPath) -> Result<ObservedFile> {
     Ok(ObservedFile::new(path.clone(), sha256, bytes))
 }
 
-/// 观察一个文件，不存在时返回 `Ok(None)`，其他错误照常返回。
-pub fn observe_optional(path: &AbsPath) -> Result<Option<ObservedFile>> {
-    match observe_file(path) {
-        Ok(f) => Ok(Some(f)),
-        Err(crate::Error::NotFound { .. }) => Ok(None),
-        Err(e) => Err(e),
-    }
-}
-
 /// 递归列出目录下全部普通文件，建 `ResourceIndex`。跳过目录，拒绝软链（返回错误）。
 /// 键是相对 `dir` 的路径。每个文件经句柄限额读取，只为字节数与 UTF-8 判定，
 /// 不把资源全文转成字符串（design §4）。
