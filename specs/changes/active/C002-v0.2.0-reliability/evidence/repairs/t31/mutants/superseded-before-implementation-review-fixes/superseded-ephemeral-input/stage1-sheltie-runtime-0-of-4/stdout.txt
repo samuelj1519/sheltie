@@ -1,0 +1,18 @@
+Found 466 mutants to test
+ok       Unmutated baseline in 17s build + 21s test
+MISSED   crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects in 9s build + 30s test
+MISSED   crates/sheltie-runtime/src/effects.rs:151:21: replace || with && in check_work_effects in 12s build + 108s test
+MISSED   crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects in 8s build + 108s test
+MISSED   crates/sheltie-runtime/src/effects.rs:290:56: replace match guard work_id == work with true in check_work_effects in 31s build + 103s test
+MISSED   crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects in 17s build + 90s test
+MISSED   crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects in 7s build + 105s test
+MISSED   crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects in 8s build + 103s test
+MISSED   crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects in 9s build + 102s test
+MISSED   crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects in 10s build + 100s test
+MISSED   crates/sheltie-runtime/src/effects.rs:173:33: replace || with && in check_work_effects in 7s build + 66s test
+MISSED   crates/sheltie-runtime/src/effects.rs:180:21: replace || with && in check_work_effects in 8s build + 65s test
+MISSED   crates/sheltie-runtime/src/effects.rs:219:21: replace || with && in check_work_effects in 11s build + 76s test
+MISSED   crates/sheltie-runtime/src/effects.rs:281:21: replace || with && in check_work_effects in 9s build + 84s test
+MISSED   crates/sheltie-runtime/src/effects.rs:280:21: replace || with && in check_work_effects in 11s build + 82s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:29: replace && with || in validate_effect_shape in 10s build + 85s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:45: replace && with || in validate_effect_shape in 13s build + 82s test

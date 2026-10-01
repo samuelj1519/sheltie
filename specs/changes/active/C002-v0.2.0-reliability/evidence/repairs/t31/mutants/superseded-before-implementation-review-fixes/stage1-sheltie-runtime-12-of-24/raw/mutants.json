@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -198,17 +198,17 @@\n             }\n             std::thread::sleep(std::time::Duration::from_millis(2));\n             continue;\n         }\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n         if pending_before && !final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n-            if pending_after && !final_after {\n+            if pending_after &&  /* ~ changed by cargo-mutants ~ */final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:206:33: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 206
+      },
+      "start": {
+        "column": 33,
+        "line": 206
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in locate_publish_dir\n@@ -202,17 +202,17 @@\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n         if pending_before && !final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n-        if !pending_before && final_before {\n+        if !pending_before || /* ~ changed by cargo-mutants ~ */ final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:210:28: replace && with || in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 210
+      },
+      "start": {
+        "column": 28,
+        "line": 210
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -202,17 +202,17 @@\n         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;\n         if pending_before && !final_before {\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n-        if !pending_before && final_before {\n+        if  /* ~ changed by cargo-mutants ~ */pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:210:12: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 210
+      },
+      "start": {
+        "column": 12,
+        "line": 210
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in locate_publish_dir\n@@ -205,17 +205,17 @@\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            if !pending_after && final_after {\n+            if !pending_after || /* ~ changed by cargo-mutants ~ */ final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n     if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n         return Err(Error::NotFound {\n             what: final_path.to_string(),\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:213:31: replace && with || in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 213
+      },
+      "start": {
+        "column": 31,
+        "line": 213
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -205,17 +205,17 @@\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             if pending_after && !final_after {\n                 return Ok((home.rel(pending)?, true));\n             }\n         }\n         if !pending_before && final_before {\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n-            if !pending_after && final_after {\n+            if  /* ~ changed by cargo-mutants ~ */pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n     if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n         return Err(Error::NotFound {\n             what: final_path.to_string(),\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:213:16: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 213
+      },
+      "start": {
+        "column": 16,
+        "line": 213
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in locate_publish_dir\n@@ -211,17 +211,17 @@\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n-    if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n+    if !pending_publish || /* ~ changed by cargo-mutants ~ */ !fsx::managed_directory_exists_readonly(home, final_path)? {\n         return Err(Error::NotFound {\n             what: final_path.to_string(),\n         });\n     }\n     Err(Error::io(\n         final_path,\n         std::io::Error::new(\n             std::io::ErrorKind::WouldBlock,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:219:25: replace && with || in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 219
+      },
+      "start": {
+        "column": 25,
+        "line": 219
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -211,17 +211,17 @@\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n-    if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n+    if  /* ~ changed by cargo-mutants ~ */pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n         return Err(Error::NotFound {\n             what: final_path.to_string(),\n         });\n     }\n     Err(Error::io(\n         final_path,\n         std::io::Error::new(\n             std::io::ErrorKind::WouldBlock,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:219:8: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 219
+      },
+      "start": {
+        "column": 8,
+        "line": 219
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in locate_publish_dir\n@@ -211,17 +211,17 @@\n             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;\n             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;\n             if !pending_after && final_after {\n                 return Ok((home.rel(final_path)?, true));\n             }\n         }\n         std::thread::sleep(std::time::Duration::from_millis(2));\n     }\n-    if !pending_publish && !fsx::managed_directory_exists_readonly(home, final_path)? {\n+    if !pending_publish &&  /* ~ changed by cargo-mutants ~ */fsx::managed_directory_exists_readonly(home, final_path)? {\n         return Err(Error::NotFound {\n             what: final_path.to_string(),\n         });\n     }\n     Err(Error::io(\n         final_path,\n         std::io::Error::new(\n             std::io::ErrorKind::WouldBlock,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "locate_publish_dir",
+      "return_type": "-> Result<(sheltie_core::path::AbsPath, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 231
+        },
+        "start": {
+          "column": 1,
+          "line": 182
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:219:28: delete ! in locate_publish_dir",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 219
+      },
+      "start": {
+        "column": 28,
+        "line": 219
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace read_publish_dir -> Result<(T, bool)> with Ok((Default::default(), true))\n@@ -233,44 +233,17 @@\n /// Read one registered tree across its pending-to-final rename without taking the engine lock.\n /// A path that disappears after the locator's final observation is retried a bounded number of\n /// times; a persistent race becomes a temporary I/O error instead of a fallback to another tree.\n pub(crate) fn read_publish_dir<T>(\n     home: &Home,\n     location: &PublishLocation,\n     mut read: impl FnMut(&sheltie_core::path::AbsPath) -> Result<T>,\n ) -> Result<(T, bool)> {\n-    for _ in 0..3 {\n-        let (directory, pending_publish) = locate_publish_dir(\n-            home,\n-            &location.pending,\n-            &location.final_path,\n-            location.pending_publish,\n-        )?;\n-        crate::failpoint::rendezvous(\"pending_read_after_locate\", &location.final_path)\n-            .map_err(|error| Error::io(&location.final_path, error))?;\n-        match read(&directory) {\n-            Ok(value) => return Ok((value, pending_publish)),\n-            Err(error @ Error::NotFound { .. }) => {\n-                let relative = home.to_rel(&directory)?;\n-                if fsx::managed_directory_exists_readonly(home, &relative)? {\n-                    return Err(error);\n-                }\n-                std::thread::sleep(std::time::Duration::from_millis(2));\n-            }\n-            Err(error) => return Err(error),\n-        }\n-    }\n-    Err(Error::io(\n-        &location.final_path,\n-        std::io::Error::new(\n-            std::io::ErrorKind::WouldBlock,\n-            \"pending/final目录在只读读取期间持续rename交错\",\n-        ),\n-    ))\n+    Ok((Default::default(), true)) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn prepare_new_request(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     request_id: &str,\n ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "read_publish_dir",
+      "return_type": "-> Result<(T, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 269
+        },
+        "start": {
+          "column": 1,
+          "line": 233
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:241:5: replace read_publish_dir -> Result<(T, bool)> with Ok((Default::default(), true))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Default::default(), true))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 268
+      },
+      "start": {
+        "column": 5,
+        "line": 241
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace read_publish_dir -> Result<(T, bool)> with Ok((Default::default(), false))\n@@ -233,44 +233,17 @@\n /// Read one registered tree across its pending-to-final rename without taking the engine lock.\n /// A path that disappears after the locator's final observation is retried a bounded number of\n /// times; a persistent race becomes a temporary I/O error instead of a fallback to another tree.\n pub(crate) fn read_publish_dir<T>(\n     home: &Home,\n     location: &PublishLocation,\n     mut read: impl FnMut(&sheltie_core::path::AbsPath) -> Result<T>,\n ) -> Result<(T, bool)> {\n-    for _ in 0..3 {\n-        let (directory, pending_publish) = locate_publish_dir(\n-            home,\n-            &location.pending,\n-            &location.final_path,\n-            location.pending_publish,\n-        )?;\n-        crate::failpoint::rendezvous(\"pending_read_after_locate\", &location.final_path)\n-            .map_err(|error| Error::io(&location.final_path, error))?;\n-        match read(&directory) {\n-            Ok(value) => return Ok((value, pending_publish)),\n-            Err(error @ Error::NotFound { .. }) => {\n-                let relative = home.to_rel(&directory)?;\n-                if fsx::managed_directory_exists_readonly(home, &relative)? {\n-                    return Err(error);\n-                }\n-                std::thread::sleep(std::time::Duration::from_millis(2));\n-            }\n-            Err(error) => return Err(error),\n-        }\n-    }\n-    Err(Error::io(\n-        &location.final_path,\n-        std::io::Error::new(\n-            std::io::ErrorKind::WouldBlock,\n-            \"pending/final目录在只读读取期间持续rename交错\",\n-        ),\n-    ))\n+    Ok((Default::default(), false)) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn prepare_new_request(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     request_id: &str,\n ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "read_publish_dir",
+      "return_type": "-> Result<(T, bool)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 269
+        },
+        "start": {
+          "column": 1,
+          "line": 233
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:241:5: replace read_publish_dir -> Result<(T, bool)> with Ok((Default::default(), false))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok((Default::default(), false))",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 268
+      },
+      "start": {
+        "column": 5,
+        "line": 241
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace prepare_new_request -> Result<()> with Ok(())\n@@ -269,66 +269,17 @@\n }\n \n pub(crate) fn prepare_new_request(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     request_id: &str,\n ) -> Result<()> {\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n-        return Ok(());\n-    }\n-    let mut selected = BTreeSet::new();\n-    for entry in fsx::managed_directory_entries_locked(home, lock, \"pending\")? {\n-        let Some(id) = entry\n-            .name\n-            .strip_suffix(\".owner\")\n-            .filter(|id| valid_internal_id(id))\n-        else {\n-            continue;\n-        };\n-        if entry.kind != ManagedEntryKind::RegularFile {\n-            continue;\n-        }\n-        if let Ok(owner) = read_owner(home, id) {\n-            if owner.request_id == request_id {\n-                selected.insert(id.to_string());\n-            }\n-        }\n-    }\n-    if selected.is_empty() {\n-        return Ok(());\n-    }\n-    let warnings = cleanup_selected(home, store, lock, Some(&selected))?;\n-    if !warnings.is_empty() {\n-        return Err(Error::io(\n-            home.pending_dir().as_str(),\n-            std::io::Error::other(format!(\n-                \"当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}\",\n-                warnings.join(\"; \")\n-            )),\n-        ));\n-    }\n-    for entry in fsx::managed_directory_entries_locked(home, lock, \"pending\")? {\n-        let id = entry\n-            .name\n-            .strip_suffix(\".owner\")\n-            .or_else(|| entry.name.strip_suffix(\".deleted\"))\n-            .unwrap_or(&entry.name);\n-        if selected.contains(id) {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\n-                    \"当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求\",\n-                    entry.name\n-                ),\n-            });\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {\n     cleanup_selected(home, store, lock, None)\n }\n \n fn cleanup_selected(\n     home: &Home,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "prepare_new_request",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 327
+        },
+        "start": {
+          "column": 1,
+          "line": 271
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:277:5: replace prepare_new_request -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 326
+      },
+      "start": {
+        "column": 5,
+        "line": 277
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in prepare_new_request\n@@ -269,17 +269,17 @@\n }\n \n pub(crate) fn prepare_new_request(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     request_id: &str,\n ) -> Result<()> {\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n+    if  /* ~ changed by cargo-mutants ~ */fsx::managed_directory_exists(home, lock, \"pending\")? {\n         return Ok(());\n     }\n     let mut selected = BTreeSet::new();\n     for entry in fsx::managed_directory_entries_locked(home, lock, \"pending\")? {\n         let Some(id) = entry\n             .name\n             .strip_suffix(\".owner\")\n             .filter(|id| valid_internal_id(id))\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "prepare_new_request",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 327
+        },
+        "start": {
+          "column": 1,
+          "line": 271
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:277:8: delete ! in prepare_new_request",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 277
+      },
+      "start": {
+        "column": 8,
+        "line": 277
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in prepare_new_request\n@@ -281,17 +281,17 @@\n     for entry in fsx::managed_directory_entries_locked(home, lock, \"pending\")? {\n         let Some(id) = entry\n             .name\n             .strip_suffix(\".owner\")\n             .filter(|id| valid_internal_id(id))\n         else {\n             continue;\n         };\n-        if entry.kind != ManagedEntryKind::RegularFile {\n+        if entry.kind == /* ~ changed by cargo-mutants ~ */ ManagedEntryKind::RegularFile {\n             continue;\n         }\n         if let Ok(owner) = read_owner(home, id) {\n             if owner.request_id == request_id {\n                 selected.insert(id.to_string());\n             }\n         }\n     }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "prepare_new_request",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 327
+        },
+        "start": {
+          "column": 1,
+          "line": 271
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:289:23: replace != with == in prepare_new_request",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 289
+      },
+      "start": {
+        "column": 23,
+        "line": 289
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in prepare_new_request\n@@ -285,17 +285,17 @@\n             .filter(|id| valid_internal_id(id))\n         else {\n             continue;\n         };\n         if entry.kind != ManagedEntryKind::RegularFile {\n             continue;\n         }\n         if let Ok(owner) = read_owner(home, id) {\n-            if owner.request_id == request_id {\n+            if owner.request_id != /* ~ changed by cargo-mutants ~ */ request_id {\n                 selected.insert(id.to_string());\n             }\n         }\n     }\n     if selected.is_empty() {\n         return Ok(());\n     }\n     let warnings = cleanup_selected(home, store, lock, Some(&selected))?;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "prepare_new_request",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 327
+        },
+        "start": {
+          "column": 1,
+          "line": 271
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:293:33: replace == with != in prepare_new_request",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 293
+      },
+      "start": {
+        "column": 33,
+        "line": 293
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in prepare_new_request\n@@ -294,17 +294,17 @@\n                 selected.insert(id.to_string());\n             }\n         }\n     }\n     if selected.is_empty() {\n         return Ok(());\n     }\n     let warnings = cleanup_selected(home, store, lock, Some(&selected))?;\n-    if !warnings.is_empty() {\n+    if  /* ~ changed by cargo-mutants ~ */warnings.is_empty() {\n         return Err(Error::io(\n             home.pending_dir().as_str(),\n             std::io::Error::other(format!(\n                 \"当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}\",\n                 warnings.join(\"; \")\n             )),\n         ));\n     }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "prepare_new_request",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 327
+        },
+        "start": {
+          "column": 1,
+          "line": 271
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:302:8: delete ! in prepare_new_request",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 302
+      },
+      "start": {
+        "column": 8,
+        "line": 302
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup -> Result<Vec<String>> with Ok(vec![])\n@@ -322,17 +322,17 @@\n                 ),\n             });\n         }\n     }\n     Ok(())\n }\n \n pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {\n-    cleanup_selected(home, store, lock, None)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 331
+        },
+        "start": {
+          "column": 1,
+          "line": 329
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:330:5: replace cleanup -> Result<Vec<String>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 330
+      },
+      "start": {
+        "column": 5,
+        "line": 330
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup -> Result<Vec<String>> with Ok(vec![String::new()])\n@@ -322,17 +322,17 @@\n                 ),\n             });\n         }\n     }\n     Ok(())\n }\n \n pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {\n-    cleanup_selected(home, store, lock, None)\n+    Ok(vec![String::new()]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 331
+        },
+        "start": {
+          "column": 1,
+          "line": 329
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:330:5: replace cleanup -> Result<Vec<String>> with Ok(vec![String::new()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![String::new()])",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 330
+      },
+      "start": {
+        "column": 5,
+        "line": 330
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])\n@@ -322,17 +322,17 @@\n                 ),\n             });\n         }\n     }\n     Ok(())\n }\n \n pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {\n-    cleanup_selected(home, store, lock, None)\n+    Ok(vec![\"xyzzy\".into()]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 331
+        },
+        "start": {
+          "column": 1,
+          "line": 329
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:330:5: replace cleanup -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![\"xyzzy\".into()])",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 330
+      },
+      "start": {
+        "column": 5,
+        "line": 330
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup_selected -> Result<Vec<String>> with Ok(vec![])\n@@ -333,370 +333,17 @@\n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n     // Parse every Store reference before deleting any path. A single undecodable row makes\n     // absence unprovable for the entire pass.\n-    let references = PendingReferenceIndex::load(store)?;\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n-        return Ok(references\n-            .references\n-            .iter()\n-            .flat_map(|(id, refs)| {\n-                refs.iter()\n-                    .filter(|reference| !reference.published)\n-                    .map(move |reference| {\n-                        maintenance_warning(\n-                            &reference.request_id,\n-                            &format!(\"pending/{id}\"),\n-                            \"未发布原件引用存在但pending根缺失\",\n-                        )\n-                    })\n-            })\n-            .collect());\n-    }\n-    let entries = fsx::managed_directory_entries_locked(home, lock, \"pending\")?;\n-    let mut roots = BTreeMap::<String, PendingRootRecord>::new();\n-    let mut warnings = Vec::new();\n-    for entry in entries {\n-        if let Some(selected) = selected {\n-            let id = entry\n-                .name\n-                .strip_suffix(\".owner\")\n-                .or_else(|| entry.name.strip_suffix(\".deleted\"))\n-                .unwrap_or(&entry.name);\n-            if !selected.contains(id) {\n-                continue;\n-            }\n-        }\n-        if let Some(id) = entry.name.strip_suffix(\".owner\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().owner = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"侧车文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if let Some(id) = entry.name.strip_suffix(\".deleted\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().marker = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"删除marker文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if valid_internal_id(&entry.name) {\n-            roots.entry(entry.name.clone()).or_default().container = Some(entry.kind);\n-        } else {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{}\", entry.name),\n-                \"未识别pending对象，保留原件\",\n-            ));\n-        }\n-    }\n-    for id in references.internal_ids() {\n-        roots.entry(id.clone()).or_default();\n-    }\n-    for (id, record) in roots {\n-        let reference = references.get(&id);\n-        let owner_file = match record.owner {\n-            Some(ManagedEntryKind::RegularFile) => match read_owner_file(home, &id) {\n-                Ok(owner) => Some(owner),\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        reference\n-                            .map(|reference| reference.request_id.as_str())\n-                            .unwrap_or(\"unknown\"),\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"owner无法读取或校验，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            },\n-            Some(_) => {\n-                warnings.push(maintenance_warning(\n-                    reference\n-                        .map(|reference| reference.request_id.as_str())\n-                        .unwrap_or(\"unknown\"),\n-                    &format!(\"pending/{id}.owner\"),\n-                    \"owner类型异常，保留原件\",\n-                ));\n-                continue;\n-            }\n-            None => None,\n-        };\n-        let owner_matches_reference = match (owner_file.as_ref(), reference) {\n-            (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n-            (None, Some(reference)) if reference.published => true,\n-            (None, Some(_)) => false,\n-            (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n-            (None, None) => false,\n-        };\n-        if !owner_matches_reference {\n-            let request_id = reference\n-                .map(|reference| reference.request_id.as_str())\n-                .or_else(|| {\n-                    owner_file\n-                        .as_ref()\n-                        .map(|(owner, _)| owner.request_id.as_str())\n-                })\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner与Store引用不一致或引用缺失，保留原件\",\n-            ));\n-            continue;\n-        }\n-        if reference.is_some_and(|reference| !reference.published) {\n-            continue;\n-        }\n-        if reference.is_none() && owner_file.is_none() {\n-            if record.container.is_some() || record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}\"),\n-                    \"没有合法owner，保留原件\",\n-                ));\n-            }\n-            continue;\n-        }\n-        if reference.is_none()\n-            && owner_file\n-                .as_ref()\n-                .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))\n-        {\n-            let request_id = owner_file\n-                .as_ref()\n-                .map(|(owner, _)| owner.request_id.as_str())\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner.request_id已存在但effects未引用该id，保留原件\",\n-            ));\n-            continue;\n-        }\n-        let cleanup_request_id = reference\n-            .map(|reference| reference.request_id.as_str())\n-            .or_else(|| {\n-                owner_file\n-                    .as_ref()\n-                    .map(|(owner, _)| owner.request_id.as_str())\n-            })\n-            .unwrap_or(\"pending-orphan\")\n-            .to_string();\n-        let cleanup_request_id = cleanup_request_id.as_str();\n-        if let Some(reference) = reference {\n-            if reference.operation == \"publish\" && record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    &reference.request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"publish请求出现删除marker，保留原件\",\n-                ));\n-                continue;\n-            }\n-            if let Some(marker_kind) = record.marker {\n-                if marker_kind != ManagedEntryKind::RegularFile {\n-                    warnings.push(maintenance_warning(\n-                        &reference.request_id,\n-                        &format!(\"pending/{id}.deleted\"),\n-                        \"删除marker类型异常，保留原件\",\n-                    ));\n-                    continue;\n-                }\n-                if reference.operation == \"delete\" {\n-                    match crate::effects::read_deleted_marker(home, lock, &id) {\n-                        Ok(Some(_)) => {}\n-                        Ok(None) => {}\n-                        Err(error) => {\n-                            warnings.push(maintenance_warning(\n-                                &reference.request_id,\n-                                &format!(\"pending/{id}.deleted\"),\n-                                &format!(\"删除marker校验失败，保留原件：{error}\"),\n-                            ));\n-                            continue;\n-                        }\n-                    }\n-                }\n-            } else if record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"删除marker没有Store引用，保留原件\",\n-                ));\n-                continue;\n-            }\n-        } else if record.marker.is_some() {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{id}.deleted\"),\n-                \"marker不能证明孤儿归属，保留原件\",\n-            ));\n-            continue;\n-        }\n-\n-        if let Some(container_kind) = record.container {\n-            if container_kind != ManagedEntryKind::Directory {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}\"),\n-                    \"container类型异常，保留owner和原件\",\n-                ));\n-                continue;\n-            }\n-            let path = format!(\"pending/{id}\");\n-            let tree = match fsx::open_managed_tree(home, lock, &path) {\n-                Ok(tree) => tree,\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"无法取得已核对象，保留owner：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            };\n-            if reference.is_some_and(|reference| reference.published) {\n-                match fsx::managed_tree_is_empty_locked(home, lock, &tree, &path) {\n-                    Ok(true) => {}\n-                    Ok(false) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            \"已完成请求的container仍有内容，保留原件\",\n-                        ));\n-                        continue;\n-                    }\n-                    Err(error) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            &format!(\"container状态无法核验，保留原件：{error}\"),\n-                        ));\n-                        continue;\n-                    }\n-                }\n-                if let Err(error) = crate::failpoint::rendezvous(\n-                    \"pending_cleanup_after_empty_check\",\n-                    cleanup_request_id,\n-                ) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理同步点失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = fsx::remove_empty_managed_tree(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"empty-container删除失败，保留变化对象：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            } else {\n-                if let Err(error) = fsx::make_managed_tree_writable(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿无法放开内部权限，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) =\n-                    fsx::remove_managed_tree(home, lock, &tree, &path, cleanup_request_id)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿删除失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            }\n-        }\n-        if let Some((_, owner_handle)) = owner_file {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.owner\"),\n-                    &format!(\"侧车删除失败：{error}\"),\n-                ));\n-            } else {\n-                let path = home.rel(&format!(\"pending/{id}.owner\"))?;\n-                if let Err(error) =\n-                    fsx::remove_managed_file_if_same(home, lock, &path, &owner_handle)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"侧车删除失败：{error}\"),\n-                    ));\n-                }\n-            }\n-        }\n-        if record.marker == Some(ManagedEntryKind::RegularFile)\n-            && reference.is_some_and(|reference| reference.operation == \"delete\")\n-        {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker删除失败：{error}\"),\n-                ));\n-                continue;\n-            }\n-            match crate::effects::read_deleted_marker(home, lock, &id) {\n-                Ok(Some(marker)) => {\n-                    let path = home.pending_dir().join_segment(&format!(\"{id}.deleted\"));\n-                    if let Err(error) = fsx::remove_managed_file_if_same(home, lock, &path, &marker)\n-                    {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &format!(\"pending/{id}.deleted\"),\n-                            &format!(\"marker删除失败：{error}\"),\n-                        ));\n-                    }\n-                }\n-                Ok(None) => {}\n-                Err(error) => warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker读取失败：{error}\"),\n-                )),\n-            }\n-        }\n-    }\n-    Ok(warnings)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn valid_internal_id(value: &str) -> bool {\n     uuid::Uuid::parse_str(value).is_ok()\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:341:5: replace cleanup_selected -> Result<Vec<String>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 694
+      },
+      "start": {
+        "column": 5,
+        "line": 341
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup_selected -> Result<Vec<String>> with Ok(vec![String::new()])\n@@ -333,370 +333,17 @@\n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n     // Parse every Store reference before deleting any path. A single undecodable row makes\n     // absence unprovable for the entire pass.\n-    let references = PendingReferenceIndex::load(store)?;\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n-        return Ok(references\n-            .references\n-            .iter()\n-            .flat_map(|(id, refs)| {\n-                refs.iter()\n-                    .filter(|reference| !reference.published)\n-                    .map(move |reference| {\n-                        maintenance_warning(\n-                            &reference.request_id,\n-                            &format!(\"pending/{id}\"),\n-                            \"未发布原件引用存在但pending根缺失\",\n-                        )\n-                    })\n-            })\n-            .collect());\n-    }\n-    let entries = fsx::managed_directory_entries_locked(home, lock, \"pending\")?;\n-    let mut roots = BTreeMap::<String, PendingRootRecord>::new();\n-    let mut warnings = Vec::new();\n-    for entry in entries {\n-        if let Some(selected) = selected {\n-            let id = entry\n-                .name\n-                .strip_suffix(\".owner\")\n-                .or_else(|| entry.name.strip_suffix(\".deleted\"))\n-                .unwrap_or(&entry.name);\n-            if !selected.contains(id) {\n-                continue;\n-            }\n-        }\n-        if let Some(id) = entry.name.strip_suffix(\".owner\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().owner = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"侧车文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if let Some(id) = entry.name.strip_suffix(\".deleted\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().marker = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"删除marker文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if valid_internal_id(&entry.name) {\n-            roots.entry(entry.name.clone()).or_default().container = Some(entry.kind);\n-        } else {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{}\", entry.name),\n-                \"未识别pending对象，保留原件\",\n-            ));\n-        }\n-    }\n-    for id in references.internal_ids() {\n-        roots.entry(id.clone()).or_default();\n-    }\n-    for (id, record) in roots {\n-        let reference = references.get(&id);\n-        let owner_file = match record.owner {\n-            Some(ManagedEntryKind::RegularFile) => match read_owner_file(home, &id) {\n-                Ok(owner) => Some(owner),\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        reference\n-                            .map(|reference| reference.request_id.as_str())\n-                            .unwrap_or(\"unknown\"),\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"owner无法读取或校验，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            },\n-            Some(_) => {\n-                warnings.push(maintenance_warning(\n-                    reference\n-                        .map(|reference| reference.request_id.as_str())\n-                        .unwrap_or(\"unknown\"),\n-                    &format!(\"pending/{id}.owner\"),\n-                    \"owner类型异常，保留原件\",\n-                ));\n-                continue;\n-            }\n-            None => None,\n-        };\n-        let owner_matches_reference = match (owner_file.as_ref(), reference) {\n-            (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n-            (None, Some(reference)) if reference.published => true,\n-            (None, Some(_)) => false,\n-            (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n-            (None, None) => false,\n-        };\n-        if !owner_matches_reference {\n-            let request_id = reference\n-                .map(|reference| reference.request_id.as_str())\n-                .or_else(|| {\n-                    owner_file\n-                        .as_ref()\n-                        .map(|(owner, _)| owner.request_id.as_str())\n-                })\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner与Store引用不一致或引用缺失，保留原件\",\n-            ));\n-            continue;\n-        }\n-        if reference.is_some_and(|reference| !reference.published) {\n-            continue;\n-        }\n-        if reference.is_none() && owner_file.is_none() {\n-            if record.container.is_some() || record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}\"),\n-                    \"没有合法owner，保留原件\",\n-                ));\n-            }\n-            continue;\n-        }\n-        if reference.is_none()\n-            && owner_file\n-                .as_ref()\n-                .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))\n-        {\n-            let request_id = owner_file\n-                .as_ref()\n-                .map(|(owner, _)| owner.request_id.as_str())\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner.request_id已存在但effects未引用该id，保留原件\",\n-            ));\n-            continue;\n-        }\n-        let cleanup_request_id = reference\n-            .map(|reference| reference.request_id.as_str())\n-            .or_else(|| {\n-                owner_file\n-                    .as_ref()\n-                    .map(|(owner, _)| owner.request_id.as_str())\n-            })\n-            .unwrap_or(\"pending-orphan\")\n-            .to_string();\n-        let cleanup_request_id = cleanup_request_id.as_str();\n-        if let Some(reference) = reference {\n-            if reference.operation == \"publish\" && record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    &reference.request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"publish请求出现删除marker，保留原件\",\n-                ));\n-                continue;\n-            }\n-            if let Some(marker_kind) = record.marker {\n-                if marker_kind != ManagedEntryKind::RegularFile {\n-                    warnings.push(maintenance_warning(\n-                        &reference.request_id,\n-                        &format!(\"pending/{id}.deleted\"),\n-                        \"删除marker类型异常，保留原件\",\n-                    ));\n-                    continue;\n-                }\n-                if reference.operation == \"delete\" {\n-                    match crate::effects::read_deleted_marker(home, lock, &id) {\n-                        Ok(Some(_)) => {}\n-                        Ok(None) => {}\n-                        Err(error) => {\n-                            warnings.push(maintenance_warning(\n-                                &reference.request_id,\n-                                &format!(\"pending/{id}.deleted\"),\n-                                &format!(\"删除marker校验失败，保留原件：{error}\"),\n-                            ));\n-                            continue;\n-                        }\n-                    }\n-                }\n-            } else if record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"删除marker没有Store引用，保留原件\",\n-                ));\n-                continue;\n-            }\n-        } else if record.marker.is_some() {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{id}.deleted\"),\n-                \"marker不能证明孤儿归属，保留原件\",\n-            ));\n-            continue;\n-        }\n-\n-        if let Some(container_kind) = record.container {\n-            if container_kind != ManagedEntryKind::Directory {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}\"),\n-                    \"container类型异常，保留owner和原件\",\n-                ));\n-                continue;\n-            }\n-            let path = format!(\"pending/{id}\");\n-            let tree = match fsx::open_managed_tree(home, lock, &path) {\n-                Ok(tree) => tree,\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"无法取得已核对象，保留owner：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            };\n-            if reference.is_some_and(|reference| reference.published) {\n-                match fsx::managed_tree_is_empty_locked(home, lock, &tree, &path) {\n-                    Ok(true) => {}\n-                    Ok(false) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            \"已完成请求的container仍有内容，保留原件\",\n-                        ));\n-                        continue;\n-                    }\n-                    Err(error) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            &format!(\"container状态无法核验，保留原件：{error}\"),\n-                        ));\n-                        continue;\n-                    }\n-                }\n-                if let Err(error) = crate::failpoint::rendezvous(\n-                    \"pending_cleanup_after_empty_check\",\n-                    cleanup_request_id,\n-                ) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理同步点失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = fsx::remove_empty_managed_tree(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"empty-container删除失败，保留变化对象：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            } else {\n-                if let Err(error) = fsx::make_managed_tree_writable(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿无法放开内部权限，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) =\n-                    fsx::remove_managed_tree(home, lock, &tree, &path, cleanup_request_id)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿删除失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            }\n-        }\n-        if let Some((_, owner_handle)) = owner_file {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.owner\"),\n-                    &format!(\"侧车删除失败：{error}\"),\n-                ));\n-            } else {\n-                let path = home.rel(&format!(\"pending/{id}.owner\"))?;\n-                if let Err(error) =\n-                    fsx::remove_managed_file_if_same(home, lock, &path, &owner_handle)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"侧车删除失败：{error}\"),\n-                    ));\n-                }\n-            }\n-        }\n-        if record.marker == Some(ManagedEntryKind::RegularFile)\n-            && reference.is_some_and(|reference| reference.operation == \"delete\")\n-        {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker删除失败：{error}\"),\n-                ));\n-                continue;\n-            }\n-            match crate::effects::read_deleted_marker(home, lock, &id) {\n-                Ok(Some(marker)) => {\n-                    let path = home.pending_dir().join_segment(&format!(\"{id}.deleted\"));\n-                    if let Err(error) = fsx::remove_managed_file_if_same(home, lock, &path, &marker)\n-                    {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &format!(\"pending/{id}.deleted\"),\n-                            &format!(\"marker删除失败：{error}\"),\n-                        ));\n-                    }\n-                }\n-                Ok(None) => {}\n-                Err(error) => warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker读取失败：{error}\"),\n-                )),\n-            }\n-        }\n-    }\n-    Ok(warnings)\n+    Ok(vec![String::new()]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn valid_internal_id(value: &str) -> bool {\n     uuid::Uuid::parse_str(value).is_ok()\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:341:5: replace cleanup_selected -> Result<Vec<String>> with Ok(vec![String::new()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![String::new()])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 694
+      },
+      "start": {
+        "column": 5,
+        "line": 341
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace cleanup_selected -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])\n@@ -333,370 +333,17 @@\n fn cleanup_selected(\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n     // Parse every Store reference before deleting any path. A single undecodable row makes\n     // absence unprovable for the entire pass.\n-    let references = PendingReferenceIndex::load(store)?;\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n-        return Ok(references\n-            .references\n-            .iter()\n-            .flat_map(|(id, refs)| {\n-                refs.iter()\n-                    .filter(|reference| !reference.published)\n-                    .map(move |reference| {\n-                        maintenance_warning(\n-                            &reference.request_id,\n-                            &format!(\"pending/{id}\"),\n-                            \"未发布原件引用存在但pending根缺失\",\n-                        )\n-                    })\n-            })\n-            .collect());\n-    }\n-    let entries = fsx::managed_directory_entries_locked(home, lock, \"pending\")?;\n-    let mut roots = BTreeMap::<String, PendingRootRecord>::new();\n-    let mut warnings = Vec::new();\n-    for entry in entries {\n-        if let Some(selected) = selected {\n-            let id = entry\n-                .name\n-                .strip_suffix(\".owner\")\n-                .or_else(|| entry.name.strip_suffix(\".deleted\"))\n-                .unwrap_or(&entry.name);\n-            if !selected.contains(id) {\n-                continue;\n-            }\n-        }\n-        if let Some(id) = entry.name.strip_suffix(\".owner\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().owner = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"侧车文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if let Some(id) = entry.name.strip_suffix(\".deleted\") {\n-            if valid_internal_id(id) {\n-                roots.entry(id.to_string()).or_default().marker = Some(entry.kind);\n-            } else {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{}\", entry.name),\n-                    \"删除marker文件名不是合法internal_id，保留原件\",\n-                ));\n-            }\n-        } else if valid_internal_id(&entry.name) {\n-            roots.entry(entry.name.clone()).or_default().container = Some(entry.kind);\n-        } else {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{}\", entry.name),\n-                \"未识别pending对象，保留原件\",\n-            ));\n-        }\n-    }\n-    for id in references.internal_ids() {\n-        roots.entry(id.clone()).or_default();\n-    }\n-    for (id, record) in roots {\n-        let reference = references.get(&id);\n-        let owner_file = match record.owner {\n-            Some(ManagedEntryKind::RegularFile) => match read_owner_file(home, &id) {\n-                Ok(owner) => Some(owner),\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        reference\n-                            .map(|reference| reference.request_id.as_str())\n-                            .unwrap_or(\"unknown\"),\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"owner无法读取或校验，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            },\n-            Some(_) => {\n-                warnings.push(maintenance_warning(\n-                    reference\n-                        .map(|reference| reference.request_id.as_str())\n-                        .unwrap_or(\"unknown\"),\n-                    &format!(\"pending/{id}.owner\"),\n-                    \"owner类型异常，保留原件\",\n-                ));\n-                continue;\n-            }\n-            None => None,\n-        };\n-        let owner_matches_reference = match (owner_file.as_ref(), reference) {\n-            (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n-            (None, Some(reference)) if reference.published => true,\n-            (None, Some(_)) => false,\n-            (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n-            (None, None) => false,\n-        };\n-        if !owner_matches_reference {\n-            let request_id = reference\n-                .map(|reference| reference.request_id.as_str())\n-                .or_else(|| {\n-                    owner_file\n-                        .as_ref()\n-                        .map(|(owner, _)| owner.request_id.as_str())\n-                })\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner与Store引用不一致或引用缺失，保留原件\",\n-            ));\n-            continue;\n-        }\n-        if reference.is_some_and(|reference| !reference.published) {\n-            continue;\n-        }\n-        if reference.is_none() && owner_file.is_none() {\n-            if record.container.is_some() || record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}\"),\n-                    \"没有合法owner，保留原件\",\n-                ));\n-            }\n-            continue;\n-        }\n-        if reference.is_none()\n-            && owner_file\n-                .as_ref()\n-                .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))\n-        {\n-            let request_id = owner_file\n-                .as_ref()\n-                .map(|(owner, _)| owner.request_id.as_str())\n-                .unwrap_or(\"unknown\");\n-            warnings.push(maintenance_warning(\n-                request_id,\n-                &format!(\"pending/{id}\"),\n-                \"owner.request_id已存在但effects未引用该id，保留原件\",\n-            ));\n-            continue;\n-        }\n-        let cleanup_request_id = reference\n-            .map(|reference| reference.request_id.as_str())\n-            .or_else(|| {\n-                owner_file\n-                    .as_ref()\n-                    .map(|(owner, _)| owner.request_id.as_str())\n-            })\n-            .unwrap_or(\"pending-orphan\")\n-            .to_string();\n-        let cleanup_request_id = cleanup_request_id.as_str();\n-        if let Some(reference) = reference {\n-            if reference.operation == \"publish\" && record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    &reference.request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"publish请求出现删除marker，保留原件\",\n-                ));\n-                continue;\n-            }\n-            if let Some(marker_kind) = record.marker {\n-                if marker_kind != ManagedEntryKind::RegularFile {\n-                    warnings.push(maintenance_warning(\n-                        &reference.request_id,\n-                        &format!(\"pending/{id}.deleted\"),\n-                        \"删除marker类型异常，保留原件\",\n-                    ));\n-                    continue;\n-                }\n-                if reference.operation == \"delete\" {\n-                    match crate::effects::read_deleted_marker(home, lock, &id) {\n-                        Ok(Some(_)) => {}\n-                        Ok(None) => {}\n-                        Err(error) => {\n-                            warnings.push(maintenance_warning(\n-                                &reference.request_id,\n-                                &format!(\"pending/{id}.deleted\"),\n-                                &format!(\"删除marker校验失败，保留原件：{error}\"),\n-                            ));\n-                            continue;\n-                        }\n-                    }\n-                }\n-            } else if record.marker.is_some() {\n-                warnings.push(maintenance_warning(\n-                    \"unknown\",\n-                    &format!(\"pending/{id}.deleted\"),\n-                    \"删除marker没有Store引用，保留原件\",\n-                ));\n-                continue;\n-            }\n-        } else if record.marker.is_some() {\n-            warnings.push(maintenance_warning(\n-                \"unknown\",\n-                &format!(\"pending/{id}.deleted\"),\n-                \"marker不能证明孤儿归属，保留原件\",\n-            ));\n-            continue;\n-        }\n-\n-        if let Some(container_kind) = record.container {\n-            if container_kind != ManagedEntryKind::Directory {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}\"),\n-                    \"container类型异常，保留owner和原件\",\n-                ));\n-                continue;\n-            }\n-            let path = format!(\"pending/{id}\");\n-            let tree = match fsx::open_managed_tree(home, lock, &path) {\n-                Ok(tree) => tree,\n-                Err(error) => {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"无法取得已核对象，保留owner：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            };\n-            if reference.is_some_and(|reference| reference.published) {\n-                match fsx::managed_tree_is_empty_locked(home, lock, &tree, &path) {\n-                    Ok(true) => {}\n-                    Ok(false) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            \"已完成请求的container仍有内容，保留原件\",\n-                        ));\n-                        continue;\n-                    }\n-                    Err(error) => {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &path,\n-                            &format!(\"container状态无法核验，保留原件：{error}\"),\n-                        ));\n-                        continue;\n-                    }\n-                }\n-                if let Err(error) = crate::failpoint::rendezvous(\n-                    \"pending_cleanup_after_empty_check\",\n-                    cleanup_request_id,\n-                ) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理同步点失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = fsx::remove_empty_managed_tree(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"empty-container删除失败，保留变化对象：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            } else {\n-                if let Err(error) = fsx::make_managed_tree_writable(home, lock, &tree, &path) {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿无法放开内部权限，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"清理失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-                if let Err(error) =\n-                    fsx::remove_managed_tree(home, lock, &tree, &path, cleanup_request_id)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &path,\n-                        &format!(\"合法孤儿删除失败，保留原件：{error}\"),\n-                    ));\n-                    continue;\n-                }\n-            }\n-        }\n-        if let Some((_, owner_handle)) = owner_file {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.owner\"),\n-                    &format!(\"侧车删除失败：{error}\"),\n-                ));\n-            } else {\n-                let path = home.rel(&format!(\"pending/{id}.owner\"))?;\n-                if let Err(error) =\n-                    fsx::remove_managed_file_if_same(home, lock, &path, &owner_handle)\n-                {\n-                    warnings.push(maintenance_warning(\n-                        cleanup_request_id,\n-                        &format!(\"pending/{id}.owner\"),\n-                        &format!(\"侧车删除失败：{error}\"),\n-                    ));\n-                }\n-            }\n-        }\n-        if record.marker == Some(ManagedEntryKind::RegularFile)\n-            && reference.is_some_and(|reference| reference.operation == \"delete\")\n-        {\n-            if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n-                warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker删除失败：{error}\"),\n-                ));\n-                continue;\n-            }\n-            match crate::effects::read_deleted_marker(home, lock, &id) {\n-                Ok(Some(marker)) => {\n-                    let path = home.pending_dir().join_segment(&format!(\"{id}.deleted\"));\n-                    if let Err(error) = fsx::remove_managed_file_if_same(home, lock, &path, &marker)\n-                    {\n-                        warnings.push(maintenance_warning(\n-                            cleanup_request_id,\n-                            &format!(\"pending/{id}.deleted\"),\n-                            &format!(\"marker删除失败：{error}\"),\n-                        ));\n-                    }\n-                }\n-                Ok(None) => {}\n-                Err(error) => warnings.push(maintenance_warning(\n-                    cleanup_request_id,\n-                    &format!(\"pending/{id}.deleted\"),\n-                    &format!(\"marker读取失败：{error}\"),\n-                )),\n-            }\n-        }\n-    }\n-    Ok(warnings)\n+    Ok(vec![\"xyzzy\".into()]) /* ~ changed by cargo-mutants ~ */\n }\n \n fn valid_internal_id(value: &str) -> bool {\n     uuid::Uuid::parse_str(value).is_ok()\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:341:5: replace cleanup_selected -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![\"xyzzy\".into()])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 694
+      },
+      "start": {
+        "column": 5,
+        "line": 341
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -334,17 +334,17 @@\n     home: &Home,\n     store: &Store,\n     lock: &HomeLock,\n     selected: Option<&BTreeSet<String>>,\n ) -> Result<Vec<String>> {\n     // Parse every Store reference before deleting any path. A single undecodable row makes\n     // absence unprovable for the entire pass.\n     let references = PendingReferenceIndex::load(store)?;\n-    if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n+    if  /* ~ changed by cargo-mutants ~ */fsx::managed_directory_exists(home, lock, \"pending\")? {\n         return Ok(references\n             .references\n             .iter()\n             .flat_map(|(id, refs)| {\n                 refs.iter()\n                     .filter(|reference| !reference.published)\n                     .map(move |reference| {\n                         maintenance_warning(\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:342:8: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 342
+      },
+      "start": {
+        "column": 8,
+        "line": 342
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -340,17 +340,17 @@\n     // absence unprovable for the entire pass.\n     let references = PendingReferenceIndex::load(store)?;\n     if !fsx::managed_directory_exists(home, lock, \"pending\")? {\n         return Ok(references\n             .references\n             .iter()\n             .flat_map(|(id, refs)| {\n                 refs.iter()\n-                    .filter(|reference| !reference.published)\n+                    .filter(|reference|  /* ~ changed by cargo-mutants ~ */reference.published)\n                     .map(move |reference| {\n                         maintenance_warning(\n                             &reference.request_id,\n                             &format!(\"pending/{id}\"),\n                             \"未发布原件引用存在但pending根缺失\",\n                         )\n                     })\n             })\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:348:41: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 348
+      },
+      "start": {
+        "column": 41,
+        "line": 348
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -361,17 +361,17 @@\n     let mut warnings = Vec::new();\n     for entry in entries {\n         if let Some(selected) = selected {\n             let id = entry\n                 .name\n                 .strip_suffix(\".owner\")\n                 .or_else(|| entry.name.strip_suffix(\".deleted\"))\n                 .unwrap_or(&entry.name);\n-            if !selected.contains(id) {\n+            if  /* ~ changed by cargo-mutants ~ */selected.contains(id) {\n                 continue;\n             }\n         }\n         if let Some(id) = entry.name.strip_suffix(\".owner\") {\n             if valid_internal_id(id) {\n                 roots.entry(id.to_string()).or_default().owner = Some(entry.kind);\n             } else {\n                 warnings.push(maintenance_warning(\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:369:16: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 369
+      },
+      "start": {
+        "column": 16,
+        "line": 369
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace match guard reference.published with true in cleanup_selected\n@@ -428,17 +428,17 @@\n                     \"owner类型异常，保留原件\",\n                 ));\n                 continue;\n             }\n             None => None,\n         };\n         let owner_matches_reference = match (owner_file.as_ref(), reference) {\n             (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n-            (None, Some(reference)) if reference.published => true,\n+            (None, Some(reference)) if true /* ~ changed by cargo-mutants ~ */ => true,\n             (None, Some(_)) => false,\n             (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n             (None, None) => false,\n         };\n         if !owner_matches_reference {\n             let request_id = reference\n                 .map(|reference| reference.request_id.as_str())\n                 .or_else(|| {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/pending.rs:436:40: replace match guard reference.published with true in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 436
+      },
+      "start": {
+        "column": 40,
+        "line": 436
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace match guard reference.published with false in cleanup_selected\n@@ -428,17 +428,17 @@\n                     \"owner类型异常，保留原件\",\n                 ));\n                 continue;\n             }\n             None => None,\n         };\n         let owner_matches_reference = match (owner_file.as_ref(), reference) {\n             (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n-            (None, Some(reference)) if reference.published => true,\n+            (None, Some(reference)) if false /* ~ changed by cargo-mutants ~ */ => true,\n             (None, Some(_)) => false,\n             (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n             (None, None) => false,\n         };\n         if !owner_matches_reference {\n             let request_id = reference\n                 .map(|reference| reference.request_id.as_str())\n                 .or_else(|| {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/pending.rs:436:40: replace match guard reference.published with false in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 436
+      },
+      "start": {
+        "column": 40,
+        "line": 436
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -430,17 +430,17 @@\n                 continue;\n             }\n             None => None,\n         };\n         let owner_matches_reference = match (owner_file.as_ref(), reference) {\n             (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n             (None, Some(reference)) if reference.published => true,\n             (None, Some(_)) => false,\n-            (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n+            (Some((owner, _)), None) =>  /* ~ changed by cargo-mutants ~ */references.contains_request(&owner.request_id),\n             (None, None) => false,\n         };\n         if !owner_matches_reference {\n             let request_id = reference\n                 .map(|reference| reference.request_id.as_str())\n                 .or_else(|| {\n                     owner_file\n                         .as_ref()\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:438:41: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 438
+      },
+      "start": {
+        "column": 41,
+        "line": 438
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -433,17 +433,17 @@\n         };\n         let owner_matches_reference = match (owner_file.as_ref(), reference) {\n             (Some((owner, _)), Some(reference)) => owner_matches_reference(owner, &id, reference),\n             (None, Some(reference)) if reference.published => true,\n             (None, Some(_)) => false,\n             (Some((owner, _)), None) => !references.contains_request(&owner.request_id),\n             (None, None) => false,\n         };\n-        if !owner_matches_reference {\n+        if  /* ~ changed by cargo-mutants ~ */owner_matches_reference {\n             let request_id = reference\n                 .map(|reference| reference.request_id.as_str())\n                 .or_else(|| {\n                     owner_file\n                         .as_ref()\n                         .map(|(owner, _)| owner.request_id.as_str())\n                 })\n                 .unwrap_or(\"unknown\");\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:441:12: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 441
+      },
+      "start": {
+        "column": 12,
+        "line": 441
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in cleanup_selected\n@@ -449,17 +449,17 @@\n                 .unwrap_or(\"unknown\");\n             warnings.push(maintenance_warning(\n                 request_id,\n                 &format!(\"pending/{id}\"),\n                 \"owner与Store引用不一致或引用缺失，保留原件\",\n             ));\n             continue;\n         }\n-        if reference.is_some_and(|reference| !reference.published) {\n+        if reference.is_some_and(|reference|  /* ~ changed by cargo-mutants ~ */reference.published) {\n             continue;\n         }\n         if reference.is_none() && owner_file.is_none() {\n             if record.container.is_some() || record.marker.is_some() {\n                 warnings.push(maintenance_warning(\n                     \"unknown\",\n                     &format!(\"pending/{id}\"),\n                     \"没有合法owner，保留原件\",\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:457:46: delete ! in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 457
+      },
+      "start": {
+        "column": 46,
+        "line": 457
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in cleanup_selected\n@@ -452,17 +452,17 @@\n                 &format!(\"pending/{id}\"),\n                 \"owner与Store引用不一致或引用缺失，保留原件\",\n             ));\n             continue;\n         }\n         if reference.is_some_and(|reference| !reference.published) {\n             continue;\n         }\n-        if reference.is_none() && owner_file.is_none() {\n+        if reference.is_none() || /* ~ changed by cargo-mutants ~ */ owner_file.is_none() {\n             if record.container.is_some() || record.marker.is_some() {\n                 warnings.push(maintenance_warning(\n                     \"unknown\",\n                     &format!(\"pending/{id}\"),\n                     \"没有合法owner，保留原件\",\n                 ));\n             }\n             continue;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:460:32: replace && with || in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 460
+      },
+      "start": {
+        "column": 32,
+        "line": 460
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in cleanup_selected\n@@ -453,17 +453,17 @@\n                 \"owner与Store引用不一致或引用缺失，保留原件\",\n             ));\n             continue;\n         }\n         if reference.is_some_and(|reference| !reference.published) {\n             continue;\n         }\n         if reference.is_none() && owner_file.is_none() {\n-            if record.container.is_some() || record.marker.is_some() {\n+            if record.container.is_some() && /* ~ changed by cargo-mutants ~ */ record.marker.is_some() {\n                 warnings.push(maintenance_warning(\n                     \"unknown\",\n                     &format!(\"pending/{id}\"),\n                     \"没有合法owner，保留原件\",\n                 ));\n             }\n             continue;\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:461:43: replace || with && in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 461
+      },
+      "start": {
+        "column": 43,
+        "line": 461
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in cleanup_selected\n@@ -463,17 +463,17 @@\n                     \"unknown\",\n                     &format!(\"pending/{id}\"),\n                     \"没有合法owner，保留原件\",\n                 ));\n             }\n             continue;\n         }\n         if reference.is_none()\n-            && owner_file\n+            || /* ~ changed by cargo-mutants ~ */ owner_file\n                 .as_ref()\n                 .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))\n         {\n             let request_id = owner_file\n                 .as_ref()\n                 .map(|(owner, _)| owner.request_id.as_str())\n                 .unwrap_or(\"unknown\");\n             warnings.push(maintenance_warning(\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:471:13: replace && with || in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 471
+      },
+      "start": {
+        "column": 13,
+        "line": 471
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in cleanup_selected\n@@ -489,17 +489,17 @@\n                 owner_file\n                     .as_ref()\n                     .map(|(owner, _)| owner.request_id.as_str())\n             })\n             .unwrap_or(\"pending-orphan\")\n             .to_string();\n         let cleanup_request_id = cleanup_request_id.as_str();\n         if let Some(reference) = reference {\n-            if reference.operation == \"publish\" && record.marker.is_some() {\n+            if reference.operation == \"publish\" || /* ~ changed by cargo-mutants ~ */ record.marker.is_some() {\n                 warnings.push(maintenance_warning(\n                     &reference.request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     \"publish请求出现删除marker，保留原件\",\n                 ));\n                 continue;\n             }\n             if let Some(marker_kind) = record.marker {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:497:49: replace && with || in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 497
+      },
+      "start": {
+        "column": 49,
+        "line": 497
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in cleanup_selected\n@@ -489,17 +489,17 @@\n                 owner_file\n                     .as_ref()\n                     .map(|(owner, _)| owner.request_id.as_str())\n             })\n             .unwrap_or(\"pending-orphan\")\n             .to_string();\n         let cleanup_request_id = cleanup_request_id.as_str();\n         if let Some(reference) = reference {\n-            if reference.operation == \"publish\" && record.marker.is_some() {\n+            if reference.operation != /* ~ changed by cargo-mutants ~ */ \"publish\" && record.marker.is_some() {\n                 warnings.push(maintenance_warning(\n                     &reference.request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     \"publish请求出现删除marker，保留原件\",\n                 ));\n                 continue;\n             }\n             if let Some(marker_kind) = record.marker {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:497:36: replace == with != in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 497
+      },
+      "start": {
+        "column": 36,
+        "line": 497
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in cleanup_selected\n@@ -498,17 +498,17 @@\n                 warnings.push(maintenance_warning(\n                     &reference.request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     \"publish请求出现删除marker，保留原件\",\n                 ));\n                 continue;\n             }\n             if let Some(marker_kind) = record.marker {\n-                if marker_kind != ManagedEntryKind::RegularFile {\n+                if marker_kind == /* ~ changed by cargo-mutants ~ */ ManagedEntryKind::RegularFile {\n                     warnings.push(maintenance_warning(\n                         &reference.request_id,\n                         &format!(\"pending/{id}.deleted\"),\n                         \"删除marker类型异常，保留原件\",\n                     ));\n                     continue;\n                 }\n                 if reference.operation == \"delete\" {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:506:32: replace != with == in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 506
+      },
+      "start": {
+        "column": 32,
+        "line": 506
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in cleanup_selected\n@@ -506,17 +506,17 @@\n                 if marker_kind != ManagedEntryKind::RegularFile {\n                     warnings.push(maintenance_warning(\n                         &reference.request_id,\n                         &format!(\"pending/{id}.deleted\"),\n                         \"删除marker类型异常，保留原件\",\n                     ));\n                     continue;\n                 }\n-                if reference.operation == \"delete\" {\n+                if reference.operation != /* ~ changed by cargo-mutants ~ */ \"delete\" {\n                     match crate::effects::read_deleted_marker(home, lock, &id) {\n                         Ok(Some(_)) => {}\n                         Ok(None) => {}\n                         Err(error) => {\n                             warnings.push(maintenance_warning(\n                                 &reference.request_id,\n                                 &format!(\"pending/{id}.deleted\"),\n                                 &format!(\"删除marker校验失败，保留原件：{error}\"),\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:514:40: replace == with != in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 514
+      },
+      "start": {
+        "column": 40,
+        "line": 514
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in cleanup_selected\n@@ -538,17 +538,17 @@\n                 \"unknown\",\n                 &format!(\"pending/{id}.deleted\"),\n                 \"marker不能证明孤儿归属，保留原件\",\n             ));\n             continue;\n         }\n \n         if let Some(container_kind) = record.container {\n-            if container_kind != ManagedEntryKind::Directory {\n+            if container_kind == /* ~ changed by cargo-mutants ~ */ ManagedEntryKind::Directory {\n                 warnings.push(maintenance_warning(\n                     cleanup_request_id,\n                     &format!(\"pending/{id}\"),\n                     \"container类型异常，保留owner和原件\",\n                 ));\n                 continue;\n             }\n             let path = format!(\"pending/{id}\");\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:546:31: replace != with == in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 546
+      },
+      "start": {
+        "column": 31,
+        "line": 546
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in cleanup_selected\n@@ -655,17 +655,17 @@\n                         cleanup_request_id,\n                         &format!(\"pending/{id}.owner\"),\n                         &format!(\"侧车删除失败：{error}\"),\n                     ));\n                 }\n             }\n         }\n         if record.marker == Some(ManagedEntryKind::RegularFile)\n-            && reference.is_some_and(|reference| reference.operation == \"delete\")\n+            || /* ~ changed by cargo-mutants ~ */ reference.is_some_and(|reference| reference.operation == \"delete\")\n         {\n             if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n                 warnings.push(maintenance_warning(\n                     cleanup_request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     &format!(\"marker删除失败：{error}\"),\n                 ));\n                 continue;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:663:13: replace && with || in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 663
+      },
+      "start": {
+        "column": 13,
+        "line": 663
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in cleanup_selected\n@@ -654,17 +654,17 @@\n                     warnings.push(maintenance_warning(\n                         cleanup_request_id,\n                         &format!(\"pending/{id}.owner\"),\n                         &format!(\"侧车删除失败：{error}\"),\n                     ));\n                 }\n             }\n         }\n-        if record.marker == Some(ManagedEntryKind::RegularFile)\n+        if record.marker != /* ~ changed by cargo-mutants ~ */ Some(ManagedEntryKind::RegularFile)\n             && reference.is_some_and(|reference| reference.operation == \"delete\")\n         {\n             if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n                 warnings.push(maintenance_warning(\n                     cleanup_request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     &format!(\"marker删除失败：{error}\"),\n                 ));\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:662:26: replace == with != in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 662
+      },
+      "start": {
+        "column": 26,
+        "line": 662
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in cleanup_selected\n@@ -655,17 +655,17 @@\n                         cleanup_request_id,\n                         &format!(\"pending/{id}.owner\"),\n                         &format!(\"侧车删除失败：{error}\"),\n                     ));\n                 }\n             }\n         }\n         if record.marker == Some(ManagedEntryKind::RegularFile)\n-            && reference.is_some_and(|reference| reference.operation == \"delete\")\n+            && reference.is_some_and(|reference| reference.operation != /* ~ changed by cargo-mutants ~ */ \"delete\")\n         {\n             if let Err(error) = maybe_fail_cleanup(\"pending_cleanup_before_remove\") {\n                 warnings.push(maintenance_warning(\n                     cleanup_request_id,\n                     &format!(\"pending/{id}.deleted\"),\n                     &format!(\"marker删除失败：{error}\"),\n                 ));\n                 continue;\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "cleanup_selected",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 695
+        },
+        "start": {
+          "column": 1,
+          "line": 333
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:663:70: replace == with != in cleanup_selected",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 72,
+        "line": 663
+      },
+      "start": {
+        "column": 70,
+        "line": 663
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace valid_internal_id -> bool with true\n@@ -690,17 +690,17 @@\n                 )),\n             }\n         }\n     }\n     Ok(warnings)\n }\n \n fn valid_internal_id(value: &str) -> bool {\n-    uuid::Uuid::parse_str(value).is_ok()\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "valid_internal_id",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 699
+        },
+        "start": {
+          "column": 1,
+          "line": 697
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:698:5: replace valid_internal_id -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 698
+      },
+      "start": {
+        "column": 5,
+        "line": 698
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace valid_internal_id -> bool with false\n@@ -690,17 +690,17 @@\n                 )),\n             }\n         }\n     }\n     Ok(warnings)\n }\n \n fn valid_internal_id(value: &str) -> bool {\n-    uuid::Uuid::parse_str(value).is_ok()\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "valid_internal_id",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 699
+        },
+        "start": {
+          "column": 1,
+          "line": 697
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:698:5: replace valid_internal_id -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 698
+      },
+      "start": {
+        "column": 5,
+        "line": 698
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace maintenance_warning -> String with String::new()\n@@ -694,17 +694,17 @@\n     Ok(warnings)\n }\n \n fn valid_internal_id(value: &str) -> bool {\n     uuid::Uuid::parse_str(value).is_ok()\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n-    format!(\"request_id={request_id} object={object} reason={reason}\")\n+    String::new() /* ~ changed by cargo-mutants ~ */\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "maintenance_warning",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 703
+        },
+        "start": {
+          "column": 1,
+          "line": 701
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:702:5: replace maintenance_warning -> String with String::new()",
+    "package": "sheltie-runtime",
+    "replacement": "String::new()",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 702
+      },
+      "start": {
+        "column": 5,
+        "line": 702
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace maintenance_warning -> String with \"xyzzy\".into()\n@@ -694,17 +694,17 @@\n     Ok(warnings)\n }\n \n fn valid_internal_id(value: &str) -> bool {\n     uuid::Uuid::parse_str(value).is_ok()\n }\n \n fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {\n-    format!(\"request_id={request_id} object={object} reason={reason}\")\n+    \"xyzzy\".into() /* ~ changed by cargo-mutants ~ */\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "maintenance_warning",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 703
+        },
+        "start": {
+          "column": 1,
+          "line": 701
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:702:5: replace maintenance_warning -> String with \"xyzzy\".into()",
+    "package": "sheltie-runtime",
+    "replacement": "\"xyzzy\".into()",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 702
+      },
+      "start": {
+        "column": 5,
+        "line": 702
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace owner_matches_reference -> bool with true\n@@ -702,26 +702,17 @@\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n-    owner.format == \"pending/v1\"\n-        && owner.internal_id == internal_id\n-        && owner.request_id == reference.request_id\n-        && owner.op\n-            == match reference.operation.as_str() {\n-                \"delete\" => \"remove_workbook\",\n-                \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n-                \"publish\" => \"add_workbook\",\n-                _ => \"\",\n-            }\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n \n fn validate_publish_request_work_id(\n     request: &crate::store::read::RequestEffectRow,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:710:5: replace owner_matches_reference -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 719
+      },
+      "start": {
+        "column": 5,
+        "line": 710
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace owner_matches_reference -> bool with false\n@@ -702,26 +702,17 @@\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n-    owner.format == \"pending/v1\"\n-        && owner.internal_id == internal_id\n-        && owner.request_id == reference.request_id\n-        && owner.op\n-            == match reference.operation.as_str() {\n-                \"delete\" => \"remove_workbook\",\n-                \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n-                \"publish\" => \"add_workbook\",\n-                _ => \"\",\n-            }\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n \n fn validate_publish_request_work_id(\n     request: &crate::store::read::RequestEffectRow,\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:710:5: replace owner_matches_reference -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 719
+      },
+      "start": {
+        "column": 5,
+        "line": 710
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in owner_matches_reference\n@@ -705,17 +705,17 @@\n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n-        && owner.op\n+        || /* ~ changed by cargo-mutants ~ */ owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:713:9: replace && with || in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 713
+      },
+      "start": {
+        "column": 9,
+        "line": 713
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in owner_matches_reference\n@@ -704,17 +704,17 @@\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n-        && owner.request_id == reference.request_id\n+        || /* ~ changed by cargo-mutants ~ */ owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:712:9: replace && with || in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 712
+      },
+      "start": {
+        "column": 9,
+        "line": 712
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in owner_matches_reference\n@@ -703,17 +703,17 @@\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n-        && owner.internal_id == internal_id\n+        || /* ~ changed by cargo-mutants ~ */ owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:711:9: replace && with || in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 711
+      },
+      "start": {
+        "column": 9,
+        "line": 711
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in owner_matches_reference\n@@ -702,17 +702,17 @@\n     format!(\"request_id={request_id} object={object} reason={reason}\")\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n-    owner.format == \"pending/v1\"\n+    owner.format != /* ~ changed by cargo-mutants ~ */ \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:710:18: replace == with != in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 710
+      },
+      "start": {
+        "column": 18,
+        "line": 710
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in owner_matches_reference\n@@ -703,17 +703,17 @@\n }\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n-        && owner.internal_id == internal_id\n+        && owner.internal_id != /* ~ changed by cargo-mutants ~ */ internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:711:30: replace == with != in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 711
+      },
+      "start": {
+        "column": 30,
+        "line": 711
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in owner_matches_reference\n@@ -704,17 +704,17 @@\n \n fn owner_matches_reference(\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n-        && owner.request_id == reference.request_id\n+        && owner.request_id != /* ~ changed by cargo-mutants ~ */ reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:712:29: replace == with != in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 712
+      },
+      "start": {
+        "column": 29,
+        "line": 712
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in owner_matches_reference\n@@ -706,17 +706,17 @@\n     owner: &PendingOwner,\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n-            == match reference.operation.as_str() {\n+            != /* ~ changed by cargo-mutants ~ */ match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:714:13: replace == with != in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 714
+      },
+      "start": {
+        "column": 13,
+        "line": 714
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete match arm \"delete\" in owner_matches_reference\n@@ -707,17 +707,17 @@\n     internal_id: &str,\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n-                \"delete\" => \"remove_workbook\",\n+                 /* ~ changed by cargo-mutants ~ */\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/pending.rs:715:17: delete match arm \"delete\" in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 715
+      },
+      "start": {
+        "column": 17,
+        "line": 715
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete match arm \"publish\" in owner_matches_reference\n@@ -709,17 +709,17 @@\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n-                \"publish\" => \"add_workbook\",\n+                 /* ~ changed by cargo-mutants ~ */\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n \n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/pending.rs:717:17: delete match arm \"publish\" in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 717
+      },
+      "start": {
+        "column": 17,
+        "line": 717
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace match guard reference.owner.starts_with(\"work:\") with true in owner_matches_reference\n@@ -708,17 +708,17 @@\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n-                \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n+                \"publish\" if true /* ~ changed by cargo-mutants ~ */ => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/pending.rs:716:30: replace match guard reference.owner.starts_with(\"work:\") with true in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 66,
+        "line": 716
+      },
+      "start": {
+        "column": 30,
+        "line": 716
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace match guard reference.owner.starts_with(\"work:\") with false in owner_matches_reference\n@@ -708,17 +708,17 @@\n     reference: &PendingReference,\n ) -> bool {\n     owner.format == \"pending/v1\"\n         && owner.internal_id == internal_id\n         && owner.request_id == reference.request_id\n         && owner.op\n             == match reference.operation.as_str() {\n                 \"delete\" => \"remove_workbook\",\n-                \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n+                \"publish\" if false /* ~ changed by cargo-mutants ~ */ => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "owner_matches_reference",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 720
+        },
+        "start": {
+          "column": 1,
+          "line": 705
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/pending.rs:716:30: replace match guard reference.owner.starts_with(\"work:\") with false in owner_matches_reference",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 66,
+        "line": 716
+      },
+      "start": {
+        "column": 30,
+        "line": 716
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace maybe_fail_cleanup -> Result<()> with Ok(())\n@@ -715,17 +715,17 @@\n                 \"delete\" => \"remove_workbook\",\n                 \"publish\" if reference.owner.starts_with(\"work:\") => \"start_work\",\n                 \"publish\" => \"add_workbook\",\n                 _ => \"\",\n             }\n }\n \n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n-    crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_publish_request_work_id(\n     request: &crate::store::read::RequestEffectRow,\n     owner: &str,\n ) -> Result<()> {\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "maybe_fail_cleanup",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 724
+        },
+        "start": {
+          "column": 1,
+          "line": 722
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:723:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 95,
+        "line": 723
+      },
+      "start": {
+        "column": 5,
+        "line": 723
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace validate_publish_request_work_id -> Result<()> with Ok(())\n@@ -722,32 +722,17 @@\n fn maybe_fail_cleanup(name: &str) -> Result<()> {\n     crate::failpoint::cleanup_error(name).map_err(|error| Error::io(\"pending cleanup\", error))\n }\n \n fn validate_publish_request_work_id(\n     request: &crate::store::read::RequestEffectRow,\n     owner: &str,\n ) -> Result<()> {\n-    if let Some(work) = owner.strip_prefix(\"work:\") {\n-        let parsed =\n-            sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n-                detail: format!(\"publish owner {owner:?} 的WorkId无效：{error}\"),\n-            })?;\n-        if request.work_id.as_deref() != Some(parsed.as_str()) {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"publish请求 {} 的work_id与owner不一致\", request.request_id),\n-            });\n-        }\n-    } else if request.work_id.is_some() {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"Workbook publish请求 {} 带有Work归属\", request.request_id),\n-        });\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_other_effect_paths(\n     request: &crate::store::read::RequestEffectRow,\n     effect: &EffectOp,\n ) -> Result<()> {\n     let validate_path = |path: &str, allow_ancestor: bool| -> Result<()> {\n         let relative =\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_request_work_id",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 746
+        },
+        "start": {
+          "column": 1,
+          "line": 726
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:730:5: replace validate_publish_request_work_id -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 745
+      },
+      "start": {
+        "column": 5,
+        "line": 730
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in validate_publish_request_work_id\n@@ -727,17 +727,17 @@\n     request: &crate::store::read::RequestEffectRow,\n     owner: &str,\n ) -> Result<()> {\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish owner {owner:?} 的WorkId无效：{error}\"),\n             })?;\n-        if request.work_id.as_deref() != Some(parsed.as_str()) {\n+        if request.work_id.as_deref() == /* ~ changed by cargo-mutants ~ */ Some(parsed.as_str()) {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish请求 {} 的work_id与owner不一致\", request.request_id),\n             });\n         }\n     } else if request.work_id.is_some() {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"Workbook publish请求 {} 带有Work归属\", request.request_id),\n         });\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_request_work_id",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 746
+        },
+        "start": {
+          "column": 1,
+          "line": 726
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:735:39: replace != with == in validate_publish_request_work_id",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 735
+      },
+      "start": {
+        "column": 39,
+        "line": 735
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace validate_other_effect_paths -> Result<()> with Ok(())\n@@ -744,98 +744,17 @@\n     }\n     Ok(())\n }\n \n fn validate_other_effect_paths(\n     request: &crate::store::read::RequestEffectRow,\n     effect: &EffectOp,\n ) -> Result<()> {\n-    let validate_path = |path: &str, allow_ancestor: bool| -> Result<()> {\n-        let relative =\n-            ManagedRelPath::new(path.to_string()).map_err(|error| Error::StoreCorrupt {\n-                detail: format!(\"请求 {} effects路径无效：{error}\", request.request_id),\n-            })?;\n-        let work = request\n-            .work_id\n-            .as_deref()\n-            .ok_or_else(|| Error::StoreCorrupt {\n-                detail: format!(\"Workbook请求 {} 含Work效果路径\", request.request_id),\n-            })?;\n-        let parsed =\n-            sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n-                detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n-            })?;\n-        let prefix = format!(\"works/{parsed}/\");\n-        let ancestor = allow_ancestor\n-            && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n-        if !relative.as_str().starts_with(&prefix) && !ancestor {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\n-                    \"请求 {} effects路径 {} 不属于Work目录 {}\",\n-                    request.request_id, path, parsed\n-                ),\n-            });\n-        }\n-        Ok(())\n-    };\n-\n-    match effect {\n-        EffectOp::PrepareAttempt { work_id, dirs, .. } => {\n-            if request.work_id.as_deref() != Some(work_id.as_str()) {\n-                return Err(Error::StoreCorrupt {\n-                    detail: format!(\"请求 {} PrepareAttempt.work_id不一致\", request.request_id),\n-                });\n-            }\n-            for path in dirs {\n-                validate_path(path, true)?;\n-            }\n-        }\n-        EffectOp::WriteFile { path, sha256, .. } => {\n-            if !valid_digest(sha256) {\n-                return Err(Error::StoreCorrupt {\n-                    detail: format!(\"请求 {} WriteFile摘要无效\", request.request_id),\n-                });\n-            }\n-            validate_path(path, false)?;\n-        }\n-        EffectOp::SealOutputs { refs } => {\n-            for reference in refs {\n-                if !valid_digest(&reference.sha256) {\n-                    return Err(Error::StoreCorrupt {\n-                        detail: format!(\"请求 {} SealOutputs摘要无效\", request.request_id),\n-                    });\n-                }\n-                validate_path(&reference.path, false)?;\n-            }\n-        }\n-        EffectOp::RefreshStatusCard { work_id } => {\n-            let parsed =\n-                sheltie_core::ids::WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {\n-                    detail: format!(\n-                        \"请求 {} RefreshStatusCard.work_id无效：{error}\",\n-                        request.request_id\n-                    ),\n-                })?;\n-            if request.work_id.as_deref() != Some(parsed.as_str()) {\n-                return Err(Error::StoreCorrupt {\n-                    detail: format!(\n-                        \"请求 {} RefreshStatusCard.work_id与requests不一致\",\n-                        request.request_id\n-                    ),\n-                });\n-            }\n-        }\n-        EffectOp::PublishDir { .. } | EffectOp::DeleteDir { .. } => {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"请求 {} 目录效果进入非目录校验入口\", request.request_id),\n-            });\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_publish_reference(\n     owner: &str,\n     final_path: &str,\n     digest: &str,\n     digest_root: &str,\n ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:752:5: replace validate_other_effect_paths -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 833
+      },
+      "start": {
+        "column": 5,
+        "line": 752
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in validate_other_effect_paths\n@@ -761,17 +761,17 @@\n                 detail: format!(\"Workbook请求 {} 含Work效果路径\", request.request_id),\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n-            && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n+            || /* ~ changed by cargo-mutants ~ */ (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n         if !relative.as_str().starts_with(&prefix) && !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:769:13: replace && with || in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 769
+      },
+      "start": {
+        "column": 13,
+        "line": 769
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in validate_other_effect_paths\n@@ -761,17 +761,17 @@\n                 detail: format!(\"Workbook请求 {} 含Work效果路径\", request.request_id),\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n-            && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n+            && (relative.as_str() == \"works\" && /* ~ changed by cargo-mutants ~ */ relative.as_str() == format!(\"works/{parsed}\"));\n         if !relative.as_str().starts_with(&prefix) && !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:769:46: replace || with && in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 48,
+        "line": 769
+      },
+      "start": {
+        "column": 46,
+        "line": 769
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in validate_other_effect_paths\n@@ -761,17 +761,17 @@\n                 detail: format!(\"Workbook请求 {} 含Work效果路径\", request.request_id),\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n-            && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n+            && (relative.as_str() != /* ~ changed by cargo-mutants ~ */ \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n         if !relative.as_str().starts_with(&prefix) && !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:769:35: replace == with != in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 769
+      },
+      "start": {
+        "column": 35,
+        "line": 769
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace == with != in validate_other_effect_paths\n@@ -761,17 +761,17 @@\n                 detail: format!(\"Workbook请求 {} 含Work效果路径\", request.request_id),\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n-            && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n+            && (relative.as_str() == \"works\" || relative.as_str() != /* ~ changed by cargo-mutants ~ */ format!(\"works/{parsed}\"));\n         if !relative.as_str().starts_with(&prefix) && !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:769:67: replace == with != in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 769
+      },
+      "start": {
+        "column": 67,
+        "line": 769
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace && with || in validate_other_effect_paths\n@@ -762,17 +762,17 @@\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n             && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n-        if !relative.as_str().starts_with(&prefix) && !ancestor {\n+        if !relative.as_str().starts_with(&prefix) || /* ~ changed by cargo-mutants ~ */ !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n         Ok(())\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:770:52: replace && with || in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 770
+      },
+      "start": {
+        "column": 52,
+        "line": 770
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in validate_other_effect_paths\n@@ -762,17 +762,17 @@\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n             && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n-        if !relative.as_str().starts_with(&prefix) && !ancestor {\n+        if  /* ~ changed by cargo-mutants ~ */relative.as_str().starts_with(&prefix) && !ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n         Ok(())\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:770:12: delete ! in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 770
+      },
+      "start": {
+        "column": 12,
+        "line": 770
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in validate_other_effect_paths\n@@ -762,17 +762,17 @@\n             })?;\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"请求 {} 的work_id无效：{error}\", request.request_id),\n             })?;\n         let prefix = format!(\"works/{parsed}/\");\n         let ancestor = allow_ancestor\n             && (relative.as_str() == \"works\" || relative.as_str() == format!(\"works/{parsed}\"));\n-        if !relative.as_str().starts_with(&prefix) && !ancestor {\n+        if !relative.as_str().starts_with(&prefix) &&  /* ~ changed by cargo-mutants ~ */ancestor {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\n                     \"请求 {} effects路径 {} 不属于Work目录 {}\",\n                     request.request_id, path, parsed\n                 ),\n             });\n         }\n         Ok(())\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:770:55: delete ! in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 770
+      },
+      "start": {
+        "column": 55,
+        "line": 770
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in validate_other_effect_paths\n@@ -775,17 +775,17 @@\n                 ),\n             });\n         }\n         Ok(())\n     };\n \n     match effect {\n         EffectOp::PrepareAttempt { work_id, dirs, .. } => {\n-            if request.work_id.as_deref() != Some(work_id.as_str()) {\n+            if request.work_id.as_deref() == /* ~ changed by cargo-mutants ~ */ Some(work_id.as_str()) {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {} PrepareAttempt.work_id不一致\", request.request_id),\n                 });\n             }\n             for path in dirs {\n                 validate_path(path, true)?;\n             }\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:783:43: replace != with == in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 783
+      },
+      "start": {
+        "column": 43,
+        "line": 783
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in validate_other_effect_paths\n@@ -785,17 +785,17 @@\n                     detail: format!(\"请求 {} PrepareAttempt.work_id不一致\", request.request_id),\n                 });\n             }\n             for path in dirs {\n                 validate_path(path, true)?;\n             }\n         }\n         EffectOp::WriteFile { path, sha256, .. } => {\n-            if !valid_digest(sha256) {\n+            if  /* ~ changed by cargo-mutants ~ */valid_digest(sha256) {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {} WriteFile摘要无效\", request.request_id),\n                 });\n             }\n             validate_path(path, false)?;\n         }\n         EffectOp::SealOutputs { refs } => {\n             for reference in refs {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:793:16: delete ! in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 793
+      },
+      "start": {
+        "column": 16,
+        "line": 793
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ delete ! in validate_other_effect_paths\n@@ -794,17 +794,17 @@\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\"请求 {} WriteFile摘要无效\", request.request_id),\n                 });\n             }\n             validate_path(path, false)?;\n         }\n         EffectOp::SealOutputs { refs } => {\n             for reference in refs {\n-                if !valid_digest(&reference.sha256) {\n+                if  /* ~ changed by cargo-mutants ~ */valid_digest(&reference.sha256) {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"请求 {} SealOutputs摘要无效\", request.request_id),\n                     });\n                 }\n                 validate_path(&reference.path, false)?;\n             }\n         }\n         EffectOp::RefreshStatusCard { work_id } => {\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:802:20: delete ! in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 802
+      },
+      "start": {
+        "column": 20,
+        "line": 802
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in validate_other_effect_paths\n@@ -810,17 +810,17 @@\n         EffectOp::RefreshStatusCard { work_id } => {\n             let parsed =\n                 sheltie_core::ids::WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {\n                     detail: format!(\n                         \"请求 {} RefreshStatusCard.work_id无效：{error}\",\n                         request.request_id\n                     ),\n                 })?;\n-            if request.work_id.as_deref() != Some(parsed.as_str()) {\n+            if request.work_id.as_deref() == /* ~ changed by cargo-mutants ~ */ Some(parsed.as_str()) {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\n                         \"请求 {} RefreshStatusCard.work_id与requests不一致\",\n                         request.request_id\n                     ),\n                 });\n             }\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_other_effect_paths",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 834
+        },
+        "start": {
+          "column": 1,
+          "line": 748
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:818:43: replace != with == in validate_other_effect_paths",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 818
+      },
+      "start": {
+        "column": 43,
+        "line": 818
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace validate_publish_reference -> Result<()> with Ok(())\n@@ -834,60 +834,17 @@\n }\n \n fn validate_publish_reference(\n     owner: &str,\n     final_path: &str,\n     digest: &str,\n     digest_root: &str,\n ) -> Result<()> {\n-    ManagedRelPath::new(final_path.to_string()).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"publish final路径无效：{error}\"),\n-    })?;\n-    if let Some(work) = owner.strip_prefix(\"work:\") {\n-        let parsed =\n-            sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n-                detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n-            })?;\n-        if owner != format!(\"work:{parsed}\")\n-            || final_path != format!(\"works/{parsed}\")\n-            || digest_root != \"workbook\"\n-            || !valid_digest(digest)\n-        {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n-            });\n-        }\n-        return Ok(());\n-    }\n-    let identity = owner\n-        .strip_prefix(\"workbook:\")\n-        .ok_or_else(|| Error::StoreCorrupt {\n-            detail: format!(\"publish owner {owner:?} 不属于Work或Workbook\"),\n-        })?;\n-    let (id, version) = identity\n-        .split_once('@')\n-        .ok_or_else(|| Error::StoreCorrupt {\n-            detail: format!(\"publish Workbook owner {owner:?} 缺version\"),\n-        })?;\n-    let parsed_id =\n-        sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {\n-            detail: format!(\"publish Workbook owner {owner:?} 的id无效：{error}\"),\n-        })?;\n-    if !crate::load::valid_workbook_version(version)\n-        || owner != format!(\"workbook:{}@{version}\", parsed_id.as_str())\n-        || final_path != format!(\"workbooks/{}/{version}\", parsed_id.as_str())\n-        || !digest_root.is_empty()\n-        || !valid_digest(digest)\n-    {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"publish Workbook {owner:?} 的final/digest闭包无效\"),\n-        });\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_delete_reference(owner: &str, final_path: &str, digest: &str) -> Result<()> {\n     ManagedRelPath::new(final_path.to_string()).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"delete final路径无效：{error}\"),\n     })?;\n     let identity = owner\n         .strip_prefix(\"workbook:\")\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/pending.rs:842:5: replace validate_publish_reference -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 885
+      },
+      "start": {
+        "column": 5,
+        "line": 842
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in validate_publish_reference\n@@ -845,17 +845,17 @@\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n             })?;\n         if owner != format!(\"work:{parsed}\")\n             || final_path != format!(\"works/{parsed}\")\n             || digest_root != \"workbook\"\n-            || !valid_digest(digest)\n+            && /* ~ changed by cargo-mutants ~ */ !valid_digest(digest)\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n             });\n         }\n         return Ok(());\n     }\n     let identity = owner\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:853:13: replace || with && in validate_publish_reference",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 853
+      },
+      "start": {
+        "column": 13,
+        "line": 853
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in validate_publish_reference\n@@ -844,17 +844,17 @@\n     })?;\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n             })?;\n         if owner != format!(\"work:{parsed}\")\n             || final_path != format!(\"works/{parsed}\")\n-            || digest_root != \"workbook\"\n+            && /* ~ changed by cargo-mutants ~ */ digest_root != \"workbook\"\n             || !valid_digest(digest)\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n             });\n         }\n         return Ok(());\n     }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:852:13: replace || with && in validate_publish_reference",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 852
+      },
+      "start": {
+        "column": 13,
+        "line": 852
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace || with && in validate_publish_reference\n@@ -843,17 +843,17 @@\n         detail: format!(\"publish final路径无效：{error}\"),\n     })?;\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n             })?;\n         if owner != format!(\"work:{parsed}\")\n-            || final_path != format!(\"works/{parsed}\")\n+            && /* ~ changed by cargo-mutants ~ */ final_path != format!(\"works/{parsed}\")\n             || digest_root != \"workbook\"\n             || !valid_digest(digest)\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n             });\n         }\n         return Ok(());\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:851:13: replace || with && in validate_publish_reference",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 851
+      },
+      "start": {
+        "column": 13,
+        "line": 851
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in validate_publish_reference\n@@ -842,17 +842,17 @@\n     ManagedRelPath::new(final_path.to_string()).map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"publish final路径无效：{error}\"),\n     })?;\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n             })?;\n-        if owner != format!(\"work:{parsed}\")\n+        if owner == /* ~ changed by cargo-mutants ~ */ format!(\"work:{parsed}\")\n             || final_path != format!(\"works/{parsed}\")\n             || digest_root != \"workbook\"\n             || !valid_digest(digest)\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:850:18: replace != with == in validate_publish_reference",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 850
+      },
+      "start": {
+        "column": 18,
+        "line": 850
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/pending.rs\n+++ replace != with == in validate_publish_reference\n@@ -843,17 +843,17 @@\n         detail: format!(\"publish final路径无效：{error}\"),\n     })?;\n     if let Some(work) = owner.strip_prefix(\"work:\") {\n         let parsed =\n             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {\n                 detail: format!(\"publish Work owner {owner:?} 无效：{error}\"),\n             })?;\n         if owner != format!(\"work:{parsed}\")\n-            || final_path != format!(\"works/{parsed}\")\n+            || final_path == /* ~ changed by cargo-mutants ~ */ format!(\"works/{parsed}\")\n             || digest_root != \"workbook\"\n             || !valid_digest(digest)\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"publish Work {owner:?} 的final/digest闭包无效\"),\n             });\n         }\n         return Ok(());\n",
+    "file": "crates/sheltie-runtime/src/pending.rs",
+    "function": {
+      "function_name": "validate_publish_reference",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 886
+        },
+        "start": {
+          "column": 1,
+          "line": 836
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/pending.rs:851:27: replace != with == in validate_publish_reference",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 851
+      },
+      "start": {
+        "column": 27,
+        "line": 851
+      }
+    }
+  }
+]

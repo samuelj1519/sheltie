@@ -1,0 +1,110 @@
+[
+  {
+    "gate": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.304
+  },
+  {
+    "gate": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 7.114
+  },
+  {
+    "gate": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 7.496
+  },
+  {
+    "gate": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 219.03
+  },
+  {
+    "gate": "task",
+    "argv": [
+      "scripts/task.sh",
+      "C002-T31"
+    ],
+    "exit": 0,
+    "seconds": 35.515
+  },
+  {
+    "gate": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--locked",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 1.555
+  },
+  {
+    "gate": "deny",
+    "argv": [
+      "cargo",
+      "deny",
+      "--offline",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.351
+  },
+  {
+    "gate": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 1,
+    "seconds": 1.014
+  },
+  {
+    "gate": "docs-rerun",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "seconds": 2.53,
+    "source_input": "candidate-input.txt; document evidence current at run"
+  },
+  {
+    "gate": "specs-rerun",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.963,
+    "source_input": "candidate-input.txt; document evidence current at run"
+  }
+]

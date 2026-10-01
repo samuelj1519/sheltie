@@ -1,6 +1,6 @@
 # 修复验收样例与证据
 
-供 [repair-plan.md](repair-plan.md) 的 T18–T31 使用。这里是待执行的验收清单，所有新增用例和修复结果均为 `not_run`。历史失败原文在 [M1 evidence](evidence/m1-2026-09-28/README.md)；原始探针证明旧候选的问题，不是新候选的通过证据。
+供 [repair-plan.md](repair-plan.md) 的 T18–T31 使用。这里规定验收清单；各项当前结果只看 [plan.md](plan.md) 与 [validation.md](validation.md) 的固定候选记录，未执行的样例仍为 `not_run`。历史失败原文在 [M1 evidence](evidence/m1-2026-09-28/README.md)；原始探针证明旧候选的问题，不是新候选的通过证据。
 
 ## 1. 每条样例怎样写成测试
 
@@ -73,6 +73,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
 | V30 / T30 / R16 | task1提交并经独立verify记累计表后重规划 | 仅改整体基线；另例丢verify累计表中一条完成记录/原始证据 | fresh worker只读brief输入+真实Git得到Task/commit/原基线，非法材料停止；最终范围仍含task1；不从冻结tasks或测试闭包猜完成事实 |
 | V31 / T31 / R17 | 先启动全部参与者、同步事件控制窗口 | 独立审查旧lazy spawn→join及sleep | 两个线程确实同时到达指定窗口，最后才join；否定控制摘掉锁/同步应暴露违规，不靠重复运行碰运气 |
 | V32 / T31 / R17 | 每个能力有生产入口与独立oracle | mutant移除/改变单一保护条件 | 被正确反例捕获；存活逐一说明当前义务、consumer、oracle与保留/删除理由；未运行不能PASS |
+| V33 / T31 / R20 | 合法Gate提交count=1，批准后NoLegalEdge count=2；纯core合法submit/fail/approve | 仅把当前持久count改MAX或0；纯core仅改同一字段 | status/stats/list/写命令均准确STORE_CORRUPT而非panic；works/revision/requests/audit与业务文件不变，无新rid；纯core返回既有取值错误且原state不变 |
 
 ## 3.1 前置任务与最终闭环
 
@@ -86,7 +87,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
 | V19/V20 | T26：完整发布闭包与sync失败停止 | T28：pending读取/标记的只读入口；不能要求T26先通过后继读功能 |
 | V11 | T23：含冻结树purge的同锁与结果 | T31：等待者到指定窗口的实际同步事件，分别核初始化/旧Work拒绝 |
 
-## 3.2 R01–R19 的最终关闭Owner
+## 3.2 R01–R20 的最终关闭Owner
 
 | finding | 修复任务 | 验收入口 | 最后关闭前必须具备 |
 | --- | --- | --- | --- |
@@ -109,6 +110,7 @@ SELECT id, version, digest, dir FROM workbooks ORDER BY id, version;
 | R17 | T31及独立M1 | V31/V32、§4 | 真实同步点、macOS窗口、Linux豁免/not_run、存活体处置 |
 | R18 | T19、T26、T27 | V20及§4 | 必需sync传播与标完成次序；不把kill当断电 |
 | R19 | T24 | V04/V11 | 除根/.lock外锁前不初始化；purge后的旧Work不CREATE |
+| R20 | T31及独立M1 | V33 | 非法持久blocked_count在真实只读与写入口均拒绝；合法计数推进、纯core溢出与原状态不变 |
 
 ## 4. 真实 crash 矩阵
 
@@ -146,4 +148,6 @@ T31 把下面窗口做成子进程测试；生产 feature 名使用现有 `shelt
 | 审查 | 未参与实现的Reviewer、读取的diff/caller/合同、问题答复、复核结论 |
 | 交接 | 新接口及已迁移caller、下一任务输入、剩余失败Owner，不把依赖任务覆盖写成独立执行 |
 
-R01–R19 每行最终包含：修复task/commit、V样例、真实入口、独立oracle、原始run、Reviewer、结论及剩余风险。原O/N矩阵同期更新，只关闭义务已满足的行。完整kill或突变仍缺时，M1保持未通过。Linux运行已由用户明确豁免，保留`not_run`与平台风险，不阻挡M1但不得作跨平台通过结论。
+R01–R20 每行最终包含：修复task/commit、V样例、真实入口、独立oracle、原始run、Reviewer、结论及剩余风险。原O/N矩阵同期更新，只关闭义务已满足的行。完整kill或突变仍缺时，M1保持未通过。Linux运行已由用户明确豁免，保留`not_run`与平台风险，不阻挡M1但不得作跨平台通过结论。
+
+R20由T31负责V33；独立探针与修复结果必须同样记录固定候选、真实入口、单字段反例、原始run和Reviewer，未完成仍WIP。

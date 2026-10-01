@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/store/commit.rs
++++ crates/sheltie-runtime/src/store/commit.rs:183:24: replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with true in Store::commit
+@@ -180,7 +180,7 @@
+             )
+             .map_err(|e| match &e {
+                 rusqlite::Error::SqliteFailure(code, _)
+-                    if code.code == rusqlite::ErrorCode::ConstraintViolation =>
++                    if true =>
+                 {
+                     Error::WorkbookExists {
+                         id: row.id.clone(),

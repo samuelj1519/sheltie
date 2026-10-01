@@ -1,0 +1,209 @@
+   Compiling syn v3.0.6
+   Compiling once_cell v1.21.4
+   Compiling tempfile v3.27.0
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling thiserror v2.0.21
+   Compiling serde v1.0.229
+   Compiling sheltie-core v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/repaired-source-v2/crates/sheltie-core)
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/repaired-source-v2/crates/sheltie-runtime)
+    Finished `test` profile [optimized] target(s) in 1m 27s
+────────────
+ Nextest run ID 91dfed0a-c769-4dcd-91fd-cb92270f03fa with nextest profile: default
+    Starting 289 tests across 14 binaries
+        PASS [   0.099s] (  1/289) sheltie-runtime effects::seal_output_tests::normal_submit_requires_every_committed_ref_to_have_its_observed_handle
+        PASS [   0.142s] (  2/289) sheltie-runtime effects::seal_output_tests::path_replacement_seals_observed_object_and_leaves_new_target_untouched
+        PASS [   0.030s] (  3/289) sheltie-runtime error::tests::sqlite_environment_failures_keep_io_error_code
+        PASS [   0.232s] (  4/289) sheltie-runtime effects::seal_output_tests::same_inode_byte_change_stops_before_permission_change
+        PASS [   0.172s] (  5/289) sheltie-runtime fsx::new_atomic_tests::new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf
+        PASS [   0.200s] (  6/289) sheltie-runtime fsx::seal_tests::path_replacement_seals_observed_object_and_leaves_replacement_untouched
+        PASS [   0.179s] (  7/289) sheltie-runtime fsx::seal_tests::seal_refuses_hardlink_added_after_observation
+        PASS [   0.009s] (  8/289) sheltie-runtime fsx::tree_tests::alias_normalization_is_limited_to_os_temp_roots
+        PASS [   0.017s] (  9/289) sheltie-runtime fsx::tree_tests::directory_reader_rejects_non_utf8_entry_names
+        PASS [   0.120s] ( 10/289) sheltie-runtime fsx::seal_tests::seal_refuses_same_inode_content_change_before_chmod
+        PASS [   0.040s] ( 11/289) sheltie-runtime home::lock_retry_tests::lock_setup_retries_structured_missing_path_under_managed_root
+        PASS [   0.168s] ( 12/289) sheltie-runtime home::lock_retry_tests::existing_lock_removed_after_open_is_never_recreated
+        PASS [   0.030s] ( 13/289) sheltie-runtime selfmgmt::tests::bounded_child_accepts_exact_stdout_limit_and_rejects_one_more
+        PASS [   0.095s] ( 14/289) sheltie-runtime pending::tests::read_publish_dir_retries_when_final_renames_after_location
+        PASS [   0.030s] ( 15/289) sheltie-runtime selfmgmt::tests::bounded_child_limits_stderr_as_well_as_stdout
+        PASS [   0.076s] ( 16/289) sheltie-runtime service::pending_stage_tests::publish_stage_persists_owner_container_and_payload
+        PASS [   0.184s] ( 17/289) sheltie-runtime service::input_file_tests::input_file_accepts_exact_32_mib_and_rejects_one_more
+        PASS [   0.136s] ( 18/289) sheltie-runtime service::pending_stage_tests::remove_stage_persists_owner_and_container_without_payload
+        PASS [   0.272s] ( 19/289) sheltie-runtime session::tests::session_store_refuses_a_replaced_lock_on_the_next_connection
+        PASS [   0.602s] ( 20/289) sheltie-runtime session::tests::concurrent_store_initializer_waits_for_schema_before_preflight_rejection
+        PASS [   0.304s] ( 21/289) sheltie-runtime session::tests::session_store_refuses_a_replaced_root_on_the_next_connection
+        PASS [   0.260s] ( 22/289) sheltie-runtime store::tests::allocate_seq_is_not_reused_after_failed_start
+        PASS [   0.151s] ( 23/289) sheltie-runtime store::tests::allocate_seq_starts_at_1_per_day_and_increments
+        PASS [   1.407s] ( 24/289) sheltie-runtime store::tests::allocate_seq_under_two_threads_yields_distinct_numbers
+        PASS [   0.175s] ( 25/289) sheltie-runtime store::tests::commit_inserts_state_audit_and_request_atomically
+        PASS [   0.173s] ( 26/289) sheltie-runtime store::tests::commit_rejects_mismatched_state_identity_without_writing
+        PASS [   0.109s] ( 27/289) sheltie-runtime store::tests::commit_rejects_revision_overflow_without_negative_row
+        PASS [   0.176s] ( 28/289) sheltie-runtime store::tests::commit_rejects_same_request_id_different_payload
+        PASS [   0.114s] ( 29/289) sheltie-runtime store::tests::commit_rejects_stale_revision
+        PASS [   0.132s] ( 30/289) sheltie-runtime store::tests::commit_replays_same_request_id_and_payload
+        PASS [   0.113s] ( 31/289) sheltie-runtime store::tests::insert_workbook_on_readonly_store_is_not_workbook_exists
+        PASS [   0.066s] ( 32/289) sheltie-runtime store::tests::lazy_readonly_store_rejects_a_hardlinked_database
+        PASS [   0.057s] ( 33/289) sheltie-runtime store::tests::lazy_readonly_store_rejects_a_hardlinked_journal_sidecar
+        PASS [   0.059s] ( 34/289) sheltie-runtime store::tests::lazy_readonly_store_rejects_a_wal_sidecar_symlink_before_sqlite_open
+        PASS [   0.065s] ( 35/289) sheltie-runtime store::tests::load_rejects_invalid_state_combination
+        PASS [   0.073s] ( 36/289) sheltie-runtime store::tests::load_rejects_row_identity_status_and_revision_mismatch
+        PASS [   0.030s] ( 37/289) sheltie-runtime store::tests::load_rejects_running_attempt_on_different_current_occurrence
+        PASS [   0.038s] ( 38/289) sheltie-runtime store::tests::load_rejects_running_attempt_with_end_time
+        PASS [   0.018s] ( 39/289) sheltie-runtime store::tests::open_creates_schema_with_user_version_1
+        PASS [   0.015s] ( 40/289) sheltie-runtime store::tests::open_readonly_on_existing_db_succeeds
+        PASS [   0.011s] ( 41/289) sheltie-runtime store::tests::open_readonly_on_missing_db_is_not_found
+        PASS [   0.020s] ( 42/289) sheltie-runtime store::tests::open_rejects_same_version_different_table_shape
+        PASS [   0.016s] ( 43/289) sheltie-runtime store::tests::open_rejects_same_whitespace_different_column_type
+        PASS [   0.015s] ( 44/289) sheltie-runtime store::tests::open_rejects_wrong_user_version
+        PASS [   0.019s] ( 45/289) sheltie-runtime store::tests::readonly_store_open_rejects_a_symlink_without_touching_its_target
+        PASS [   0.017s] ( 46/289) sheltie-runtime store::tests::status_column_mirrors_state_json
+        PASS [   0.017s] ( 47/289) sheltie-runtime store::tests::store_accepts_real_running_and_failed_attempt_states
+        PASS [   0.011s] ( 48/289) sheltie-runtime workbook_digest::tree_snapshot_tests::digest_and_resource_facts_use_the_bytes_consumed_by_each_reader
+        PASS [   0.009s] ( 49/289) sheltie-runtime workbook_digest::tree_snapshot_tests::utf8_checker_handles_chunk_boundaries_and_rejects_bad_or_truncated_sequences
+        PASS [   1.333s] ( 50/289) sheltie-runtime::crash marker_replaced_after_validation_cannot_prove_deletion
+        PASS [   2.573s] ( 51/289) sheltie-runtime::crash status_card_missing_is_regenerated_on_next_write
+        PASS [   0.113s] ( 52/289) sheltie-runtime::fs_boundary bin_parent_symlink_blocks_install_and_keeps_sentinel_untouched
+        PASS [   0.053s] ( 53/289) sheltie-runtime::fs_boundary bounded_read_accepts_exactly_cap_and_rejects_one_more
+        PASS [   0.055s] ( 54/289) sheltie-runtime::fs_boundary directory_handle_remains_anchored_after_parent_path_is_replaced
+        PASS [   0.070s] ( 55/289) sheltie-runtime::fs_boundary ensure_dirs_rejects_symlink_and_file_placeholder_below_root
+        PASS [   0.075s] ( 56/289) sheltie-runtime::fs_boundary exclusive_atomic_write_creates_and_replaces_target_only
+        PASS [   0.063s] ( 57/289) sheltie-runtime::fs_boundary exclusive_atomic_write_creates_nested_parents
+        PASS [   0.048s] ( 58/289) sheltie-runtime::fs_boundary exclusive_create_returns_the_same_handle_with_final_written_metadata
+        PASS [   3.583s] ( 59/289) sheltie-runtime::fs_boundary leaf_symlink_input_rejected_at_observation
+        PASS [   0.149s] ( 60/289) sheltie-runtime::fs_boundary managed_fs_anchors_open_and_rejects_leaf_symlink_and_fifo
+        PASS [   0.060s] ( 61/289) sheltie-runtime::fs_boundary managed_operations_reject_a_lock_from_another_home
+        PASS [   0.030s] ( 62/289) sheltie-runtime::fs_boundary managed_relative_path_rejects_escaping_and_nul_segments
+        PASS [   0.301s] ( 63/289) sheltie-runtime::fs_boundary managed_rename_no_replace_and_remove_tree_stay_under_root
+        PASS [   0.136s] ( 64/289) sheltie-runtime::fs_boundary managed_rename_rejects_symlink_source_without_moving_or_touching_target
+        PASS [   5.169s] ( 65/289) sheltie-runtime::fs_boundary observation_rejection_before_commit_leaves_store_unchanged
+        PASS [  10.361s] ( 66/289) sheltie-runtime::fs_boundary oversize_declared_output_rejected_at_observation_as_output_too_large
+        PASS [  10.536s] ( 67/289) sheltie-runtime::fs_boundary precreated_tmp_pending_symlink_cannot_redirect_status_card
+        PASS [   0.099s] ( 68/289) sheltie-runtime::fs_boundary readonly_rechecks_hardlink_count_before_chmod
+        PASS [   0.040s] ( 69/289) sheltie-runtime::fs_boundary safe_handle_pins_observed_object_across_path_swap
+        PASS [   1.593s] ( 70/289) sheltie-runtime::fs_boundary works_parent_symlink_blocks_start_and_keeps_sentinel_untouched
+        PASS [   0.054s] ( 71/289) sheltie-runtime::home_observe confine_errors_on_unreadable_ancestor
+        PASS [   0.015s] ( 72/289) sheltie-runtime::home_observe confine_rejects_dotdot_absolute_and_empty_segment
+        PASS [   0.055s] ( 73/289) sheltie-runtime::home_observe confine_rejects_symlink_escaping_root
+        PASS [  40.072s] ( 74/289) sheltie-runtime store::tests::allocate_seq_rejects_1000th_of_day
+        PASS [   0.092s] ( 75/289) sheltie-runtime::home_observe home_lock_rejects_symlink_and_hardlink_leaf_without_touching_target
+        PASS [   0.010s] ( 76/289) sheltie-runtime::home_observe home_prefers_cli_then_env_then_default
+        PASS [   0.026s] ( 77/289) sheltie-runtime::home_observe home_rel_rejects_invalid_paths_instead_of_falling_back_to_root
+        PASS [   0.045s] ( 78/289) sheltie-runtime::home_observe observe_file_rejects_symlink_and_directory
+        PASS [   0.039s] ( 79/289) sheltie-runtime::home_observe observe_file_sha256_matches_known_vector
+        PASS [   0.042s] ( 80/289) sheltie-runtime::home_observe resource_index_marks_non_utf8
+        PASS [   2.972s] ( 81/289) sheltie-runtime::implementation_repairs existing_output_directory_after_failed_parent_sync_stays_pending_until_sync_succeeds
+        PASS [   3.130s] ( 82/289) sheltie-runtime::implementation_repairs completed_history_repair_retries_a_failed_parent_sync_without_changing_the_snapshot
+        PASS [   2.602s] ( 83/289) sheltie-runtime::implementation_repairs matching_history_after_failed_parent_sync_stays_pending_until_sync_succeeds
+        PASS [   3.822s] ( 84/289) sheltie-runtime::schema2_replay begin_effects_recovered_by_next_write
+        PASS [   1.848s] ( 85/289) sheltie-runtime::schema2_replay completed_submit_replay_does_not_seal_or_rewrite_the_output_again
+        PASS [   0.954s] ( 86/289) sheltie-runtime::schema2_replay cross_work_request_id_is_request_conflict_and_target_untouched
+        PASS [   0.933s] ( 87/289) sheltie-runtime::schema2_replay old_submit_replay_after_cancel_returns_original_reply
+        PASS [   0.723s] ( 88/289) sheltie-runtime::schema2_replay replay_does_not_rewrite_status_card_to_old_revision
+        PASS [   0.051s] ( 89/289) sheltie-runtime::schema2_replay schema1_store_rejected_without_touching_file
+        PASS [   0.585s] ( 90/289) sheltie-runtime::schema2_replay replay_with_modified_brief_reports_integrity_error
+        PASS [   0.834s] ( 91/289) sheltie-runtime::schema2_replay start_replay_after_workbook_removed_returns_original_snapshot
+        PASS [   1.027s] ( 92/289) sheltie-runtime::schema2_replay submit_replay_after_output_change_returns_original_snapshot
+        PASS [   0.369s] ( 93/289) sheltie-runtime::schema2_replay workbook_add_replay_ignores_source_changes
+        PASS [   1.248s] ( 94/289) sheltie-runtime::schema2_replay two_writers_serialize_under_home_lock
+        PASS [   0.234s] ( 95/289) sheltie-runtime::selfmgmt clean_home_install_then_update_two_step
+        PASS [   0.017s] ( 96/289) sheltie-runtime::selfmgmt home_lock_identity_detects_replaced_lock_file
+        PASS [   0.026s] ( 97/289) sheltie-runtime::selfmgmt home_lock_identity_detects_replaced_root
+        PASS [   0.754s] ( 98/289) sheltie-runtime::schema2_replay workbook_remove_replay_and_readd
+        PASS [   0.089s] ( 99/289) sheltie-runtime::selfmgmt install_copies_current_exe_and_is_idempotent
+        PASS [   0.021s] (100/289) sheltie-runtime::selfmgmt install_rejects_tmp_parent_symlink_and_preserves_external_sentinel
+        PASS [   0.061s] (101/289) sheltie-runtime::selfmgmt install_prints_path_hint_and_does_not_touch_rc_by_default
+        PASS [   0.012s] (102/289) sheltie-runtime::selfmgmt platform_matches_supported_target_triples
+        PASS [   0.069s] (103/289) sheltie-runtime::selfmgmt purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock
+        PASS [   0.126s] (104/289) sheltie-runtime::selfmgmt install_replaces_divergent_binary_instead_of_short_circuit
+        PASS [   0.645s] (105/289) sheltie-runtime::selfmgmt purge_removes_frozen_work_and_binary_but_preserves_same_root_lock
+        PASS [   0.073s] (106/289) sheltie-runtime::selfmgmt purge_reports_partial_progress_if_locked_inode_is_unlinked
+        PASS [   1.115s] (107/289) sheltie-runtime::selfmgmt purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm
+        PASS [   0.045s] (108/289) sheltie-runtime::selfmgmt rollback_recovers_when_current_missing
+        PASS [   0.014s] (109/289) sheltie-runtime::selfmgmt rollback_rejects_bin_parent_symlink_and_preserves_external_binaries
+        PASS [   0.072s] (110/289) sheltie-runtime::selfmgmt rollback_swaps_prev_back
+        PASS [   0.539s] (111/289) sheltie-runtime::selfmgmt purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed
+        PASS [   1.447s] (112/289) sheltie-runtime::selfmgmt uninstall_keeps_store_and_works
+        PASS [   0.218s] (113/289) sheltie-runtime::selfmgmt uninstall_purge_requires_yes
+        PASS [   0.188s] (114/289) sheltie-runtime::selfmgmt update_adapts_cargo_dist_manifest_format
+        PASS [   0.619s] (115/289) sheltie-runtime::selfmgmt update_adapts_cargo_dist_plan_real_manifest_shape
+        PASS [   0.339s] (116/289) sheltie-runtime::selfmgmt update_failed_digest_leaves_old_binary_and_cleans_tmp
+        PASS [   0.257s] (117/289) sheltie-runtime::selfmgmt update_failed_download_leaves_old_binary_and_cleans_tmp
+        PASS [   0.216s] (118/289) sheltie-runtime::selfmgmt update_failed_extract_leaves_old_binary_and_cleans_tmp
+        PASS [   0.341s] (119/289) sheltie-runtime::selfmgmt update_latest_drift_does_not_mix_manifest_and_assets
+        PASS [   0.286s] (120/289) sheltie-runtime::selfmgmt update_missing_tag_directory_reports_missing_tag
+        PASS [   0.332s] (121/289) sheltie-runtime::selfmgmt update_pinned_version_installs_only_that_tag
+        PASS [   0.423s] (122/289) sheltie-runtime::selfmgmt update_pinned_version_then_rollback_restores_previous
+        PASS [   0.298s] (123/289) sheltie-runtime::selfmgmt update_rejects_checksum_mismatch_and_leaves_binary_intact
+        PASS [   0.314s] (124/289) sheltie-runtime::selfmgmt update_rejects_forged_asset_name
+        PASS [   0.167s] (125/289) sheltie-runtime::selfmgmt update_rejects_manifest_version_not_matching_tag
+        PASS [   0.241s] (126/289) sheltie-runtime::selfmgmt update_rejects_path_like_version_argument
+        PASS [   0.527s] (127/289) sheltie-runtime::selfmgmt update_rejects_symlink_in_archive_without_chmodding_its_target
+        PASS [   0.371s] (128/289) sheltie-runtime::selfmgmt update_replaces_binary_and_keeps_prev
+        PASS [   0.499s] (129/289) sheltie-runtime::selfmgmt update_reports_unavailable_when_no_asset_for_platform
+        PASS [   0.495s] (130/289) sheltie-runtime::selfmgmt update_stops_if_verified_candidate_bytes_change_before_any_replacement
+        PASS [   1.112s] (131/289) sheltie-runtime::selfmgmt update_unpacks_tarball_asset_and_keeps_executable_bit
+        PASS [   1.145s] (132/289) sheltie-runtime::selfmgmt update_unpacks_tgz_named_asset
+        PASS [   0.577s] (133/289) sheltie-runtime::selfmgmt update_version_flag_mismatch_is_unavailable
+        PASS [  16.727s] (134/289) sheltie-runtime::service audit_stores_command_with_instruction_text_redacted
+        PASS [  17.322s] (135/289) sheltie-runtime::service begin_binds_resource_input_to_frozen_copy_path
+        PASS [   6.874s] (136/289) sheltie-runtime::service begin_loads_graph_from_frozen_copy_not_repository
+        PASS [  53.593s] (137/289) sheltie-runtime::selfmgmt self_install_and_work_writes_serialize_under_home_lock
+        PASS [   5.369s] (138/289) sheltie-runtime::service begin_on_tampered_frozen_copy_is_store_corrupt
+        PASS [   6.582s] (139/289) sheltie-runtime::service begin_replay_returns_original_reply_and_rewrites_brief
+        PASS [  10.121s] (140/289) sheltie-runtime::service begin_replay_regenerates_missing_stats_json
+        PASS [   4.578s] (141/289) sheltie-runtime::service begin_same_request_id_different_node_is_request_conflict
+        PASS [   4.805s] (142/289) sheltie-runtime::service begin_writes_brief_md_with_absolute_input_paths
+        PASS [   5.500s] (143/289) sheltie-runtime::service duplicate_audit_owner_is_rejected_before_recovery_io
+        PASS [   6.484s] (144/289) sheltie-runtime::service concurrent_writers_one_gets_revision_conflict
+        PASS [   5.689s] (145/289) sheltie-runtime::service empty_effect_batch_is_rejected_without_marking_published
+        PASS [   8.926s] (146/289) sheltie-runtime::service engine_stats_effect_must_match_its_bound_artifact_reference
+        PASS [   4.884s] (147/289) sheltie-runtime::service final_only_publication_recovery_checks_start_input_bytes
+        PASS [   7.421s] (148/289) sheltie-runtime::service historical_write_with_missing_parent_keeps_committed_snapshot
+        PASS [   6.959s] (149/289) sheltie-runtime::service invalid_later_effect_is_rejected_before_any_effect_runs
+        PASS [   4.533s] (150/289) sheltie-runtime::service invalid_published_flag_is_not_treated_as_completed
+        PASS [   4.594s] (151/289) sheltie-runtime::service malformed_cancelled_status_is_not_projected_as_success
+        PASS [   5.271s] (152/289) sheltie-runtime::service malformed_current_owner_column_keeps_committed_request_identity
+        PASS [   5.887s] (153/289) sheltie-runtime::service malformed_current_reply_keeps_commit_identity_and_request_conflict_priority
+        PASS [   8.836s] (154/289) sheltie-runtime::service malformed_old_effect_row_is_attributed_to_the_blocking_request
+        PASS [  14.453s] (155/289) sheltie-runtime::service malformed_gate_principal_is_not_projected_as_success
+        PASS [   9.205s] (156/289) sheltie-runtime::service malformed_old_reply_is_attributed_to_the_blocking_request
+        PASS [   6.973s] (157/289) sheltie-runtime::service malformed_started_name_is_not_projected_as_success
+        PASS [   7.625s] (158/289) sheltie-runtime::service malformed_started_workbook_ref_is_not_projected_as_success
+        PASS [   9.392s] (159/289) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error
+        PASS [   8.212s] (160/289) sheltie-runtime::service missing_audit_does_not_hide_unpublished_request_from_recovery
+        PASS [   5.711s] (161/289) sheltie-runtime::service missing_frozen_copy_is_store_corrupt_for_begin_and_status
+        PASS [   4.768s] (162/289) sheltie-runtime::service pending_owner_json_roundtrips_opaque_request_id
+        PASS [   7.797s] (163/289) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities
+        PASS [   6.610s] (164/289) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+        PASS [   5.995s] (165/289) sheltie-runtime::service publication_keeps_start_input_permission_failure_as_io
+        PASS [   6.119s] (166/289) sheltie-runtime::service publication_refuses_payload_directory_replaced_after_sync
+        PASS [  38.926s] (167/289) sheltie-runtime::service publication_checks_each_start_input_reference_and_owner_field
+        PASS [   1.282s] (168/289) sheltie-runtime::service real_submit_hardlink_added_after_commit_stops_before_chmod
+        PASS [   1.202s] (169/289) sheltie-runtime::service real_submit_path_swap_after_commit_seals_original_and_preserves_external_target
+        PASS [   4.397s] (170/289) sheltie-runtime::service real_submit_same_inode_byte_change_after_commit_stops_before_chmod
+        PASS [  32.068s] (171/289) sheltie-runtime::service publication_sync_failures_leave_effect_pending_and_retry_same_object
+        PASS [   3.204s] (172/289) sheltie-runtime::service real_workbook_add_and_start_final_publications_serve_status_and_show
+        PASS [  10.059s] (173/289) sheltie-runtime::service recovery_refuses_hardlink_added_to_submitted_output
+        PASS [  11.002s] (174/289) sheltie-runtime::service recovery_refuses_output_replaced_by_external_symlink
+        PASS [  10.149s] (175/289) sheltie-runtime::service resolve_work_rejects_unknown_prefix
+        PASS [  10.283s] (176/289) sheltie-runtime::service resolve_work_unique_prefix_resolves
+        PASS [  23.269s] (177/289) sheltie-runtime::service recovery_refuses_same_inode_output_changed_after_submit
+        PASS [  10.596s] (178/289) sheltie-runtime::service start_allocates_work_id_with_today_and_seq_001
+        PASS [  20.162s] (179/289) sheltie-runtime::service response_revision_increments_with_each_commit
+        PASS [   9.709s] (180/289) sheltie-runtime::service start_copies_workbook_into_work_dir_readonly
+        PASS [  10.223s] (181/289) sheltie-runtime::service start_replay_sync_failure_preserves_own_commit_snapshot
+        PASS [  13.569s] (182/289) sheltie-runtime::service start_replay_returns_same_work_id_without_new_seq
+        PASS [  10.541s] (183/289) sheltie-runtime::service start_same_request_id_different_inputs_is_request_conflict
+        PASS [  14.618s] (184/289) sheltie-runtime::service status_card_regenerated_after_each_commit
+        PASS [  18.135s] (185/289) sheltie-runtime::service status_works_after_workbook_removed
+        PASS [  22.522s] (186/289) sheltie-runtime::service tampered_artifact_path_is_rejected_before_observing_external_file
+        PASS [  24.610s] (187/289) sheltie-runtime::service tampered_begin_snapshot_path_is_rejected_on_historical_replay
+        PASS [  22.895s] (188/289) sheltie-runtime::service tampered_resource_input_is_store_corrupt_not_artifact_modified
+        PASS [  11.783s] (189/289) sheltie-runtime::service tampered_work_dir_is_rejected_before_reading_outside_paths
+  Cancelling due to interrupt: 2 tests still running
+      SIGINT [  11.820s] (190/289) sheltie-runtime::service two_step_runs_to_succeeded
+      SIGINT [   8.137s] (191/289) sheltie-runtime::service unknown_nested_status_field_is_not_projected_as_success
+────────────
+     Summary [ 384.121s] 191/289 tests run: 189 passed, 2 failed, 0 skipped
+warning: 98/289 tests were not run due to interrupt
+error: test run failed

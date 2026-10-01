@@ -68,7 +68,7 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        wid.as_str(),
+        &wid,
     )
 }
 
@@ -114,7 +114,7 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        wid.as_str(),
+        &wid,
     )
 }
 
@@ -152,6 +152,6 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        wid.as_str(),
+        &wid,
     )
 }

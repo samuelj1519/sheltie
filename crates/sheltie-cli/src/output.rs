@@ -2,6 +2,7 @@
 
 use serde::Serialize;
 use sheltie_core::ErrorCode;
+use sheltie_core::ids::WorkId;
 use sheltie_core::work::NextOp;
 
 /// 成功响应封装。
@@ -73,7 +74,7 @@ pub(crate) fn ok_work(
     revision: Option<u64>,
     data: serde_json::Value,
     next: &[NextOp],
-    work: &str,
+    work: &WorkId,
 ) -> Outcome {
     let mut root = serde_json::Map::new();
     root.insert("ok".to_string(), serde_json::Value::Bool(true));
@@ -84,53 +85,15 @@ pub(crate) fn ok_work(
         root.insert("revision".to_string(), serde_json::json!(rev));
     }
     root.insert("data".to_string(), data);
-    let next: Vec<_> = next.iter().map(|op| next_item(work, op)).collect();
+    let next: Vec<_> = next
+        .iter()
+        .map(|op| sheltie_core::work::render::next_item_json(work, op))
+        .collect();
     root.insert("next".to_string(), serde_json::Value::Array(next));
     Outcome {
         text,
         json: serde_json::Value::Object(root),
         exit_code: 0,
-    }
-}
-
-/// 协议 §5 的 `next` 项。`to_command_line` 是它的文本形式。
-fn next_item(work: &str, op: &NextOp) -> serde_json::Value {
-    match op {
-        NextOp::BeginAttempt {
-            node,
-            edge,
-            executor,
-            tier,
-        } => {
-            let mut v = serde_json::json!({
-                "op": "attempt begin",
-                "args": { "work": work, "node": node.as_str() },
-            });
-            if let Some(kind) = edge {
-                v["edge"] = serde_json::json!(kind.as_str());
-            }
-            v["executor"] = serde_json::json!(executor.as_str());
-            if let Some(t) = tier {
-                v["tier"] = serde_json::json!(t.as_str());
-            }
-            v
-        }
-        NextOp::SubmitAttempt { attempt } => serde_json::json!({
-            "op": "attempt submit",
-            "args": { "work": work, "attempt": attempt.to_string() },
-        }),
-        NextOp::FailAttempt { attempt } => serde_json::json!({
-            "op": "attempt fail",
-            "args": { "work": work, "attempt": attempt.to_string() },
-        }),
-        NextOp::ApproveGate { node } => serde_json::json!({
-            "op": "gate approve",
-            "args": { "work": work, "node": node.as_str() },
-        }),
-        NextOp::Cancel => serde_json::json!({
-            "op": "work cancel",
-            "args": { "work": work },
-        }),
     }
 }
 

@@ -35,7 +35,7 @@ fn two_step_start_args() -> StartArgs {
 }
 
 fn unpublished_start_fixture() -> (
-    tempfile::TempDir,
+    OwnedTempDir,
     sheltie_runtime::Home,
     sheltie_runtime::WorkService,
     sheltie_core::ids::WorkId,
@@ -331,16 +331,20 @@ fn concurrent_writers_one_gets_revision_conflict() {
     let wid = work_id_of(&start_two_step(&svc));
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
     write_output(&output_dir_of(&b), "outline.md", "x");
-    let results: Vec<_> = (0..2)
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
+    let handles: Vec<_> = (0..2)
         .map(|_| {
             let svc = svc.clone();
             let wid = wid.clone();
+            let barrier = barrier.clone();
             std::thread::spawn(move || {
+                barrier.wait();
                 svc.submit(&wid, &attempt("outline#1.0"), &lit("并发"), None)
             })
         })
-        .map(|h| h.join().unwrap())
         .collect();
+    barrier.wait();
+    let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
     let ok = results.iter().filter(|r| r.is_ok()).count();
     assert_eq!(ok, 1);
     assert!(results.iter().any(|r| matches!(
@@ -1116,7 +1120,7 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
 }
 
 fn committed_unpublished_submit() -> (
-    tempfile::TempDir,
+    OwnedTempDir,
     sheltie_runtime::Home,
     sheltie_core::ids::WorkId,
     std::path::PathBuf,
@@ -1702,7 +1706,7 @@ fn malformed_old_reply_is_attributed_to_the_blocking_request() {
 fn submit_at_seal_sync_point(
     mutate: impl FnOnce(&Path),
 ) -> (
-    tempfile::TempDir,
+    OwnedTempDir,
     sheltie_runtime::Home,
     sheltie_core::ids::WorkId,
     std::path::PathBuf,

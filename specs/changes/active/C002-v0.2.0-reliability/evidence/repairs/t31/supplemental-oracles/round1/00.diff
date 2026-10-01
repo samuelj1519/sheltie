@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ crates/sheltie-runtime/src/effects.rs:510:5: replace validate_workbook_identity -> Result<()> with Ok(())
+@@ -506,17 +506,7 @@
+     Ok(())
+ }
+ 
+-fn validate_workbook_identity(id: &str, version: &str) -> Result<()> {
+-    sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {
+-        detail: format!("Workbook effect的id不合法：{error}"),
+-    })?;
+-    if !crate::load::valid_workbook_version(version) {
+-        return Err(Error::StoreCorrupt {
+-            detail: format!("Workbook effect的version {version:?} 不符合合同"),
+-        });
+-    }
+-    Ok(())
+-}
++fn validate_workbook_identity(id: &str, version: &str) -> Result<()> { Ok(()) }
+ 
+ fn expected_attempt_dirs(
+     home: &Home,

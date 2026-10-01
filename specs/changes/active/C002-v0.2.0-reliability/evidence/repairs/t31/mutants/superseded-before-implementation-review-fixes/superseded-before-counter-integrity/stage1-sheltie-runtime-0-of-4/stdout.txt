@@ -1,0 +1,44 @@
+Found 466 mutants to test
+ok       Unmutated baseline in 18s build + 21s test
+MISSED   crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects in 13s build + 35s test
+MISSED   crates/sheltie-runtime/src/effects.rs:151:21: replace || with && in check_work_effects in 12s build + 102s test
+MISSED   crates/sheltie-runtime/src/effects.rs:290:56: replace match guard work_id == work with true in check_work_effects in 32s build + 103s test
+MISSED   crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects in 17s build + 97s test
+MISSED   crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects in 17s build + 94s test
+MISSED   crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects in 5s build + 109s test
+MISSED   crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects in 7s build + 107s test
+MISSED   crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects in 10s build + 104s test
+MISSED   crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects in 14s build + 102s test
+MISSED   crates/sheltie-runtime/src/effects.rs:180:21: replace || with && in check_work_effects in 10s build + 67s test
+MISSED   crates/sheltie-runtime/src/effects.rs:173:33: replace || with && in check_work_effects in 16s build + 61s test
+MISSED   crates/sheltie-runtime/src/effects.rs:219:21: replace || with && in check_work_effects in 7s build + 80s test
+MISSED   crates/sheltie-runtime/src/effects.rs:281:21: replace || with && in check_work_effects in 7s build + 87s test
+MISSED   crates/sheltie-runtime/src/effects.rs:280:21: replace || with && in check_work_effects in 11s build + 83s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:45: replace && with || in validate_effect_shape in 7s build + 81s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:29: replace && with || in validate_effect_shape in 6s build + 81s test
+MISSED   crates/sheltie-runtime/src/effects.rs:374:17: replace && with || in validate_effect_shape in 7s build + 84s test
+MISSED   crates/sheltie-runtime/src/effects.rs:412:34: replace || with && in check_workbook_effects in 7s build + 82s test
+MISSED   crates/sheltie-runtime/src/effects.rs:412:57: replace || with && in check_workbook_effects in 8s build + 81s test
+MISSED   crates/sheltie-runtime/src/effects.rs:446:17: replace || with && in check_workbook_effects in 7s build + 160s test
+MISSED   crates/sheltie-runtime/src/effects.rs:445:17: replace || with && in check_workbook_effects in 7s build + 159s test
+MISSED   crates/sheltie-runtime/src/effects.rs:442:21: replace || with && in check_workbook_effects in 8s build + 158s test
+MISSED   crates/sheltie-runtime/src/effects.rs:443:16: replace || with && in check_workbook_effects in 8s build + 158s test
+MISSED   crates/sheltie-runtime/src/effects.rs:447:17: replace || with && in check_workbook_effects in 9s build + 158s test
+MISSED   crates/sheltie-runtime/src/effects.rs:444:17: replace || with && in check_workbook_effects in 8s build + 158s test
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR interrupted
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+Error: interrupted

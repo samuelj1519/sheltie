@@ -1,0 +1,98 @@
+[
+  {
+    "name": "crates/sheltie-runtime/src/store/commit.rs:183:24: replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with true in Store::commit",
+    "closure_sha256": "c280ae90b92e583a237f2bd0bba64bc81ad201e6fadbebbf91c392292436f6ed",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-runtime",
+      "--all-features",
+      "--test",
+      "disposition_oracles",
+      "supplemental_workbook_sql_failure",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 2.677,
+    "caught_by_real_oracle": true,
+    "diff": "00.diff",
+    "stdout": "00.stdout.txt",
+    "restored_source_sha256": "6cb4cc8e25ec42f0d9634306a89f382423d8397dd6ec3724cd99ede689c606f4"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with String::new()",
+    "closure_sha256": "c280ae90b92e583a237f2bd0bba64bc81ad201e6fadbebbf91c392292436f6ed",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-runtime",
+      "--all-features",
+      "--test",
+      "disposition_oracles",
+      "supplemental_existing_schema",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 2.819,
+    "caught_by_real_oracle": true,
+    "diff": "01.diff",
+    "stdout": "01.stdout.txt",
+    "restored_source_sha256": "2d6e0e445849adb3aa6f7eb4b567b8331b32389b3859222d0355ab16ae7e9e74"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with \"xyzzy\".into()",
+    "closure_sha256": "c280ae90b92e583a237f2bd0bba64bc81ad201e6fadbebbf91c392292436f6ed",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-runtime",
+      "--all-features",
+      "--test",
+      "disposition_oracles",
+      "supplemental_existing_schema",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 3.287,
+    "caught_by_real_oracle": true,
+    "diff": "02.diff",
+    "stdout": "02.stdout.txt",
+    "restored_source_sha256": "2d6e0e445849adb3aa6f7eb4b567b8331b32389b3859222d0355ab16ae7e9e74"
+  },
+  {
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql",
+    "closure_sha256": "c280ae90b92e583a237f2bd0bba64bc81ad201e6fadbebbf91c392292436f6ed",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-runtime",
+      "--all-features",
+      "--test",
+      "disposition_oracles",
+      "supplemental_schema_whitespace",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 3.429,
+    "caught_by_real_oracle": true,
+    "diff": "03.diff",
+    "stdout": "03.stdout.txt",
+    "restored_source_sha256": "2d6e0e445849adb3aa6f7eb4b567b8331b32389b3859222d0355ab16ae7e9e74"
+  }
+]

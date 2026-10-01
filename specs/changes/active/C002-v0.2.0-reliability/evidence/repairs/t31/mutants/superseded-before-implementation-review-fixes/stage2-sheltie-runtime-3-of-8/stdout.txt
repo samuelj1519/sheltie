@@ -1,0 +1,66 @@
+Found 62 mutants to test
+ok       Unmutated baseline in 18s build + 20s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects in 80s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:447:17: replace || with && in check_workbook_effects in 92s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:1061:13: replace || with && in delete_dir in 109s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:219:21: replace || with && in check_work_effects in 118s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent in 136s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:767:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error in 141s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:1256:5: replace valid_digest -> bool with true in 146s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/effects.rs:441:21: replace || with && in check_workbook_effects in 150s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root in 23s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:254:62: replace | with ^ in ManagedFs::open_lock_file in 15s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file in 16s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked in 20s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:489:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists in 24s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:843:26: replace | with ^ in ManagedFs::write_new_observed_unlocked in 45s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:732:77: replace || with && in ManagedFs::sync_regular_file_handle_locked in 50s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:925:28: replace | with ^ in ManagedFs::write_atomic_unlocked in 62s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:1110:13: replace || with && in ManagedFs::replace_regular_file in 24s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:1400:37: replace || with && in ManagedFs::set_mode in 25s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:1844:47: replace | with ^ in ExternalReadTree::open_file in 22s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:1882:29: replace + with - in ExternalReadTree::read_file in 26s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2334:44: replace | with & in open_directory_at in 32s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2399:63: replace | with ^ in remove_at in 48s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2276:21: replace == with != in map_std_error in 58s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2471:5: replace preflight_remove_at -> Result<()> with Ok(()) in 59s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2632:13: replace || with && in SafeFile::verify_seal_reference in 22s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:2955:24: replace | with & in make_directories_writable in 20s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with ^ in set_dir_tree_mode in 18s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with ^ in set_dir_tree_mode in 22s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/observe.rs:21:5: replace observe_optional -> Result<Option<ObservedFile>> with Ok(None) in 36s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/pending.rs:206:30: replace && with || in locate_publish_dir in 55s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/pending.rs:348:41: delete ! in cleanup_selected in 62s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/pending.rs:663:13: replace && with || in cleanup_selected in 28s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/pending.rs:877:9: replace || with && in validate_publish_reference in 14s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/recovery.rs:83:23: replace match guard current_identity.is_some() with true in before_write in 21s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/recovery.rs:383:42: replace || with && in original_snapshot_parts in 20s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/recovery.rs:438:31: replace || with && in strict_workbook_data in 30s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/recovery.rs:579:45: replace == with != in persisted_response_data_is_well_formed in 36s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/request.rs:70:9: replace RequestIntent::work -> Option<&WorkId> with None in 46s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/selfmgmt.rs:468:9: replace || with && in checked_version in 51s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/selfmgmt.rs:653:12: delete ! in download in 28s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/selfmgmt.rs:830:24: replace > with >= in wait_bounded_child in 22s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:694:13: replace || with && in WorkService::workbook_publication in 18s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:822:33: replace && with || in WorkService::workbook_publication in 21s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:820:57: replace == with != in WorkService::workbook_publication in 30s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:1055:31: replace < with == in WorkService::load_checked_request in 34s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:1272:17: replace && with || in validate_command_owner in 40s build + 600s test
+TIMEOUT  crates/sheltie-runtime/src/service.rs:1261:17: replace && with || in validate_command_owner in 50s build + 600s test
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Build
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+Error: interrupted

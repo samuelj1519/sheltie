@@ -1,0 +1,24 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into in 3s build + 26s test
+MISSED   crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push in 19s build + 53s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:54:35: replace || with && in decode_added_snapshot in 7s build + 64s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:69:35: replace || with && in decode_removed_snapshot in 9s build + 57s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:276:12: delete ! in WorkbookRepo::add in 7s build + 80s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:318:38: replace || with && in WorkbookRepo::checked_effects_for in 10s build + 79s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:337:60: replace || with && in WorkbookRepo::checked_effects_for in 15s build + 74s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:346:54: replace || with && in WorkbookRepo::checked_effects_for in 13s build + 105s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:360:21: replace || with && in WorkbookRepo::checked_effects_for in 8s build + 118s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:364:21: replace || with && in WorkbookRepo::checked_effects_for in 11s build + 117s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:359:21: replace || with && in WorkbookRepo::checked_effects_for in 12s build + 116s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:367:72: replace || with && in WorkbookRepo::checked_effects_for in 14s build + 109s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:421:54: replace || with && in WorkbookRepo::checked_effects_for in 5s build + 76s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:432:34: replace || with && in WorkbookRepo::checked_effects_for in 8s build + 74s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:484:28: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::checked_effects_for in 11s build + 179s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:485:52: replace == with != in WorkbookRepo::checked_effects_for in 30s build + 128s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:486:51: replace == with != in WorkbookRepo::checked_effects_for in 7s build + 125s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:488:48: replace == with != in WorkbookRepo::checked_effects_for in 9s build + 123s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:489:43: replace == with != in WorkbookRepo::checked_effects_for in 13s build + 119s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:487:53: replace == with != in WorkbookRepo::checked_effects_for in 15s build + 119s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:587:34: replace && with || in WorkbookRepo::publication_for_row in 7s build + 29s test
+78 mutants tested in 15m: 21 missed, 48 caught, 9 unviable

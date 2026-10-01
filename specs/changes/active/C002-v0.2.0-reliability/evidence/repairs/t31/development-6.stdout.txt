@@ -1,0 +1,24 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+error[E0382]: borrow of moved value: `home`
+   --> crates/sheltie-cli/tests/reliability_crash.rs:744:52
+    |
+742 |     let home = sheltie_runtime::Home::at(runtime_common::abs(env.dir.path()));
+    |         ---- move occurs because `home` has type `Home`, which does not implement the `Copy` trait
+743 |     for sync_point in ["publish_source_parent_sync", "publish_target_parent_sync"] {
+    |     ------------------------------------------------------------------------------ inside of this loop
+744 |         sheltie_runtime::failpoint::arm_sync_error(home.root().as_str(), sync_point).unwrap();
+    |                                                    ^^^^ value borrowed here after move
+...
+752 |         let error = sheltie_runtime::WorkbookRepo::new(home)
+    |                                                        ---- value moved here, in previous iteration of loop
+    |
+help: consider cloning the value if the performance cost is acceptable
+    |
+752 |         let error = sheltie_runtime::WorkbookRepo::new(home.clone())
+    |                                                            ++++++++
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `sheltie-cli` (test "reliability_crash") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --all-features` exited with code 101

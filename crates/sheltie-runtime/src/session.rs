@@ -1,9 +1,7 @@
 //! 锁内读写 Store 会话。所有普通写入口先持有 HomeLock，再获得 RW Store。
 
 use crate::error::{Error, Result};
-use crate::fsx::{
-    open_managed_optional_locked, remove_managed_file_if_same, write_new_file_observed,
-};
+use crate::fsx::{self, open_managed_optional_locked, write_new_file_observed};
 use crate::home::{Home, HomeLock};
 use crate::store::{OpenMode, Store};
 use std::sync::Arc;
@@ -39,41 +37,29 @@ impl WriteSession {
         let path = home.store_path();
         crate::fsx::validate_store_files_locked(home, &lock)?;
         if open_managed_optional_locked(home, &lock, &path)?.is_none() {
-            let created = write_new_file_observed(home, &lock, &path, b"")?;
+            let staging = home
+                .tmp_dir()
+                .join_segment(&format!("store-init-{}", uuid::Uuid::now_v7().simple()));
+            fsx::ensure_dirs_under(home, &lock, &staging)?;
+            let source = staging.join_segment("store.db");
+            let bytes = Store::empty_database_bytes()?;
+            let created = write_new_file_observed(home, &lock, &source, &bytes)?;
             crate::failpoint::rendezvous("write_session_after_store_create", home.root().as_str())
-                .map_err(|error| Error::io(path.as_str(), error))?;
-            if let Err(error) = Store::initialize_existing(home, &lock, &path, &created) {
-                return match remove_managed_file_if_same(home, &lock, &path, &created) {
-                    Ok(()) => Err(error),
-                    Err(cleanup) => Err(Error::RecoveryRequired {
-                        path: path.to_string(),
-                        detail: format!(
-                            "Store初始化失败：{error}；失败清理仅能删除本次创建inode，现有端点已保留：{cleanup}"
-                        ),
-                    }),
-                };
-            }
-            let current = open_managed_optional_locked(home, &lock, &path)?.ok_or_else(|| {
-                Error::RecoveryRequired {
+                .map_err(|error| Error::io(source.as_str(), error))?;
+            crate::failpoint::maybe_exit("store_initialized_before_publish");
+            fsx::rename_verified_managed_file(home, &lock, &created, &path, &bytes).map_err(
+                |error| Error::RecoveryRequired {
                     path: path.to_string(),
-                    detail: "Store初始化后创建对象消失；保留当前根内其他对象".into(),
-                }
-            })?;
-            if file_identity(&current) != file_identity(&created) {
-                return Err(Error::RecoveryRequired {
-                    path: path.to_string(),
-                    detail: "Store初始化期间其路径被换绑；不覆盖或清理新端点".into(),
-                });
-            }
+                    detail: format!("完整暂存Store发布失败；所有现有端点已保留：{error}"),
+                },
+            )?;
+            let relative = home.to_rel(&staging)?;
+            let tree = fsx::open_managed_tree(home, &lock, &relative)?;
+            fsx::remove_empty_managed_tree(home, &lock, &tree, &relative)?;
         }
         let store = Store::open_existing_locked(home, Arc::clone(&lock), OpenMode::ReadWrite)?;
         Ok(Self { lock, store })
     }
-}
-
-fn file_identity(file: &crate::fsx::SafeFile) -> (u64, u64) {
-    use std::os::unix::fs::MetadataExt as _;
-    (file.metadata().dev(), file.metadata().ino())
 }
 
 #[cfg(test)]
@@ -182,7 +168,7 @@ mod tests {
         crate::failpoint::disarm_rendezvous().unwrap();
         let second_sync = tempfile::tempdir().unwrap();
         crate::failpoint::arm_rendezvous(
-            "home_existing_lock_opened",
+            "home_lock_waiting",
             home.lock_path().as_str(),
             second_sync.path(),
         )

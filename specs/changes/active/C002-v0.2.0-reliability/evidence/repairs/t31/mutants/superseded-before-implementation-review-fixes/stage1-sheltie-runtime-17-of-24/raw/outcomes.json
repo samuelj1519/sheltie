@@ -1,0 +1,5372 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.791059875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 20.86373825,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:693:17: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 693,
+              "column": 17
+            },
+            "end": {
+              "line": 693,
+              "column": 19
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_693_col_17.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_693_col_17.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.7423715,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.206728291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:704:27: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 704,
+              "column": 27
+            },
+            "end": {
+              "line": 704,
+              "column": 29
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_704_col_27.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_704_col_27.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.982048625000001,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.973286083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:705:28: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 705,
+              "column": 28
+            },
+            "end": {
+              "line": 705,
+              "column": 30
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_705_col_28.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_705_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.074924167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.474153958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:706:28: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 706,
+              "column": 28
+            },
+            "end": {
+              "line": 706,
+              "column": 30
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_706_col_28.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_706_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.269102959,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.411284625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:694:27: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 694,
+              "column": 27
+            },
+            "end": {
+              "line": 694,
+              "column": 29
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_694_col_27.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_694_col_27.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 43.831994875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.6201888330000003,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:697:28: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 697,
+              "column": 28
+            },
+            "end": {
+              "line": 697,
+              "column": 30
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_697_col_28.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_697_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 47.316489583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.856631833,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:713:39: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 713,
+              "column": 39
+            },
+            "end": {
+              "line": 713,
+              "column": 41
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_713_col_39.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_713_col_39.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.396010542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.448732917,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:695:22: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 695,
+              "column": 22
+            },
+            "end": {
+              "line": 695,
+              "column": 24
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_695_col_22.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_695_col_22.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 52.745188292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 43.147215042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:706:13: replace || with && in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 706,
+              "column": 13
+            },
+            "end": {
+              "line": 706,
+              "column": 15
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_706_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_706_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 54.987466209,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 113.033428042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:718:23: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 718,
+              "column": 23
+            },
+            "end": {
+              "line": 718,
+              "column": 25
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_718_col_23.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_718_col_23.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.001565167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 108.153882,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:696:23: replace != with == in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 696,
+              "column": 23
+            },
+            "end": {
+              "line": 696,
+              "column": 25
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_696_col_23.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_696_col_23.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 60.892269167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 107.860175542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:741:13: delete match arm (Command::Start{work_id:command_work, name, workbook, flow, work_dir, inputs,}, Reply::Started{work_id:reply_work, work_dir:reply_dir, requires,},) in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 741,
+              "column": 13
+            },
+            "end": {
+              "line": 802,
+              "column": 14
+            }
+          },
+          "replacement": "",
+          "genre": "MatchArm"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_741_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_741_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.002870667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 101.871791875,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:705:13: replace || with && in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 705,
+              "column": 13
+            },
+            "end": {
+              "line": 705,
+              "column": 15
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_705_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_705_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 57.087518125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 113.0594745,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:707:13: replace || with && in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 707,
+              "column": 13
+            },
+            "end": {
+              "line": 707,
+              "column": 15
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_707_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_707_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 58.277403833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 112.593665917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:801:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 801,
+              "column": 21
+            },
+            "end": {
+              "line": 801,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_801_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_801_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.400569417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 106.849377542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:795:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 795,
+              "column": 21
+            },
+            "end": {
+              "line": 795,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_795_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_795_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.673155541,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 117.718549792,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:790:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 790,
+              "column": 21
+            },
+            "end": {
+              "line": 790,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_790_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_790_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.384323917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 196.831236166,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:780:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 780,
+              "column": 21
+            },
+            "end": {
+              "line": 780,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_780_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_780_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.093319917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 195.768509459,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:785:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 785,
+              "column": 21
+            },
+            "end": {
+              "line": 785,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_785_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_785_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.711072958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 196.293098291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:774:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 774,
+              "column": 21
+            },
+            "end": {
+              "line": 774,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_774_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_774_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.874194375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 194.091720958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:775:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 775,
+              "column": 21
+            },
+            "end": {
+              "line": 775,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_775_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_775_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.71011375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 191.447210417,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:773:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 773,
+              "column": 21
+            },
+            "end": {
+              "line": 773,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_773_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_773_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.447541084,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 188.433359,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:772:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 772,
+              "column": 21
+            },
+            "end": {
+              "line": 772,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_772_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_772_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 20.279045958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 184.222156875,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:771:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 771,
+              "column": 21
+            },
+            "end": {
+              "line": 771,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_771_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_771_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 29.586412625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 149.496789708,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:770:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 770,
+              "column": 21
+            },
+            "end": {
+              "line": 770,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_770_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_770_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.257001917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 198.062799333,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:769:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 769,
+              "column": 21
+            },
+            "end": {
+              "line": 769,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_769_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_769_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.352431084,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 198.064648417,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:767:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 767,
+              "column": 21
+            },
+            "end": {
+              "line": 767,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_767_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_767_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.34955375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 196.426406042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:768:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 768,
+              "column": 21
+            },
+            "end": {
+              "line": 768,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_768_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_768_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.195255291,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 195.346649375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:766:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 766,
+              "column": 21
+            },
+            "end": {
+              "line": 766,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_766_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_766_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.832815959,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 193.887762958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:765:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 765,
+              "column": 21
+            },
+            "end": {
+              "line": 765,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_765_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_765_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.431612041,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 192.205300542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:764:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 764,
+              "column": 21
+            },
+            "end": {
+              "line": 764,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_764_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_764_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.214097959,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 190.1775105,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:763:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 763,
+              "column": 21
+            },
+            "end": {
+              "line": 763,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_763_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_763_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 29.873475167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 150.065913958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:761:35: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 761,
+              "column": 35
+            },
+            "end": {
+              "line": 761,
+              "column": 37
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_761_col_35.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_761_col_35.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.782577959,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 53.088715792,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:763:29: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 763,
+              "column": 29
+            },
+            "end": {
+              "line": 763,
+              "column": 31
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_763_col_29.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_763_col_29.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.660672708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 49.337832292,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:764:33: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 764,
+              "column": 33
+            },
+            "end": {
+              "line": 764,
+              "column": 35
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_764_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_764_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.2398575,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 48.438086083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:762:35: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 762,
+              "column": 35
+            },
+            "end": {
+              "line": 762,
+              "column": 37
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_762_col_35.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_762_col_35.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.384603875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 46.525798209,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:765:29: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 765,
+              "column": 29
+            },
+            "end": {
+              "line": 765,
+              "column": 31
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_765_col_29.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_765_col_29.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.447538375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 47.171463334,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:766:31: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 766,
+              "column": 31
+            },
+            "end": {
+              "line": 766,
+              "column": 33
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_766_col_31.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_766_col_31.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.035125875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 40.097301833,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:762:21: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 762,
+              "column": 21
+            },
+            "end": {
+              "line": 762,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_762_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_762_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.106909667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 60.128999541,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:761:19: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 761,
+              "column": 19
+            },
+            "end": {
+              "line": 761,
+              "column": 21
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_761_col_19.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_761_col_19.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.850720041,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 59.375477208,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:767:33: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 767,
+              "column": 33
+            },
+            "end": {
+              "line": 767,
+              "column": 35
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_767_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_767_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.397221791,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 19.786359708,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:770:42: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 770,
+              "column": 42
+            },
+            "end": {
+              "line": 770,
+              "column": 44
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_770_col_42.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_770_col_42.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.776657208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 18.112772167,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:769:44: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 769,
+              "column": 44
+            },
+            "end": {
+              "line": 769,
+              "column": 46
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_769_col_44.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_769_col_44.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.299499416,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 18.656476375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:771:24: delete ! in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 771,
+              "column": 24
+            },
+            "end": {
+              "line": 771,
+              "column": 25
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_771_col_24.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_771_col_24.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.633174291,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 12.329509834,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:768:34: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 768,
+              "column": 34
+            },
+            "end": {
+              "line": 768,
+              "column": 36
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_768_col_34.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_768_col_34.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.351487417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 13.729646416,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:773:39: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 773,
+              "column": 39
+            },
+            "end": {
+              "line": 773,
+              "column": 41
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_773_col_39.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_773_col_39.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.530585083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.550418709,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:772:38: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 772,
+              "column": 38
+            },
+            "end": {
+              "line": 772,
+              "column": 40
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_772_col_38.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_772_col_38.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.714541208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 14.218854042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:774:33: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 774,
+              "column": 33
+            },
+            "end": {
+              "line": 774,
+              "column": 35
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_774_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_774_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.983769542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.904112125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:779:25: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 779,
+              "column": 25
+            },
+            "end": {
+              "line": 779,
+              "column": 27
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_779_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_779_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.5058715419999995,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 32.004543083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:784:25: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 784,
+              "column": 25
+            },
+            "end": {
+              "line": 784,
+              "column": 27
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_784_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_784_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.903205625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 31.863646291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:789:25: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 789,
+              "column": 25
+            },
+            "end": {
+              "line": 789,
+              "column": 27
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_789_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_789_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.026250083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 30.971911833,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:801:54: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 801,
+              "column": 54
+            },
+            "end": {
+              "line": 801,
+              "column": 56
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_801_col_54.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_801_col_54.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.615579833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 30.317032,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:794:25: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 794,
+              "column": 25
+            },
+            "end": {
+              "line": 794,
+              "column": 27
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_794_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_794_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.479014834000001,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 28.02764325,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:805:12: delete ! in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 805,
+              "column": 12
+            },
+            "end": {
+              "line": 805,
+              "column": 13
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_805_col_12.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_805_col_12.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.343764916,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 24.586904458,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:796:25: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 796,
+              "column": 25
+            },
+            "end": {
+              "line": 796,
+              "column": 27
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_796_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_796_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.968054375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 25.328232333,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:810:12: delete ! in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 810,
+              "column": 12
+            },
+            "end": {
+              "line": 810,
+              "column": 13
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_810_col_12.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_810_col_12.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.567917625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 52.664662,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:817:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with true in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 817,
+              "column": 32
+            },
+            "end": {
+              "line": 822,
+              "column": 60
+            }
+          },
+          "replacement": "true",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_817_col_32.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_817_col_32.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.695791584,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 216.607702459,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:822:33: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 822,
+              "column": 33
+            },
+            "end": {
+              "line": 822,
+              "column": 35
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_822_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_822_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.534878833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 216.241805042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:821:33: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 821,
+              "column": 33
+            },
+            "end": {
+              "line": 821,
+              "column": 35
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_821_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_821_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.972817958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 215.529598875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:817:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with false in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 817,
+              "column": 32
+            },
+            "end": {
+              "line": 822,
+              "column": 60
+            }
+          },
+          "replacement": "false",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_817_col_32_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_817_col_32_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.276522708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 213.370015042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:818:33: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 818,
+              "column": 33
+            },
+            "end": {
+              "line": 818,
+              "column": 35
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_818_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_818_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.160514875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 214.087119292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:820:33: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 820,
+              "column": 33
+            },
+            "end": {
+              "line": 820,
+              "column": 35
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_820_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_820_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.230224666,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 211.948090541,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:819:33: replace && with || in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 819,
+              "column": 33
+            },
+            "end": {
+              "line": 819,
+              "column": 35
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_819_col_33.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_819_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.997366083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 213.187051,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:849:9: replace WorkService::run_command -> Result<Response> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::run_command",
+            "return_type": "-> Result<Response>",
+            "span": {
+              "start": {
+                "line": 838,
+                "column": 5
+              },
+              "end": {
+                "line": 922,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 849,
+              "column": 9
+            },
+            "end": {
+              "line": 921,
+              "column": 27
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_849_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_849_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.210987375,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:818:56: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 818,
+              "column": 56
+            },
+            "end": {
+              "line": 818,
+              "column": 58
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_818_col_56.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_818_col_56.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 30.544122584,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 172.571050208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:834:30: delete ! in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 834,
+              "column": 30
+            },
+            "end": {
+              "line": 834,
+              "column": 31
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_834_col_30.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_834_col_30.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.035477208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 106.601764334,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:819:55: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 819,
+              "column": 55
+            },
+            "end": {
+              "line": 819,
+              "column": 57
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_819_col_55.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_819_col_55.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.35371825,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 113.432517417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:852:25: replace != with == in WorkService::run_command",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::run_command",
+            "return_type": "-> Result<Response>",
+            "span": {
+              "start": {
+                "line": 838,
+                "column": 5
+              },
+              "end": {
+                "line": 922,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 852,
+              "column": 25
+            },
+            "end": {
+              "line": 852,
+              "column": 27
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_852_col_25.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_852_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.959538166,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 102.675111875,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:866:32: replace != with == in WorkService::run_command",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::run_command",
+            "return_type": "-> Result<Response>",
+            "span": {
+              "start": {
+                "line": 838,
+                "column": 5
+              },
+              "end": {
+                "line": 922,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 866,
+              "column": 32
+            },
+            "end": {
+              "line": 866,
+              "column": 34
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_866_col_32.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_866_col_32.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.028716583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 96.957715709,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:820:57: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 820,
+              "column": 57
+            },
+            "end": {
+              "line": 820,
+              "column": 59
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_820_col_57.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_820_col_57.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.515109583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 112.7717425,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:932:9: replace WorkService::refresh_cards_of -> Result<()> with Ok(())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::refresh_cards_of",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 924,
+                "column": 5
+              },
+              "end": {
+                "line": 935,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 932,
+              "column": 9
+            },
+            "end": {
+              "line": 934,
+              "column": 11
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_932_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_932_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 22.151222625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 91.265762209,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:821:52: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 821,
+              "column": 52
+            },
+            "end": {
+              "line": 821,
+              "column": 54
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_821_col_52.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_821_col_52.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.159103166,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 111.500666583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:942:9: replace WorkService::recovery_load_effects -> Result<CheckedEffects> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::recovery_load_effects",
+            "return_type": "-> Result<CheckedEffects>",
+            "span": {
+              "start": {
+                "line": 937,
+                "column": 5
+              },
+              "end": {
+                "line": 949,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 942,
+              "column": 9
+            },
+            "end": {
+              "line": 948,
+              "column": 20
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_942_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_942_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.381118667,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:822:47: replace == with != in WorkService::workbook_publication",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::workbook_publication",
+            "return_type": "-> Result<crate::pending::PublishLocation>",
+            "span": {
+              "start": {
+                "line": 635,
+                "column": 5
+              },
+              "end": {
+                "line": 836,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 822,
+              "column": 47
+            },
+            "end": {
+              "line": 822,
+              "column": 49
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_822_col_47.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_822_col_47.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.113699875000002,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 101.947234417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:943:35: replace != with == in WorkService::recovery_load_effects",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::recovery_load_effects",
+            "return_type": "-> Result<CheckedEffects>",
+            "span": {
+              "start": {
+                "line": 937,
+                "column": 5
+              },
+              "end": {
+                "line": 949,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 943,
+              "column": 35
+            },
+            "end": {
+              "line": 943,
+              "column": 37
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_943_col_35.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_943_col_35.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.499977125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.954344666,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:967:9: replace WorkService::recover_finish_request -> Result<()> with Ok(())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::recover_finish_request",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 960,
+                "column": 5
+              },
+              "end": {
+                "line": 976,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 967,
+              "column": 9
+            },
+            "end": {
+              "line": 975,
+              "column": 10
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_967_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_967_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.531262209,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.739558291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:984:9: replace WorkService::finish_request_with_observed -> Result<()> with Ok(())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::finish_request_with_observed",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 978,
+                "column": 5
+              },
+              "end": {
+                "line": 985,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 984,
+              "column": 9
+            },
+            "end": {
+              "line": 984,
+              "column": 77
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_984_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_984_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.364972458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.8205645,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/service.rs:957:9: replace WorkService::recover_before_write -> Result<()> with Ok(())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/service.rs",
+          "function": {
+            "function_name": "WorkService::recover_before_write",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 951,
+                "column": 5
+              },
+              "end": {
+                "line": 958,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 957,
+              "column": 9
+            },
+            "end": {
+              "line": 957,
+              "column": 100
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__service.rs_line_957_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__service.rs_line_957_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.096042375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.64713275,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 78,
+  "missed": 16,
+  "caught": 60,
+  "timeout": 0,
+  "unviable": 2,
+  "success": 0,
+  "start_time": "2026-09-29T23:09:14.10424Z",
+  "end_time": "2026-09-29T23:27:44.762965Z",
+  "cargo_mutants_version": "27.1.0"
+}

@@ -1,0 +1,75 @@
+[
+  {
+    "name": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.332
+  },
+  {
+    "name": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 1.238
+  },
+  {
+    "name": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 1.373
+  },
+  {
+    "name": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass"
+    ],
+    "exit": 0,
+    "seconds": 135.547
+  },
+  {
+    "name": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--workspace",
+      "--all-features",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 6.749
+  },
+  {
+    "name": "deny",
+    "argv": [
+      "cargo",
+      "deny",
+      "--offline",
+      "check"
+    ],
+    "exit": 1,
+    "seconds": 0.389
+  }
+]

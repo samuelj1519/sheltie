@@ -1,0 +1,349 @@
+{
+  "candidate": "da2bd13979df88dd987596d7ed726ef99bb89651",
+  "stages": [
+    {
+      "stage": "stage1-sheltie-core-0-of-4",
+      "listed": 178,
+      "counts": {
+        "Unviable": 29,
+        "CaughtMutant": 149
+      },
+      "caught_causes": {
+        "test_assertion": 149
+      }
+    },
+    {
+      "stage": "stage1-sheltie-core-1-of-4",
+      "listed": 178,
+      "counts": {
+        "CaughtMutant": 129,
+        "Unviable": 48,
+        "MissedMutant": 1
+      },
+      "caught_causes": {
+        "test_assertion": 129
+      }
+    },
+    {
+      "stage": "stage1-sheltie-core-2-of-4",
+      "listed": 178,
+      "counts": {
+        "CaughtMutant": 175,
+        "Unviable": 3
+      },
+      "caught_causes": {
+        "test_assertion": 175
+      }
+    },
+    {
+      "stage": "stage1-sheltie-core-3-of-4",
+      "listed": 175,
+      "counts": {
+        "CaughtMutant": 157,
+        "Unviable": 18
+      },
+      "caught_causes": {
+        "test_assertion": 157
+      }
+    },
+    {
+      "stage": "stage2-sheltie-core-0-of-1",
+      "listed": 1,
+      "counts": {
+        "MissedMutant": 1
+      },
+      "caught_causes": {}
+    },
+    {
+      "stage": "stage1-sheltie-runtime-0-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 54,
+        "Unviable": 4,
+        "MissedMutant": 20
+      },
+      "caught_causes": {
+        "test_assertion": 54
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-1-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 26,
+        "CaughtMutant": 50,
+        "Unviable": 2
+      },
+      "caught_causes": {
+        "test_assertion": 50
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-2-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 22,
+        "CaughtMutant": 45,
+        "Unviable": 11
+      },
+      "caught_causes": {
+        "test_assertion": 45
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-3-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 36,
+        "Unviable": 11,
+        "MissedMutant": 31
+      },
+      "caught_causes": {
+        "test_assertion": 36
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-4-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 53,
+        "Unviable": 6,
+        "MissedMutant": 19
+      },
+      "caught_causes": {
+        "test_assertion": 53
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-5-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 58,
+        "MissedMutant": 20
+      },
+      "caught_causes": {
+        "test_assertion": 58
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-6-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 51,
+        "MissedMutant": 15,
+        "Unviable": 12
+      },
+      "caught_causes": {
+        "test_assertion": 48,
+        "dot_entry_guard_stack_overflow": 3
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-7-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 17,
+        "CaughtMutant": 56,
+        "Unviable": 5
+      },
+      "caught_causes": {
+        "test_assertion": 53,
+        "dot_entry_guard_stack_overflow": 3
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-8-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 40,
+        "Unviable": 7,
+        "MissedMutant": 31
+      },
+      "caught_causes": {
+        "test_assertion": 34,
+        "dot_entry_guard_stack_overflow": 6
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-9-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 55,
+        "Unviable": 7,
+        "MissedMutant": 16
+      },
+      "caught_causes": {
+        "test_assertion": 49,
+        "dot_entry_guard_stack_overflow": 6
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-10-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 15,
+        "CaughtMutant": 46,
+        "Unviable": 17
+      },
+      "caught_causes": {
+        "test_assertion": 46
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-11-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 41,
+        "Unviable": 16,
+        "MissedMutant": 21
+      },
+      "caught_causes": {
+        "test_assertion": 41
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-12-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 46,
+        "Unviable": 2,
+        "MissedMutant": 30
+      },
+      "caught_causes": {
+        "test_assertion": 46
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-13-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 48,
+        "MissedMutant": 24,
+        "Unviable": 6
+      },
+      "caught_causes": {
+        "test_assertion": 48
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-14-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 18,
+        "CaughtMutant": 58,
+        "Unviable": 2
+      },
+      "caught_causes": {
+        "test_assertion": 58
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-15-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 22,
+        "Unviable": 13,
+        "CaughtMutant": 43
+      },
+      "caught_causes": {
+        "test_assertion": 43
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-16-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 30,
+        "Unviable": 29,
+        "MissedMutant": 19
+      },
+      "caught_causes": {
+        "test_assertion": 30
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-17-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 60,
+        "MissedMutant": 16,
+        "Unviable": 2
+      },
+      "caught_causes": {
+        "test_assertion": 60
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-18-of-24",
+      "listed": 78,
+      "counts": {
+        "Unviable": 4,
+        "MissedMutant": 23,
+        "CaughtMutant": 51
+      },
+      "caught_causes": {
+        "test_assertion": 51
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-19-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 62,
+        "MissedMutant": 11,
+        "Unviable": 5
+      },
+      "caught_causes": {
+        "test_assertion": 62
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-20-of-24",
+      "listed": 78,
+      "counts": {
+        "CaughtMutant": 36,
+        "Unviable": 14,
+        "MissedMutant": 28
+      },
+      "caught_causes": {
+        "test_assertion": 36
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-21-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 21,
+        "CaughtMutant": 48,
+        "Unviable": 9
+      },
+      "caught_causes": {
+        "test_assertion": 48
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-22-of-24",
+      "listed": 78,
+      "counts": {
+        "MissedMutant": 22,
+        "CaughtMutant": 45,
+        "Unviable": 11
+      },
+      "caught_causes": {
+        "test_assertion": 45
+      }
+    },
+    {
+      "stage": "stage1-sheltie-runtime-23-of-24",
+      "listed": 70,
+      "counts": {
+        "Unviable": 12,
+        "MissedMutant": 6,
+        "CaughtMutant": 52
+      },
+      "caught_causes": {
+        "test_assertion": 52
+      }
+    }
+  ]
+}

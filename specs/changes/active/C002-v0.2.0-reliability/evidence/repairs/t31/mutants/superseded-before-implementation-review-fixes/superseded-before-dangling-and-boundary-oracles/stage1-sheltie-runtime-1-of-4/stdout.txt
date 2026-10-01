@@ -1,0 +1,15 @@
+Found 465 mutants to test
+ok       Unmutated baseline in 8s build + 100s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1359:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(()) in 6s build + 121s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1385:37: replace || with && in ManagedFs::set_mode in 4s build + 115s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1392:53: replace || with && in ManagedFs::set_mode in 8s build + 114s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1399:50: replace || with && in ManagedFs::set_mode in 3s build + 118s test
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+ERROR scenario execution internal error err=interrupted phase=Test
+Error: interrupted

@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/flow/def.rs
++++ replace FlowDef::edges -> &[EdgeDef] with Vec::leak(vec![Default::default()])
+@@ -250,17 +250,17 @@
+         &self.entry
+     }
+ 
+     pub fn nodes(&self) -> &[NodeDef] {
+         &self.nodes
+     }
+ 
+     pub fn edges(&self) -> &[EdgeDef] {
+-        &self.edges
++        Vec::leak(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub const MAX_NODES: usize = 64;
+     pub const MAX_EDGES: usize = 256;
+ 
+     pub fn node(&self, id: &NodeId) -> Option<&NodeDef> {
+         self.nodes.iter().find(|n| &n.id == id)
+     }

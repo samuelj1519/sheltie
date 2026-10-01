@@ -188,7 +188,17 @@ impl WorkbookRepo {
         };
 
         if !replay_exists {
-            let _ = Self::load_tree(&ExternalReadTree::open(dir)?)?;
+            let source = ExternalReadTree::open(dir)?;
+            source.validate_sizes()?;
+            if !source
+                .files()
+                .iter()
+                .any(|file| file.relative.as_str() == "workbook.toml")
+            {
+                return Err(Error::NotFound {
+                    what: dir.join_segment("workbook.toml").to_string(),
+                });
+            }
         }
         let session = crate::session::WriteSession::open_or_create(&self.home)?;
         let lock = session.lock;

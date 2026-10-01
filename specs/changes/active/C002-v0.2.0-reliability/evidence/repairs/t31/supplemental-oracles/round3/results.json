@@ -1,0 +1,26 @@
+[
+  {
+    "name": "crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source",
+    "closure_sha256": "ccd2a4a05d89569a8b9c3e2c90e46e6a1cdae09ba184a3f4e4fbe4c6aeab41f2",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/Cargo.toml",
+      "-p",
+      "sheltie-runtime",
+      "--all-features",
+      "--test",
+      "disposition_oracles",
+      "supplemental_managed_rename",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 2.543,
+    "caught_by_real_oracle": true,
+    "diff": "00.diff",
+    "stdout": "00.stdout.txt",
+    "restored_source_sha256": "0d147c6b90e7c5f4a119a1078ac4d9dd860391cdfe2e21570d01f617c2a986b6"
+  }
+]

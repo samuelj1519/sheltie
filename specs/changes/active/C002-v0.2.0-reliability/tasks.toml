@@ -101,7 +101,7 @@ allow_test_changes = true
 [C002-M1]
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
 test_files = []
-allow_test_changes = true
+allow_test_changes = false
 
 [C002-T16]
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
@@ -187,6 +187,8 @@ test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cl
 allow_test_changes = true
 
 [C002-T31]
-files = ["crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
+# 真实purge等待者暴露SQLite只读可创建零字节WAL，先澄清上游物理控制文件边界，不改变业务只读不变式。
+# 2026-09-30 用户授权修复实现审查全部七项：接入session/store初始化、集中snapshot解码、CLI单一NextOp映射。
+files = [".pre-commit-config.yaml","_typos.toml","specs/architecture.md","Cargo.toml","crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/decide.rs","specs/spec.md","specs/contracts/storage.md","specs/contracts/protocol.md","specs/decisions/D-039-sqlite-read-control-files.md","crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/session.rs","crates/sheltie-runtime/src/store","crates/sheltie-runtime/src/snapshot.rs","crates/sheltie-runtime/src/lib.rs","crates/sheltie-cli/src","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests","crates/sheltie-core/tests","crates/sheltie-core/src"]
 allow_test_changes = true

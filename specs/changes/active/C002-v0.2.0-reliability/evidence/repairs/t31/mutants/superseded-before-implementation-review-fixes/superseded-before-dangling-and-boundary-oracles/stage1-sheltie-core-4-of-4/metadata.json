@@ -1,0 +1,22 @@
+{
+  "name": "stage1-sheltie-core-4-of-4",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-core",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--test-workspace",
+    "false",
+    "--shard",
+    "4/4"
+  ],
+  "exit": 1,
+  "seconds": 0.113,
+  "listed": 0,
+  "processed": 0,
+  "counts": {},
+  "status": "INVALID: tool rejected 4/4; copied outcomes belong to preceding shard; excluded from all closure counts"
+}

@@ -16,7 +16,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
 
-**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件。写操作确定性拒绝不建Home（GF-30）。
+**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 2控制Store、锁和自有未提交pending。
 
 ## 2. 操作一览
 
@@ -80,7 +80,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `work start`
 
-以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`，且不因此创建管理根、`.lock`或数据库。
+以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`或创建缺失的零字节`store.db-wal`，且不因此创建管理根、`.lock`或数据库。
 
 1. 解析 `--input` 的键和字面值或 `@file` 词法路径，以用户提供的name原值及省略状态构造 `RequestIntent`；此时不规范化 `WorkName`、不读 `@file` 内容、不装入 Workbook。名字参数是意图的一部分，省略与显式flow名不同，见存储合同 §2.1。
 2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。

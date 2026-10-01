@@ -22,6 +22,7 @@ sheltie-core = { workspace = true }
 sheltie-runtime = { workspace = true }
 
 [dev-dependencies]
+rustix = { workspace = true }
 assert_cmd = { workspace = true }
 predicates = { workspace = true }
 rusqlite = { workspace = true }

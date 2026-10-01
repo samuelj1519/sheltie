@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace || with && in delete_dir\n@@ -1112,17 +1112,17 @@\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除请求 {request_id} 后仍有final或pending对象\"),\n         });\n     }\n     write_deleted_marker(home, lock, internal_id, request_id)?;\n     crate::failpoint::maybe_exit(\"delete_marker_synced_before_mark\");\n     if fsx::managed_directory_exists(home, lock, pending)?\n-        || fsx::managed_directory_exists(home, lock, final_path)?\n+        && /* ~ changed by cargo-mutants ~ */ fsx::managed_directory_exists(home, lock, final_path)?\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除请求 {request_id} 写marker期间出现目录对象\"),\n         });\n     }\n     Ok(())\n }\n \n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "delete_dir",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1127
+        },
+        "start": {
+          "column": 1,
+          "line": 1031
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1120:9: replace || with && in delete_dir",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1120
+      },
+      "start": {
+        "column": 9,
+        "line": 1120
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace pending_internal_id -> Result<&str> with Ok(\"\")\n@@ -1122,27 +1122,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除请求 {request_id} 写marker期间出现目录对象\"),\n         });\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n-    let segments = pending.split('/').collect::<Vec<_>>();\n-    if segments.len() != 3\n-        || segments[0] != \"pending\"\n-        || segments[2] != \"payload\"\n-        || uuid::Uuid::parse_str(segments[1]).is_err()\n-    {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n-        });\n-    }\n-    Ok(segments[1])\n+    Ok(\"\") /* ~ changed by cargo-mutants ~ */\n }\n \n /// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。\n fn write_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n     request_id: &str,\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1130:5: replace pending_internal_id -> Result<&str> with Ok(\"\")",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"\")",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 1140
+      },
+      "start": {
+        "column": 5,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace pending_internal_id -> Result<&str> with Ok(\"xyzzy\")\n@@ -1122,27 +1122,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除请求 {request_id} 写marker期间出现目录对象\"),\n         });\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n-    let segments = pending.split('/').collect::<Vec<_>>();\n-    if segments.len() != 3\n-        || segments[0] != \"pending\"\n-        || segments[2] != \"payload\"\n-        || uuid::Uuid::parse_str(segments[1]).is_err()\n-    {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n-        });\n-    }\n-    Ok(segments[1])\n+    Ok(\"xyzzy\") /* ~ changed by cargo-mutants ~ */\n }\n \n /// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。\n fn write_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n     request_id: &str,\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1130:5: replace pending_internal_id -> Result<&str> with Ok(\"xyzzy\")",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\")",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 1140
+      },
+      "start": {
+        "column": 5,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace || with && in pending_internal_id\n@@ -1126,17 +1126,17 @@\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n     if segments.len() != 3\n         || segments[0] != \"pending\"\n         || segments[2] != \"payload\"\n-        || uuid::Uuid::parse_str(segments[1]).is_err()\n+        && /* ~ changed by cargo-mutants ~ */ uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n     Ok(segments[1])\n }\n \n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1134:9: replace || with && in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1134
+      },
+      "start": {
+        "column": 9,
+        "line": 1134
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace || with && in pending_internal_id\n@@ -1125,17 +1125,17 @@\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n     if segments.len() != 3\n         || segments[0] != \"pending\"\n-        || segments[2] != \"payload\"\n+        && /* ~ changed by cargo-mutants ~ */ segments[2] != \"payload\"\n         || uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n     Ok(segments[1])\n }\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1133:9: replace || with && in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1133
+      },
+      "start": {
+        "column": 9,
+        "line": 1133
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace || with && in pending_internal_id\n@@ -1124,17 +1124,17 @@\n         });\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n     if segments.len() != 3\n-        || segments[0] != \"pending\"\n+        && /* ~ changed by cargo-mutants ~ */ segments[0] != \"pending\"\n         || segments[2] != \"payload\"\n         || uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n     Ok(segments[1])\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1132:9: replace || with && in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1132
+      },
+      "start": {
+        "column": 9,
+        "line": 1132
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in pending_internal_id\n@@ -1123,17 +1123,17 @@\n             detail: format!(\"删除请求 {request_id} 写marker期间出现目录对象\"),\n         });\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n-    if segments.len() != 3\n+    if segments.len() == /* ~ changed by cargo-mutants ~ */ 3\n         || segments[0] != \"pending\"\n         || segments[2] != \"payload\"\n         || uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1131:23: replace != with == in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 1131
+      },
+      "start": {
+        "column": 23,
+        "line": 1131
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in pending_internal_id\n@@ -1124,17 +1124,17 @@\n         });\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n     if segments.len() != 3\n-        || segments[0] != \"pending\"\n+        || segments[0] == /* ~ changed by cargo-mutants ~ */ \"pending\"\n         || segments[2] != \"payload\"\n         || uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n     Ok(segments[1])\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1132:24: replace != with == in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1132
+      },
+      "start": {
+        "column": 24,
+        "line": 1132
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in pending_internal_id\n@@ -1125,17 +1125,17 @@\n     }\n     Ok(())\n }\n \n pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {\n     let segments = pending.split('/').collect::<Vec<_>>();\n     if segments.len() != 3\n         || segments[0] != \"pending\"\n-        || segments[2] != \"payload\"\n+        || segments[2] == /* ~ changed by cargo-mutants ~ */ \"payload\"\n         || uuid::Uuid::parse_str(segments[1]).is_err()\n     {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除效果的pending路径 {pending:?} 无效\"),\n         });\n     }\n     Ok(segments[1])\n }\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "pending_internal_id",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1141
+        },
+        "start": {
+          "column": 1,
+          "line": 1129
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1133:24: replace != with == in pending_internal_id",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1133
+      },
+      "start": {
+        "column": 24,
+        "line": 1133
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace write_deleted_marker -> Result<()> with Ok(())\n@@ -1142,35 +1142,17 @@\n \n /// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。\n fn write_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n     request_id: &str,\n ) -> Result<()> {\n-    let _ = uuid::Uuid::parse_str(internal_id).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"删除marker内部id无效：{error}\"),\n-    })?;\n-    let relative = format!(\"pending/{internal_id}.deleted\");\n-    if let Some(file) = read_deleted_marker(home, lock, internal_id)? {\n-        return sync_deleted_marker(home, lock, internal_id, request_id, &file);\n-    }\n-    let marker = DeletedMarker {\n-        format: \"delete-complete/v1\".to_string(),\n-        internal_id: internal_id.to_string(),\n-    };\n-    let mut content = serde_json::to_vec(&marker).map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"删除marker序列化失败：{error}\"),\n-    })?;\n-    content.push(b'\\n');\n-    let path = home.rel(&relative)?;\n-    let file = fsx::write_new_file_observed(home, lock, &path, &content)?;\n-    sync_deleted_marker(home, lock, internal_id, request_id, &file)?;\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn read_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n ) -> Result<Option<fsx::SafeFile>> {\n     let marker_path = home\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "write_deleted_marker",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1169
+        },
+        "start": {
+          "column": 1,
+          "line": 1143
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1150:5: replace write_deleted_marker -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1168
+      },
+      "start": {
+        "column": 5,
+        "line": 1150
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace read_deleted_marker -> Result<Option<fsx::SafeFile>> with Ok(None)\n@@ -1168,28 +1168,17 @@\n     Ok(())\n }\n \n pub(crate) fn read_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n ) -> Result<Option<fsx::SafeFile>> {\n-    let marker_path = home\n-        .pending_dir()\n-        .join_segment(&format!(\"{internal_id}.deleted\"));\n-    let Some(file) =\n-        fsx::open_managed_optional_locked(home, lock, &marker_path).map_err(|error| {\n-            integrity_error(format!(\"删除marker {marker_path} 身份校验失败\"), error)\n-        })?\n-    else {\n-        return Ok(None);\n-    };\n-    validate_deleted_marker_file(&file, &marker_path, internal_id)?;\n-    Ok(Some(file))\n+    Ok(None) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_deleted_marker_file(\n     file: &fsx::SafeFile,\n     marker_path: &AbsPath,\n     internal_id: &str,\n ) -> Result<()> {\n     let mut bytes = file\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "read_deleted_marker",
+      "return_type": "-> Result<Option<fsx::SafeFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1188
+        },
+        "start": {
+          "column": 1,
+          "line": 1171
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1176:5: replace read_deleted_marker -> Result<Option<fsx::SafeFile>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1187
+      },
+      "start": {
+        "column": 5,
+        "line": 1176
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace read_deleted_marker -> Result<Option<fsx::SafeFile>> with Ok(Some(Default::default()))\n@@ -1168,28 +1168,17 @@\n     Ok(())\n }\n \n pub(crate) fn read_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n ) -> Result<Option<fsx::SafeFile>> {\n-    let marker_path = home\n-        .pending_dir()\n-        .join_segment(&format!(\"{internal_id}.deleted\"));\n-    let Some(file) =\n-        fsx::open_managed_optional_locked(home, lock, &marker_path).map_err(|error| {\n-            integrity_error(format!(\"删除marker {marker_path} 身份校验失败\"), error)\n-        })?\n-    else {\n-        return Ok(None);\n-    };\n-    validate_deleted_marker_file(&file, &marker_path, internal_id)?;\n-    Ok(Some(file))\n+    Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n }\n \n fn validate_deleted_marker_file(\n     file: &fsx::SafeFile,\n     marker_path: &AbsPath,\n     internal_id: &str,\n ) -> Result<()> {\n     let mut bytes = file\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "read_deleted_marker",
+      "return_type": "-> Result<Option<fsx::SafeFile>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1188
+        },
+        "start": {
+          "column": 1,
+          "line": 1171
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1176:5: replace read_deleted_marker -> Result<Option<fsx::SafeFile>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 1187
+      },
+      "start": {
+        "column": 5,
+        "line": 1176
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace validate_deleted_marker_file -> Result<()> with Ok(())\n@@ -1187,49 +1187,17 @@\n     Ok(Some(file))\n }\n \n fn validate_deleted_marker_file(\n     file: &fsx::SafeFile,\n     marker_path: &AbsPath,\n     internal_id: &str,\n ) -> Result<()> {\n-    let mut bytes = file\n-        .read_bounded(4096)\n-        .map_err(|error| integrity_error(format!(\"删除marker {marker_path} 读取失败\"), error))?;\n-    if bytes.pop() != Some(b'\\n') {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"删除marker {marker_path} 缺少结尾换行\"),\n-        });\n-    }\n-    let marker: DeletedMarker =\n-        serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {\n-            detail: format!(\"删除marker {marker_path} JSON无效：{error}\"),\n-        })?;\n-    if marker.format != \"delete-complete/v1\" || marker.internal_id != internal_id {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"删除marker {marker_path} 与本请求internal_id不一致\"),\n-        });\n-    }\n-    let mut expected = serde_json::to_vec(&DeletedMarker {\n-        format: \"delete-complete/v1\".to_string(),\n-        internal_id: internal_id.to_string(),\n-    })\n-    .map_err(|error| Error::StoreCorrupt {\n-        detail: format!(\"删除marker期望值序列化失败：{error}\"),\n-    })?;\n-    expected.push(b'\\n');\n-    let mut actual = bytes;\n-    actual.push(b'\\n');\n-    if actual != expected {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"删除marker {marker_path} 字节不是合同格式\"),\n-        });\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn sync_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n     request_id: &str,\n     file: &fsx::SafeFile,\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1195:5: replace validate_deleted_marker_file -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1227
+      },
+      "start": {
+        "column": 5,
+        "line": 1195
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in validate_deleted_marker_file\n@@ -1190,17 +1190,17 @@\n fn validate_deleted_marker_file(\n     file: &fsx::SafeFile,\n     marker_path: &AbsPath,\n     internal_id: &str,\n ) -> Result<()> {\n     let mut bytes = file\n         .read_bounded(4096)\n         .map_err(|error| integrity_error(format!(\"删除marker {marker_path} 读取失败\"), error))?;\n-    if bytes.pop() != Some(b'\\n') {\n+    if bytes.pop() == /* ~ changed by cargo-mutants ~ */ Some(b'\\n') {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 缺少结尾换行\"),\n         });\n     }\n     let marker: DeletedMarker =\n         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} JSON无效：{error}\"),\n         })?;\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1198:20: replace != with == in validate_deleted_marker_file",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 1198
+      },
+      "start": {
+        "column": 20,
+        "line": 1198
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace || with && in validate_deleted_marker_file\n@@ -1199,17 +1199,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 缺少结尾换行\"),\n         });\n     }\n     let marker: DeletedMarker =\n         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} JSON无效：{error}\"),\n         })?;\n-    if marker.format != \"delete-complete/v1\" || marker.internal_id != internal_id {\n+    if marker.format != \"delete-complete/v1\" && /* ~ changed by cargo-mutants ~ */ marker.internal_id != internal_id {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 与本请求internal_id不一致\"),\n         });\n     }\n     let mut expected = serde_json::to_vec(&DeletedMarker {\n         format: \"delete-complete/v1\".to_string(),\n         internal_id: internal_id.to_string(),\n     })\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1207:46: replace || with && in validate_deleted_marker_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 48,
+        "line": 1207
+      },
+      "start": {
+        "column": 46,
+        "line": 1207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in validate_deleted_marker_file\n@@ -1199,17 +1199,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 缺少结尾换行\"),\n         });\n     }\n     let marker: DeletedMarker =\n         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} JSON无效：{error}\"),\n         })?;\n-    if marker.format != \"delete-complete/v1\" || marker.internal_id != internal_id {\n+    if marker.format == /* ~ changed by cargo-mutants ~ */ \"delete-complete/v1\" || marker.internal_id != internal_id {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 与本请求internal_id不一致\"),\n         });\n     }\n     let mut expected = serde_json::to_vec(&DeletedMarker {\n         format: \"delete-complete/v1\".to_string(),\n         internal_id: internal_id.to_string(),\n     })\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1207:22: replace != with == in validate_deleted_marker_file",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 1207
+      },
+      "start": {
+        "column": 22,
+        "line": 1207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in validate_deleted_marker_file\n@@ -1199,17 +1199,17 @@\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 缺少结尾换行\"),\n         });\n     }\n     let marker: DeletedMarker =\n         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} JSON无效：{error}\"),\n         })?;\n-    if marker.format != \"delete-complete/v1\" || marker.internal_id != internal_id {\n+    if marker.format != \"delete-complete/v1\" || marker.internal_id == /* ~ changed by cargo-mutants ~ */ internal_id {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 与本请求internal_id不一致\"),\n         });\n     }\n     let mut expected = serde_json::to_vec(&DeletedMarker {\n         format: \"delete-complete/v1\".to_string(),\n         internal_id: internal_id.to_string(),\n     })\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1207:68: replace != with == in validate_deleted_marker_file",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 70,
+        "line": 1207
+      },
+      "start": {
+        "column": 68,
+        "line": 1207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace != with == in validate_deleted_marker_file\n@@ -1214,17 +1214,17 @@\n         internal_id: internal_id.to_string(),\n     })\n     .map_err(|error| Error::StoreCorrupt {\n         detail: format!(\"删除marker期望值序列化失败：{error}\"),\n     })?;\n     expected.push(b'\\n');\n     let mut actual = bytes;\n     actual.push(b'\\n');\n-    if actual != expected {\n+    if actual == /* ~ changed by cargo-mutants ~ */ expected {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"删除marker {marker_path} 字节不是合同格式\"),\n         });\n     }\n     Ok(())\n }\n \n fn sync_deleted_marker(\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "validate_deleted_marker_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1228
+        },
+        "start": {
+          "column": 1,
+          "line": 1190
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/effects.rs:1222:15: replace != with == in validate_deleted_marker_file",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 1222
+      },
+      "start": {
+        "column": 15,
+        "line": 1222
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace sync_deleted_marker -> Result<()> with Ok(())\n@@ -1229,31 +1229,17 @@\n \n fn sync_deleted_marker(\n     home: &Home,\n     lock: &crate::home::HomeLock,\n     internal_id: &str,\n     request_id: &str,\n     file: &fsx::SafeFile,\n ) -> Result<()> {\n-    let relative = format!(\"pending/{internal_id}.deleted\");\n-    let path = home.rel(&relative)?;\n-    validate_deleted_marker_file(file, &path, internal_id)?;\n-    crate::failpoint::rendezvous(\"delete_marker_after_validation_before_sync\", request_id)\n-        .map_err(|error| Error::io(path.as_str(), error))?;\n-    fsx::sync_managed_regular_file_handle(home, lock, &relative, file).map_err(|error| {\n-        integrity_error(format!(\"删除marker {internal_id}.deleted sync失败\"), error)\n-    })?;\n-    validate_deleted_marker_file(file, &path, internal_id)?;\n-    fsx::verify_managed_file_bound(home, lock, &path, file).map_err(|error| {\n-        integrity_error(\n-            format!(\"删除marker {internal_id}.deleted 同步后路径绑定失败\"),\n-            error,\n-        )\n-    })\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 独立校验一个 sha256 串。\n pub fn valid_digest(s: &str) -> bool {\n     Sha256Hex::new(s).is_ok()\n }\n \n #[cfg(test)]\n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "sync_deleted_marker",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1252
+        },
+        "start": {
+          "column": 1,
+          "line": 1230
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1237:5: replace sync_deleted_marker -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 1251
+      },
+      "start": {
+        "column": 5,
+        "line": 1237
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace valid_digest -> bool with true\n@@ -1248,17 +1248,17 @@\n             format!(\"删除marker {internal_id}.deleted 同步后路径绑定失败\"),\n             error,\n         )\n     })\n }\n \n /// 独立校验一个 sha256 串。\n pub fn valid_digest(s: &str) -> bool {\n-    Sha256Hex::new(s).is_ok()\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(test)]\n mod seal_output_tests {\n     use super::*;\n     use crate::fsx::{ManagedFs, SafeFile};\n     use std::os::unix::fs::{MetadataExt as _, PermissionsExt as _};\n \n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "valid_digest",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1257
+        },
+        "start": {
+          "column": 1,
+          "line": 1254
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1256:5: replace valid_digest -> bool with true",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1256
+      },
+      "start": {
+        "column": 5,
+        "line": 1256
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/effects.rs\n+++ replace valid_digest -> bool with false\n@@ -1248,17 +1248,17 @@\n             format!(\"删除marker {internal_id}.deleted 同步后路径绑定失败\"),\n             error,\n         )\n     })\n }\n \n /// 独立校验一个 sha256 串。\n pub fn valid_digest(s: &str) -> bool {\n-    Sha256Hex::new(s).is_ok()\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(test)]\n mod seal_output_tests {\n     use super::*;\n     use crate::fsx::{ManagedFs, SafeFile};\n     use std::os::unix::fs::{MetadataExt as _, PermissionsExt as _};\n \n",
+    "file": "crates/sheltie-runtime/src/effects.rs",
+    "function": {
+      "function_name": "valid_digest",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1257
+        },
+        "start": {
+          "column": 1,
+          "line": 1254
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/effects.rs:1256:5: replace valid_digest -> bool with false",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1256
+      },
+      "start": {
+        "column": 5,
+        "line": 1256
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/error.rs\n+++ replace Error::code -> ErrorCode with Default::default()\n@@ -57,34 +57,17 @@\n     #[error(\"{reason}\")]\n     InvalidRequest { reason: String },\n     #[error(\"读不了输入文件 {path}：{reason}\")]\n     InputFileInvalid { path: String, reason: String },\n }\n \n impl Error {\n     pub fn code(&self) -> ErrorCode {\n-        match self {\n-            Self::Core(e) => e.code(),\n-            Self::WorkbookExists { .. } => ErrorCode::WorkbookExists,\n-            Self::WorkbookInUse { .. } => ErrorCode::WorkbookInUse,\n-            Self::WorkbookTampered { .. } => ErrorCode::WorkbookTampered,\n-            Self::UpdateUnavailable { .. } => ErrorCode::UpdateUnavailable,\n-            Self::UpdateChecksumMismatch { .. } => ErrorCode::UpdateChecksumMismatch,\n-            Self::NotFound { .. } => ErrorCode::NotFound,\n-            Self::RequestConflict { .. } => ErrorCode::RequestConflict,\n-            Self::EffectPending { .. } => ErrorCode::EffectPending,\n-            Self::RevisionConflict { .. } => ErrorCode::RevisionConflict,\n-            Self::StoreSchemaMismatch { .. } => ErrorCode::StoreSchemaMismatch,\n-            Self::StoreCorrupt { .. } => ErrorCode::StoreCorrupt,\n-            Self::Io { .. } => ErrorCode::Io,\n-            Self::RecoveryRequired { .. } => ErrorCode::Io,\n-            Self::InvalidRequest { .. } => ErrorCode::InvalidRequest,\n-            Self::InputFileInvalid { .. } => ErrorCode::InvalidRequest,\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 把 `std::io::Error` 连同路径包起来。\n     pub fn io(path: impl Into<String>, source: std::io::Error) -> Self {\n         Self::Io {\n             path: path.into(),\n             source,\n         }\n",
+    "file": "crates/sheltie-runtime/src/error.rs",
+    "function": {
+      "function_name": "Error::code",
+      "return_type": "-> ErrorCode",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 64
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/error.rs:65:9: replace Error::code -> ErrorCode with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 82
+      },
+      "start": {
+        "column": 9,
+        "line": 65
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/error.rs\n+++ replace Error::io -> Self with Default::default()\n@@ -79,20 +79,17 @@\n             Self::RecoveryRequired { .. } => ErrorCode::Io,\n             Self::InvalidRequest { .. } => ErrorCode::InvalidRequest,\n             Self::InputFileInvalid { .. } => ErrorCode::InvalidRequest,\n         }\n     }\n \n     /// 把 `std::io::Error` 连同路径包起来。\n     pub fn io(path: impl Into<String>, source: std::io::Error) -> Self {\n-        Self::Io {\n-            path: path.into(),\n-            source,\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn effect_pending(\n         committed: bool,\n         request_id: impl Into<String>,\n         pending_request_id: Option<String>,\n         cause: &Error,\n         original: Option<String>,\n",
+    "file": "crates/sheltie-runtime/src/error.rs",
+    "function": {
+      "function_name": "Error::io",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 91
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/error.rs:87:9: replace Error::io -> Self with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 90
+      },
+      "start": {
+        "column": 9,
+        "line": 87
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/error.rs\n+++ replace Error::effect_pending -> Self with Default::default()\n@@ -93,25 +93,17 @@\n     pub(crate) fn effect_pending(\n         committed: bool,\n         request_id: impl Into<String>,\n         pending_request_id: Option<String>,\n         cause: &Error,\n         original: Option<String>,\n         pending_original: Option<String>,\n     ) -> Self {\n-        Self::EffectPending {\n-            committed,\n-            request_id: request_id.into(),\n-            pending_request_id,\n-            cause: cause.code(),\n-            cause_detail: cause.to_string(),\n-            original: original.map(String::into_boxed_str),\n-            pending_original: pending_original.map(String::into_boxed_str),\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl From<rusqlite::Error> for Error {\n     fn from(e: rusqlite::Error) -> Self {\n         use rusqlite::ffi::ErrorCode as SqliteErrorCode;\n \n         match e.sqlite_error_code() {\n",
+    "file": "crates/sheltie-runtime/src/error.rs",
+    "function": {
+      "function_name": "Error::effect_pending",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 110
+        },
+        "start": {
+          "column": 5,
+          "line": 93
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/error.rs:101:9: replace Error::effect_pending -> Self with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 109
+      },
+      "start": {
+        "column": 9,
+        "line": 101
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/error.rs\n+++ replace <impl From<rusqlite::Error> for Error>::from -> Self with Default::default()\n@@ -107,33 +107,17 @@\n             original: original.map(String::into_boxed_str),\n             pending_original: pending_original.map(String::into_boxed_str),\n         }\n     }\n }\n \n impl From<rusqlite::Error> for Error {\n     fn from(e: rusqlite::Error) -> Self {\n-        use rusqlite::ffi::ErrorCode as SqliteErrorCode;\n-\n-        match e.sqlite_error_code() {\n-            Some(\n-                SqliteErrorCode::PermissionDenied\n-                | SqliteErrorCode::DatabaseBusy\n-                | SqliteErrorCode::DatabaseLocked\n-                | SqliteErrorCode::ReadOnly\n-                | SqliteErrorCode::SystemIoFailure\n-                | SqliteErrorCode::DiskFull\n-                | SqliteErrorCode::CannotOpen\n-                | SqliteErrorCode::FileLockingProtocolFailed,\n-            ) => Self::io(\"store.db\", std::io::Error::other(e)),\n-            _ => Self::StoreCorrupt {\n-                detail: e.to_string(),\n-            },\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub type Result<T> = std::result::Result<T, Error>;\n \n #[cfg(test)]\n mod tests {\n     use super::Error;\n",
+    "file": "crates/sheltie-runtime/src/error.rs",
+    "function": {
+      "function_name": "<impl From<rusqlite::Error> for Error>::from",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 132
+        },
+        "start": {
+          "column": 5,
+          "line": 114
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/error.rs:115:9: replace <impl From<rusqlite::Error> for Error>::from -> Self with Default::default()",
+    "package": "sheltie-runtime",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 131
+      },
+      "start": {
+        "column": 9,
+        "line": 115
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/error.rs\n+++ delete match arm Some(SqliteErrorCode::PermissionDenied | SqliteErrorCode::DatabaseBusy | SqliteErrorCode::DatabaseLocked | SqliteErrorCode::ReadOnly | SqliteErrorCode::SystemIoFailure | SqliteErrorCode::DiskFull | SqliteErrorCode::CannotOpen | SqliteErrorCode::FileLockingProtocolFailed,) in <impl From<rusqlite::Error> for Error>::from\n@@ -110,26 +110,17 @@\n     }\n }\n \n impl From<rusqlite::Error> for Error {\n     fn from(e: rusqlite::Error) -> Self {\n         use rusqlite::ffi::ErrorCode as SqliteErrorCode;\n \n         match e.sqlite_error_code() {\n-            Some(\n-                SqliteErrorCode::PermissionDenied\n-                | SqliteErrorCode::DatabaseBusy\n-                | SqliteErrorCode::DatabaseLocked\n-                | SqliteErrorCode::ReadOnly\n-                | SqliteErrorCode::SystemIoFailure\n-                | SqliteErrorCode::DiskFull\n-                | SqliteErrorCode::CannotOpen\n-                | SqliteErrorCode::FileLockingProtocolFailed,\n-            ) => Self::io(\"store.db\", std::io::Error::other(e)),\n+             /* ~ changed by cargo-mutants ~ */\n             _ => Self::StoreCorrupt {\n                 detail: e.to_string(),\n             },\n         }\n     }\n }\n \n pub type Result<T> = std::result::Result<T, Error>;\n",
+    "file": "crates/sheltie-runtime/src/error.rs",
+    "function": {
+      "function_name": "<impl From<rusqlite::Error> for Error>::from",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 132
+        },
+        "start": {
+          "column": 5,
+          "line": 114
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/error.rs:118:13: delete match arm Some(SqliteErrorCode::PermissionDenied | SqliteErrorCode::DatabaseBusy | SqliteErrorCode::DatabaseLocked | SqliteErrorCode::ReadOnly | SqliteErrorCode::SystemIoFailure | SqliteErrorCode::DiskFull | SqliteErrorCode::CannotOpen | SqliteErrorCode::FileLockingProtocolFailed,) in <impl From<rusqlite::Error> for Error>::from",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 127
+      },
+      "start": {
+        "column": 13,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace maybe_exit with ()\n@@ -5,23 +5,17 @@\n //! `delete_after_tree_removed_before_marker`；测试 rendezvous 只在 `failpoint` feature 开启时可配置。\n //! 调用处已由骨架放好；`maybe_exit` 原属 T23，因 `commit()` 一开始就调用它，\n //! T13 起测试在 `--all-features` 下必经此函数，提前到 T13 填（见 plan.md T13 任务卡）。\n \n /// 若开启特性且环境变量 `SHELTIE_FAILPOINT` 等于 `name`，以退出码 70 结束进程。否则什么都不做。\n #[cfg(feature = \"failpoint\")]\n pub fn maybe_exit(name: &str) {\n     // A subprocess can pause at exactly the same point before the parent sends SIGKILL.\n-    if let Err(error) = rendezvous(name, name) {\n-        eprintln!(\"test checkpoint {name} failed: {error}\");\n-        std::process::exit(71);\n-    }\n-    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() == Some(name) {\n-        std::process::exit(EXIT_CODE);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// 没开特性时是空函数，编译器会把它优化掉。\n #[cfg(not(feature = \"failpoint\"))]\n pub fn maybe_exit(_name: &str) {}\n \n #[cfg(feature = \"failpoint\")]\n #[derive(Clone)]\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "maybe_exit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 20
+        },
+        "start": {
+          "column": 1,
+          "line": 9
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:13:5: replace maybe_exit with ()",
+    "package": "sheltie-runtime",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 19
+      },
+      "start": {
+        "column": 5,
+        "line": 13
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in maybe_exit\n@@ -9,17 +9,17 @@\n /// 若开启特性且环境变量 `SHELTIE_FAILPOINT` 等于 `name`，以退出码 70 结束进程。否则什么都不做。\n #[cfg(feature = \"failpoint\")]\n pub fn maybe_exit(name: &str) {\n     // A subprocess can pause at exactly the same point before the parent sends SIGKILL.\n     if let Err(error) = rendezvous(name, name) {\n         eprintln!(\"test checkpoint {name} failed: {error}\");\n         std::process::exit(71);\n     }\n-    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() == Some(name) {\n+    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() != /* ~ changed by cargo-mutants ~ */ Some(name) {\n         std::process::exit(EXIT_CODE);\n     }\n }\n \n /// 没开特性时是空函数，编译器会把它优化掉。\n #[cfg(not(feature = \"failpoint\"))]\n pub fn maybe_exit(_name: &str) {}\n \n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "maybe_exit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 20
+        },
+        "start": {
+          "column": 1,
+          "line": 9
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:17:59: replace == with != in maybe_exit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 17
+      },
+      "start": {
+        "column": 59,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace arm_rendezvous -> std::io::Result<()> with Ok(())\n@@ -50,31 +50,17 @@\n pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());\n \n /// Arm a test-only COMMIT/effect rendezvous. No environment or host setting is modified.\n pub fn arm_rendezvous(\n     name: &str,\n     request_id: &str,\n     directory: &std::path::Path,\n ) -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n-        let mut state = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?;\n-        *state = Some(Rendezvous {\n-            name: name.to_string(),\n-            request_id: request_id.to_string(),\n-            directory: directory.to_path_buf(),\n-        });\n-    }\n-    #[cfg(not(feature = \"failpoint\"))]\n-    let _ = (name, request_id, directory);\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Disarm a test-only rendezvous.\n pub fn disarm_rendezvous() -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "arm_rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 73
+        },
+        "start": {
+          "column": 1,
+          "line": 52
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:58:5: replace arm_rendezvous -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 72
+      },
+      "start": {
+        "column": 5,
+        "line": 58
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace disarm_rendezvous -> std::io::Result<()> with Ok(())\n@@ -69,25 +69,17 @@\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = (name, request_id, directory);\n     Ok(())\n }\n \n /// Disarm a test-only rendezvous.\n pub fn disarm_rendezvous() -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n-        let mut state = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?;\n-        *state = None;\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Arm one named sync failure for deterministic recovery tests.\n pub fn arm_sync_error(root: &str, name: &str) -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "disarm_rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 86
+        },
+        "start": {
+          "column": 1,
+          "line": 75
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 85
+      },
+      "start": {
+        "column": 5,
+        "line": 77
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace arm_sync_error -> std::io::Result<()> with Ok(())\n@@ -82,30 +82,17 @@\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?;\n         *state = None;\n     }\n     Ok(())\n }\n \n /// Arm one named sync failure for deterministic recovery tests.\n pub fn arm_sync_error(root: &str, name: &str) -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n-        let mut state = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n-        *state = Some(SyncFailure {\n-            root: root.to_string(),\n-            name: name.to_string(),\n-        });\n-    }\n-    #[cfg(not(feature = \"failpoint\"))]\n-    let _ = (root, name);\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Disarm the named sync failure.\n pub fn disarm_sync_error() -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "arm_sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 104
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:90:5: replace arm_sync_error -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 103
+      },
+      "start": {
+        "column": 5,
+        "line": 90
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace disarm_sync_error -> std::io::Result<()> with Ok(())\n@@ -100,25 +100,17 @@\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = (root, name);\n     Ok(())\n }\n \n /// Disarm the named sync failure.\n pub fn disarm_sync_error() -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n-        let mut state = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n-        *state = None;\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Return an injected I/O error at a named durable sync boundary.\n pub(crate) fn sync_error(root: &str, name: &str) -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "disarm_sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 117
+        },
+        "start": {
+          "column": 1,
+          "line": 106
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 116
+      },
+      "start": {
+        "column": 5,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace sync_error -> std::io::Result<()> with Ok(())\n@@ -113,35 +113,17 @@\n             .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n         *state = None;\n     }\n     Ok(())\n }\n \n /// Return an injected I/O error at a named durable sync boundary.\n pub(crate) fn sync_error(root: &str, name: &str) -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n-        let mut state = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n-        if state\n-            .as_ref()\n-            .is_some_and(|failure| failure.root == root && failure.name == name)\n-        {\n-            *state = None;\n-            return Err(std::io::Error::other(format!(\n-                \"injected sync failure: {name}\"\n-            )));\n-        }\n-    }\n-    #[cfg(not(feature = \"failpoint\"))]\n-    let _ = (root, name);\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Inject a recoverable maintenance cleanup failure in subprocess integration tests.\n pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() == Some(name) {\n         return Err(std::io::Error::other(format!(\n             \"injected cleanup failure: {name}\"\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 119
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:121:5: replace sync_error -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 139
+      },
+      "start": {
+        "column": 5,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace && with || in sync_error\n@@ -121,17 +121,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n         if state\n             .as_ref()\n-            .is_some_and(|failure| failure.root == root && failure.name == name)\n+            .is_some_and(|failure| failure.root == root || /* ~ changed by cargo-mutants ~ */ failure.name == name)\n         {\n             *state = None;\n             return Err(std::io::Error::other(format!(\n                 \"injected sync failure: {name}\"\n             )));\n         }\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 119
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:129:57: replace && with || in sync_error",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 129
+      },
+      "start": {
+        "column": 57,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in sync_error\n@@ -121,17 +121,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n         if state\n             .as_ref()\n-            .is_some_and(|failure| failure.root == root && failure.name == name)\n+            .is_some_and(|failure| failure.root != /* ~ changed by cargo-mutants ~ */ root && failure.name == name)\n         {\n             *state = None;\n             return Err(std::io::Error::other(format!(\n                 \"injected sync failure: {name}\"\n             )));\n         }\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 119
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:129:49: replace == with != in sync_error",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 129
+      },
+      "start": {
+        "column": 49,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in sync_error\n@@ -121,17 +121,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));\n         let mut state = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"sync failure configuration lock poisoned\"))?;\n         if state\n             .as_ref()\n-            .is_some_and(|failure| failure.root == root && failure.name == name)\n+            .is_some_and(|failure| failure.root == root && failure.name != /* ~ changed by cargo-mutants ~ */ name)\n         {\n             *state = None;\n             return Err(std::io::Error::other(format!(\n                 \"injected sync failure: {name}\"\n             )));\n         }\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "sync_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 119
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:129:73: replace == with != in sync_error",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 75,
+        "line": 129
+      },
+      "start": {
+        "column": 73,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace cleanup_error -> std::io::Result<()> with Ok(())\n@@ -136,25 +136,17 @@\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = (root, name);\n     Ok(())\n }\n \n /// Inject a recoverable maintenance cleanup failure in subprocess integration tests.\n pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() == Some(name) {\n-        return Err(std::io::Error::other(format!(\n-            \"injected cleanup failure: {name}\"\n-        )));\n-    }\n-    #[cfg(not(feature = \"failpoint\"))]\n-    let _ = name;\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Test-only rendezvous used to mutate an observed object after COMMIT and before effects.\n /// The request-id guard prevents unrelated commands in a parallel test process from pausing.\n pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "cleanup_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 153
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:144:5: replace cleanup_error -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 152
+      },
+      "start": {
+        "column": 5,
+        "line": 144
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in cleanup_error\n@@ -137,17 +137,17 @@\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = (root, name);\n     Ok(())\n }\n \n /// Inject a recoverable maintenance cleanup failure in subprocess integration tests.\n pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {\n     #[cfg(feature = \"failpoint\")]\n-    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() == Some(name) {\n+    if std::env::var(\"SHELTIE_FAILPOINT\").ok().as_deref() != /* ~ changed by cargo-mutants ~ */ Some(name) {\n         return Err(std::io::Error::other(format!(\n             \"injected cleanup failure: {name}\"\n         )));\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = name;\n     Ok(())\n }\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "cleanup_error",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 153
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:145:59: replace == with != in cleanup_error",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 145
+      },
+      "start": {
+        "column": 59,
+        "line": 145
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace rendezvous -> std::io::Result<()> with Ok(())\n@@ -150,46 +150,13 @@\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = name;\n     Ok(())\n }\n \n /// Test-only rendezvous used to mutate an observed object after COMMIT and before effects.\n /// The request-id guard prevents unrelated commands in a parallel test process from pausing.\n pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {\n-    #[cfg(feature = \"failpoint\")]\n-    {\n-        let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n-        let configured = state\n-            .lock()\n-            .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n-            .clone();\n-        let configured = configured\n-            .filter(|point| point.name == name && point.request_id == request_id)\n-            .or_else(|| {\n-                let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n-                let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n-                let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n-                (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n-                    name: configured_name,\n-                    request_id: configured_id,\n-                    directory: std::path::PathBuf::from(directory),\n-                })\n-            });\n-        let Some(configured) = configured else {\n-            return Ok(());\n-        };\n-        let temporary = configured\n-            .directory\n-            .join(format!(\"reached-{}.tmp\", uuid::Uuid::now_v7().simple()));\n-        std::fs::write(&temporary, name.as_bytes())?;\n-        std::fs::rename(&temporary, configured.directory.join(\"reached\"))?;\n-        while !configured.directory.join(\"release\").exists() {\n-            std::thread::sleep(std::time::Duration::from_millis(1));\n-        }\n-    }\n-    #[cfg(not(feature = \"failpoint\"))]\n-    let _ = (name, request_id);\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// 故障注入点的退出码。\n pub const EXIT_CODE: i32 = 70;\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:158:5: replace rendezvous -> std::io::Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 191
+      },
+      "start": {
+        "column": 5,
+        "line": 158
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace && with || in rendezvous\n@@ -158,17 +158,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n         let configured = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n-            .filter(|point| point.name == name && point.request_id == request_id)\n+            .filter(|point| point.name == name || /* ~ changed by cargo-mutants ~ */ point.request_id == request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n                 (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:166:48: replace && with || in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 166
+      },
+      "start": {
+        "column": 48,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in rendezvous\n@@ -158,17 +158,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n         let configured = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n-            .filter(|point| point.name == name && point.request_id == request_id)\n+            .filter(|point| point.name != /* ~ changed by cargo-mutants ~ */ name && point.request_id == request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n                 (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:166:40: replace == with != in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 166
+      },
+      "start": {
+        "column": 40,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in rendezvous\n@@ -158,17 +158,17 @@\n     #[cfg(feature = \"failpoint\")]\n     {\n         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));\n         let configured = state\n             .lock()\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n-            .filter(|point| point.name == name && point.request_id == request_id)\n+            .filter(|point| point.name == name && point.request_id != /* ~ changed by cargo-mutants ~ */ request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n                 (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:166:68: replace == with != in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 70,
+        "line": 166
+      },
+      "start": {
+        "column": 68,
+        "line": 166
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace && with || in rendezvous\n@@ -163,17 +163,17 @@\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n             .filter(|point| point.name == name && point.request_id == request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n-                (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n+                (configured_name == name || /* ~ changed by cargo-mutants ~ */ configured_id == request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n                 })\n             });\n         let Some(configured) = configured else {\n             return Ok(());\n         };\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:171:42: replace && with || in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 171
+      },
+      "start": {
+        "column": 42,
+        "line": 171
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in rendezvous\n@@ -163,17 +163,17 @@\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n             .filter(|point| point.name == name && point.request_id == request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n-                (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n+                (configured_name != /* ~ changed by cargo-mutants ~ */ name && configured_id == request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n                 })\n             });\n         let Some(configured) = configured else {\n             return Ok(());\n         };\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:171:34: replace == with != in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 171
+      },
+      "start": {
+        "column": 34,
+        "line": 171
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ replace == with != in rendezvous\n@@ -163,17 +163,17 @@\n             .map_err(|_| std::io::Error::other(\"rendezvous configuration lock poisoned\"))?\n             .clone();\n         let configured = configured\n             .filter(|point| point.name == name && point.request_id == request_id)\n             .or_else(|| {\n                 let configured_name = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_NAME\").ok()?;\n                 let configured_id = std::env::var(\"SHELTIE_TEST_RENDEZVOUS_ID\").ok()?;\n                 let directory = std::env::var_os(\"SHELTIE_TEST_RENDEZVOUS_DIR\")?;\n-                (configured_name == name && configured_id == request_id).then(|| Rendezvous {\n+                (configured_name == name && configured_id != /* ~ changed by cargo-mutants ~ */ request_id).then(|| Rendezvous {\n                     name: configured_name,\n                     request_id: configured_id,\n                     directory: std::path::PathBuf::from(directory),\n                 })\n             });\n         let Some(configured) = configured else {\n             return Ok(());\n         };\n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:171:59: replace == with != in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 171
+      },
+      "start": {
+        "column": 59,
+        "line": 171
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/failpoint.rs\n+++ delete ! in rendezvous\n@@ -177,17 +177,17 @@\n         let Some(configured) = configured else {\n             return Ok(());\n         };\n         let temporary = configured\n             .directory\n             .join(format!(\"reached-{}.tmp\", uuid::Uuid::now_v7().simple()));\n         std::fs::write(&temporary, name.as_bytes())?;\n         std::fs::rename(&temporary, configured.directory.join(\"reached\"))?;\n-        while !configured.directory.join(\"release\").exists() {\n+        while  /* ~ changed by cargo-mutants ~ */configured.directory.join(\"release\").exists() {\n             std::thread::sleep(std::time::Duration::from_millis(1));\n         }\n     }\n     #[cfg(not(feature = \"failpoint\"))]\n     let _ = (name, request_id);\n     Ok(())\n }\n \n",
+    "file": "crates/sheltie-runtime/src/failpoint.rs",
+    "function": {
+      "function_name": "rendezvous",
+      "return_type": "-> std::io::Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 192
+        },
+        "start": {
+          "column": 1,
+          "line": 155
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/failpoint.rs:185:15: delete ! in rendezvous",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 185
+      },
+      "start": {
+        "column": 15,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::as_str -> &str with \"\"\n@@ -45,17 +45,17 @@\n             .as_str()\n             .split('/')\n             .map(str::to_string)\n             .collect::<Vec<_>>();\n         Ok(Self { value, segments })\n     }\n \n     pub fn as_str(&self) -> &str {\n-        &self.value\n+        \"\" /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn leaf(&self) -> Result<&str> {\n         self.segments\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::as_str",
+      "return_type": "-> &str",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 54
+        },
+        "start": {
+          "column": 5,
+          "line": 52
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:53:9: replace ManagedRelPath::as_str -> &str with \"\"",
+    "package": "sheltie-runtime",
+    "replacement": "\"\"",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 53
+      },
+      "start": {
+        "column": 9,
+        "line": 53
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::as_str -> &str with \"xyzzy\"\n@@ -45,17 +45,17 @@\n             .as_str()\n             .split('/')\n             .map(str::to_string)\n             .collect::<Vec<_>>();\n         Ok(Self { value, segments })\n     }\n \n     pub fn as_str(&self) -> &str {\n-        &self.value\n+        \"xyzzy\" /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn leaf(&self) -> Result<&str> {\n         self.segments\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::as_str",
+      "return_type": "-> &str",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 54
+        },
+        "start": {
+          "column": 5,
+          "line": 52
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:53:9: replace ManagedRelPath::as_str -> &str with \"xyzzy\"",
+    "package": "sheltie-runtime",
+    "replacement": "\"xyzzy\"",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 53
+      },
+      "start": {
+        "column": 9,
+        "line": 53
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::leaf -> Result<&str> with Ok(\"\")\n@@ -49,22 +49,17 @@\n         Ok(Self { value, segments })\n     }\n \n     pub fn as_str(&self) -> &str {\n         &self.value\n     }\n \n     fn leaf(&self) -> Result<&str> {\n-        self.segments\n-            .last()\n-            .map(String::as_str)\n-            .ok_or_else(|| Error::InvalidRequest {\n-                reason: \"管理路径不能是空路径\".to_string(),\n-            })\n+        Ok(\"\") /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn parent(&self) -> Option<Self> {\n         (self.segments.len() > 1).then(|| {\n             let segments = self.segments[..self.segments.len() - 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::leaf",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 63
+        },
+        "start": {
+          "column": 5,
+          "line": 56
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:57:9: replace ManagedRelPath::leaf -> Result<&str> with Ok(\"\")",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"\")",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 62
+      },
+      "start": {
+        "column": 9,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::leaf -> Result<&str> with Ok(\"xyzzy\")\n@@ -49,22 +49,17 @@\n         Ok(Self { value, segments })\n     }\n \n     pub fn as_str(&self) -> &str {\n         &self.value\n     }\n \n     fn leaf(&self) -> Result<&str> {\n-        self.segments\n-            .last()\n-            .map(String::as_str)\n-            .ok_or_else(|| Error::InvalidRequest {\n-                reason: \"管理路径不能是空路径\".to_string(),\n-            })\n+        Ok(\"xyzzy\") /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn parent(&self) -> Option<Self> {\n         (self.segments.len() > 1).then(|| {\n             let segments = self.segments[..self.segments.len() - 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::leaf",
+      "return_type": "-> Result<&str>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 63
+        },
+        "start": {
+          "column": 5,
+          "line": 56
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:57:9: replace ManagedRelPath::leaf -> Result<&str> with Ok(\"xyzzy\")",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\")",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 62
+      },
+      "start": {
+        "column": 9,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::parent -> Option<Self> with None\n@@ -58,23 +58,17 @@\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n-        (self.segments.len() > 1).then(|| {\n-            let segments = self.segments[..self.segments.len() - 1].to_vec();\n-            Self {\n-                value: segments.join(\"/\"),\n-                segments,\n-            }\n-        })\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// 根目录句柄锚定的管理文件系统。根内路径只按目录句柄逐段解析。\n #[derive(Debug)]\n pub struct ManagedFs {\n     root: AbsPath,\n     root_dir: std::fs::File,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:66:9: replace ManagedRelPath::parent -> Option<Self> with None",
+    "package": "sheltie-runtime",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 72
+      },
+      "start": {
+        "column": 9,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedRelPath::parent -> Option<Self> with Some(Default::default())\n@@ -58,23 +58,17 @@\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n-        (self.segments.len() > 1).then(|| {\n-            let segments = self.segments[..self.segments.len() - 1].to_vec();\n-            Self {\n-                value: segments.join(\"/\"),\n-                segments,\n-            }\n-        })\n+        Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// 根目录句柄锚定的管理文件系统。根内路径只按目录句柄逐段解析。\n #[derive(Debug)]\n pub struct ManagedFs {\n     root: AbsPath,\n     root_dir: std::fs::File,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:66:9: replace ManagedRelPath::parent -> Option<Self> with Some(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 72
+      },
+      "start": {
+        "column": 9,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace > with == in ManagedRelPath::parent\n@@ -58,17 +58,17 @@\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n-        (self.segments.len() > 1).then(|| {\n+        (self.segments.len() == /* ~ changed by cargo-mutants ~ */ 1).then(|| {\n             let segments = self.segments[..self.segments.len() - 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n             }\n         })\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:66:30: replace > with == in ManagedRelPath::parent",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 66
+      },
+      "start": {
+        "column": 30,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace > with < in ManagedRelPath::parent\n@@ -58,17 +58,17 @@\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n-        (self.segments.len() > 1).then(|| {\n+        (self.segments.len() < /* ~ changed by cargo-mutants ~ */ 1).then(|| {\n             let segments = self.segments[..self.segments.len() - 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n             }\n         })\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:66:30: replace > with < in ManagedRelPath::parent",
+    "package": "sheltie-runtime",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 66
+      },
+      "start": {
+        "column": 30,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace > with >= in ManagedRelPath::parent\n@@ -58,17 +58,17 @@\n             .last()\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n-        (self.segments.len() > 1).then(|| {\n+        (self.segments.len() >= /* ~ changed by cargo-mutants ~ */ 1).then(|| {\n             let segments = self.segments[..self.segments.len() - 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n             }\n         })\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent",
+    "package": "sheltie-runtime",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 66
+      },
+      "start": {
+        "column": 30,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace - with + in ManagedRelPath::parent\n@@ -59,17 +59,17 @@\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n         (self.segments.len() > 1).then(|| {\n-            let segments = self.segments[..self.segments.len() - 1].to_vec();\n+            let segments = self.segments[..self.segments.len() + /* ~ changed by cargo-mutants ~ */ 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n             }\n         })\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:67:64: replace - with + in ManagedRelPath::parent",
+    "package": "sheltie-runtime",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 67
+      },
+      "start": {
+        "column": 64,
+        "line": 67
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace - with / in ManagedRelPath::parent\n@@ -59,17 +59,17 @@\n             .map(String::as_str)\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: \"管理路径不能是空路径\".to_string(),\n             })\n     }\n \n     fn parent(&self) -> Option<Self> {\n         (self.segments.len() > 1).then(|| {\n-            let segments = self.segments[..self.segments.len() - 1].to_vec();\n+            let segments = self.segments[..self.segments.len() / /* ~ changed by cargo-mutants ~ */ 1].to_vec();\n             Self {\n                 value: segments.join(\"/\"),\n                 segments,\n             }\n         })\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedRelPath::parent",
+      "return_type": "-> Option<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 73
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:67:64: replace - with / in ManagedRelPath::parent",
+    "package": "sheltie-runtime",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 67
+      },
+      "start": {
+        "column": 64,
+        "line": 67
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::path -> &ManagedRelPath with Box::leak(Box::new(Default::default()))\n@@ -110,17 +110,17 @@\n     file: std::fs::File,\n     root: AbsPath,\n     root_ident: (u64, u64),\n     path: ManagedRelPath,\n }\n \n impl ManagedDir {\n     pub fn path(&self) -> &ManagedRelPath {\n-        &self.path\n+        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::path",
+      "return_type": "-> &ManagedRelPath",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 119
+        },
+        "start": {
+          "column": 5,
+          "line": 117
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:118:9: replace ManagedDir::path -> &ManagedRelPath with Box::leak(Box::new(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 118
+      },
+      "start": {
+        "column": 9,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::write_new -> Result<()> with Ok(())\n@@ -114,30 +114,17 @@\n }\n \n impl ManagedDir {\n     pub fn path(&self) -> &ManagedRelPath {\n         &self.path\n     }\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n-        self.check_lock(lock)?;\n-        let leaf = self.leaf(leaf)?;\n-        let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n-        let fd = openat(\n-            &self.file,\n-            &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n-            Mode::from_raw_mode(0o600),\n-        )\n-        .map_err(|e| map_fs_error(&display, e))?;\n-        let mut file = std::fs::File::from(fd);\n-        file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n-        file.sync_all().map_err(|e| Error::io(&display, e))?;\n-        fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn rename_new(&self, lock: &crate::home::HomeLock, from: &str, to: &str) -> Result<()> {\n         self.check_lock(lock)?;\n         let from = self.leaf(from)?;\n         let to = self.leaf(to)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), to);\n         check_rename_source(&self.file, &from, &display)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:122:9: replace ManagedDir::write_new -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 135
+      },
+      "start": {
+        "column": 9,
+        "line": 122
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW & /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with & in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 80,
+        "line": 128
+      },
+      "start": {
+        "column": 79,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW ^ /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:79: replace | with ^ in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 80,
+        "line": 128
+      },
+      "start": {
+        "column": 79,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL & /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:60: replace | with & in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 128
+      },
+      "start": {
+        "column": 60,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL ^ /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:60: replace | with ^ in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 128
+      },
+      "start": {
+        "column": 60,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE & /* ~ changed by cargo-mutants ~ */ OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:45: replace | with & in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 128
+      },
+      "start": {
+        "column": 45,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY | OFlags::CREATE ^ /* ~ changed by cargo-mutants ~ */ OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:45: replace | with ^ in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 128
+      },
+      "start": {
+        "column": 45,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY & /* ~ changed by cargo-mutants ~ */ OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:28: replace | with & in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 128
+      },
+      "start": {
+        "column": 28,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedDir::write_new\n@@ -120,17 +120,17 @@\n \n     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {\n         self.check_lock(lock)?;\n         let leaf = self.leaf(leaf)?;\n         let display = format!(\"{}/{}\", self.path.as_str(), leaf);\n         let fd = openat(\n             &self.file,\n             &leaf,\n-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::WRONLY ^ /* ~ changed by cargo-mutants ~ */ OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 136
+        },
+        "start": {
+          "column": 5,
+          "line": 121
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:128:28: replace | with ^ in ManagedDir::write_new",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 128
+      },
+      "start": {
+        "column": 28,
+        "line": 128
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::rename_new -> Result<()> with Ok(())\n@@ -131,24 +131,17 @@\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;\n         file.sync_all().map_err(|e| Error::io(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n \n     pub fn rename_new(&self, lock: &crate::home::HomeLock, from: &str, to: &str) -> Result<()> {\n-        self.check_lock(lock)?;\n-        let from = self.leaf(from)?;\n-        let to = self.leaf(to)?;\n-        let display = format!(\"{}/{}\", self.path.as_str(), to);\n-        check_rename_source(&self.file, &from, &display)?;\n-        renameat_with(&self.file, &from, &self.file, &to, RenameFlags::NOREPLACE)\n-            .map_err(|e| map_fs_error(&display, e))?;\n-        fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn leaf(&self, value: &str) -> Result<String> {\n         let path = ManagedRelPath::new(value)?;\n         if path.segments.len() != 1 {\n             return Err(Error::InvalidRequest {\n                 reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n             });\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::rename_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 147
+        },
+        "start": {
+          "column": 5,
+          "line": 138
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:139:9: replace ManagedDir::rename_new -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 146
+      },
+      "start": {
+        "column": 9,
+        "line": 139
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::leaf -> Result<String> with Ok(String::new())\n@@ -142,23 +142,17 @@\n         let display = format!(\"{}/{}\", self.path.as_str(), to);\n         check_rename_source(&self.file, &from, &display)?;\n         renameat_with(&self.file, &from, &self.file, &to, RenameFlags::NOREPLACE)\n             .map_err(|e| map_fs_error(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n \n     fn leaf(&self, value: &str) -> Result<String> {\n-        let path = ManagedRelPath::new(value)?;\n-        if path.segments.len() != 1 {\n-            return Err(Error::InvalidRequest {\n-                reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n-            });\n-        }\n-        Ok(path.value)\n+        Ok(String::new()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {\n         if !lock.matches_root(&self.root, self.root_ident) {\n             return Err(Error::InvalidRequest {\n                 reason: \"写锁与目录句柄的管理根不是同一对象\".to_string(),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::leaf",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 157
+        },
+        "start": {
+          "column": 5,
+          "line": 149
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:150:9: replace ManagedDir::leaf -> Result<String> with Ok(String::new())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(String::new())",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 156
+      },
+      "start": {
+        "column": 9,
+        "line": 150
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::leaf -> Result<String> with Ok(\"xyzzy\".into())\n@@ -142,23 +142,17 @@\n         let display = format!(\"{}/{}\", self.path.as_str(), to);\n         check_rename_source(&self.file, &from, &display)?;\n         renameat_with(&self.file, &from, &self.file, &to, RenameFlags::NOREPLACE)\n             .map_err(|e| map_fs_error(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n \n     fn leaf(&self, value: &str) -> Result<String> {\n-        let path = ManagedRelPath::new(value)?;\n-        if path.segments.len() != 1 {\n-            return Err(Error::InvalidRequest {\n-                reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n-            });\n-        }\n-        Ok(path.value)\n+        Ok(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {\n         if !lock.matches_root(&self.root, self.root_ident) {\n             return Err(Error::InvalidRequest {\n                 reason: \"写锁与目录句柄的管理根不是同一对象\".to_string(),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::leaf",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 157
+        },
+        "start": {
+          "column": 5,
+          "line": 149
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:150:9: replace ManagedDir::leaf -> Result<String> with Ok(\"xyzzy\".into())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(\"xyzzy\".into())",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 156
+      },
+      "start": {
+        "column": 9,
+        "line": 150
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedDir::leaf\n@@ -143,17 +143,17 @@\n         check_rename_source(&self.file, &from, &display)?;\n         renameat_with(&self.file, &from, &self.file, &to, RenameFlags::NOREPLACE)\n             .map_err(|e| map_fs_error(&display, e))?;\n         fsync(&self.file).map_err(|e| map_fs_error(&display, e))\n     }\n \n     fn leaf(&self, value: &str) -> Result<String> {\n         let path = ManagedRelPath::new(value)?;\n-        if path.segments.len() != 1 {\n+        if path.segments.len() == /* ~ changed by cargo-mutants ~ */ 1 {\n             return Err(Error::InvalidRequest {\n                 reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n             });\n         }\n         Ok(path.value)\n     }\n \n     fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::leaf",
+      "return_type": "-> Result<String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 157
+        },
+        "start": {
+          "column": 5,
+          "line": 149
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:151:32: replace != with == in ManagedDir::leaf",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 151
+      },
+      "start": {
+        "column": 32,
+        "line": 151
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedDir::check_lock -> Result<()> with Ok(())\n@@ -152,22 +152,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n             });\n         }\n         Ok(path.value)\n     }\n \n     fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {\n-        if !lock.matches_root(&self.root, self.root_ident) {\n-            return Err(Error::InvalidRequest {\n-                reason: \"写锁与目录句柄的管理根不是同一对象\".to_string(),\n-            });\n-        }\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl ManagedFs {\n     /// 打开已存在的真实管理根。每一段都拒绝符号链接；Home.resolve已处理系统根别名。\n     pub fn open_existing(home: &crate::home::Home) -> Result<Self> {\n         Self::open_root(home.root())\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::check_lock",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 166
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:160:9: replace ManagedDir::check_lock -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 165
+      },
+      "start": {
+        "column": 9,
+        "line": 160
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete ! in ManagedDir::check_lock\n@@ -152,17 +152,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: \"ManagedDir操作只接受单个叶名称\".to_string(),\n             });\n         }\n         Ok(path.value)\n     }\n \n     fn check_lock(&self, lock: &crate::home::HomeLock) -> Result<()> {\n-        if !lock.matches_root(&self.root, self.root_ident) {\n+        if  /* ~ changed by cargo-mutants ~ */lock.matches_root(&self.root, self.root_ident) {\n             return Err(Error::InvalidRequest {\n                 reason: \"写锁与目录句柄的管理根不是同一对象\".to_string(),\n             });\n         }\n         Ok(())\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedDir::check_lock",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 166
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:160:12: delete ! in ManagedDir::check_lock",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 160
+      },
+      "start": {
+        "column": 12,
+        "line": 160
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::open_existing -> Result<Self> with Ok(Default::default())\n@@ -164,17 +164,17 @@\n         }\n         Ok(())\n     }\n }\n \n impl ManagedFs {\n     /// 打开已存在的真实管理根。每一段都拒绝符号链接；Home.resolve已处理系统根别名。\n     pub fn open_existing(home: &crate::home::Home) -> Result<Self> {\n-        Self::open_root(home.root())\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn open_root(root: &AbsPath) -> Result<Self> {\n         let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n         Self::traverse_root(root, slash, false)\n     }\n \n     pub(crate) fn create_root(root: &AbsPath) -> Result<Self> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::open_existing",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 173
+        },
+        "start": {
+          "column": 5,
+          "line": 170
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:172:9: replace ManagedFs::open_existing -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 172
+      },
+      "start": {
+        "column": 9,
+        "line": 172
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::open_root -> Result<Self> with Ok(Default::default())\n@@ -168,18 +168,17 @@\n \n impl ManagedFs {\n     /// 打开已存在的真实管理根。每一段都拒绝符号链接；Home.resolve已处理系统根别名。\n     pub fn open_existing(home: &crate::home::Home) -> Result<Self> {\n         Self::open_root(home.root())\n     }\n \n     pub(crate) fn open_root(root: &AbsPath) -> Result<Self> {\n-        let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n-        Self::traverse_root(root, slash, false)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn create_root(root: &AbsPath) -> Result<Self> {\n         let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n         Self::traverse_root(root, slash, true)\n     }\n \n     fn traverse_root(root: &AbsPath, slash: std::fs::File, create_missing: bool) -> Result<Self> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::open_root",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 178
+        },
+        "start": {
+          "column": 5,
+          "line": 175
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:176:9: replace ManagedFs::open_root -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 48,
+        "line": 177
+      },
+      "start": {
+        "column": 9,
+        "line": 176
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::create_root -> Result<Self> with Ok(Default::default())\n@@ -173,18 +173,17 @@\n     }\n \n     pub(crate) fn open_root(root: &AbsPath) -> Result<Self> {\n         let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n         Self::traverse_root(root, slash, false)\n     }\n \n     pub(crate) fn create_root(root: &AbsPath) -> Result<Self> {\n-        let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n-        Self::traverse_root(root, slash, true)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn traverse_root(root: &AbsPath, slash: std::fs::File, create_missing: bool) -> Result<Self> {\n         if root.as_str().as_bytes().contains(&0) {\n             return Err(Error::InvalidRequest {\n                 reason: \"管理根不能包含NUL\".to_string(),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::create_root",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 183
+        },
+        "start": {
+          "column": 5,
+          "line": 180
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:181:9: replace ManagedFs::create_root -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 182
+      },
+      "start": {
+        "column": 9,
+        "line": 181
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::traverse_root -> Result<Self> with Ok(Default::default())\n@@ -178,73 +178,17 @@\n     }\n \n     pub(crate) fn create_root(root: &AbsPath) -> Result<Self> {\n         let slash = std::fs::File::open(\"/\").map_err(|e| Error::io(\"/\", e))?;\n         Self::traverse_root(root, slash, true)\n     }\n \n     fn traverse_root(root: &AbsPath, slash: std::fs::File, create_missing: bool) -> Result<Self> {\n-        if root.as_str().as_bytes().contains(&0) {\n-            return Err(Error::InvalidRequest {\n-                reason: \"管理根不能包含NUL\".to_string(),\n-            });\n-        }\n-        let mut current = slash;\n-        let absolute = root.as_str().trim_start_matches('/');\n-        let mut path_segments = Vec::new();\n-        for segment in absolute.split('/') {\n-            if segment.is_empty() {\n-                continue;\n-            }\n-            if segment == \".\" || segment == \"..\" {\n-                return Err(Error::InvalidRequest {\n-                    reason: format!(\"管理根包含未规范化路径段 {segment}\"),\n-                });\n-            }\n-            path_segments.push(segment.to_string());\n-            let display = format!(\"/{}\", path_segments.join(\"/\"));\n-            let next = match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {\n-                Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {\n-                    return Err(Error::InvalidRequest {\n-                        reason: format!(\"管理根段 {display} 是符号链接\"),\n-                    });\n-                }\n-                Ok(stat) if FileType::from_raw_mode(stat.st_mode) != FileType::Directory => {\n-                    return Err(Error::InvalidRequest {\n-                        reason: format!(\"管理根段 {display} 不是目录\"),\n-                    });\n-                }\n-                Ok(_) => open_directory_at(&current, segment, &display)?,\n-                Err(rustix::io::Errno::NOENT) if create_missing => {\n-                    match mkdirat(&current, segment, Mode::from_raw_mode(0o700)) {\n-                        Ok(()) | Err(rustix::io::Errno::EXIST) => {\n-                            fsync(&current).map_err(|e| map_fs_error(&display, e))?;\n-                        }\n-                        Err(error) => return Err(map_fs_error(&display, error)),\n-                    }\n-                    open_directory_at(&current, segment, &display)?\n-                }\n-                Err(error) => return Err(map_fs_error(&display, error)),\n-            };\n-            current = next;\n-        }\n-        let meta = current\n-            .metadata()\n-            .map_err(|e| Error::io(root.as_str(), e))?;\n-        if !meta.is_dir() {\n-            return Err(Error::InvalidRequest {\n-                reason: format!(\"管理根 {root} 不是目录\"),\n-            });\n-        }\n-        Ok(Self {\n-            root: root.clone(),\n-            root_ident: (meta.dev(), meta.ino()),\n-            root_dir: current,\n-        })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn root(&self) -> &AbsPath {\n         &self.root\n     }\n \n     pub(crate) fn open_lock_file(&self) -> Result<std::fs::File> {\n         let lock_path = self.root.join_segment(\".lock\");\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::traverse_root",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 243
+        },
+        "start": {
+          "column": 5,
+          "line": 185
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:186:9: replace ManagedFs::traverse_root -> Result<Self> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 242
+      },
+      "start": {
+        "column": 9,
+        "line": 186
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::traverse_root\n@@ -190,17 +190,17 @@\n         }\n         let mut current = slash;\n         let absolute = root.as_str().trim_start_matches('/');\n         let mut path_segments = Vec::new();\n         for segment in absolute.split('/') {\n             if segment.is_empty() {\n                 continue;\n             }\n-            if segment == \".\" || segment == \"..\" {\n+            if segment == \".\" && /* ~ changed by cargo-mutants ~ */ segment == \"..\" {\n                 return Err(Error::InvalidRequest {\n                     reason: format!(\"管理根包含未规范化路径段 {segment}\"),\n                 });\n             }\n             path_segments.push(segment.to_string());\n             let display = format!(\"/{}\", path_segments.join(\"/\"));\n             let next = match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {\n                 Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::traverse_root",
+      "return_type": "-> Result<Self>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 243
+        },
+        "start": {
+          "column": 5,
+          "line": 185
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 198
+      },
+      "start": {
+        "column": 31,
+        "line": 198
+      }
+    }
+  }
+]

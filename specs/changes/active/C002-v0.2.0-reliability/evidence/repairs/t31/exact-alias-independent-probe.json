@@ -1,0 +1,161 @@
+{
+  "binary": "/private/tmp/sheltie-m1-spec-alias-uoj0wrap/sheltie-fixed",
+  "binary_sha256": "217e1d4439b276807355c179b6ceb940cc8d08b0994c75a458b01d02558c0029",
+  "source_binary": "/private/tmp/sheltie-c002-t28-target/debug/sheltie",
+  "binary_note": "Provided target may contain public NodeDef::requires getter negative control; no internal consumer, two-step declares no requires; alias/file boundary source unchanged.",
+  "source_alias_same_inode": true,
+  "source_bytes": "same utf8 bytes\n",
+  "source_mode": 416,
+  "results": [
+    {
+      "kind": "exact_tmp",
+      "path": "/tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt",
+      "response": {
+        "exit": 2,
+        "stdout": "{\"error\":{\"code\":\"INVALID_REQUEST\",\"detail\":{\"path\":\"/tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt\",\"reason\":\"管理根段 /tmp 是符号链接\"},\"message\":\"读不了输入文件 /tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt：管理根段 /tmp 是符号链接\"},\"next\":[],\"ok\":false}\n",
+        "stderr": "",
+        "json": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "detail": {
+              "path": "/tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt",
+              "reason": "管理根段 /tmp 是符号链接"
+            },
+            "message": "读不了输入文件 /tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt：管理根段 /tmp 是符号链接"
+          },
+          "next": [],
+          "ok": false
+        }
+      },
+      "counts": {
+        "works": 0,
+        "requests": 0,
+        "sequence": 0
+      }
+    },
+    {
+      "kind": "private_tmp",
+      "path": "/private/tmp/sheltie-alias-file-30826c0af231460b8df556b0b3fb6065.txt",
+      "response": {
+        "exit": 0,
+        "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-m1-spec-alias-uoj0wrap/private_tmp/home/works/2026-09-29-001-default\",\"work_id\":\"2026-09-29-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-09-29-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-29-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"alias-private_tmp\",\"revision\":1}\n",
+        "stderr": "",
+        "json": {
+          "data": {
+            "flow": "default",
+            "name": "default",
+            "replayed": false,
+            "requires": [],
+            "work_dir": "/private/tmp/sheltie-m1-spec-alias-uoj0wrap/private_tmp/home/works/2026-09-29-001-default",
+            "work_id": "2026-09-29-001-default",
+            "workbook": {
+              "digest": "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+              "id": "two-step",
+              "version": "1.0.0"
+            }
+          },
+          "next": [
+            {
+              "args": {
+                "node": "outline",
+                "work": "2026-09-29-001-default"
+              },
+              "executor": "agent",
+              "op": "attempt begin",
+              "tier": "standard"
+            },
+            {
+              "args": {
+                "work": "2026-09-29-001-default"
+              },
+              "op": "work cancel"
+            }
+          ],
+          "ok": true,
+          "request_id": "alias-private_tmp",
+          "revision": 1
+        }
+      },
+      "counts": {
+        "works": 1,
+        "requests": 1,
+        "sequence": 1
+      }
+    },
+    {
+      "kind": "tmp_sub",
+      "path": "/tmp/sheltie-m1-spec-alias-uoj0wrap/sub/source.txt",
+      "response": {
+        "exit": 0,
+        "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-m1-spec-alias-uoj0wrap/tmp_sub/home/works/2026-09-29-001-default\",\"work_id\":\"2026-09-29-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-09-29-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-09-29-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"alias-tmp_sub\",\"revision\":1}\n",
+        "stderr": "",
+        "json": {
+          "data": {
+            "flow": "default",
+            "name": "default",
+            "replayed": false,
+            "requires": [],
+            "work_dir": "/private/tmp/sheltie-m1-spec-alias-uoj0wrap/tmp_sub/home/works/2026-09-29-001-default",
+            "work_id": "2026-09-29-001-default",
+            "workbook": {
+              "digest": "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+              "id": "two-step",
+              "version": "1.0.0"
+            }
+          },
+          "next": [
+            {
+              "args": {
+                "node": "outline",
+                "work": "2026-09-29-001-default"
+              },
+              "executor": "agent",
+              "op": "attempt begin",
+              "tier": "standard"
+            },
+            {
+              "args": {
+                "work": "2026-09-29-001-default"
+              },
+              "op": "work cancel"
+            }
+          ],
+          "ok": true,
+          "request_id": "alias-tmp_sub",
+          "revision": 1
+        }
+      },
+      "counts": {
+        "works": 1,
+        "requests": 1,
+        "sequence": 1
+      }
+    },
+    {
+      "kind": "non_system_alias",
+      "path": "/private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias/source.txt",
+      "response": {
+        "exit": 2,
+        "stdout": "{\"error\":{\"code\":\"INVALID_REQUEST\",\"detail\":{\"path\":\"/private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias/source.txt\",\"reason\":\"管理根段 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias 是符号链接\"},\"message\":\"读不了输入文件 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias/source.txt：管理根段 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias 是符号链接\"},\"next\":[],\"ok\":false}\n",
+        "stderr": "",
+        "json": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "detail": {
+              "path": "/private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias/source.txt",
+              "reason": "管理根段 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias 是符号链接"
+            },
+            "message": "读不了输入文件 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias/source.txt：管理根段 /private/tmp/sheltie-m1-spec-alias-uoj0wrap/fake-alias 是符号链接"
+          },
+          "next": [],
+          "ok": false
+        }
+      },
+      "counts": {
+        "works": 0,
+        "requests": 0,
+        "sequence": 0
+      }
+    }
+  ]
+}

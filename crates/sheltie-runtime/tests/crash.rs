@@ -2,8 +2,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::*;
+#[cfg(feature = "failpoint")]
 use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::NodeId;
+#[cfg(feature = "failpoint")]
 use sheltie_runtime::{Error, WorkbookRepo};
 
 // Task: T23

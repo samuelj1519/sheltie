@@ -1,0 +1,29 @@
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.54s
+────────────
+ Nextest run ID 172d76ee-00b5-4484-8824-5f730406a893 with nextest profile: default
+    Starting 1 test across 35 binaries (638 tests skipped)
+        FAIL [   1.667s] (1/1) sheltie-cli::reliability_crash committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot
+  stdout ───
+
+    running 1 test
+    test committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot ... FAILED
+
+    failures:
+
+    failures:
+        committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 1.66s
+
+  stderr ───
+
+    thread 'committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot' (68415319) panicked at crates/sheltie-cli/tests/common/mod.rs:59:9:
+    命令意外成功：["--request-id", "t31-history-brief-dangling-symlink", "attempt", "begin", "2026-09-29-001-default", "--node", "outline"]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   1.668s] 1 test run: 0 passed, 1 failed, 638 skipped
+        FAIL [   1.667s] (1/1) sheltie-cli::reliability_crash committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot
+error: test run failed

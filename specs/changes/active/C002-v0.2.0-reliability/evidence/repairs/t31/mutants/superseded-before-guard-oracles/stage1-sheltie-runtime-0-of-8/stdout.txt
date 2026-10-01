@@ -1,0 +1,67 @@
+Found 223 mutants to test
+ok       Unmutated baseline in 21s build + 20s test
+MISSED   crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects in 22s build + 34s test
+MISSED   crates/sheltie-runtime/src/effects.rs:290:56: replace match guard work_id == work with true in check_work_effects in 36s build + 97s test
+MISSED   crates/sheltie-runtime/src/effects.rs:151:21: replace || with && in check_work_effects in 19s build + 103s test
+MISSED   crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects in 18s build + 92s test
+MISSED   crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects in 28s build + 84s test
+MISSED   crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects in 10s build + 111s test
+MISSED   crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects in 10s build + 112s test
+MISSED   crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects in 15s build + 108s test
+MISSED   crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects in 10s build + 109s test
+MISSED   crates/sheltie-runtime/src/effects.rs:173:33: replace || with && in check_work_effects in 9s build + 68s test
+MISSED   crates/sheltie-runtime/src/effects.rs:180:21: replace || with && in check_work_effects in 9s build + 67s test
+MISSED   crates/sheltie-runtime/src/effects.rs:219:21: replace || with && in check_work_effects in 9s build + 81s test
+MISSED   crates/sheltie-runtime/src/effects.rs:281:21: replace || with && in check_work_effects in 9s build + 94s test
+MISSED   crates/sheltie-runtime/src/effects.rs:280:21: replace || with && in check_work_effects in 11s build + 92s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:45: replace && with || in validate_effect_shape in 14s build + 89s test
+MISSED   crates/sheltie-runtime/src/effects.rs:364:29: replace && with || in validate_effect_shape in 17s build + 87s test
+MISSED   crates/sheltie-runtime/src/effects.rs:374:17: replace && with || in validate_effect_shape in 14s build + 85s test
+MISSED   crates/sheltie-runtime/src/effects.rs:412:57: replace || with && in check_workbook_effects in 14s build + 78s test
+MISSED   crates/sheltie-runtime/src/effects.rs:412:34: replace || with && in check_workbook_effects in 17s build + 75s test
+MISSED   crates/sheltie-runtime/src/effects.rs:447:17: replace || with && in check_workbook_effects in 9s build + 168s test
+MISSED   crates/sheltie-runtime/src/effects.rs:446:17: replace || with && in check_workbook_effects in 10s build + 174s test
+MISSED   crates/sheltie-runtime/src/effects.rs:444:17: replace || with && in check_workbook_effects in 12s build + 173s test
+MISSED   crates/sheltie-runtime/src/effects.rs:445:17: replace || with && in check_workbook_effects in 13s build + 172s test
+MISSED   crates/sheltie-runtime/src/effects.rs:443:16: replace || with && in check_workbook_effects in 16s build + 172s test
+MISSED   crates/sheltie-runtime/src/effects.rs:442:21: replace || with && in check_workbook_effects in 18s build + 172s test
+MISSED   crates/sheltie-runtime/src/effects.rs:441:21: replace || with && in check_workbook_effects in 29s build + 89s test
+MISSED   crates/sheltie-runtime/src/effects.rs:440:21: replace || with && in check_workbook_effects in 27s build + 84s test
+MISSED   crates/sheltie-runtime/src/effects.rs:439:21: replace || with && in check_workbook_effects in 14s build + 75s test
+MISSED   crates/sheltie-runtime/src/effects.rs:470:17: replace || with && in check_workbook_effects in 9s build + 72s test
+MISSED   crates/sheltie-runtime/src/effects.rs:493:5: replace validate_pending_payload -> Result<()> with Ok(()) in 10s build + 119s test
+MISSED   crates/sheltie-runtime/src/effects.rs:497:9: replace || with && in validate_pending_payload in 12s build + 118s test
+MISSED   crates/sheltie-runtime/src/effects.rs:496:9: replace || with && in validate_pending_payload in 14s build + 117s test
+MISSED   crates/sheltie-runtime/src/effects.rs:495:9: replace || with && in validate_pending_payload in 17s build + 115s test
+MISSED   crates/sheltie-runtime/src/effects.rs:510:5: replace validate_workbook_identity -> Result<()> with Ok(()) in 26s build + 92s test
+MISSED   crates/sheltie-runtime/src/effects.rs:774:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error in 11s build + 39s test
+MISSED   crates/sheltie-runtime/src/effects.rs:929:23: replace || with && in verify_publish_final_state in 7s build + 127s test
+MISSED   crates/sheltie-runtime/src/effects.rs:927:5: replace verify_publish_final_state -> Result<()> with Ok(()) in 11s build + 129s test
+MISSED   crates/sheltie-runtime/src/effects.rs:965:9: replace || with && in verify_publish_object in 16s build + 121s test
+MISSED   crates/sheltie-runtime/src/effects.rs:995:45: replace || with && in verify_start_input_references in 17s build + 66s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1022:5: replace verify_owned_digest -> Result<()> with Ok(()) in 8s build + 85s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1068:13: replace || with && in delete_dir in 15s build + 88s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1061:27: replace || with && in delete_dir in 20s build + 85s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1081:8: delete ! in delete_dir in 12s build + 110s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1127:9: replace || with && in delete_dir in 12s build + 139s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1118:9: replace || with && in delete_dir in 14s build + 139s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1141:9: replace || with && in pending_internal_id in 21s build + 128s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1140:9: replace || with && in pending_internal_id in 22s build + 126s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1139:9: replace || with && in pending_internal_id in 22s build + 86s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1214:46: replace || with && in validate_deleted_marker_file in 8s build + 71s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1263:5: replace valid_digest -> bool with true in 20s build + 48s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:13:5: replace maybe_exit with () in 14s build + 101s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(()) in 12s build + 100s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(()) in 15s build + 93s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:144:5: replace cleanup_error -> std::io::Result<()> with Ok(()) in 10s build + 87s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:171:42: replace && with || in rendezvous in 10s build + 85s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:171:34: replace == with != in rendezvous in 7s build + 66s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:171:59: replace == with != in rendezvous in 9s build + 73s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent in 14s build + 113s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:79: replace | with & in ManagedDir::write_new in 12s build + 145s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:79: replace | with ^ in ManagedDir::write_new in 13s build + 147s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:60: replace | with & in ManagedDir::write_new in 14s build + 146s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:60: replace | with ^ in ManagedDir::write_new in 15s build + 144s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:45: replace | with ^ in ManagedDir::write_new in 25s build + 127s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:28: replace | with ^ in ManagedDir::write_new in 24s build + 45s test
+223 mutants tested in 40m: 64 missed, 146 caught, 13 unviable

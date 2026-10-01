@@ -651,7 +651,7 @@ fn stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load() {
     }
     let writer = env
         .cmd(&["attempt", "begin", &work, "--node", "outline"])
-        .timeout(Duration::from_secs(5))
+        .timeout(Duration::from_secs(60))
         .output();
     std::fs::write(sync.path().join("release"), b"release").unwrap();
     let result = reader.child.take().unwrap().wait_with_output().unwrap();

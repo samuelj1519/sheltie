@@ -1,0 +1,31 @@
+   Compiling sheltie-core v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.78s
+────────────
+ Nextest run ID c5cbe8aa-d822-471b-8ad7-23cbfd4e6a66 with nextest profile: default
+    Starting 1 test across 36 binaries (646 tests skipped)
+        FAIL [   0.019s] (1/1) sheltie-core::persisted_contracts each_blocking_command_rejects_counter_overflow_without_mutating_its_input
+  stdout ───
+
+    running 1 test
+    test each_blocking_command_rejects_counter_overflow_without_mutating_its_input ... FAILED
+
+    failures:
+
+    failures:
+        each_blocking_command_rejects_counter_overflow_without_mutating_its_input
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'each_blocking_command_rejects_counter_overflow_without_mutating_its_input' (72971561) panicked at crates/sheltie-core/src/work/decide.rs:73:5:
+    attempt to add with overflow
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   0.020s] 1 test run: 0 passed, 1 failed, 646 skipped
+        FAIL [   0.019s] (1/1) sheltie-core::persisted_contracts each_blocking_command_rejects_counter_overflow_without_mutating_its_input
+error: test run failed

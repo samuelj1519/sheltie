@@ -1,0 +1,23 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 17s build + 20s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:60: replace | with ^ in ManagedFs::write_atomic_unlocked in 3s build + 31s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:79: replace | with ^ in ManagedFs::write_atomic_unlocked in 51s build + 112s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:79: replace | with & in ManagedFs::write_atomic_unlocked in 54s build + 118s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:60: replace | with & in ManagedFs::write_atomic_unlocked in 61s build + 120s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:45: replace | with ^ in ManagedFs::write_atomic_unlocked in 15s build + 116s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:925:28: replace | with ^ in ManagedFs::write_atomic_unlocked in 17s build + 111s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:964:37: replace || with && in ManagedFs::rename_verified_new in 12s build + 80s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1012:37: replace || with && in ManagedFs::replace_verified_regular_file in 14s build + 86s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1044:13: replace || with && in ManagedFs::replace_verified_regular_file in 17s build + 84s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1043:13: replace || with && in ManagedFs::replace_verified_regular_file in 10s build + 99s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1113:13: replace || with && in ManagedFs::replace_regular_file in 15s build + 110s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1112:13: replace || with && in ManagedFs::replace_regular_file in 14s build + 111s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1111:13: replace || with && in ManagedFs::replace_regular_file in 15s build + 114s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1110:13: replace || with && in ManagedFs::replace_regular_file in 15s build + 140s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1109:13: replace || with && in ManagedFs::replace_regular_file in 18s build + 136s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1108:13: replace || with && in ManagedFs::replace_regular_file in 18s build + 131s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1107:13: replace || with && in ManagedFs::replace_regular_file in 23s build + 124s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1177:77: replace || with && in ManagedFs::remove_regular_file_if_same in 6s build + 75s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1177:37: replace || with && in ManagedFs::remove_regular_file_if_same in 9s build + 109s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1338:33: replace match guard (stat.st_dev as u64, stat.st_ino) == locked_ident with true in ManagedFs::purge_contents in 12s build + 45s test
+78 mutants tested in 15m: 20 missed, 58 caught

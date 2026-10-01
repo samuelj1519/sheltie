@@ -373,13 +373,44 @@ fn allocate_seq_is_not_reused_after_failed_start() {
 fn allocate_seq_rejects_1000th_of_day() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
-    for _ in 0..999 {
-        store.allocate_seq("2026-09-24").unwrap();
-    }
+    // Replacement: C002-T31；历史T13完成事实保留，合法边界夹具加强接受与回滚oracle。
+    let connection = rusqlite::Connection::open(store.path().as_str()).unwrap();
+    connection
+        .execute(
+            "INSERT INTO work_sequence (day,last) VALUES ('2026-09-24',997)",
+            [],
+        )
+        .unwrap();
+    assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 998);
+    assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 999);
     assert!(matches!(
         store.allocate_seq("2026-09-24"),
         Err(Error::InvalidRequest { .. })
     ));
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT last FROM work_sequence WHERE day='2026-09-24'",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        999
+    );
+}
+
+// Task: C002-T31
+#[test]
+fn readonly_connections_keep_checkpoint_on_close_disabled() {
+    let (_dir, home) = temp_home();
+    drop(open_rw(&home));
+    let store = Store::open_for_home(&home, OpenMode::ReadOnly).unwrap();
+    let connection = store.connect().unwrap();
+    assert!(
+        connection
+            .db_config(rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE)
+            .unwrap()
+    );
 }
 
 // Task: T13

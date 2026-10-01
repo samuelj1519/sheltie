@@ -1,0 +1,634 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.288465125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-core@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.6322475,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-core@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:201:9: replace NodeDef::inputs -> &[InputDecl] with Vec::leak(vec![Default::default()])",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::inputs",
+            "return_type": "-> &[InputDecl]",
+            "span": {
+              "start": {
+                "line": 200,
+                "column": 5
+              },
+              "end": {
+                "line": 202,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 201,
+              "column": 9
+            },
+            "end": {
+              "line": 201,
+              "column": 21
+            }
+          },
+          "replacement": "Vec::leak(vec![Default::default()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_201_col_9.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_201_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.360791541,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:205:9: replace NodeDef::requires -> &[(RequireKind, String)] with Vec::leak(vec![(Default::default(), \"xyzzy\".into())])",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::requires",
+            "return_type": "-> &[(RequireKind, String)]",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 206,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 205,
+              "column": 9
+            },
+            "end": {
+              "line": 205,
+              "column": 23
+            }
+          },
+          "replacement": "Vec::leak(vec![(Default::default(), \"xyzzy\".into())])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_205_col_9_002.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_205_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.8626245,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:205:9: replace NodeDef::requires -> &[(RequireKind, String)] with Vec::leak(vec![(Default::default(), String::new())])",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::requires",
+            "return_type": "-> &[(RequireKind, String)]",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 206,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 205,
+              "column": 9
+            },
+            "end": {
+              "line": 205,
+              "column": 23
+            }
+          },
+          "replacement": "Vec::leak(vec![(Default::default(), String::new())])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_205_col_9.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_205_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.191525959,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:220:9: replace NodeDef::output -> Option<&OutputDecl> with Some(Box::leak(Box::new(Default::default())))",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::output",
+            "return_type": "-> Option<&OutputDecl>",
+            "span": {
+              "start": {
+                "line": 219,
+                "column": 5
+              },
+              "end": {
+                "line": 221,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 220,
+              "column": 9
+            },
+            "end": {
+              "line": 220,
+              "column": 53
+            }
+          },
+          "replacement": "Some(Box::leak(Box::new(Default::default())))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_220_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_220_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.661590792,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:246:9: replace FlowDef::id -> &FlowId with Box::leak(Box::new(Default::default()))",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "FlowDef::id",
+            "return_type": "-> &FlowId",
+            "span": {
+              "start": {
+                "line": 245,
+                "column": 5
+              },
+              "end": {
+                "line": 247,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 246,
+              "column": 9
+            },
+            "end": {
+              "line": 246,
+              "column": 17
+            }
+          },
+          "replacement": "Box::leak(Box::new(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_246_col_9.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_246_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.965950041,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:250:9: replace FlowDef::entry -> &NodeId with Box::leak(Box::new(Default::default()))",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "FlowDef::entry",
+            "return_type": "-> &NodeId",
+            "span": {
+              "start": {
+                "line": 249,
+                "column": 5
+              },
+              "end": {
+                "line": 251,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 250,
+              "column": 9
+            },
+            "end": {
+              "line": 250,
+              "column": 20
+            }
+          },
+          "replacement": "Box::leak(Box::new(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_250_col_9.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_250_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.962703166,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:220:9: replace NodeDef::output -> Option<&OutputDecl> with None",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::output",
+            "return_type": "-> Option<&OutputDecl>",
+            "span": {
+              "start": {
+                "line": 219,
+                "column": 5
+              },
+              "end": {
+                "line": 221,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 220,
+              "column": 9
+            },
+            "end": {
+              "line": 220,
+              "column": 53
+            }
+          },
+          "replacement": "None",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_220_col_9.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_220_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.8956545,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.746255208000001,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:254:9: replace FlowDef::nodes -> &[NodeDef] with Vec::leak(vec![Default::default()])",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "FlowDef::nodes",
+            "return_type": "-> &[NodeDef]",
+            "span": {
+              "start": {
+                "line": 253,
+                "column": 5
+              },
+              "end": {
+                "line": 255,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 254,
+              "column": 9
+            },
+            "end": {
+              "line": 254,
+              "column": 20
+            }
+          },
+          "replacement": "Vec::leak(vec![Default::default()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_254_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_254_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.5843881250000003,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:220:45: replace == with != in NodeDef::output",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "NodeDef::output",
+            "return_type": "-> Option<&OutputDecl>",
+            "span": {
+              "start": {
+                "line": 219,
+                "column": 5
+              },
+              "end": {
+                "line": 221,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 220,
+              "column": 45
+            },
+            "end": {
+              "line": 220,
+              "column": 47
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_220_col_45.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_220_col_45.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 20.957899458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 19.559337334,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-core/src/flow/def.rs:258:9: replace FlowDef::edges -> &[EdgeDef] with Vec::leak(vec![Default::default()])",
+          "package": "sheltie-core",
+          "file": "crates/sheltie-core/src/flow/def.rs",
+          "function": {
+            "function_name": "FlowDef::edges",
+            "return_type": "-> &[EdgeDef]",
+            "span": {
+              "start": {
+                "line": 257,
+                "column": 5
+              },
+              "end": {
+                "line": 259,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 258,
+              "column": 9
+            },
+            "end": {
+              "line": 258,
+              "column": 20
+            }
+          },
+          "replacement": "Vec::leak(vec![Default::default()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-core__src__flow__def.rs_line_258_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-core__src__flow__def.rs_line_258_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.20218475,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--workspace",
+            "--all-features"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 10,
+  "missed": 0,
+  "caught": 2,
+  "timeout": 0,
+  "unviable": 8,
+  "success": 0,
+  "start_time": "2026-09-29T12:37:44.670682Z",
+  "end_time": null,
+  "cargo_mutants_version": "27.1.0"
+}

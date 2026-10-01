@@ -1,0 +1,2242 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace Store::commit -> Result<CommitOutcome> with Ok(Default::default())\n@@ -59,209 +59,11 @@\n     ///   若 expected_revision 有值：查 works.revision，不等 → ROLLBACK，RevisionConflict\n     ///   若 state 有值：UPDATE 或 INSERT works（revision + 1，status 列从 state 派生）\n     ///   INSERT audit（work_id 为 None 时用空串）\n     ///   INSERT requests\n     /// COMMIT\n     /// ```\n     /// 事务内不读文件、不算摘要。\n     pub fn commit(&self, input: CommitInput) -> Result<CommitOutcome> {\n-        if let Some(state) = &input.state {\n-            let id = input.work_id.as_ref().ok_or_else(|| Error::StoreCorrupt {\n-                detail: \"写入 WorkState 时缺 work_id\".to_string(),\n-            })?;\n-            if &state.work_id != id {\n-                return Err(Error::StoreCorrupt {\n-                    detail: format!(\n-                        \"写入目标 {id} 与 state_json.work_id {} 不一致\",\n-                        state.work_id\n-                    ),\n-                });\n-            }\n-            state\n-                .validate_persisted()\n-                .map_err(|detail| Error::StoreCorrupt {\n-                    detail: format!(\"写入 WorkState 不合法：{detail}\"),\n-                })?;\n-        }\n-        crate::failpoint::maybe_exit(\"before_commit\");\n-        let mut conn = self.connect()?;\n-        let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;\n-        let prior: Option<(String, String, String, bool)> = tx\n-            .query_row(\n-                \"SELECT intent_hash, reply_json, effects_json, published FROM requests WHERE request_id = ?1\",\n-                [&input.request_id],\n-                |r| {\n-                    Ok((\n-                        r.get(0)?,\n-                        r.get(1)?,\n-                        r.get(2)?,\n-                        r.get::<_, i64>(3)? != 0,\n-                    ))\n-                },\n-            )\n-            .optional()?;\n-        if let Some((hash, reply, effects, published)) = prior {\n-            // 两种命中都直接返回，事务在 drop 时回滚。\n-            if hash == input.intent_hash {\n-                return Ok(CommitOutcome::Replayed {\n-                    reply_json: reply,\n-                    effects_json: effects,\n-                    published,\n-                });\n-            }\n-            return Err(Error::RequestConflict {\n-                request_id: input.request_id,\n-            });\n-        }\n-        if let Some(expected) = input.expected_revision {\n-            let actual: Option<i64> = match &input.work_id {\n-                Some(id) => tx\n-                    .query_row(\n-                        \"SELECT revision FROM works WHERE work_id = ?1\",\n-                        [id.as_str()],\n-                        |r| r.get(0),\n-                    )\n-                    .optional()?,\n-                None => None,\n-            };\n-            let actual = match actual {\n-                Some(value) => u64::try_from(value)\n-                    .ok()\n-                    .filter(|revision| *revision > 0)\n-                    .ok_or_else(|| Error::StoreCorrupt {\n-                        detail: format!(\"Work revision {value} 不合法\"),\n-                    })?,\n-                None => 0,\n-            };\n-            if actual != expected {\n-                return Err(Error::RevisionConflict { expected, actual });\n-            }\n-        }\n-        // start（expected_revision 为 None）插入 revision 1；其他写操作在期望值上加一。\n-        let mut revision = 0u64;\n-        if let Some(state) = &input.state {\n-            revision = match input.expected_revision {\n-                None => 1,\n-                Some(previous) => previous.checked_add(1).ok_or_else(|| Error::StoreCorrupt {\n-                    detail: \"Work revision 无法安全递增\".to_string(),\n-                })?,\n-            };\n-            let db_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {\n-                detail: \"Work revision 超过 SQLite INTEGER 上限\".to_string(),\n-            })?;\n-            let state_json = serde_json::to_string(state).map_err(|e| Error::StoreCorrupt {\n-                detail: format!(\"序列化 WorkState 失败：{e}\"),\n-            })?;\n-            let work_id = input\n-                .work_id\n-                .as_ref()\n-                .map_or_else(String::new, |w| w.as_str().to_string());\n-            tx.execute(\n-                \"INSERT INTO works (work_id, revision, status, state_json, created_at, updated_at)\n-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)\n-                 ON CONFLICT(work_id) DO UPDATE SET\n-                   revision = excluded.revision,\n-                   status = excluded.status,\n-                   state_json = excluded.state_json,\n-                   updated_at = excluded.updated_at\",\n-                rusqlite::params![\n-                    work_id,\n-                    db_revision,\n-                    state.status.column(),\n-                    state_json,\n-                    state.created_at.as_str(),\n-                    state.updated_at.as_str(),\n-                ],\n-            )?;\n-        }\n-        if let Some(row) = &input.workbook_insert {\n-            tx.execute(\n-                \"INSERT INTO workbooks (id, version, digest, dir, added_at) VALUES (?1, ?2, ?3, ?4, ?5)\",\n-                rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],\n-            )\n-            .map_err(|e| match &e {\n-                rusqlite::Error::SqliteFailure(code, _)\n-                    if code.code == rusqlite::ErrorCode::ConstraintViolation =>\n-                {\n-                    Error::WorkbookExists {\n-                        id: row.id.clone(),\n-                        version: row.version.clone(),\n-                    }\n-                }\n-                _ => e.into(),\n-            })?;\n-        }\n-        if let Some((id, version)) = &input.workbook_in_use_check {\n-            // 逐行校验后查引用；损坏行整体停止（GF-16）。\n-            let mut stmt = tx.prepare(\"SELECT work_id, revision, status, state_json FROM works\")?;\n-            let rows = stmt.query_map([], |r| {\n-                Ok((\n-                    r.get::<_, String>(0)?,\n-                    r.get::<_, i64>(1)?,\n-                    r.get::<_, String>(2)?,\n-                    r.get::<_, String>(3)?,\n-                ))\n-            })?;\n-            let mut referencing = Vec::new();\n-            for row in rows {\n-                let (work_id, revision, status, state_json) = row?;\n-                let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n-                if !row.state.status.is_terminal()\n-                    && row.state.workbook.id.as_str() == id\n-                    && row.state.workbook.version == *version\n-                {\n-                    referencing.push(row.state.work_id);\n-                }\n-            }\n-            if !referencing.is_empty() {\n-                return Err(Error::WorkbookInUse {\n-                    id: id.clone(),\n-                    version: version.clone(),\n-                    works: referencing,\n-                });\n-            }\n-        }\n-        if let Some((id, version)) = &input.workbook_delete {\n-            let n = tx.execute(\n-                \"DELETE FROM workbooks WHERE id = ?1 AND version = ?2\",\n-                rusqlite::params![id, version],\n-            )?;\n-            if n == 0 {\n-                return Err(Error::NotFound {\n-                    what: format!(\"Workbook {id}@{version}\"),\n-                });\n-            }\n-        }\n-        let audit_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {\n-            detail: \"审计 revision 超过 SQLite INTEGER 上限\".to_string(),\n-        })?;\n-        tx.execute(\n-            \"INSERT INTO audit (work_id, revision, request_id, principal, command_json, at)\n-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)\",\n-            rusqlite::params![\n-                input\n-                    .work_id\n-                    .as_ref()\n-                    .map_or_else(String::new, |w| w.as_str().to_string()),\n-                audit_revision,\n-                input.request_id,\n-                input.principal.0,\n-                input.command_json,\n-                input.at.as_str(),\n-            ],\n-        )?;\n-        tx.execute(\n-            \"INSERT INTO requests (request_id, intent_hash, work_id, reply_json, effects_json, published, at)\n-             VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6)\",\n-            rusqlite::params![\n-                input.request_id,\n-                input.intent_hash,\n-                input.work_id.as_ref().map(|w| w.as_str()),\n-                input.reply_json,\n-                input.effects_json,\n-                input.at.as_str(),\n-            ],\n-        )?;\n-        tx.commit()?;\n-        Ok(CommitOutcome::Committed { revision })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:67:9: replace Store::commit -> Result<CommitOutcome> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 265
+      },
+      "start": {
+        "column": 9,
+        "line": 67
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace != with == in Store::commit\n@@ -63,17 +63,17 @@\n     /// COMMIT\n     /// ```\n     /// 事务内不读文件、不算摘要。\n     pub fn commit(&self, input: CommitInput) -> Result<CommitOutcome> {\n         if let Some(state) = &input.state {\n             let id = input.work_id.as_ref().ok_or_else(|| Error::StoreCorrupt {\n                 detail: \"写入 WorkState 时缺 work_id\".to_string(),\n             })?;\n-            if &state.work_id != id {\n+            if &state.work_id == /* ~ changed by cargo-mutants ~ */ id {\n                 return Err(Error::StoreCorrupt {\n                     detail: format!(\n                         \"写入目标 {id} 与 state_json.work_id {} 不一致\",\n                         state.work_id\n                     ),\n                 });\n             }\n             state\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:71:31: replace != with == in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 71
+      },
+      "start": {
+        "column": 31,
+        "line": 71
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace != with == in Store::commit\n@@ -89,17 +89,17 @@\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published FROM requests WHERE request_id = ?1\",\n                 [&input.request_id],\n                 |r| {\n                     Ok((\n                         r.get(0)?,\n                         r.get(1)?,\n                         r.get(2)?,\n-                        r.get::<_, i64>(3)? != 0,\n+                        r.get::<_, i64>(3)? == /* ~ changed by cargo-mutants ~ */ 0,\n                     ))\n                 },\n             )\n             .optional()?;\n         if let Some((hash, reply, effects, published)) = prior {\n             // 两种命中都直接返回，事务在 drop 时回滚。\n             if hash == input.intent_hash {\n                 return Ok(CommitOutcome::Replayed {\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:97:45: replace != with == in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 97
+      },
+      "start": {
+        "column": 45,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace == with != in Store::commit\n@@ -96,17 +96,17 @@\n                         r.get(2)?,\n                         r.get::<_, i64>(3)? != 0,\n                     ))\n                 },\n             )\n             .optional()?;\n         if let Some((hash, reply, effects, published)) = prior {\n             // 两种命中都直接返回，事务在 drop 时回滚。\n-            if hash == input.intent_hash {\n+            if hash != /* ~ changed by cargo-mutants ~ */ input.intent_hash {\n                 return Ok(CommitOutcome::Replayed {\n                     reply_json: reply,\n                     effects_json: effects,\n                     published,\n                 });\n             }\n             return Err(Error::RequestConflict {\n                 request_id: input.request_id,\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:104:21: replace == with != in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 104
+      },
+      "start": {
+        "column": 21,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace > with == in Store::commit\n@@ -121,17 +121,17 @@\n                         |r| r.get(0),\n                     )\n                     .optional()?,\n                 None => None,\n             };\n             let actual = match actual {\n                 Some(value) => u64::try_from(value)\n                     .ok()\n-                    .filter(|revision| *revision > 0)\n+                    .filter(|revision| *revision == /* ~ changed by cargo-mutants ~ */ 0)\n                     .ok_or_else(|| Error::StoreCorrupt {\n                         detail: format!(\"Work revision {value} 不合法\"),\n                     })?,\n                 None => 0,\n             };\n             if actual != expected {\n                 return Err(Error::RevisionConflict { expected, actual });\n             }\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with == in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 129
+      },
+      "start": {
+        "column": 50,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace > with < in Store::commit\n@@ -121,17 +121,17 @@\n                         |r| r.get(0),\n                     )\n                     .optional()?,\n                 None => None,\n             };\n             let actual = match actual {\n                 Some(value) => u64::try_from(value)\n                     .ok()\n-                    .filter(|revision| *revision > 0)\n+                    .filter(|revision| *revision < /* ~ changed by cargo-mutants ~ */ 0)\n                     .ok_or_else(|| Error::StoreCorrupt {\n                         detail: format!(\"Work revision {value} 不合法\"),\n                     })?,\n                 None => 0,\n             };\n             if actual != expected {\n                 return Err(Error::RevisionConflict { expected, actual });\n             }\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with < in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 129
+      },
+      "start": {
+        "column": 50,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace > with >= in Store::commit\n@@ -121,17 +121,17 @@\n                         |r| r.get(0),\n                     )\n                     .optional()?,\n                 None => None,\n             };\n             let actual = match actual {\n                 Some(value) => u64::try_from(value)\n                     .ok()\n-                    .filter(|revision| *revision > 0)\n+                    .filter(|revision| *revision >= /* ~ changed by cargo-mutants ~ */ 0)\n                     .ok_or_else(|| Error::StoreCorrupt {\n                         detail: format!(\"Work revision {value} 不合法\"),\n                     })?,\n                 None => 0,\n             };\n             if actual != expected {\n                 return Err(Error::RevisionConflict { expected, actual });\n             }\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with >= in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 129
+      },
+      "start": {
+        "column": 50,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace != with == in Store::commit\n@@ -127,17 +127,17 @@\n                 Some(value) => u64::try_from(value)\n                     .ok()\n                     .filter(|revision| *revision > 0)\n                     .ok_or_else(|| Error::StoreCorrupt {\n                         detail: format!(\"Work revision {value} 不合法\"),\n                     })?,\n                 None => 0,\n             };\n-            if actual != expected {\n+            if actual == /* ~ changed by cargo-mutants ~ */ expected {\n                 return Err(Error::RevisionConflict { expected, actual });\n             }\n         }\n         // start（expected_revision 为 None）插入 revision 1；其他写操作在期望值上加一。\n         let mut revision = 0u64;\n         if let Some(state) = &input.state {\n             revision = match input.expected_revision {\n                 None => 1,\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:135:23: replace != with == in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 135
+      },
+      "start": {
+        "column": 23,
+        "line": 135
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with true in Store::commit\n@@ -175,17 +175,17 @@\n         }\n         if let Some(row) = &input.workbook_insert {\n             tx.execute(\n                 \"INSERT INTO workbooks (id, version, digest, dir, added_at) VALUES (?1, ?2, ?3, ?4, ?5)\",\n                 rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],\n             )\n             .map_err(|e| match &e {\n                 rusqlite::Error::SqliteFailure(code, _)\n-                    if code.code == rusqlite::ErrorCode::ConstraintViolation =>\n+                    if true /* ~ changed by cargo-mutants ~ */ =>\n                 {\n                     Error::WorkbookExists {\n                         id: row.id.clone(),\n                         version: row.version.clone(),\n                     }\n                 }\n                 _ => e.into(),\n             })?;\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:183:24: replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with true in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 183
+      },
+      "start": {
+        "column": 24,
+        "line": 183
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with false in Store::commit\n@@ -175,17 +175,17 @@\n         }\n         if let Some(row) = &input.workbook_insert {\n             tx.execute(\n                 \"INSERT INTO workbooks (id, version, digest, dir, added_at) VALUES (?1, ?2, ?3, ?4, ?5)\",\n                 rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],\n             )\n             .map_err(|e| match &e {\n                 rusqlite::Error::SqliteFailure(code, _)\n-                    if code.code == rusqlite::ErrorCode::ConstraintViolation =>\n+                    if false /* ~ changed by cargo-mutants ~ */ =>\n                 {\n                     Error::WorkbookExists {\n                         id: row.id.clone(),\n                         version: row.version.clone(),\n                     }\n                 }\n                 _ => e.into(),\n             })?;\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:183:24: replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with false in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 183
+      },
+      "start": {
+        "column": 24,
+        "line": 183
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace == with != in Store::commit\n@@ -175,17 +175,17 @@\n         }\n         if let Some(row) = &input.workbook_insert {\n             tx.execute(\n                 \"INSERT INTO workbooks (id, version, digest, dir, added_at) VALUES (?1, ?2, ?3, ?4, ?5)\",\n                 rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],\n             )\n             .map_err(|e| match &e {\n                 rusqlite::Error::SqliteFailure(code, _)\n-                    if code.code == rusqlite::ErrorCode::ConstraintViolation =>\n+                    if code.code != /* ~ changed by cargo-mutants ~ */ rusqlite::ErrorCode::ConstraintViolation =>\n                 {\n                     Error::WorkbookExists {\n                         id: row.id.clone(),\n                         version: row.version.clone(),\n                     }\n                 }\n                 _ => e.into(),\n             })?;\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:183:34: replace == with != in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 183
+      },
+      "start": {
+        "column": 34,
+        "line": 183
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace && with || in Store::commit\n@@ -202,17 +202,17 @@\n                 ))\n             })?;\n             let mut referencing = Vec::new();\n             for row in rows {\n                 let (work_id, revision, status, state_json) = row?;\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n                 if !row.state.status.is_terminal()\n                     && row.state.workbook.id.as_str() == id\n-                    && row.state.workbook.version == *version\n+                    || /* ~ changed by cargo-mutants ~ */ row.state.workbook.version == *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n             if !referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n                     id: id.clone(),\n                     version: version.clone(),\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:210:21: replace && with || in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 210
+      },
+      "start": {
+        "column": 21,
+        "line": 210
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace && with || in Store::commit\n@@ -201,17 +201,17 @@\n                     r.get::<_, String>(3)?,\n                 ))\n             })?;\n             let mut referencing = Vec::new();\n             for row in rows {\n                 let (work_id, revision, status, state_json) = row?;\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n                 if !row.state.status.is_terminal()\n-                    && row.state.workbook.id.as_str() == id\n+                    || /* ~ changed by cargo-mutants ~ */ row.state.workbook.id.as_str() == id\n                     && row.state.workbook.version == *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n             if !referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n                     id: id.clone(),\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:209:21: replace && with || in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 209
+      },
+      "start": {
+        "column": 21,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ delete ! in Store::commit\n@@ -200,17 +200,17 @@\n                     r.get::<_, String>(2)?,\n                     r.get::<_, String>(3)?,\n                 ))\n             })?;\n             let mut referencing = Vec::new();\n             for row in rows {\n                 let (work_id, revision, status, state_json) = row?;\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n-                if !row.state.status.is_terminal()\n+                if  /* ~ changed by cargo-mutants ~ */row.state.status.is_terminal()\n                     && row.state.workbook.id.as_str() == id\n                     && row.state.workbook.version == *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n             if !referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:208:20: delete ! in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 208
+      },
+      "start": {
+        "column": 20,
+        "line": 208
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace == with != in Store::commit\n@@ -201,17 +201,17 @@\n                     r.get::<_, String>(3)?,\n                 ))\n             })?;\n             let mut referencing = Vec::new();\n             for row in rows {\n                 let (work_id, revision, status, state_json) = row?;\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n                 if !row.state.status.is_terminal()\n-                    && row.state.workbook.id.as_str() == id\n+                    && row.state.workbook.id.as_str() != /* ~ changed by cargo-mutants ~ */ id\n                     && row.state.workbook.version == *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n             if !referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n                     id: id.clone(),\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:209:55: replace == with != in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 209
+      },
+      "start": {
+        "column": 55,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace == with != in Store::commit\n@@ -202,17 +202,17 @@\n                 ))\n             })?;\n             let mut referencing = Vec::new();\n             for row in rows {\n                 let (work_id, revision, status, state_json) = row?;\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n                 if !row.state.status.is_terminal()\n                     && row.state.workbook.id.as_str() == id\n-                    && row.state.workbook.version == *version\n+                    && row.state.workbook.version != /* ~ changed by cargo-mutants ~ */ *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n             if !referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n                     id: id.clone(),\n                     version: version.clone(),\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:210:51: replace == with != in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 210
+      },
+      "start": {
+        "column": 51,
+        "line": 210
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ delete ! in Store::commit\n@@ -207,17 +207,17 @@\n                 let row = super::read::decode_row(&work_id, revision, &status, &state_json)?;\n                 if !row.state.status.is_terminal()\n                     && row.state.workbook.id.as_str() == id\n                     && row.state.workbook.version == *version\n                 {\n                     referencing.push(row.state.work_id);\n                 }\n             }\n-            if !referencing.is_empty() {\n+            if  /* ~ changed by cargo-mutants ~ */referencing.is_empty() {\n                 return Err(Error::WorkbookInUse {\n                     id: id.clone(),\n                     version: version.clone(),\n                     works: referencing,\n                 });\n             }\n         }\n         if let Some((id, version)) = &input.workbook_delete {\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:215:16: delete ! in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 215
+      },
+      "start": {
+        "column": 16,
+        "line": 215
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/commit.rs\n+++ replace == with != in Store::commit\n@@ -220,17 +220,17 @@\n                 });\n             }\n         }\n         if let Some((id, version)) = &input.workbook_delete {\n             let n = tx.execute(\n                 \"DELETE FROM workbooks WHERE id = ?1 AND version = ?2\",\n                 rusqlite::params![id, version],\n             )?;\n-            if n == 0 {\n+            if n != /* ~ changed by cargo-mutants ~ */ 0 {\n                 return Err(Error::NotFound {\n                     what: format!(\"Workbook {id}@{version}\"),\n                 });\n             }\n         }\n         let audit_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {\n             detail: \"审计 revision 超过 SQLite INTEGER 上限\".to_string(),\n         })?;\n",
+    "file": "crates/sheltie-runtime/src/store/commit.rs",
+    "function": {
+      "function_name": "Store::commit",
+      "return_type": "-> Result<CommitOutcome>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 266
+        },
+        "start": {
+          "column": 5,
+          "line": 54
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/commit.rs:228:18: replace == with != in Store::commit",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 228
+      },
+      "start": {
+        "column": 18,
+        "line": 228
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::load_work -> Result<WorkRow> with Ok(Default::default())\n@@ -52,30 +52,17 @@\n pub struct WorkRow {\n     pub revision: u64,\n     pub state: WorkState,\n }\n \n impl Store {\n     /// 读一个 Work。不存在报 `NotFound`；`state_json` 解不出报 `StoreCorrupt`。\n     pub fn load_work(&self, id: &WorkId) -> Result<WorkRow> {\n-        let conn = self.connect()?;\n-        let row: Option<(i64, String, String)> = conn\n-            .query_row(\n-                \"SELECT revision, status, state_json FROM works WHERE work_id = ?1\",\n-                [id.as_str()],\n-                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),\n-            )\n-            .optional()?;\n-        let Some((revision, status, state_json)) = row else {\n-            return Err(Error::NotFound {\n-                what: format!(\"Work {id}\"),\n-            });\n-        };\n-        decode_row(id.as_str(), revision, &status, &state_json)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 全部 Work，按 `work_id` 升序。\n     pub fn list_works(&self) -> Result<Vec<WorkRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn\n             .prepare(\"SELECT work_id, revision, status, state_json FROM works ORDER BY work_id\")?;\n         let rows = stmt.query_map([], |r| {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::load_work",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 74
+        },
+        "start": {
+          "column": 5,
+          "line": 58
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:60:9: replace Store::load_work -> Result<WorkRow> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 73
+      },
+      "start": {
+        "column": 9,
+        "line": 60
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::list_works -> Result<Vec<WorkRow>> with Ok(vec![])\n@@ -70,33 +70,17 @@\n                 what: format!(\"Work {id}\"),\n             });\n         };\n         decode_row(id.as_str(), revision, &status, &state_json)\n     }\n \n     /// 全部 Work，按 `work_id` 升序。\n     pub fn list_works(&self) -> Result<Vec<WorkRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn\n-            .prepare(\"SELECT work_id, revision, status, state_json FROM works ORDER BY work_id\")?;\n-        let rows = stmt.query_map([], |r| {\n-            Ok((\n-                r.get::<_, String>(0)?,\n-                r.get::<_, i64>(1)?,\n-                r.get::<_, String>(2)?,\n-                r.get::<_, String>(3)?,\n-            ))\n-        })?;\n-        let mut out = Vec::new();\n-        for row in rows {\n-            let (work_id, revision, status, state_json) = row?;\n-            out.push(decode_row(&work_id, revision, &status, &state_json)?);\n-        }\n-        Ok(out)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。\n     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\"SELECT work_id FROM works ORDER BY work_id\")?;\n         let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;\n         let mut out = Vec::new();\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::list_works",
+      "return_type": "-> Result<Vec<WorkRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 95
+        },
+        "start": {
+          "column": 5,
+          "line": 76
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:78:9: replace Store::list_works -> Result<Vec<WorkRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 94
+      },
+      "start": {
+        "column": 9,
+        "line": 78
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::list_works -> Result<Vec<WorkRow>> with Ok(vec![Default::default()])\n@@ -70,33 +70,17 @@\n                 what: format!(\"Work {id}\"),\n             });\n         };\n         decode_row(id.as_str(), revision, &status, &state_json)\n     }\n \n     /// 全部 Work，按 `work_id` 升序。\n     pub fn list_works(&self) -> Result<Vec<WorkRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn\n-            .prepare(\"SELECT work_id, revision, status, state_json FROM works ORDER BY work_id\")?;\n-        let rows = stmt.query_map([], |r| {\n-            Ok((\n-                r.get::<_, String>(0)?,\n-                r.get::<_, i64>(1)?,\n-                r.get::<_, String>(2)?,\n-                r.get::<_, String>(3)?,\n-            ))\n-        })?;\n-        let mut out = Vec::new();\n-        for row in rows {\n-            let (work_id, revision, status, state_json) = row?;\n-            out.push(decode_row(&work_id, revision, &status, &state_json)?);\n-        }\n-        Ok(out)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。\n     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\"SELECT work_id FROM works ORDER BY work_id\")?;\n         let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;\n         let mut out = Vec::new();\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::list_works",
+      "return_type": "-> Result<Vec<WorkRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 95
+        },
+        "start": {
+          "column": 5,
+          "line": 76
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:78:9: replace Store::list_works -> Result<Vec<WorkRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 94
+      },
+      "start": {
+        "column": 9,
+        "line": 78
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::find_works_by_prefix -> Result<Vec<WorkId>> with Ok(vec![])\n@@ -91,30 +91,17 @@\n             let (work_id, revision, status, state_json) = row?;\n             out.push(decode_row(&work_id, revision, &status, &state_json)?);\n         }\n         Ok(out)\n     }\n \n     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。\n     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\"SELECT work_id FROM works ORDER BY work_id\")?;\n-        let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;\n-        let mut out = Vec::new();\n-        for row in rows {\n-            let work_id = row?;\n-            if !work_id.starts_with(prefix) {\n-                continue;\n-            }\n-            out.push(WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {\n-                detail: format!(\"works 表的 work_id {work_id:?} 解不开：{e}\"),\n-            })?);\n-        }\n-        Ok(out)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 全部已装 Workbook，按 `(id, version)` 升序。\n     pub fn list_workbooks(&self) -> Result<Vec<WorkbookRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n         )?;\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::find_works_by_prefix",
+      "return_type": "-> Result<Vec<WorkId>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 113
+        },
+        "start": {
+          "column": 5,
+          "line": 97
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:99:9: replace Store::find_works_by_prefix -> Result<Vec<WorkId>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 112
+      },
+      "start": {
+        "column": 9,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::find_works_by_prefix -> Result<Vec<WorkId>> with Ok(vec![Default::default()])\n@@ -91,30 +91,17 @@\n             let (work_id, revision, status, state_json) = row?;\n             out.push(decode_row(&work_id, revision, &status, &state_json)?);\n         }\n         Ok(out)\n     }\n \n     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。\n     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\"SELECT work_id FROM works ORDER BY work_id\")?;\n-        let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;\n-        let mut out = Vec::new();\n-        for row in rows {\n-            let work_id = row?;\n-            if !work_id.starts_with(prefix) {\n-                continue;\n-            }\n-            out.push(WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {\n-                detail: format!(\"works 表的 work_id {work_id:?} 解不开：{e}\"),\n-            })?);\n-        }\n-        Ok(out)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 全部已装 Workbook，按 `(id, version)` 升序。\n     pub fn list_workbooks(&self) -> Result<Vec<WorkbookRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n         )?;\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::find_works_by_prefix",
+      "return_type": "-> Result<Vec<WorkId>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 113
+        },
+        "start": {
+          "column": 5,
+          "line": 97
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:99:9: replace Store::find_works_by_prefix -> Result<Vec<WorkId>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 112
+      },
+      "start": {
+        "column": 9,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete ! in Store::find_works_by_prefix\n@@ -97,17 +97,17 @@\n     /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。\n     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\"SELECT work_id FROM works ORDER BY work_id\")?;\n         let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;\n         let mut out = Vec::new();\n         for row in rows {\n             let work_id = row?;\n-            if !work_id.starts_with(prefix) {\n+            if  /* ~ changed by cargo-mutants ~ */work_id.starts_with(prefix) {\n                 continue;\n             }\n             out.push(WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {\n                 detail: format!(\"works 表的 work_id {work_id:?} 解不开：{e}\"),\n             })?);\n         }\n         Ok(out)\n     }\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::find_works_by_prefix",
+      "return_type": "-> Result<Vec<WorkId>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 113
+        },
+        "start": {
+          "column": 5,
+          "line": 97
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:105:16: delete ! in Store::find_works_by_prefix",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 105
+      },
+      "start": {
+        "column": 16,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::list_workbooks -> Result<Vec<WorkbookRow>> with Ok(vec![])\n@@ -109,22 +109,17 @@\n                 detail: format!(\"works 表的 work_id {work_id:?} 解不开：{e}\"),\n             })?);\n         }\n         Ok(out)\n     }\n \n     /// 全部已装 Workbook，按 `(id, version)` 升序。\n     pub fn list_workbooks(&self) -> Result<Vec<WorkbookRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n-        )?;\n-        let rows = stmt.query_map([], workbook_row_of)?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 某 id 的全部版本，按字面升序。\n     pub fn workbook_versions(&self, id: &str) -> Result<Vec<WorkbookRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT id, version, digest, dir, added_at FROM workbooks\n                  WHERE id = ?1 ORDER BY version\",\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::list_workbooks",
+      "return_type": "-> Result<Vec<WorkbookRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 123
+        },
+        "start": {
+          "column": 5,
+          "line": 115
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:117:9: replace Store::list_workbooks -> Result<Vec<WorkbookRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 122
+      },
+      "start": {
+        "column": 9,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::list_workbooks -> Result<Vec<WorkbookRow>> with Ok(vec![Default::default()])\n@@ -109,22 +109,17 @@\n                 detail: format!(\"works 表的 work_id {work_id:?} 解不开：{e}\"),\n             })?);\n         }\n         Ok(out)\n     }\n \n     /// 全部已装 Workbook，按 `(id, version)` 升序。\n     pub fn list_workbooks(&self) -> Result<Vec<WorkbookRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n-        )?;\n-        let rows = stmt.query_map([], workbook_row_of)?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 某 id 的全部版本，按字面升序。\n     pub fn workbook_versions(&self, id: &str) -> Result<Vec<WorkbookRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT id, version, digest, dir, added_at FROM workbooks\n                  WHERE id = ?1 ORDER BY version\",\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::list_workbooks",
+      "return_type": "-> Result<Vec<WorkbookRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 123
+        },
+        "start": {
+          "column": 5,
+          "line": 115
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:117:9: replace Store::list_workbooks -> Result<Vec<WorkbookRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 122
+      },
+      "start": {
+        "column": 9,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::workbook_versions -> Result<Vec<WorkbookRow>> with Ok(vec![])\n@@ -119,23 +119,17 @@\n             \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n         )?;\n         let rows = stmt.query_map([], workbook_row_of)?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// 某 id 的全部版本，按字面升序。\n     pub fn workbook_versions(&self, id: &str) -> Result<Vec<WorkbookRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT id, version, digest, dir, added_at FROM workbooks\n-                 WHERE id = ?1 ORDER BY version\",\n-        )?;\n-        let rows = stmt.query_map([id], workbook_row_of)?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 插入一行 Workbook。主键冲突报 `WorkbookExists`。独立事务（Workbook 入库不经 `commit`）。\n     #[cfg(test)]\n     pub fn insert_workbook(&self, row: &WorkbookRow) -> Result<()> {\n         let conn = self.connect()?;\n         conn.execute(\n             \"INSERT INTO workbooks (id, version, digest, dir, added_at)\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::workbook_versions",
+      "return_type": "-> Result<Vec<WorkbookRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 134
+        },
+        "start": {
+          "column": 5,
+          "line": 125
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:127:9: replace Store::workbook_versions -> Result<Vec<WorkbookRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 133
+      },
+      "start": {
+        "column": 9,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::workbook_versions -> Result<Vec<WorkbookRow>> with Ok(vec![Default::default()])\n@@ -119,23 +119,17 @@\n             \"SELECT id, version, digest, dir, added_at FROM workbooks ORDER BY id, version\",\n         )?;\n         let rows = stmt.query_map([], workbook_row_of)?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// 某 id 的全部版本，按字面升序。\n     pub fn workbook_versions(&self, id: &str) -> Result<Vec<WorkbookRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT id, version, digest, dir, added_at FROM workbooks\n-                 WHERE id = ?1 ORDER BY version\",\n-        )?;\n-        let rows = stmt.query_map([id], workbook_row_of)?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 插入一行 Workbook。主键冲突报 `WorkbookExists`。独立事务（Workbook 入库不经 `commit`）。\n     #[cfg(test)]\n     pub fn insert_workbook(&self, row: &WorkbookRow) -> Result<()> {\n         let conn = self.connect()?;\n         conn.execute(\n             \"INSERT INTO workbooks (id, version, digest, dir, added_at)\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::workbook_versions",
+      "return_type": "-> Result<Vec<WorkbookRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 134
+        },
+        "start": {
+          "column": 5,
+          "line": 125
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:127:9: replace Store::workbook_versions -> Result<Vec<WorkbookRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 133
+      },
+      "start": {
+        "column": 9,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(None)\n@@ -153,24 +153,17 @@\n             }\n             _ => e.into(),\n         })?;\n         Ok(())\n     }\n \n     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。\n     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| Ok((r.get(0)?, r.get(1)?)),\n-            )\n-            .optional()?)\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request",
+      "return_type": "-> Result<Option<(String, String)>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 169
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:161:9: replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 168
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((String::new(), String::new())))\n@@ -153,24 +153,17 @@\n             }\n             _ => e.into(),\n         })?;\n         Ok(())\n     }\n \n     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。\n     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| Ok((r.get(0)?, r.get(1)?)),\n-            )\n-            .optional()?)\n+        Ok(Some((String::new(), String::new()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request",
+      "return_type": "-> Result<Option<(String, String)>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 169
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:161:9: replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((String::new(), String::new())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some((String::new(), String::new())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 168
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((String::new(), \"xyzzy\".into())))\n@@ -153,24 +153,17 @@\n             }\n             _ => e.into(),\n         })?;\n         Ok(())\n     }\n \n     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。\n     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| Ok((r.get(0)?, r.get(1)?)),\n-            )\n-            .optional()?)\n+        Ok(Some((String::new(), \"xyzzy\".into()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request",
+      "return_type": "-> Result<Option<(String, String)>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 169
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:161:9: replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((String::new(), \"xyzzy\".into())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some((String::new(), \"xyzzy\".into())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 168
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((\"xyzzy\".into(), String::new())))\n@@ -153,24 +153,17 @@\n             }\n             _ => e.into(),\n         })?;\n         Ok(())\n     }\n \n     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。\n     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| Ok((r.get(0)?, r.get(1)?)),\n-            )\n-            .optional()?)\n+        Ok(Some((\"xyzzy\".into(), String::new()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request",
+      "return_type": "-> Result<Option<(String, String)>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 169
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:161:9: replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((\"xyzzy\".into(), String::new())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some((\"xyzzy\".into(), String::new())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 168
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((\"xyzzy\".into(), \"xyzzy\".into())))\n@@ -153,24 +153,17 @@\n             }\n             _ => e.into(),\n         })?;\n         Ok(())\n     }\n \n     /// 查一个请求的 `(intent_hash, reply_json)`。无锁预检的重放查重用。\n     pub(crate) fn lookup_request(&self, request_id: &str) -> Result<Option<(String, String)>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| Ok((r.get(0)?, r.get(1)?)),\n-            )\n-            .optional()?)\n+        Ok(Some((\"xyzzy\".into(), \"xyzzy\".into()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request",
+      "return_type": "-> Result<Option<(String, String)>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 169
+        },
+        "start": {
+          "column": 5,
+          "line": 159
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:161:9: replace Store::lookup_request -> Result<Option<(String, String)>> with Ok(Some((\"xyzzy\".into(), \"xyzzy\".into())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some((\"xyzzy\".into(), \"xyzzy\".into())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 168
+      },
+      "start": {
+        "column": 9,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_hash -> Result<Option<String>> with Ok(None)\n@@ -166,24 +166,17 @@\n                 |r| Ok((r.get(0)?, r.get(1)?)),\n             )\n             .optional()?)\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT work_id FROM requests WHERE request_id = ?1\",\n                 [request_id],\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_hash",
+      "return_type": "-> Result<Option<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 171
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:174:9: replace Store::lookup_request_hash -> Result<Option<String>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 181
+      },
+      "start": {
+        "column": 9,
+        "line": 174
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_hash -> Result<Option<String>> with Ok(Some(String::new()))\n@@ -166,24 +166,17 @@\n                 |r| Ok((r.get(0)?, r.get(1)?)),\n             )\n             .optional()?)\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(Some(String::new())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT work_id FROM requests WHERE request_id = ?1\",\n                 [request_id],\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_hash",
+      "return_type": "-> Result<Option<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 171
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:174:9: replace Store::lookup_request_hash -> Result<Option<String>> with Ok(Some(String::new()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(String::new()))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 181
+      },
+      "start": {
+        "column": 9,
+        "line": 174
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_hash -> Result<Option<String>> with Ok(Some(\"xyzzy\".into()))\n@@ -166,24 +166,17 @@\n                 |r| Ok((r.get(0)?, r.get(1)?)),\n             )\n             .optional()?)\n     }\n \n     /// Read only the idempotency identity. A malformed reply payload must not hide the fact\n     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.\n     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(Some(\"xyzzy\".into())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT work_id FROM requests WHERE request_id = ?1\",\n                 [request_id],\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_hash",
+      "return_type": "-> Result<Option<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 171
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:174:9: replace Store::lookup_request_hash -> Result<Option<String>> with Ok(Some(\"xyzzy\".into()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(\"xyzzy\".into()))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 181
+      },
+      "start": {
+        "column": 9,
+        "line": 174
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(None)\n@@ -177,24 +177,17 @@\n                 \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT work_id FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_work",
+      "return_type": "-> Result<Option<Option<String>>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 193
+        },
+        "start": {
+          "column": 5,
+          "line": 184
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:185:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 192
+      },
+      "start": {
+        "column": 9,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(None))\n@@ -177,24 +177,17 @@\n                 \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT work_id FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(Some(None)) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_work",
+      "return_type": "-> Result<Option<Option<String>>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 193
+        },
+        "start": {
+          "column": 5,
+          "line": 184
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:185:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(None))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(None))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 192
+      },
+      "start": {
+        "column": 9,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some(String::new())))\n@@ -177,24 +177,17 @@\n                 \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT work_id FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(Some(Some(String::new()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_work",
+      "return_type": "-> Result<Option<Option<String>>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 193
+        },
+        "start": {
+          "column": 5,
+          "line": 184
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:185:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some(String::new())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Some(String::new())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 192
+      },
+      "start": {
+        "column": 9,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some(\"xyzzy\".into())))\n@@ -177,24 +177,17 @@\n                 \"SELECT intent_hash FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT work_id FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |row| row.get(0),\n-            )\n-            .optional()?)\n+        Ok(Some(Some(\"xyzzy\".into()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n         let conn = self.connect()?;\n         Ok(conn\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::lookup_request_work",
+      "return_type": "-> Result<Option<Option<String>>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 193
+        },
+        "start": {
+          "column": 5,
+          "line": 184
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:185:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some(\"xyzzy\".into())))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Some(\"xyzzy\".into())))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 192
+      },
+      "start": {
+        "column": 9,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::inspect_request -> Result<Option<RequestRow>> with Ok(None)\n@@ -189,46 +189,17 @@\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n-                 FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| {\n-                    let published = r.get::<_, i64>(3)?;\n-                    let published = match published {\n-                        0 => false,\n-                        1 => true,\n-                        _ => {\n-                            return Err(rusqlite::Error::FromSqlConversionFailure(\n-                                3,\n-                                rusqlite::types::Type::Integer,\n-                                Box::new(std::io::Error::other(\"published必须为0或1\")),\n-                            ));\n-                        }\n-                    };\n-                    Ok(RequestRow {\n-                        intent_hash: r.get(0)?,\n-                        reply_json: r.get(1)?,\n-                        effects_json: r.get(2)?,\n-                        published,\n-                        work_id: r.get(4)?,\n-                        at: r.get(5)?,\n-                    })\n-                },\n-            )\n-            .optional()?)\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Request IDs in commit order. Recovery opens each row separately so one malformed\n     /// `effects_json` can be attributed to its owner instead of aborting this index read.\n     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT r.request_id FROM requests r\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::inspect_request",
+      "return_type": "-> Result<Option<RequestRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 227
+        },
+        "start": {
+          "column": 5,
+          "line": 195
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:197:9: replace Store::inspect_request -> Result<Option<RequestRow>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 226
+      },
+      "start": {
+        "column": 9,
+        "line": 197
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::inspect_request -> Result<Option<RequestRow>> with Ok(Some(Default::default()))\n@@ -189,46 +189,17 @@\n                 [request_id],\n                 |row| row.get(0),\n             )\n             .optional()?)\n     }\n \n     /// 锁内重核请求。\n     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {\n-        let conn = self.connect()?;\n-        Ok(conn\n-            .query_row(\n-                \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n-                 FROM requests WHERE request_id = ?1\",\n-                [request_id],\n-                |r| {\n-                    let published = r.get::<_, i64>(3)?;\n-                    let published = match published {\n-                        0 => false,\n-                        1 => true,\n-                        _ => {\n-                            return Err(rusqlite::Error::FromSqlConversionFailure(\n-                                3,\n-                                rusqlite::types::Type::Integer,\n-                                Box::new(std::io::Error::other(\"published必须为0或1\")),\n-                            ));\n-                        }\n-                    };\n-                    Ok(RequestRow {\n-                        intent_hash: r.get(0)?,\n-                        reply_json: r.get(1)?,\n-                        effects_json: r.get(2)?,\n-                        published,\n-                        work_id: r.get(4)?,\n-                        at: r.get(5)?,\n-                    })\n-                },\n-            )\n-            .optional()?)\n+        Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Request IDs in commit order. Recovery opens each row separately so one malformed\n     /// `effects_json` can be attributed to its owner instead of aborting this index read.\n     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT r.request_id FROM requests r\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::inspect_request",
+      "return_type": "-> Result<Option<RequestRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 227
+        },
+        "start": {
+          "column": 5,
+          "line": 195
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:197:9: replace Store::inspect_request -> Result<Option<RequestRow>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 226
+      },
+      "start": {
+        "column": 9,
+        "line": 197
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete match arm 0 in Store::inspect_request\n@@ -198,17 +198,17 @@\n         Ok(conn\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n                  FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |r| {\n                     let published = r.get::<_, i64>(3)?;\n                     let published = match published {\n-                        0 => false,\n+                         /* ~ changed by cargo-mutants ~ */\n                         1 => true,\n                         _ => {\n                             return Err(rusqlite::Error::FromSqlConversionFailure(\n                                 3,\n                                 rusqlite::types::Type::Integer,\n                                 Box::new(std::io::Error::other(\"published必须为0或1\")),\n                             ));\n                         }\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::inspect_request",
+      "return_type": "-> Result<Option<RequestRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 227
+        },
+        "start": {
+          "column": 5,
+          "line": 195
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/store/read.rs:206:25: delete match arm 0 in Store::inspect_request",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 206
+      },
+      "start": {
+        "column": 25,
+        "line": 206
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete match arm 1 in Store::inspect_request\n@@ -199,17 +199,17 @@\n             .query_row(\n                 \"SELECT intent_hash, reply_json, effects_json, published, work_id, at\n                  FROM requests WHERE request_id = ?1\",\n                 [request_id],\n                 |r| {\n                     let published = r.get::<_, i64>(3)?;\n                     let published = match published {\n                         0 => false,\n-                        1 => true,\n+                         /* ~ changed by cargo-mutants ~ */\n                         _ => {\n                             return Err(rusqlite::Error::FromSqlConversionFailure(\n                                 3,\n                                 rusqlite::types::Type::Integer,\n                                 Box::new(std::io::Error::other(\"published必须为0或1\")),\n                             ));\n                         }\n                     };\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::inspect_request",
+      "return_type": "-> Result<Option<RequestRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 227
+        },
+        "start": {
+          "column": 5,
+          "line": 195
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/store/read.rs:207:25: delete match arm 1 in Store::inspect_request",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 207
+      },
+      "start": {
+        "column": 25,
+        "line": 207
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![])\n@@ -224,27 +224,17 @@\n                 },\n             )\n             .optional()?)\n     }\n \n     /// Request IDs in commit order. Recovery opens each row separately so one malformed\n     /// `effects_json` can be attributed to its owner instead of aborting this index read.\n     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT r.request_id FROM requests r\n-             WHERE r.published <> 1\n-             ORDER BY COALESCE(\n-               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),\n-               9223372036854775807\n-             ), r.request_id\",\n-        )?;\n-        let rows = stmt.query_map([], |row| row.get(0))?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// All request effect rows, including completed requests that may still own cleanup metadata.\n     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.\n     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {\n         use rusqlite::types::ValueRef;\n \n         let conn = self.connect()?;\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::unpublished_request_ids",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 243
+        },
+        "start": {
+          "column": 5,
+          "line": 229
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:232:9: replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 242
+      },
+      "start": {
+        "column": 9,
+        "line": 232
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![String::new()])\n@@ -224,27 +224,17 @@\n                 },\n             )\n             .optional()?)\n     }\n \n     /// Request IDs in commit order. Recovery opens each row separately so one malformed\n     /// `effects_json` can be attributed to its owner instead of aborting this index read.\n     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT r.request_id FROM requests r\n-             WHERE r.published <> 1\n-             ORDER BY COALESCE(\n-               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),\n-               9223372036854775807\n-             ), r.request_id\",\n-        )?;\n-        let rows = stmt.query_map([], |row| row.get(0))?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![String::new()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// All request effect rows, including completed requests that may still own cleanup metadata.\n     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.\n     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {\n         use rusqlite::types::ValueRef;\n \n         let conn = self.connect()?;\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::unpublished_request_ids",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 243
+        },
+        "start": {
+          "column": 5,
+          "line": 229
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:232:9: replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![String::new()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![String::new()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 242
+      },
+      "start": {
+        "column": 9,
+        "line": 232
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])\n@@ -224,27 +224,17 @@\n                 },\n             )\n             .optional()?)\n     }\n \n     /// Request IDs in commit order. Recovery opens each row separately so one malformed\n     /// `effects_json` can be attributed to its owner instead of aborting this index read.\n     pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT r.request_id FROM requests r\n-             WHERE r.published <> 1\n-             ORDER BY COALESCE(\n-               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),\n-               9223372036854775807\n-             ), r.request_id\",\n-        )?;\n-        let rows = stmt.query_map([], |row| row.get(0))?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![\"xyzzy\".into()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// All request effect rows, including completed requests that may still own cleanup metadata.\n     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.\n     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {\n         use rusqlite::types::ValueRef;\n \n         let conn = self.connect()?;\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::unpublished_request_ids",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 243
+        },
+        "start": {
+          "column": 5,
+          "line": 229
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:232:9: replace Store::unpublished_request_ids -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![\"xyzzy\".into()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 242
+      },
+      "start": {
+        "column": 9,
+        "line": 232
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::all_request_effect_rows -> Result<Vec<RequestEffectRow>> with Ok(vec![])\n@@ -240,56 +240,17 @@\n         )?;\n         let rows = stmt.query_map([], |row| row.get(0))?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// All request effect rows, including completed requests that may still own cleanup metadata.\n     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.\n     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {\n-        use rusqlite::types::ValueRef;\n-\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id\",\n-        )?;\n-        let mut rows = stmt.query([])?;\n-        let mut out = Vec::new();\n-        while let Some(row) = rows.next()? {\n-            let request_id: String = row.get(0)?;\n-            let published = match row.get_ref(1)? {\n-                ValueRef::Integer(0) => false,\n-                ValueRef::Integer(1) => true,\n-                _ => {\n-                    return Err(Error::StoreCorrupt {\n-                        detail: format!(\"请求 {request_id} 的published值无效\"),\n-                    });\n-                }\n-            };\n-            let effects_json =\n-                match row.get_ref(2)? {\n-                    ValueRef::Text(bytes) => std::str::from_utf8(bytes)\n-                        .map(str::to_string)\n-                        .map_err(|error| Error::StoreCorrupt {\n-                            detail: format!(\"请求 {request_id} 的effects_json不是UTF-8：{error}\"),\n-                        })?,\n-                    _ => {\n-                        return Err(Error::StoreCorrupt {\n-                            detail: format!(\"请求 {request_id} 的effects_json不是TEXT\"),\n-                        });\n-                    }\n-                };\n-            out.push(RequestEffectRow {\n-                request_id,\n-                published,\n-                effects_json,\n-                work_id: row.get(3)?,\n-            });\n-        }\n-        Ok(out)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq\",\n         )?;\n         let rows = stmt.query_map([request_id], |row| {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::all_request_effect_rows",
+      "return_type": "-> Result<Vec<RequestEffectRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 288
+        },
+        "start": {
+          "column": 5,
+          "line": 245
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:248:9: replace Store::all_request_effect_rows -> Result<Vec<RequestEffectRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 287
+      },
+      "start": {
+        "column": 9,
+        "line": 248
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::all_request_effect_rows -> Result<Vec<RequestEffectRow>> with Ok(vec![Default::default()])\n@@ -240,56 +240,17 @@\n         )?;\n         let rows = stmt.query_map([], |row| row.get(0))?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// All request effect rows, including completed requests that may still own cleanup metadata.\n     /// A single malformed row aborts the index so cleanup cannot infer an object is unreferenced.\n     pub(crate) fn all_request_effect_rows(&self) -> Result<Vec<RequestEffectRow>> {\n-        use rusqlite::types::ValueRef;\n-\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id\",\n-        )?;\n-        let mut rows = stmt.query([])?;\n-        let mut out = Vec::new();\n-        while let Some(row) = rows.next()? {\n-            let request_id: String = row.get(0)?;\n-            let published = match row.get_ref(1)? {\n-                ValueRef::Integer(0) => false,\n-                ValueRef::Integer(1) => true,\n-                _ => {\n-                    return Err(Error::StoreCorrupt {\n-                        detail: format!(\"请求 {request_id} 的published值无效\"),\n-                    });\n-                }\n-            };\n-            let effects_json =\n-                match row.get_ref(2)? {\n-                    ValueRef::Text(bytes) => std::str::from_utf8(bytes)\n-                        .map(str::to_string)\n-                        .map_err(|error| Error::StoreCorrupt {\n-                            detail: format!(\"请求 {request_id} 的effects_json不是UTF-8：{error}\"),\n-                        })?,\n-                    _ => {\n-                        return Err(Error::StoreCorrupt {\n-                            detail: format!(\"请求 {request_id} 的effects_json不是TEXT\"),\n-                        });\n-                    }\n-                };\n-            out.push(RequestEffectRow {\n-                request_id,\n-                published,\n-                effects_json,\n-                work_id: row.get(3)?,\n-            });\n-        }\n-        Ok(out)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq\",\n         )?;\n         let rows = stmt.query_map([request_id], |row| {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::all_request_effect_rows",
+      "return_type": "-> Result<Vec<RequestEffectRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 288
+        },
+        "start": {
+          "column": 5,
+          "line": 245
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:248:9: replace Store::all_request_effect_rows -> Result<Vec<RequestEffectRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 287
+      },
+      "start": {
+        "column": 9,
+        "line": 248
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete match arm ValueRef::Integer(0) in Store::all_request_effect_rows\n@@ -251,17 +251,17 @@\n         let mut stmt = conn.prepare(\n             \"SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id\",\n         )?;\n         let mut rows = stmt.query([])?;\n         let mut out = Vec::new();\n         while let Some(row) = rows.next()? {\n             let request_id: String = row.get(0)?;\n             let published = match row.get_ref(1)? {\n-                ValueRef::Integer(0) => false,\n+                 /* ~ changed by cargo-mutants ~ */\n                 ValueRef::Integer(1) => true,\n                 _ => {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"请求 {request_id} 的published值无效\"),\n                     });\n                 }\n             };\n             let effects_json =\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::all_request_effect_rows",
+      "return_type": "-> Result<Vec<RequestEffectRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 288
+        },
+        "start": {
+          "column": 5,
+          "line": 245
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/store/read.rs:259:17: delete match arm ValueRef::Integer(0) in Store::all_request_effect_rows",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 259
+      },
+      "start": {
+        "column": 17,
+        "line": 259
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete match arm ValueRef::Integer(1) in Store::all_request_effect_rows\n@@ -252,17 +252,17 @@\n             \"SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id\",\n         )?;\n         let mut rows = stmt.query([])?;\n         let mut out = Vec::new();\n         while let Some(row) = rows.next()? {\n             let request_id: String = row.get(0)?;\n             let published = match row.get_ref(1)? {\n                 ValueRef::Integer(0) => false,\n-                ValueRef::Integer(1) => true,\n+                 /* ~ changed by cargo-mutants ~ */\n                 _ => {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"请求 {request_id} 的published值无效\"),\n                     });\n                 }\n             };\n             let effects_json =\n                 match row.get_ref(2)? {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::all_request_effect_rows",
+      "return_type": "-> Result<Vec<RequestEffectRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 288
+        },
+        "start": {
+          "column": 5,
+          "line": 245
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/store/read.rs:260:17: delete match arm ValueRef::Integer(1) in Store::all_request_effect_rows",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 260
+      },
+      "start": {
+        "column": 17,
+        "line": 260
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ delete match arm ValueRef::Text(bytes) in Store::all_request_effect_rows\n@@ -261,21 +261,17 @@\n                 _ => {\n                     return Err(Error::StoreCorrupt {\n                         detail: format!(\"请求 {request_id} 的published值无效\"),\n                     });\n                 }\n             };\n             let effects_json =\n                 match row.get_ref(2)? {\n-                    ValueRef::Text(bytes) => std::str::from_utf8(bytes)\n-                        .map(str::to_string)\n-                        .map_err(|error| Error::StoreCorrupt {\n-                            detail: format!(\"请求 {request_id} 的effects_json不是UTF-8：{error}\"),\n-                        })?,\n+                     /* ~ changed by cargo-mutants ~ */\n                     _ => {\n                         return Err(Error::StoreCorrupt {\n                             detail: format!(\"请求 {request_id} 的effects_json不是TEXT\"),\n                         });\n                     }\n                 };\n             out.push(RequestEffectRow {\n                 request_id,\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::all_request_effect_rows",
+      "return_type": "-> Result<Vec<RequestEffectRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 288
+        },
+        "start": {
+          "column": 5,
+          "line": 245
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/store/read.rs:269:21: delete match arm ValueRef::Text(bytes) in Store::all_request_effect_rows",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 273
+      },
+      "start": {
+        "column": 21,
+        "line": 269
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::audit_rows -> Result<Vec<AuditRow>> with Ok(vec![])\n@@ -283,31 +283,17 @@\n                 effects_json,\n                 work_id: row.get(3)?,\n             });\n         }\n         Ok(out)\n     }\n \n     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq\",\n-        )?;\n-        let rows = stmt.query_map([request_id], |row| {\n-            Ok(AuditRow {\n-                seq: row.get(0)?,\n-                request_id: row.get(1)?,\n-                work_id: row.get(2)?,\n-                revision: row.get(3)?,\n-                command_json: row.get(4)?,\n-                at: row.get(5)?,\n-            })\n-        })?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。\n     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT seq, request_id, work_id, revision, command_json, at\n              FROM audit ORDER BY seq\",\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::audit_rows",
+      "return_type": "-> Result<Vec<AuditRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 306
+        },
+        "start": {
+          "column": 5,
+          "line": 290
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:291:9: replace Store::audit_rows -> Result<Vec<AuditRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 305
+      },
+      "start": {
+        "column": 9,
+        "line": 291
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::audit_rows -> Result<Vec<AuditRow>> with Ok(vec![Default::default()])\n@@ -283,31 +283,17 @@\n                 effects_json,\n                 work_id: row.get(3)?,\n             });\n         }\n         Ok(out)\n     }\n \n     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq\",\n-        )?;\n-        let rows = stmt.query_map([request_id], |row| {\n-            Ok(AuditRow {\n-                seq: row.get(0)?,\n-                request_id: row.get(1)?,\n-                work_id: row.get(2)?,\n-                revision: row.get(3)?,\n-                command_json: row.get(4)?,\n-                at: row.get(5)?,\n-            })\n-        })?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。\n     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {\n         let conn = self.connect()?;\n         let mut stmt = conn.prepare(\n             \"SELECT seq, request_id, work_id, revision, command_json, at\n              FROM audit ORDER BY seq\",\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::audit_rows",
+      "return_type": "-> Result<Vec<AuditRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 306
+        },
+        "start": {
+          "column": 5,
+          "line": 290
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:291:9: replace Store::audit_rows -> Result<Vec<AuditRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 305
+      },
+      "start": {
+        "column": 9,
+        "line": 291
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::audit_history -> Result<Vec<AuditRow>> with Ok(vec![])\n@@ -302,32 +302,17 @@\n                 at: row.get(5)?,\n             })\n         })?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。\n     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT seq, request_id, work_id, revision, command_json, at\n-             FROM audit ORDER BY seq\",\n-        )?;\n-        let rows = stmt.query_map([], |row| {\n-            Ok(AuditRow {\n-                seq: row.get(0)?,\n-                request_id: row.get(1)?,\n-                work_id: row.get(2)?,\n-                revision: row.get(3)?,\n-                command_json: row.get(4)?,\n-                at: row.get(5)?,\n-            })\n-        })?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 效果全部完成后置 `published = 1`。\n     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {\n         let conn = self.connect()?;\n         let changed = conn.execute(\n             \"UPDATE requests SET published = 1 WHERE request_id = ?1\",\n             [request_id],\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::audit_history",
+      "return_type": "-> Result<Vec<AuditRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 326
+        },
+        "start": {
+          "column": 5,
+          "line": 308
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:310:9: replace Store::audit_history -> Result<Vec<AuditRow>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 325
+      },
+      "start": {
+        "column": 9,
+        "line": 310
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::audit_history -> Result<Vec<AuditRow>> with Ok(vec![Default::default()])\n@@ -302,32 +302,17 @@\n                 at: row.get(5)?,\n             })\n         })?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。\n     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {\n-        let conn = self.connect()?;\n-        let mut stmt = conn.prepare(\n-            \"SELECT seq, request_id, work_id, revision, command_json, at\n-             FROM audit ORDER BY seq\",\n-        )?;\n-        let rows = stmt.query_map([], |row| {\n-            Ok(AuditRow {\n-                seq: row.get(0)?,\n-                request_id: row.get(1)?,\n-                work_id: row.get(2)?,\n-                revision: row.get(3)?,\n-                command_json: row.get(4)?,\n-                at: row.get(5)?,\n-            })\n-        })?;\n-        Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 效果全部完成后置 `published = 1`。\n     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {\n         let conn = self.connect()?;\n         let changed = conn.execute(\n             \"UPDATE requests SET published = 1 WHERE request_id = ?1\",\n             [request_id],\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::audit_history",
+      "return_type": "-> Result<Vec<AuditRow>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 326
+        },
+        "start": {
+          "column": 5,
+          "line": 308
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:310:9: replace Store::audit_history -> Result<Vec<AuditRow>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 325
+      },
+      "start": {
+        "column": 9,
+        "line": 310
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace Store::mark_published -> Result<()> with Ok(())\n@@ -322,27 +322,17 @@\n                 at: row.get(5)?,\n             })\n         })?;\n         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)\n     }\n \n     /// 效果全部完成后置 `published = 1`。\n     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {\n-        let conn = self.connect()?;\n-        let changed = conn.execute(\n-            \"UPDATE requests SET published = 1 WHERE request_id = ?1\",\n-            [request_id],\n-        )?;\n-        if changed != 1 {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"请求 {request_id} 发布标记应更新1行，实际更新{changed}行\"),\n-            });\n-        }\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n fn workbook_row_of(r: &rusqlite::Row<'_>) -> rusqlite::Result<WorkbookRow> {\n     Ok(WorkbookRow {\n         id: r.get(0)?,\n         version: r.get(1)?,\n         digest: r.get(2)?,\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::mark_published",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 341
+        },
+        "start": {
+          "column": 5,
+          "line": 328
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:330:9: replace Store::mark_published -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 340
+      },
+      "start": {
+        "column": 9,
+        "line": 330
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace != with == in Store::mark_published\n@@ -327,17 +327,17 @@\n \n     /// 效果全部完成后置 `published = 1`。\n     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {\n         let conn = self.connect()?;\n         let changed = conn.execute(\n             \"UPDATE requests SET published = 1 WHERE request_id = ?1\",\n             [request_id],\n         )?;\n-        if changed != 1 {\n+        if changed == /* ~ changed by cargo-mutants ~ */ 1 {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"请求 {request_id} 发布标记应更新1行，实际更新{changed}行\"),\n             });\n         }\n         Ok(())\n     }\n }\n \n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "Store::mark_published",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 341
+        },
+        "start": {
+          "column": 5,
+          "line": 328
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:335:20: replace != with == in Store::mark_published",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 335
+      },
+      "start": {
+        "column": 20,
+        "line": 335
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace workbook_row_of -> rusqlite::Result<WorkbookRow> with Ok(Default::default())\n@@ -337,23 +337,17 @@\n                 detail: format!(\"请求 {request_id} 发布标记应更新1行，实际更新{changed}行\"),\n             });\n         }\n         Ok(())\n     }\n }\n \n fn workbook_row_of(r: &rusqlite::Row<'_>) -> rusqlite::Result<WorkbookRow> {\n-    Ok(WorkbookRow {\n-        id: r.get(0)?,\n-        version: r.get(1)?,\n-        digest: r.get(2)?,\n-        dir: r.get(3)?,\n-        added_at: r.get(4)?,\n-    })\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n pub(crate) fn decode_row(\n     work_id: &str,\n     revision: i64,\n     status: &str,\n     state_json: &str,\n ) -> Result<WorkRow> {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "workbook_row_of",
+      "return_type": "-> rusqlite::Result<WorkbookRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 352
+        },
+        "start": {
+          "column": 1,
+          "line": 344
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:345:5: replace workbook_row_of -> rusqlite::Result<WorkbookRow> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 351
+      },
+      "start": {
+        "column": 5,
+        "line": 345
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace decode_row -> Result<WorkRow> with Ok(Default::default())\n@@ -352,37 +352,10 @@\n }\n \n pub(crate) fn decode_row(\n     work_id: &str,\n     revision: i64,\n     status: &str,\n     state_json: &str,\n ) -> Result<WorkRow> {\n-    let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {\n-        detail: format!(\"works 行 {work_id:?} 的 work_id 不合法：{e}\"),\n-    })?;\n-    let revision = u64::try_from(revision)\n-        .ok()\n-        .filter(|revision| *revision > 0)\n-        .ok_or_else(|| Error::StoreCorrupt {\n-            detail: format!(\"works 行 {id} 的 revision 必须大于零\"),\n-        })?;\n-    let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n-        detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n-    })?;\n-    if state.work_id != id {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"works 行 {id} 的 state_json.work_id 是 {}\", state.work_id),\n-        });\n-    }\n-    if state.status.column() != status {\n-        return Err(Error::StoreCorrupt {\n-            detail: format!(\"works 行 {id} 的 status {status:?} 与 state_json.status 不一致\"),\n-        });\n-    }\n-    state\n-        .validate_persisted()\n-        .map_err(|detail| Error::StoreCorrupt {\n-            detail: format!(\"works 行 {id} 的 state_json.{detail}\"),\n-        })?;\n-    Ok(WorkRow { revision, state })\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/read.rs:360:5: replace decode_row -> Result<WorkRow> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 387
+      },
+      "start": {
+        "column": 5,
+        "line": 360
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace > with == in decode_row\n@@ -357,17 +357,17 @@\n     status: &str,\n     state_json: &str,\n ) -> Result<WorkRow> {\n     let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {work_id:?} 的 work_id 不合法：{e}\"),\n     })?;\n     let revision = u64::try_from(revision)\n         .ok()\n-        .filter(|revision| *revision > 0)\n+        .filter(|revision| *revision == /* ~ changed by cargo-mutants ~ */ 0)\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 revision 必须大于零\"),\n         })?;\n     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n     })?;\n     if state.work_id != id {\n         return Err(Error::StoreCorrupt {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:365:38: replace > with == in decode_row",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 365
+      },
+      "start": {
+        "column": 38,
+        "line": 365
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace > with < in decode_row\n@@ -357,17 +357,17 @@\n     status: &str,\n     state_json: &str,\n ) -> Result<WorkRow> {\n     let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {work_id:?} 的 work_id 不合法：{e}\"),\n     })?;\n     let revision = u64::try_from(revision)\n         .ok()\n-        .filter(|revision| *revision > 0)\n+        .filter(|revision| *revision < /* ~ changed by cargo-mutants ~ */ 0)\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 revision 必须大于零\"),\n         })?;\n     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n     })?;\n     if state.work_id != id {\n         return Err(Error::StoreCorrupt {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:365:38: replace > with < in decode_row",
+    "package": "sheltie-runtime",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 365
+      },
+      "start": {
+        "column": 38,
+        "line": 365
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace > with >= in decode_row\n@@ -357,17 +357,17 @@\n     status: &str,\n     state_json: &str,\n ) -> Result<WorkRow> {\n     let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {work_id:?} 的 work_id 不合法：{e}\"),\n     })?;\n     let revision = u64::try_from(revision)\n         .ok()\n-        .filter(|revision| *revision > 0)\n+        .filter(|revision| *revision >= /* ~ changed by cargo-mutants ~ */ 0)\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 revision 必须大于零\"),\n         })?;\n     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n     })?;\n     if state.work_id != id {\n         return Err(Error::StoreCorrupt {\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:365:38: replace > with >= in decode_row",
+    "package": "sheltie-runtime",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 365
+      },
+      "start": {
+        "column": 38,
+        "line": 365
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace != with == in decode_row\n@@ -364,17 +364,17 @@\n         .ok()\n         .filter(|revision| *revision > 0)\n         .ok_or_else(|| Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 revision 必须大于零\"),\n         })?;\n     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n     })?;\n-    if state.work_id != id {\n+    if state.work_id == /* ~ changed by cargo-mutants ~ */ id {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 state_json.work_id 是 {}\", state.work_id),\n         });\n     }\n     if state.status.column() != status {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 status {status:?} 与 state_json.status 不一致\"),\n         });\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:372:22: replace != with == in decode_row",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 372
+      },
+      "start": {
+        "column": 22,
+        "line": 372
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/read.rs\n+++ replace != with == in decode_row\n@@ -369,17 +369,17 @@\n     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {\n         detail: format!(\"works 行 {id} 的 state_json 解不开：{e}\"),\n     })?;\n     if state.work_id != id {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 state_json.work_id 是 {}\", state.work_id),\n         });\n     }\n-    if state.status.column() != status {\n+    if state.status.column() == /* ~ changed by cargo-mutants ~ */ status {\n         return Err(Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 status {status:?} 与 state_json.status 不一致\"),\n         });\n     }\n     state\n         .validate_persisted()\n         .map_err(|detail| Error::StoreCorrupt {\n             detail: format!(\"works 行 {id} 的 state_json.{detail}\"),\n",
+    "file": "crates/sheltie-runtime/src/store/read.rs",
+    "function": {
+      "function_name": "decode_row",
+      "return_type": "-> Result<WorkRow>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 388
+        },
+        "start": {
+          "column": 1,
+          "line": 354
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/store/read.rs:377:30: replace != with == in decode_row",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 377
+      },
+      "start": {
+        "column": 30,
+        "line": 377
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ replace create_script -> String with String::new()\n@@ -62,22 +62,15 @@\n   at           TEXT NOT NULL\n )\",\n     ),\n ];\n \n /// 建库脚本：DDL 与 `PRAGMA user_version` 在**同一个事务**里执行（存储合同 §1.1），\n /// 不留半结构库；首次并发建库由管理根写锁串行化。\n pub fn create_script() -> String {\n-    let mut script = String::from(\"BEGIN;\\n\");\n-    for (_, sql) in TABLES {\n-        script.push_str(sql);\n-        script.push_str(\";\\n\");\n-    }\n-    script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n-    script.push_str(\"COMMIT;\\n\");\n-    script\n+    String::new() /* ~ changed by cargo-mutants ~ */\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n     sql.chars().filter(|c| !c.is_whitespace()).collect()\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "create_script",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 67
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:70:5: replace create_script -> String with String::new()",
+    "package": "sheltie-runtime",
+    "replacement": "String::new()",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 77
+      },
+      "start": {
+        "column": 5,
+        "line": 70
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ replace create_script -> String with \"xyzzy\".into()\n@@ -62,22 +62,15 @@\n   at           TEXT NOT NULL\n )\",\n     ),\n ];\n \n /// 建库脚本：DDL 与 `PRAGMA user_version` 在**同一个事务**里执行（存储合同 §1.1），\n /// 不留半结构库；首次并发建库由管理根写锁串行化。\n pub fn create_script() -> String {\n-    let mut script = String::from(\"BEGIN;\\n\");\n-    for (_, sql) in TABLES {\n-        script.push_str(sql);\n-        script.push_str(\";\\n\");\n-    }\n-    script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n-    script.push_str(\"COMMIT;\\n\");\n-    script\n+    \"xyzzy\".into() /* ~ changed by cargo-mutants ~ */\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n     sql.chars().filter(|c| !c.is_whitespace()).collect()\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "create_script",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 67
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:70:5: replace create_script -> String with \"xyzzy\".into()",
+    "package": "sheltie-runtime",
+    "replacement": "\"xyzzy\".into()",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 77
+      },
+      "start": {
+        "column": 5,
+        "line": 70
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ replace normalize_sql -> String with String::new()\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    String::new() /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with String::new()",
+    "package": "sheltie-runtime",
+    "replacement": "String::new()",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 82
+      },
+      "start": {
+        "column": 5,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ replace normalize_sql -> String with \"xyzzy\".into()\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    \"xyzzy\".into() /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with \"xyzzy\".into()",
+    "package": "sheltie-runtime",
+    "replacement": "\"xyzzy\".into()",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 82
+      },
+      "start": {
+        "column": 5,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ delete ! in normalize_sql\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    sql.chars().filter(|c|  /* ~ changed by cargo-mutants ~ */c.is_whitespace()).collect()\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 82
+      },
+      "start": {
+        "column": 28,
+        "line": 82
+      }
+    }
+  }
+]

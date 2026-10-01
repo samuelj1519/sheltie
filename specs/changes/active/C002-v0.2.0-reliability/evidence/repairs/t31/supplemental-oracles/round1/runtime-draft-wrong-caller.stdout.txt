@@ -1,0 +1,23 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.82s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 2 tests
+test supplemental_completed_workbook_replay_rejects_consistently_invalid_version ... ok
+test supplemental_start_requires_are_bound_to_the_frozen_manifest ... FAILED
+
+failures:
+
+---- supplemental_start_requires_are_bound_to_the_frozen_manifest stdout ----
+
+thread 'supplemental_start_requires_are_bound_to_the_frozen_manifest' (29621396) panicked at crates/sheltie-runtime/tests/disposition_oracles.rs:120:37:
+called `Result::unwrap_err()` on an `Ok` value: ("# Work 2026-09-30-001-default（default）\n\nworkbook: two-step@1.0.0   flow: default   status: active\ncurrent: outline#1\ndone: 无\npending: summary\nvisits: outline 1/1, summary 0/1\n\n## 最近一次尝试\n\n无\n\n## 合法下一步\n\n- sheltie attempt begin 2026-09-30-001-default --node outline\n- sheltie work cancel 2026-09-30-001-default\n", StatusCardJson { work_id: WorkId("2026-09-30-001-default"), name: "default", workbook: "two-step@1.0.0", flow: "default", status: Active, current: "outline#1", done: [], pending: ["summary"], visits: {"outline": "1/1", "summary": "0/1"}, blocked: None, last_attempt: None, next: [Object {"args": Object {"node": String("outline"), "work": String("2026-09-30-001-default")}, "executor": String("agent"), "op": String("attempt begin"), "tier": String("standard")}, Object {"args": Object {"work": String("2026-09-30-001-default")}, "op": String("work cancel")}] })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_start_requires_are_bound_to_the_frozen_manifest
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.80s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

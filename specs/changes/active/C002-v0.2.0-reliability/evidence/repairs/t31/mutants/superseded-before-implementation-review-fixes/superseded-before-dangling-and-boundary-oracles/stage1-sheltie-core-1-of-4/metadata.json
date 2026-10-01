@@ -1,0 +1,25 @@
+{
+  "name": "stage1-sheltie-core-1-of-4",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-core",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--test-workspace",
+    "false",
+    "--shard",
+    "1/4"
+  ],
+  "exit": 2,
+  "seconds": 203.068,
+  "listed": 177,
+  "processed": 177,
+  "counts": {
+    "Unviable": 49,
+    "CaughtMutant": 123,
+    "MissedMutant": 5
+  }
+}

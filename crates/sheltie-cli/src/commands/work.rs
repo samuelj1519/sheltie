@@ -84,7 +84,7 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        work_id.as_str(),
+        &work_id,
     )
 }
 
@@ -175,7 +175,7 @@ fn cancel(ctx: &Ctx, work: &str) -> Outcome {
         Some(resp.revision),
         data,
         &resp.next,
-        wid.as_str(),
+        &wid,
     )
 }
 

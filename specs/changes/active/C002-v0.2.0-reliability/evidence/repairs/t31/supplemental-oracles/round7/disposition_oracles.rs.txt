@@ -1,0 +1,1417 @@
+//! C002-T31：真实重放入口拒绝不完整或互相矛盾的效果登记。
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+mod common;
+use common::*;
+use rusqlite::{Connection, types::Value as SqlValue};
+use serde_json::{Value, json};
+use sheltie_core::ids::{AttemptId, NodeId};
+use sheltie_runtime::request::InputValue;
+use std::collections::BTreeMap;
+use std::os::unix::fs::PermissionsExt;
+use std::path::{Path, PathBuf};
+
+fn effects(conn: &Connection, rid: &str) -> Value {
+    let raw: String = conn
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id=?1",
+            [rid],
+            |r| r.get(0),
+        )
+        .unwrap();
+    serde_json::from_str(&raw).unwrap()
+}
+fn set_effects(conn: &Connection, rid: &str, effects: &Value, published: i64) {
+    conn.execute(
+        "UPDATE requests SET effects_json=?1,published=?2 WHERE request_id=?3",
+        rusqlite::params![effects.to_string(), published, rid],
+    )
+    .unwrap();
+}
+type StoreRows = Vec<Vec<Vec<SqlValue>>>;
+type BusinessFiles = BTreeMap<PathBuf, (u32, Vec<u8>)>;
+
+fn rows(conn: &Connection) -> StoreRows {
+    ["workbooks", "works", "work_sequence", "requests", "audit"]
+        .into_iter()
+        .map(|table| {
+            let mut q = conn
+                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
+                .unwrap();
+            let n = q.column_count();
+            q.query_map([], |r| (0..n).map(|i| r.get(i)).collect())
+                .unwrap()
+                .map(Result::unwrap)
+                .collect()
+        })
+        .collect()
+}
+fn files(root: &Path) -> BusinessFiles {
+    fn walk(base: &Path, dir: &Path, out: &mut BusinessFiles) {
+        if !dir.exists() {
+            return;
+        }
+        let meta = std::fs::symlink_metadata(dir).unwrap();
+        let bytes = if meta.is_file() {
+            std::fs::read(dir).unwrap()
+        } else {
+            Vec::new()
+        };
+        out.insert(
+            dir.strip_prefix(base).unwrap().to_path_buf(),
+            (meta.permissions().mode(), bytes),
+        );
+        if meta.is_dir() {
+            for e in std::fs::read_dir(dir).unwrap() {
+                walk(base, &e.unwrap().path(), out);
+            }
+        }
+    }
+    let mut out = BTreeMap::new();
+    for name in ["works", "workbooks", "pending"] {
+        walk(root, &root.join(name), &mut out);
+    }
+    out
+}
+fn assert_unchanged(
+    home: &sheltie_runtime::Home,
+    conn: &Connection,
+    before_rows: StoreRows,
+    before_files: BusinessFiles,
+) {
+    assert_eq!(rows(conn), before_rows, "拒绝前不得提交或改变完成标记");
+    assert_eq!(
+        files(home.root().as_path().as_std_path()),
+        before_files,
+        "整批登记校验失败不得写文件、封存或清理元数据"
+    );
+}
+
+fn assert_original_data(snapshot: &Value, expected: &Value) {
+    let mut data = snapshot["data"].clone();
+    assert_eq!(
+        data.as_object_mut().unwrap().remove("replayed"),
+        Some(json!(false))
+    );
+    assert_eq!(&data, expected);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_start_requires_are_bound_to_the_frozen_manifest() {
+    let (dir, home) = temp_home();
+    let source = copy_example("two-step", dir.path());
+    let manifest = source.join("WORKBOOK.toml");
+    let mut text = std::fs::read_to_string(&manifest).unwrap();
+    text.push_str("\n[[requires]]\nkind = \"skill\"\nname = \"writer\"\n");
+    std::fs::write(&manifest, text).unwrap();
+    repo(&home).add(&abs(&source), None).unwrap();
+    let svc = service(&home);
+    let original = start_two_step(&svc);
+    assert_eq!(
+        original.data["requires"],
+        json!([{"kind":"skill","name":"writer","digest":null,"source":null,"version":null}])
+    );
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let raw: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id=?1",
+            [&original.request_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut changed: Value = serde_json::from_str(&raw).unwrap();
+    changed["reply"]["requires"] = json!([]);
+    changed["data"]["requires"] = json!([]);
+    conn.execute(
+        "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+        rusqlite::params![changed.to_string(), original.request_id],
+    )
+    .unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(dir.path());
+    let error = svc
+        .start(
+            sheltie_runtime::StartArgs {
+                workbook_id: "two-step".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: [(
+                    "topic".into(),
+                    InputValue::Literal {
+                        text: "给新人介绍 Sheltie".into(),
+                    },
+                )]
+                .into_iter()
+                .collect(),
+            },
+            Some(original.request_id.clone()),
+        )
+        .unwrap_err();
+    assert_effect_pending(error, true, Some(&original.request_id), None);
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_completed_workbook_replay_rejects_consistently_invalid_version() {
+    let (dir, home) = temp_home();
+    let source = abs(&example_dir("two-step"));
+    let repository = repo(&home);
+    let rid = "bad-version-replay";
+    repository.add(&source, Some(rid.into())).unwrap();
+    assert!(repository.add(&source, Some(rid.into())).unwrap().replayed);
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let mut changed = effects(&conn, rid);
+    changed[0]["owner"] = json!("workbook:two-step@bad_");
+    changed[0]["final"] = json!("workbooks/two-step/bad_");
+    let raw: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id=?1",
+            [rid],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut reply: Value = serde_json::from_str(&raw).unwrap();
+    reply["data"]["version"] = json!("bad_");
+    set_effects(&conn, rid, &changed, 1);
+    conn.execute(
+        "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+        rusqlite::params![reply.to_string(), rid],
+    )
+    .unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(dir.path());
+    let error = repository.add(&source, Some(rid.into())).unwrap_err();
+    assert_effect_pending_without_original(error, true, rid, None);
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_managed_rename_rejects_a_hardlinked_regular_source() {
+    use sheltie_runtime::fsx::{ManagedFs, ManagedRelPath};
+    let (dir, home, _svc) = home_with_example("two-step");
+    let fs = ManagedFs::open_existing(&home).unwrap();
+    let lock = home.acquire_lock().unwrap();
+    let original = ManagedRelPath::new("tmp/regular-source").unwrap();
+    let moved = ManagedRelPath::new("tmp/regular-moved").unwrap();
+    fs.write_new(&lock, &original, b"single linked positive")
+        .unwrap();
+    fs.rename_new(&lock, &original, &moved).unwrap();
+    assert_eq!(
+        std::fs::read(dir.path().join(moved.as_str())).unwrap(),
+        b"single linked positive"
+    );
+    let source = ManagedRelPath::new("tmp/hardlink-source").unwrap();
+    let target = ManagedRelPath::new("tmp/hardlink-target").unwrap();
+    fs.write_new(&lock, &source, b"independent linked bytes")
+        .unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let alias = outside.path().join("alias");
+    std::fs::hard_link(dir.path().join(source.as_str()), &alias).unwrap();
+    let error = fs.rename_new(&lock, &source, &target).unwrap_err();
+    assert!(
+        matches!(error, sheltie_runtime::Error::InvalidRequest { .. }),
+        "{error:?}"
+    );
+    assert!(!dir.path().join(target.as_str()).exists());
+    assert_eq!(
+        std::fs::read(dir.path().join(source.as_str())).unwrap(),
+        b"independent linked bytes"
+    );
+    assert_eq!(std::fs::read(&alias).unwrap(), b"independent linked bytes");
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_existing_schema_requires_exact_table_definitions() {
+    let (dir, home, svc) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&svc));
+    assert!(svc.status(&work).is_ok());
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute_batch("ALTER TABLE works ADD COLUMN alien TEXT;")
+        .unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(dir.path());
+    for error in [
+        svc.status(&work).unwrap_err(),
+        repo(&home).list().unwrap_err(),
+    ] {
+        assert!(
+            matches!(error, sheltie_runtime::Error::StoreSchemaMismatch { .. }),
+            "{error:?}"
+        );
+    }
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_schema_whitespace_does_not_change_recognition() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&svc));
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute_batch("PRAGMA writable_schema=ON; UPDATE sqlite_master SET sql=replace(sql, '  ', '   ') WHERE type='table' AND name='works'; PRAGMA writable_schema=OFF;").unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    assert!(svc.status(&work).is_ok());
+    assert_eq!(repo(&home).list().unwrap().len(), 1);
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_file_mode_rejects_a_previous_home_epoch_before_chmod() {
+    use sheltie_runtime::fsx::{ManagedFs, ManagedRelPath};
+    let parent = OwnedTempDir::new();
+    let slot = parent.path().join("slot");
+    let old_slot = parent.path().join("old-slot");
+    let home = sheltie_runtime::Home::at(abs(&slot));
+    repo(&home)
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
+    let old_fs = ManagedFs::open_existing(&home).unwrap();
+    let old_lock = home.acquire_lock().unwrap();
+    let file = ManagedRelPath::new("tmp/epoch-file").unwrap();
+    old_fs
+        .write_new(&old_lock, &file, b"old epoch independent bytes")
+        .unwrap();
+    let held = old_fs.open_regular(&file).unwrap();
+    assert_eq!(
+        std::fs::metadata(slot.join(file.as_str()))
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777,
+        0o600
+    );
+    std::fs::rename(&slot, &old_slot).unwrap();
+    repo(&home)
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
+    let new_fs = ManagedFs::open_existing(&home).unwrap();
+    let new_lock = home.acquire_lock().unwrap();
+    new_fs
+        .write_new(&new_lock, &file, b"new epoch independent bytes")
+        .unwrap();
+    let error = new_fs.set_readonly(&new_lock, &held).unwrap_err();
+    assert!(
+        matches!(error, sheltie_runtime::Error::InvalidRequest { .. }),
+        "{error:?}"
+    );
+    for (path, bytes) in [
+        (old_slot.join(file.as_str()), b"old epoch independent bytes"),
+        (slot.join(file.as_str()), b"new epoch independent bytes"),
+    ] {
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_workbook_lookup_rejects_a_second_requests_conflicting_claim() {
+    for change_snapshot in [false, true] {
+        let (_dir, home, _svc) = home_with_example("two-step");
+        let source_dir = OwnedTempDir::new();
+        let source = copy_example("two-step", source_dir.path());
+        let manifest = source.join("WORKBOOK.toml");
+        let text = std::fs::read_to_string(&manifest)
+            .unwrap()
+            .replace("id = \"two-step\"", "id = \"other\"");
+        std::fs::write(&manifest, text).unwrap();
+        let repository = repo(&home);
+        let rid = "other-book-publisher";
+        repository.add(&abs(&source), Some(rid.into())).unwrap();
+        assert!(repository.load("two-step", Some("1.0.0")).is_ok());
+        assert!(repository.load("other", Some("1.0.0")).is_ok());
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        if change_snapshot {
+            let raw: String = conn
+                .query_row(
+                    "SELECT reply_json FROM requests WHERE request_id=?1",
+                    [rid],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            let mut reply: Value = serde_json::from_str(&raw).unwrap();
+            reply["data"]["id"] = json!("two-step");
+            conn.execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![reply.to_string(), rid],
+            )
+            .unwrap();
+        } else {
+            let mut changed = effects(&conn, rid);
+            changed[0]["owner"] = json!("workbook:two-step@1.0.0");
+            changed[0]["final"] = json!("workbooks/two-step/1.0.0");
+            set_effects(&conn, rid, &changed, 1);
+        }
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let error = repository.load("two-step", Some("1.0.0")).unwrap_err();
+        assert!(
+            matches!(error, sheltie_runtime::Error::StoreCorrupt { .. }),
+            "{error:?}"
+        );
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner() {
+    for field in ["request_id", "replayed"] {
+        let (_dir, home, _svc) = home_with_example("two-step");
+        let repository = repo(&home);
+        let rid = "remove-owned-snapshot";
+        repository
+            .remove("two-step", "1.0.0", Some(rid.into()))
+            .unwrap();
+        assert!(
+            repository
+                .remove("two-step", "1.0.0", Some(rid.into()))
+                .unwrap()
+                .replayed
+        );
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = conn
+            .query_row(
+                "SELECT reply_json FROM requests WHERE request_id=?1",
+                [rid],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let mut reply: Value = serde_json::from_str(&raw).unwrap();
+        reply[field] = if field == "request_id" {
+            json!("other-request")
+        } else {
+            json!(true)
+        };
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![reply.to_string(), rid],
+        )
+        .unwrap();
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let error = repository
+            .remove("two-step", "1.0.0", Some(rid.into()))
+            .unwrap_err();
+        assert_effect_pending_without_original(error, true, rid, None);
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_duplicate_flow_snapshot_is_not_exposed_as_an_original() {
+    let (_dir, home) = temp_home();
+    let repository = repo(&home);
+    let rid = "duplicate-flow-original";
+    let source = abs(&example_dir("two-step"));
+    repository.add(&source, Some(rid.into())).unwrap();
+    assert!(repository.add(&source, Some(rid.into())).unwrap().replayed);
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let raw: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id=?1",
+            [rid],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let mut reply: Value = serde_json::from_str(&raw).unwrap();
+    assert_eq!(reply["data"]["flows"], json!(["default"]));
+    reply["data"]["flows"] = json!(["default", "default"]);
+    conn.execute(
+        "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+        rusqlite::params![reply.to_string(), rid],
+    )
+    .unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    let error = repository.add(&source, Some(rid.into())).unwrap_err();
+    assert_effect_pending_without_original(error, true, rid, None);
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_work_publish_index_rejects_another_final_before_orphan_cleanup() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let started = start_two_step(&svc);
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let mut changed = effects(&conn, &started.request_id);
+    changed[0]["final"] = json!("works/2026-09-30-999-other");
+    set_effects(&conn, &started.request_id, &changed, 1);
+    let id = "0198f01a7f00700080000000000000fa";
+    let pending = home.pending_dir();
+    let private = pending.as_path().join(id).join("payload/private");
+    std::fs::create_dir_all(private.parent().unwrap()).unwrap();
+    std::fs::write(&private, b"legitimate orphan original").unwrap();
+    std::fs::write(pending.as_path().join(format!("{id}.owner")), json!({"format":"pending/v1","internal_id":id,"request_id":"uncommitted-neighbor","op":"add_workbook"}).to_string()+"\n").unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    let error = repo(&home).cleanup_pending().unwrap_err();
+    assert!(
+        matches!(error, sheltie_runtime::Error::StoreCorrupt { .. }),
+        "{error:?}"
+    );
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn supplemental_workbook_sql_failure_is_not_reported_as_a_duplicate() {
+    let (dir, home) = temp_home();
+    let repository = repo(&home);
+    repository
+        .add(&abs(&example_dir("two-step")), None)
+        .unwrap();
+    repository.remove("two-step", "1.0.0", None).unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    conn.execute_batch("CREATE TRIGGER insert_fault BEFORE INSERT ON workbooks BEGIN SELECT abs(-9223372036854775808); END;").unwrap();
+    let before_rows = rows(&conn);
+    let error = repository
+        .add(&abs(&example_dir("two-step")), Some("sql-failure".into()))
+        .unwrap_err();
+    assert!(
+        matches!(error, sheltie_runtime::Error::StoreCorrupt { .. }),
+        "{error:?}"
+    );
+    assert_eq!(rows(&conn), before_rows);
+    assert!(!dir.path().join("workbooks/two-step/1.0.0").exists());
+}
+
+// Task: C002-T31
+#[test]
+fn begin_replay_checks_content_and_hash_even_when_the_existing_brief_matches() {
+    for missing in [false, true] {
+        let (_dir, home, svc) = home_with_example("two-step");
+        let work = work_id_of(&start_two_step(&svc));
+        let node = NodeId::new("outline").unwrap();
+        let rid = "brief-content";
+        let original = svc.begin(&work, &node, Some(rid.into())).unwrap();
+        assert!(svc.begin(&work, &node, Some(rid.into())).unwrap().replayed);
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        let mut changed = effects(&conn, rid);
+        let brief = changed
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|op| {
+                op["kind"] == "write_file" && op["path"].as_str().unwrap().ends_with("/brief.md")
+            })
+            .unwrap();
+        brief["content"] = json!("changed persisted content without its matching hash");
+        if missing {
+            std::fs::remove_file(original.data["brief_path"].as_str().unwrap()).unwrap();
+        }
+        set_effects(&conn, rid, &changed, i64::from(!missing));
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        assert_effect_pending(
+            svc.begin(&work, &node, Some(rid.into())).unwrap_err(),
+            true,
+            Some(rid),
+            None,
+        );
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn submit_replay_requires_exactly_the_committed_output_references_and_seal() {
+    for corruption in ["missing_ref", "duplicate_ref", "missing_seal"] {
+        let (_dir, home, svc) = home_with_example("two-step");
+        let work = work_id_of(&start_two_step(&svc));
+        let begun = svc
+            .begin(&work, &NodeId::new("outline").unwrap(), None)
+            .unwrap();
+        let output = PathBuf::from(output_dir_of(&begun).as_str()).join("outline.md");
+        std::fs::write(&output, b"# independent committed output\n").unwrap();
+        let attempt = AttemptId::parse("outline#1.0").unwrap();
+        let summary = InputValue::Literal {
+            text: "done".into(),
+        };
+        let rid = "seal-shape";
+        svc.submit(&work, &attempt, &summary, Some(rid.into()))
+            .unwrap();
+        assert!(
+            svc.submit(&work, &attempt, &summary, Some(rid.into()))
+                .unwrap()
+                .replayed
+        );
+        std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        let mut changed = effects(&conn, rid);
+        let ops = changed.as_array_mut().unwrap();
+        if corruption == "missing_seal" {
+            ops.retain(|op| op["kind"] != "seal_outputs");
+        } else {
+            let refs = ops
+                .iter_mut()
+                .find(|op| op["kind"] == "seal_outputs")
+                .unwrap()["refs"]
+                .as_array_mut()
+                .unwrap();
+            assert_eq!(refs.len(), 1);
+            if corruption == "missing_ref" {
+                refs.clear();
+            } else {
+                refs.push(refs[0].clone());
+            }
+        }
+        set_effects(&conn, rid, &changed, 0);
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        assert_effect_pending(
+            svc.submit(&work, &attempt, &summary, Some(rid.into()))
+                .unwrap_err(),
+            true,
+            Some(rid),
+            None,
+        );
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
+    for remove in [false, true] {
+        let (_dir, home) = temp_home();
+        let repo = repo(&home);
+        let source = abs(&example_dir("two-step"));
+        let rid = if remove { "remove-shape" } else { "add-shape" };
+        let added = repo
+            .add(&source, Some(if remove { "setup-add" } else { rid }.into()))
+            .unwrap();
+        let expected_data = if remove {
+            repo.remove("two-step", "1.0.0", Some(rid.into()))
+                .unwrap()
+                .data
+        } else {
+            added.data
+        };
+        if remove {
+            assert!(
+                repo.remove("two-step", "1.0.0", Some(rid.into()))
+                    .unwrap()
+                    .replayed
+            );
+        } else {
+            assert!(repo.add(&source, Some(rid.into())).unwrap().replayed);
+        }
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        let pristine = effects(&conn, rid);
+        let pristine_reply: String = conn
+            .query_row(
+                "SELECT reply_json FROM requests WHERE request_id=?1",
+                [rid],
+                |r| r.get(0),
+            )
+            .unwrap();
+        for corruption in [
+            "empty_batch",
+            "final",
+            "owner",
+            "digest",
+            "digest_format",
+            "digest_root",
+            "pending_prefix",
+            "pending_leaf",
+            "pending_uuid",
+            "shared_bad_digest",
+        ] {
+            if remove && matches!(corruption, "digest_root" | "digest" | "shared_bad_digest") {
+                continue;
+            }
+            let mut changed = pristine.clone();
+            if corruption == "empty_batch" {
+                changed = json!([]);
+            } else {
+                let op = &mut changed[0];
+                assert!(op.get("final").is_some() && op.get("final_path").is_none());
+                match corruption {
+                    "final" => op["final"] = json!("workbooks/other/1.0.0"),
+                    "owner" => op["owner"] = json!("workbook:other@1.0.0"),
+                    "digest" => {
+                        assert_ne!(op["digest"], json!("0".repeat(64)));
+                        op["digest"] = json!("0".repeat(64));
+                    }
+                    "digest_format" => op["digest"] = json!("invalid-digest"),
+                    "shared_bad_digest" => {
+                        // 两份相等的摘要仍必须满足SHA-256格式；此事实已损坏，不能返回可信original。
+                        op["digest"] = json!("invalid-digest");
+                        let mut reply: Value = serde_json::from_str(&pristine_reply).unwrap();
+                        reply["data"]["digest"] = json!("invalid-digest");
+                        conn.execute(
+                            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                            rusqlite::params![reply.to_string(), rid],
+                        )
+                        .unwrap();
+                    }
+                    "digest_root" => op["digest_root"] = json!("workbook"),
+                    "pending_prefix" => {
+                        op["pending"] = json!(
+                            op["pending"]
+                                .as_str()
+                                .unwrap()
+                                .replacen("pending/", "other/", 1)
+                        )
+                    }
+                    "pending_leaf" => {
+                        op["pending"] = json!(
+                            op["pending"]
+                                .as_str()
+                                .unwrap()
+                                .replace("/payload", "/other")
+                        )
+                    }
+                    "pending_uuid" => op["pending"] = json!("pending/invalid/payload"),
+                    _ => unreachable!(),
+                }
+            }
+            set_effects(&conn, rid, &changed, 1);
+            let before_rows = rows(&conn);
+            let before_files = files(home.root().as_path().as_std_path());
+            let error = if remove {
+                repo.remove("two-step", "1.0.0", Some(rid.into()))
+                    .unwrap_err()
+            } else {
+                repo.add(&source, Some(rid.into())).unwrap_err()
+            };
+            if corruption == "shared_bad_digest" {
+                assert_effect_pending_without_original(error, true, rid, None);
+            } else {
+                let snapshot = assert_effect_pending(error, true, Some(rid), None);
+                assert_eq!(snapshot["request_id"], rid);
+                assert_original_data(&snapshot, &expected_data);
+            }
+            assert_unchanged(&home, &conn, before_rows, before_files);
+            set_effects(&conn, rid, &pristine, 1);
+            conn.execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![pristine_reply, rid],
+            )
+            .unwrap();
+        }
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn unpublished_workbook_publish_checks_registered_digest_and_audit_time() {
+    let (_dir, home) = temp_home();
+    let repo = repo(&home);
+    let source = abs(&example_dir("two-step"));
+    let rid = "registered-publisher";
+    let original = repo.add(&source, Some(rid.into())).unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let original_effects = effects(&conn, rid);
+    set_effects(&conn, rid, &original_effects, 0);
+    assert!(repo.add(&source, Some(rid.into())).unwrap().replayed);
+    for field in ["digest", "added_at"] {
+        set_effects(&conn, rid, &original_effects, 0);
+        let pristine: String = conn
+            .query_row(&format!("SELECT {field} FROM workbooks"), [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        let value = if field == "digest" {
+            "0".repeat(64)
+        } else {
+            "2000-01-01T00:00:00Z".into()
+        };
+        assert_ne!(value, pristine);
+        conn.execute(&format!("UPDATE workbooks SET {field}=?1"), [value])
+            .unwrap();
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let snapshot = assert_effect_pending(
+            repo.add(&source, Some(rid.into())).unwrap_err(),
+            true,
+            Some(rid),
+            None,
+        );
+        assert_eq!(snapshot["request_id"], rid);
+        assert_original_data(&snapshot, &original.data);
+        assert_unchanged(&home, &conn, before_rows, before_files);
+        conn.execute(&format!("UPDATE workbooks SET {field}=?1"), [pristine])
+            .unwrap();
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn cleanup_preserves_unreferenced_objects_claiming_a_committed_request() {
+    let (_dir, home) = temp_home();
+    let repo = repo(&home);
+    repo.add(
+        &abs(&example_dir("two-step")),
+        Some("existing-request".into()),
+    )
+    .unwrap();
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    let id = "0198f01a7f00700080000000000000ff";
+    let pending_dir = home.pending_dir();
+    let pending = pending_dir.as_path();
+    std::fs::create_dir_all(pending.join(id).join("payload")).unwrap();
+    std::fs::write(
+        pending.join(id).join("payload/private"),
+        b"retain unrelated original",
+    )
+    .unwrap();
+    std::fs::write(pending.join(format!("{id}.owner")),json!({"format":"pending/v1","internal_id":id,"request_id":"existing-request","op":"add_workbook"}).to_string()+"\n").unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    let warnings = repo.cleanup_pending().unwrap();
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains(id) && w.contains("existing-request"))
+    );
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn cleanup_validates_completed_remove_metadata_before_any_deletion_and_is_repeatable() {
+    for corruption in ["none", "marker", "request", "op"] {
+        let (_dir, home) = temp_home();
+        let repo = repo(&home);
+        let rid = "completed-remove";
+        repo.add(&abs(&example_dir("two-step")), None).unwrap();
+        assert!(repo.cleanup_pending().unwrap().is_empty());
+        repo.remove("two-step", "1.0.0", Some(rid.into())).unwrap();
+        let conn = Connection::open(home.store_path().as_str()).unwrap();
+        let original = effects(&conn, rid);
+        let id = original[0]["pending"]
+            .as_str()
+            .unwrap()
+            .split('/')
+            .nth(1)
+            .unwrap();
+        let container = home.pending_dir().as_path().join(id);
+        let owner = home.pending_dir().as_path().join(format!("{id}.owner"));
+        let marker = home.pending_dir().as_path().join(format!("{id}.deleted"));
+        assert!(container.is_dir() && owner.is_file() && marker.is_file());
+        if corruption == "marker" {
+            std::fs::write(&marker, b"corrupt deletion proof\n").unwrap();
+        } else if corruption != "none" {
+            let mut json: Value = serde_json::from_slice(&std::fs::read(&owner).unwrap()).unwrap();
+            let field = if corruption == "request" {
+                "request_id"
+            } else {
+                "op"
+            };
+            json[field] = json!(if corruption == "request" {
+                "other-request"
+            } else {
+                "add_workbook"
+            });
+            std::fs::write(&owner, json.to_string() + "\n").unwrap();
+        }
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let warnings = repo.cleanup_pending().unwrap();
+        if corruption == "none" {
+            assert!(warnings.is_empty(), "{warnings:?}");
+            assert!(!container.exists() && !owner.exists() && !marker.exists());
+            assert!(repo.cleanup_pending().unwrap().is_empty());
+            assert_eq!(rows(&conn), before_rows);
+        } else {
+            assert!(warnings.iter().any(|w| w.contains(id)));
+            assert_unchanged(&home, &conn, before_rows, before_files);
+        }
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn begin_recovery_checks_required_prepare_and_history_effects_before_io() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&svc));
+    let node = NodeId::new("outline").unwrap();
+    let rid = "begin-required-effects";
+    let original = svc.begin(&work, &node, Some(rid.into())).unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine = effects(&conn, rid);
+    std::fs::remove_file(original.data["brief_path"].as_str().unwrap()).unwrap();
+    for missing in ["prepare_attempt", "write_file"] {
+        let mut changed = pristine.clone();
+        changed
+            .as_array_mut()
+            .unwrap()
+            .retain(|op| op["kind"] != missing);
+        assert!(
+            changed
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|op| op["kind"] != missing)
+        );
+        set_effects(&conn, rid, &changed, 0);
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let snapshot = assert_effect_pending(
+            svc.begin(&work, &node, Some(rid.into())).unwrap_err(),
+            true,
+            Some(rid),
+            None,
+        );
+        assert_eq!(snapshot["request_id"], rid);
+        assert_eq!(snapshot["revision"], original.revision);
+        assert_original_data(&snapshot, &original.data);
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn cleanup_warns_about_unpublished_reference_even_when_all_metadata_is_missing() {
+    let (_dir, home) = temp_home();
+    let repo = repo(&home);
+    let rid = "missing-pending-metadata";
+    repo.add(&abs(&example_dir("two-step")), Some(rid.into()))
+        .unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine = effects(&conn, rid);
+    let id = pristine[0]["pending"]
+        .as_str()
+        .unwrap()
+        .split('/')
+        .nth(1)
+        .unwrap();
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    set_effects(&conn, rid, &pristine, 0);
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    let warnings = repo.cleanup_pending().unwrap();
+    assert!(warnings.iter().any(|w| w.contains(rid) && w.contains(id)));
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn cleanup_checks_the_entire_request_index_before_removing_a_legitimate_orphan() {
+    let (_dir, home) = temp_home();
+    let repo = repo(&home);
+    let rid = "index-publisher";
+    repo.add(&abs(&example_dir("two-step")), Some(rid.into()))
+        .unwrap();
+    let svc = service(&home);
+    let started = start_two_step(&svc);
+    let work = work_id_of(&started);
+    let begun = svc
+        .begin(
+            &work,
+            &NodeId::new("outline").unwrap(),
+            Some("index-begin".into()),
+        )
+        .unwrap();
+    let original_brief = std::fs::read(begun.data["brief_path"].as_str().unwrap()).unwrap();
+    std::fs::write(
+        output_dir_of(&begun).as_path().join("outline.md"),
+        b"index output",
+    )
+    .unwrap();
+    svc.submit(
+        &work,
+        &AttemptId::parse("outline#1.0").unwrap(),
+        &InputValue::Literal {
+            text: "done".into(),
+        },
+        Some("index-submit".into()),
+    )
+    .unwrap();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine_publish = effects(&conn, rid);
+    let pristine_begin = effects(&conn, "index-begin");
+    let pristine_start = effects(&conn, &started.request_id);
+    let pristine_submit = effects(&conn, "index-submit");
+    let id = "0198f01a7f00700080000000000000fa";
+    let pending = home.pending_dir();
+    let private = pending.as_path().join(id).join("payload/private");
+    std::fs::create_dir_all(private.parent().unwrap()).unwrap();
+    std::fs::write(&private, b"legitimate orphan original").unwrap();
+    std::fs::write(pending.as_path().join(format!("{id}.owner")),json!({"format":"pending/v1","internal_id":id,"request_id":"uncommitted-index-neighbor","op":"add_workbook"}).to_string()+"\n").unwrap();
+    for corruption in [
+        "publish_final",
+        "publish_owner",
+        "publish_digest",
+        "publish_root",
+        "publish_version",
+        "workbook_work_id",
+        "history_ancestor",
+        "work_publish_root",
+        "seal_digest",
+    ] {
+        let (changed_request, pristine) = match corruption {
+            "history_ancestor" => ("index-begin", &pristine_begin),
+            "work_publish_root" => (started.request_id.as_str(), &pristine_start),
+            "seal_digest" => ("index-submit", &pristine_submit),
+            _ => (rid, &pristine_publish),
+        };
+        let mut changed = pristine.clone();
+        match corruption {
+            "publish_final" => changed[0]["final"] = json!("workbooks/other/1.0.0"),
+            "publish_owner" => changed[0]["owner"] = json!("workbook:other@1.0.0"),
+            "publish_digest" => changed[0]["digest"] = json!("invalid-digest"),
+            "publish_root" => changed[0]["digest_root"] = json!("workbook"),
+            "publish_version" => {
+                // 一个Workbook版本事实在owner与final中的两份表示保持一致，只破坏其格式。
+                changed[0]["owner"] = json!("workbook:two-step@bad_");
+                changed[0]["final"] = json!("workbooks/two-step/bad_");
+            }
+            "work_publish_root" => changed[0]["digest_root"] = json!(""),
+            "seal_digest" => {
+                changed
+                    .as_array_mut()
+                    .unwrap()
+                    .iter_mut()
+                    .find(|op| op["kind"] == "seal_outputs")
+                    .unwrap()["refs"][0]["sha256"] = json!("invalid-digest")
+            }
+            "workbook_work_id" => {
+                conn.execute(
+                    "UPDATE requests SET work_id=?1 WHERE request_id=?2",
+                    rusqlite::params![work.as_str(), rid],
+                )
+                .unwrap();
+            }
+            "history_ancestor" => {
+                changed
+                    .as_array_mut()
+                    .unwrap()
+                    .iter_mut()
+                    .find(|op| op["kind"] == "write_file")
+                    .unwrap()["path"] = json!("works")
+            }
+            _ => unreachable!(),
+        }
+        set_effects(&conn, changed_request, &changed, 1);
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let error = repo.cleanup_pending().unwrap_err();
+        assert_eq!(
+            error.code(),
+            sheltie_core::ErrorCode::StoreCorrupt,
+            "{corruption}: {error:?}"
+        );
+        assert_unchanged(&home, &conn, before_rows, before_files);
+        set_effects(&conn, rid, &pristine_publish, 1);
+        set_effects(&conn, "index-begin", &pristine_begin, 1);
+        set_effects(&conn, &started.request_id, &pristine_start, 1);
+        set_effects(&conn, "index-submit", &pristine_submit, 1);
+        conn.execute(
+            "UPDATE requests SET work_id=NULL WHERE request_id=?1",
+            [rid],
+        )
+        .unwrap();
+    }
+    assert!(repo.cleanup_pending().unwrap().is_empty());
+    assert!(!private.exists());
+    assert_eq!(
+        std::fs::read(begun.data["brief_path"].as_str().unwrap()).unwrap(),
+        original_brief
+    );
+}
+
+// Task: C002-T31
+#[test]
+fn submit_snapshot_data_must_match_the_committed_reply_output_references() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&svc));
+    let begun = svc
+        .begin(&work, &NodeId::new("outline").unwrap(), None)
+        .unwrap();
+    write_output(&output_dir_of(&begun), "outline.md", "# committed output\n");
+    let attempt = AttemptId::parse("outline#1.0").unwrap();
+    let summary = InputValue::Literal {
+        text: "done".into(),
+    };
+    let rid = "submit-data-ref";
+    let original = svc
+        .submit(&work, &attempt, &summary, Some(rid.into()))
+        .unwrap();
+    assert!(
+        svc.submit(&work, &attempt, &summary, Some(rid.into()))
+            .unwrap()
+            .replayed
+    );
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let raw: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id=?1",
+            [rid],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let pristine: Value = serde_json::from_str(&raw).unwrap();
+    for field in ["bytes", "sha256", "path"] {
+        let mut changed = pristine.clone();
+        let reference = &mut changed["data"]["outputs"]["outline"];
+        match field {
+            "bytes" => reference[field] = json!(reference[field].as_u64().unwrap() + 1),
+            "sha256" => reference[field] = json!("0".repeat(64)),
+            "path" => {
+                reference[field] = json!(format!("{}/another.md", output_dir_of(&begun).as_str()))
+            }
+            _ => unreachable!(),
+        }
+        assert_ne!(changed["data"], original.data);
+        assert_eq!(changed["reply"], pristine["reply"]);
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![changed.to_string(), rid],
+        )
+        .unwrap();
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        assert_effect_pending_without_original(
+            svc.submit(&work, &attempt, &summary, Some(rid.into()))
+                .unwrap_err(),
+            true,
+            rid,
+            None,
+        );
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn approval_snapshot_data_must_match_the_approved_node_and_occurrence() {
+    let (_dir, home, svc) = home_with_example("gated-release");
+    let started = svc
+        .start(
+            sheltie_runtime::StartArgs {
+                workbook_id: "gated-release".into(),
+                version: None,
+                flow: "default".into(),
+                name: None,
+                inputs: [(
+                    "version".into(),
+                    InputValue::Literal {
+                        text: "1.0.0".into(),
+                    },
+                )]
+                .into_iter()
+                .collect(),
+            },
+            None,
+        )
+        .unwrap();
+    let work = work_id_of(&started);
+    let node = NodeId::new("notes").unwrap();
+    let begun = svc.begin(&work, &node, None).unwrap();
+    write_output(&output_dir_of(&begun), "notes.md", "# notes\n");
+    svc.submit(
+        &work,
+        &AttemptId::parse("notes#1.0").unwrap(),
+        &InputValue::Literal {
+            text: "done".into(),
+        },
+        None,
+    )
+    .unwrap();
+    let rid = "approval-data-identity";
+    svc.approve(&work, &node, Some(rid.into())).unwrap();
+    assert!(
+        svc.approve(&work, &node, Some(rid.into()))
+            .unwrap()
+            .replayed
+    );
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let raw: String = conn
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id=?1",
+            [rid],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let pristine: Value = serde_json::from_str(&raw).unwrap();
+    for field in ["node", "occurrence", "by"] {
+        let mut changed = pristine.clone();
+        changed["data"][field] = match field {
+            "node" => json!("archive"),
+            "occurrence" => json!(2),
+            "by" => json!(format!(
+                "{}-other",
+                pristine["data"]["by"].as_str().unwrap()
+            )),
+            _ => unreachable!(),
+        };
+        assert_ne!(changed["data"], pristine["data"]);
+        assert_eq!(changed["reply"], pristine["reply"]);
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![changed.to_string(), rid],
+        )
+        .unwrap();
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let error = svc.approve(&work, &node, Some(rid.into())).unwrap_err();
+        if field == "by" {
+            let sheltie_runtime::Error::EffectPending {
+                committed,
+                request_id,
+                cause,
+                ..
+            } = error
+            else {
+                panic!("{error:?}");
+            };
+            assert!(committed);
+            assert_eq!(request_id, rid);
+            assert_eq!(cause, sheltie_core::ErrorCode::StoreCorrupt);
+        } else {
+            assert_effect_pending_without_original(error, true, rid, None);
+        }
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn persisted_start_command_cannot_claim_a_different_flow_than_the_frozen_work() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let original = start_two_step(&svc);
+    let work = work_id_of(&original);
+    let rid = original.request_id.as_str();
+    assert!(svc.status(&work).is_ok());
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let (command, reply): (String,String) = conn.query_row("SELECT a.command_json,r.reply_json FROM audit a JOIN requests r USING(request_id) WHERE a.request_id=?1", [rid], |row| Ok((row.get(0)?,row.get(1)?))).unwrap();
+    for snapshot in [false, true] {
+        let mut changed: Value =
+            serde_json::from_str(if snapshot { &reply } else { &command }).unwrap();
+        let flow = if snapshot {
+            &mut changed["data"]["flow"]
+        } else {
+            &mut changed["flow"]
+        };
+        assert_eq!(*flow, json!("default"));
+        *flow = json!("another-flow");
+        if snapshot {
+            conn.execute(
+                "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+                rusqlite::params![changed.to_string(), rid],
+            )
+            .unwrap();
+        } else {
+            conn.execute(
+                "UPDATE audit SET command_json=?1 WHERE request_id=?2",
+                rusqlite::params![changed.to_string(), rid],
+            )
+            .unwrap();
+        }
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        for error in [
+            svc.status(&work).unwrap_err(),
+            svc.stats(&work).unwrap_err(),
+            svc.list().unwrap_err(),
+        ] {
+            assert_eq!(
+                error.code(),
+                sheltie_core::ErrorCode::StoreCorrupt,
+                "{error:?}"
+            );
+        }
+        assert_unchanged(&home, &conn, before_rows, before_files);
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![reply, rid],
+        )
+        .unwrap();
+        conn.execute(
+            "UPDATE audit SET command_json=?1 WHERE request_id=?2",
+            rusqlite::params![command, rid],
+        )
+        .unwrap();
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn readonly_work_loading_checks_the_start_effect_shape_and_digest() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let original = start_two_step(&svc);
+    let work = work_id_of(&original);
+    let rid = original.request_id.as_str();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine = effects(&conn, rid);
+    for corruption in ["extra_history", "missing_card", "digest"] {
+        let mut changed = pristine.clone();
+        let extra = json!({"kind":"write_file","path":format!("works/{work}/extra.md"),"sha256":"0".repeat(64),"content":"extra"});
+        match corruption {
+            "extra_history" => changed.as_array_mut().unwrap().push(extra),
+            "missing_card" => {
+                changed
+                    .as_array_mut()
+                    .unwrap()
+                    .retain(|op| op["kind"] != "refresh_status_card");
+                changed.as_array_mut().unwrap().push(extra);
+            }
+            "digest" => {
+                assert_ne!(changed[0]["digest"], json!("0".repeat(64)));
+                changed[0]["digest"] = json!("0".repeat(64));
+            }
+            _ => unreachable!(),
+        }
+        set_effects(&conn, rid, &changed, 1);
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        for error in [
+            svc.status(&work).unwrap_err(),
+            svc.stats(&work).unwrap_err(),
+            svc.list().unwrap_err(),
+        ] {
+            assert_eq!(
+                error.code(),
+                sheltie_core::ErrorCode::StoreCorrupt,
+                "{corruption}: {error:?}"
+            );
+        }
+        assert_unchanged(&home, &conn, before_rows, before_files);
+    }
+}
+
+// Task: C002-T31
+#[test]
+fn unpublished_work_cannot_use_the_completed_owner_cleanup_fallback() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let original = start_two_step(&svc);
+    let work = work_id_of(&original);
+    let rid = original.request_id.as_str();
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let pristine = effects(&conn, rid);
+    assert!(repo(&home).cleanup_pending().unwrap().is_empty());
+    set_effects(&conn, rid, &pristine, 0);
+    let before_rows = rows(&conn);
+    let before_files = files(home.root().as_path().as_std_path());
+    for error in [
+        svc.status(&work).unwrap_err(),
+        svc.stats(&work).unwrap_err(),
+        svc.list().unwrap_err(),
+    ] {
+        assert_eq!(
+            error.code(),
+            sheltie_core::ErrorCode::StoreCorrupt,
+            "{error:?}"
+        );
+    }
+    assert_unchanged(&home, &conn, before_rows, before_files);
+}
+
+// Task: C002-T31
+#[test]
+fn begin_replay_rejects_audit_and_snapshot_metadata_drift_without_business_changes() {
+    let (_dir, home, svc) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&svc));
+    let node = NodeId::new("outline").unwrap();
+    let rid = "begin-metadata";
+    let original = svc.begin(&work, &node, Some(rid.into())).unwrap();
+    assert!(svc.begin(&work, &node, Some(rid.into())).unwrap().replayed);
+    let conn = Connection::open(home.store_path().as_str()).unwrap();
+    let (reply, audit_work, audit_at, command): (String, String, String, String) = conn.query_row(
+        "SELECT r.reply_json,a.work_id,a.at,a.command_json FROM requests r JOIN audit a USING(request_id) WHERE r.request_id=?1", [rid], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))
+    ).unwrap();
+    let pristine: Value = serde_json::from_str(&reply).unwrap();
+    for corruption in [
+        "audit_work",
+        "audit_at",
+        "audit_node",
+        "request_id",
+        "revision",
+        "replayed",
+        "zero_revision",
+        "future_revision",
+    ] {
+        let mut changed = pristine.clone();
+        match corruption {
+            "audit_work" => {
+                conn.execute(
+                    "UPDATE audit SET work_id='w20260930-001-other' WHERE request_id=?1",
+                    [rid],
+                )
+                .unwrap();
+            }
+            "audit_at" => {
+                conn.execute(
+                    "UPDATE audit SET at='2000-01-01T00:00:00Z' WHERE request_id=?1",
+                    [rid],
+                )
+                .unwrap();
+            }
+            "audit_node" => {
+                let mut changed_command: Value = serde_json::from_str(&command).unwrap();
+                assert_eq!(changed_command["node"], "outline");
+                changed_command["node"] = json!("summary");
+                conn.execute(
+                    "UPDATE audit SET command_json=?1 WHERE request_id=?2",
+                    rusqlite::params![changed_command.to_string(), rid],
+                )
+                .unwrap();
+            }
+            "request_id" => changed["request_id"] = json!("other-request"),
+            "revision" => changed["revision"] = json!(original.revision + 1),
+            "replayed" => changed["replayed"] = json!(true),
+            "zero_revision" | "future_revision" => {
+                let revision = if corruption == "zero_revision" {
+                    0
+                } else {
+                    original.revision + 1
+                };
+                changed["revision"] = json!(revision);
+                conn.execute(
+                    "UPDATE audit SET revision=?1 WHERE request_id=?2",
+                    rusqlite::params![revision, rid],
+                )
+                .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![changed.to_string(), rid],
+        )
+        .unwrap();
+        let before_rows = rows(&conn);
+        let before_files = files(home.root().as_path().as_std_path());
+        let error = svc.begin(&work, &node, Some(rid.into())).unwrap_err();
+        let sheltie_runtime::Error::EffectPending {
+            committed,
+            request_id,
+            pending_request_id,
+            cause,
+            ..
+        } = error
+        else {
+            panic!("{corruption}: {error:?}");
+        };
+        assert!(committed);
+        assert_eq!(request_id, rid);
+        assert!(pending_request_id.is_none());
+        assert_eq!(cause, sheltie_core::ErrorCode::StoreCorrupt);
+        assert_unchanged(&home, &conn, before_rows, before_files);
+        conn.execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id=?2",
+            rusqlite::params![reply, rid],
+        )
+        .unwrap();
+        conn.execute(
+            "UPDATE audit SET work_id=?1,at=?2,command_json=?3,revision=?4 WHERE request_id=?5",
+            rusqlite::params![audit_work, audit_at, command, original.revision, rid],
+        )
+        .unwrap();
+    }
+}

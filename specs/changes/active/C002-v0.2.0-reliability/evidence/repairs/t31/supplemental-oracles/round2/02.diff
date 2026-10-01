@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ crates/sheltie-runtime/src/fsx.rs:2498:34: replace match guard stat.st_nlink == 1 with true in preflight_remove_at
+@@ -2495,7 +2495,7 @@
+         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+     match FileType::from_raw_mode(stat.st_mode) {
+         FileType::Symlink => Ok(()),
+-        FileType::RegularFile if stat.st_nlink == 1 => Ok(()),
++        FileType::RegularFile if true => Ok(()),
+         FileType::RegularFile => Err(Error::InvalidRequest {
+             reason: format!(
+                 "{display} 是硬链接（nlink = {}），拒绝 purge",

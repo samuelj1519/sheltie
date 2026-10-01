@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/flow/graph.rs
++++ replace Graph::node_count -> usize with 1
+@@ -86,17 +86,17 @@
+     }
+ 
+     /// 按声明顺序。
+     pub fn nodes(&self) -> impl Iterator<Item = &NodeDef> {
+         self.order.iter().filter_map(|id| self.nodes.get(id))
+     }
+ 
+     pub fn node_count(&self) -> usize {
+-        self.nodes.len()
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// 从某节点出发的全部边，按声明顺序。
+     pub fn out_edges(&self, id: &NodeId) -> &[EdgeDef] {
+         self.out_edges.get(id).map(Vec::as_slice).unwrap_or(&[])
+     }
+ 
+     pub fn edge_count(&self) -> usize {

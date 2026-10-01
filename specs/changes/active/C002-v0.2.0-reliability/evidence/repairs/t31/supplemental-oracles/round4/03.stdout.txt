@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.34s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_schema_whitespace_does_not_change_recognition ... FAILED
+
+failures:
+
+---- supplemental_schema_whitespace_does_not_change_recognition stdout ----
+
+thread 'supplemental_schema_whitespace_does_not_change_recognition' (30046372) panicked at crates/sheltie-runtime/tests/disposition_oracles.rs:202:5:
+assertion failed: svc.status(&work).is_ok()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_schema_whitespace_does_not_change_recognition
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.59s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

@@ -1,0 +1,34 @@
+Found 78 mutants to test
+ok       Unmutated baseline in 16s build + 20s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:211:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::traverse_root in 47s build + 200s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with true in ManagedFs::traverse_root in 49s build + 206s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:81: replace | with & in ManagedFs::open_lock_file in 11s build + 206s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:206:29: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Symlink with false in ManagedFs::traverse_root in 54s build + 205s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root in 57s build + 204s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:81: replace | with ^ in ManagedFs::open_lock_file in 19s build + 204s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:62: replace | with & in ManagedFs::open_lock_file in 23s build + 179s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:62: replace | with ^ in ManagedFs::open_lock_file in 29s build + 168s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:43: replace | with ^ in ManagedFs::open_lock_file in 10s build + 114s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:26: replace | with ^ in ManagedFs::open_lock_file in 10s build + 117s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:260:75: replace || with && in ManagedFs::open_lock_file in 10s build + 118s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file in 17s build + 111s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:280:13: replace || with && in ManagedFs::open_existing_lock_file in 23s build + 102s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:64: replace | with & in ManagedFs::open_existing_lock_file in 13s build + 150s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:64: replace | with ^ in ManagedFs::open_existing_lock_file in 14s build + 154s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file in 14s build + 156s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:45: replace | with ^ in ManagedFs::open_existing_lock_file in 16s build + 157s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:26: replace | with & in ManagedFs::open_existing_lock_file in 15s build + 156s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:26: replace | with ^ in ManagedFs::open_existing_lock_file in 20s build + 152s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file in 27s build + 108s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:297:13: replace || with && in ManagedFs::open_existing_lock_file in 21s build + 93s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:296:13: replace || with && in ManagedFs::open_existing_lock_file in 17s build + 82s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with String::new() in 9s build + 81s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked in 8s build + 107s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:407:52: replace || with && in ManagedFs::ensure_dir_unlocked in 11s build + 120s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:79: replace | with & in ManagedFs::ensure_dir_unlocked in 15s build + 146s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:79: replace | with ^ in ManagedFs::ensure_dir_unlocked in 18s build + 144s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:60: replace | with & in ManagedFs::ensure_dir_unlocked in 21s build + 139s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:60: replace | with ^ in ManagedFs::ensure_dir_unlocked in 21s build + 137s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:40: replace | with & in ManagedFs::ensure_dir_unlocked in 25s build + 120s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:421:40: replace | with ^ in ManagedFs::ensure_dir_unlocked in 22s build + 91s test
+78 mutants tested in 16m: 31 missed, 36 caught, 11 unviable

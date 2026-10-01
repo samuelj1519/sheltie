@@ -1,0 +1,25 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.09s
+     Running tests/disposition_remote.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_remote-38275bbaa83f7685)
+
+running 1 test
+test supplemental_install_creates_an_absent_home_and_a_wal_store ... FAILED
+
+failures:
+
+---- supplemental_install_creates_an_absent_home_and_a_wal_store stdout ----
+
+thread 'supplemental_install_creates_an_absent_home_and_a_wal_store' (29808868) panicked at crates/sheltie-cli/tests/disposition_remote.rs:100:5:
+assertion `left == right` failed
+  left: "delete"
+ right: "wal"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_install_creates_an_absent_home_and_a_wal_store
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.65s
+
+error: test failed, to rerun pass `-p sheltie-cli --test disposition_remote`

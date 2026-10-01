@@ -1,0 +1,10 @@
+--- crates/sheltie-runtime/src/store/schema.rs
++++ crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with "xyzzy".into()
+@@ -78,6 +78,4 @@
+ }
+ 
+ /// 去掉全部空白，用于比对。
+-pub fn normalize_sql(sql: &str) -> String {
+-    sql.chars().filter(|c| !c.is_whitespace()).collect()
+-}
++pub fn normalize_sql(sql: &str) -> String { "xyzzy".into() }

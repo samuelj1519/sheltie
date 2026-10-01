@@ -1,0 +1,24 @@
+{
+  "candidate": "49d3a191aa4c918aab279617fa2bf7d9b3b36a0e",
+  "source_manifest_sha256": "ddc0d27002fe0917956790f499d6ec18a7a6ebc33e8706f496375de57aff85b2",
+  "same_source_as": "d528a6e79f65148e11ad5abc1cef1b836e75dcc7c35703fce42c5ce4175438db",
+  "script_sha256": "6acadb9a4b6e5ef5bcb9c5f4c5e126fa67f1fa65ee905881df1ee101a7db031e",
+  "features": "all-features",
+  "profile": {
+    "opt-level": 1,
+    "debug": 0,
+    "debug-assertions": true,
+    "overflow-checks": true
+  },
+  "tools": {
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "nextest": "cargo-nextest 0.9.146 (8af696ddc 2026-09-21)",
+    "mutants": "cargo-mutants 27.1.0"
+  },
+  "jobs": 4,
+  "nextest_test_threads": 2,
+  "timeout_seconds": 600,
+  "reason": "Reduce orchestration contention only. Frozen program/tests/config/fixtures and full workspace selection unchanged. Original timeout logs retained; all selected survivors retested.",
+  "sha256": "ed4866c8b67f15d57075752e434a398333739ac0f495391da2ee51efebe0a0b1"
+}

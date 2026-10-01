@@ -1,0 +1,2498 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::open_optional_locked -> Result<Option<SafeFile>> with Ok(None)\n@@ -455,18 +455,17 @@\n         }\n     }\n \n     pub(crate) fn open_optional_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Option<SafeFile>> {\n-        self.check_lock(lock)?;\n-        self.open_optional(path)\n+        Ok(None) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_exists_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::open_optional_locked",
+      "return_type": "-> Result<Option<SafeFile>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 465
+        },
+        "start": {
+          "column": 5,
+          "line": 458
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:463:9: replace ManagedFs::open_optional_locked -> Result<Option<SafeFile>> with Ok(None)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(None)",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 464
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::open_optional_locked -> Result<Option<SafeFile>> with Ok(Some(Default::default()))\n@@ -455,18 +455,17 @@\n         }\n     }\n \n     pub(crate) fn open_optional_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Option<SafeFile>> {\n-        self.check_lock(lock)?;\n-        self.open_optional(path)\n+        Ok(Some(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_exists_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::open_optional_locked",
+      "return_type": "-> Result<Option<SafeFile>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 465
+        },
+        "start": {
+          "column": 5,
+          "line": 458
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:463:9: replace ManagedFs::open_optional_locked -> Result<Option<SafeFile>> with Ok(Some(Default::default()))",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Some(Default::default()))",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 464
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists_locked -> Result<bool> with Ok(true)\n@@ -464,18 +464,17 @@\n         self.open_optional(path)\n     }\n \n     pub(crate) fn directory_exists_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n-        self.check_lock(lock)?;\n-        self.directory_exists(path)\n+        Ok(true) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n         self.directory_exists(path)\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n         let (parent, leaf) = match self.open_parent(path) {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 474
+        },
+        "start": {
+          "column": 5,
+          "line": 467
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:472:9: replace ManagedFs::directory_exists_locked -> Result<bool> with Ok(true)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(true)",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 473
+      },
+      "start": {
+        "column": 9,
+        "line": 472
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists_locked -> Result<bool> with Ok(false)\n@@ -464,18 +464,17 @@\n         self.open_optional(path)\n     }\n \n     pub(crate) fn directory_exists_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n-        self.check_lock(lock)?;\n-        self.directory_exists(path)\n+        Ok(false) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n         self.directory_exists(path)\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n         let (parent, leaf) = match self.open_parent(path) {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 474
+        },
+        "start": {
+          "column": 5,
+          "line": 467
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:472:9: replace ManagedFs::directory_exists_locked -> Result<bool> with Ok(false)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(false)",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 473
+      },
+      "start": {
+        "column": 9,
+        "line": 472
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists_readonly -> Result<bool> with Ok(true)\n@@ -469,17 +469,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n         self.directory_exists(path)\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n-        self.directory_exists(path)\n+        Ok(true) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n         let (parent, leaf) = match self.open_parent(path) {\n             Ok(parent) => parent,\n             Err(Error::NotFound { .. }) => return Ok(false),\n             Err(error) => return Err(error),\n         };\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists_readonly",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 476
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:477:9: replace ManagedFs::directory_exists_readonly -> Result<bool> with Ok(true)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(true)",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 477
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists_readonly -> Result<bool> with Ok(false)\n@@ -469,17 +469,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n         self.directory_exists(path)\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n-        self.directory_exists(path)\n+        Ok(false) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n         let (parent, leaf) = match self.open_parent(path) {\n             Ok(parent) => parent,\n             Err(Error::NotFound { .. }) => return Ok(false),\n             Err(error) => return Err(error),\n         };\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists_readonly",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 476
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:477:9: replace ManagedFs::directory_exists_readonly -> Result<bool> with Ok(false)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(false)",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 477
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists -> Result<bool> with Ok(true)\n@@ -473,32 +473,17 @@\n         self.directory_exists(path)\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n         self.directory_exists(path)\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n-        let (parent, leaf) = match self.open_parent(path) {\n-            Ok(parent) => parent,\n-            Err(Error::NotFound { .. }) => return Ok(false),\n-            Err(error) => return Err(error),\n-        };\n-        match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n-            Err(rustix::io::Errno::NOENT) => Ok(false),\n-            Err(error) => Err(map_fs_error(&self.display_path(path), error)),\n-            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {\n-                open_directory_at(&parent, &leaf, &self.display_path(path))?;\n-                Ok(true)\n-            }\n-            Ok(_) => Err(Error::StoreCorrupt {\n-                detail: format!(\"{} 不是受管目录\", self.display_path(path)),\n-            }),\n-        }\n+        Ok(true) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_entries_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Vec<ManagedDirEntry>> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 497
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:481:9: replace ManagedFs::directory_exists -> Result<bool> with Ok(true)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(true)",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 496
+      },
+      "start": {
+        "column": 9,
+        "line": 481
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_exists -> Result<bool> with Ok(false)\n@@ -473,32 +473,17 @@\n         self.directory_exists(path)\n     }\n \n     pub(crate) fn directory_exists_readonly(&self, path: &ManagedRelPath) -> Result<bool> {\n         self.directory_exists(path)\n     }\n \n     fn directory_exists(&self, path: &ManagedRelPath) -> Result<bool> {\n-        let (parent, leaf) = match self.open_parent(path) {\n-            Ok(parent) => parent,\n-            Err(Error::NotFound { .. }) => return Ok(false),\n-            Err(error) => return Err(error),\n-        };\n-        match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n-            Err(rustix::io::Errno::NOENT) => Ok(false),\n-            Err(error) => Err(map_fs_error(&self.display_path(path), error)),\n-            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {\n-                open_directory_at(&parent, &leaf, &self.display_path(path))?;\n-                Ok(true)\n-            }\n-            Ok(_) => Err(Error::StoreCorrupt {\n-                detail: format!(\"{} 不是受管目录\", self.display_path(path)),\n-            }),\n-        }\n+        Ok(false) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn directory_entries_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Vec<ManagedDirEntry>> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 497
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:481:9: replace ManagedFs::directory_exists -> Result<bool> with Ok(false)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(false)",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 496
+      },
+      "start": {
+        "column": 9,
+        "line": 481
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists\n@@ -481,17 +481,17 @@\n         let (parent, leaf) = match self.open_parent(path) {\n             Ok(parent) => parent,\n             Err(Error::NotFound { .. }) => return Ok(false),\n             Err(error) => return Err(error),\n         };\n         match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Err(rustix::io::Errno::NOENT) => Ok(false),\n             Err(error) => Err(map_fs_error(&self.display_path(path), error)),\n-            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {\n+            Ok(stat) if true /* ~ changed by cargo-mutants ~ */ => {\n                 open_directory_at(&parent, &leaf, &self.display_path(path))?;\n                 Ok(true)\n             }\n             Ok(_) => Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不是受管目录\", self.display_path(path)),\n             }),\n         }\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 497
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/fsx.rs:489:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists",
+    "package": "sheltie-runtime",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 489
+      },
+      "start": {
+        "column": 25,
+        "line": 489
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with false in ManagedFs::directory_exists\n@@ -481,17 +481,17 @@\n         let (parent, leaf) = match self.open_parent(path) {\n             Ok(parent) => parent,\n             Err(Error::NotFound { .. }) => return Ok(false),\n             Err(error) => return Err(error),\n         };\n         match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Err(rustix::io::Errno::NOENT) => Ok(false),\n             Err(error) => Err(map_fs_error(&self.display_path(path), error)),\n-            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {\n+            Ok(stat) if false /* ~ changed by cargo-mutants ~ */ => {\n                 open_directory_at(&parent, &leaf, &self.display_path(path))?;\n                 Ok(true)\n             }\n             Ok(_) => Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不是受管目录\", self.display_path(path)),\n             }),\n         }\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 497
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "crates/sheltie-runtime/src/fsx.rs:489:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with false in ManagedFs::directory_exists",
+    "package": "sheltie-runtime",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 489
+      },
+      "start": {
+        "column": 25,
+        "line": 489
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::directory_exists\n@@ -481,17 +481,17 @@\n         let (parent, leaf) = match self.open_parent(path) {\n             Ok(parent) => parent,\n             Err(Error::NotFound { .. }) => return Ok(false),\n             Err(error) => return Err(error),\n         };\n         match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Err(rustix::io::Errno::NOENT) => Ok(false),\n             Err(error) => Err(map_fs_error(&self.display_path(path), error)),\n-            Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Directory => {\n+            Ok(stat) if FileType::from_raw_mode(stat.st_mode) != /* ~ changed by cargo-mutants ~ */ FileType::Directory => {\n                 open_directory_at(&parent, &leaf, &self.display_path(path))?;\n                 Ok(true)\n             }\n             Ok(_) => Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不是受管目录\", self.display_path(path)),\n             }),\n         }\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_exists",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 497
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:489:63: replace == with != in ManagedFs::directory_exists",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 489
+      },
+      "start": {
+        "column": 63,
+        "line": 489
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_entries_locked -> Result<Vec<ManagedDirEntry>> with Ok(vec![])\n@@ -496,18 +496,17 @@\n         }\n     }\n \n     pub(crate) fn directory_entries_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Vec<ManagedDirEntry>> {\n-        self.check_lock(lock)?;\n-        self.directory_entries(path)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn managed_tree_is_empty_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries_locked",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 506
+        },
+        "start": {
+          "column": 5,
+          "line": 499
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:504:9: replace ManagedFs::directory_entries_locked -> Result<Vec<ManagedDirEntry>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 505
+      },
+      "start": {
+        "column": 9,
+        "line": 504
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_entries_locked -> Result<Vec<ManagedDirEntry>> with Ok(vec![Default::default()])\n@@ -496,18 +496,17 @@\n         }\n     }\n \n     pub(crate) fn directory_entries_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<Vec<ManagedDirEntry>> {\n-        self.check_lock(lock)?;\n-        self.directory_entries(path)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn managed_tree_is_empty_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries_locked",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 506
+        },
+        "start": {
+          "column": 5,
+          "line": 499
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:504:9: replace ManagedFs::directory_entries_locked -> Result<Vec<ManagedDirEntry>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 505
+      },
+      "start": {
+        "column": 9,
+        "line": 504
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::managed_tree_is_empty_locked -> Result<bool> with Ok(true)\n@@ -506,22 +506,17 @@\n     }\n \n     pub(crate) fn managed_tree_is_empty_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        self.verify_tree_at(tree, path)?;\n-        Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n-            .iter()\n-            .all(|name| name == \".\" || name == \"..\"))\n+        Ok(true) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::managed_tree_is_empty_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 520
+        },
+        "start": {
+          "column": 5,
+          "line": 508
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:514:9: replace ManagedFs::managed_tree_is_empty_locked -> Result<bool> with Ok(true)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(true)",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 519
+      },
+      "start": {
+        "column": 9,
+        "line": 514
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::managed_tree_is_empty_locked -> Result<bool> with Ok(false)\n@@ -506,22 +506,17 @@\n     }\n \n     pub(crate) fn managed_tree_is_empty_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        self.verify_tree_at(tree, path)?;\n-        Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n-            .iter()\n-            .all(|name| name == \".\" || name == \"..\"))\n+        Ok(false) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::managed_tree_is_empty_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 520
+        },
+        "start": {
+          "column": 5,
+          "line": 508
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:514:9: replace ManagedFs::managed_tree_is_empty_locked -> Result<bool> with Ok(false)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(false)",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 519
+      },
+      "start": {
+        "column": 9,
+        "line": 514
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::managed_tree_is_empty_locked\n@@ -511,17 +511,17 @@\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         self.verify_tree_at(tree, path)?;\n         Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .all(|name| name == \".\" || name == \"..\"))\n+            .all(|name| name == \".\" && /* ~ changed by cargo-mutants ~ */ name == \"..\"))\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::managed_tree_is_empty_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 520
+        },
+        "start": {
+          "column": 5,
+          "line": 508
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:519:37: replace || with && in ManagedFs::managed_tree_is_empty_locked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 519
+      },
+      "start": {
+        "column": 37,
+        "line": 519
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::managed_tree_is_empty_locked\n@@ -511,17 +511,17 @@\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         self.verify_tree_at(tree, path)?;\n         Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .all(|name| name == \".\" || name == \"..\"))\n+            .all(|name| name != /* ~ changed by cargo-mutants ~ */ \".\" || name == \"..\"))\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::managed_tree_is_empty_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 520
+        },
+        "start": {
+          "column": 5,
+          "line": 508
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:519:30: replace == with != in ManagedFs::managed_tree_is_empty_locked",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 519
+      },
+      "start": {
+        "column": 30,
+        "line": 519
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::managed_tree_is_empty_locked\n@@ -511,17 +511,17 @@\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<bool> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         self.verify_tree_at(tree, path)?;\n         Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .all(|name| name == \".\" || name == \"..\"))\n+            .all(|name| name == \".\" || name != /* ~ changed by cargo-mutants ~ */ \"..\"))\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::managed_tree_is_empty_locked",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 520
+        },
+        "start": {
+          "column": 5,
+          "line": 508
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:519:45: replace == with != in ManagedFs::managed_tree_is_empty_locked",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 519
+      },
+      "start": {
+        "column": 45,
+        "line": 519
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_entries -> Result<Vec<ManagedDirEntry>> with Ok(vec![])\n@@ -515,38 +515,17 @@\n         self.check_tree_root(tree)?;\n         self.verify_tree_at(tree, path)?;\n         Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n             .all(|name| name == \".\" || name == \"..\"))\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n-        let directory = self.open_dir(Some(path))?;\n-        let display = self.display_path(path);\n-        let names = directory_entry_names(&directory, &display)?;\n-        let mut out = Vec::with_capacity(names.len());\n-        for name in names {\n-            if name == \".\" || name == \"..\" {\n-                continue;\n-            }\n-            let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n-                .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n-            let kind = match FileType::from_raw_mode(stat.st_mode) {\n-                FileType::Directory => {\n-                    open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n-                    ManagedEntryKind::Directory\n-                }\n-                FileType::RegularFile => ManagedEntryKind::RegularFile,\n-                FileType::Symlink => ManagedEntryKind::Symlink,\n-                _ => ManagedEntryKind::Special,\n-            };\n-            out.push(ManagedDirEntry { name, kind });\n-        }\n-        Ok(out)\n+        Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn open_tree_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<ManagedTree> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:523:9: replace ManagedFs::directory_entries -> Result<Vec<ManagedDirEntry>> with Ok(vec![])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 544
+      },
+      "start": {
+        "column": 9,
+        "line": 523
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::directory_entries -> Result<Vec<ManagedDirEntry>> with Ok(vec![Default::default()])\n@@ -515,38 +515,17 @@\n         self.check_tree_root(tree)?;\n         self.verify_tree_at(tree, path)?;\n         Ok(directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n             .all(|name| name == \".\" || name == \"..\"))\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n-        let directory = self.open_dir(Some(path))?;\n-        let display = self.display_path(path);\n-        let names = directory_entry_names(&directory, &display)?;\n-        let mut out = Vec::with_capacity(names.len());\n-        for name in names {\n-            if name == \".\" || name == \"..\" {\n-                continue;\n-            }\n-            let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n-                .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n-            let kind = match FileType::from_raw_mode(stat.st_mode) {\n-                FileType::Directory => {\n-                    open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n-                    ManagedEntryKind::Directory\n-                }\n-                FileType::RegularFile => ManagedEntryKind::RegularFile,\n-                FileType::Symlink => ManagedEntryKind::Symlink,\n-                _ => ManagedEntryKind::Special,\n-            };\n-            out.push(ManagedDirEntry { name, kind });\n-        }\n-        Ok(out)\n+        Ok(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn open_tree_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<ManagedTree> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:523:9: replace ManagedFs::directory_entries -> Result<Vec<ManagedDirEntry>> with Ok(vec![Default::default()])",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(vec![Default::default()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 544
+      },
+      "start": {
+        "column": 9,
+        "line": 523
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::directory_entries\n@@ -520,17 +520,17 @@\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n-            if name == \".\" || name == \"..\" {\n+            if name == \".\" && /* ~ changed by cargo-mutants ~ */ name == \"..\" {\n                 continue;\n             }\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n                 FileType::Directory => {\n                     open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n                     ManagedEntryKind::Directory\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:528:28: replace || with && in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 528
+      },
+      "start": {
+        "column": 28,
+        "line": 528
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::directory_entries\n@@ -520,17 +520,17 @@\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n-            if name == \".\" || name == \"..\" {\n+            if name != /* ~ changed by cargo-mutants ~ */ \".\" || name == \"..\" {\n                 continue;\n             }\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n                 FileType::Directory => {\n                     open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n                     ManagedEntryKind::Directory\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:528:21: replace == with != in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 528
+      },
+      "start": {
+        "column": 21,
+        "line": 528
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::directory_entries\n@@ -520,17 +520,17 @@\n     }\n \n     fn directory_entries(&self, path: &ManagedRelPath) -> Result<Vec<ManagedDirEntry>> {\n         let directory = self.open_dir(Some(path))?;\n         let display = self.display_path(path);\n         let names = directory_entry_names(&directory, &display)?;\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n-            if name == \".\" || name == \"..\" {\n+            if name == \".\" || name != /* ~ changed by cargo-mutants ~ */ \"..\" {\n                 continue;\n             }\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n                 FileType::Directory => {\n                     open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n                     ManagedEntryKind::Directory\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:528:36: replace == with != in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 528
+      },
+      "start": {
+        "column": 36,
+        "line": 528
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete match arm FileType::Directory in ManagedFs::directory_entries\n@@ -526,20 +526,17 @@\n         let mut out = Vec::with_capacity(names.len());\n         for name in names {\n             if name == \".\" || name == \"..\" {\n                 continue;\n             }\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n-                FileType::Directory => {\n-                    open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n-                    ManagedEntryKind::Directory\n-                }\n+                 /* ~ changed by cargo-mutants ~ */\n                 FileType::RegularFile => ManagedEntryKind::RegularFile,\n                 FileType::Symlink => ManagedEntryKind::Symlink,\n                 _ => ManagedEntryKind::Special,\n             };\n             out.push(ManagedDirEntry { name, kind });\n         }\n         Ok(out)\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/fsx.rs:534:17: delete match arm FileType::Directory in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 537
+      },
+      "start": {
+        "column": 17,
+        "line": 534
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete match arm FileType::RegularFile in ManagedFs::directory_entries\n@@ -530,17 +530,17 @@\n             }\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n                 FileType::Directory => {\n                     open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n                     ManagedEntryKind::Directory\n                 }\n-                FileType::RegularFile => ManagedEntryKind::RegularFile,\n+                 /* ~ changed by cargo-mutants ~ */\n                 FileType::Symlink => ManagedEntryKind::Symlink,\n                 _ => ManagedEntryKind::Special,\n             };\n             out.push(ManagedDirEntry { name, kind });\n         }\n         Ok(out)\n     }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/fsx.rs:538:17: delete match arm FileType::RegularFile in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 72,
+        "line": 538
+      },
+      "start": {
+        "column": 17,
+        "line": 538
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete match arm FileType::Symlink in ManagedFs::directory_entries\n@@ -531,17 +531,17 @@\n             let stat = statat(&directory, &name, AtFlags::SYMLINK_NOFOLLOW)\n                 .map_err(|error| map_fs_error(&format!(\"{display}/{name}\"), error))?;\n             let kind = match FileType::from_raw_mode(stat.st_mode) {\n                 FileType::Directory => {\n                     open_directory_at(&directory, &name, &format!(\"{display}/{name}\"))?;\n                     ManagedEntryKind::Directory\n                 }\n                 FileType::RegularFile => ManagedEntryKind::RegularFile,\n-                FileType::Symlink => ManagedEntryKind::Symlink,\n+                 /* ~ changed by cargo-mutants ~ */\n                 _ => ManagedEntryKind::Special,\n             };\n             out.push(ManagedDirEntry { name, kind });\n         }\n         Ok(out)\n     }\n \n     pub(crate) fn open_tree_locked(\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::directory_entries",
+      "return_type": "-> Result<Vec<ManagedDirEntry>>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 545
+        },
+        "start": {
+          "column": 5,
+          "line": 522
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "crates/sheltie-runtime/src/fsx.rs:539:17: delete match arm FileType::Symlink in ManagedFs::directory_entries",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 539
+      },
+      "start": {
+        "column": 17,
+        "line": 539
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::open_tree_locked -> Result<ManagedTree> with Ok(Default::default())\n@@ -544,24 +544,17 @@\n         Ok(out)\n     }\n \n     pub(crate) fn open_tree_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<ManagedTree> {\n-        self.check_lock(lock)?;\n-        let file = self.open_dir(Some(path))?;\n-        Ok(ManagedTree {\n-            file,\n-            root: self.root.clone(),\n-            root_ident: self.root_ident,\n-            path: path.clone(),\n-        })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::open_tree_locked",
+      "return_type": "-> Result<ManagedTree>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 560
+        },
+        "start": {
+          "column": 5,
+          "line": 547
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:552:9: replace ManagedFs::open_tree_locked -> Result<ManagedTree> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 559
+      },
+      "start": {
+        "column": 9,
+        "line": 552
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::verify_tree_at -> Result<()> with Ok(())\n@@ -555,31 +555,17 @@\n             file,\n             root: self.root.clone(),\n             root_ident: self.root_ident,\n             path: path.clone(),\n         })\n     }\n \n     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {\n-        self.check_tree_root(tree)?;\n-        let (parent, leaf) = self.open_parent(path)?;\n-        let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n-            .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        let held =\n-            fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n-            || stat.st_dev != held.st_dev\n-            || stat.st_ino != held.st_ino\n-        {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n-            });\n-        }\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn sync_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:563:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 577
+      },
+      "start": {
+        "column": 9,
+        "line": 563
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::verify_tree_at\n@@ -563,17 +563,17 @@\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n             || stat.st_dev != held.st_dev\n-            || stat.st_ino != held.st_ino\n+            && /* ~ changed by cargo-mutants ~ */ stat.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n             });\n         }\n         Ok(())\n     }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:571:13: replace || with && in ManagedFs::verify_tree_at",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 571
+      },
+      "start": {
+        "column": 13,
+        "line": 571
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::verify_tree_at\n@@ -562,17 +562,17 @@\n     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n-            || stat.st_dev != held.st_dev\n+            && /* ~ changed by cargo-mutants ~ */ stat.st_dev != held.st_dev\n             || stat.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n             });\n         }\n         Ok(())\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:570:13: replace || with && in ManagedFs::verify_tree_at",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 570
+      },
+      "start": {
+        "column": 13,
+        "line": 570
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::verify_tree_at\n@@ -561,17 +561,17 @@\n \n     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n+        if FileType::from_raw_mode(stat.st_mode) == /* ~ changed by cargo-mutants ~ */ FileType::Directory\n             || stat.st_dev != held.st_dev\n             || stat.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n             });\n         }\n         Ok(())\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:569:50: replace != with == in ManagedFs::verify_tree_at",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 569
+      },
+      "start": {
+        "column": 50,
+        "line": 569
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::verify_tree_at\n@@ -562,17 +562,17 @@\n     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n-            || stat.st_dev != held.st_dev\n+            || stat.st_dev == /* ~ changed by cargo-mutants ~ */ held.st_dev\n             || stat.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n             });\n         }\n         Ok(())\n     }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:570:28: replace != with == in ManagedFs::verify_tree_at",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 570
+      },
+      "start": {
+        "column": 28,
+        "line": 570
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::verify_tree_at\n@@ -563,17 +563,17 @@\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         if FileType::from_raw_mode(stat.st_mode) != FileType::Directory\n             || stat.st_dev != held.st_dev\n-            || stat.st_ino != held.st_ino\n+            || stat.st_ino == /* ~ changed by cargo-mutants ~ */ held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 不再指向已核验的发布目录对象\", self.display_path(path)),\n             });\n         }\n         Ok(())\n     }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::verify_tree_at",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 578
+        },
+        "start": {
+          "column": 5,
+          "line": 562
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:571:28: replace != with == in ManagedFs::verify_tree_at",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 571
+      },
+      "start": {
+        "column": 28,
+        "line": 571
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::sync_managed_tree -> Result<()> with Ok(())\n@@ -577,24 +577,17 @@\n         Ok(())\n     }\n \n     pub(crate) fn sync_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        sync_dir_tree(\n-            &tree.file,\n-            &self.display_path(&tree.path),\n-            self.root.as_str(),\n-            true,\n-        )\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn rename_tree_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         to: &ManagedRelPath,\n     ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 593
+        },
+        "start": {
+          "column": 5,
+          "line": 580
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:585:9: replace ManagedFs::sync_managed_tree -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 592
+      },
+      "start": {
+        "column": 9,
+        "line": 585
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::rename_tree_new -> Result<()> with Ok(())\n@@ -593,54 +593,17 @@\n     }\n \n     pub(crate) fn rename_tree_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         to: &ManagedRelPath,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        let from = &tree.path;\n-        let (source_parent, source_leaf) = self.open_parent(from)?;\n-        let (target_parent, target_leaf) = self.open_parent(to)?;\n-        let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n-            .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n-        let held =\n-            fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n-        if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n-            || source.st_dev != held.st_dev\n-            || source.st_ino != held.st_ino\n-        {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n-            });\n-        }\n-        renameat_with(\n-            &source_parent,\n-            &source_leaf,\n-            &target_parent,\n-            &target_leaf,\n-            RenameFlags::NOREPLACE,\n-        )\n-        .map_err(|error| map_fs_error(&self.display_path(to), error))?;\n-        crate::failpoint::maybe_exit(\"tree_rename_before_parent_sync\");\n-        self.verify_tree_at(tree, to)\n-            .map_err(|error| Error::RecoveryRequired {\n-                path: self.display_path(to),\n-                detail: format!(\"目录已移动但目标不再是已核验对象：{error}\"),\n-            })?;\n-        sync_rename_parents(\n-            &source_parent,\n-            &target_parent,\n-            &self.display_path(from),\n-            &self.display_path(to),\n-            self.root.as_str(),\n-        )\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn make_managed_tree_writable(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:601:9: replace ManagedFs::rename_tree_new -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 638
+      },
+      "start": {
+        "column": 9,
+        "line": 601
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::rename_tree_new\n@@ -604,17 +604,17 @@\n         let (source_parent, source_leaf) = self.open_parent(from)?;\n         let (target_parent, target_leaf) = self.open_parent(to)?;\n         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n             || source.st_dev != held.st_dev\n-            || source.st_ino != held.st_ino\n+            && /* ~ changed by cargo-mutants ~ */ source.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n             });\n         }\n         renameat_with(\n             &source_parent,\n             &source_leaf,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:612:13: replace || with && in ManagedFs::rename_tree_new",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 612
+      },
+      "start": {
+        "column": 13,
+        "line": 612
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::rename_tree_new\n@@ -603,17 +603,17 @@\n         let from = &tree.path;\n         let (source_parent, source_leaf) = self.open_parent(from)?;\n         let (target_parent, target_leaf) = self.open_parent(to)?;\n         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n-            || source.st_dev != held.st_dev\n+            && /* ~ changed by cargo-mutants ~ */ source.st_dev != held.st_dev\n             || source.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n             });\n         }\n         renameat_with(\n             &source_parent,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:611:13: replace || with && in ManagedFs::rename_tree_new",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 611
+      },
+      "start": {
+        "column": 13,
+        "line": 611
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::rename_tree_new\n@@ -602,17 +602,17 @@\n         self.check_tree_root(tree)?;\n         let from = &tree.path;\n         let (source_parent, source_leaf) = self.open_parent(from)?;\n         let (target_parent, target_leaf) = self.open_parent(to)?;\n         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n-        if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n+        if FileType::from_raw_mode(source.st_mode) == /* ~ changed by cargo-mutants ~ */ FileType::Directory\n             || source.st_dev != held.st_dev\n             || source.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n             });\n         }\n         renameat_with(\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:610:52: replace != with == in ManagedFs::rename_tree_new",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 610
+      },
+      "start": {
+        "column": 52,
+        "line": 610
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::rename_tree_new\n@@ -603,17 +603,17 @@\n         let from = &tree.path;\n         let (source_parent, source_leaf) = self.open_parent(from)?;\n         let (target_parent, target_leaf) = self.open_parent(to)?;\n         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n-            || source.st_dev != held.st_dev\n+            || source.st_dev == /* ~ changed by cargo-mutants ~ */ held.st_dev\n             || source.st_ino != held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n             });\n         }\n         renameat_with(\n             &source_parent,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:611:30: replace != with == in ManagedFs::rename_tree_new",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 611
+      },
+      "start": {
+        "column": 30,
+        "line": 611
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::rename_tree_new\n@@ -604,17 +604,17 @@\n         let (source_parent, source_leaf) = self.open_parent(from)?;\n         let (target_parent, target_leaf) = self.open_parent(to)?;\n         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         let held =\n             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;\n         if FileType::from_raw_mode(source.st_mode) != FileType::Directory\n             || source.st_dev != held.st_dev\n-            || source.st_ino != held.st_ino\n+            || source.st_ino == /* ~ changed by cargo-mutants ~ */ held.st_ino\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 在发布前已被替换\", self.display_path(from)),\n             });\n         }\n         renameat_with(\n             &source_parent,\n             &source_leaf,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::rename_tree_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 639
+        },
+        "start": {
+          "column": 5,
+          "line": 595
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:612:30: replace != with == in ManagedFs::rename_tree_new",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 612
+      },
+      "start": {
+        "column": 30,
+        "line": 612
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::make_managed_tree_writable -> Result<()> with Ok(())\n@@ -639,29 +639,17 @@\n     }\n \n     pub(crate) fn make_managed_tree_writable(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        self.verify_tree_at(tree, path)?;\n-        set_dir_tree_mode(\n-            &tree.file,\n-            &self.display_path(path),\n-            self.root.as_str(),\n-            0o644,\n-            0o755,\n-        )?;\n-        fchmod(&tree.file, Mode::from_raw_mode(0o755))\n-            .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        fsync(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        self.verify_tree_at(tree, path)\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn remove_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n         request_id: &str,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::make_managed_tree_writable",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 660
+        },
+        "start": {
+          "column": 5,
+          "line": 641
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:647:9: replace ManagedFs::make_managed_tree_writable -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 659
+      },
+      "start": {
+        "column": 9,
+        "line": 647
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::remove_managed_tree -> Result<()> with Ok(())\n@@ -661,38 +661,17 @@\n \n     pub(crate) fn remove_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n         request_id: &str,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        let (parent, leaf) = self.open_parent(path)?;\n-        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n-        remove_directory_contents(&tree.file, &self.display_path(path))?;\n-        fsync(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        crate::failpoint::rendezvous(\"delete_before_root_unlink\", request_id)\n-            .map_err(|error| Error::io(self.display_path(path), error))?;\n-        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path)).map_err(\n-            |error| Error::RecoveryRequired {\n-                path: self.display_path(path),\n-                detail: format!(\"删除内容后待unlink目录身份改变：{error}\"),\n-            },\n-        )?;\n-        unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {\n-            path: self.display_path(path),\n-            detail: format!(\"目录内容已删但根目录删除失败：{error}\"),\n-        })?;\n-        fsync(&parent).map_err(|error| Error::RecoveryRequired {\n-            path: self.display_path(path),\n-            detail: format!(\"目录已删但父目录同步失败：{error}\"),\n-        })\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn remove_empty_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 691
+        },
+        "start": {
+          "column": 5,
+          "line": 662
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:669:9: replace ManagedFs::remove_managed_tree -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 690
+      },
+      "start": {
+        "column": 9,
+        "line": 669
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::remove_empty_managed_tree -> Result<()> with Ok(())\n@@ -691,37 +691,17 @@\n     }\n \n     pub(crate) fn remove_empty_managed_tree(\n         &self,\n         lock: &crate::home::HomeLock,\n         tree: &ManagedTree,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        self.check_tree_root(tree)?;\n-        let (parent, leaf) = self.open_parent(path)?;\n-        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n-        if directory_entry_names(&tree.file, &self.display_path(path))?\n-            .iter()\n-            .any(|name| name != \".\" && name != \"..\")\n-        {\n-            return Err(Error::StoreCorrupt {\n-                detail: format!(\"{} 清理前出现新内容，保留容器\", self.display_path(path)),\n-            });\n-        }\n-        verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n-        unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {\n-            path: self.display_path(path),\n-            detail: format!(\"空容器删除失败；保留变化后的对象：{error}\"),\n-        })?;\n-        fsync(&parent).map_err(|error| Error::RecoveryRequired {\n-            path: self.display_path(path),\n-            detail: format!(\"空容器已删除但父目录同步失败：{error}\"),\n-        })\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn sync_regular_file_handle_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_empty_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 720
+        },
+        "start": {
+          "column": 5,
+          "line": 693
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:699:9: replace ManagedFs::remove_empty_managed_tree -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 719
+      },
+      "start": {
+        "column": 9,
+        "line": 699
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace && with || in ManagedFs::remove_empty_managed_tree\n@@ -697,17 +697,17 @@\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         if directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .any(|name| name != \".\" && name != \"..\")\n+            .any(|name| name != \".\" || /* ~ changed by cargo-mutants ~ */ name != \"..\")\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 清理前出现新内容，保留容器\", self.display_path(path)),\n             });\n         }\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {\n             path: self.display_path(path),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_empty_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 720
+        },
+        "start": {
+          "column": 5,
+          "line": 693
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:705:37: replace && with || in ManagedFs::remove_empty_managed_tree",
+    "package": "sheltie-runtime",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 705
+      },
+      "start": {
+        "column": 37,
+        "line": 705
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::remove_empty_managed_tree\n@@ -697,17 +697,17 @@\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         if directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .any(|name| name != \".\" && name != \"..\")\n+            .any(|name| name == /* ~ changed by cargo-mutants ~ */ \".\" && name != \"..\")\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 清理前出现新内容，保留容器\", self.display_path(path)),\n             });\n         }\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {\n             path: self.display_path(path),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_empty_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 720
+        },
+        "start": {
+          "column": 5,
+          "line": 693
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:705:30: replace != with == in ManagedFs::remove_empty_managed_tree",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 705
+      },
+      "start": {
+        "column": 30,
+        "line": 705
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::remove_empty_managed_tree\n@@ -697,17 +697,17 @@\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         self.check_tree_root(tree)?;\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         if directory_entry_names(&tree.file, &self.display_path(path))?\n             .iter()\n-            .any(|name| name != \".\" && name != \"..\")\n+            .any(|name| name != \".\" && name == /* ~ changed by cargo-mutants ~ */ \"..\")\n         {\n             return Err(Error::StoreCorrupt {\n                 detail: format!(\"{} 清理前出现新内容，保留容器\", self.display_path(path)),\n             });\n         }\n         verify_tree_entry_at(&parent, &leaf, &tree.file, &self.display_path(path))?;\n         unlinkat(&parent, &leaf, AtFlags::REMOVEDIR).map_err(|error| Error::RecoveryRequired {\n             path: self.display_path(path),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_empty_managed_tree",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 720
+        },
+        "start": {
+          "column": 5,
+          "line": 693
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:705:45: replace != with == in ManagedFs::remove_empty_managed_tree",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 705
+      },
+      "start": {
+        "column": 45,
+        "line": 705
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::sync_regular_file_handle_locked -> Result<()> with Ok(())\n@@ -720,35 +720,17 @@\n     }\n \n     pub(crate) fn sync_regular_file_handle_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n-            reason: format!(\"{} 不是受管文件句柄\", file.path),\n-        })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n-            return Err(Error::InvalidRequest {\n-                reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n-            });\n-        }\n-        let (parent, leaf) = self.open_parent(path)?;\n-        verify_path_matches_handle(&parent, &leaf, file)?;\n-        fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n-        verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n-            Error::RecoveryRequired {\n-                path: self.display_path(path),\n-                detail: format!(\"文件同步期间marker路径被替换：{error}\"),\n-            }\n-        })?;\n-        fsync(&parent).map_err(|error| map_fs_error(&self.display_path(path), error))\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn sync_publish_parents_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         from: &ManagedRelPath,\n         to: &ManagedRelPath,\n     ) -> Result<()> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:728:9: replace ManagedFs::sync_regular_file_handle_locked -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 86,
+        "line": 746
+      },
+      "start": {
+        "column": 9,
+        "line": 728
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::sync_regular_file_handle_locked\n@@ -724,17 +724,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root || origin.root_ident != self.root_ident && /* ~ changed by cargo-mutants ~ */ origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:732:77: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 79,
+        "line": 732
+      },
+      "start": {
+        "column": 77,
+        "line": 732
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::sync_regular_file_handle_locked\n@@ -724,17 +724,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root && /* ~ changed by cargo-mutants ~ */ origin.root_ident != self.root_ident || origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:732:37: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 732
+      },
+      "start": {
+        "column": 37,
+        "line": 732
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::sync_regular_file_handle_locked\n@@ -724,17 +724,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root == /* ~ changed by cargo-mutants ~ */ self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:732:24: replace != with == in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 732
+      },
+      "start": {
+        "column": 24,
+        "line": 732
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::sync_regular_file_handle_locked\n@@ -724,17 +724,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root || origin.root_ident == /* ~ changed by cargo-mutants ~ */ self.root_ident || origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:732:58: replace != with == in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 732
+      },
+      "start": {
+        "column": 58,
+        "line": 732
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::sync_regular_file_handle_locked\n@@ -724,17 +724,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel == /* ~ changed by cargo-mutants ~ */ *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 747
+        },
+        "start": {
+          "column": 5,
+          "line": 722
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:732:91: replace != with == in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 93,
+        "line": 732
+      },
+      "start": {
+        "column": 91,
+        "line": 732
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::sync_publish_parents_locked -> Result<()> with Ok(())\n@@ -747,32 +747,17 @@\n     }\n \n     pub(crate) fn sync_publish_parents_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         from: &ManagedRelPath,\n         to: &ManagedRelPath,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        let source_parent = from.parent().ok_or_else(|| Error::StoreCorrupt {\n-            detail: \"pending目录不能是管理根\".to_string(),\n-        })?;\n-        let target_parent = to.parent().ok_or_else(|| Error::StoreCorrupt {\n-            detail: \"final目录不能是管理根\".to_string(),\n-        })?;\n-        let source = self.open_dir(Some(&source_parent))?;\n-        let target = self.open_dir(Some(&target_parent))?;\n-        sync_rename_parents(\n-            &source,\n-            &target,\n-            &self.display_path(from),\n-            &self.display_path(to),\n-            self.root.as_str(),\n-        )\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn sync_publish_final_root_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_publish_parents_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 771
+        },
+        "start": {
+          "column": 5,
+          "line": 749
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:755:9: replace ManagedFs::sync_publish_parents_locked -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 770
+      },
+      "start": {
+        "column": 9,
+        "line": 755
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::sync_publish_final_root_locked -> Result<()> with Ok(())\n@@ -770,21 +770,17 @@\n         )\n     }\n \n     pub(crate) fn sync_publish_final_root_locked(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        let directory = self.open_dir(Some(path))?;\n-        crate::failpoint::sync_error(self.root.as_str(), \"publish_final_root_sync\")\n-            .map_err(|error| Error::io(self.display_path(path), error))?;\n-        fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {\n         if tree.root != self.root || tree.root_ident != self.root_ident {\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_publish_final_root_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 783
+        },
+        "start": {
+          "column": 5,
+          "line": 773
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:778:9: replace ManagedFs::sync_publish_final_root_locked -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 89,
+        "line": 782
+      },
+      "start": {
+        "column": 9,
+        "line": 778
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::check_tree_root -> Result<()> with Ok(())\n@@ -778,22 +778,17 @@\n         self.check_lock(lock)?;\n         let directory = self.open_dir(Some(path))?;\n         crate::failpoint::sync_error(self.root.as_str(), \"publish_final_root_sync\")\n             .map_err(|error| Error::io(self.display_path(path), error))?;\n         fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))\n     }\n \n     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {\n-        if tree.root != self.root || tree.root_ident != self.root_ident {\n-            return Err(Error::InvalidRequest {\n-                reason: \"发布目录句柄不属于此管理根\".to_string(),\n-            });\n-        }\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n         let display = self.display_path(path);\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Ok(stat) => stat,\n             Err(rustix::io::Errno::NOENT) => return Ok(false),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::check_tree_root",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 792
+        },
+        "start": {
+          "column": 5,
+          "line": 785
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:786:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 791
+      },
+      "start": {
+        "column": 9,
+        "line": 786
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::check_tree_root\n@@ -778,17 +778,17 @@\n         self.check_lock(lock)?;\n         let directory = self.open_dir(Some(path))?;\n         crate::failpoint::sync_error(self.root.as_str(), \"publish_final_root_sync\")\n             .map_err(|error| Error::io(self.display_path(path), error))?;\n         fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))\n     }\n \n     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {\n-        if tree.root != self.root || tree.root_ident != self.root_ident {\n+        if tree.root != self.root && /* ~ changed by cargo-mutants ~ */ tree.root_ident != self.root_ident {\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n         Ok(())\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::check_tree_root",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 792
+        },
+        "start": {
+          "column": 5,
+          "line": 785
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:786:35: replace || with && in ManagedFs::check_tree_root",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 786
+      },
+      "start": {
+        "column": 35,
+        "line": 786
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::check_tree_root\n@@ -778,17 +778,17 @@\n         self.check_lock(lock)?;\n         let directory = self.open_dir(Some(path))?;\n         crate::failpoint::sync_error(self.root.as_str(), \"publish_final_root_sync\")\n             .map_err(|error| Error::io(self.display_path(path), error))?;\n         fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))\n     }\n \n     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {\n-        if tree.root != self.root || tree.root_ident != self.root_ident {\n+        if tree.root == /* ~ changed by cargo-mutants ~ */ self.root || tree.root_ident != self.root_ident {\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n         Ok(())\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::check_tree_root",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 792
+        },
+        "start": {
+          "column": 5,
+          "line": 785
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:786:22: replace != with == in ManagedFs::check_tree_root",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 786
+      },
+      "start": {
+        "column": 22,
+        "line": 786
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::check_tree_root\n@@ -778,17 +778,17 @@\n         self.check_lock(lock)?;\n         let directory = self.open_dir(Some(path))?;\n         crate::failpoint::sync_error(self.root.as_str(), \"publish_final_root_sync\")\n             .map_err(|error| Error::io(self.display_path(path), error))?;\n         fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))\n     }\n \n     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {\n-        if tree.root != self.root || tree.root_ident != self.root_ident {\n+        if tree.root != self.root || tree.root_ident == /* ~ changed by cargo-mutants ~ */ self.root_ident {\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n         Ok(())\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::check_tree_root",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 792
+        },
+        "start": {
+          "column": 5,
+          "line": 785
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:786:54: replace != with == in ManagedFs::check_tree_root",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 786
+      },
+      "start": {
+        "column": 54,
+        "line": 786
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::validate_sqlite_control_file -> Result<bool> with Ok(true)\n@@ -787,34 +787,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n         Ok(())\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n-        let display = self.display_path(path);\n-        let (parent, leaf) = self.open_parent(path)?;\n-        let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n-            Ok(stat) => stat,\n-            Err(rustix::io::Errno::NOENT) => return Ok(false),\n-            Err(error) => return Err(map_fs_error(&display, error)),\n-        };\n-        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile\n-            || !matches!(stat.st_nlink, 0 | 1)\n-        {\n-            return Err(Error::InvalidRequest {\n-                reason: format!(\n-                    \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n-                    stat.st_nlink\n-                ),\n-            });\n-        }\n-        Ok(stat.st_nlink == 1)\n+        Ok(true) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 持锁独占创建普通文件，写完并同步文件及其父目录。\n     pub fn write_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:795:9: replace ManagedFs::validate_sqlite_control_file -> Result<bool> with Ok(true)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(true)",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 812
+      },
+      "start": {
+        "column": 9,
+        "line": 795
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::validate_sqlite_control_file -> Result<bool> with Ok(false)\n@@ -787,34 +787,17 @@\n             return Err(Error::InvalidRequest {\n                 reason: \"发布目录句柄不属于此管理根\".to_string(),\n             });\n         }\n         Ok(())\n     }\n \n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n-        let display = self.display_path(path);\n-        let (parent, leaf) = self.open_parent(path)?;\n-        let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n-            Ok(stat) => stat,\n-            Err(rustix::io::Errno::NOENT) => return Ok(false),\n-            Err(error) => return Err(map_fs_error(&display, error)),\n-        };\n-        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile\n-            || !matches!(stat.st_nlink, 0 | 1)\n-        {\n-            return Err(Error::InvalidRequest {\n-                reason: format!(\n-                    \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n-                    stat.st_nlink\n-                ),\n-            });\n-        }\n-        Ok(stat.st_nlink == 1)\n+        Ok(false) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 持锁独占创建普通文件，写完并同步文件及其父目录。\n     pub fn write_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:795:9: replace ManagedFs::validate_sqlite_control_file -> Result<bool> with Ok(false)",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(false)",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 812
+      },
+      "start": {
+        "column": 9,
+        "line": 795
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::validate_sqlite_control_file\n@@ -795,17 +795,17 @@\n         let display = self.display_path(path);\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Ok(stat) => stat,\n             Err(rustix::io::Errno::NOENT) => return Ok(false),\n             Err(error) => return Err(map_fs_error(&display, error)),\n         };\n         if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile\n-            || !matches!(stat.st_nlink, 0 | 1)\n+            && /* ~ changed by cargo-mutants ~ */ !matches!(stat.st_nlink, 0 | 1)\n         {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\n                     \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n                     stat.st_nlink\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:803:13: replace || with && in ManagedFs::validate_sqlite_control_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 803
+      },
+      "start": {
+        "column": 13,
+        "line": 803
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace != with == in ManagedFs::validate_sqlite_control_file\n@@ -794,17 +794,17 @@\n     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {\n         let display = self.display_path(path);\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Ok(stat) => stat,\n             Err(rustix::io::Errno::NOENT) => return Ok(false),\n             Err(error) => return Err(map_fs_error(&display, error)),\n         };\n-        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile\n+        if FileType::from_raw_mode(stat.st_mode) == /* ~ changed by cargo-mutants ~ */ FileType::RegularFile\n             || !matches!(stat.st_nlink, 0 | 1)\n         {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\n                     \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n                     stat.st_nlink\n                 ),\n             });\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:802:50: replace != with == in ManagedFs::validate_sqlite_control_file",
+    "package": "sheltie-runtime",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 802
+      },
+      "start": {
+        "column": 50,
+        "line": 802
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete ! in ManagedFs::validate_sqlite_control_file\n@@ -795,17 +795,17 @@\n         let display = self.display_path(path);\n         let (parent, leaf) = self.open_parent(path)?;\n         let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {\n             Ok(stat) => stat,\n             Err(rustix::io::Errno::NOENT) => return Ok(false),\n             Err(error) => return Err(map_fs_error(&display, error)),\n         };\n         if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile\n-            || !matches!(stat.st_nlink, 0 | 1)\n+            ||  /* ~ changed by cargo-mutants ~ */matches!(stat.st_nlink, 0 | 1)\n         {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\n                     \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n                     stat.st_nlink\n                 ),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:803:16: delete ! in ManagedFs::validate_sqlite_control_file",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 803
+      },
+      "start": {
+        "column": 16,
+        "line": 803
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace == with != in ManagedFs::validate_sqlite_control_file\n@@ -804,17 +804,17 @@\n         {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\n                     \"SQLite控制文件 {display} 必须是普通单链接文件（nlink={}）\",\n                     stat.st_nlink\n                 ),\n             });\n         }\n-        Ok(stat.st_nlink == 1)\n+        Ok(stat.st_nlink != /* ~ changed by cargo-mutants ~ */ 1)\n     }\n \n     /// 持锁独占创建普通文件，写完并同步文件及其父目录。\n     pub fn write_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::validate_sqlite_control_file",
+      "return_type": "-> Result<bool>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 813
+        },
+        "start": {
+          "column": 5,
+          "line": 794
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:812:26: replace == with != in ManagedFs::validate_sqlite_control_file",
+    "package": "sheltie-runtime",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 812
+      },
+      "start": {
+        "column": 26,
+        "line": 812
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::write_new -> Result<()> with Ok(())\n@@ -814,19 +814,17 @@\n \n     /// 持锁独占创建普通文件，写完并同步文件及其父目录。\n     pub fn write_new(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n     ) -> Result<()> {\n-        self.check_lock(lock)?;\n-        drop(self.write_new_observed_unlocked(path, bytes)?);\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn write_new_observed(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n     ) -> Result<SafeFile> {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 825
+        },
+        "start": {
+          "column": 5,
+          "line": 815
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:822:9: replace ManagedFs::write_new -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 824
+      },
+      "start": {
+        "column": 9,
+        "line": 822
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::write_new_observed -> Result<SafeFile> with Ok(Default::default())\n@@ -825,18 +825,17 @@\n     }\n \n     pub fn write_new_observed(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n     ) -> Result<SafeFile> {\n-        self.check_lock(lock)?;\n-        self.write_new_observed_unlocked(path, bytes)\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 835
+        },
+        "start": {
+          "column": 5,
+          "line": 827
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:833:9: replace ManagedFs::write_new_observed -> Result<SafeFile> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 834
+      },
+      "start": {
+        "column": 9,
+        "line": 833
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace ManagedFs::write_new_observed_unlocked -> Result<SafeFile> with Ok(Default::default())\n@@ -830,65 +830,17 @@\n         path: &ManagedRelPath,\n         bytes: &[u8],\n     ) -> Result<SafeFile> {\n         self.check_lock(lock)?;\n         self.write_new_observed_unlocked(path, bytes)\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n-        let (parent, leaf) = self.open_parent(path)?;\n-        let display = self.display_path(path);\n-        let fd = openat(\n-            &parent,\n-            &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n-            Mode::from_raw_mode(0o600),\n-        )\n-        .map_err(|e| map_fs_error(&display, e))?;\n-        let mut file = std::fs::File::from(fd);\n-        let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n-        if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n-            return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n-                Ok(()) => Err(Error::io(&display, error)),\n-                Err(cleanup) => Err(Error::RecoveryRequired {\n-                    path: display,\n-                    detail: format!(\"新文件写入失败：{error}；本次创建inode清理失败：{cleanup}\"),\n-                }),\n-            };\n-        }\n-        let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {\n-            path: display.clone(),\n-            detail: format!(\"新文件内容已写入，但无法复核原句柄元数据：{error}\"),\n-        })?;\n-        if !metadata.is_file()\n-            || metadata.nlink() != 1\n-            || (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())\n-        {\n-            return Err(Error::RecoveryRequired {\n-                path: display,\n-                detail: \"新文件句柄在写入后身份、类型或链接数改变；保留该对象\".into(),\n-            });\n-        }\n-        if let Err(error) = fsync(&parent) {\n-            return Err(Error::RecoveryRequired {\n-                path: display,\n-                detail: format!(\"新文件已同步但父目录同步失败，保留创建inode：{error}\"),\n-            });\n-        }\n-        Ok(SafeFile {\n-            file,\n-            path: self.absolute(path)?,\n-            meta: metadata,\n-            managed: Some(ManagedOrigin {\n-                root: self.root.clone(),\n-                root_ident: self.root_ident,\n-                rel: path.clone(),\n-            }),\n-        })\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 持锁以同目录临时对象原子替换投影文件；目标叶不跟随符号链接。\n     pub fn write_atomic(\n         &self,\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         bytes: &[u8],\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/fsx.rs:838:9: replace ManagedFs::write_new_observed_unlocked -> Result<SafeFile> with Ok(Default::default())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 886
+      },
+      "start": {
+        "column": 9,
+        "line": 838
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW & /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:77: replace | with & in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 78,
+        "line": 843
+      },
+      "start": {
+        "column": 77,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW ^ /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:77: replace | with ^ in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 78,
+        "line": 843
+      },
+      "start": {
+        "column": 77,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL & /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:58: replace | with & in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 843
+      },
+      "start": {
+        "column": 58,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL ^ /* ~ changed by cargo-mutants ~ */ OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:58: replace | with ^ in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 843
+      },
+      "start": {
+        "column": 58,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE & /* ~ changed by cargo-mutants ~ */ OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:43: replace | with & in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 843
+      },
+      "start": {
+        "column": 43,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR | OFlags::CREATE ^ /* ~ changed by cargo-mutants ~ */ OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:43: replace | with ^ in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 843
+      },
+      "start": {
+        "column": 43,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with & in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR & /* ~ changed by cargo-mutants ~ */ OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:26: replace | with & in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 843
+      },
+      "start": {
+        "column": 26,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace | with ^ in ManagedFs::write_new_observed_unlocked\n@@ -835,17 +835,17 @@\n     }\n \n     fn write_new_observed_unlocked(&self, path: &ManagedRelPath, bytes: &[u8]) -> Result<SafeFile> {\n         let (parent, leaf) = self.open_parent(path)?;\n         let display = self.display_path(path);\n         let fd = openat(\n             &parent,\n             &leaf,\n-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n+            OFlags::RDWR ^ /* ~ changed by cargo-mutants ~ */ OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,\n             Mode::from_raw_mode(0o600),\n         )\n         .map_err(|e| map_fs_error(&display, e))?;\n         let mut file = std::fs::File::from(fd);\n         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;\n         if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {\n             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {\n                 Ok(()) => Err(Error::io(&display, error)),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:843:26: replace | with ^ in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 843
+      },
+      "start": {
+        "column": 26,
+        "line": 843
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::write_new_observed_unlocked\n@@ -856,17 +856,17 @@\n             };\n         }\n         let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {\n             path: display.clone(),\n             detail: format!(\"新文件内容已写入，但无法复核原句柄元数据：{error}\"),\n         })?;\n         if !metadata.is_file()\n             || metadata.nlink() != 1\n-            || (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())\n+            && /* ~ changed by cargo-mutants ~ */ (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())\n         {\n             return Err(Error::RecoveryRequired {\n                 path: display,\n                 detail: \"新文件句柄在写入后身份、类型或链接数改变；保留该对象\".into(),\n             });\n         }\n         if let Err(error) = fsync(&parent) {\n             return Err(Error::RecoveryRequired {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:864:13: replace || with && in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 864
+      },
+      "start": {
+        "column": 13,
+        "line": 864
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::write_new_observed_unlocked\n@@ -855,17 +855,17 @@\n                 }),\n             };\n         }\n         let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {\n             path: display.clone(),\n             detail: format!(\"新文件内容已写入，但无法复核原句柄元数据：{error}\"),\n         })?;\n         if !metadata.is_file()\n-            || metadata.nlink() != 1\n+            && /* ~ changed by cargo-mutants ~ */ metadata.nlink() != 1\n             || (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())\n         {\n             return Err(Error::RecoveryRequired {\n                 path: display,\n                 detail: \"新文件句柄在写入后身份、类型或链接数改变；保留该对象\".into(),\n             });\n         }\n         if let Err(error) = fsync(&parent) {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:863:13: replace || with && in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 863
+      },
+      "start": {
+        "column": 13,
+        "line": 863
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ delete ! in ManagedFs::write_new_observed_unlocked\n@@ -854,17 +854,17 @@\n                     detail: format!(\"新文件写入失败：{error}；本次创建inode清理失败：{cleanup}\"),\n                 }),\n             };\n         }\n         let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {\n             path: display.clone(),\n             detail: format!(\"新文件内容已写入，但无法复核原句柄元数据：{error}\"),\n         })?;\n-        if !metadata.is_file()\n+        if  /* ~ changed by cargo-mutants ~ */metadata.is_file()\n             || metadata.nlink() != 1\n             || (metadata.dev(), metadata.ino()) != (created_metadata.dev(), created_metadata.ino())\n         {\n             return Err(Error::RecoveryRequired {\n                 path: display,\n                 detail: \"新文件句柄在写入后身份、类型或链接数改变；保留该对象\".into(),\n             });\n         }\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::write_new_observed_unlocked",
+      "return_type": "-> Result<SafeFile>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 887
+        },
+        "start": {
+          "column": 5,
+          "line": 837
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:862:12: delete ! in ManagedFs::write_new_observed_unlocked",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 862
+      },
+      "start": {
+        "column": 12,
+        "line": 862
+      }
+    }
+  }
+]

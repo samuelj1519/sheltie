@@ -1,0 +1,35 @@
+Found 222 mutants to test
+ok       Unmutated baseline in 17s build + 24s test
+MISSED   crates/sheltie-runtime/src/service.rs:1005:31: replace < with <= in WorkService::load_checked_request in 7s build + 24s test
+MISSED   crates/sheltie-runtime/src/service.rs:1034:16: delete ! in WorkService::load_checked_request in 45s build + 28s test
+MISSED   crates/sheltie-runtime/src/service.rs:1195:17: replace && with || in validate_command_owner in 10s build + 114s test
+MISSED   crates/sheltie-runtime/src/service.rs:1243:17: replace && with || in validate_command_owner in 15s build + 140s test
+MISSED   crates/sheltie-runtime/src/service.rs:1242:17: replace && with || in validate_command_owner in 15s build + 139s test
+MISSED   crates/sheltie-runtime/src/service.rs:1253:17: replace && with || in validate_command_owner in 23s build + 138s test
+MISSED   crates/sheltie-runtime/src/service.rs:1586:12: replace > with >= in observe_output in 22s build + 112s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(()) in 18s build + 124s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:34:52: replace | with ^ in validate_readonly in 8s build + 129s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with true in Store::open_for_home in 15s build + 145s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home in 18s build + 145s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:150:72: replace == with != in Store::open_for_home in 17s build + 145s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:249:27: replace match guard error.kind() == std::io::ErrorKind::NotFound with true in Store::connect in 23s build + 155s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:276:21: replace | with ^ in Store::connect in 17s build + 152s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:281:21: replace | with ^ in Store::connect in 23s build + 147s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:305:9: replace Store::verify_owner_binding -> Result<()> with Ok(()) in 26s build + 129s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:321:47: replace || with && in Store::verify_owner_binding in 28s build + 128s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:332:9: replace Store::validate -> Result<()> with Ok(()) in 20s build + 159s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 0)) in 19s build + 221s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 1)) in 20s build + 220s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 1)) in 16s build + 220s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:362:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0)) in 23s build + 219s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (0, 0) in 27s build + 216s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (0, 1) in 31s build + 204s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (1, 0) in 34s build + 202s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (1, 1) in 39s build + 173s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (0, 0) in 19s build + 180s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (0, 1) in 22s build + 180s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (1, 0) in 19s build + 179s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:380:5: replace file_identity -> (u64, u64) with (1, 1) in 23s build + 177s test
+MISSED   crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into in 30s build + 158s test
+MISSED   crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push in 21s build + 46s test
+222 mutants tested in 32m: 32 missed, 164 caught, 26 unviable

@@ -1,0 +1,5 @@
+Found 4 mutants to test
+ok       Unmutated baseline in 9s build + 0s test
+MISSED   crates/sheltie-core/src/flow/parse.rs:140:32: replace || with && in parse_input_source in 54s build + 190s test
+MISSED   crates/sheltie-core/src/work/state.rs:419:56: replace && with || in WorkState::validate_gate_facts in 81s build + 166s test
+4 mutants tested in 4m: 2 missed, 2 caught

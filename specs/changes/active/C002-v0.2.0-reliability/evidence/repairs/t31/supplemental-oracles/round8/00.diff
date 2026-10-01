@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ crates/sheltie-runtime/src/pending.rs:297:23: replace != with == in prepare_new_request
+@@ -294,7 +294,7 @@
+         else {
+             continue;
+         };
+-        if entry.kind != ManagedEntryKind::RegularFile {
++        if entry.kind == ManagedEntryKind::RegularFile {
+             continue;
+         }
+         if let Ok(owner) = read_owner(home, id) {

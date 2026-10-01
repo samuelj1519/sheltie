@@ -1,0 +1,5179 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.997169,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 20.635296125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3026:52: replace | with ^ in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3026,
+              "column": 52
+            },
+            "end": {
+              "line": 3026,
+              "column": 53
+            }
+          },
+          "replacement": "^",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3026_col_52.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3026_col_52.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.101190125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 23.351866625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with & in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3026,
+              "column": 32
+            },
+            "end": {
+              "line": 3026,
+              "column": 33
+            }
+          },
+          "replacement": "&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3026_col_32.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3026_col_32.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 40.43428175,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 107.850692542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3040:53: replace == with != in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3040,
+              "column": 53
+            },
+            "end": {
+              "line": 3040,
+              "column": 55
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3040_col_53.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3040_col_53.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.6251055,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 111.62465975,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3032:30: replace != with == in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3032,
+              "column": 30
+            },
+            "end": {
+              "line": 3032,
+              "column": 32
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3032_col_30.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3032_col_30.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 50.334188084,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 113.52708200000001,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3032:62: replace != with == in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3032,
+              "column": 62
+            },
+            "end": {
+              "line": 3032,
+              "column": 64
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3032_col_62.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3032_col_62.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 64.011325667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 131.711425458,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3026:32: replace | with ^ in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3026,
+              "column": 32
+            },
+            "end": {
+              "line": 3026,
+              "column": 33
+            }
+          },
+          "replacement": "^",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3026_col_32_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3026_col_32_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 58.635480583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 138.104895834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3040:26: replace == with != in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3040,
+              "column": 26
+            },
+            "end": {
+              "line": 3040,
+              "column": 28
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3040_col_26.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3040_col_26.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 70.138626375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 130.943635375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3040:35: replace && with || in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3040,
+              "column": 35
+            },
+            "end": {
+              "line": 3040,
+              "column": 37
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3040_col_35.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3040_col_35.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 70.80567575,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 133.350372792,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3032:45: replace || with && in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3032,
+              "column": 45
+            },
+            "end": {
+              "line": 3032,
+              "column": 47
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3032_col_45.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3032_col_45.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 73.609703958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 131.360249667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3049:29: replace == with != in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3049,
+              "column": 29
+            },
+            "end": {
+              "line": 3049,
+              "column": 31
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3049_col_29.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3049_col_29.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.208466875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 135.748300375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with & in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 70
+            },
+            "end": {
+              "line": 3054,
+              "column": 71
+            }
+          },
+          "replacement": "&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_70.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_70.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 21.502279167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 157.729546417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:70: replace | with ^ in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 70
+            },
+            "end": {
+              "line": 3054,
+              "column": 71
+            }
+          },
+          "replacement": "^",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_70_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_70_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 19.574231875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 157.399949708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with & in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 51
+            },
+            "end": {
+              "line": 3054,
+              "column": 52
+            }
+          },
+          "replacement": "&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_51.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_51.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.582569417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 167.937176042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:51: replace | with ^ in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 51
+            },
+            "end": {
+              "line": 3054,
+              "column": 52
+            }
+          },
+          "replacement": "^",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_51_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_51_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.721862875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 167.878935291,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with & in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 32
+            },
+            "end": {
+              "line": 3054,
+              "column": 33
+            }
+          },
+          "replacement": "&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_32.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_32.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.24332275,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 163.071945125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3054:32: replace | with ^ in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3054,
+              "column": 32
+            },
+            "end": {
+              "line": 3054,
+              "column": 33
+            }
+          },
+          "replacement": "^",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3054_col_32_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3054_col_32_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.721500583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 157.285847667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3060:45: replace || with && in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3060,
+              "column": 45
+            },
+            "end": {
+              "line": 3060,
+              "column": 47
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3060_col_45.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3060_col_45.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 21.382032125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 154.137506833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3060:30: replace != with == in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3060,
+              "column": 30
+            },
+            "end": {
+              "line": 3060,
+              "column": 32
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3060_col_30.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3060_col_30.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 25.478520167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 66.940356416,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:11:5: replace canonicalize_deepest -> camino::Utf8PathBuf with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "canonicalize_deepest",
+            "return_type": "-> camino::Utf8PathBuf",
+            "span": {
+              "start": {
+                "line": 8,
+                "column": 1
+              },
+              "end": {
+                "line": 35,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 11,
+              "column": 5
+            },
+            "end": {
+              "line": 34,
+              "column": 6
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_11_col_5.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_11_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.391069834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.007819625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:51:9: replace Home::resolve -> Result<Self> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::resolve",
+            "return_type": "-> Result<Self>",
+            "span": {
+              "start": {
+                "line": 44,
+                "column": 5
+              },
+              "end": {
+                "line": 68,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 51,
+              "column": 9
+            },
+            "end": {
+              "line": 67,
+              "column": 11
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_51_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_51_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.953401125,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:73:9: replace Home::at -> Self with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::at",
+            "return_type": "-> Self",
+            "span": {
+              "start": {
+                "line": 70,
+                "column": 5
+              },
+              "end": {
+                "line": 76,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 73,
+              "column": 9
+            },
+            "end": {
+              "line": 75,
+              "column": 10
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_73_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_73_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.575607167,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3060:62: replace != with == in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3060,
+              "column": 62
+            },
+            "end": {
+              "line": 3060,
+              "column": 64
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3060_col_62.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3060_col_62.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 24.556970334,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 58.045091958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:79:9: replace Home::root -> &AbsPath with Box::leak(Box::new(Default::default()))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::root",
+            "return_type": "-> &AbsPath",
+            "span": {
+              "start": {
+                "line": 78,
+                "column": 5
+              },
+              "end": {
+                "line": 80,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 79,
+              "column": 9
+            },
+            "end": {
+              "line": 79,
+              "column": 19
+            }
+          },
+          "replacement": "Box::leak(Box::new(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_79_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_79_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.761689167,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:83:9: replace Home::store_path -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::store_path",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 82,
+                "column": 5
+              },
+              "end": {
+                "line": 84,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 83,
+              "column": 9
+            },
+            "end": {
+              "line": 83,
+              "column": 43
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_83_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_83_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.64915475,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:87:9: replace Home::workbooks_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::workbooks_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 86,
+                "column": 5
+              },
+              "end": {
+                "line": 88,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 87,
+              "column": 9
+            },
+            "end": {
+              "line": 87,
+              "column": 44
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_87_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_87_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.411060125,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:91:9: replace Home::staging_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::staging_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 90,
+                "column": 5
+              },
+              "end": {
+                "line": 92,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 91,
+              "column": 9
+            },
+            "end": {
+              "line": 91,
+              "column": 54
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_91_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_91_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.60322575,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:95:9: replace Home::works_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::works_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 94,
+                "column": 5
+              },
+              "end": {
+                "line": 96,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 95,
+              "column": 9
+            },
+            "end": {
+              "line": 95,
+              "column": 40
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_95_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_95_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.151546792,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:99:9: replace Home::tmp_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::tmp_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 98,
+                "column": 5
+              },
+              "end": {
+                "line": 100,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 99,
+              "column": 9
+            },
+            "end": {
+              "line": 99,
+              "column": 38
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_99_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_99_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.453636708,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:104:9: replace Home::lock_path -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::lock_path",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 102,
+                "column": 5
+              },
+              "end": {
+                "line": 105,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 104,
+              "column": 9
+            },
+            "end": {
+              "line": 104,
+              "column": 40
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_104_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_104_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.976607416,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:109:9: replace Home::pending_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::pending_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 107,
+                "column": 5
+              },
+              "end": {
+                "line": 110,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 109,
+              "column": 9
+            },
+            "end": {
+              "line": 109,
+              "column": 42
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_109_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_109_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.412679333,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:114:9: replace Home::rel -> Result<AbsPath> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::rel",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 112,
+                "column": 5
+              },
+              "end": {
+                "line": 121,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 114,
+              "column": 9
+            },
+            "end": {
+              "line": 120,
+              "column": 30
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_114_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_114_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.326146166,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3068:35: replace && with || in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3068,
+              "column": 35
+            },
+            "end": {
+              "line": 3068,
+              "column": 37
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3068_col_35.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3068_col_35.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 25.27022325,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 79.91998125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:134:9: replace Home::bin_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::bin_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 133,
+                "column": 5
+              },
+              "end": {
+                "line": 135,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 134,
+              "column": 9
+            },
+            "end": {
+              "line": 134,
+              "column": 38
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_134_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_134_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.4216172910000004,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:138:9: replace Home::work_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::work_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 137,
+                "column": 5
+              },
+              "end": {
+                "line": 139,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 138,
+              "column": 9
+            },
+            "end": {
+              "line": 138,
+              "column": 51
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_138_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_138_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.7466978749999997,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:142:9: replace Home::workbook_dir -> AbsPath with Default::default()",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::workbook_dir",
+            "return_type": "-> AbsPath",
+            "span": {
+              "start": {
+                "line": 141,
+                "column": 5
+              },
+              "end": {
+                "line": 143,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 142,
+              "column": 9
+            },
+            "end": {
+              "line": 142,
+              "column": 68
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_142_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_142_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.437999791,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:151:9: replace Home::confine -> Result<AbsPath> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 151,
+              "column": 9
+            },
+            "end": {
+              "line": 178,
+              "column": 19
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_151_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_151_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.304734666,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3068:26: replace == with != in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3068,
+              "column": 26
+            },
+            "end": {
+              "line": 3068,
+              "column": 28
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3068_col_26.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3068_col_26.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.304846833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 87.771727417,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:3068:53: replace == with != in set_dir_tree_mode",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "set_dir_tree_mode",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2996,
+                "column": 1
+              },
+              "end": {
+                "line": 3084,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 3068,
+              "column": 53
+            },
+            "end": {
+              "line": 3068,
+              "column": 55
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_3068_col_53.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_3068_col_53.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.211012541,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 86.8507185,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with false in canonicalize_deepest",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "canonicalize_deepest",
+            "return_type": "-> camino::Utf8PathBuf",
+            "span": {
+              "start": {
+                "line": 8,
+                "column": 1
+              },
+              "end": {
+                "line": 35,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 22,
+              "column": 23
+            },
+            "end": {
+              "line": 22,
+              "column": 63
+            }
+          },
+          "replacement": "false",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_22_col_23_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_22_col_23_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.605365208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 78.596893834,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:22:32: replace == with != in canonicalize_deepest",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "canonicalize_deepest",
+            "return_type": "-> camino::Utf8PathBuf",
+            "span": {
+              "start": {
+                "line": 8,
+                "column": 1
+              },
+              "end": {
+                "line": 35,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 22,
+              "column": 32
+            },
+            "end": {
+              "line": 22,
+              "column": 34
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_22_col_32.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_22_col_32.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.450857958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 63.410019167,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:22:23: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in canonicalize_deepest",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "canonicalize_deepest",
+            "return_type": "-> camino::Utf8PathBuf",
+            "span": {
+              "start": {
+                "line": 8,
+                "column": 1
+              },
+              "end": {
+                "line": 35,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 22,
+              "column": 23
+            },
+            "end": {
+              "line": 22,
+              "column": 63
+            }
+          },
+          "replacement": "true",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_22_col_23.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_22_col_23.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.713215125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 81.765821083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:125:9: replace Home::to_rel -> Result<String> with Ok(String::new())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::to_rel",
+            "return_type": "-> Result<String>",
+            "span": {
+              "start": {
+                "line": 123,
+                "column": 5
+              },
+              "end": {
+                "line": 131,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 125,
+              "column": 9
+            },
+            "end": {
+              "line": 130,
+              "column": 15
+            }
+          },
+          "replacement": "Ok(String::new())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_125_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_125_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.344295833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 23.235336667,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:125:9: replace Home::to_rel -> Result<String> with Ok(\"xyzzy\".into())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::to_rel",
+            "return_type": "-> Result<String>",
+            "span": {
+              "start": {
+                "line": 123,
+                "column": 5
+              },
+              "end": {
+                "line": 131,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 125,
+              "column": 9
+            },
+            "end": {
+              "line": 130,
+              "column": 15
+            }
+          },
+          "replacement": "Ok(\"xyzzy\".into())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_125_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_125_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.894007208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 16.768511209,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:162:27: replace match guard e.kind() == std::io::ErrorKind::NotFound with true in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 162,
+              "column": 27
+            },
+            "end": {
+              "line": 162,
+              "column": 67
+            }
+          },
+          "replacement": "true",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_162_col_27.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_162_col_27.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.888533334,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.216861416,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:162:36: replace == with != in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 162,
+              "column": 36
+            },
+            "end": {
+              "line": 162,
+              "column": 38
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_162_col_36.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_162_col_36.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.470598333,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 14.78337125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with None",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "file_ident",
+            "return_type": "-> Option<(u64, u64)>",
+            "span": {
+              "start": {
+                "line": 194,
+                "column": 1
+              },
+              "end": {
+                "line": 197,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 195,
+              "column": 5
+            },
+            "end": {
+              "line": 196,
+              "column": 53
+            }
+          },
+          "replacement": "None",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_195_col_5.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_195_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.533057625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.872765083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((0, 0))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "file_ident",
+            "return_type": "-> Option<(u64, u64)>",
+            "span": {
+              "start": {
+                "line": 194,
+                "column": 1
+              },
+              "end": {
+                "line": 197,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 195,
+              "column": 5
+            },
+            "end": {
+              "line": 196,
+              "column": 53
+            }
+          },
+          "replacement": "Some((0, 0))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_195_col_5_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_195_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.444030292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.923427375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:166:30: replace != with == in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 166,
+              "column": 30
+            },
+            "end": {
+              "line": 166,
+              "column": 32
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_166_col_30.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_166_col_30.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.060133042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 18.950270709,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:162:27: replace match guard e.kind() == std::io::ErrorKind::NotFound with false in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 162,
+              "column": 27
+            },
+            "end": {
+              "line": 162,
+              "column": 67
+            }
+          },
+          "replacement": "false",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_162_col_27_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_162_col_27_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.005995958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 20.747487625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:172:12: delete ! in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 172,
+              "column": 12
+            },
+            "end": {
+              "line": 172,
+              "column": 13
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_172_col_12.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_172_col_12.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.095723125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 20.956741542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with false in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 166,
+              "column": 28
+            },
+            "end": {
+              "line": 166,
+              "column": 47
+            }
+          },
+          "replacement": "false",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_166_col_28_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_166_col_28_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.302485833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 19.147194083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((0, 1))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "file_ident",
+            "return_type": "-> Option<(u64, u64)>",
+            "span": {
+              "start": {
+                "line": 194,
+                "column": 1
+              },
+              "end": {
+                "line": 197,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 195,
+              "column": 5
+            },
+            "end": {
+              "line": 196,
+              "column": 53
+            }
+          },
+          "replacement": "Some((0, 1))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_195_col_5_002.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_195_col_5_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.607217625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.140724917,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((1, 0))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "file_ident",
+            "return_type": "-> Option<(u64, u64)>",
+            "span": {
+              "start": {
+                "line": 194,
+                "column": 1
+              },
+              "end": {
+                "line": 197,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 195,
+              "column": 5
+            },
+            "end": {
+              "line": 196,
+              "column": 53
+            }
+          },
+          "replacement": "Some((1, 0))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_195_col_5_003.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_195_col_5_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.516672375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.9067275,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:195:5: replace file_ident -> Option<(u64, u64)> with Some((1, 1))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "file_ident",
+            "return_type": "-> Option<(u64, u64)>",
+            "span": {
+              "start": {
+                "line": 194,
+                "column": 1
+              },
+              "end": {
+                "line": 197,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 195,
+              "column": 5
+            },
+            "end": {
+              "line": 196,
+              "column": 53
+            }
+          },
+          "replacement": "Some((1, 1))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_195_col_5_004.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_195_col_5_004.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.92815,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.074019875,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:166:28: replace match guard p != base.as_path() with true in Home::confine",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::confine",
+            "return_type": "-> Result<AbsPath>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 179,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 166,
+              "column": 28
+            },
+            "end": {
+              "line": 166,
+              "column": 47
+            }
+          },
+          "replacement": "true",
+          "genre": "MatchArmGuard"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_166_col_28.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_166_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.268036917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 48.138578833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (0, 0)",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::locked_identity",
+            "return_type": "-> (u64, u64)",
+            "span": {
+              "start": {
+                "line": 200,
+                "column": 5
+              },
+              "end": {
+                "line": 202,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 201,
+              "column": 9
+            },
+            "end": {
+              "line": 201,
+              "column": 26
+            }
+          },
+          "replacement": "(0, 0)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_201_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_201_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 11.000518542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 21.462476792,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:207:9: replace HomeLock::identity_still_valid -> bool with true",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 207,
+              "column": 9
+            },
+            "end": {
+              "line": 218,
+              "column": 59
+            }
+          },
+          "replacement": "true",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_207_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_207_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.564505958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 12.272481542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (0, 1)",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::locked_identity",
+            "return_type": "-> (u64, u64)",
+            "span": {
+              "start": {
+                "line": 200,
+                "column": 5
+              },
+              "end": {
+                "line": 202,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 201,
+              "column": 9
+            },
+            "end": {
+              "line": 201,
+              "column": 26
+            }
+          },
+          "replacement": "(0, 1)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_201_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_201_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.013128625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 16.086608125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (1, 1)",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::locked_identity",
+            "return_type": "-> (u64, u64)",
+            "span": {
+              "start": {
+                "line": 200,
+                "column": 5
+              },
+              "end": {
+                "line": 202,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 201,
+              "column": 9
+            },
+            "end": {
+              "line": 201,
+              "column": 26
+            }
+          },
+          "replacement": "(1, 1)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_201_col_9_003.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_201_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.075012042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 12.803216375,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:201:9: replace HomeLock::locked_identity -> (u64, u64) with (1, 0)",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::locked_identity",
+            "return_type": "-> (u64, u64)",
+            "span": {
+              "start": {
+                "line": 200,
+                "column": 5
+              },
+              "end": {
+                "line": 202,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 201,
+              "column": 9
+            },
+            "end": {
+              "line": 201,
+              "column": 26
+            }
+          },
+          "replacement": "(1, 0)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_201_col_9_002.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_201_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.064532834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 14.831310833,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:218:13: replace && with || in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 218,
+              "column": 13
+            },
+            "end": {
+              "line": 218,
+              "column": 15
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_218_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_218_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.4067135,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.8253125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:207:9: replace HomeLock::identity_still_valid -> bool with false",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 207,
+              "column": 9
+            },
+            "end": {
+              "line": 218,
+              "column": 59
+            }
+          },
+          "replacement": "false",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_207_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_207_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.164031875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.890604583,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:215:29: replace == with != in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 215,
+              "column": 29
+            },
+            "end": {
+              "line": 215,
+              "column": 31
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_215_col_29.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_215_col_29.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.059587708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.545318042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:216:13: replace && with || in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 216,
+              "column": 13
+            },
+            "end": {
+              "line": 216,
+              "column": 15
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_216_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_216_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.718377417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.193306959,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:9: replace HomeLock::matches_root -> bool with true",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 9
+            },
+            "end": {
+              "line": 222,
+              "column": 86
+            }
+          },
+          "replacement": "true",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.293730958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.355449916,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:218:41: replace == with != in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 218,
+              "column": 41
+            },
+            "end": {
+              "line": 218,
+              "column": 43
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_218_col_41.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_218_col_41.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.651708291,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.562720584,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:217:13: replace && with || in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 217,
+              "column": 13
+            },
+            "end": {
+              "line": 217,
+              "column": 15
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_217_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_217_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.816275291,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.77007425,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:216:41: replace == with != in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 216,
+              "column": 41
+            },
+            "end": {
+              "line": 216,
+              "column": 43
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_216_col_41.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_216_col_41.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.413080209,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.729910291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:230:9: replace Home::acquire_lock -> Result<HomeLock> with Ok(Default::default())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::acquire_lock",
+            "return_type": "-> Result<HomeLock>",
+            "span": {
+              "start": {
+                "line": 227,
+                "column": 5
+              },
+              "end": {
+                "line": 258,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 230,
+              "column": 9
+            },
+            "end": {
+              "line": 257,
+              "column": 11
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_230_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_230_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.474884167,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:215:13: replace && with || in HomeLock::identity_still_valid",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::identity_still_valid",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 204,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 215,
+              "column": 13
+            },
+            "end": {
+              "line": 215,
+              "column": 15
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_215_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_215_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.0958325,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.089474666,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:262:9: replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(Some(Default::default()))",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::acquire_existing_lock",
+            "return_type": "-> Result<Option<HomeLock>>",
+            "span": {
+              "start": {
+                "line": 260,
+                "column": 5
+              },
+              "end": {
+                "line": 299,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 262,
+              "column": 9
+            },
+            "end": {
+              "line": 298,
+              "column": 24
+            }
+          },
+          "replacement": "Ok(Some(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_262_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_262_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.189755667,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:9: replace HomeLock::matches_root -> bool with false",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 9
+            },
+            "end": {
+              "line": 222,
+              "column": 86
+            }
+          },
+          "replacement": "false",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_9_001.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.844263334,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.760586208,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:19: replace == with != in HomeLock::matches_root",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 19
+            },
+            "end": {
+              "line": 222,
+              "column": 21
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_19.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_19.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.627054125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.808865459,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:47: replace == with != in HomeLock::matches_root",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 47
+            },
+            "end": {
+              "line": 222,
+              "column": 49
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_47.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_47.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.000392708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.87266875,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:56: replace && with || in HomeLock::matches_root",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 56
+            },
+            "end": {
+              "line": 222,
+              "column": 58
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_56.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_56.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.808216083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 23.153089792,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:222:28: replace && with || in HomeLock::matches_root",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "HomeLock::matches_root",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 223,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 28
+            },
+            "end": {
+              "line": 222,
+              "column": 30
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_222_col_28.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_222_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.89361225,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 24.443695125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:262:9: replace Home::acquire_existing_lock -> Result<Option<HomeLock>> with Ok(None)",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::acquire_existing_lock",
+            "return_type": "-> Result<Option<HomeLock>>",
+            "span": {
+              "start": {
+                "line": 260,
+                "column": 5
+              },
+              "end": {
+                "line": 299,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 262,
+              "column": 9
+            },
+            "end": {
+              "line": 298,
+              "column": 24
+            }
+          },
+          "replacement": "Ok(None)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_262_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_262_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.755101083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 26.589080167,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/home.rs:244:24: delete ! in Home::acquire_lock",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/home.rs",
+          "function": {
+            "function_name": "Home::acquire_lock",
+            "return_type": "-> Result<HomeLock>",
+            "span": {
+              "start": {
+                "line": 227,
+                "column": 5
+              },
+              "end": {
+                "line": 258,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 244,
+              "column": 24
+            },
+            "end": {
+              "line": 244,
+              "column": 25
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__sheltie-runtime__src__home.rs_line_244_col_24.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__home.rs_line_244_col_24.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.473644792,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 31.555845042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 78,
+  "missed": 15,
+  "caught": 46,
+  "timeout": 0,
+  "unviable": 17,
+  "success": 0,
+  "start_time": "2026-09-29T21:14:51.470225Z",
+  "end_time": "2026-09-29T21:25:14.928719Z",
+  "cargo_mutants_version": "27.1.0"
+}

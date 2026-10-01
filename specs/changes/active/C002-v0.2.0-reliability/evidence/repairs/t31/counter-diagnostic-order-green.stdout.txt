@@ -1,0 +1,11 @@
+   Compiling sheltie-core v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.48s
+────────────
+ Nextest run ID 1062e606-36f3-4753-98e9-d161d6ab6bdc with nextest profile: default
+    Starting 2 tests across 36 binaries (645 tests skipped)
+        PASS [   0.021s] (1/2) sheltie-core::persisted_contracts persisted_facts_reject_single_field_contradictions_and_accept_real_lifecycle_states
+        PASS [   0.029s] (2/2) sheltie-runtime store::tests::load_rejects_invalid_state_combination
+────────────
+     Summary [   0.030s] 2 tests run: 2 passed, 645 skipped

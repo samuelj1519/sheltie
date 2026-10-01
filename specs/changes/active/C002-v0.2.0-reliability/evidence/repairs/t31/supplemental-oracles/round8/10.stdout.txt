@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.45s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_completed_start_replays_after_normal_owner_cleanup ... FAILED
+
+failures:
+
+---- supplemental_completed_start_replays_after_normal_owner_cleanup stdout ----
+
+thread 'supplemental_completed_start_replays_after_normal_owner_cleanup' (34257457) panicked at crates/sheltie-runtime/tests/disposition_oracles.rs:637:10:
+called `Result::unwrap()` on an `Err` value: EffectPending { committed: true, request_id: "01a0f60c-0b9f-7009-9538-e1236cc92e60", pending_request_id: None, cause: StoreCorrupt, cause_detail: "数据库内容损坏：pending/01a0f60c0c07763889ca168354ac1621.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpj3GGHZ/pending/01a0f60c0c07763889ca168354ac1621.owner 不存在", original: Some("{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpj3GGHZ/works/2026-10-01-001-default\",\"work_id\":\"2026-10-01-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-01-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-01-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0f60c-0b9f-7009-9538-e1236cc92e60\",\"revision\":1}"), pending_original: None }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_completed_start_replays_after_normal_owner_cleanup
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 31 filtered out; finished in 0.61s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`

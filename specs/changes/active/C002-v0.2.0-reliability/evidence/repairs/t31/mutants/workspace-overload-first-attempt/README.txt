@@ -1,0 +1,1 @@
+Same frozen source 49d3a191; aborted workspace8-job retest: 1 caught, 15 timeout, 32 unprocessed. Not reused as final stage2. Full failed logs retained. Next attempt lowers scheduling concurrency; source/main tests/features/profile/tool bytes unchanged.

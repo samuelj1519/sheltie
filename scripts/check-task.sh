@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 提交前核对一个任务没有越界。用法：scripts/check-task.sh <task> [基准提交] [--staged]
-# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn 默认取 change package README 的基线。
+# MVP task 默认取最近一个 tNN-* tag；Cnnn-Tnn / Cnnn-Mn 默认取 change package README 的基线。
 #
 # 检查：
 #   1. 改动范围是并集：基准以来提交说明含当前 `Task:` 的提交改动 ∪ 未提交改动。
@@ -47,7 +47,7 @@ cd "$(dirname "$0")/.."
 task_table="specs/releases/v0.1.0/tasks.toml"
 plan_file="specs/releases/v0.1.0/plan.md"
 case "$task" in
-C[0-9][0-9][0-9]-T[0-9][0-9])
+C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
 	change_id="${task%%-*}"
 	change_dir="$(find specs/changes/active specs/changes/completed -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
 	if [ -z "$change_dir" ] || [ "$(printf '%s\n' "$change_dir" | grep -c .)" -ne 1 ]; then

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "cargo",
+    "deny",
+    "--offline",
+    "check"
+  ],
+  "exit": 0,
+  "mode": "executed against existing advisory cache; no database or dependency update",
+  "stdout": "deny.stdout.txt"
+}

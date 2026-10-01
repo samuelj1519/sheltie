@@ -4,9 +4,11 @@
 
 本计划供第一次接触仓库、具备 Rust 基础的实现者逐任务执行。先按 [CONTEXT.md](../../../../CONTEXT.md) 使用项目词汇，再读 [specs/README.md](../../../README.md)、[工程规范](../../../engineering.md)、本 package 的 [spec.md](spec.md)、[design.md](design.md) 与 [findings.md](findings.md)。产品行为和机制以根规格、架构及三份合同为准；本计划只规定实施顺序、Owner、验证和交接。任务白名单见 [tasks.toml](tasks.toml)，跨会话入口见 [progress.md](progress.md)，原始运行与结论记入 [validation.md](validation.md)。
 
-2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。这些任务尚未实施；T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
+2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。追加任务采用时尚未实施；当前完成情况以第2节状态表为准。T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
 
 2026-09-28 用户明确豁免T18–T31与最终M1中的Linux运行。此授权覆盖本计划及repair-plan中对Linux原生运行的要求；各Linux项保留`not_run`，结论只针对macOS测试，不写成跨平台PASS。其余任务、反例、独立review和Rust门禁照常执行。
+
+2026-10-01 用户进一步要求“先跳过可能会触发安全的相关任务，继续执行到T31完成”。本次T31收尾暂缓新增安全边界复现、观察点插桩及相关存活体处分；尚未结束的runtime变异全workspace复验是混合安全验证流水线，一并停止续跑。已完成清单、原始结果和独立复核保留，未完成项逐项记`deferred_by_user`，不得改记caught、equivalent或PASS。T31在此明确豁免范围内完成代码修复、正常可靠性/并发/崩溃验证、工程门禁、文档及提交；M1仍需独立审查，必须保留这批暂缓项的边界。
 
 `ceadc465` 是 T01 首次提交，独立审查发现合同矛盾和门禁证据缺口；本次勘误与审查记录见 [validation.md](validation.md)。T01 关闭后，按下表依赖先完成 T14，再开始 T02。已有提交和旧审查 PASS 不自动转成当前候选 PASS。
 
@@ -62,7 +64,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T28 | done | pending安全清理与只读发现 | T25–T27；[macOS全仓门禁与双轴独立Review](evidence/repairs/t28/README.md)，Linux `not_run` |
 | C002-T29 | done | stats与next同次装入 | T25、T28；[macOS真实CLI交错与双轴Review](evidence/repairs/t29/README.md)，Linux `not_run` |
 | C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](evidence/repairs/t30/README.md)；Linux `not_run` |
-| C002-T31 | not_run | 确定性交错、完整窗口与突变处置 | T19–T30 |
+| C002-T31 | done | 确定性交错、正常窗口与变异登记（含2026-10-01用户安全验证豁免） | T19–T30 |
 | C002-M1 | not_run | 修复后固定候选全链审查 | T02–T15、T18–T31 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
@@ -198,7 +200,7 @@ Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；�
 1. 冻结候选 commit 与输入闭包。对 O01–O13/N01–N14 建矩阵：每行写 finding、修复 commit、正例、单条件反例、真实入口、原始 run、结果、Owner 与剩余风险。没有独立 oracle、真实 caller 或失败停止路径的项保持未关闭，不由 task `done` 或测试数量推成 PASS。
 2. 在同一候选运行 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV 与 `cargo dist plan`。并发测试先同时启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节用独立 oracle。补 Work/Workbook 的 COMMIT 前后、发布前后故障窗口；删除后但完成标记前被杀的“结果不明”必须准确停止并返回已提交错误，不能记自动恢复 PASS。core/runtime 突变按能力处置每个存活体，不机械要求每个都加测试。
 3. Reviewer 逐项检查不变式、三 crate 边界、合同与实际 caller、证据原文和实现者答复。审查后若修改影响候选输入闭包，按影响链重跑并记录新 hash。review.md 结论只用“通过 / 需修改 / 阻断”，M1 通过只证明源码与离线闭环，不能代表 Host 或发布。
-4. 同时关闭R01–R19；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
+4. 同时关闭R01–R20；按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过，不能以局部task done或历史464全绿替代。
 
 ## 5. C002-T16 rc 真实宿主回归
 

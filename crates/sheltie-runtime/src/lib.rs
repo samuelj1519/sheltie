@@ -19,6 +19,7 @@ pub mod request;
 pub mod selfmgmt;
 pub mod service;
 mod session;
+mod snapshot;
 mod store;
 pub mod workbook_digest;
 pub mod workbook_repo;

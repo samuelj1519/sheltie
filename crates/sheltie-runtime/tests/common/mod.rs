@@ -5,7 +5,8 @@ use std::path::{Path, PathBuf};
 
 use sheltie_core::path::AbsPath;
 use sheltie_runtime::{Error, Home, WorkService, WorkbookRepo};
-use tempfile::TempDir;
+mod owned_tempdir;
+pub use owned_tempdir::OwnedTempDir;
 
 pub fn assert_effect_pending(
     error: Error,
@@ -80,8 +81,8 @@ pub fn abs(p: &Path) -> AbsPath {
 }
 
 /// 一个全新的临时管理根。返回 `TempDir` 保活。
-pub fn temp_home() -> (TempDir, Home) {
-    let dir = tempfile::tempdir().unwrap();
+pub fn temp_home() -> (OwnedTempDir, Home) {
+    let dir = OwnedTempDir::new();
     let home = Home::at(abs(dir.path()));
     (dir, home)
 }
@@ -124,7 +125,7 @@ pub fn service(home: &Home) -> WorkService {
 }
 
 /// 装好一个样例并返回服务。
-pub fn home_with_example(name: &str) -> (TempDir, Home, WorkService) {
+pub fn home_with_example(name: &str) -> (OwnedTempDir, Home, WorkService) {
     let (dir, home) = temp_home();
     repo(&home).add(&abs(&example_dir(name)), None).unwrap();
     let svc = service(&home);

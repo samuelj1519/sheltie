@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "cargo",
+    "deny",
+    "--offline",
+    "check"
+  ],
+  "exit": 0,
+  "stdout": "deny.stdout.txt",
+  "scope": "Existing offline advisory cache; normal cache lock only, no network or dependency update.",
+  "cargo_lock_sha256": "76621d1d7ec8056f3817c3e647dd5f34fca13f6c14345353ce550f7b4dc6de19"
+}

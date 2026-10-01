@@ -1,0 +1,30 @@
+{
+  "name": "stage2-sheltie-runtime-1-of-8",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-runtime",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--cargo-test-arg=--test-threads=2",
+    "--test-workspace",
+    "true",
+    "--re",
+    "^(?:crates/sheltie-runtime/src/effects\\.rs:290:56: replace match guard work_id == work with true in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:173:33: replace \\|\\| with && in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:965:9: replace \\|\\| with && in verify_publish_object|crates/sheltie-runtime/src/effects\\.rs:1141:9: replace \\|\\| with && in pending_internal_id|crates/sheltie-runtime/src/failpoint\\.rs:171:42: replace && with \\|\\| in rendezvous|crates/sheltie-runtime/src/fsx\\.rs:128:45: replace \\| with \\^ in ManagedDir::write_new|crates/sheltie-runtime/src/fsx\\.rs:254:81: replace \\| with & in ManagedFs::open_lock_file|crates/sheltie-runtime/src/fsx\\.rs:280:13: replace \\|\\| with && in ManagedFs::open_existing_lock_file|crates/sheltie-runtime/src/fsx\\.rs:297:13: replace \\|\\| with && in ManagedFs::open_existing_lock_file|crates/sheltie-runtime/src/fsx\\.rs:426:60: replace \\| with \\^ in ManagedFs::ensure_dir_unlocked|crates/sheltie-runtime/src/fsx\\.rs:617:13: replace \\|\\| with && in ManagedFs::rename_tree_new|crates/sheltie-runtime/src/fsx\\.rs:870:58: replace \\| with \\^ in ManagedFs::write_new_observed_unlocked|crates/sheltie-runtime/src/fsx\\.rs:952:60: replace \\| with \\^ in ManagedFs::write_atomic_unlocked|crates/sheltie-runtime/src/fsx\\.rs:1143:13: replace \\|\\| with && in ManagedFs::replace_regular_file|crates/sheltie-runtime/src/fsx\\.rs:1369:33: replace match guard \\(stat\\.st_dev as u64, stat\\.st_ino\\) == locked_ident with true in ManagedFs::purge_contents|crates/sheltie-runtime/src/fsx\\.rs:1545:18: replace == with != in check_rename_source|crates/sheltie-runtime/src/fsx\\.rs:1867:66: replace \\| with & in ExternalReadTree::open_file|crates/sheltie-runtime/src/fsx\\.rs:1898:24: replace > with == in ExternalReadTree::read_file|crates/sheltie-runtime/src/fsx\\.rs:2227:24: replace \\|= with &= in validate_store_files_locked|crates/sheltie-runtime/src/fsx\\.rs:2326:38: replace \\|\\| with && in open_regular_at|crates/sheltie-runtime/src/fsx\\.rs:2379:12: delete ! in remove_directory_contents|crates/sheltie-runtime/src/fsx\\.rs:2428:37: replace \\|\\| with && in remove_at|crates/sheltie-runtime/src/fsx\\.rs:2639:13: replace \\|\\| with && in SafeFile::verify_seal_reference|crates/sheltie-runtime/src/fsx\\.rs:2986:44: replace \\| with & in make_directories_writable|crates/sheltie-runtime/src/fsx\\.rs:3057:32: replace \\| with & in set_dir_tree_mode|crates/sheltie-runtime/src/fsx\\.rs:3085:32: replace \\| with & in set_dir_tree_mode|crates/sheltie-runtime/src/home\\.rs:343:34: replace && with \\|\\| in Home::is_lock_setup_path_missing|crates/sheltie-runtime/src/pending\\.rs:185:58: replace && with \\|\\| in PendingReferenceIndex::lifecycle_references_for_workbook|crates/sheltie-runtime/src/pending\\.rs:285:5: replace prepare_new_request -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/pending\\.rs:890:5: replace validate_delete_reference -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/recovery\\.rs:135:31: replace == with != in before_write|crates/sheltie-runtime/src/recovery\\.rs:437:13: replace \\|\\| with && in strict_workbook_data|crates/sheltie-runtime/src/selfmgmt\\.rs:18:41: replace \\* with /|crates/sheltie-runtime/src/selfmgmt\\.rs:465:9: replace \\|\\| with && in checked_version|crates/sheltie-runtime/src/selfmgmt\\.rs:653:12: delete ! in download|crates/sheltie-runtime/src/selfmgmt\\.rs:830:24: replace > with >= in wait_bounded_child|crates/sheltie-runtime/src/service\\.rs:601:51: replace match guard !location\\.pending_publish with false in WorkService::load_row|crates/sheltie-runtime/src/service\\.rs:768:56: replace == with != in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:1243:17: replace && with \\|\\| in validate_command_owner|crates/sheltie-runtime/src/store/mod\\.rs:150:72: replace == with != in Store::open_for_home|crates/sheltie-runtime/src/store/mod\\.rs:362:5: replace root_identity -> Result<\\(u64, u64\\)> with Ok\\(\\(0, 1\\)\\)|crates/sheltie-runtime/src/store/mod\\.rs:380:5: replace file_identity -> \\(u64, u64\\) with \\(0, 1\\)|crates/sheltie-runtime/src/workbook_repo\\.rs:328:38: replace \\|\\| with && in WorkbookRepo::checked_effects_for|crates/sheltie-runtime/src/workbook_repo\\.rs:442:34: replace \\|\\| with && in WorkbookRepo::checked_effects_for|crates/sheltie-runtime/src/workbook_repo\\.rs:633:29: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:681:46: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:727:13: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/store/read\\.rs:383:38: replace > with >= in decode_row)$"
+  ],
+  "exit": 2,
+  "seconds": 2729.455,
+  "candidate": "49d3a191aa4c918aab279617fa2bf7d9b3b36a0e",
+  "closure_sha256": "ed4866c8b67f15d57075752e434a398333739ac0f495391da2ee51efebe0a0b1",
+  "source_manifest_sha256": "ddc0d27002fe0917956790f499d6ec18a7a6ebc33e8706f496375de57aff85b2",
+  "listed": 48,
+  "processed": 48,
+  "counts": {
+    "MissedMutant": 44,
+    "CaughtMutant": 4
+  },
+  "outcomes_sha256": "49cd46d6260dd3be2dbdeb24a39121d151dd1b4a555a9ba4e54e60de84f9a0a5",
+  "mutants_sha256": "615c54d7bebc04c97701ad79201d1a57b5d2a91cb4947553c40634031c180e88"
+}

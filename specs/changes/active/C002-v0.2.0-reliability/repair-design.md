@@ -1,6 +1,6 @@
 # M1 问题修复方案
 
-依据：[2026-09-28 独立审查](review-m1-2026-09-28.md)，被审候选 `e1a8126a432981df40023628dd06feec7884d458`。本文件给出 R01–R19 的解决方案；任务步骤见 [repair-plan.md](repair-plan.md)，验收样例见 [repair-validation.md](repair-validation.md)。实际进度只看 [plan.md](plan.md)。
+依据：[2026-09-28 独立审查](review-m1-2026-09-28.md)，被审候选 `e1a8126a432981df40023628dd06feec7884d458`。本文件给出 R01–R19 的解决方案，并记录 T31 新发现的 R20；任务步骤见 [repair-plan.md](repair-plan.md)，验收样例见 [repair-validation.md](repair-validation.md)。实际进度只看 [plan.md](plan.md)。
 
 这里描述待实施目标，不表示已支持。既有产品与机制仍以上游规格、架构和合同为准。T18 先固定本文点明的合同调整与 API 选型，再开始代码任务；初级工程师不得自行在矛盾之间选择。其他方案均落实已采用的 C002 行为，不另建兼容格式、业务状态或宿主适配框架。
 
@@ -118,7 +118,7 @@ Store的RW创建/连接入口收进runtime内部。只读识别不用可能CREAT
 
 SQLite只读连接可能建立/维护WAL的store.db-shm，READ_ONLY不等于文件系统零写。用户已授权T18采用的合同是：只读/预检/拒旧不得写主数据库、WAL记录、schema、业务文件或引擎.lock，不得创建新管理根；允许SQLite在已存在根内维护该数据库的常规共享内存控制文件，单独记录其变化。schema1的main/WAL及用户记录仍逐字节保留，不迁移、不checkpoint、不清空；不声称整个旧根逐字节不变。不能使用immutable=1或自写VFS。
 
-T18必须在真实bundled rusqlite上验证主库+WAL的ro读取、缺shm、活动写者、main/WAL/shm软硬链接、schema1拒绝前后main/WAL字节及关闭连接后的变化。只读识别连接在首次查询前用安全set_db_config(SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,true)禁止关闭时checkpoint。不能只按main文件长度拒绝：macOS实测当短main对应有效且含完整已提交快照的WAL时，SQLite可从WAL读出数据库；若WAL header损坏但main有效，bundled SQLite忽略WAL并返回main中的旧快照。运行时遵循SQLite可查询视图，不自写WAL解析来猜测忽略原因；任何open/query/close路径仍须保持main/WAL字节不变。链接/特殊对象调用SQLite前拒绝；缺shm允许的创建只属于上述控制文件。immutable=1忽略锁与变化检测，不是默认替代；参考 [SQLite连接语义](https://www.sqlite.org/c3ref/open.html) 与 [WAL只读数据库](https://www.sqlite.org/wal.html#read_only_databases)。控制文件例外不放宽引擎创建库/目录/锁的顺序，API无法守住main/WAL原字节时T18停止。
+T18必须在真实bundled rusqlite上验证主库+WAL的ro读取、缺shm、活动写者、main/WAL/shm软硬链接、schema1拒绝前后main/WAL字节及关闭连接后的变化。只读识别连接在首次查询前用安全set_db_config(SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,true)禁止关闭时checkpoint。不能只按main文件长度拒绝：macOS实测当短main对应有效且含完整已提交快照的WAL时，SQLite可从WAL读出数据库；若WAL header损坏但main有效，bundled SQLite忽略WAL并返回main中的旧快照。运行时遵循SQLite可查询视图，不自写WAL解析来猜测忽略原因；任何open/query/close路径仍须保持main/WAL字节不变。链接/特殊对象调用SQLite前拒绝；缺shm维护与缺失WAL的零字节创建只属于上述控制文件。immutable=1忽略锁与变化检测，不是默认替代；参考 [SQLite连接语义](https://www.sqlite.org/c3ref/open.html) 与 [WAL只读数据库](https://www.sqlite.org/wal.html#read_only_databases)。控制文件例外不放宽引擎创建库/目录/锁的顺序，API无法守住main/WAL原字节时T18停止。
 
 历史 Work 前缀先查 request_id 的 work_id，要求该完整 id 以用户前缀开头，再构造意图；不匹配则 REQUEST_CONFLICT。无请求记录才解析当前唯一前缀。所有 Work 写动词都走此入口，不能只修 attempt begin。
 
@@ -176,6 +176,8 @@ remove 准备阶段创建并 sync owner 和私有 container，**不预建空 pay
 
 新增 `runtime/pending.rs`，仅集中 owner/marker、Store引用索引、对象发现与清理，不新增业务状态。扫描全部请求的效果而非只查 unpublished：完成请求也可能有待清理元数据。先把全部路径/归属/引用校验完再删除，不能边读遇损坏记录边猜未引用。
 
+同request-id的COMMIT前崩溃重试，必须在新请求登记前清掉已核合法、未被任何Store引用的本rid原件。若必需清理失败，尚未提交的新请求停止，保留可用证据；不能先登记新row再把旧原件当异常。同rid以外的普通维护仍由CLI独立stderr诊断，不改变已成功业务结果。
+
 - 合法 owner + 无 Store 引用：删除本操作的未提交私有树与 owner；不能动旁边另一操作的树。
 - published=0 且被 Store 引用：保留原件，只交 recovery；年龄不参与判断。
 - published=1：只清本请求空 container/owner/deleted；非空 payload 或不同对象保留并报告，不能重做业务效果。
@@ -209,6 +211,20 @@ plan还绑定optional previous_verification←verify.report、previous_change←
 
 ## 9. 验证与交付
 
-每个行为任务都包含合法例、单条件反例、独立 oracle、真实 CLI/文件/SQLite 状态和失败停止路线。修复通过只覆盖本任务能力；最终 R01–R19 与原 O/N 矩阵由独立 M1 Reviewer 合并。并发用同步点制造确定性交错；同一候选的 crash binary 只构建一次，从 Cargo JSON 获取路径，测试期间不再重链接共享 binary。
+每个行为任务都包含合法例、单条件反例、独立 oracle、真实 CLI/文件/SQLite 状态和失败停止路线。修复通过只覆盖本任务能力；最终 R01–R20 与原 O/N 矩阵由独立 M1 Reviewer 合并。并发用同步点制造确定性交错；同一候选的 crash binary 只构建一次，从 Cargo JSON 获取路径，测试期间不再重链接共享 binary。
 
 最后运行core/runtime突变，先列候选再分批执行，记录每个存活体对应的当前能力和处置；不按存活数强行加镜像测试。完整Work/Workbook kill窗口、macOS文件API、本地发布形状和MSRV仍是M1必需证据。Linux运行按用户指示豁免，保留`not_run`与平台风险，不作跨平台PASS。真实宿主、usage与四平台发布资产分别留T16/T17，不能替其填PASS。
+
+## 12. T31 增量发现 R20：持久受阻次数触发溢出
+
+2026-09-30 独立 CLI 探针从合法 Gate 状态只把 `blocked_count` 的 1 改成 `u32::MAX`。status/stats 接受该值，gate approve 在 core 增量时 panic，stdout 没有协议响应；2cfe8027 固定二进制复验一致。原始证据见 [计数探针](evidence/repairs/t31/blocked-count-independent-probe.json)。这不是新产品功能或任意篡改检测承诺，而是 GF-29 与可信装入的内部事实约束缺口。
+
+修复使用已有状态中的必要界：每次受阻至多归属一次 Attempt 结束或一次 Gate Approval；所以累计不超过 `attempts.len() + approvals.len()`。每条 Approval 已经历一次 Gate 受阻；当前 Blocked 状态还证明一次新的受阻，因此累计至少为 `approvals.len() + 当前是否Blocked`。仅校验必要界，不重算精确次数，不改原事实、不读 audit、不添字段。runtime 的现有 decode/commit caller 将不一致映射为 STORE_CORRUPT；core 三处增量使用同一 checked helper，避免独立 API 输入触发 panic 或 release wrap。
+
+实施归 C002-T31：先补真实 CLI 的合法 count=1→2 与单字段 MAX/0 反例，核 status/stats/list/approve、原 works/revision/requests/audit 和业务文件；再补纯 core submit/fail/approve 的溢出正反例，最后核合法 Gate 重访和取消仍保持累计。保留红输出，固定新源码/测试/配置候选，再跑默认/优化完整基线及新完整变异清单；旧 2cfe 部分结果不作为新候选通过。
+
+## 13. T31 实现审查后的闭环
+
+2026-09-30 用户授权修复[实现审查](review-implementation-2026-09-30.md)的七项问题并完成T31。Store首次初始化按storage §1.1在自有tmp中完成后再发布，既有schema拒绝规则保持；崩溃与并发正反例走真实add/install。持久状态结合冻结Graph核门槛Occurrence与批准记录，缺失事实报STORE_CORRUPT并保留原数据，不通过重放或推断补造批准。历史文件及PrepareAttempt目录存在只证明对象在位，未发布效果恢复仍须完成同对象的文件/目录链sync，连续失败不得mark。
+
+协议映射复用core的单一NextOp编码；快照数据形状在解码边界严格校验，业务归属仍用可信状态核对；同一写锁内复用已核请求和装入结果，普通查询按目标定位引用，清理保留全Store引用检查。add源仅做结构、对象类型和限额预检，最终副本才做parse/compile/digest。以上不新增持久视图、兼容格式或业务状态。原T31增量与失败证据保留；新源码形成新mutation输入闭包，所有旧结果标历史或superseded，不能混为新候选PASS。

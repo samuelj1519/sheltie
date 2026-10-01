@@ -1,0 +1,23 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects
+@@ -115,19 +115,17 @@
+ ) -> Result<CheckedEffects> {
+     let work = state.work_id.as_str();
+     let mut seen_prepare = false;
+     let command_attempt = match command {
+         Command::BeginAttempt { .. } => match reply {
+             Reply::AttemptBegun { attempt, .. } => Some(attempt.clone()),
+             _ => None,
+         },
+-        Command::SubmitAttempt { attempt, .. } | Command::FailAttempt { attempt, .. } => {
+-            Some(attempt.clone())
+-        }
++         /* ~ changed by cargo-mutants ~ */
+         _ => None,
+     };
+     validate_effect_shape(home, state, graph, command, reply, &ops)?;
+     for (index, op) in ops.iter().enumerate() {
+         let invalid = |field: &str, reason: &str| Error::StoreCorrupt {
+             detail: format!("Work {work} requests.effects[{index}].{field} {reason}"),
+         };
+         match op {

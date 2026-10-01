@@ -1,0 +1,49 @@
+Found 48 mutants to test
+ok       Unmutated baseline in 19s build + 27s test
+MISSED   crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects in 39s build + 219s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1061:27: replace || with && in delete_dir in 52s build + 231s test
+MISSED   crates/sheltie-runtime/src/effects.rs:439:21: replace || with && in check_workbook_effects in 65s build + 235s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1214:46: replace || with && in validate_deleted_marker_file in 66s build + 235s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent in 6s build + 234s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:160:9: replace ManagedDir::check_lock -> Result<()> with Ok(()) in 5s build + 240s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:62: replace | with ^ in ManagedFs::open_lock_file in 5s build + 238s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file in 7s build + 237s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked in 7s build + 240s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:494:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists in 7s build + 243s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked in 7s build + 244s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:891:13: replace || with && in ManagedFs::write_new_observed_unlocked in 7s build + 244s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:995:37: replace || with && in ManagedFs::rename_verified_new in 6s build + 236s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file in 7s build + 233s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1438:53: replace || with && in ManagedFs::set_mode in 6s build + 231s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1594:9: replace || with && in verify_tree_entry_at in 8s build + 232s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1867:47: replace | with ^ in ExternalReadTree::open_file in 7s build + 226s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1905:29: replace + with * in ExternalReadTree::read_file in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2320:62: replace | with ^ in open_regular_at in 7s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2357:44: replace | with & in open_directory_at in 7s build + 228s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2422:44: replace | with & in remove_at in 7s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2494:5: replace preflight_remove_at -> Result<()> with Ok(()) in 6s build + 230s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2654:13: replace || with && in SafeFile::verify_seal_reference in 6s build + 229s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2986:24: replace | with ^ in make_directories_writable in 6s build + 230s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3071:35: replace && with || in set_dir_tree_mode in 7s build + 234s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3099:35: replace && with || in set_dir_tree_mode in 7s build + 235s test
+MISSED   crates/sheltie-runtime/src/load.rs:279:9: replace || with && in compile_frozen_workbook in 7s build + 233s test
+MISSED   crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir in 7s build + 233s test
+MISSED   crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected in 6s build + 233s test
+MISSED   crates/sheltie-runtime/src/pending.rs:908:9: replace || with && in validate_delete_reference in 6s build + 234s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:328:27: replace match guard complete with true in finish_checked_request in 5s build + 232s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:463:31: replace || with && in strict_workbook_data in 5s build + 232s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:482:9: replace || with && in checked_asset_name in 6s build + 226s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:847:24: replace > with >= in wait_bounded_child in 5s build + 226s test
+MISSED   crates/sheltie-runtime/src/service.rs:702:13: replace || with && in WorkService::workbook_publication in 6s build + 228s test
+MISSED   crates/sheltie-runtime/src/service.rs:771:52: replace == with != in WorkService::workbook_publication in 6s build + 229s test
+MISSED   crates/sheltie-runtime/src/service.rs:1586:12: replace > with >= in observe_output in 5s build + 231s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:281:21: replace | with ^ in Store::connect in 5s build + 229s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:374:5: replace file_identity -> (u64, u64) with (0, 0) in 5s build + 229s test
+MISSED   crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into in 6s build + 233s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:374:21: replace || with && in WorkbookRepo::checked_effects_for in 6s build + 234s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:496:51: replace == with != in WorkbookRepo::checked_effects_for in 6s build + 232s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:649:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row in 7s build + 229s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:712:13: replace || with && in WorkbookRepo::publication_for_row in 6s build + 215s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:751:20: delete ! in WorkbookRepo::load_row_from_directory in 6s build + 141s test
+MISSED   crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with "xyzzy".into() in 6s build + 133s test
+48 mutants tested in 48m: 46 missed, 2 caught

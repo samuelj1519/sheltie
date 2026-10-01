@@ -1,0 +1,11 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ crates/sheltie-runtime/src/workbook_repo.rs:431:54: replace || with && in WorkbookRepo::checked_effects_for
+@@ -428,7 +428,7 @@
+                     serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {
+                         detail: format!("Workbook remove请求 {request_id} snapshot解不开：{error}"),
+                     })?;
+-                if snapshot.request_id != request_id || snapshot.replayed {
++                if snapshot.request_id != request_id && snapshot.replayed {
+                     return Err(Error::StoreCorrupt {
+                         detail: format!("Workbook remove请求 {request_id} snapshot身份无效"),
+                     });

@@ -1,0 +1,22 @@
+   Compiling sheltie-runtime v0.1.0 (/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/oracle-source/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.03s
+     Running tests/disposition_oracles.rs (/private/tmp/sheltie-c002-review-9NZouweW/supplement-target/debug/deps/disposition_oracles-79d6eb2841d117ea)
+
+running 1 test
+test supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner ... FAILED
+
+failures:
+
+---- supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner stdout ----
+
+thread 'supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner' (30810399) panicked at crates/sheltie-runtime/tests/common/mod.rs:69:9:
+请求错误必须保留EFFECT_PENDING归属：StoreCorrupt { detail: "Workbook remove请求 remove-owned-snapshot 的历史snapshot身份无效" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supplemental_remove_snapshot_identity_rejection_keeps_its_committed_owner
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.46s
+
+error: test failed, to rerun pass `-p sheltie-runtime --test disposition_oracles`
