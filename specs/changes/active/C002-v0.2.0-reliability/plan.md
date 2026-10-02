@@ -77,6 +77,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-M1 | done | 修复后固定候选全链审查（含实际SK01/SK02授权跳过） | T01–T15、T18–T34；[最终验收](review-m1-2026-10-02.md)，215项额外执行缺失及最终Spec批准缺失明确保留 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
+| C002-T35 | done | 项目许可统一为MIT | 用户2026-10-02明确授权；元数据/包文件/文档及提交门禁 |
 
 ## 3. 任务卡
 
@@ -240,3 +241,8 @@ Owner：Codex；独立Reviewer：Spec/Standards Reviewer。本任务集中补M1�
 ## M1追加修复 C002-T34
 
 Owner：Codex；独立Reviewer：Spec/Standards Reviewer。R22由未变异T33候选的真实CLI复现：历史remove快照的合法id/version改为与audit不符后，业务正确拒绝，但错误仍附错误的成功`original`。修复runtime原响应投影的请求、审计与业务绑定；同一义务覆盖`pending_original`。R23/R24的真实CLI又确认Fail重放接受不可能状态、Begin重放接受冻结节点未声明的资源；core提供现有状态/资源规则的同一纯函数，runtime只核历史记录与这些事实，不重建当前状态或复制业务决策。core源码改变后不再复用旧720项core变异，重新执行core/runtime完整inventory。保留已提交身份、冲突优先序及合法效果失败的原响应，不修写坏Store、不让CLI重建业务规则。复用并分离现有可信装入规则，避免第二套校验或状态；补真实CLI单字段反例、合法I/O失败对照及存活项必要回归。工程门禁与独立review通过后提交；旧冻结变异原文保留为历史，新输入按影响链重跑，不复用改变依赖闭包的PASS。实际平台安全跳过与Linux/T16/T17边界不变。
+
+
+## C002-T35 MIT许可
+
+仅修改项目自身许可声明及Apache许可文件；三个crate继续继承workspace许可并携带MIT正文。第三方许可与依赖允许清单保留各自声明。Task文件范围以tasks.toml为准，验证三个Cargo包的metadata和package --list、文档治理及工程规范提交门禁。该元数据变更不改写历史M1输入或验证结果。
