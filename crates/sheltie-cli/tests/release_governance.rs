@@ -1,8 +1,7 @@
-//! C002-T15：发布治理门禁——check-specs 的历史诊断与版本分流，release/build
-//! 工作流的质量门禁接线。
+//! C002-T15/T17：发布治理门禁、完整历史与版本分流、最终验证表。
 //!
-//! 治理夹具把仓库的治理树拷进临时目录并自建 Git 历史：release record 里的 40 位
-//! commit 全部改写成夹具自己的 commit，tag 也由夹具创建，record、tag 与历史自洽。
+//! 夹具自建 change 生命周期与 release records，不继承宿主的发布进度；record 里的
+//! commit 与 tag 都指向夹具自己的 Git 历史。只有被测脚本和工作流取自仓库。
 //! 期望值（诊断措辞、门禁条件）由本文件写死，不调用 check-specs 的解析逻辑。
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -14,46 +13,127 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn copy_tree(src: &Path, dst: &Path, relative: &Path) {
+fn copy_tree(src: &Path, dst: &Path) {
     fs::create_dir_all(dst).unwrap();
     for entry in fs::read_dir(src).unwrap() {
         let entry = entry.unwrap();
         let from = entry.path();
         let to = dst.join(entry.file_name());
-        let relative = relative.join(entry.file_name());
-        // 版本/历史夹具保留完整Markdown扫描输入，不复制与治理无关的原始运行产物。
-        if relative.starts_with("specs")
-            && relative
-                .components()
-                .any(|part| part.as_os_str() == "evidence")
-            && from.is_file()
-            && from.extension() != Some(std::ffi::OsStr::new("md"))
-        {
-            continue;
-        }
         if from.is_dir() {
-            copy_tree(&from, &to, &relative);
+            copy_tree(&from, &to);
         } else {
             fs::copy(&from, &to).unwrap();
         }
     }
 }
 
-/// 治理树替身：check-specs 与它引用的仓库文件同构，所有改动都发生在替身里。
+fn write_fixture_file(root: &Path, name: &str, text: &str) {
+    let path = root.join(name);
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    fs::write(path, text).unwrap();
+}
+
+#[derive(Clone, Copy)]
+enum Lifecycle {
+    ActiveC002,
+    CompletedC002,
+}
+
+const FINAL_TABLE_HEADER: &str = "| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |\n\
+     | --- | --- | --- | --- | --- | --- |\n";
+
+fn final_validation(result: &str) -> String {
+    format!(
+        "# C002 验证\n\nCandidate: `SELF`\n\n{FINAL_TABLE_HEADER}\
+         | 当前要求 | executed | 固定夹具 | `fixture-run` | {result} | raw.log |\n"
+    )
+}
+
+fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
+    for state in ["proposed", "active", "completed", "rejected"] {
+        write_fixture_file(root, &format!("specs/changes/{state}/.gitkeep"), "");
+    }
+    let state = match lifecycle {
+        Lifecycle::ActiveC002 => "active",
+        Lifecycle::CompletedC002 => "completed",
+    };
+    let package = format!("specs/changes/{state}/C002-v0.2.0-reliability");
+    write_fixture_file(
+        root,
+        &format!("{package}/README.md"),
+        &format!(
+            "# C002 夹具\n\n状态：`{state}`\n目标版本：`v0.2.0`\n\
+             兼容性：breaking\n基线：`fixture`\nOwner：fixture\n\n## 成功判据\n\n固定要求。\n"
+        ),
+    );
+    write_fixture_file(
+        root,
+        &format!("{package}/plan.md"),
+        "| Task | 状态 | 验收 |\n| --- | --- | --- |\n| C002-T01 | done | 固定要求 |\n",
+    );
+    write_fixture_file(root, &format!("{package}/progress.md"), "# 交接\n");
+    write_fixture_file(root, &format!("{package}/tasks.toml"), "");
+    write_fixture_file(
+        root,
+        &format!("{package}/validation.md"),
+        &final_validation("PASS"),
+    );
+    write_fixture_file(
+        root,
+        &format!("{package}/review.md"),
+        "# 审查\n\n结论：`PASS`\n",
+    );
+    let active = match lifecycle {
+        Lifecycle::ActiveC002 => "Active change：[C002](active/C002-v0.2.0-reliability/README.md)",
+        Lifecycle::CompletedC002 => "Active change：无",
+    };
+    write_fixture_file(
+        root,
+        "specs/changes/README.md",
+        &format!(
+            "# Change 索引\n\n{active}\n\n[C002]({state}/C002-v0.2.0-reliability/README.md)\n"
+        ),
+    );
+    write_fixture_file(root, "specs/decisions/README.md", "# ADR 索引\n");
+    let mut release_index = String::from("# Release 索引\n");
+    let versions = match lifecycle {
+        Lifecycle::ActiveC002 => &["0.1.0"][..],
+        Lifecycle::CompletedC002 => &["0.1.0", "0.2.0"][..],
+    };
+    for version in versions {
+        let release = format!("specs/releases/v{version}");
+        write_fixture_file(
+            root,
+            &format!("{release}/README.md"),
+            &format!(
+                "# v{version}\n\nGit tag：`v{version}`\n\
+                 Release commit：`0000000000000000000000000000000000000000`\n\
+                 验收闭包：`0000000000000000000000000000000000000000`\n\n\
+                 ## 验收\n\n[固定证据](plan.md)\n\n## 已知限制\n\n夹具不发布。\n"
+            ),
+        );
+        for file in ["plan.md", "decisions.md", "runbook.md", "tasks.toml"] {
+            write_fixture_file(root, &format!("{release}/{file}"), "");
+        }
+        release_index.push_str(&format!("\n[v{version}](v{version}/README.md)\n"));
+    }
+    write_fixture_file(root, "specs/releases/README.md", &release_index);
+}
+
 fn copy_governance_tree(base: &Path) -> PathBuf {
     let tree = base.join("gov");
-    for name in ["scripts", "specs", ".github"] {
-        copy_tree(&repo_root().join(name), &tree.join(name), Path::new(name));
+    for name in ["scripts", ".github"] {
+        copy_tree(&repo_root().join(name), &tree.join(name));
     }
     fs::create_dir_all(&tree).unwrap();
-    for name in [
-        ".pre-commit-config.yaml",
-        "AGENTS.md",
-        "CHANGELOG.md",
-        "Cargo.toml",
-    ] {
+    for name in [".pre-commit-config.yaml", "AGENTS.md", "Cargo.toml"] {
         fs::copy(repo_root().join(name), tree.join(name)).unwrap();
     }
+    write_fixture_file(
+        &tree,
+        "CHANGELOG.md",
+        "# Changelog\n\n---\n\n## [0.1.0] - 2026-09-27\n",
+    );
     tree
 }
 
@@ -142,7 +222,11 @@ fn insert_changelog_heading(root: &Path, heading: &str) {
     let marker = "\n---\n";
     let idx = text.find(marker).expect("CHANGELOG.md 没有 --- 标记");
     let at = idx + marker.len();
-    fs::write(&path, format!("{}{heading}\n\n", &text[..at])).unwrap();
+    fs::write(
+        &path,
+        format!("{}{heading}\n\n{}", &text[..at], &text[at..]),
+    )
+    .unwrap();
 }
 
 fn push_run(out: &mut String, run: &str, to: &str) {
@@ -195,9 +279,10 @@ struct Fixture {
 /// 历史形状：commit1 是 record 记的「发布 commit」，commit2 装着 record 对齐
 /// 改写，`v0.1.0` tag 指 commit1。浅克隆 tip（commit2）时 tag 与 commit1 都
 /// 取不到，正好落在 check-specs 的缺历史分支上。
-fn make_fixture(version: &str, changelog_heading: Option<&str>) -> Fixture {
+fn make_fixture(version: &str, changelog_heading: Option<&str>, lifecycle: Lifecycle) -> Fixture {
     let dir = tempfile::tempdir().unwrap();
     let root = copy_governance_tree(dir.path());
+    setup_lifecycle(&root, lifecycle);
     set_workspace_version(&root, version);
     if let Some(heading) = changelog_heading {
         insert_changelog_heading(&root, heading);
@@ -207,6 +292,9 @@ fn make_fixture(version: &str, changelog_heading: Option<&str>) -> Fixture {
     rewrite_release_commits(&root, &head1);
     git_commit(&root, "fixture: release record 对齐夹具历史");
     git_ok(&root, &["tag", "v0.1.0", &head1]);
+    if matches!(lifecycle, Lifecycle::CompletedC002) {
+        git_ok(&root, &["tag", "v0.2.0", &head1]);
+    }
     Fixture { _dir: dir, root }
 }
 
@@ -285,7 +373,7 @@ fn announce_needs_quality(announce: &str) -> bool {
 #[test]
 fn check_specs_full_history_resolves_release_commits() {
     // 全历史、record 对齐夹具的 tag 与 commit：治理检查整体放行。
-    let fx = make_fixture("0.1.0", None);
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
     let (ok, text) = run_check_specs(&fx.root);
     assert!(ok, "{text}");
 }
@@ -294,7 +382,11 @@ fn check_specs_full_history_resolves_release_commits() {
 #[test]
 fn check_specs_accepts_active_target_without_tag() {
     // 开发中的版本等于 active 目标版本就行，不要求已有 tag（发布还没做）。
-    let fx = make_fixture("0.2.0", Some("## [0.2.0] - 2026-09-28"));
+    let fx = make_fixture(
+        "0.2.0",
+        Some("## [0.2.0] - 2026-09-28"),
+        Lifecycle::ActiveC002,
+    );
     assert_eq!(git_ok(&fx.root, &["tag", "-l", "v0.2.0"]), "");
     let (ok, text) = run_check_specs(&fx.root);
     assert!(ok, "{text}");
@@ -304,7 +396,11 @@ fn check_specs_accepts_active_target_without_tag() {
 #[test]
 fn check_specs_accepts_rc_of_active_target() {
     // active 目标版本的 RC 同样按开发中放行，不要求 RC 的 tag。
-    let fx = make_fixture("0.2.0-rc.1", Some("## [0.2.0-rc.1] - 2026-09-28"));
+    let fx = make_fixture(
+        "0.2.0-rc.1",
+        Some("## [0.2.0-rc.1] - 2026-09-28"),
+        Lifecycle::ActiveC002,
+    );
     assert_eq!(git_ok(&fx.root, &["tag", "-l", "v0.2.0-rc.1"]), "");
     let (ok, text) = run_check_specs(&fx.root);
     assert!(ok, "{text}");
@@ -315,7 +411,11 @@ fn check_specs_accepts_rc_of_active_target() {
 fn check_specs_rejects_version_outside_active_target() {
     // 反例只改一个条件：版本从 active 目标 0.2.0 换成 9.9.9（照样有自己的
     // CHANGELOG 段）——既不是目标版本也不是它的 RC。
-    let fx = make_fixture("9.9.9", Some("## [9.9.9] - 2026-09-28"));
+    let fx = make_fixture(
+        "9.9.9",
+        Some("## [9.9.9] - 2026-09-28"),
+        Lifecycle::ActiveC002,
+    );
     let (ok, text) = run_check_specs(&fx.root);
     assert!(!ok, "版本 9.9.9 不该被放行：{text}");
     let fails = failure_lines(&text);
@@ -327,7 +427,7 @@ fn check_specs_rejects_version_outside_active_target() {
 #[test]
 fn check_specs_dev_version_requires_changelog_section() {
     // 反例只改一个条件：相对「接受 active 目标」去掉 CHANGELOG 的版本段。
-    let fx = make_fixture("0.2.0", None);
+    let fx = make_fixture("0.2.0", None, Lifecycle::ActiveC002);
     let (ok, text) = run_check_specs(&fx.root);
     assert!(!ok, "没写 CHANGELOG 版本段不该被放行：{text}");
     let fails = failure_lines(&text);
@@ -340,7 +440,7 @@ fn check_specs_dev_version_requires_changelog_section() {
 fn check_specs_shallow_clone_reports_missing_history() {
     // 浅克隆只剩 tip：老 tag 与 record 记的老 commit 都取不到，诊断必须点名
     // 缺历史，不能说成 record 写错。
-    let fx = make_fixture("0.1.0", None);
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
     let shallow = shallow_clone(&fx);
     let (ok, text) = run_check_specs(&shallow);
     assert!(!ok, "{text}");
@@ -357,7 +457,7 @@ fn check_specs_shallow_clone_reports_missing_history() {
 #[test]
 fn check_specs_missing_tag_without_shallow_reports_not_created() {
     // 反例只删 tag（历史完整）：诊断是「未创建或未推送」，不能说成缺历史。
-    let fx = make_fixture("0.1.0", None);
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
     git_ok(&fx.root, &["tag", "-d", "v0.1.0"]);
     let (ok, text) = run_check_specs(&fx.root);
     assert!(!ok, "{text}");
@@ -369,16 +469,26 @@ fn check_specs_missing_tag_without_shallow_reports_not_created() {
     }
 }
 
-// Task: C002-T15
+// Task: C002-T17
 #[test]
 fn release_workflow_gates_announce_on_quality_job() {
-    // 发布挂在同一 SHA 的质量 job：quality 验 GITHUB_SHA、拉全历史、跑全套
-    // 门禁与 MSRV，announce 只在 quality 成功时建 Release。
     let release = workflow("release.yml");
+    let plan = job_block(&release, "plan");
     let quality = job_block(&release, "quality");
+    let candidate = "${{ github.event.pull_request.head.sha || github.sha }}";
+    assert!(
+        plan.contains(&format!("candidate-sha: {candidate}")),
+        "{plan}"
+    );
+    assert!(plan.contains(&format!("ref: {candidate}")), "{plan}");
+    assert!(quality.contains(&format!("ref: {candidate}")), "{quality}");
+    assert!(
+        quality.contains(&format!("CANDIDATE_SHA: {candidate}")),
+        "{quality}"
+    );
     assert!(quality.contains("fetch-depth: 0"), "{quality}");
     assert!(
-        quality.contains(r#"test "$(git rev-parse HEAD)" = "$GITHUB_SHA""#),
+        quality.contains(r#"test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA""#),
         "{quality}"
     );
     assert!(
@@ -404,7 +514,7 @@ fn release_workflow_quality_failure_blocks_announce() {
     assert!(!announce_needs_quality(&no_if), "{no_if}");
 }
 
-// Task: C002-T15
+// Task: C002-T17
 #[test]
 fn build_workflow_fetches_history_and_runs_msrv_gate() {
     // 治理 job 拉全历史（浅检出取不到老 tag）；MSRV 1.85 locked 门禁真的跑，
@@ -421,7 +531,216 @@ fn build_workflow_fetches_history_and_runs_msrv_gate() {
     let release = workflow("release.yml");
     let announce = job_block(&release, "announce");
     assert!(
-        announce.contains(r#"RELEASE_COMMIT: "${{ github.sha }}""#),
+        announce.contains(r#"RELEASE_COMMIT: "${{ needs.plan.outputs.candidate-sha }}""#),
         "{announce}"
     );
+}
+
+fn completed_fixture() -> Fixture {
+    make_fixture(
+        "0.2.0",
+        Some("## [0.2.0] - 2026-10-02"),
+        Lifecycle::CompletedC002,
+    )
+}
+
+fn set_completed_validation(fx: &Fixture, text: &str) -> PathBuf {
+    let path = fx
+        .root
+        .join("specs/changes/completed/C002-v0.2.0-reliability/validation.md");
+    fs::write(&path, text).unwrap();
+    path
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_accepts_final_pass_without_active_change() {
+    let fx = completed_fixture();
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(ok, "{text}");
+    assert!(text.contains("0 个 active"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_accepts_final_pass_and_preserves_historical_failures() {
+    let fx = completed_fixture();
+    let history = "\n## 历史事实\n\n\
+        | 身份 | 固定值 |\n| --- | --- |\n| 旧候选 | abcdef0 |\n\n\
+        | Requirement / risk | Mode | Input closure | Command / raw run ID | 历史结果 | Evidence |\n\
+        | --- | --- | --- | --- | --- | --- |\n\
+        | 早期失败 | executed | 旧候选 | `old-run` | FAIL | old.log |\n\
+        | 实际跳过 | not_run | 旧候选 | none | SKIP | skip.json |\n";
+    let validation = format!("{}{}", final_validation("PASS"), history);
+    let path = set_completed_validation(&fx, &validation);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(ok, "{text}");
+    assert_eq!(fs::read_to_string(path).unwrap(), validation);
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_current_fail_even_with_historical_pass() {
+    let fx = completed_fixture();
+    let validation = format!(
+        "{}\n| 历史要求 | 模式 | 输入 | 命令 | 旧结果 | 证据 |\n\
+         | --- | --- | --- | --- | --- | --- |\n\
+         | 旧运行 | executed | old | old-run | PASS | old.log |\n",
+        final_validation("FAIL")
+    );
+    set_completed_validation(&fx, &validation);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "当前 FAIL 不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("非 PASS"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_empty_final_table() {
+    let fx = completed_fixture();
+    set_completed_validation(&fx, &format!("Candidate: `SELF`\n\n{FINAL_TABLE_HEADER}"));
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "最终表没有数据不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("没有数据行"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_requires_exact_final_table_header() {
+    let fx = completed_fixture();
+    for (from, to) in [
+        ("Input closure", "旧输入"),
+        ("| Result | Evidence |", "| Result | Evidence | extra"),
+    ] {
+        let validation = final_validation("PASS").replace(from, to);
+        set_completed_validation(&fx, &validation);
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "相似历史表不能充当最终表：{to}\n{text}");
+        assert_eq!(failure_lines(&text).len(), 1, "{text}");
+        assert!(text.contains("缺最终验证表"), "{text}");
+    }
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_validation_without_final_table() {
+    let fx = completed_fixture();
+    set_completed_validation(&fx, "# 验证\n\nCandidate: `SELF`\n\n没有运行。\n");
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "没有最终表不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("缺最终验证表"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_checks_every_final_table() {
+    let fx = completed_fixture();
+    let validation = format!(
+        "{}\n## 第二项\n\n{}",
+        final_validation("PASS"),
+        final_validation("FAIL")
+    );
+    set_completed_validation(&fx, &validation);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "另一最终表 FAIL 不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("非 PASS"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_empty_final_table_beside_nonempty_table() {
+    let fx = completed_fixture();
+    set_completed_validation(
+        &fx,
+        &format!(
+            "{}\n## 第二项\n\n{FINAL_TABLE_HEADER}",
+            final_validation("PASS")
+        ),
+    );
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "空的第二张最终表不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("没有数据行"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_empty_fields_in_final_rows() {
+    let fx = completed_fixture();
+    for row in [
+        "|   | executed | closure | run | PASS | raw |",
+        "| current |   | closure | run | PASS | raw |",
+        "| current | executed |   | run | PASS | raw |",
+        "| current | executed | closure |   | PASS | raw |",
+        "| current | executed | closure | run |   | raw |",
+        "| current | executed | closure | run | PASS |   |",
+        "|   |   |   |   | PASS |   |",
+    ] {
+        set_completed_validation(
+            &fx,
+            &format!("Candidate: `SELF`\n\n{FINAL_TABLE_HEADER}{row}\n"),
+        );
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "最终行空字段不该放行：{row}\n{text}");
+        assert_eq!(failure_lines(&text).len(), 1, "{text}");
+        assert!(text.contains("空字段"), "{row}\n{text}");
+    }
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_more_than_six_columns_in_final_rows() {
+    let fx = completed_fixture();
+    for row in [
+        "| current | executed | closure | run | PASS | raw | FAIL |",
+        "| current | executed | closure | run | PASS | raw | FAIL",
+    ] {
+        set_completed_validation(
+            &fx,
+            &format!("Candidate: `SELF`\n\n{FINAL_TABLE_HEADER}{row}\n"),
+        );
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "多栏最终行不该放行：{row}\n{text}");
+        assert_eq!(failure_lines(&text).len(), 1, "{text}");
+        assert!(text.contains("六列"), "{text}");
+    }
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_fewer_than_six_columns_in_final_rows() {
+    let fx = completed_fixture();
+    set_completed_validation(
+        &fx,
+        &format!(
+            "Candidate: `SELF`\n\n{FINAL_TABLE_HEADER}\
+             | current | executed | closure | run | PASS |\n"
+        ),
+    );
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "少栏最终行不该放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("六列"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_completed_rejects_extra_columns_in_final_separator() {
+    let fx = completed_fixture();
+    for separator in [
+        "| --- | --- | --- | --- | --- | --- | extra |",
+        "| --- | --- | --- | --- | --- | --- | extra",
+    ] {
+        let validation =
+            final_validation("PASS").replace("| --- | --- | --- | --- | --- | --- |", separator);
+        set_completed_validation(&fx, &validation);
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "分隔行多栏不该放行：{separator}\n{text}");
+        assert_eq!(failure_lines(&text).len(), 1, "{text}");
+        assert!(text.contains("六列"), "{text}");
+    }
 }

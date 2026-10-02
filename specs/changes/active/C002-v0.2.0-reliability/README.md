@@ -22,7 +22,7 @@ Owner：Claude（原实施）、Codex（后续修复与收敛）；采用人：�
 | [review.md](review.md) | M1 最终审查结论、范围和限制 |
 | [validation.md](validation.md) | 候选、运行、51 行验收索引及历史证据恢复 |
 
-T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 已按本机构建与实际场景完成，T17 发布仍为 `not_run`。M1 包含实际 SK01/SK02 跳过：缺最终 Spec 批准及 215 项额外验证，不是完整变异或安全验证通过。
+T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 已按本机构建与实际场景完成，T17 发布候选准备为 `doing`，真实外部发布尚未执行。M1 包含实际 SK01/SK02 跳过：缺最终 Spec 批准及 215 项额外验证，不是完整变异或安全验证通过。
 
 ## 成功判据
 
@@ -62,3 +62,5 @@ T16 部分回归与人工交接原文见 [`C002-T16-preparation.tar.gz`](evidenc
 实际批准后的最终快照见 [`C002-T16-reopen-final.tar.gz`](evidence/submissions/C002-T16-reopen-final.tar.gz)，SHA256 `e9de0e4097eb2b14b6a8f286a6ad0b26e0dd96eaeff892f33f0421abc7a5fa83`。104 个普通文件逐字回读一致，包含用户批准、Work003 gate/终态、六 Work 最终查询、277 项输入复核、最终独立报告及工作区完成门禁原文。T16 已按本机范围 done，T17 仍 not_run；前一档案的待批准状态与 FAIL 是其固定时点事实。最终档案仍只供核证据，不包含完整可运行 home；本轮未提交或发布。
 
 最终封存和记录的独立收尾见 [`C002-T16-reopen-final.audit.json`](evidence/submissions/C002-T16-reopen-final.audit.json)：28 项检查均通过，包含两个新档案逐字恢复、真实批准/CLI、六 Work、277 项输入与门禁、白名单及限制。派生 audit 保存在 tar 外，避免自引用。
+
+T17 本地候选准备原文见 [`C002-T17-preparation.tar.gz`](evidence/submissions/C002-T17-preparation.tar.gz)，SHA256 `29ed28e382a81c1d6f88b841ca4d120607945a4a68052d3b30cdbb0669b892b3`。155 个文件逐字回读一致，包含新版本工程门禁、治理红绿与独立审查、本机 dist 和隔离安装/更新/rollback/schema 反例；排除二进制与可再生成 cache。四平台 CI、真实远端与发布尚未发生，此档案不是 T17 完成或正式发布资产。

@@ -112,8 +112,9 @@ test_files = []
 allow_test_changes = true
 
 [C002-T17]
-files = ["specs", "CHANGELOG.md", "README.md", "Cargo.toml", "Cargo.lock"]
-test_files = []
+# 发布预检发现：PR只做plan、CI未固定PR head；completed checker误读历史事实表，治理测试夹具依赖live active目录。
+files = ["specs", "CHANGELOG.md", "README.md", "Cargo.toml", "Cargo.lock", ".github/workflows/release.yml", "scripts/check-specs.sh"]
+test_files = ["crates/sheltie-cli/tests/release_governance.rs"]
 allow_test_changes = true
 
 # M1 审查后追加修复。完整任务卡见 repair-plan.md，结果仍仅在 plan.md 主表维护。
