@@ -6,7 +6,7 @@
 //! 递增；同请求先 `publish_dir` / `prepare_attempt`，再历史文件、封存或删除，最后
 //! `refresh_status_card`。
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 use sheltie_core::digest::Sha256Hex;
@@ -609,7 +609,7 @@ fn expected_attempt_dirs(
     graph: &Graph,
     attempt_id: &AttemptId,
 ) -> Result<Vec<String>> {
-    let mut directories = BTreeMap::<String, ()>::new();
+    let mut directories = BTreeSet::new();
     let attempt_dir = state.attempt_dir(attempt_id);
     let output_dir = sheltie_core::work::layout::outputs_dir(&attempt_dir);
     add_directory_chain(home, &output_dir, &mut directories)?;
@@ -652,13 +652,13 @@ fn expected_attempt_dirs(
             &mut directories,
         )?;
     }
-    Ok(directories.into_keys().collect())
+    Ok(directories.into_iter().collect())
 }
 
 fn add_directory_chain(
     home: &Home,
     directory: &AbsPath,
-    directories: &mut BTreeMap<String, ()>,
+    directories: &mut BTreeSet<String>,
 ) -> Result<()> {
     let relative = home.to_rel(directory)?;
     let mut prefix = String::new();
@@ -668,7 +668,7 @@ fn add_directory_chain(
         } else {
             format!("{prefix}/{segment}")
         };
-        directories.insert(prefix.clone(), ());
+        directories.insert(prefix.clone());
     }
     Ok(())
 }

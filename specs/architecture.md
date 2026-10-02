@@ -85,7 +85,7 @@ pub struct ArtifactRef { path: AbsPath, sha256: Sha256, bytes: u64 }
 pub struct Approval    { node: NodeId, occurrence: u32, by: Principal, at: Timestamp }
 ```
 
-**类型纪律。** 非法状态不可表示：`Attempt.outputs` 在 `Running` 时为空由构造函数保证；`WorkStatus::Succeeded` 只能由 `decide` 产生。ID 用 newtype，路径用 `RelPath`（Workbook 内相对路径，禁止 `..`）与 `AbsPath` 两种类型区分。
+**类型纪律。** ID 用 newtype，路径用 `RelPath`（Workbook 内相对路径，禁止 `..`）与 `AbsPath` 两种类型区分。已校验定义只经解析、编译构造，字段只读。`WorkState` 是可序列化的事实数据，公开字段不保证全部跨字段组合合法；生产转换由 `decide` 生成，Store 装入时经 `validate_persisted` 核关键状态组合，再结合冻结 Graph 校 gate 与路径归属。`Running` 的输出为空等规则由转换与装入校验共同保证，不声称全部非法状态在类型层不可表示。
 
 ## 3. 状态机
 
@@ -231,7 +231,7 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 | 摘要 | `sha2` | 产物冻结与 `workbook-digest/v2` |
 | 受管文件调用 | `rustix` 1.1.4 安全文件系统调用（仅 runtime；`unsafe_code = forbid`） | 目录句柄锚定、拒绝路径跟随软链、核文件对象身份；具体契约见 storage §6 与 D-037 |
 | 管理根写锁 | `fs4`（std 文件的排他锁） | 文件生命周期串行化；进程退出由 OS 释放（D-035） |
-| OS 主体 | `users`（effective uid + 账户查询，仅 unix） | 安全 Rust API 取得进程身份，不采信 `USER`/`USERNAME`（D-036） |
+| OS 主体 | `uzers`（effective uid + 账户查询，仅 unix） | 安全 Rust API 取得进程身份，不采信 `USER`/`USERNAME`（D-036） |
 | 错误 | `thiserror` | 每个 crate 一个错误枚举；CLI 映射为错误码与退出码 |
 | 路径 | `camino` | UTF-8 路径，避免 `OsStr` 泛滥 |
 | 测试 | `insta`（状态卡快照）、`assert_cmd` + `tempfile`（CLI 端到端）、`proptest`（图编译） | 测行为，不测私有 helper |

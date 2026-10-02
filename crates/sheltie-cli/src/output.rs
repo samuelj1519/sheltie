@@ -4,6 +4,7 @@ use serde::Serialize;
 use sheltie_core::ErrorCode;
 use sheltie_core::ids::WorkId;
 use sheltie_core::work::NextOp;
+use sheltie_runtime::Response;
 
 /// 成功响应封装。
 #[derive(Debug, Serialize)]
@@ -17,22 +18,6 @@ pub struct OkEnvelope<T: Serialize> {
     pub next: Vec<NextOp>,
 }
 
-/// 失败响应封装。
-#[derive(Debug, Serialize)]
-pub struct ErrEnvelope {
-    pub ok: bool,
-    pub error: ErrorBody,
-    pub next: Vec<NextOp>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ErrorBody {
-    pub code: ErrorCode,
-    pub message: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub detail: Option<serde_json::Value>,
-}
-
 /// 一次命令的输出，由命令模块构造，`dispatch` 决定怎么打印。
 #[derive(Debug)]
 pub struct Outcome {
@@ -44,7 +29,7 @@ pub struct Outcome {
 }
 
 /// 把成功结果包成两种形式。`text` 由调用方渲染。`next` 为空的命令用一个；
-/// Work 命令的 `next` 项要按协议 §5 组装 `args`，用 [`ok_work`]。
+/// Work 写操作用 [`ok_response`]，只读操作用 [`ok_work_next`]。
 pub fn ok<T: Serialize>(
     text: String,
     request_id: Option<String>,
@@ -66,38 +51,30 @@ pub fn ok<T: Serialize>(
     }
 }
 
-/// [`ok`] 的 Work 版：`next` 项按协议 §5 组装，`args` 里带上 `work`。
-/// `edge` 只在进入另一节点时出现；`executor` 与 `tier` 只在 `attempt begin` 项上。
-pub(crate) fn ok_work(
-    text: String,
-    request_id: Option<String>,
-    revision: Option<u64>,
-    data: serde_json::Value,
-    next: &[NextOp],
-    work: &WorkId,
-) -> Outcome {
-    let mut root = serde_json::Map::new();
-    root.insert("ok".to_string(), serde_json::Value::Bool(true));
-    if let Some(id) = request_id {
-        root.insert("request_id".to_string(), serde_json::json!(id));
-    }
-    if let Some(rev) = revision {
-        root.insert("revision".to_string(), serde_json::json!(rev));
-    }
-    root.insert("data".to_string(), data);
-    let next: Vec<_> = next
+/// Work 写操作只渲染提交时快照；`next` 与只读状态卡使用同一协议形状。
+pub(crate) fn ok_response(text: String, response: Response, work: &WorkId) -> Outcome {
+    let next = response
+        .next
         .iter()
         .map(|op| sheltie_core::work::render::next_item_json(work, op))
         .collect();
-    root.insert("next".to_string(), serde_json::Value::Array(next));
-    Outcome {
+    ok_work_next(
         text,
-        json: serde_json::Value::Object(root),
-        exit_code: 0,
-    }
+        Some(response.request_id),
+        Some(response.revision),
+        replayed_data(response.data, response.replayed),
+        next,
+    )
 }
 
-/// [`ok_work`] 的变体：`next` 已是协议 §5 形状（core `next_item_json` 生成），
+pub(crate) fn replayed_data(mut data: serde_json::Value, replayed: bool) -> serde_json::Value {
+    if let Some(map) = data.as_object_mut() {
+        map.insert("replayed".to_string(), serde_json::Value::Bool(replayed));
+    }
+    data
+}
+
+/// `next` 已是协议 §5 形状（core `next_item_json` 生成），
 /// 与状态卡 `data.next` 完全同形（O13），不再重复组装。
 pub(crate) fn ok_work_next(
     text: String,

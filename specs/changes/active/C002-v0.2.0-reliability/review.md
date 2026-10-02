@@ -134,3 +134,59 @@ Linux 原生运行、非 UTF-8 物理目录 fixture（本机创建被 EPERM 拒�
 - `**/gate-results.json`：有seconds的普通门禁；去重相同stdout/argv/seconds副本，缺计时项不推估。
 
 复算运行成本时对同一原始run身份去重，不按mutation ID去重，因为相同ID的重跑本身有实际成本。完整run时间区间取start_time/end_time并裁剪到窗口后合并；部分无end记录保留但不计该下界。超时成本取Mutant场景内process_status=Timeout的真实phase duration。结果核算与计时统计分开，不能用计时统计改写原处分。
+
+## C002-T38 产品与代码分析（2026-10-02）
+
+本次基准为 `4b86279`，分析与精简由用户明确授权。此节独立于上面的历史 M1 结论：精简后源码是新候选，历史变异结果不转记为本次 PASS。code-simplifier 阅读三个 crate 的全部生产源码，Codex 对照当前权威规格、真实调用链及每处改动复核；测试阅读覆盖直接相关调用方与全仓用例索引，未把所有无关测试逐行通读。验证结果见 [T38 记录](validation.md#c002-t38-精简验证)。
+
+### 产品方向与方案
+
+方向符合定位。宪章的长期价值是外置事实、合法边、不可变输入产物、门槛与上限；根规格没有把内容判断、模型调度或宿主安装放进引擎。Workbook 保留业务方法，skill 只教协调者调用 CLI，三层职责明确。C002 的 request intent、历史响应快照、目录摘要 framing、句柄核验与持久效果针对已观察到的故障，属于当前可靠性义务。
+
+SQLite 状态、请求快照、audit 和效果登记各有职责，不是四套推进状态：只有 WorkState 决定运行事实，audit 提供提交归属，snapshot 保留历史回复，effects 证明文件动作完成。删除标记解决无法从“文件已不存在”证明本请求删除成功的问题；根锁覆盖 SQLite 事务之外的文件生命周期。不能为缩短代码把这些证明合并成路径存在性检查。
+
+产品价值尚有独立缺口。离线调用和结构校验不能证明真实协调者的交付质量、人工投入或 token 节省；T16 才提供真实宿主证据。C004–C008 与路线图是待采用方向，不能作为当前代码缺失项或本次重构依据。
+
+### C002 实现覆盖
+
+| 能力 | 真实实现入口与测试入口 | 判断 |
+| --- | --- | --- |
+| Workbook/Flow 解析与图约束 | core `workbook/manifest`、`flow/parse/compile/graph`；core examples/API tests | 已接入严格定义边界与显式边、输入引用、输出路径冲突校验 |
+| start 输入发现、preflight 与单一布局 | core `work/start/layout`、runtime `service::start`、CLI workbook show；start_preflight/work/output_paths | 已接入；新请求预检与历史请求查重有不同义务，不能删除锁内重核 |
+| 推进、重试、gate、上限与事实视图 | core `decide/next/state/render`；work/attempt/scenario/stats 相关用例 | 已接入；gate 只记 OS 主体，不证明独立真人 |
+| 请求身份与原响应 | runtime `request/snapshot`、Store、service/repo；schema2_replay/CLI replay/implementation_repairs | 已接入目标绑定与历史回复，未发现本次改动改变响应事实 |
+| 冻结、摘要、根内 I/O | runtime `fsx/workbook_digest/observe/load`；fs_boundary/workbook_digest/identity/node_inputs | 已接入受限树、同句柄观察及封存、冻结副本核验 |
+| 发布、恢复、删除与只读 pending | runtime `effects/recovery/pending/session`；write_session/effect_contracts/crash/CLI reliability_crash | 已接入持锁生命周期、整组效果校验、必要 sync 与完成证明；现有平台和窗口证据范围仍有限 |
+| 协调者与业务 Workbook 交接 | skills/sheltie、article-review、spec-dev；skill_delivery/scenario_article_review/scenario_spec_dev | 离线流程已接入；真实 agent 质量属于 T16 |
+| self、MSRV 与发布链 | runtime selfmgmt、CI、skill-delivery；self_cmd/remote_update/release_governance | 源码与离线门禁已接入；实际四平台发布属于 T17 |
+
+不能得出“C002 所有规划内容均已实现并完整验收”。除 M1 已记录的 SK01/SK02、Linux/T16/T17 限制外，本次新发现重复 Flow id 可造成提交后不可恢复阻断、`tmp/` 过期维护缺少 caller，以及嵌套 AttemptId/WorkStatus 未拒绝未知字段，见 [T38 新问题](findings.md#6-t38-新发现)。过期维护为静态确认，其余有真实 CLI 取证；三项是行为修复，不纳入本次等价精简，也不回写历史 M1 结果。
+
+### Rust 工程实践与复杂度
+
+总体符合项目需要：单向 crate 依赖、纯 core、私有 Raw DTO 与已校验 Graph、newtype、穷尽状态枚举、Result/thiserror 错误边界、借用与 RAII 句柄/锁、流式有界读取，以及 MSRV/Clippy/真实 CLI 和故障测试都有实际落点。Error 传播、借用已有对象和收口构造面分别符合 [Rust Book 的错误传播](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html)、[方法与借用](https://doc.rust-lang.org/book/ch05-03-method-syntax.html)及 [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/checklist.html)的原则；这些资料不是本产品正确性的证明。
+
+仍有可改进点：完整载荷严格解码须深入嵌套类型；CLI 的全局 dead_code 许可掩盖了无调用者的错误 DTO；响应组装、冻结输入核验和审计行映射重复；部分骨架期注释已过时。不能把 `WorkState` 的公开事实字段说成所有非法状态都不可表示，也不需要为此增加 typestate 或普遍包装每个 String。
+
+架构没有出现需退役的异步框架、事件溯源、业务判定层、动态路由 DSL、宿主适配框架或第二种持久格式。fsx/service/effects/pending 文件较大，阅读成本高，但主要复杂度来自对象身份、错误归属和故障窗口；只按行数拆文件会扩大内部接口。本次按重复义务合并具体函数，不新增通用 trait、配置、状态或依赖。后续拆模块应以稳定职责和实际消费者为边界。
+
+### 已执行的精简与复核
+
+| 改动 | 等价依据 |
+| --- | --- |
+| CLI 集中 `ok_response` 与 `replayed_data`，写命令复用只读响应 envelope | data 从同一提交快照取得；只有 replayed 被覆盖；request_id/revision/next 形状、字段省略及文本保持原样，不回读 Store |
+| 删除 CLI `ErrEnvelope/ErrorBody` 和全局 dead_code 许可 | 全仓无消费者；错误仍由原 err/error_map 路径生成，编译器与 Clippy重新检查剩余项 |
+| core 合并 start/node 冻结输入校验 | 缺观察或摘要不符仍返回相同 ArtifactModified 字段；路径和字节归属仍由原 runtime 装入/观察链核验；resource/stats/可选输入分支不变 |
+| begin 移动 Attempt 并借用最新 Attempt 渲染 | 保留 stats 回填后的渲染顺序，消除两次整份 Attempt clone，状态/brief/stats 字节不变 |
+| runtime 去掉永远 Some 的 preflight Store 包装 | NotFound/其他错误原样停止；成功分支始终有 Store，不改查重、输入读取与加锁顺序 |
+| 审计脱敏按三个固定字段循环，审计行使用同一 decoder | 字段次序、UTF-8 字节长度、SQL 列序、逐列错误传播不变 |
+| 目录集合从 `BTreeMap<String, ()>` 改为 `BTreeSet<String>` | 相同 String 排序及去重，父目录先于子目录的输出顺序不变 |
+
+另勘误架构的 `uzers` 选型与状态校验表述，以及协议中的 `attempt`、WorkStatus 对象和 D-039 控制文件边界。依据是已有 C002 快照 DTO、序列化类型和真实调用方，不变更协议输出或持久数据。
+
+本次生产 diff 由未编写该 diff 的 Codex 逐处复核。分析包含上述未修行为缺口，因此不作为新的完整 Spec 批准、完整变异验证或发布验收。测试、快照、依赖、fixture 和安全文件动作不修改；最终门禁和零改动核对见 validation。本次改动留在工作区，未提交、推送、安装宿主或发布。
+
+
+### C002-T38 提交授权与证据保存
+
+本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。

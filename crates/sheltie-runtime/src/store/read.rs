@@ -357,16 +357,7 @@ impl Store {
         let mut stmt = conn.prepare(
             "SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq",
         )?;
-        let rows = stmt.query_map([request_id], |row| {
-            Ok(AuditRow {
-                seq: row.get(0)?,
-                request_id: row.get(1)?,
-                work_id: row.get(2)?,
-                revision: row.get(3)?,
-                command_json: row.get(4)?,
-                at: row.get(5)?,
-            })
-        })?;
+        let rows = stmt.query_map([request_id], audit_row_of)?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
@@ -377,16 +368,7 @@ impl Store {
             "SELECT seq, request_id, work_id, revision, command_json, at
              FROM audit ORDER BY seq",
         )?;
-        let rows = stmt.query_map([], |row| {
-            Ok(AuditRow {
-                seq: row.get(0)?,
-                request_id: row.get(1)?,
-                work_id: row.get(2)?,
-                revision: row.get(3)?,
-                command_json: row.get(4)?,
-                at: row.get(5)?,
-            })
-        })?;
+        let rows = stmt.query_map([], audit_row_of)?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
@@ -404,6 +386,17 @@ impl Store {
         }
         Ok(())
     }
+}
+
+fn audit_row_of(row: &rusqlite::Row<'_>) -> rusqlite::Result<AuditRow> {
+    Ok(AuditRow {
+        seq: row.get(0)?,
+        request_id: row.get(1)?,
+        work_id: row.get(2)?,
+        revision: row.get(3)?,
+        command_json: row.get(4)?,
+        at: row.get(5)?,
+    })
 }
 
 fn workbook_row_of(r: &rusqlite::Row<'_>) -> rusqlite::Result<WorkbookRow> {

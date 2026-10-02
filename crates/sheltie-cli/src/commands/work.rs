@@ -73,19 +73,8 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Reply::Started { work_id, .. } => work_id.clone(),
         other => return reply_mismatch("Started", other),
     };
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
     let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, &work_id);
-    output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &work_id,
-    )
+    output::ok_response(text, resp, &work_id)
 }
 
 /// `work list`。
@@ -165,18 +154,7 @@ fn cancel(ctx: &Ctx, work: &str) -> Outcome {
     if resp.next.is_empty() {
         text.push_str("Work 已结束，没有下一步。\n");
     }
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
-    output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &wid,
-    )
+    output::ok_response(text, resp, &wid)
 }
 
 // ── attempt 与 gate 组共用的渲染 ───────────────────────────────

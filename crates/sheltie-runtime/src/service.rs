@@ -182,7 +182,7 @@ impl WorkService {
                         // 命中：不读取当前 Workbook / @file（O04），效果核对在写锁内做。
                         replay_hit = true;
                     }
-                    Some(ro)
+                    ro
                 }
                 Err(Error::NotFound { .. }) => {
                     return Err(Error::NotFound {
@@ -195,12 +195,7 @@ impl WorkService {
         if !replay_hit {
             WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
             // 预检继续：装入 Workbook（含登记摘要核对）与 Flow，校验起始输入键。
-            let ro_store = WorkService::with_store(
-                self.home.clone(),
-                preflight_store.ok_or_else(|| Error::StoreCorrupt {
-                    detail: "未命中重放且缺少只读Store预检结果".to_string(),
-                })?,
-            );
+            let ro_store = WorkService::with_store(self.home.clone(), preflight_store);
             let wb = ro_store
                 .repo()
                 .load(&args.workbook_id, args.version.as_deref())?;
@@ -1600,23 +1595,13 @@ fn audit_json(cmd: &Command) -> Result<String> {
         detail: format!("序列化命令失败：{e}"),
     })?;
     if let serde_json::Value::Object(map) = &mut value {
-        if let Some(text) = map.get("instruction_text").and_then(|v| v.as_str()) {
-            map.insert(
-                "instruction_text".to_string(),
-                serde_json::Value::String(format!("<{} 字节>", text.len())),
-            );
-        }
-        if let Some(text) = map.get("summary").and_then(|v| v.as_str()) {
-            map.insert(
-                "summary".to_string(),
-                serde_json::Value::String(format!("<{} 字节>", text.len())),
-            );
-        }
-        if let Some(text) = map.get("reason").and_then(|v| v.as_str()) {
-            map.insert(
-                "reason".to_string(),
-                serde_json::Value::String(format!("<{} 字节>", text.len())),
-            );
+        for field in ["instruction_text", "summary", "reason"] {
+            if let Some(text) = map.get(field).and_then(|value| value.as_str()) {
+                map.insert(
+                    field.to_string(),
+                    serde_json::Value::String(format!("<{} 字节>", text.len())),
+                );
+            }
         }
     }
     serde_json::to_string(&value).map_err(|e| Error::StoreCorrupt {
