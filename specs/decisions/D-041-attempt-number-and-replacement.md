@@ -2,7 +2,7 @@
 
 状态：`accepted`
 日期：2026-10-03
-关联 change：[C005](../changes/active/C005-executor-continuity/README.md)
+关联 change：[C005](../changes/completed/C005-executor-continuity/README.md)
 
 ## 背景与选择
 

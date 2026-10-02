@@ -2,7 +2,7 @@
 
 Candidate: `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`
 
-状态：`active`。以下机制表为预定 oracle。T01 已有部分执行记录，正式骨架、M1、公开功能及真实使用尚未验收。
+状态：`completed`。以下机制表为预定 oracle。T01 已有部分执行记录，正式骨架、M1、公开功能及真实使用尚未验收。
 
 ## 1. 机制验收
 

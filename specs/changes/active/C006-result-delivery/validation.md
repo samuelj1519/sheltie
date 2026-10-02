@@ -2,7 +2,7 @@
 
 Candidate: `none`
 
-状态：`proposed`。以下为预定 oracle；源入口、导出器、支持平台、真实使用与实施审阅均为 `not_run`。
+状态：`active`。以下为预定 oracle；源入口、导出器、支持平台、真实使用与实施审阅均为 `not_run`。
 
 ## 1. 源与目标验收矩阵
 
@@ -65,3 +65,7 @@ T01 复杂作者创建 `verification/commands.sh`、所有阶段 tests/fixtures 
 M1 核原语、普通回归、有效 red、骨架可编译且没有未完成正常入口。T02 开工基准是 M1 审定骨架或最新独立测试修订的完整 SHA，allow_test_changes=false；只能删除归本任务 ignore。测试/fixture/合同缺口交复杂作者新增明确修复任务，独立复核后固定新基准，不隐式继承旧批准。正式 feature 必须非零实际执行、全部通过且无本任务 ignore。
 
 M2 核完整用户链与实际使用。对 M1 已审且闭包未变化的内容引用原 closure 和 run ID，不重复全套；新增调用/配置/fixture/效果或异常分支按影响补验。每项任务仍有短语义复核，原输出只保存一次。T03 是手册和实际使用，不以无 Rust 用例的 task.sh 验收。
+
+## C006-T00 采用入口
+
+开工完整候选 `8d27348d995a434ae3dbf8255e1110973dec1381`。仅归档C005/采用C006/当前索引与链接、采用及授权例外记录；无Rust/Cargo/fixture/合同变更。docs142、specs8/1active、tests774/204cards、diff exit0。[原文保真清单](evidence/c005-raw-preservation.json)证明C005全部51个evidence逐字节保留。真实复制需求/成本与平台实测未执行，不因开发采用记为PASS。

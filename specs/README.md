@@ -3,13 +3,13 @@
 ## 当前状态
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
-Active change：[`C005 原子撤销与重新领取`](changes/active/C005-executor-continuity/README.md)，当前任务见其 [plan](changes/active/C005-executor-continuity/plan.md)
-Completed：[`C004 明确成果与可靠接续`](changes/completed/C004-verifiable-delegation/README.md)（实现闭包；真实试用和环境缺项授权延期）、[`C002 v0.2.0 可靠性修复`](changes/completed/C002-v0.2.0-reliability/README.md)，任务历史见其 [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
-Proposed：[C006 完整成果副本](changes/proposed/C006-result-delivery/README.md)、[C007 完整任务体验实验](changes/proposed/C007-pre-run-workbook-generation/README.md)、[C008 按需单宿主预检](changes/proposed/C008-dependency-readiness/README.md)。C006–C008 已由用户授权依次采用，尚未开始；任务和实验结论按各 package 的实际证据报告。
+Active change：[`C006 完整成果副本`](changes/active/C006-result-delivery/README.md)，当前任务见其 [plan](changes/active/C006-result-delivery/plan.md)
+Completed：[`C005 原子撤销与重新领取`](changes/completed/C005-executor-continuity/README.md)（限定实现与说明，真实使用/环境缺项延期）、[`C004 明确成果与可靠接续`](changes/completed/C004-verifiable-delegation/README.md)（实现闭包；真实试用和环境缺项授权延期）、[`C002 v0.2.0 可靠性修复`](changes/completed/C002-v0.2.0-reliability/README.md)，任务历史见其 [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
+Proposed：[C007 完整任务体验实验](changes/proposed/C007-pre-run-workbook-generation/README.md)、[C008 按需单宿主预检](changes/proposed/C008-dependency-readiness/README.md)。C007–C008 已由用户授权随后依次采用，尚未开始；任务和实验结论按各 package 的实际证据报告。
 
 本次用户明确要求依次实施 C004–C008；一次只激活一个 package。真实用户、宿主与平台无法执行的义务记录为 `not_run` 并保留补验入口。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
 
-已发布记录为 v0.2.0；C005 当前开发目标为 v0.3.0，尚未发布。上游在C005-T01同步单一采用目标（schema4、`cli-result/v4`、number/superseded、原`work-result/v1`和`workbook-digest/v2`）；是否实现与完成只看C005 plan，旧schema原件保留；C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
+已发布记录为 v0.2.0；C006 当前开发目标为 v0.3.0，尚未发布；C005已采用的schema4、`cli-result/v4`、number/superseded、`work-result/v1`和`workbook-digest/v2`保持。C006-T01先同步只读原字节与外围副本合同，是否实现只看C006 plan，旧schema原件保留；C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
 
 ## 权威文档
 

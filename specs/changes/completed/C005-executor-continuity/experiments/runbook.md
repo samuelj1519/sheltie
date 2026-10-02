@@ -9,10 +9,10 @@
 使用隔离 target、清空 wrapper；保留候选完整 SHA、dirty diff、工具版本、原输出与 nextest run ID。单次原语或 feature 预算 5 分钟，普通回归及完整门禁分别 12 分钟；超时保留输出并交作者诊断，不算通过。并发、拒绝、历史重放和恢复均核状态、revision、请求、审计与原文件。
 
 ```bash
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh primitives
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh future-red
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh feature
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh regression
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh primitives
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh future-red
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh feature
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh regression
 ```
 
 本机 nextest 0.9.140 低于配置要求 0.9.145，原命令退出 92，未执行测试。授权延期该工具版本门禁后，可显式设置 `SHELTIE_NEXTEST_VERSION_OVERRIDE=1` 执行补充验证；记录实际版本和原命令 `not_run`。这不等于已运行 0.9.145。

@@ -1,3 +1,8 @@
+[C006-T00]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C005-executor-continuity", "specs/changes/completed/C005-executor-continuity", "specs/changes/proposed/C006-result-delivery", "specs/changes/active/C006-result-delivery", "specs/changes/proposed/C007-pre-run-workbook-generation", "specs/changes/proposed/C008-dependency-readiness", "specs/decisions/D-041-attempt-number-and-replacement.md"]
+test_files = []
+allow_test_changes = true
+
 # 仅采用后生效；plan.md 与 tasks.toml 由 check-task.sh 隐式允许。
 # T01 复杂作者可修改完整阶段 tests；T02 只删本任务 ignore，基准为骨架或独立测试修订完整 SHA。
 

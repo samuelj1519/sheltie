@@ -1,6 +1,6 @@
 # C005 实施计划
 
-状态：`active`。用户已明确采用，按本计划实施；环境无法执行的义务记录后延期。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
+状态：`completed`。用户已明确采用，按本计划实施；环境无法执行的义务记录后延期。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
@@ -59,9 +59,9 @@ T01 原语用例归属 T01，交接时为 green。新替换行为测试由 T01 �
 **验证与交接。** T01 创建脚本后运行：
 
 ```bash
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh primitives
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh future-red
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh regression
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh primitives
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh future-red
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh regression
 scripts/check-tests.sh
 scripts/check-docs.sh
 scripts/check-specs.sh
@@ -102,9 +102,9 @@ primitives 至少执行一项 T01 测试并全部通过；future-red 至少执�
 **验证。**
 
 ```bash
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh feature
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh regression
-bash specs/changes/active/C005-executor-continuity/verification/commands.sh gates
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh feature
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh regression
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh gates
 scripts/check-task.sh C005-T02 <阶段骨架或最新独立测试修订完整提交> --staged
 scripts/check-task.sh C005-T02 <同一完整提交>
 ```

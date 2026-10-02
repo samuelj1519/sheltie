@@ -1,6 +1,6 @@
 # C005 设计
 
-状态：`active`。源码基线见 [README](README.md)；路径与职责已经实现，当前进度和完整候选只看 plan/validation。
+状态：`completed`。源码基线见 [README](README.md)；路径与职责已经实现，当前进度和完整候选只看 plan/validation。
 
 ## 1. 模块职责与真实入口
 
