@@ -67,4 +67,4 @@ scripts/check-docs.sh
 
 ## 许可
 
-Sheltie 以 [MIT](LICENSE-MIT) 或 [Apache-2.0](LICENSE-APACHE) 双许可发布，使用者可任选其一。仓库中单独标注许可的第三方文件仍遵循各自的声明。
+Sheltie 以 [MIT](LICENSE-MIT) 许可发布。仓库中单独标注许可的第三方文件仍遵循各自的声明。

@@ -209,3 +209,8 @@ allow_test_changes = true
 files = ["crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src", "specs/contracts/storage.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
+
+[C002-T35]
+files = ["Cargo.toml", "README.md", "LICENSE-APACHE", "crates/sheltie-core/LICENSE-APACHE", "crates/sheltie-runtime/LICENSE-APACHE", "crates/sheltie-cli/LICENSE-APACHE", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
