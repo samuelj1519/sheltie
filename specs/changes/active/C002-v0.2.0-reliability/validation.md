@@ -381,3 +381,13 @@ PR 从plan改upload；六个job统一PR head SHA或tag SHA，不混用merge SHA�
 独立Reviewer `Codex /root/t16_reopen_review` 未参与T17改动，candidate-review.md保存Standards/Spec及F17-01原红例与修复后复核，候选范围通过；code-simplifier只读认为无需结构性改写，清理一段已失实的CI注释。四平台CI、远端指定版本更新、最终外部发布及生命周期均尚未执行，T17 doing，不新增完整变异、SK01/SK02或全Host PASS。release record草稿仅存临时目录，不预登记released。
 
 本地准备原文已封存155文件逐字回读，档案路径与SHA256见README。完整700测试之后只改package进度与候选CHANGELOG说明；治理测试由fixture自行生成CHANGELOG，不读其live正文。相关docs/specs重新通过，实际dist重新打包说明文件；原更新演练仍绑定原包，不把后一次pack的SHA替换旧CLI日志。候选提交仅固定上述已验证输入供非发布CI，正式task gate仍因doing失败，不冒充任务完成。
+
+### 首次真实非发布CI与Linux修复
+
+用户本轮答复「批准，继续完成」，范围为新验证分支与draft PR的非发布四平台CI。SSH原入口传输等待；HTTPS被全局insteadOf改写，后在仅本次忽略全局设置后完成上传但远端ref更新拒绝。OAuth缺workflow scope与该症状相符，完整失败stderr未单独封存，不把推断写成精确远端错误。已有samuelj1519 SSH身份通过官方443入口严格主机密钥核验，最终push exit0，210.05秒；原argv/结果/完整progress在ci/ssh443-push。无全局配置修改或新权限申请。首次PR调用早于push完成被GraphQL拒绝，无PR生成；确认push成功后才创建[draft PR #1](https://github.com/samuelj1519/sheltie/pull/1)。远端head精确7f42e3b。
+
+Release CI `37029608597`与build CI `37029608698`均pull_request事件，head SHA `7f42e3b294473ac72e6e472480431db397670806`。Release两个Mac包success，两个Linux包、quality失败，global/host/announce跳过；build的Linux/MSRV同错。原status.json与failed.log保存实际job结果，不把skip当PASS。失败根因是fsx.rs2775/3178/3206把u16传入Linux RawMode=u32；Mac原700无法证明此目标编译通过。
+
+先扩T17的fsx白名单再修三处目标推断转换，保留原Mode::from_raw_mode、S_IFMT/bitflag处理和所有API/权限值/句柄/同步次序。锁定rustix1.1.4 primary源码核Darwin u16、Linux u32；不改为另一constructor或新cfg兼容层。独立报告linux-mode-review.md与worker的Mac fmt/check/Clippy/MSRV原文保存，内容通过；新Linux入口及新完整候选结果须实际执行后才记录。外部发布授权仍未取得，T17 doing；首次失败和旧M1/SK/usage边界保持。
+
+三处修复后新完整Mac运行700/700，零skip，Nextest165.194秒；core doctest5/5，docs/specs exit0。worker的fmt/check/Clippy/MSRV原argv/env/hash亦被独立核实，Rust代码输入sha a2d1efce26f523cb1838327fb40ce48e4f2b81251a4114f13541b94d4e64f83a。原失败与修复闭包37文件另档案封存，入口和摘要见README；候选将更新同一获批验证分支，继续非发布CI，当前没有发布授权或tag。

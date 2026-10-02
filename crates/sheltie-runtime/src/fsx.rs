@@ -2772,7 +2772,7 @@ impl SafeFile {
 
     /// 在已打开的同一文件对象上置只读并同步。调用方先用同一句柄核验摘要。
     fn set_mode(&self, mode: u16) -> Result<()> {
-        fchmod(&self.file, Mode::from_raw_mode(mode))
+        fchmod(&self.file, Mode::from_raw_mode(mode as _))
             .map_err(|e| map_fs_error(self.path.as_str(), e))?;
         fsync(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))
     }
@@ -3175,7 +3175,7 @@ fn set_dir_tree_mode(
                 });
             }
             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;
-            fchmod(&child, Mode::from_raw_mode(directory_mode))
+            fchmod(&child, Mode::from_raw_mode(directory_mode as _))
                 .map_err(|e| map_fs_error(&child_display, e))?;
             if file_mode == 0o444 && directory_mode == 0o555 {
                 crate::failpoint::sync_error(root, "publish_readonly_nested_dir_sync").map_err(
@@ -3203,7 +3203,7 @@ fn set_dir_tree_mode(
                 });
             }
             let file = std::fs::File::from(fd);
-            fchmod(&file, Mode::from_raw_mode(file_mode))
+            fchmod(&file, Mode::from_raw_mode(file_mode as _))
                 .map_err(|e| map_fs_error(&child_display, e))?;
             if file_mode == 0o444 && directory_mode == 0o555 {
                 crate::failpoint::sync_error(root, "publish_readonly_file_sync").map_err(
