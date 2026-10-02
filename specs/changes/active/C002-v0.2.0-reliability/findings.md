@@ -1,6 +1,6 @@
 # MVP 统一问题清单
 
-候选：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。结论：**需修改**。以下问题由对应修复任务关闭；关闭矩阵随各任务与 M1 在 validation.md 记录。P1 表示会破坏数据/身份/执行判断或交付链，下一版发布前必须关闭；P2 表示合同、可用性或验证缺口，同样纳入本次修复。优先级不是攻击严重度评级。
+候选：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。历史审查结论：**需修改**。当前结论见 review.md。以下问题由对应修复任务关闭；关闭矩阵随各任务与 M1 在 validation.md 记录。P1 表示会破坏数据/身份/执行判断或交付链，下一版发布前必须关闭；P2 表示合同、可用性或验证缺口，同样纳入本次修复。优先级不是攻击严重度评级。
 
 保留原 O01–O13 编号；N01 起为本次补全或从旧叙述提升为独立可追踪的问题。代码行号均对应上述候选。审查过程、产品分析和旧方案裁决见 [review.md](review.md)，全部证据位置见 [validation.md](validation.md)。
 
@@ -45,28 +45,60 @@
 
 ### 请求身份、响应与文件恢复
 
-[request-probes.json](evidence/2026-09-27/request-probes.json) 保存每次真实 argv、exit、stdout/stderr。O02 的响应显示目标 B 仍 active 却成功“重放取消”；O04 的旧 submit 响应保留 revision 3 和可 begin summary 的 next，却把 work_status 改成 cancelled。请求应绑定解析后的目标与用户参数；响应字段从提交时 snapshot 返回。
+[request-probes.json](validation.md#历史证据恢复) 保存每次真实 argv、exit、stdout/stderr。O02 的响应显示目标 B 仍 active 却成功“重放取消”；O04 的旧 submit 响应保留 revision 3 和可 begin summary 的 next，却把 work_status 改成 cancelled。请求应绑定解析后的目标与用户参数；响应字段从提交时 snapshot 返回。
 
 历史响应可以保留历史 next，这是重放定义，但调用者要以新的 status 查询继续操作。当前 status-card 必须反映最新 Store；不能为修 O05 把所有文件都按历史字节覆盖。
 
 ### 目录摘要
 
-[hash-framing.json](evidence/2026-09-27/hash-framing.json) 的两个合法源目录摘要相同。因为 `za\0zb\0X` 可以解释成一个文件的内容，也可以解释成两个文件。必须把路径与内容长度编码进摘要流，并对该流做一次 SHA256；独立测试手工组装字节。
+[hash-framing.json](validation.md#历史证据恢复) 的两个合法源目录摘要相同。因为 `za\0zb\0X` 可以解释成一个文件的内容，也可以解释成两个文件。必须把路径与内容长度编码进摘要流，并对该流做一次 SHA256；独立测试手工组装字节。
 
 这是格式修复。用新 Store/schema 明确拒旧，比让同一字段同时代表错误旧摘要和新摘要更清楚。旧用户数据必须原样保留，不能“为了测试通过”清空或改写。
 
 ### 文件和发布生命周期
 
-[standards-probes.json](evidence/2026-09-27/standards-probes.json) 记录根外写入、固定临时路径覆盖、add 失败残留行、clean home 与 JSON 反例。修复必须贯穿 Service、WorkbookRepo、self 与恢复；局部增加 observe_confined_file 仍会遗漏 start、原子写和删除。
+[standards-probes.json](validation.md#历史证据恢复) 记录根外写入、固定临时路径覆盖、add 失败残留行、clean home 与 JSON 反例。修复必须贯穿 Service、WorkbookRepo、self 与恢复；局部增加 observe_confined_file 仍会遗漏 start、原子写和删除。
 
 已提交的未发布目录含唯一的输入/Workbook 字节，属于持久事实的待发布部分。它不能放在“24 小时可删”的临时区；只能按 Store 归属确认后清理。过期、时间戳或目录名都不构成单独删除依据。
 
 ### Workbook 的业务闭环
 
-[git-probes.json](evidence/2026-09-27/git-probes.json)、[workbook-probes.json](evidence/2026-09-27/workbook-probes.json) 分别证明 Git 范围与机械绑定缺口。后者使用合成输出走图，只证明图/输入/next，不证明模型完成真实开发或真人批准。
+[git-probes.json](validation.md#历史证据恢复)、[workbook-probes.json](validation.md#历史证据恢复) 分别证明 Git 范围与机械绑定缺口。后者使用合成输出走图，只证明图/输入/next，不证明模型完成真实开发或真人批准。
 
 ## 4. 不重复计数的历史限制与设计建议
 
 旧 S1/P1 已归 N01，P4 已归 T02 的输入发现；S2/P2 是历史 human/token 证据限制，保留为 T16 回归要求；S3/S4/P3 是历史来源与措辞问题。没有原始 transcript 时，只标记“历史叙述/用户后续澄清/未验证”，不臆造 prompt。S5 的路由已由本 package 承担。
 
 `Manifest/FlowDef/NodeDef` 的公开可变字段、测试 helper 暴露、过期注释属于 T14 的接口与维护性修剪。没有实际调用链证据的泛化 smell 不升级为 P1，不要求全仓重写、普遍 newtype 或新的 trait 框架。
+
+
+## 5. M1 增量问题 R01–R24
+
+此表保留问题与修复定位；正反例和真实 caller 在 validation.md 的 51 行矩阵中。R17 的完整验证义务仍有 SK01/SK02 明示缺失，不能从其余行的用例通过推定全部能力通过。
+
+| ID / 问题 | 修复提交 |
+| --- | --- |
+| R01 路径归属 | `ee78118`、`22942ee`、`5d2d051` |
+| R02 seal | `ee78118`、`fd21a63`、`1d92bcd` |
+| R03 self 文件链 | `ee78118`、`7e9178e` |
+| R04 purge | `69710aa`、`7e9178e`、`ca6d92f` |
+| R05 @file 重放 | `5d2d051` |
+| R06 历史目标 | `5d2d051` |
+| R07 恢复错误协议 | `1d92bcd`、`ca6d92f` |
+| R08 Workbook 重放 | `1d92bcd`、`3dd224d` |
+| R09 pending 读 | `4526b7e` |
+| R10 跨入口卡刷新 | `1d92bcd` |
+| R11 删除证明 | `3dd224d`、`4526b7e`、`ca6d92f` |
+| R12 发布闭包 | `22942ee`、`5a9d430` |
+| R13 cleanup | `4526b7e`、`ca6d92f` |
+| R14 树装入/摘要 | `ee78118`、`543f9d2` |
+| R15 stats 快照 | `a4f1968` |
+| R16 replan | `b926789` |
+| R17 全验证闭包 | `b926789` 迁移＋`ca6d92f` |
+| R18 必需 sync | `ee78118`、`5a9d430`、`3dd224d`、`ca6d92f` |
+| R19 锁内建库 | `5d2d051`、`edb86f1`、`ca6d92f` |
+| R20 持久计数 | `ca6d92f` |
+| R21 根解析错误 | `06c3af3` |
+| R22 原响应业务绑定 | `e3eea89` |
+| R23 历史状态 | `e3eea89` |
+| R24 节点资源 | `e3eea89` |

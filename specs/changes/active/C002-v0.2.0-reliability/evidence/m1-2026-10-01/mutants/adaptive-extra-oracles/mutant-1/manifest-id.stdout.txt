@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 65, in <module>
-    rejection(home,['work','status',work],a.family)
-    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 25, in rejection
-    assert code==1 and not value['ok'] and value['error']['code'] in ['STORE_CORRUPT','EFFECT_PENDING'],('SEMANTIC corrupt fact accepted or wrong error',label,code,value)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ('SEMANTIC corrupt fact accepted or wrong error', 'manifest-id', 0, {'data': {'blocked': None, 'current': 'outline#1', 'done': [], 'flow': 'default', 'last_attempt': None, 'name': 'default', 'next': [{'args': {'node': 'outline', 'work': '2026-10-02-001-default'}, 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'pending': ['summary'], 'pending_publish': False, 'status': {'kind': 'active'}, 'visits': {'outline': '1/1', 'summary': '0/1'}, 'work_id': '2026-10-02-001-default', 'workbook': 'two-step@1.0.0'}, 'next': [{'args': {'node': 'outline', 'work': '2026-10-02-001-default'}, 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'ok': True})

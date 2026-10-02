@@ -1,2 +1,0 @@
-./specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/t34/r22-seam-review.md:22:1. **Store 读取层**：增加窄的请求快照元数据读取（`intent_hash, reply_json, work_id, at`），不解码 `effects_json` 和 `published`。request-id 是 SELECT 参数。保留现有 hash lookup 的冲突优先级及「已查到行，因此 committed=true」事实。effects BLOB 或坏 published 不应阻碍独立核合法快照；坏 owner/reply 则让这个阶段准确失败。效果读取随后取这两个字段；在同一个 HomeLock 下不会有协作 writer 改写已提交元数据。
-禁用措辞命中（见上）

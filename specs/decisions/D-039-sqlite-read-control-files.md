@@ -20,4 +20,4 @@ schema识别连接在第一次查询前使用安全rusqlite `Connection::set_db_
 
 ## 确认方式
 
-以Cargo.lock对应的bundled SQLite版本测试WAL已存在、缺shm、活动写者、schema 1前后main/WAL字节、sidecar链接、连接close后的字节。macOS探针已运行；Linux运行依用户明确指示豁免，记`not_run`，不写成Linux/跨平台PASS。API文档不代替已执行平台的实测。新增确认项：原WAL缺失时，核合法只读预检创建的WAL长度为零、主库字节不变。purge在删除Store后复扫时，只接受合法单链接SHM或零字节WAL，保留非空晚到WAL及其他异常对象并报部分清理。实际运行与审查记录只写C002 package的evidence/repairs/t31。
+以Cargo.lock对应的bundled SQLite版本测试WAL已存在、缺shm、活动写者、schema 1前后main/WAL字节、sidecar链接、连接close后的字节。macOS探针已运行；Linux运行依用户明确指示豁免，记`not_run`，不写成Linux/跨平台PASS。API文档不代替已执行平台的实测。新增确认项：原WAL缺失时，核合法只读预检创建的WAL长度为零、主库字节不变。purge在删除Store后复扫时，只接受合法单链接SHM或零字节WAL，保留非空晚到WAL及其他异常对象并报部分清理。历史运行与审查原文从[C002验证索引](../changes/active/C002-v0.2.0-reliability/validation.md#历史证据恢复)的固定快照读取。

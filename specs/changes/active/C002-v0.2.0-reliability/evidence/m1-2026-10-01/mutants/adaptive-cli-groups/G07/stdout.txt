@@ -1,6 +1,0 @@
-Found 3 mutants to test
-ok       Unmutated baseline in 23s build + 5s test
-MISSED   crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked in 8s build + 7s test
-MISSED   crates/sheltie-runtime/src/service.rs:1583:12: replace > with >= in observe_output in 23s build + 8s test
-MISSED   crates/sheltie-runtime/src/fsx.rs:737:37: replace || with && in ManagedFs::sync_regular_file_handle_locked in 27s build + 7s test
-3 mutants tested in 64s: 3 missed

@@ -1,71 +1,19 @@
-# C002 交接
+# C002 当前交接
 
-跨会话交接用。任务状态只看 [plan.md](plan.md) 状态列；本文件写「接下来从哪继续」与跨任务事实，不复制任务状态。
+进度只看 [plan.md](plan.md)。本文件只保留下一入口与限制；原逐会话交接从 [历史快照](validation.md#历史证据恢复)恢复。
 
-当前交接见[文末M1最终验收](#当前交接m1最终验收)；下列段落保留各阶段背景，不作为当前执行队列。
+## 当前位置
 
-## 历史起点与旧任务交接
+M1 已按用户授权的 macOS 离线验收与实际 SK01/SK02 跳过范围完成。产品源码候选 `e3eea899877165f8573befee3774555598ec92bd`；M1 记录提交 `9c933d8da38b2e7b1968de55343bf27e0dc11c25`。699 项通过、零跳过；完整证据核算和限制见 [validation.md](validation.md)、[review.md](review.md)。验证队列已结束或停止，不续跑历史流水线。
 
-- 2026-09-27 用户采用 C002，指示按计划执行到完成。2026-09-28 用户明确跳过Linux相关运行，完成其余修复和M1。
-- 实施进度只看 [plan.md](plan.md) 状态列；历史逐任务原始运行在 [evidence/tNN/](evidence/)。候选e1a8126的 [M1独立审查](review-m1-2026-09-28.md) 为“需修改”；追加修复的开工入口是 [repair-plan.md](repair-plan.md) 的T18，先固定上游调整/API门槛，再按T19–T31依赖修复与验证。
-- 修复后重新固定M1候选，Reviewer不得参与被审代码实施；T16/T17继续需要真实宿主操作者和发布授权。新任务证据写到各任务专属 `evidence/tNN-*`，保留旧M1失败原文，不覆盖历史运行。T19由`ee78118`、T20由`22942ee`、T21由`543f9d2`、T22由`fd21a63`、T23由`7e9178e`、T24由`5d2d051`提交并通过钩子；另针对初始化并发竞态追加T24 follow-up提交`edb86f1`。T23/T24证据见[evidence/repairs/t23](evidence/repairs/t23/README.md)、[evidence/repairs/t24](evidence/repairs/t24/README.md)与[T24并发初始化follow-up](evidence/repairs/t24-followup/README.md)。T25已提交`1d92bcd`，通过双轴独立Review、macOS全门禁与提交后任务门禁；cleanup诊断按计划交T28/V25，由T28关闭。T26已提交`5a9d430`，通过Spec/Standards独立Review、macOS Rust/MSRV/deny/文档门禁、提交钩子和提交后任务门禁；Linux保持`not_run`。T27已提交`3dd224d`，通过Spec/Standards独立Review、macOS Rust/MSRV/deny/文档门禁、提交钩子和提交后任务门禁；全仓Nextest 593项通过、0跳过、1 slow，1项leaky隔离复跑通过但原因未确认。stat→unlink边界按HomeLock协作模型记录，不声称能原子约束不遵守锁的外部写者。T28已提交`4526b7e`，通过双轴独立Review、macOS全仓615项测试、MSRV1.85与deny/文档门禁及提交钩子、提交后任务门禁，证据见[evidence/repairs/t28](evidence/repairs/t28/README.md)。T29完成真实CLI装入后writer交错修复，通过双轴独立Review、macOS全仓616项测试及MSRV/deny/文档门禁，证据见[evidence/repairs/t29](evidence/repairs/t29/README.md)；提交后进入T30。全仓纯静态测试的Nextest LEAK原因未确认，交T31综合验证。Linux保持`not_run`。
+SK01 缺最终 Spec 批准；SK02 缺 215 项额外执行，未重试或改记 PASS。Linux 原生运行仍 not_run。MIT许可已由独立T35提交 `7a584a3c1dc0a0589f6839eef23c755cf53320c6`，不属于历史M1输入；后续 rc 必须重新固定实际候选，不能沿用旧输入 hash 声称新候选已验证。
 
-## 跨任务事实
+## 下一入口
 
-- 格式切换只有一次：T03/T06/T09 只交付纯实现与独立测试；T07 统一接入 schema 2、新布局、新摘要与 `cli-result/v2`，删除全部旧路径。T03–T09 期间产品行为不变。
-- 当前写锁使用`fs4`（D-035），OS主体使用D-036勘误后的`uzers`。追加文件方案选当前依赖闭包已有rustix1.1.4的安全fs API，T18完成macOS/MSRV1.85探针；用户豁免Linux运行，Linux留`not_run`，T19才加runtime直接依赖。输出路径仍限定可移植ASCII，别名仅ASCII折叠。
-- 用户于2026-09-28授权按修复方案执行，并明确豁免本修复线的Linux验证。Linux结果全程保留`not_run`且不作为跨平台PASS；其余门禁在macOS执行。purge保留根/.lock、remove不预建payload、维护告警写stderr、SQLite共享内存控制文件只读例外已写入上游合同。T18由`69710aa`完成，包含macOS arm64/Rust 1.85.0探针、完整仓库门禁和独立Spec/Standards复核；T19由`ee78118`提交。T20由`22942ee`提交并通过信任闭包负例、双轴review和macOS全门禁，证据在[evidence/t20-trusted-load-2026-09-28](evidence/t20-trusted-load-2026-09-28/README.md)。保持schema2与已有Workbook audit JSON字节格式，不迁移或清空旧记录。spec-dev交接采用不同节点的被审副本和累计verify报告，不放宽core禁止自来源规则。
-- Cargo 版本在 T17 发布前保持 `0.1.0`。check-specs 的版本规则（N11，T15 修复）分开验证：有 release record 的版本按已发布核 tag 与 Release commit；开发中的版本等于 active 目标版本或其 RC 就行，不要求已有 tag，CHANGELOG 允许先写 `[Unreleased]`。取不到 tag/commit 时浅克隆报「缺历史」，历史完整报「未创建或未推送」。
-- release.yml 是 dist 生成文件：skill 打包一步与 `quality` 质量 job 都是自定义步骤，`dist init` 重新生成会丢掉，注释写明照此补回；`[workspace.metadata.dist]` 因此加了 `allow-dirty = ["ci"]`。announce 只在 `quality`（同一 SHA）成功时建 Release；MSRV 1.85 locked 门禁在 build.yml 的 `msrv` job 与 release.yml 的 `quality` job 各跑一份，stable 通过不能代替。
-- 测试由各任务自己编写并挂 `// Task: C002-Tnn` 归属；期望值用独立 oracle（手工字节、合同数值、独立计算），不用生产 helper 生成。
-- 提交用 `Change: C002`、`Task: C002-Tnn`、`Agent: <实际提交者>` trailer；通常一个任务一个提交。T01 首次提交审查失败，勘误另记纠正提交。提交前 fmt/check/clippy/nextest 与任务附加 gate 全绿，独立 review 通过。
-- skill 交付是生成物：`scripts/skill-delivery.sh pack|tar|verify` 从 `skills/sheltie` 与 `specs/contracts/` 生成/校验自包含交付（发布资产名 `sheltie-skill.tar.gz`）。仓库内 `skills/sheltie/SKILL.md` 保留指向合同的链接；T16 准备「自包含 skill」用 `pack`，核已装副本用 `check-skill.sh --delivery <dir>`（校验对象要与当前树同源；`storage.md` 类文件不随包发布，是去链接后的文字提法）。
+T16 真实宿主回归仍 not_run。准备实际 rc SHA、独立管理根、自包含 skill、Host 版本、逐命令记录与清理说明；按 plan 的场景让真实操作者验证跨会话续接、人工条件、usage/耗时/质量。缺数据如实记录，不用合成 worker 或离线图替代。
 
-T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成required被审镜像、递归累计交接与真实CLI/Git冷读正反例；全仓验收暴露测试内Cargo重建共享CLI的ENOENT，已提前完整迁入T31原定binary注入步骤，Owner与断言保留。T30双轴独立Review及macOS门禁通过，详见 [T30证据](evidence/repairs/t30/README.md)。下一入口为repair-plan的T31：确定性交错、完整窗口、完整mutant inventory及存活处置，再固定M1候选。Linux仍为用户豁免的not_run。
+T17 仍 not_run，依赖 M1/T16 必需项与单独发布授权。当前 Cargo 版本保持 0.1.0；不因本文收敛执行推送、发布或宿主安装。
 
-2026-09-30 T31仍为WIP。macOS默认profile全仓 `6e03fa98-0535-4d68-bc1f-f4412a609ac8` 647/647，T31 `27ffc52b-c5a0-472b-ac1e-07c262c3abb0` 22/22；同源码优化测试profile普通clone全仓 `36cf2302-efc8-48f8-a1a4-1d5eb1770eb9` 647/647。新增R20的独立CLI探针确认不可能的blocked_count会使gate approve panic，现用已有Attempt/Approval与当前Blocked事实的必要界在可信装入时拒绝，core三处增量checked，结构化错误/零业务写与纯core回归已通过两位独立Reviewer增量复核。旧候选的partial mutants均归档、不复用；当前持久普通clone临时输入`da2bd13979df88dd987596d7ed726ef99bb89651`的2573个变异待新647项baseline通过后完整重跑；先前0aee的core结果归档、不复用，存活体处置和独立M1仍未完成。详见[evidence/repairs/t31](evidence/repairs/t31/README.md)。Linux按用户要求`not_run`，T16真实Host与T17发布仍`not_run`。
+## 文档维护
 
-2026-09-30 用户授权修复实现审查全部七项并继续完成T31，Codex接续实施。逐条答复见 [review-response-implementation-2026-09-30.md](review-response-implementation-2026-09-30.md)。最终654项默认门禁及MSRV/deny/规范/dist plan均通过，两位未参与实施的Reviewer复核七项通过；已published历史补缺sync的追加反例已红→绿。此前da2bd变异原始结果归档为superseded，不计新输入；新普通clone临时提交3a9f689固定170项源码/fixture/配置，完整mutation与存活体处置执行中，T31仍以plan的doing为准。Linux仍not_run，M1/T16/T17未关闭。
-
-## 2026-10-01 续接
-
-当前源码已冻结为普通clone临时候选`49d3a191aa4c918aab279617fa2bf7d9b3b36a0e`，167项源码/fixture/配置/脚本与root一致、164项治理输入在clone冻结。默认675项测试及Rust/MSRV/离线deny/规范/dist门禁通过，Spec/Standards增量审查通过；完整mutation与处分仍在运行，不能关闭T31。接续入口为[evidence/repairs/t31/mutants/closure.md](evidence/repairs/t31/mutants/closure.md)：完成runtime片和全部workspace复验，逐missed/timeout/unviable建立准确处分与独立复核，再运行任务门禁并提交。新输入完整inventory为2499（core724/runtime1775），旧c31的2501项结果完整归档、不复用为最终PASS。Linux/M1/T16/T17边界不变。
-
-## 2026-10-01 本次收尾
-
-用户明确要求暂缓可能触发额外安全检查的相关任务并完成T31，主计划已记录豁免。混合runtime变异流水线精确停止并核进程结束；完整2499项第一阶段与第二阶段245项终态原文保留，全部ID分类守恒，269项为deferred_by_user而非PASS。正常675项与Rust/治理/MSRV/离线deny/dist门禁通过，独立Spec/Standards认可七项修复及本次豁免范围内提交。最终证据见[evidence/repairs/t31/README.md](evidence/repairs/t31/README.md)；任务/staged门禁与治理树绑定随提交收尾。T31主表done仅针对本次授权范围，M1/T16/T17及Linuxnot_run不变。
-
-## 2026-10-01 M1 本轮审查
-
-入口：[M1审查报告](review-m1-2026-10-01.md)与[证据矩阵](evidence/m1-2026-10-01/coverage-matrix.md)。原实现ca6d92f由三位独立Reviewer核源码/规格/证据；本轮精简3项Rust文件和统一合同，源码增量独立复核通过，675项与工程门禁通过。新源码不能沿用49d3a191变异结果。当前剩余是269项安全验证暂缓与M1完整变异门槛的范围澄清；异步问题已提出，未得到答复前保留deferred_by_user与M1未完成。Linux/T16/T17边界不变。最终状态只看plan.md。
-
-## 2026-10-01 恢复M1剩余验证
-
-用户明确授权恢复269项，实际平台提示暂停时记录具体项目跳过继续。T32承接M1精简及三条真实caller边界回归，独立增量review通过；门禁后提交并重新冻结输入，完整runtime变异重跑，core直接测试仅在精确依赖闭包一致时复用原阶段记录，core workspace仍重新运行。当前不会把旧变异套新输入，不预先跳过任何项。入口见[M1证据](evidence/m1-2026-10-01/README.md)及[T32](evidence/m1-2026-10-01/t32/README.md)。
-
-## T33收尾与M1重新冻结
-
-T33实际R21根/路径失败传播修复、全API迁移及新增真实caller回归已独立Spec/Standards复核通过；最终693项及工程门禁通过。旧5261e0d变异部分结果在M1 evidence/mutants/superseded-before-t33/，不复用新输入。提交T33后重新冻结同源码并运行完整runtime第一阶段+全部workspace存活复验；core720原直接测试只在精确依赖闭包不变时复用并保留原身份，core4消费者重跑。M1尚未通过，actual safety skip记录为空，Linux/T16/T17边界不变。
-
-
-## T34阶段交接（历史）
-
-R22/R23/R24已修复；T34最终699项及Rust/MSRV/离线deny/文档/skill/dist门禁通过，Standards增量通过。独立Spec后续复核实际被平台暂停，按授权SK01跳过，不重试、不记Spec通过。原文与缺失义务见M1 safety-skips.json；既有反例与审查反馈仍作为历史证据。
-
-下一步是提交T34后重新冻结M1 source/治理输入。core已经改变，不能再复用旧720项；core/runtime全部重新运行完整第一阶段及所有workspace存活复验。旧5344完整runtime第一阶段及尚未开始的workspace边界保留，非安全跳过；不要启动两条管线。M1仍doing，Linux/T16/T17边界不变。
-
-
-## 2026-10-02 M1冻结验证启动记录（历史）
-
-T34提交`e3eea899877165f8573befee3774555598ec92bd`及钩子/提交后任务门禁已通过。新普通clone为`target/m1-validation/source`、候选`95d78e0677f1ffba6abe5ad9c13430ea53957101`；167项源码与root逐SHA相同，234项治理输入在clone冻结。旧clone保存为`target/m1-validation/source-t33-5344b265`，旧变异原文在M1 mutants/superseded-before-t34。
-
-当前新baseline699/699、零skip，inventory2514（core743/runtime1771）。唯一pipeline持`target/m1-validation/pipeline.lock`，入口`/private/tmp/sheltie-m1-final-pipeline.py`，原文`target/m1-validation/pipeline-t34.stdout.txt`；执行器也归档为M1 mutants/pipeline.py。core4/runtime8完整第一阶段后，所有missed/timeout分别做workspace复验；最终结果出现后还需逐ID处置，不按测试数或执行结束自动关闭M1。执行器拒覆写、固定源码/manifest/脚本SHA、要求完整diff及实际测试失败/编译diagnostic，结束前再核输入。
-
-接续只核当前phase/progress和进程，不重复启动；保持源码冻结。SK01仅独立Spec后续复核实际暂停，按授权跳过、不重试、不改记Spec通过；其他变异继续。Linux/T16/T17边界不变，M1以主表doing为准。
-
-
-## 当前交接：M1最终验收
-
-用户要求精简后按能力分组继续到M1完成，结果见[最终审查](review-m1-2026-10-02.md)。产品候选e3eea899；当前699项全通过；2514项核算完成。实际SK01缺最终Spec批准、SK02缺215项额外执行，均保留原文、未重试，不是完整验证或安全PASS。所有验证队列已结束或停止，不再续跑历史全量队列。
-
-下一任务由plan.md定位T16真实宿主回归，需绑定M1候选及明示限制。T16/T17当前not_run，Linux豁免保持；本次只完成M1，无推送、发布或宿主安装授权。最终记录提交后以git中的C002-M1 trailer定位验收记录提交，源码候选仍e3eea899。
+当前 package 仅保留 9 个常规文件。机制只在 design.md 概述并链接上游合同；验证只在 validation.md 固定候选与原文索引；review.md 保存当前审查结论。阶段 review、repair 文档和 evidence 已入固定 Git 归档，不再恢复成活动入口。

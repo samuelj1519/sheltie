@@ -1,8 +1,0 @@
-crates/sheltie-runtime/src/failpoint.rs:144:5: replace cleanup_error -> std::io::Result<()> with Ok(())
-crates/sheltie-runtime/src/fsx.rs:254:81: replace | with & in ManagedFs::open_lock_file
-crates/sheltie-runtime/src/selfmgmt.rs:476:9: replace || with && in checked_version
-crates/sheltie-runtime/src/service.rs:561:20: delete ! in WorkService::resolve_work_for_request
-crates/sheltie-runtime/src/service.rs:1176:9: delete match arm CheckedData::Submitted(status) | CheckedData::Failed(status) in validate_command_owner
-crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 1))
-crates/sheltie-runtime/src/workbook_repo.rs:286:12: delete ! in WorkbookRepo::add
-crates/sheltie-runtime/src/store/read.rs:206:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some("xyzzy".into())))

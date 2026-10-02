@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/private/tmp/m1-workbook-reread-oracle.py", line 47, in <module>
-    assert p.returncode==1 and value['ok'] is False and value['error']['code']=='STORE_CORRUPT',(case,p.returncode,value)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ('remove-request_id', 0, {'data': {'id': 'cached-book', 'replayed': True, 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'completed-remove-b'})

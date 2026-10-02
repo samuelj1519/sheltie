@@ -1,4 +1,0 @@
-{
-  "candidate": "3a9f6894d991aac609bacc3f3012046804acd811",
-  "reason": "Complete core724 plus full-workspace stage2 found missing cross-node same-occurrence gate oracle. New real CLI test catches exact AND->OR mutation (exit100) and restored implementation passes. Source/tests input changed; no prior mutation results reused. Runtime first shard interrupted via verified SIGINT; all raw output retained."
-}

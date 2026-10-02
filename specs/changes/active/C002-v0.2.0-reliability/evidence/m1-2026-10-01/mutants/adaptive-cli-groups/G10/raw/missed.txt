@@ -1,4 +1,0 @@
-crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(())
-crates/sheltie-runtime/src/store/mod.rs:334:9: replace Store::validate -> Result<()> with Ok(())
-crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql
-crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with "xyzzy".into()

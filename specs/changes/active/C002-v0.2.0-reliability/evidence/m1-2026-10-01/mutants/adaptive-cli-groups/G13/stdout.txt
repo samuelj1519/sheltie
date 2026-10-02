@@ -1,7 +1,0 @@
-Found 5 mutants to test
-ok       Unmutated baseline in 21s build + 1s test
-MISSED   crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(()) in 8s build + 2s test
-MISSED   crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous in 28s build + 2s test
-MISSED   crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(()) in 34s build + 1s test
-MISSED   crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous in 35s build + 1s test
-5 mutants tested in 62s: 4 missed, 1 caught

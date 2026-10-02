@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 51, in <module>
-    rejection(home,add,field)
-    ~~~~~~~~~^^^^^^^^^^^^^^^^
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 26, in rejection
-    if value['error']['code']=='EFFECT_PENDING':assert value['error']['detail']['cause']=='STORE_CORRUPT' and 'original' not in value,('SEMANTIC corrupt response qualified',value)
-                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ('SEMANTIC corrupt response qualified', {'committed': True, 'error': {'code': 'EFFECT_PENDING', 'detail': {'cause': 'STORE_CORRUPT'}, 'message': '效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Workbook请求的audit归属或效果数量无效'}, 'next': [], 'ok': False, 'original': {'data': {'digest': 'db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549', 'flows': ['default'], 'id': 'two-step', 'replayed': False, 'requires': [], 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'extra-add'}, 'request_id': 'extra-add'})
