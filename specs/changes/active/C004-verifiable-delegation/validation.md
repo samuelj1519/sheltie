@@ -111,3 +111,7 @@ LEAK 出现在 `implementation_repairs::killed_first_store_initializer_allows_th
 [方法场景](evidence/20261003-T03-method.txt) run `a7c04f29-471d-403c-a855-aefded5becef` 为 2/2 PASS、退出0；[技能/样例消费者](evidence/20261003-T03-consumers.txt) run `b76ee226-c05a-442b-ab62-d02ceb40b2c7` 为23/23 PASS、退出0。实际 nextest0.9.140 override，原0.9.145环境门禁仍not_run。fmt/docs/specs/tests/skill/corevocab/diff通过；无新Rust生产代码或格式，不重跑未受影响工程链。M2稳定完整候选按其要求验证。
 
 [受控CLI trace](evidence/20261003-T03-cli-trace.json)从Cargo compiler-artifact.executable定位实际binary，18次实际CLI完成implement→review→back→implement→review→deliver，三项selected文件由stdlib独立重读hash/bytes与引用一致。初次工具println写19，实际记录数组及cli_call_count均为18；按真实数组纠正，未产生第19次调用。home及输入都是自有临时夹具，报告明确机制演练；human_first_use和quality_and_cost_benefit均not_run，不能换算用户净收益。
+
+## C004-T04 本轮真实试用边界
+
+[前提盘点](experiments/readiness.md)按授权记录已确认缺项与补验入口；没有正式用户run。任务输入/使用历史/两组配置及活动/独立盲审/实际接受/原宿主会话动作的可核规程与原文均未建立；usage null。用户已批准执行，不等于这些行为已发生。独立事实复核通过，仅覆盖记录。docs/specs/tests/diff退出0；纯记录不重跑Rust，不虚构task.sh零测试PASS。当前真实trial/result-quality/cost-benefit/真正重开为not_run，后续按stage-1与C007指标补验。
