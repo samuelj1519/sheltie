@@ -149,3 +149,6 @@ git archive e54dcd41d8f1e186007b62b47583063cb19a4b66 specs/changes/active/C002-v
 T35仅将项目许可统一为MIT，提交 `7a584a3c1dc0a0589f6839eef23c755cf53320c6`；三个Cargo包metadata及package --list核MIT正文且无项目Apache正文，第三方声明保留。Rust提交门禁及Spec/Standards独立复核通过。T36只收敛文档/引用及历史证据，独立提交；原M1候选和运行不因此变成新候选PASS。
 
 T36工作树Rust四门禁exit0；Nextest run `ad1e5b10-625d-4c55-b513-2a8bcf3f06d6`，699/699、零跳过，测试168.880秒。此次未重跑mutation。docs/specs和显式基准 `7a584a3` 的Task36范围检查通过；临时命令原文位于 `/private/tmp/c002-t36-gates/`，不是归档M1输入。
+
+
+T37仅提交执行效率复盘和通用建议。Rust四门禁exit0；Nextest run `466e6640-7ca7-4486-8bcf-3b0fc259d62c`，699/699、零跳过，原文临时保存于 `/private/tmp/c002-t37-gates/`。docs/specs和显式基准a31824b的任务范围检查通过；独立Spec/Standards复核只针对文档，原M1输入、SK01/SK02和未采用门禁建议不变。

@@ -220,3 +220,8 @@ allow_test_changes = false
 files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/decisions/D-039-sqlite-read-control-files.md", "specs/releases/v0.1.0/plan.md"]
 test_files = []
 allow_test_changes = false
+
+[C002-T37]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/guides/README.md", "specs/guides/task-execution-efficiency.md"]
+test_files = []
+allow_test_changes = false
