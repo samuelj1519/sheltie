@@ -1,0 +1,100 @@
+{
+  "reviewer": "Codex /root/t16_evidence_review",
+  "scope": "收尾客观核摘要/字节/引用/交接；未重跑长测试，不替代完整T16验收",
+  "archive_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/submissions/C002-T16-spec-dev.tar.gz",
+  "archive_sha256": "5facbe81ddf214fa85a7db3a2d88647d34516584b73d955d0f973ccca0de67f9",
+  "archive_size_bytes": 1252889,
+  "file_count": 2597,
+  "archive_references": {
+    "C002-T16-preparation.tar.gz": {
+      "sha256": "f83bd4549b4e99592f4f14885c44db715891c5f913926c48502969dcb9146173",
+      "size_bytes": 249637,
+      "readme_matches": true
+    },
+    "C002-T16-continuation.tar.gz": {
+      "sha256": "35ab6352c08a3bca0140d5e44ee2509dcc6aab7fe1cc1355ffbada309a5e5565",
+      "size_bytes": 1322838,
+      "readme_matches": true
+    },
+    "C002-T16-spec-dev.tar.gz": {
+      "sha256": "5facbe81ddf214fa85a7db3a2d88647d34516584b73d955d0f973ccca0de67f9",
+      "size_bytes": 1252889,
+      "readme_matches": true
+    }
+  },
+  "checks": {
+    "archive_expected_sha": true,
+    "archive_file_count_2597": true,
+    "all_archive_bytes_match_base": true,
+    "safe_relative_roots": true,
+    "no_links": true,
+    "regular_or_directory_only": true,
+    "cache_bytecode_binary_excluded": true,
+    "must_have_closure_present": true,
+    "all_three_archive_readme_hashes_match": true,
+    "final_review_same_as_reviewer_original": true,
+    "fix_gates_all_exit_0": true,
+    "fix_gate_raw_hashes_match": true,
+    "nextest_688_zero_skipped_167925_raw": true,
+    "doctest_5_compile_fail_raw": true,
+    "post_fix_result_hash_matches": true,
+    "fixture_input_current_except_package_docs": true,
+    "resume_outline_hash_and_bytes_match": true,
+    "resume_status_running_no_committed_output": true,
+    "resume_outline_no_submit_record": true,
+    "resume_next_submit_fail_cancel": true,
+    "spec_work_blocked_retro": true,
+    "spec_work_next_approve_cancel": true,
+    "spec_retro_revision39": true,
+    "task_completion_FAIL_preserved": true,
+    "handoff_docs_specs_diff_exit0": true,
+    "nine_regular_package_documents": true,
+    "tracked_diff_inside_T16_whitelist": true,
+    "new_version_021_and_installed_instruction": true,
+    "new_producer_brief_contains_instruction": true,
+    "old_frozen_hash_unchanged": true,
+    "producer_is_not_Host_claim": true,
+    "T16_doing_T17_not_run": true,
+    "actual_reopen_and_final_approval_not_run": true,
+    "whole_review_frozen_input_closure_matches": true,
+    "later_user_decisions_preserve_reviewed_prefix": true
+  },
+  "diagnostics": {
+    "missing_local": [],
+    "byte_mismatches": [],
+    "unsafe_entries": [],
+    "link_entries": [],
+    "missing_required": [],
+    "gate_hash_mismatches": [],
+    "source_input_drift_outside_package_docs": [],
+    "source_missing": [],
+    "whole_review_input_mismatches": [
+      "/private/tmp/sheltie-c002-t16-82c6c55/human-decisions.json"
+    ],
+    "resume_submit_records": [],
+    "changed_outside_whitelist": [],
+    "package_regular_files": [
+      "README.md",
+      "design.md",
+      "findings.md",
+      "plan.md",
+      "progress.md",
+      "review.md",
+      "spec.md",
+      "tasks.toml",
+      "validation.md"
+    ],
+    "historical_closure_note": "human-decisions.json后续追加Work006真人决定；whole-review/human-decisions.bytes准确绑定当时hash，历史决定前缀原样保留，不用后续live记录否定旧审查。"
+  },
+  "conclusion": "通过",
+  "stage_limits": [
+    "spec-dev四任务/26项完整闭环和F16-01 producer修复已核，普通修复门禁688/688与5/5真实通过。",
+    "Work006实际outline文件已生成，但Attempt running、未submit；恢复点仅是交接定位，重开后必须查询当前状态。",
+    "Work003当前blocked(gate: retro)、revision39，最终用户批准仍not_run。",
+    "真实关闭并重开会话仍not_run；Host bundle元数据不证明窗口匹配、自动发现或真实重开。",
+    "usage仍null；不宣称成本/质量收益、旧M1Spec批准、SK缺失关闭、Linux、完整变异或发布。",
+    "T16doing/T17not_run；正式task completion FAIL保留，不与普通工程PASS混淆。",
+    "prep/stage2/final档案各保存固定阶段原文，旧阶段live变化不改写旧归档；归档不直接作为迁移后新home运行。",
+    "本JSON为派生audit，不应塞回已核tar造成hash自引用。"
+  ]
+}

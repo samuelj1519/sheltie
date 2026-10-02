@@ -238,3 +238,130 @@ T40最终Nextest run `8c8a31ba-5bb2-4b0e-a679-13c4e4ad63f4`：44 binaries，688/
 ### 分阶段提交的构建缓存复核
 
 首次T39钩子正常执行，但共享target因历史文件mtime早于既有产物而复用旧core/runtime，选择714项，12项已运行中1项失败、702未运行；该失败不记PASS，原输出保留会话，结构化原状态收进T40档案的submission目录。重建文件清单及mtime处理已修正；各阶段采用独立target，T38补核699/699，T39钩子717/717，零跳过，源字节与166/169原清单相同。原门禁、该失败、后续fresh结果分别记录，不混为一次run。T40钩子使用单独target，并核171项源输入，不复用错误产物。
+
+## C002-T16 当前宿主回归
+
+2026-10-02 用户要求继续 C002；开工工作区干净，源码候选 `82c6c55159592db5cdb485549e933960863de185`。未改 Rust 生产代码、测试或 Cargo 版本；后续 F16-01 修复源码 Workbook 三个文件并升版，单列其输入与验证。隔离目录 `/private/tmp/sheltie-c002-t16-82c6c55`；`candidate.json` 保存原始 tracked 文件 SHA256、平台与 Rust 版本，`commands/` 每次调用分别保存 argv、预生成 request-id、stdout、stderr、退出码和耗时。本轮准备原文归档为 `evidence/submissions/C002-T16-preparation.tar.gz`，内容与限制见下文；可恢复实际输出，不以摘要替代日志。
+
+### 构建与工程门禁
+
+macOS `aarch64-apple-darwin`，Rust `1.98.1`；release/default-features 二进制通过 `cargo build --release --locked -p sheltie-cli --message-format=json` 构建，从 Cargo 的 `executable` 获取路径，复制到 `delivery/sheltie-bin`。SHA256 为 `eba587d3a6e84578317bd5a0c0b6f677e6632a54924ae06891f86dd92095752d`；实际版本 `sheltie 0.1.0`，不是具有 v0.2.0 版本身份的 rc。`self install` 在独立 home 完成，已装 bytes 与该二进制相同，schema 为 2。
+
+自包含 skill 通过 `scripts/skill-delivery.sh pack/verify/tar`；`delivery/sheltie-skill.tar.gz` SHA256 为 `d1aa737e2bbf1a6742fdad275572c2a41257506673034884c5cb508d314be06a`，SKILL.md 为 `a7ee7b9e4d4b0d89576d49a3b827fe4cab169fbd2b27a6679e1eb582062146b4`。三份交付文件的逐字节摘要见 `delivery/manifest.json`。本次手动读取并执行交付规则，未向宿主安装或验证新会话自动发现。
+
+门禁使用 `RUSTC_WRAPPER=`、`CARGO_NET_OFFLINE=true`、`CARGO_BUILD_JOBS=2`、`NEXTEST_TEST_THREADS=2`、独立 target `/private/tmp/sheltie-simplify-t38-target`。原文及每条命令的 hash/退出码在 `gates/results.json`。默认 Nextest `0.9.140` 不满足配置，首次退出 92，未执行测试；保留该记录，改用已有 `target/t31-validation/tools/cargo-nextest` `0.9.146` 后执行完整运行，未绕过版本检查。
+
+| 验证 | 实际结果 |
+| --- | --- |
+| fmt；check/clippy 全 targets/features、locked | exit 0 |
+| Nextest 全 features、locked | 688/688，0 skipped，164.367 秒，exit 0 |
+| core doctest 全 features、locked | 5/5 compile-fail，exit 0 |
+| deny | 同本地公告缓存、独立配置 db-path，offline exit 0；未在线刷新 |
+| MSRV `1.85.0` workspace/all-targets/all-features/locked | exit 0 |
+| dist plan JSON | exit 0；生成的是当前 `0.1.0` 的计划，不是四平台资产构建 |
+| docs/specs/core-vocab/tests/skill | exit 0；文档变更后另行复核 |
+
+本轮没有重跑完整变异或 Linux。旧 M1、SK01/SK02、699/717 的闭包与结论不改写为本次运行；即使源字节相同，也不推定历史缺失验证已通过。
+
+### 当前会话场景
+
+下表与准备档案固定于收到人工决定前。后续已授权执行另记在「人工决定后的继续执行」，不覆盖此快照及其独立复核。
+
+Host 为当前 Codex 会话，coordinator `Codex /root`；worker 使用真实 `collaboration.spawn_agent`，只得到 brief 与绑定文件路径。身份、职责和返回结果可从本会话工具记录复核。应用版本/build 未取得；usage 没有可用计量，记 `null`，不记 0。`host.json` 保存这些缺口；逐 CLI/工程耗时与 Work stats 不当作模型成本或质量评分。
+
+| 场景 | 实际观察 | 未完成项 |
+| --- | --- | --- |
+| 发现与输入 | missing home/Workbook 返回 NOT_FOUND；四份 Workbook 经 show 获取 start_inputs，已给输入直接用于 start | 未指定 Workbook、缺输入的真实人机往返尚未验证；CLI 错误返回不等于交互通过 |
+| two-step | outline/summary 由不同真实 worker 生成并提交，Work succeeded；摘要 395 字、四段覆盖提纲，stats total 113 秒 | 宿主 usage、真实重开会话缺失 |
+| 请求与错误恢复 | 完成后重放旧 outline submit，除 replayed 外响应与原文完全相同，历史 revision 3；当前终态不回退；新 begin 返回 WORK_TERMINAL，状态逐字段不变 | 不从历史 next 续接；真实会话关闭/重开未执行 |
+| gated-release | notes worker 生成演练发布说明，提交后 blocked(gate)，next 只有 approve/cancel；已向用户展示产物并请求明确批准 | 未收到批准，未 approve 或执行 archive；不是对外发布 |
+| article-review | writer 首稿，未参与写作的 reviewer 按冻结 checklist 判通过；人工 publish Attempt 已开始 | 本次未走 back；人工 final 文件未生成，不能代人完成 |
+| spec-dev | 独立临时 Git 项目，原始基线 `2f88d59b0d214967b64b285e96d764f26bc71c30`；worker 生成 spec/plan/tasks，人工 plan-review Attempt 已开始 | 未收到人工审核决定/条件，未重规划或实施任务；T04 纯文档属于 task-rules §4 的明确例外，已说明检查方式 |
+| Finder 与完整性 | 真实 Finder 新窗口打开 two-step 冻结 Workbook，显示 flows/instructions/workbook.toml 和 not editable；前后四文件 hash/mode 相同，无 `.DS_Store`；installed Workbook verify 全 ok | 一次访问不代表所有 Finder 操作；UI 原文在本会话工具响应，未导出截图 |
+
+`replay-oracle.json` 以原响应字节解析后的完整结构为期望，`finder-before/after.json` 保存访问前后的实际字节摘要与权限。`artifact-oracle.json` 用 Python hashlib/实际长度/stat 独立核对 8 个已提交 ArtifactRef 和 0444 权限，以及安装二进制的 bytes。没有用 Sheltie helper 计算期望，没有改封存产物或真实用户 home。
+
+初次交接误将 T04 纯文档任务判为违规；独立 Reviewer 核实冻结 task-rules §4 明确允许纯文档任务写检查方式，§9 要求文档收尾，T04 已满足。已修正本记录和发给用户的审核问题；不把此误判记为产品 finding 或要求 planner 修复。归档中的早期文档 patch 仅保留纠正前的历史输入，不作为最终结论。独立报告 `independent-review.md` 同时保留初次「需修改」和纠正后有限「通过」；范围见 [review.md](review.md#t16-部分证据与交接复核)。
+
+归档 SHA256 以 [README](README.md) 的 T16 行为准。T16 档案顶层直接包含 `candidate.json`、`commands/`、`gates/`、`home/`、`project/` 与交付文本，和 T38–T40 的布局不同。恢复到新目录只用于核证据；Store/任务书保留原绝对路径，不能把恢复目录直接作为新的管理根运行。二进制保留在原临时目录，未收进此证据档案。恢复示例：
+
+```bash
+t16_restore_dir="$(mktemp -d /private/tmp/sheltie-t16-restore.XXXXXX)"
+tar -xzf specs/changes/active/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz -C "$t16_restore_dir"
+```
+
+### 准备阶段交接与发布边界（初次归档）
+
+T16 保持 `doing`，T17 保持 `not_run`。逐 Work 当前查询和人工动作入口见 [progress.md](progress.md#t16-当前交接)。门槛批准、人工定稿、方案修改与条件需要真实用户输入；不能用当前「继续 C002」补造对尚未展示产物的批准。真实关会话再续接、Host 版本与至少两个 spec-dev 已验证任务仍须补证据。审批原文尚不存在，未记 PASS。
+
+本 package 文档变更后，docs/specs 与 `git diff --check` 均 exit 0；171 项生产、测试、fixture、合同交付及门禁输入保持候选字节不变，未提交路径均在 T16 白名单内。`scripts/check-task.sh C002-T16 82c6c55` 实际 exit 1，原因为 T16 状态不是 done；这项完成门禁尚未通过，未放宽 checker 或提交。具体输入路径及命令原文以 `gates/documentation-results.json` 为准。
+
+T17 的本机候选、skill 与 quality 原文已可复核；dist plan 仅列四平台的 `0.1.0` 资产名，其生成成功不证明资产存在。四平台 v0.2.0 manifest/checksum/同 SHA quality、指定版本远端更新与 rollback 均未运行；版本、CHANGELOG、release record 和发布生命周期未更改。完成 T16 后固定最终版本候选，再准备 release record 与 CHANGELOG，并在具体发布材料齐备后申请单独发布授权。
+
+### 人工决定后的继续执行
+
+用户随后明确选择当前 Codex 会话并批准本地演练归档。方案问题先收到「修改方案并附上述条件」，再对替代问题明确答复「通过方案，附上述条件」；以后者为准批准当前四任务方案，条件为「错误信息不得回显输入正文」，前一答复记录为已覆盖，不算一次真实重规划。用户回复「我会手动复制并告知」只表示待执行，不能当成人工定稿完成。
+
+`human-decisions.json` 保存各 questionItemId、真实答复、覆盖关系和记录者。Codex 按实际决定机械写方案版本摘要、原字节镜像并调用 CLI，决定来自用户；CLI 主体仍记 `shushu`，不声称独立真人认证。
+
+`gated-release` 实际 approve 后派 archive worker；`archive-copy-oracle.json` 独立核正文与已批准 notes 逐字节一致。Work succeeded，revision 6，stats approvals=1、blocked_count=1；完整请求/响应在 `commands/approve-notes`、`begin-archive`、`submit-archive`、`gated-final-status/stats`。
+
+`spec-dev` 已提交实际审核决定和两份被审镜像。骨架提交 `92e2d3f3fb14d077aac3cba9d10ec2b7df53f540`，原始基线不变；T01 候选 `65c9163a4ef2b45892f3cc2f87e2d16ea6eedc3c`、T02 候选 `6773f932765895735a5786220653440afcba2d8f` 均获未参与实现的独立 verifier 实跑、范围与审批核验通过。任务测试分别 4/4、5/5；完整 unittest 均收集 21 项，其中未来任务分别 17/12 项仍禁用，不冒充全产品通过。两份 report 保存原始基线和累计前缀，仅追加 T01/T02，原文在 `task-runs/implement-1/2`、`verify-1/2`。当前已进入 escalate 等实际重规划决定；CLI 条件尚待后续任务验收。
+
+第一份文章由用户实际手动复制并回复「已复制」，`manual-final-oracle.json` 独立核普通文件、单链接及与已审文章逐字节相同，提交后 Work succeeded，revision 7。此前「我会手动复制并告知」未被提前算作完成。
+
+另开原始 article-review Workbook 的受控 back Work `2026-10-02-005-t16-back`：真实 writer 首稿故意只有 186 汉字、一段、一个例子；独立 reviewer 按冻结清单判不通过。协调者选择 back，新的冷读 writer 只从绑定 topic/review 逐条修订，另一个 reviewer 判通过。`back-oracle.json` 独立核 draft#2 实际绑定 review#1 路径及摘要、stats 的 review(back)×1、原 Workbook 字节不变。本用例证明真实 worker 的受控回环，不用于估计自然写作质量；当前复审已提交但第二份人工 final 未完成，未声称整 Work 成功。
+
+宿主元数据补录为应用显示名 ChatGPT、运行 bundle `com.openai.codex`、版本 `26.928.31416`、build `12553`。`host-app-metadata.json` 保存本机 Info.plist hash 与可见应用清单来源；读取本宿主窗口被工具以 safety reasons 拒绝，未绕过，窗口匹配及真实重开仍未核。元数据不证明自动发现 skill、模型 usage 或完整 Host 资格。
+
+准备档案最终收尾复核另见 `evidence/submissions/C002-T16-preparation.audit.json`；其 SHA 和 364 文件核验限定于收到决定前的固定快照，临时管理根随后正常前进不改写它。后续阶段的独立报告见 `continuation-review.md`，有限结论为「通过」；只核本段实际决定、产物、两任务和受控回环，不替代完整 T16 验收。
+
+### 实际重规划与完整开发闭环
+
+用户随后明确同意 T03 读取、T04 CLI/README 的重排，再批准展示的具体新版并保留原条件。真实 escalation、两版 decision 与审核镜像分别封存；`replan-oracle.json` 独立核整体基线行和 T01/T02 原始两行逐字一致。冷读 planner 核递归历史来源后生成新方案，未取当前 HEAD 重设基线。初稿把已给条件误列为开放问题，经引用绑定审批明文纠正后才封存，未重复问用户或改旧规格。
+
+新骨架 `ba56d3fc3a25a9ca170183fd2315beb0ff37db5b` 保留九项既有测试与实现，新增五读取正反例、原十二 CLI 测试仅重标 T04。T03 `71821061f32d9c6496c2d621e673527bc785e4f6`、T04 `0ff54fa35002477c033f306e46089cfda738e3d1` 获独立 verify；最终四行累计事实完整、26/26 零 skip、compileall 通过。T04 红阶段真实为十一行为红、一既有标准库静态绿；未制造失败或改断言。
+
+`task-runs/verify-4/` 与 `whole-review/` 保存实际空 venv（without-pip、禁止系统 site-packages）、隔离 Python 路径、继承执行上下文的 network-disabled/seatbelt 标记、真实外联 EPERM、CLI 全部正反例、chmod0 后 PermissionError 前置与原文件 bytes。私有 sandbox_check 返回值无公开语义，只作辅助观察；nested sandbox_apply exit71 不计成功。环境结论限定这些实际 Python 执行闭包，不是整台 Host、任意代码或全协议的安全资格。
+
+整体 Reviewer 未参与实现，从原始基线到当前 HEAD 核四文件完整 diff、十条原始验收及审批条件，另独立跑 26/26、compileall、空 venv CLI 成功失败；结论通过，零阻断、零建议。未安装变异工具，因此此项目 mutation 为 not_run；不补旧 M1 215 项或最终 Spec 批准。交付说明保存六提交与遗留；反思仅提一条有证据的 F16-01，不凑三条。开发 Work 当前 blocked(gate: retro)、revision 39，尚未批准；stats total_seconds=6541 是 Work 跨度，含人和协调者等待，不是模型用量或成本。
+
+第二份文章已由用户实际复制并告知，`back-manual-final-oracle.json` 核与复审稿逐字节相同，提交后 back Work succeeded、revision 11。此受控回环完整，仍与普通首稿质量分开记录。
+
+### F16-01 修复闭包
+
+按已有 WorkLayout 合同把 retro 报告定位改成 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/outputs/`，两个维度独立补零；Workbook 升为 0.2.1，README 记录，先扩本任务三文件白名单。真实 add/show/verify 新版本通过；`retro-layout-fix/oracle.json` 核新的真实 BEGIN brief 逐字包含新说明，旧 0.2.0 冻结指令 SHA256 `3bf38deb3c77162f7fea8275fffa992fd2412bb47708d4546ef366484dd17407` 与原候选字节相同。该独立管理根中的合成产物只证明文案 producer，不算模型或真人回归。
+
+`fix-gates/input-files.json` 与 source-worktree.patch 固定新 fixture 闭包，`fix-gates/results.json` 保存实际 argv/退出码/原文 hash；fmt/check/clippy/Nextest/doctest/deny/MSRV/dist/docs/specs/core-vocab/tests/skill 全 exit0。Nextest 688/688、零跳过、167.925秒；doctest 5/5。不是把旧运行改写为新版本 PASS。独立最终阶段报告 `final-review.md` 复核 F16 原因、白名单与新旧 bytes/brief、真实模型/人回归边界；初次报告未预判当时尚运行的门禁，门禁完成后另核实际结果。
+
+T16 仍 doing，T17 仍 not_run。新的 Workbook/输入缺失真实交互已由用户实际选择 `two-step / default` 并给出 `topic=本地工作流如何跨会话续接`；得到数据后从 show 的 start_inputs 直接 start，不反复问已给信息、不以失败 start 探 key。Work `2026-10-02-006-t16-续接` revision 2，outline worker 已写五点提纲但未 submit，留作真实续接点；`resume-checkpoint.json` 独立核实际 topic、running 状态、未提交文件 bytes/hash，并要求重开后以新 CLI status 为准。
+
+上述是重开前的阶段交接；本轮真实续接见下节。完成状态门禁仍不可放行，不因开发示例完成或修复闭环而标整个 C002 完成。源码修复及所有未提交记录仅在 T16 修订白名单内；最终 gate、T16 状态及提交留待具体批准与独立复核完成后处理。
+
+### 真实重开后的续接
+
+用户本轮直接陈述「我已真实关闭并重开会话」。本会话先读取 progress 与交付 `delivery/sheltie/SKILL.md`，再通过原候选 CLI 的 `work list/status` 发现 Work006 和 Work003；没有重放历史响应取 next。该陈述和来源保存在 `reopened-session/session-source.json`，不声称独立窗口或进程认证、skill 自动发现或模型 usage 可用。
+
+`commands/reopened-work006-status` 确认 outline#1.0 running；协调者读取历史 BEGIN 返回的任务书与输出定位，独立核原提纲 983 bytes、SHA256 `db1dd9ca5730f74dd2329e6afd6fc0ebb509c3e251c2fb48798d90c3a19c1ca1` 不变，再按当前 next 提交。新 BEGIN 返回 summary 的真实任务书和绑定输入，`Codex /root/t16_resume_summary` worker 按它生成 417 字（含标点，不含空白）、五段、1260 bytes 的摘要，顺序覆盖五点且未新增观点；协调者核内容和输入 hash 后提交。摘要 SHA256 为 `e1c7b576cf0cdec6657e0f6fc0c7f870b11d531681e9bd5fd05147201ab5c752`，独立计算原文在 `reopened-session/summary-oracle.json`。
+
+三个写操作均先生成并告知 request-id，再保存实际 argv 与请求，分别为 `473e8f1b-a9bf-4e68-aeee-d04d550db4d6`、`07e1121d-54f7-4680-8fbc-57aaa3b072a5`、`119a4efd-83e0-4dfb-8b86-86f1b30056aa`。`commands/reopened-submit-outline`、`commands/reopened-begin-summary`、`commands/reopened-submit-summary`，其 stdout/stderr/result 保存原响应、退出码与耗时；最终 `reopened-work006-final-status` 为 succeeded、next 为空，submit revision 5。stats total_seconds=919、outline=854、summary=65 是实际 Work/Attempt 跨度，含会话关闭及等待，不是模型用量或成本。
+
+`reopened-session/artifact-oracle.json` 独立核当前 39 个唯一 ArtifactRef 的完整字节、长度、SHA256、单链接与 0444 权限，均一致。Work003 新查询仍 blocked(gate: retro)，保持 revision 39；本轮已读并展示 delivery/lessons，再请求最终门槛的具体用户批准，未提前调用 gate。T16 保持 doing，T17 保持 not_run，usage 缺失和旧 M1/SK/Linux 限制保留。
+
+独立 Reviewer `Codex /root/t16_reopen_review` 未参与本轮运行与修改，当前阶段结论通过，完整 T16 资格仍阻断于具体批准及实际 gate。`reopened-session/checks.json` 保存 docs/specs/diff-check exit 0 与正式 `scripts/check-task.sh C002-T16 82c6c55` exit 1（状态不是 done）的实际 argv、原文和摘要；未改 checker。重开续接档案的 69 个普通文件逐字回读一致，文件清单与来源只保存证据，不作为第二套状态；路径与 SHA256 见 [README](README.md)。该快照保留批准前事实，后续批准应另记真实原话和 CLI 响应，不改旧快照。
+
+### 最终 retro 批准
+
+展示实际 delivery/lessons 后，用户答复「批准 Work003 最终 retro gate」；`reopened-session/work003-gate-approval.json` 保存题目、答复、questionItemId `call_9adT9sBMUpCj2TLfgsz6HIRz/0` 及仅结束本地演练的范围。协调者重新查询当前 status，再以已告知的 request-id `43e1101f-7a1b-4862-b776-2c505c9e15fb` 调用 gate approve。`commands/reopened-work003-before-approve`、`commands/reopened-work003-approve-retro`、`commands/reopened-work003-final-status`、`commands/reopened-work003-final-stats`，四项均 exit 0；approve revision 40，CLI 主体 shushu、Work succeeded、next 为空，不声称独立真人认证。最终 stats approvals=1、blocked_count=1、total_seconds=8896；时长包括 gate 等待，不作模型成本。
+
+批准前档案与独立报告保持原样；最终批准、当前终态与 T16 完成资格另作补核。用户本轮批准不授权提交、对外发布、安装宿主、清理管理根或补跑历史验证；T17 保持 not_run，已有 M1/SK/Linux/完整变异及 usage 限制不改。
+
+最终独立报告 `reopened-session/final-review.md` 结论通过，限定 plan §5 的本机实际场景；Work003 批准前阻断已消除，T16 收尾为 done。最终 `work list` 六个 Work 均 succeeded；未走的 fix 分支不作为新的 next 或失败。`fix-gate-input-recheck.json` 独立核修复后门禁的 277 个非 C002 package 输入 SHA256 全匹配，含 Rust、测试、依赖、配置、Workbook、skill 和合同，不因纯会话续接重跑完整工程测试。usage=null、引擎 0.1.0 身份、手动 skill、Host 窗口访问限制与旧 M1/SK/Linux 缺失仍保留；本轮不提交或发布。
+
+更新状态后的 `reopened-session/final-checks.json` 保存 docs/specs/diff-check 和正式 `scripts/check-task.sh C002-T16 82c6c55` 全部 exit 0；原批准前 exit 1 不改。没有暂存提交，因此此处是工作区任务门禁，不冒充 `--staged` 或提交成功。
+
+最终阶段档案包含 104 个普通文件，逐字回读一致；SHA256 与入口见 [README](README.md)。其原文保留批准前/后两份独立报告、全部 reopened CLI、实际答复及最终门禁，不覆盖原待批准快照。临时管理根、演练项目和二进制保留用于只读核验，本轮不执行 purge。
+
+### T16 提交收尾
+
+用户随后要求继续执行直到 C002 全部完成，本地任务按计划进入提交循环。T16 的代码、测试、依赖、配置、Workbook、skill 与合同输入仍匹配修复后原运行；复用 `fix-gates/results.json` 的 fmt/check/Clippy、688/688、5/5 及附加工程门禁，依据是最终独立 audit 核实的 277 项实际 SHA256，而不是沿用旧 HEAD 的测试标签。提交前重新运行文档、规格、diff 与 staged task gate；实际结果及提交由下次交接与 Git trailer 定位。既有「未提交」保留为各阶段时点事实，不改写原快照。
