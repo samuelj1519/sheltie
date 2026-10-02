@@ -1,6 +1,6 @@
 # C005 验证
 
-Candidate: `8d00a29e10810c79bb5b44bdc006dc021e26637b`
+Candidate: `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`
 
 状态：`active`。以下机制表为预定 oracle。T01 已有部分执行记录，正式骨架、M1、公开功能及真实使用尚未验收。
 
@@ -43,7 +43,7 @@ Candidate: `8d00a29e10810c79bb5b44bdc006dc021e26637b`
 
 采用后执行前固定候选、工具链、格式、Workbook 摘要、fixtures、features、环境与过滤器。复用需要相同输入闭包和原 run ID；executed/reused/covered 是模式，不能充当 PASS。
 
-| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| 采用前预定义务 | 采用前状态 | 当时输入 | 当时预定执行 | 当时结果 | 说明 |
 | --- | --- | --- | --- | --- | --- |
 | 状态、计数及历史 caller | not_run | 待采用固定 | 未执行 | not_run | 无 |
 | 事务、重放与故障恢复 | not_run | 待 T02 固定 | 未执行 | not_run | 无 |
@@ -125,3 +125,36 @@ T02 全 cached whitespace 检查 exit2，仅 gates.txt:3 的原 fmt 空上下文
 技能区分普通继续与撤销资格，规定新执行者开始前由操作者确认旧已停止或新环境已隔离；可以先撤销正式资格，不升级为引擎停止/隔离保证。独立 Reviewer 限定范围 PASS；不覆盖真实产品净收益。
 
 [首次技能消费者](evidence/t03/skill-consumers.txt) run `d54560df-a0a3-4f1d-8009-714fe09e4f27` 为 9/9 PASS；文案两处修正后 [最终消费者](evidence/t03/skill-consumers-revised.txt) run `e2e42412-cead-461e-a4fc-d11cbf0acf4c` 为 9/9 PASS、1 LEAK unknown（generated_reference_keeps_authority_prose_verbatim）。原文分别保留，不重复计成不同用例或洗掉信号。check-skill/docs/specs/diff通过；无所属Rust测试，不运行零测试task.sh，也不重跑未受影响134秒引擎全门禁。原工具版本与fresh缓存边界保持。
+
+## 最终限定实现验收表
+
+候选 d8d8c20。与 T02 提交668f222相比，Rust code/tests、Cargo/lock、fixtures、配置、编译时include与工具环境均未变；only skills文案和package记录变化。按实际消费者分组：引擎/CLI/恢复/格式原run完全引用；被改变的技能另跑9项当前消费者；当前治理文件另检查。不是同一whole consumer hash，不能把T02全体输入宣称与T03完全相同。此前272file hash包含plan/skill等，域和分组区别保持。
+
+| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| 原子替换、一次额度、真实失败及历史前缀 | executed | T02代码/测试/fixtures/config/Cargo未变，26基础与11feature均含最终回归 | 4b8d6190-d811-4235-9faf-c5ff24f4b84f；94fb155a-080a-44a5-b6ef-1fe3632ab473 | PASS | [774原文](evidence/t02/gates-revised.txt)、[11feature](evidence/t02/feature-revised.txt) |
+| 冻结输入/FD/严格归属/重放/并发/原字节恢复 | executed | 同一Runtime/core code、fixture、features和环境；无后续source变化 | 同774原run；独立M1及T02定向原run | PASS | [验证原文](evidence/t02/gates-revised.txt)、[独立历史](evidence/t01/independent-runtime-history.txt) |
+| CLI/next/错误优先级及所有冻结oracle | executed | c949新基准，仅删11ignore，六份tests/assert/fixtures/snapshots未变 | 4b8d6190-d811-4235-9faf-c5ff24f4b84f；scope前后 | PASS | [新冻结修订](evidence/t04/status-card-red.txt)、[恢复证明](evidence/t02/draft-restore.json)、[完整门禁](evidence/t02/gates-revised.txt) |
+| 工程fmt/check/clippy与普通功能 | reused | Rust/Cargo/lock/config/features/toolchain/include输入未变；技能消费单独替换新证据 | T02同原run/fullgates，不重复134秒 | PASS | [工程原文](evidence/t02/gates-revised.txt) |
+| 缓存依赖风险/许可/来源 | reused | deny policy/Cargo graph/全部features/缓存快照与db-path无变更 | 同T02 cached deny，RustSec117edb3缓存 | PASS | [缓存结果](evidence/t02/gates-revised.txt) |
+| 技能、首次读者说明及前提/延期交接 | executed | T03新skill、preflight、同CLI和工具环境 | e2e42412-cead-461e-a4fc-d11cbf0acf4c，9/9；check-skill/docs/spec | PASS | [新消费者](evidence/t03/skill-consumers-revised.txt)、[前提](evidence/t03/preflight.json)、[runbook](experiments/runbook.md) |
+| 声明MSRV编译兼容 | executed | 本机1.85.0/macOS arm64、同lockedCargo全部targets/features；隔离target与wrapper | cargo +1.85.0 check --locked --all-targets --all-features，exit0 | PASS | [MSRV原文](evidence/m2/msrv-check.txt) |
+
+## 原义务、未执行与未知（不进入PASS表）
+
+| 义务 / 信号 | 当前结果 | 原因与补全条件 | 保证边界 |
+| --- | --- | --- | --- |
+| 真实撤销/接手/约束/完整投入与用户接受 | not_run / authorized_defer | 未提供真实Work、撤销事件、旧新actor/宿主处置/接受原件；补后按runbook执行 | 夹具、说明和机制不等于价值 |
+| nextest0.9.145要求的原版本门禁 | not_run | 原命令exit92；实际0.9.140override已执行 | 不称正确版本已跑 |
+| online fresh advisory | not_run | 复用已有缓存快照，不伪称在线最新 | 当前cached结果仅对应固定HEAD |
+| 其他平台及Rust1.85测试执行 | not_run | 已补macOS arm64/Rust1.85编译；测试实际由1.98.1执行，其他平台延期 | 不称跨平台或1.85测试已跑 |
+| 局部与T01/T03的LEAK | unknown | 4条不同原run/case记录保留，未定位；最终T02干净不能证明过去无残留 | 测试断言PASS不等于永久无泄漏 |
+| 两次cached原文whitespace检查 | raw_diagnostic_exception | 原工具上下文/尾空格保留，明确knownraw例外后的作者范围PASS | 不把作者范围称全cached通过 |
+
+真实使用延期仅来自本轮用户授权，不删原产品实验义务。M2独立限定结论已追加；完成记录不授权发布、安装或宿主变更。
+
+## C005-M2 最终独立限定验收
+
+Reviewer `/root/independent_review` 未参与实现/oracle，固定完整候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`：限定 `PASS`。EX01–08、完整caller、计数/历史、同FD输入、事务恢复、冻结oracle与准确说明已核。按消费者复用同源T02的774原run与T03新9技能run，不称同whole闭包重跑。真实撤销价值、原nextest版本、onlinefresh、其他平台与永久无leak不在PASS范围，全部原失败和raw空格例外保留。
+
+补充本机实际已安装Rust1.85.0，执行隔离target/wrapper的 [locked全targets/features编译](evidence/m2/msrv-check.txt) exit0、6.14s；不是1.85上的测试执行，也没有改源码或依赖。当前docs/specs/tests/skill及作者diff/scope另行检查，M2仅记录。

@@ -53,3 +53,9 @@ Reviewer 确认 T04 可提交。全 cached whitespace 检查的两份原始输�
 ## C005-T03 短审
 
 独立 Reviewer：限定范围 `PASS`。已完成机制与真实not_run分开，接手前操作者确认停止/隔离、不升级引擎保证；真实字段全null且授权延期，原义务仍保留。修后9技能消费者和治理检查通过，新LEAK unknown另记；代码/oracle未变。范围只覆盖说明与交接，不覆盖真实撤销价值。
+
+## C005-M2 最终结论
+
+结论：`PASS`（限定实现、说明、前提盘点与授权延期交接）。候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`，独立Reviewer没有编写该代码、设计或oracle。完整EX01–08和caller、number/failed/quota、历史/输入/并发/事务/恢复/严格载荷及首次读者说明已审，未发现剩余必改。
+
+同消费者闭包的T02代码774/774原run、当前T03技能9/9和治理证据分别引用，未声称whole input相同；M1未变基础不重复长跑。真实撤销与收益not_run，原工具版本/onlinefresh/其他平台及LEAK unknown保留；原语、静态PASS或gate不能代替价值，不推导发布或永久无泄漏。补充Rust1.85 locked全targets/features编译已执行通过，测试工具链边界保持。
