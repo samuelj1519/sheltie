@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace == with != in WorkbookRepo::load_checked_request
+@@ -560,17 +560,17 @@
+                         operation,
+                     ) {
+                         let current = self.store.inspect_request(request_id)?;
+                         match current {
+                             Some(current)
+                                 if current.published
+                                     && current.intent_hash == row.intent_hash
+                                     && current.reply_json == row.reply_json
+-                                    && current.effects_json == row.effects_json
++                                    && current.effects_json != /* ~ changed by cargo-mutants ~ */ row.effects_json
+                                     && current.work_id == row.work_id
+                                     && current.at == row.at =>
+                             {
+                                 row = current;
+                             }
+                             _ => return Err(owner_error),
+                         }
+                     }

@@ -1,0 +1,32 @@
+{
+  "exit": 2,
+  "argv": [
+    "cargo",
+    "mutants",
+    "-p",
+    "sheltie-runtime",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--timeout",
+    "300",
+    "--test-tool",
+    "nextest",
+    "--test-package",
+    "sheltie-cli",
+    "--cargo-arg=--package=sheltie-cli@0.1.0",
+    "--exclude",
+    "crates/*/src/testkit.rs",
+    "--output",
+    "target",
+    "--re",
+    "^(?:crates/sheltie\\-runtime/src/selfmgmt\\.rs:34:9:\\ replace\\ ReleaseSource::is_local\\ \\->\\ bool\\ with\\ true|crates/sheltie\\-runtime/src/selfmgmt\\.rs:34:43:\\ replace\\ \\&\\&\\ with\\ \\|\\|\\ in\\ ReleaseSource::is_local|crates/sheltie\\-runtime/src/selfmgmt\\.rs:42:23:\\ replace\\ ==\\ with\\ !=\\ in\\ ReleaseSource::manifest_url|crates/sheltie\\-runtime/src/selfmgmt\\.rs:52:23:\\ replace\\ ==\\ with\\ !=\\ in\\ ReleaseSource::asset_url|crates/sheltie\\-runtime/src/selfmgmt\\.rs:474:9:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ checked_version|crates/sheltie\\-runtime/src/selfmgmt\\.rs:473:9:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ checked_version|crates/sheltie\\-runtime/src/selfmgmt\\.rs:493:9:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ checked_asset_name|crates/sheltie\\-runtime/src/selfmgmt\\.rs:490:9:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ checked_asset_name|crates/sheltie\\-runtime/src/selfmgmt\\.rs:489:9:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ checked_asset_name)$",
+    "--",
+    "-E",
+    "(package(=sheltie-cli) & (binary(=self_cmd) | binary(=remote_update))) & !test(=remote_update_accepts_exact_stream_limits_and_preserves_state_on_one_more_byte) & !test(=remote_update_accepts_exact_asset_limit_and_rejects_one_more_byte)",
+    "--no-tests=fail"
+  ],
+  "seconds": 65.46944308280945
+}

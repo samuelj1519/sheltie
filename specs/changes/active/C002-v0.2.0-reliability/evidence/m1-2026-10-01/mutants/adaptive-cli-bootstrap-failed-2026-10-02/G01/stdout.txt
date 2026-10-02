@@ -1,0 +1,80 @@
+Found 19 mutants to test
+FAILED   Unmutated baseline in 18s build + 0s test
+
+*** baseline
+
+*** /Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo nextest run --no-run --verbose --package=sheltie-runtime@0.1.0 --all-features
+warning: ignoring --test-threads because --no-run is specified
+   Compiling libc v0.2.189
+   Compiling proc-macro2 v1.0.107
+   Compiling serde_core v1.0.229
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling find-msvc-tools v0.1.13
+   Compiling shlex v2.0.1
+   Compiling vcpkg v0.2.15
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.4
+   Compiling pkg-config v0.3.34
+   Compiling bitflags v2.13.2
+   Compiling serde v1.0.229
+   Compiling winnow v1.0.4
+   Compiling foldhash v0.1.5
+   Compiling cc v1.4.7
+   Compiling camino v1.2.6
+   Compiling generic-array v0.14.7
+   Compiling thiserror v2.0.21
+   Compiling serde_json v1.0.151
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling hashbrown v0.15.5
+   Compiling memchr v2.8.3
+   Compiling winnow v0.7.15
+   Compiling itoa v1.0.18
+   Compiling toml_writer v1.1.2+spec-1.1.0
+   Compiling hashlink v0.10.0
+   Compiling smallvec v1.16.1
+   Compiling log v0.4.34
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling libsqlite3-sys v0.35.0
+   Compiling fallible-iterator v0.3.0
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling errno v0.3.14
+   Compiling cpufeatures v0.2.17
+   Compiling uzers v0.12.2
+   Compiling uuid v1.26.1
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling fs4 v0.13.1
+   Compiling tempfile v3.27.0
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling serde_spanned v1.1.1
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling sheltie-core v0.1.0 (/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-focused-source-95ciBS.tmp/crates/sheltie-core)
+   Compiling rusqlite v0.37.0
+   Compiling sheltie-runtime v0.1.0 (/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-focused-source-95ciBS.tmp/crates/sheltie-runtime)
+    Finished `test` profile [optimized] target(s) in 17.24s
+
+*** result: Success
+
+*** /Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo nextest run --verbose --package=sheltie-runtime@0.1.0 --all-features -E binary(=replay)\ |\ binary(=attempt)\ |\ binary(=scenario_gated_release)\ |\ test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot)\ |\ test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries)\ |\ test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic)\ |\ test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks)\ |\ test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open)\ |\ test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary)\ |\ test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes)\ |\ test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request)\ |\ test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original)\ |\ test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original)\ |\ test(=add_snapshot_target_is_bound_before_an_original_response_is_released)\ |\ test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress)\ |\ test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree) --no-tests=fail
+    Finished `test` profile [optimized] target(s) in 0.12s
+────────────
+ Nextest run ID 372c7b29-4ae4-42da-bdb5-721dfb8600a8 with nextest profile: default
+    Starting 0 tests across 16 binaries (317 tests skipped)
+────────────
+     Summary [   0.001s] 0 tests run: 0 passed, 317 skipped
+error: no tests to run
+
+*** result: Failure(4)
+
+ERROR cargo test failed in an unmutated tree, so no mutants were tested

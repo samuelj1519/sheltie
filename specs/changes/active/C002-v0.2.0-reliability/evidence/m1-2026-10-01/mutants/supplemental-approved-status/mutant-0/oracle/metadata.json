@@ -1,0 +1,449 @@
+{
+  "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+  "binary_sha256": "8d0545e4b6d7b199d40d4800af188f23aab55091fe40cdc908bc8c4faea84ac0",
+  "source": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-source",
+  "oracle_sha256": "3626700db4a282e1d532d7c7493c9fe3fb715ac61716446f772f2b546321e024",
+  "fixture_sha256": {
+    "examples/two-step/flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+    "examples/two-step/instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+    "examples/two-step/instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+    "examples/two-step/workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211",
+    "examples/gated-release/flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+    "examples/gated-release/instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+    "examples/gated-release/instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+    "examples/gated-release/workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+  },
+  "cases": [
+    {
+      "name": "submit_active",
+      "legal_status": {
+        "kind": "active"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        0,
+        11
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_terminal",
+      "legal_status": {
+        "kind": "succeeded"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "succeeded"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        11,
+        24
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_gate",
+      "legal_status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        24,
+        36
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_terminal_gate",
+      "legal_status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        36,
+        48
+      ],
+      "result": "PASS"
+    }
+  ],
+  "fact_observations": [
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_active/1",
+      "sha256": {
+        "before": "c4c87fb7703c1a753b1550fdd9dd368878b294673d7929faac281f3080f1c820",
+        "after": "c4c87fb7703c1a753b1550fdd9dd368878b294673d7929faac281f3080f1c820"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_active/2",
+      "sha256": {
+        "before": "eda611f5f463c70e2f60710e513b9ec447a16be2969159669d4bc86fa202e0f1",
+        "after": "eda611f5f463c70e2f60710e513b9ec447a16be2969159669d4bc86fa202e0f1"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/submit_active/3",
+      "sha256": {
+        "before": "e7783a8412d04916d3e666015e6a0b32c61a5ff94facd0abc71652e4dbbba1a8",
+        "after": "e7783a8412d04916d3e666015e6a0b32c61a5ff94facd0abc71652e4dbbba1a8"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_active/5",
+      "sha256": {
+        "before": "89d7d2d4207b2221df0d4c535c747208ab44de9bbbeea922b90cae6825094514",
+        "after": "89d7d2d4207b2221df0d4c535c747208ab44de9bbbeea922b90cae6825094514"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_terminal/0",
+      "sha256": {
+        "before": "6f7b1b951d713a76cdc1bd5797299bafc3d5ba4ce483f5b64b2da464aaa9f470",
+        "after": "6f7b1b951d713a76cdc1bd5797299bafc3d5ba4ce483f5b64b2da464aaa9f470"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_terminal/2",
+      "sha256": {
+        "before": "a1b5d4ce9cd34e19d61853c563f63787361fcaf9c9588a200e8b2baae5a965f4",
+        "after": "a1b5d4ce9cd34e19d61853c563f63787361fcaf9c9588a200e8b2baae5a965f4"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/submit_terminal/3",
+      "sha256": {
+        "before": "2396f1529d8ece0967865e5dc96014811cc87905cfbe376a277d4f56d1578442",
+        "after": "2396f1529d8ece0967865e5dc96014811cc87905cfbe376a277d4f56d1578442"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_terminal/4",
+      "sha256": {
+        "before": "cbf8a596c24b4ba4af051eec49d2a8b8e742170de3bdd3696d661f3f8a2c46c2",
+        "after": "cbf8a596c24b4ba4af051eec49d2a8b8e742170de3bdd3696d661f3f8a2c46c2"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_terminal/5",
+      "sha256": {
+        "before": "73fd5d4d05573e0a219041b56140b9c4d13fe2cff45b2f1e5c3027020bb971af",
+        "after": "73fd5d4d05573e0a219041b56140b9c4d13fe2cff45b2f1e5c3027020bb971af"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_gate/0",
+      "sha256": {
+        "before": "dc5a17fc8678304e371e17e5db1328ae38ee387c38bd35533977a3eb6640fba2",
+        "after": "dc5a17fc8678304e371e17e5db1328ae38ee387c38bd35533977a3eb6640fba2"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_gate/1",
+      "sha256": {
+        "before": "bbce4bc5218b9378a0c7436a49da435b61c630420beb9502f2361ec9c02b3f89",
+        "after": "bbce4bc5218b9378a0c7436a49da435b61c630420beb9502f2361ec9c02b3f89"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_gate/2",
+      "sha256": {
+        "before": "c2a95acc33a92e9e5e6542e9d618f05189a7e6660baa73849022bf8f3b512df1",
+        "after": "c2a95acc33a92e9e5e6542e9d618f05189a7e6660baa73849022bf8f3b512df1"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_gate/4",
+      "sha256": {
+        "before": "3935455116bf433ae67db813c625432d50dc95587ca615e37ee78f259b6491cf",
+        "after": "3935455116bf433ae67db813c625432d50dc95587ca615e37ee78f259b6491cf"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_gate/5",
+      "sha256": {
+        "before": "a274587d34f8138e3bdad0be39447692615688d1fcb0e14931e91cc66cd5a5b0",
+        "after": "a274587d34f8138e3bdad0be39447692615688d1fcb0e14931e91cc66cd5a5b0"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_terminal_gate/0",
+      "sha256": {
+        "before": "5fde5b2c070d86d2db3b34f4f133ae741f94372930b51899845a2d59f528e4d1",
+        "after": "5fde5b2c070d86d2db3b34f4f133ae741f94372930b51899845a2d59f528e4d1"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_terminal_gate/1",
+      "sha256": {
+        "before": "24c80f1c79075b00a7530f84d531654f266ddf3dd42351bfee4cab1ef20aea5c",
+        "after": "24c80f1c79075b00a7530f84d531654f266ddf3dd42351bfee4cab1ef20aea5c"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_terminal_gate/2",
+      "sha256": {
+        "before": "64df8214d4d25ebbd8119114edfcf829b003305e8221d0ca12f785c30837cf73",
+        "after": "64df8214d4d25ebbd8119114edfcf829b003305e8221d0ca12f785c30837cf73"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_terminal_gate/4",
+      "sha256": {
+        "before": "649e2d9874107e9cb5da44f6cdcdc2a6089076620dca9071fb373c8028f4fae3",
+        "after": "649e2d9874107e9cb5da44f6cdcdc2a6089076620dca9071fb373c8028f4fae3"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_terminal_gate/5",
+      "sha256": {
+        "before": "43a0374bd0113a0ee88033179f13b00b6522053314b59945e3e268152bada557",
+        "after": "43a0374bd0113a0ee88033179f13b00b6522053314b59945e3e268152bada557"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/approve_active/1",
+      "sha256": {
+        "before": "fce5b526d1d69fd750b9caf47e776cce3b664e4a420d9aceb5c191682b53e528",
+        "after": "fce5b526d1d69fd750b9caf47e776cce3b664e4a420d9aceb5c191682b53e528"
+      },
+      "equal": true
+    }
+  ],
+  "derived_fixtures": {
+    "submit_active": {
+      "flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+      "instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+      "instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+      "workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+    },
+    "submit_terminal": {
+      "flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+      "instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+      "instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+      "workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+    },
+    "submit_gate": {
+      "flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "submit_terminal_gate": {
+      "flows/default.toml": "dcf2f0e38abe207b6ee6f6cccfe75bc634db78cf1c792e1da4900af59ad814e5",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "approve_active": {
+      "flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    }
+  },
+  "complete": false,
+  "error": "AssertionError(('approve_active', {'kind': 'succeeded'}, 0, {'data': {'at': '2026-10-02T05:42:19Z', 'by': 'shushu', 'node': 'notes', 'occurrence': 1, 'replayed': True, 'work_status': {'kind': 'succeeded'}}, 'next': [{'args': {'node': 'archive', 'work': '2026-10-02-001-default'}, 'edge': 'main', 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'ok': True, 'request_id': 'status-approve', 'revision': 4}))"
+}

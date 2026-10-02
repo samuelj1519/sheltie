@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/m1-workbook-reread-oracle.py", line 47, in <module>
+    assert p.returncode==1 and value['ok'] is False and value['error']['code']=='STORE_CORRUPT',(case,p.returncode,value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('add-request_id', 0, {'data': {'digest': '3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679', 'flows': ['default'], 'id': 'cached-book', 'replayed': True, 'requires': [], 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'completed-b'})

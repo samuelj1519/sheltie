@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::traverse_root
+@@ -190,17 +190,17 @@
+         }
+         let mut current = slash;
+         let absolute = root.as_str().trim_start_matches('/');
+         let mut path_segments = Vec::new();
+         for segment in absolute.split('/') {
+             if segment.is_empty() {
+                 continue;
+             }
+-            if segment == "." || segment == ".." {
++            if segment == "." && /* ~ changed by cargo-mutants ~ */ segment == ".." {
+                 return Err(Error::InvalidRequest {
+                     reason: format!("管理根包含未规范化路径段 {segment}"),
+                 });
+             }
+             path_segments.push(segment.to_string());
+             let display = format!("/{}", path_segments.join("/"));
+             let next = match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+                 Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {

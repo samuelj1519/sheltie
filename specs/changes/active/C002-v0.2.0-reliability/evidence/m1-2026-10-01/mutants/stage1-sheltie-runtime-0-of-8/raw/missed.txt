@@ -1,0 +1,38 @@
+crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects
+crates/sheltie-runtime/src/effects.rs:290:56: replace match guard work_id == work with true in check_work_effects
+crates/sheltie-runtime/src/effects.rs:151:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:173:33: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:180:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:508:57: replace || with && in check_workbook_effects
+crates/sheltie-runtime/src/effects.rs:508:34: replace || with && in check_workbook_effects
+crates/sheltie-runtime/src/effects.rs:534:21: replace || with && in check_workbook_effects
+crates/sheltie-runtime/src/effects.rs:595:5: replace validate_workbook_identity -> Result<()> with Ok(())
+crates/sheltie-runtime/src/effects.rs:859:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error
+crates/sheltie-runtime/src/effects.rs:1012:5: replace verify_publish_final_state -> Result<()> with Ok(())
+crates/sheltie-runtime/src/effects.rs:1014:23: replace || with && in verify_publish_final_state
+crates/sheltie-runtime/src/effects.rs:1050:9: replace || with && in verify_publish_object
+crates/sheltie-runtime/src/effects.rs:1080:45: replace || with && in verify_start_input_references
+crates/sheltie-runtime/src/effects.rs:1107:5: replace verify_owned_digest -> Result<()> with Ok(())
+crates/sheltie-runtime/src/effects.rs:1146:27: replace || with && in delete_dir
+crates/sheltie-runtime/src/effects.rs:1153:13: replace || with && in delete_dir
+crates/sheltie-runtime/src/effects.rs:1166:8: delete ! in delete_dir
+crates/sheltie-runtime/src/effects.rs:1203:9: replace || with && in delete_dir
+crates/sheltie-runtime/src/effects.rs:1212:9: replace || with && in delete_dir
+crates/sheltie-runtime/src/effects.rs:1226:9: replace || with && in pending_internal_id
+crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id
+crates/sheltie-runtime/src/effects.rs:1224:9: replace || with && in pending_internal_id
+crates/sheltie-runtime/src/effects.rs:1299:46: replace || with && in validate_deleted_marker_file
+crates/sheltie-runtime/src/failpoint.rs:13:5: replace maybe_exit with ()
+crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())
+crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())
+crates/sheltie-runtime/src/failpoint.rs:144:5: replace cleanup_error -> std::io::Result<()> with Ok(())
+crates/sheltie-runtime/src/failpoint.rs:170:42: replace && with || in rendezvous
+crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous
+crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous
+crates/sheltie-runtime/src/fsx.rs:66:30: replace > with >= in ManagedRelPath::parent

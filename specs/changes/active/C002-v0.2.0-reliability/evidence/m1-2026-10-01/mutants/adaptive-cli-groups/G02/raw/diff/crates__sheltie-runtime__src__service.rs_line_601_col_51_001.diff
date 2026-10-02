@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/service.rs
++++ delete ! in WorkService::load_row
+@@ -593,17 +593,17 @@
+                         });
+                     }
+                     return Err(Error::NotFound {
+                         what: format!("Work {work} 的冻结副本 {}", frozen),
+                     });
+                 }
+                 crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state).map_err(
+                     |error| match error {
+-                        Error::NotFound { .. } if !location.pending_publish => {
++                        Error::NotFound { .. } if  /* ~ changed by cargo-mutants ~ */location.pending_publish => {
+                             Error::StoreCorrupt {
+                                 detail: format!("Work {work} 的已发布冻结副本文件缺失"),
+                             }
+                         }
+                         other => other,
+                     },
+                 )
+             })

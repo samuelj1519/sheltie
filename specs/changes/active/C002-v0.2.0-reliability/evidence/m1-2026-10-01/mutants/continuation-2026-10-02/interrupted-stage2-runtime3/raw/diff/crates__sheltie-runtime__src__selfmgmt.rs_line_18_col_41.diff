@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ replace * with /
+@@ -10,17 +10,17 @@
+ use serde::Deserialize;
+ use sheltie_core::digest::Sha256Hex;
+ use sheltie_core::path::AbsPath;
+ 
+ use crate::error::{Error, Result};
+ use crate::fsx::ManagedRelPath;
+ use crate::home::Home;
+ 
+-const MAX_TOOL_STDERR_BYTES: u64 = 1024 * 1024;
++const MAX_TOOL_STDERR_BYTES: u64 = 1024 / /* ~ changed by cargo-mutants ~ */ 1024;
+ 
+ /// 发布清单的来源。默认 GitHub Releases；测试用环境变量 `SHELTIE_RELEASE_BASE` 指向本地目录。
+ #[derive(Debug, Clone, PartialEq, Eq)]
+ pub struct ReleaseSource {
+     pub base: String,
+ }
+ 
+ impl ReleaseSource {

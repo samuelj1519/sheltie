@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace || with && in WorkbookRepo::publication_for_row
+@@ -722,17 +722,17 @@
+             return Err(Error::StoreCorrupt {
+                 detail: format!("Workbook add请求 {request_id} 应有且仅有一条audit"),
+             });
+         };
+         if request.work_id.is_some()
+             || !audit.work_id.is_empty()
+             || audit.revision != 0
+             || audit.at != row.added_at
+-            || request.at != row.added_at
++            && /* ~ changed by cargo-mutants ~ */ request.at != row.added_at
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("Workbook {owner} 的workbooks.added_at与当前add审计不一致"),
+             });
+         }
+         let snapshot: AddedSnapshot =
+             serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
+                 detail: format!("Workbook add请求 {request_id} snapshot解不开：{error}"),

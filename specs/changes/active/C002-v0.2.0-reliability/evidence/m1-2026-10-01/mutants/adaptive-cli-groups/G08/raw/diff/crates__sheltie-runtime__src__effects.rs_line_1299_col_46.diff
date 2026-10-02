@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace || with && in validate_deleted_marker_file
+@@ -1291,17 +1291,17 @@
+         return Err(Error::StoreCorrupt {
+             detail: format!("删除marker {marker_path} 缺少结尾换行"),
+         });
+     }
+     let marker: DeletedMarker =
+         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
+             detail: format!("删除marker {marker_path} JSON无效：{error}"),
+         })?;
+-    if marker.format != "delete-complete/v1" || marker.internal_id != internal_id {
++    if marker.format != "delete-complete/v1" && /* ~ changed by cargo-mutants ~ */ marker.internal_id != internal_id {
+         return Err(Error::StoreCorrupt {
+             detail: format!("删除marker {marker_path} 与本请求internal_id不一致"),
+         });
+     }
+     let mut expected = serde_json::to_vec(&DeletedMarker {
+         format: "delete-complete/v1".to_string(),
+         internal_id: internal_id.to_string(),
+     })

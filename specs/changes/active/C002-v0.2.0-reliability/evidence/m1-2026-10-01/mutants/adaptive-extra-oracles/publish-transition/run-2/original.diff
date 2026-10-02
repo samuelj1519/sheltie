@@ -1,0 +1,26 @@
+--- crates/sheltie-runtime/src/service.rs
++++ replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with false in WorkService::workbook_publication
+@@ -759,22 +759,17 @@
+         }
+         if !request.published {
+             match verify_pending_owner(&self.home, segments[1], request_id, "start_work") {
+                 Ok(()) => {}
+                 Err(owner_error) => {
+                     let current = self.store.inspect_request(request_id)?;
+                     match current {
+                         Some(current)
+-                            if current.published
+-                                && current.intent_hash == request.intent_hash
+-                                && current.reply_json == request.reply_json
+-                                && current.effects_json == request.effects_json
+-                                && current.work_id == request.work_id
+-                                && current.at == request.at =>
++                            if false /* ~ changed by cargo-mutants ~ */ =>
+                         {
+                             request = current;
+                         }
+                         _ => return Err(owner_error),
+                     }
+                 }
+             }
+         }

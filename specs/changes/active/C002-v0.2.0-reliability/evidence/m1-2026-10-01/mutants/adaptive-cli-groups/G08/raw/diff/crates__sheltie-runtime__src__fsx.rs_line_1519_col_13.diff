@@ -1,0 +1,25 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ delete match arm FileType::Symlink in sync_dir_tree
+@@ -1511,21 +1511,17 @@
+             FileType::RegularFile => {
+                 check_regular_stat(&child_display, &stat)?;
+                 let path = AbsPath::new(child_display.clone()).map_err(Error::Core)?;
+                 let file = open_regular_at(directory, &name, &child_display, path)?;
+                 crate::failpoint::sync_error(root, "publish_file_sync")
+                     .map_err(|error| Error::io(&child_display, error))?;
+                 fsync(&file.file).map_err(|error| map_fs_error(&child_display, error))?;
+             }
+-            FileType::Symlink => {
+-                return Err(Error::InvalidRequest {
+-                    reason: format!("{child_display} 是符号链接"),
+-                });
+-            }
++             /* ~ changed by cargo-mutants ~ */
+             _ => {
+                 return Err(Error::InvalidRequest {
+                     reason: format!("{child_display} 是特殊文件"),
+                 });
+             }
+         }
+     }
+     let point = if is_root {

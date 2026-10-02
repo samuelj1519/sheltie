@@ -354,7 +354,7 @@ scripts/mutants.sh sheltie-core --all-features --test-workspace true --copy-vcs 
 
 cargo-mutants 27.1的索引从0开始，按0/4至3/4、core/runtime分别运行；可按实际机器能力调整片数，但必须证明集合无漏无重。每片结束先保存target/mutants.out的日志/JSON到本片evidence再运行下一片，避免覆盖。先验证未变异baseline绿与真实binary来自该副本；Git元数据/fixture指向不正确时停止这片。旧候选的1137只是历史列表，当前生成数以当前输入为准，不能据此挑少数当完整突变。
 
-执行顺序可先跑变异crate的完整直接合同/API测试，再把全部存活体（以及无法判断的超时体）送全workspace真实入口复验。两阶段都必须保存同候选input closure、完整清单和逐mutant结果；第二阶段不能漏掉任何第一阶段存活体。已被独立直接oracle捕获的突变无需重复全workspace；这是测试排序优化，不是抽样或排除mutation。最终caught必须注明在哪一阶段，存活仍逐项处置。
+执行顺序可先跑变异crate的完整直接合同/API测试，再把全部存活体（以及无法判断的超时体）送全workspace真实入口复验。两阶段都必须保存同候选input closure、完整清单和逐mutant结果；第二阶段的每项验证义务不能遗漏。2026-10-02用户采用精简流程：有精确独立处分证明的项不再机械重复全workspace；其他项按真实consumer选择直接oracle或相关测试组，无法明确影响范围的项再做全workspace。每个ID的原始结果与最终处分必须完整，未执行模式不记测试通过。已被独立直接oracle捕获的突变无需重复全workspace；这是测试排序优化，不是抽样或排除mutation。最终caught必须注明在哪一阶段，存活仍逐项处置。
 
 每个存活体记录函数/变异diff、影响能力、真实consumer、现有oracle为什么漏、补测或等价/无当前义务理由、Reviewer处置。等价或不适用不是测试PASS；超时/不可构建另记，不能静默当caught。中断后只从同输入闭包且raw run可追踪的片续接；改生产代码先重新核哪些片输入失效。
 
@@ -362,6 +362,6 @@ cargo-mutants 27.1的索引从0开始，按0/4至3/4、core/runtime分别运行�
 
 先确认主plan T18–T31均满足各自门槛，固定最终commit与输入闭包。Reviewer按照repair-validation的R01–R20矩阵及原O01–O13/N01–N14逐行复核；不把task done当证据，不把T31自己的自查当独立M1。
 
-按原M1门禁在同候选跑Rust四门禁、deny、docs/specs/core-vocab/tests/skill、MSRV和 `dist plan --output-format=json`。已有同闭包raw run可复用时写清executed/reused及相同输入证据；有代码/fixture/feature/工具链变更就按影响链重验。完整窗口和mutant处置缺失时M1不能通过。
+按原M1门禁在同候选跑Rust四门禁、deny、docs/specs/core-vocab/tests/skill、MSRV和 `dist plan --output-format=json`。已有同闭包raw run可复用时写清executed/reused及相同输入证据；有代码/fixture/feature/工具链变更就按影响链重验。完整窗口和mutant处置缺失时M1不能通过；用户明确授权的实际平台暂停及Linux例外按plan单独列明，保留缺失，不记完整验证PASS。
 
 最终review.md只写通过/需修改/阻断，并链接本轮候选与原始输出；validation保留旧FAIL与新证据，progress写下一入口。M1通过只代表源码与离线可靠性闭环，T16真实Host/usage和T17发布授权/四平台资产必须分别完成。

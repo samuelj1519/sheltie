@@ -1,0 +1,258 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/two-step"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook effect\u7684id\u4e0d\u5408\u6cd5\uff1aworkbook_id \u7684\u503c \\\"bad_\\\" \u4e0d\u5408\u89c4\uff1a\u53ea\u80fd\u542b a-z\u30010-9 \u4e0e -\"},\"next\":[],\"ok\":false,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-uwmxh013/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/two-step"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook effect\u7684version \\\"invalid_\\\" \u4e0d\u7b26\u5408\u5408\u540c\"},\"next\":[],\"ok\":false,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-ax4gqlck/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/two-step"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook effect\u7684version \\\".staging\\\" \u4e0d\u7b26\u5408\u5408\u540c\"},\"next\":[],\"ok\":false,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-agw3v7ub/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/two-step"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook effect\u7684version \\\"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\\\" \u4e0d\u7b26\u5408\u5408\u540c\"},\"next\":[],\"ok\":false,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/home",
+      "--json",
+      "--request-id",
+      "identity-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-workbook-oracle-__kqg71r/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"identity-add\"}\n",
+    "stderr": ""
+  }
+]

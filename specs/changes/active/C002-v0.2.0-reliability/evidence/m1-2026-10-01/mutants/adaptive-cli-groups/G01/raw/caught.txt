@@ -1,0 +1,2 @@
+crates/sheltie-runtime/src/store/read.rs:206:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(None))
+crates/sheltie-runtime/src/store/read.rs:206:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(None)

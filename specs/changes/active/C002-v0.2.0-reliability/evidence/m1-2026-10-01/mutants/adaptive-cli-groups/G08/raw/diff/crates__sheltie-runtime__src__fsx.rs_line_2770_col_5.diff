@@ -1,0 +1,22 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace verify_managed_tree_at -> Result<()> with Ok(())
+@@ -2762,18 +2762,17 @@
+     ManagedFs::open_existing(home)?.open_tree_locked(lock, &rel)
+ }
+ 
+ pub(crate) fn verify_managed_tree_at(
+     home: &crate::home::Home,
+     tree: &ManagedTree,
+     path: &str,
+ ) -> Result<()> {
+-    let rel = ManagedRelPath::new(path)?;
+-    ManagedFs::open_existing(home)?.verify_tree_at(tree, &rel)
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ pub(crate) fn sync_managed_tree(
+     home: &crate::home::Home,
+     lock: &crate::home::HomeLock,
+     tree: &ManagedTree,
+ ) -> Result<()> {
+     ManagedFs::open_existing(home)?.sync_managed_tree(lock, tree)

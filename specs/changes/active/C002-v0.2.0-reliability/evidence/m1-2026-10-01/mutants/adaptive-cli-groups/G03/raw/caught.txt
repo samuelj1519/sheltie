@@ -1,0 +1,9 @@
+crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with true in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:206:29: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Symlink with false in ManagedFs::traverse_root
+crates/sheltie-runtime/src/store/mod.rs:307:9: replace Store::verify_owner_binding -> Result<()> with Ok(())
+crates/sheltie-runtime/src/store/mod.rs:323:47: replace || with && in Store::verify_owner_binding
+crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 1))
+crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 0)
+crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (0, 1)
+crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 0)
+crates/sheltie-runtime/src/store/mod.rs:376:5: replace file_identity -> (u64, u64) with (1, 1)

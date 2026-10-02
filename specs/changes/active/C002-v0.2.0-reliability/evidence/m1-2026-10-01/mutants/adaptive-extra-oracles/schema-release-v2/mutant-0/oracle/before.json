@@ -1,0 +1,74 @@
+{
+  "files": {
+    "works/2026-10-02-001-default/start-inputs/topic": "71ad7238ad4389cd0a8209aafa2ba045ea66309d31503e88feb3ae181dc32f8b",
+    "works/2026-10-02-001-default/status-card.md": "f155046b5b87db108650711cb50bccf1c160b0f71261c296c13f60bfa73793a5",
+    "works/2026-10-02-001-default/workbook/flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+    "works/2026-10-02-001-default/workbook/instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+    "works/2026-10-02-001-default/workbook/instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+    "works/2026-10-02-001-default/workbook/workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+  },
+  "rows": {
+    "audit": [
+      "(1, '', 0, '01a0fb43-53c0-7749-98cd-88a5226ec382', 'shushu', '{\"intent\":\"add_workbook\",\"source\":\"d3fdf16fd54f0489b52a50bf026bea2f6b0f2b4eb334de1bf7bfe396aa64f3dc\"}', '2026-10-02T06:18:08Z')",
+      "(2, '2026-10-02-001-default', 1, '01a0fb43-5433-7446-9dab-63889fb8b002', 'shushu', '{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"topic\":{\"bytes\":10,\"path\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default/start-inputs/topic\",\"sha256\":\"71ad7238ad4389cd0a8209aafa2ba045ea66309d31503e88feb3ae181dc32f8b\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}}', '2026-10-02T06:18:08Z')"
+    ],
+    "requests": [
+      "('01a0fb43-53c0-7749-98cd-88a5226ec382', 'd3fdf16fd54f0489b52a50bf026bea2f6b0f2b4eb334de1bf7bfe396aa64f3dc', None, '{\"request_id\":\"01a0fb43-53c0-7749-98cd-88a5226ec382\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}', '[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4353df72aab95f8aaea4355707/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]', 1, '2026-10-02T06:18:08Z')",
+      "('01a0fb43-5433-7446-9dab-63889fb8b002', 'ce77849226e42bc8d42d471f1a4fdfee34a263098c11219c2f0c382f8d3a2391', '2026-10-02-001-default', '{\"request_id\":\"01a0fb43-5433-7446-9dab-63889fb8b002\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-02-001-default\",\"work_dir\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}', '[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb43545676c2a51ec655b5697c2c/payload\",\"final\":\"works/2026-10-02-001-default\",\"owner\":\"work:2026-10-02-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-02-001-default\"}]', 1, '2026-10-02T06:18:08Z')"
+    ],
+    "sqlite_sequence": [
+      "('audit', 2)"
+    ],
+    "work_sequence": [
+      "('2026-10-02', 1)"
+    ],
+    "workbooks": [
+      "('two-step', '1.0.0', 'db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549', 'workbooks/two-step/1.0.0', '2026-10-02T06:18:08Z')"
+    ],
+    "works": [
+      "('2026-10-02-001-default', 1, 'active', '{\"work_id\":\"2026-10-02-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"two-step\",\"version\":\"1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default\",\"inputs\":{\"topic\":{\"path\":\"/private/tmp/m1-extra-schema-26o1mjcw/home/works/2026-10-02-001-default/start-inputs/topic\",\"sha256\":\"71ad7238ad4389cd0a8209aafa2ba045ea66309d31503e88feb3ae181dc32f8b\",\"bytes\":10}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"outline\",\"n\":1},\"visits\":{\"outline\":1},\"attempts\":[],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-02T06:18:08Z\",\"updated_at\":\"2026-10-02T06:18:08Z\"}', '2026-10-02T06:18:08Z', '2026-10-02T06:18:08Z')"
+    ]
+  },
+  "schema": [
+    [
+      "audit",
+      "CREATE TABLE audit (\n  seq          INTEGER PRIMARY KEY AUTOINCREMENT,\n  work_id      TEXT NOT NULL,\n  revision     INTEGER NOT NULL,\n  request_id   TEXT NOT NULL,\n  principal    TEXT NOT NULL,\n  command_json TEXT NOT NULL,\n  at           TEXT NOT NULL\n)"
+    ],
+    [
+      "requests",
+      "CREATE TABLE requests (\n  request_id   TEXT PRIMARY KEY,\n  intent_hash  TEXT NOT NULL,\n  work_id      TEXT,\n  reply_json   TEXT NOT NULL,\n  effects_json TEXT NOT NULL,\n  published    INTEGER NOT NULL,\n  at           TEXT NOT NULL\n)"
+    ],
+    [
+      "sqlite_autoindex_requests_1",
+      null
+    ],
+    [
+      "sqlite_autoindex_work_sequence_1",
+      null
+    ],
+    [
+      "sqlite_autoindex_workbooks_1",
+      null
+    ],
+    [
+      "sqlite_autoindex_works_1",
+      null
+    ],
+    [
+      "sqlite_sequence",
+      "CREATE TABLE sqlite_sequence(name,seq)"
+    ],
+    [
+      "work_sequence",
+      "CREATE TABLE work_sequence (\n  day          TEXT PRIMARY KEY,\n  last         INTEGER NOT NULL\n)"
+    ],
+    [
+      "workbooks",
+      "CREATE TABLE workbooks (\n  id          TEXT NOT NULL,\n  version     TEXT NOT NULL,\n  digest      TEXT NOT NULL,\n  dir         TEXT NOT NULL,\n  added_at    TEXT NOT NULL,\n  PRIMARY KEY (id, version)\n)"
+    ],
+    [
+      "works",
+      "CREATE TABLE works (\n  work_id     TEXT PRIMARY KEY,\n  revision    INTEGER NOT NULL DEFAULT 0,\n  status      TEXT NOT NULL,\n  state_json  TEXT NOT NULL,\n  created_at  TEXT NOT NULL,\n  updated_at  TEXT NOT NULL\n)"
+    ]
+  ]
+}

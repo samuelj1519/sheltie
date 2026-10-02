@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace || with && in WorkbookRepo::publication_for_row
+@@ -684,17 +684,17 @@
+                                 detail: format!(
+                                     "Workbook add请求 {} snapshot身份无效：{error}",
+                                     audit.request_id
+                                 ),
+                             }
+                         })?;
+                     (
+                         (data.id == row.id && data.version == row.version)
+-                            || publisher_ids.contains(audit.request_id.as_str()),
++                            && /* ~ changed by cargo-mutants ~ */ publisher_ids.contains(audit.request_id.as_str()),
+                         true,
+                     )
+                 }
+                 WorkbookAuditCommand::RemoveWorkbook { target } => (
+                     target == &format!("{}@{}", row.id, row.version)
+                         || publisher_ids.contains(audit.request_id.as_str()),
+                     false,
+                 ),

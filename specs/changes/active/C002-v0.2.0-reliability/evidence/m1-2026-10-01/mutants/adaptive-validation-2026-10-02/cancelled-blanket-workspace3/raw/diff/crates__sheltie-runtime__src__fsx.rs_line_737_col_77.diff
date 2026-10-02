@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::sync_regular_file_handle_locked
+@@ -729,17 +729,17 @@
+         lock: &crate::home::HomeLock,
+         path: &ManagedRelPath,
+         file: &SafeFile,
+     ) -> Result<()> {
+         self.check_lock(lock)?;
+         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {
+             reason: format!("{} 不是受管文件句柄", file.path),
+         })?;
+-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {
++        if origin.root != self.root || origin.root_ident != self.root_ident && /* ~ changed by cargo-mutants ~ */ origin.rel != *path {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{} 的文件句柄身份与同步路径不一致", file.path),
+             });
+         }
+         let (parent, leaf) = self.open_parent(path)?;
+         verify_path_matches_handle(&parent, &leaf, file)?;
+         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {

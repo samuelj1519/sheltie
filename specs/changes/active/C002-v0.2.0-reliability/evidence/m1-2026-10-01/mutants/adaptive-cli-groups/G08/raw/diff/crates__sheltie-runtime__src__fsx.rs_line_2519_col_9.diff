@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ delete match arm FileType::Symlink in preflight_remove_at
+@@ -2511,17 +2511,17 @@
+     unlinkat(parent, leaf, AtFlags::empty()).map_err(|error| map_fs_error(display, error))?;
+     fsync(parent).map_err(|error| map_fs_error(display, error))
+ }
+ 
+ fn preflight_remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
+     let stat =
+         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;
+     match FileType::from_raw_mode(stat.st_mode) {
+-        FileType::Symlink => Ok(()),
++         /* ~ changed by cargo-mutants ~ */
+         FileType::RegularFile if stat.st_nlink == 1 => Ok(()),
+         FileType::RegularFile => Err(Error::InvalidRequest {
+             reason: format!(
+                 "{display} 是硬链接（nlink = {}），拒绝 purge",
+                 stat.st_nlink
+             ),
+         }),
+         FileType::Directory => {

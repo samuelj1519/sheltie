@@ -1,0 +1,37 @@
+{
+  "after": [
+    "extra-transition",
+    "b31f9e69bebdb10bbc276ac23591ae0e90f92d925e7b2f48e2723f70aafc5afe",
+    null,
+    "{\"request_id\":\"extra-transition\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+    "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4c26d27324bbac7c9b3187d867/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+    1,
+    "2026-10-02T06:27:47Z"
+  ],
+  "before": [
+    "extra-transition",
+    "b31f9e69bebdb10bbc276ac23591ae0e90f92d925e7b2f48e2723f70aafc5afe",
+    null,
+    "{\"request_id\":\"extra-transition\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}",
+    "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4c26d27324bbac7c9b3187d867/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]",
+    0,
+    "2026-10-02T06:27:47Z"
+  ],
+  "owner_after": false,
+  "owner_before": true,
+  "writer_reply": {
+    "data": {
+      "digest": "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+      "flows": [
+        "default"
+      ],
+      "id": "two-step",
+      "replayed": true,
+      "requires": [],
+      "version": "1.0.0"
+    },
+    "next": [],
+    "ok": true,
+    "request_id": "extra-transition"
+  }
+}

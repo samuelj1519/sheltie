@@ -1,0 +1,75 @@
+{
+  "scope": "Final package documentation and task-only scope. Whole C002 source review retains original a664e75 baseline. Default task gate compares previous task snapshots globally; explicit record-task baseline is final product e3eea899, no source/test changes allowed.",
+  "results": [
+    {
+      "name": "docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit": 0,
+      "seconds": 1.419,
+      "stdout_sha256": "d7877720fe6232f55539ac197d1ca8945809ce4055472673bf6a26d14fea9c95"
+    },
+    {
+      "name": "specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.396,
+      "stdout_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "task-default",
+      "argv": [
+        "scripts/check-task.sh",
+        "C002-M1"
+      ],
+      "exit": 1,
+      "seconds": 0.438,
+      "stdout_sha256": "bb797bc20c4482437becfee2d54313859917204c421846d9b5f3388746166890"
+    },
+    {
+      "name": "task",
+      "argv": [
+        "scripts/check-task.sh",
+        "C002-M1",
+        "e3eea899877165f8573befee3774555598ec92bd"
+      ],
+      "exit": 0,
+      "seconds": 0.179,
+      "stdout_sha256": "0fe699c3de506fde8611f8d47112171f6e5e33ce7153246d62f510bad33a3cf1"
+    }
+  ],
+  "final_results": [
+    {
+      "name": "docs-final",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit": 0,
+      "seconds": 1.393,
+      "stdout_sha256": "d7877720fe6232f55539ac197d1ca8945809ce4055472673bf6a26d14fea9c95"
+    },
+    {
+      "name": "specs-final",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.391,
+      "stdout_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "task-final",
+      "argv": [
+        "scripts/check-task.sh",
+        "C002-M1",
+        "e3eea899877165f8573befee3774555598ec92bd"
+      ],
+      "exit": 0,
+      "seconds": 0.31,
+      "stdout_sha256": "0fe699c3de506fde8611f8d47112171f6e5e33ce7153246d62f510bad33a3cf1"
+    }
+  ]
+}

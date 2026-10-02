@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/m1-started-work-id-oracle.py", line 36, in <module>
+    assert code==1 and error['ok'] is False,(code,error)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (0, {'data': {'flow': 'default', 'name': 'identity-check', 'replayed': True, 'requires': [], 'work_dir': '/private/tmp/m1-start-id-utzqy9ui/home/works/2026-10-02-001-identity-check', 'work_id': '2026-10-02-001-identity-check-other', 'workbook': {'digest': 'db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549', 'id': 'two-step', 'version': '1.0.0'}}, 'next': [{'args': {'node': 'outline', 'work': '2026-10-02-001-identity-check'}, 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-identity-check'}, 'op': 'work cancel'}], 'ok': True, 'request_id': 'start-id-oracle', 'revision': 1})

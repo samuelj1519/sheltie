@@ -1,0 +1,22 @@
+--- crates/sheltie-runtime/src/store/mod.rs
++++ replace Store::validate -> Result<()> with Ok(())
+@@ -326,18 +326,17 @@
+             });
+         }
+         Ok(())
+     }
+ 
+     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。
+     /// 结构校验通过的读写连接才设 WAL。
+     fn validate(&self) -> Result<()> {
+-        let conn = self.connect()?;
+-        check_schema(&conn)
++        Ok(()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。
+     pub fn allocate_seq(&self, day: &str) -> Result<u32> {
+         let mut conn = self.connect()?;
+         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+         tx.execute(
+             "INSERT INTO work_sequence (day, last) VALUES (?1, 1)\n  \

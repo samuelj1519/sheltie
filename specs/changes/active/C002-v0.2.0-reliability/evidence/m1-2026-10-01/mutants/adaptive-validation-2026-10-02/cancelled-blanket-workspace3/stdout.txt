@@ -1,0 +1,18 @@
+Found 45 mutants to test
+ok       Unmutated baseline in 19s build + 27s test
+MISSED   crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects in 37s build + 225s test
+MISSED   crates/sheltie-runtime/src/effects.rs:508:57: replace || with && in check_workbook_effects in 46s build + 230s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id in 57s build + 233s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1080:45: replace || with && in verify_start_input_references in 60s build + 233s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:28: replace | with ^ in ManagedDir::write_new in 7s build + 228s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:254:62: replace | with & in ManagedFs::open_lock_file in 7s build + 232s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:289:64: replace | with ^ in ManagedFs::open_existing_lock_file in 8s build + 231s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with String::new() in 9s build + 228s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:426:40: replace | with ^ in ManagedFs::ensure_dir_unlocked in 8s build + 234s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked in 7s build + 238s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:870:26: replace | with ^ in ManagedFs::write_new_observed_unlocked in 7s build + 237s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:952:28: replace | with ^ in ManagedFs::write_atomic_unlocked in 9s build + 235s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2235:5: replace validate_store_files_locked -> Result<()> with Ok(()) in 6s build + 208s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file in 7s build + 255s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1431:37: replace || with && in ManagedFs::set_mode in 6s build + 255s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1881:28: replace | with & in ExternalReadTree::open_file in 9s build + 256s test

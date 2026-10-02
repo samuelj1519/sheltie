@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/release-array.py", line 20, in <module>
+    assert c==0 and v['ok'],('SEMANTIC valid array release or invalid candidate filtering rejected',case,c,v)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('SEMANTIC valid array release or invalid candidate filtering rejected', 'malformed_length_then_valid', 1, {'error': {'code': 'UPDATE_UNAVAILABLE', 'detail': {'reason': '读不了发布包 /private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded：/private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded 不存在'}, 'message': '没有可用的更新：读不了发布包 /private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded：/private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded 不存在'}, 'next': [], 'ok': False})

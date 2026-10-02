@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/publish-transition.py", line 39, in <module>
+    assert child.returncode==0 and value['ok'],('SEMANTIC legitimate published-only transition rejected by stale readonly reader',value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('SEMANTIC legitimate published-only transition rejected by stale readonly reader', {'error': {'code': 'STORE_CORRUPT', 'detail': {'detail': 'pending/01a0fb4c20ab73fa99e836ade8a2036c.owner缺失或无效：/private/tmp/m1-extra-transition-2mkypzjk/home/pending/01a0fb4c20ab73fa99e836ade8a2036c.owner 不存在'}, 'message': '数据库内容损坏：pending/01a0fb4c20ab73fa99e836ade8a2036c.owner缺失或无效：/private/tmp/m1-extra-transition-2mkypzjk/home/pending/01a0fb4c20ab73fa99e836ade8a2036c.owner 不存在'}, 'next': [], 'ok': False})

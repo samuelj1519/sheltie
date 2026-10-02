@@ -1,0 +1,34 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace verify_owned_digest -> Result<()> with Ok(())
+@@ -1099,30 +1099,17 @@
+             });
+         }
+     }
+     Ok(())
+ }
+ 
+ /// 核对目录摘要与归属标记（侧车）；不符报 `STORE_CORRUPT`。
+ fn verify_owned_digest(home: &Home, dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
+-    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir)
+-        .map_err(|error| integrity_error(format!("发布原件 {dir} 摘要读取失败"), error))?;
+-    if got.as_str() != digest {
+-        return Err(Error::StoreCorrupt {
+-            detail: format!("发布原件 {dir} 的摘要与登记不符"),
+-        });
+-    }
+-    // 归属由 pending 侧车与 Store 引用共同承担；owner 串只做存在性核对。
+-    if owner.is_empty() {
+-        return Err(Error::StoreCorrupt {
+-            detail: "发布效果缺归属".to_string(),
+-        });
+-    }
+-    Ok(())
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// `delete_dir`（存储合同 §3.2/§3.3）：final或pending中只处理摘要与owner均匹配的
+ /// 登记对象；两处都缺时仅本请求的合法`.deleted` marker能证明完成。摘要不符、两端点
+ /// 同时存在或两端点与marker同时缺失都表示归属/结果不明，必须停止并保留现场。
+ fn delete_dir(
+     home: &Home,
+     lock: &crate::home::HomeLock,

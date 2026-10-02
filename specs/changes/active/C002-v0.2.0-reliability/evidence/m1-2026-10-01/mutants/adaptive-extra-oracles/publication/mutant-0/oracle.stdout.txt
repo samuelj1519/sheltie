@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/publication.py", line 39, in <module>
+    assert c==1 and v['error']['code']=='EFFECT_PENDING' and v['error']['detail']['cause']=='STORE_CORRUPT',('SEMANTIC mismatched payload identity accepted',kind,c,v)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('SEMANTIC mismatched payload identity accepted', 'manifest-id', 0, {'data': {'digest': '1d4694ea5b93bff6f26ce94f8c0b5ebbf23d40a048985bdb9a90a766c58a4dc9', 'flows': ['default'], 'id': 'two-step', 'replayed': True, 'requires': [], 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'extra-publication'})

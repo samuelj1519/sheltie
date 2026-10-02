@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "cargo",
+    "mutants",
+    "-p",
+    "sheltie-core",
+    "-p",
+    "sheltie-runtime",
+    "--list",
+    "--json",
+    "--exclude",
+    "crates/*/src/testkit.rs"
+  ],
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "count": 2514,
+  "packages": {
+    "sheltie-core": 743,
+    "sheltie-runtime": 1771
+  },
+  "sha256": "efb63f60dd1e3acd60553f49de5cd5f1a15948b8c8a59feda431df8279d7ad3f"
+}

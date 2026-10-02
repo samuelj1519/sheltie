@@ -1,0 +1,32 @@
+{
+  "exit": 2,
+  "argv": [
+    "cargo",
+    "mutants",
+    "-p",
+    "sheltie-runtime",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--timeout",
+    "300",
+    "--test-tool",
+    "nextest",
+    "--test-package",
+    "sheltie-cli",
+    "--cargo-arg=--package=sheltie-cli@0.1.0",
+    "--exclude",
+    "crates/*/src/testkit.rs",
+    "--output",
+    "target",
+    "--re",
+    "^(?:crates/sheltie\\-runtime/src/selfmgmt\\.rs:18:41:\\ replace\\ \\*\\ with\\ /|crates/sheltie\\-runtime/src/selfmgmt\\.rs:661:12:\\ delete\\ !\\ in\\ download|crates/sheltie\\-runtime/src/selfmgmt\\.rs:673:39:\\ replace\\ >\\ with\\ ==\\ in\\ download|crates/sheltie\\-runtime/src/selfmgmt\\.rs:673:39:\\ replace\\ >\\ with\\ >=\\ in\\ download|crates/sheltie\\-runtime/src/selfmgmt\\.rs:686:5:\\ replace\\ curl\\ \\->\\ std::result::Result<String,\\ String>\\ with\\ Ok\\(String::new\\(\\)\\)|crates/sheltie\\-runtime/src/selfmgmt\\.rs:686:5:\\ replace\\ curl\\ \\->\\ std::result::Result<String,\\ String>\\ with\\ Ok\\(\"xyzzy\"\\.into\\(\\)\\)|crates/sheltie\\-runtime/src/selfmgmt\\.rs:838:24:\\ replace\\ >\\ with\\ <\\ in\\ wait_bounded_child|crates/sheltie\\-runtime/src/selfmgmt\\.rs:838:24:\\ replace\\ >\\ with\\ >=\\ in\\ wait_bounded_child|crates/sheltie\\-runtime/src/selfmgmt\\.rs:855:24:\\ replace\\ >\\ with\\ <\\ in\\ wait_bounded_child|crates/sheltie\\-runtime/src/selfmgmt\\.rs:855:24:\\ replace\\ >\\ with\\ >=\\ in\\ wait_bounded_child|crates/sheltie\\-runtime/src/selfmgmt\\.rs:927:28:\\ replace\\ >\\ with\\ >=\\ in\\ wait_bounded_child)$",
+    "--",
+    "-E",
+    "package(=sheltie-cli) & (binary(=remote_update))",
+    "--no-tests=fail"
+  ],
+  "seconds": 68.5956358909607
+}

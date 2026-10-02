@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace || with && in decode_removed_snapshot
+@@ -61,17 +61,17 @@
+     Ok(s)
+ }
+ 
+ fn decode_removed_snapshot(request_id: &str, reply_json: &str) -> Result<RemovedSnapshot> {
+     let mut s: RemovedSnapshot =
+         serde_json::from_str(reply_json).map_err(|e| Error::StoreCorrupt {
+             detail: format!("requests 表里的响应解不开：{e}"),
+         })?;
+-    if s.request_id != request_id || s.replayed {
++    if s.request_id != request_id && /* ~ changed by cargo-mutants ~ */ s.replayed {
+         return Err(Error::StoreCorrupt {
+             detail: format!("Workbook remove请求 {request_id} 的历史snapshot身份无效"),
+         });
+     }
+     s.request_id = request_id.to_string();
+     s.replayed = true;
+     Ok(s)
+ }

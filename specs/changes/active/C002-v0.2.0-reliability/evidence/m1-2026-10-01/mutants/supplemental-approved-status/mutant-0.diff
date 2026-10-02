@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/service.rs
++++ delete match arm CheckedData::Approved(data) in validate_command_owner
+@@ -1169,17 +1169,17 @@
+     command: &Command,
+     snapshot: &Response,
+ ) -> Result<()> {
+     use crate::snapshot::CheckedData;
+ 
+     let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
+     let status = match &data {
+         CheckedData::Submitted(status) | CheckedData::Failed(status) => Some(*status),
+-        CheckedData::Approved(data) => Some(data.work_status),
++         /* ~ changed by cargo-mutants ~ */
+         _ => None,
+     };
+     if status.is_some_and(|status| {
+         !sheltie_core::work::reply_status_matches(&snapshot.reply, status, graph)
+     }) {
+         return Err(Error::StoreCorrupt {
+             detail: format!("请求 {request_id} 的snapshot状态与原操作不一致"),
+         });

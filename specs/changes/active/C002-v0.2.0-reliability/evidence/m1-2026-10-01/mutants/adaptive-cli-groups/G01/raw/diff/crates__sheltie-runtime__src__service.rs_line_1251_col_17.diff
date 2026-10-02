@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/service.rs
++++ replace && with || in validate_command_owner
+@@ -1243,17 +1243,17 @@
+         (
+             Command::FailAttempt { attempt, .. },
+             Reply::AttemptFailed {
+                 attempt: reply_attempt,
+             },
+             CheckedData::Failed(_),
+         ) => {
+             reply_attempt == attempt
+-                && state.attempt(attempt).is_some_and(|record| {
++                || /* ~ changed by cargo-mutants ~ */ state.attempt(attempt).is_some_and(|record| {
+                     record.status == sheltie_core::work::AttemptStatus::Failed
+                 })
+         }
+         (
+             Command::ApproveGate { node },
+             Reply::GateApproved {
+                 node: reply_node,
+                 occurrence,

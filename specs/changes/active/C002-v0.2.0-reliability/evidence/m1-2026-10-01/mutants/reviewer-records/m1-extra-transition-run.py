@@ -1,0 +1,27 @@
+import pathlib,json,hashlib,subprocess,os
+root=pathlib.Path('/Users/shushu/orca/workspaces/sheltie/codex');source=root/'target/m1-validation/extra-source';out=root/'specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles';man=json.loads((out.parent/'source-input.json').read_text());inv={x['name']:x for x in json.loads((out.parent/'inventory.json').read_text())};directory=out/'publish-transition';directory.mkdir();sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();save=lambda p,o:p.write_text(json.dumps(o,indent=2,sort_keys=True)+'\n');env=os.environ.copy();env.update(RUSTC_WRAPPER='',CARGO_TARGET_DIR=str(root/'target/m1-validation/extra-target'),CARGO_BUILD_JOBS='1',CARGO_NET_OFFLINE='true');paths=['crates/sheltie-runtime/src/workbook_repo.rs','crates/sheltie-runtime/src/service.rs'];original={p:(source/p).read_bytes() for p in paths};results=[]
+jobs=[('crates/sheltie-runtime/src/service.rs:767:32: replace match guard current.published && current.intent_hash == request.intent_hash && current.reply_json == request.reply_json && current.effects_json == request.effects_json && current.work_id == request.work_id && current.at == request.at with false in WorkService::workbook_publication','work'),('crates/sheltie-runtime/src/workbook_repo.rs:568:61: replace == with != in WorkbookRepo::load_checked_request','workbook'),('crates/sheltie-runtime/src/workbook_repo.rs:569:56: replace == with != in WorkbookRepo::load_checked_request','workbook'),('crates/sheltie-runtime/src/workbook_repo.rs:570:51: replace == with != in WorkbookRepo::load_checked_request','workbook')]
+addition='crate::failpoint::rendezvous("extra_before_owner_validation", request_id).map_err(|error| Error::io("extra owner observation", error))?;'
+def instrument(path,body):
+ text=body.decode()
+ if 'workbook_repo' in path:
+  needle='                if !row.published {\n                    if let Err(owner_error)';assert text.count(needle)==1;return text.replace(needle,'                if !row.published {\n                    '+addition+'\n                    if let Err(owner_error)').encode()
+ needle='        if !request.published {\n            match verify_pending_owner';assert text.count(needle)==1;return text.replace(needle,'        if !request.published {\n            '+addition+'\n            match verify_pending_owner').encode()
+save(directory/'closure.json',{'candidate':man['candidate'],'tools':{n:subprocess.check_output(a,cwd=source,text=True).strip() for n,a in [('cargo',['cargo','--version']),('rustc',['rustc','--version'])]},'env':{k:env[k] for k in ['RUSTC_WRAPPER','CARGO_TARGET_DIR','CARGO_BUILD_JOBS','CARGO_NET_OFFLINE']},'script_sha256':sha(out/'publish-transition.py'),'runner_sha256':sha(pathlib.Path(__file__)),'addition':addition,'scope':'identical narrow-before-owner observer, genuine published-only transition and owner cleanup; no metadata corruption'})
+try:
+ for index,(name,kind) in enumerate([(None,'workbook'),(None,'work')]+jobs):
+  for path,body in original.items():(source/path).write_bytes(body)
+  q=directory/('run-'+str(index));q.mkdir();item={'name':name,'kind':kind,'mode':'control' if name is None else 'mutant'}
+  if name:
+   m=inv[name];(q/'original.diff').write_text(m['diff']);r=subprocess.run(['patch','--batch',str(source/m['file'])],input=m['diff'],text=True,capture_output=True);assert r.returncode==0;(q/'patch.stdout.txt').write_text(r.stdout+r.stderr);item['diff_sha256']=sha(q/'original.diff')
+  for path in paths:(source/path).write_bytes(instrument(path,(source/path).read_bytes()))
+  item['source_input']=[{'path':x['path'],'sha256':sha(source/x['path'])} for x in man['source_files']];args=['cargo','build','-p','sheltie-cli','--all-features','--message-format=json']
+  with (q/'build.jsonl').open('w') as o,(q/'build.stderr.txt').open('w') as e:r=subprocess.run(args,cwd=source,env=env,stdout=o,stderr=e)
+  item['build']={'argv':args,'exit':r.returncode};assert r.returncode==0
+  arts=[json.loads(x) for x in (q/'build.jsonl').read_text().splitlines()];binary=next(x['executable'] for x in arts if x.get('reason')=='compiler-artifact' and x.get('executable') and x['target']['name']=='sheltie');item['binary_sha256']=sha(pathlib.Path(binary));args=['python3',str(out/'publish-transition.py'),'--binary',binary,'--source',str(source),'--output',str(q/'oracle'),'--kind',kind];r=subprocess.run(args,env=env,capture_output=True,text=True,timeout=180);(q/'oracle.stdout.txt').write_text(r.stdout+r.stderr);item['oracle']={'argv':args,'exit':r.returncode,'semantic_failure':r.returncode!=0 and 'AssertionError:' in r.stderr and 'SEMANTIC ' in r.stderr};results.append(item);save(q/'metadata.json',item)
+  if name is None and r.returncode:raise RuntimeError('original control failed '+r.stderr[-700:])
+  if name and r.returncode and not item['oracle']['semantic_failure']:raise RuntimeError('tool/fixture error '+r.stderr[-700:])
+finally:
+ for path,body in original.items():(source/path).write_bytes(body)
+ save(directory/'results.json',results);save(directory/'manifest.json',{str(p.relative_to(directory)):sha(p) for p in directory.rglob('*') if p.is_file() and p.name!='manifest.json'});progress=pathlib.Path('/private/tmp/m1-extra-progress.json');d=json.loads(progress.read_text());d['publish_transition']=results;save(progress,d)
+print([(x['name'],x['oracle']['exit'],x['oracle']['semantic_failure']) for x in results])

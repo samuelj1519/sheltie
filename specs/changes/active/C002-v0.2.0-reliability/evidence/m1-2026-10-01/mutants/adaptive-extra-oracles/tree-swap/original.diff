@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::verify_tree_at
+@@ -567,17 +567,17 @@
+     pub(crate) fn verify_tree_at(&self, tree: &ManagedTree, path: &ManagedRelPath) -> Result<()> {
+         self.check_tree_root(tree)?;
+         let (parent, leaf) = self.open_parent(path)?;
+         let stat = statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW)
+             .map_err(|error| map_fs_error(&self.display_path(path), error))?;
+         let held =
+             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
+         if FileType::from_raw_mode(stat.st_mode) != FileType::Directory
+-            || stat.st_dev != held.st_dev
++            && /* ~ changed by cargo-mutants ~ */ stat.st_dev != held.st_dev
+             || stat.st_ino != held.st_ino
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("{} 不再指向已核验的发布目录对象", self.display_path(path)),
+             });
+         }
+         Ok(())
+     }

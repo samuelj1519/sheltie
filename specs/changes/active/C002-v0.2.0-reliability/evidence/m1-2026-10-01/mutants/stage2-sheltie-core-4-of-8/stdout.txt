@@ -1,0 +1,5 @@
+Found 2 mutants to test
+ok       Unmutated baseline in 8s build + 1s test
+MISSED   crates/sheltie-core/src/work/decide.rs:524:17: replace && with || in reply_status_matches in 27s build + 117s test
+MISSED   crates/sheltie-core/src/work/decide.rs:532:70: replace == with != in reply_status_matches in 30s build + 116s test
+2 mutants tested in 3m: 2 missed

@@ -1,0 +1,70 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ replace prepare_new_request -> Result<()> with Ok(())
+@@ -277,66 +277,17 @@
+ }
+ 
+ pub(crate) fn prepare_new_request(
+     home: &Home,
+     store: &Store,
+     lock: &HomeLock,
+     request_id: &str,
+ ) -> Result<()> {
+-    if !fsx::managed_directory_exists(home, lock, "pending")? {
+-        return Ok(());
+-    }
+-    let mut selected = BTreeSet::new();
+-    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
+-        let Some(id) = entry
+-            .name
+-            .strip_suffix(".owner")
+-            .filter(|id| valid_internal_id(id))
+-        else {
+-            continue;
+-        };
+-        if entry.kind != ManagedEntryKind::RegularFile {
+-            continue;
+-        }
+-        if let Ok(owner) = read_owner(home, id) {
+-            if owner.request_id == request_id {
+-                selected.insert(id.to_string());
+-            }
+-        }
+-    }
+-    if selected.is_empty() {
+-        return Ok(());
+-    }
+-    let warnings = cleanup_selected(home, store, lock, Some(&selected))?;
+-    if !warnings.is_empty() {
+-        return Err(Error::io(
+-            home.pending_dir().as_str(),
+-            std::io::Error::other(format!(
+-                "当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}",
+-                warnings.join("; ")
+-            )),
+-        ));
+-    }
+-    for entry in fsx::managed_directory_entries_locked(home, lock, "pending")? {
+-        let id = entry
+-            .name
+-            .strip_suffix(".owner")
+-            .or_else(|| entry.name.strip_suffix(".deleted"))
+-            .unwrap_or(&entry.name);
+-        if selected.contains(id) {
+-            return Err(Error::StoreCorrupt {
+-                detail: format!(
+-                    "当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求",
+-                    entry.name
+-                ),
+-            });
+-        }
+-    }
+-    Ok(())
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ pub(crate) fn cleanup(home: &Home, store: &Store, lock: &HomeLock) -> Result<Vec<String>> {
+     cleanup_selected(home, store, lock, None)
+ }
+ 
+ fn cleanup_selected(
+     home: &Home,

@@ -1,0 +1,4 @@
+crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())
+crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous
+crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())
+crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous

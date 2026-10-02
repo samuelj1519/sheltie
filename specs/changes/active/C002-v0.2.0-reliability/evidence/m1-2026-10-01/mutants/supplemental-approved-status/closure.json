@@ -1,0 +1,22 @@
+{
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "source_manifest_sha256": "6139c0648032211ef2a02bd60d4a05fd1e2898f80c7944868979f8769ea0aa13",
+  "inventory_sha256": "efb63f60dd1e3acd60553f49de5cd5f1a15948b8c8a59feda431df8279d7ad3f",
+  "runner_sha256": "da054f1ebf32eb06cbb1b03ee00658235e35fb97afce183b8ca43d599e8f0151",
+  "oracle_sha256": "3626700db4a282e1d532d7c7493c9fe3fb715ac61716446f772f2b546321e024",
+  "selection": [
+    "crates/sheltie-runtime/src/service.rs:1177:9: delete match arm CheckedData::Approved(data) in validate_command_owner"
+  ],
+  "scope": "Separate supplemental real-CLI detection. Does not rewrite formal mutation outcomes. Each generated mutation alone is applied to an ordinary isolated frozen clone, then restored. Baseline executes same oracle/flags.",
+  "environment": {
+    "RUSTC_WRAPPER": "",
+    "CARGO_TARGET_DIR": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_PROFILE_DEV_OPT_LEVEL": "1",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_DEV_DEBUG_ASSERTIONS": "true",
+    "CARGO_PROFILE_DEV_OVERFLOW_CHECKS": "true"
+  },
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+}

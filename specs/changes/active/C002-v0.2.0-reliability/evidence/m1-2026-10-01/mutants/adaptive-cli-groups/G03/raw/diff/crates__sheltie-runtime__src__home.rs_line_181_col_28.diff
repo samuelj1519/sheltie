@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/home.rs
++++ replace match guard p != base.as_path() with true in Home::confine
+@@ -173,17 +173,17 @@
+         let mut probe = joined.as_path().to_path_buf();
+         loop {
+             match std::fs::symlink_metadata(probe.as_std_path()) {
+                 Ok(_) => break,
+                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+                 Err(e) => return Err(Error::io(probe.as_str(), e)),
+             }
+             match probe.parent() {
+-                Some(p) if p != base.as_path() => probe = p.to_path_buf(),
++                Some(p) if true /* ~ changed by cargo-mutants ~ */ => probe = p.to_path_buf(),
+                 _ => return Ok(joined),
+             }
+         }
+         let canon =
+             std::fs::canonicalize(probe.as_std_path()).map_err(|e| Error::io(probe.as_str(), e))?;
+         if !canon.starts_with(&base_canon) {
+             return Err(Error::Core(sheltie_core::Error::InvalidPath {
+                 path: joined.to_string(),

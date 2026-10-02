@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/recovery.rs
++++ replace == with != in before_write
+@@ -113,17 +113,17 @@
+                 .map_err(|failure| failure.into_pending(request_id))?,
+         )
+     } else {
+         None
+     };
+     let committed = current.is_some();
+     let current_original = current.as_ref().map(|request| request.original.clone());
+     for pending_id in store.unpublished_request_ids()? {
+-        let loaded = if pending_id == request_id {
++        let loaded = if pending_id != /* ~ changed by cargo-mutants ~ */ request_id {
+             match current.take() {
+                 Some(request) => Ok(request),
+                 None => request_metadata(store, &pending_id)
+                     .map_err(RequestLoadError::from)
+                     .and_then(|metadata| access.load_request(&pending_id, &metadata)),
+             }
+         } else {
+             request_metadata(store, &pending_id)

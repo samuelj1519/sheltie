@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-status/oracle-v2.py", line 78, in <module>
+    assert code==1 and error['ok'] is False,(case,status,code,error)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('approve_active', {'kind': 'succeeded'}, 0, {'data': {'at': '2026-10-02T05:42:19Z', 'by': 'shushu', 'node': 'notes', 'occurrence': 1, 'replayed': True, 'work_status': {'kind': 'succeeded'}}, 'next': [{'args': {'node': 'archive', 'work': '2026-10-02-001-default'}, 'edge': 'main', 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'ok': True, 'request_id': 'status-approve', 'revision': 4})

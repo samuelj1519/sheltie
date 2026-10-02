@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ delete ! in WorkbookRepo::remove
+@@ -1148,17 +1148,17 @@
+             command_json: serde_json::json!({
+                 "intent": "remove_workbook",
+                 "target": format!("{id}@{version}"),
+             })
+             .to_string(),
+             at: ctx.now,
+         };
+         let replayed = matches!(repo.store.commit(input)?, CommitOutcome::Replayed { .. });
+-        if !replayed {
++        if  /* ~ changed by cargo-mutants ~ */replayed {
+             crate::failpoint::maybe_exit("after_commit_before_effects");
+         }
+         repo.recover_finish_request(&lock, &request_id, false)?;
+         if replayed {
+             let row =
+                 repo.store
+                     .inspect_request(&request_id)?
+                     .ok_or_else(|| Error::StoreCorrupt {

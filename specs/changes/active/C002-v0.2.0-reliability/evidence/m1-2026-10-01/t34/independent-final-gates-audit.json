@@ -1,0 +1,1457 @@
+{
+  "source_input_sha256": "8657e13fb93167a486511f4d6ee542bfb5eacf4fc5e497e22abde03765cb6d8f",
+  "source_count": 167,
+  "source_changes": [],
+  "run_id": "79c91669-2f11-422e-9cc8-4b91b7de5df3",
+  "run_id_in_raw": true,
+  "nextest_stdout_sha_match": true,
+  "summary_699_zero_skip": true,
+  "rows": [
+    {
+      "finding": "R01 路径归属",
+      "line": 17,
+      "tests": [
+        {
+          "name": "tampered_work_dir_is_rejected_before_reading_outside_paths",
+          "PASS": [
+            {
+              "line": 599,
+              "raw": "        PASS [   0.191s] (594/699) sheltie-runtime::service tampered_work_dir_is_rejected_before_reading_outside_paths"
+            }
+          ]
+        },
+        {
+          "name": "invalid_later_effect_is_rejected_before_any_effect_runs",
+          "PASS": [
+            {
+              "line": 560,
+              "raw": "        PASS [   0.270s] (555/699) sheltie-runtime::service invalid_later_effect_is_rejected_before_any_effect_runs"
+            }
+          ]
+        },
+        {
+          "name": "tampered_artifact_path_is_rejected_before_observing_external_file",
+          "PASS": [
+            {
+              "line": 597,
+              "raw": "        PASS [   0.315s] (592/699) sheltie-runtime::service tampered_artifact_path_is_rejected_before_observing_external_file"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R02 seal",
+      "line": 18,
+      "tests": [
+        {
+          "name": "real_submit_path_swap_after_commit_seals_original_and_preserves_external_target",
+          "PASS": [
+            {
+              "line": 580,
+              "raw": "        PASS [   0.281s] (575/699) sheltie-runtime::service real_submit_path_swap_after_commit_seals_original_and_preserves_external_target"
+            }
+          ]
+        },
+        {
+          "name": "real_submit_same_inode_byte_change_after_commit_stops_before_chmod",
+          "PASS": [
+            {
+              "line": 581,
+              "raw": "        PASS [   0.288s] (576/699) sheltie-runtime::service real_submit_same_inode_byte_change_after_commit_stops_before_chmod"
+            }
+          ]
+        },
+        {
+          "name": "real_submit_hardlink_added_after_commit_stops_before_chmod",
+          "PASS": [
+            {
+              "line": 579,
+              "raw": "        PASS [   0.288s] (574/699) sheltie-runtime::service real_submit_hardlink_added_after_commit_stops_before_chmod"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R03 self 文件链",
+      "line": 19,
+      "tests": [
+        {
+          "name": "install_rejects_tmp_parent_symlink_and_preserves_external_sentinel",
+          "PASS": [
+            {
+              "line": 511,
+              "raw": "        PASS [   0.017s] (506/699) sheltie-runtime::selfmgmt install_rejects_tmp_parent_symlink_and_preserves_external_sentinel"
+            }
+          ]
+        },
+        {
+          "name": "rollback_rejects_bin_parent_symlink_and_preserves_external_binaries",
+          "PASS": [
+            {
+              "line": 520,
+              "raw": "        PASS [   0.012s] (515/699) sheltie-runtime::selfmgmt rollback_rejects_bin_parent_symlink_and_preserves_external_binaries"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R04 purge",
+      "line": 20,
+      "tests": [
+        {
+          "name": "purge_removes_frozen_work_and_binary_but_preserves_same_root_lock",
+          "PASS": [
+            {
+              "line": 516,
+              "raw": "        PASS [   0.351s] (511/699) sheltie-runtime::selfmgmt purge_removes_frozen_work_and_binary_but_preserves_same_root_lock"
+            }
+          ]
+        },
+        {
+          "name": "purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection",
+          "PASS": [
+            {
+              "line": 54,
+              "raw": "        PASS [   0.935s] ( 49/699) sheltie-cli::reliability_crash purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rejection"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R05 @file 重放",
+      "line": 21,
+      "tests": [
+        {
+          "name": "start_request_replay_does_not_require_the_original_input_file",
+          "PASS": [
+            {
+              "line": 71,
+              "raw": "        PASS [   0.327s] ( 66/699) sheltie-cli::replay start_request_replay_does_not_require_the_original_input_file"
+            }
+          ]
+        },
+        {
+          "name": "submit_request_replay_does_not_reread_a_deleted_summary_file",
+          "PASS": [
+            {
+              "line": 72,
+              "raw": "        PASS [   0.398s] ( 67/699) sheltie-cli::replay submit_request_replay_does_not_reread_a_deleted_summary_file"
+            }
+          ]
+        },
+        {
+          "name": "fail_request_replay_does_not_reread_a_deleted_reason_file",
+          "PASS": [
+            {
+              "line": 65,
+              "raw": "        PASS [   0.374s] ( 60/699) sheltie-cli::replay fail_request_replay_does_not_reread_a_deleted_reason_file"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R06 历史目标",
+      "line": 22,
+      "tests": [
+        {
+          "name": "historical_work_id_resolves_before_a_now_ambiguous_prefix",
+          "PASS": [
+            {
+              "line": 66,
+              "raw": "        PASS [   0.453s] ( 61/699) sheltie-cli::replay historical_work_id_resolves_before_a_now_ambiguous_prefix"
+            }
+          ]
+        },
+        {
+          "name": "work_prefix_matching_is_case_sensitive_and_replays_with_the_same_selector",
+          "PASS": [
+            {
+              "line": 73,
+              "raw": "        PASS [   0.324s] ( 68/699) sheltie-cli::replay work_prefix_matching_is_case_sensitive_and_replays_with_the_same_selector"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R07 恢复错误协议",
+      "line": 23,
+      "tests": [
+        {
+          "name": "post_commit_card_failure_returns_committed_response",
+          "PASS": [
+            {
+              "line": 575,
+              "raw": "        PASS [   0.234s] (570/699) sheltie-runtime::service post_commit_card_failure_returns_committed_response"
+            }
+          ]
+        },
+        {
+          "name": "old_effect_blocks_new_request_with_distinct_identities",
+          "PASS": [
+            {
+              "line": 574,
+              "raw": "        PASS [   0.334s] (569/699) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities"
+            }
+          ]
+        },
+        {
+          "name": "mark_published_zero_rows_returns_committed_recovery_error",
+          "PASS": [
+            {
+              "line": 570,
+              "raw": "        PASS [   0.268s] (565/699) sheltie-runtime::service mark_published_zero_rows_returns_committed_recovery_error"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R08 Workbook 重放",
+      "line": 24,
+      "tests": [
+        {
+          "name": "workbook_replay_finishes_unpublished_effects",
+          "PASS": [
+            {
+              "line": 694,
+              "raw": "        PASS [   0.138s] (689/699) sheltie-runtime::workbook_txn workbook_replay_finishes_unpublished_effects"
+            }
+          ]
+        },
+        {
+          "name": "completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row",
+          "PASS": [
+            {
+              "line": 672,
+              "raw": "        PASS [   0.171s] (667/699) sheltie-runtime::workbook_txn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R09 pending 读",
+      "line": 25,
+      "tests": [
+        {
+          "name": "committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending",
+          "PASS": [
+            {
+              "line": 669,
+              "raw": "        PASS [   0.195s] (664/699) sheltie-runtime::workbook_txn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending"
+            }
+          ]
+        },
+        {
+          "name": "real_work_status_retries_after_start_publish_renames_post_location",
+          "PASS": [
+            {
+              "line": 682,
+              "raw": "        PASS [   0.159s] (677/699) sheltie-runtime::workbook_txn real_work_status_retries_after_start_publish_renames_post_location"
+            }
+          ]
+        },
+        {
+          "name": "workbook_reader_accepts_publication_and_cleanup_after_its_reference_index",
+          "PASS": [
+            {
+              "line": 692,
+              "raw": "        PASS [   0.096s] (687/699) sheltie-runtime::workbook_txn workbook_reader_accepts_publication_and_cleanup_after_its_reference_index"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R10 跨入口卡刷新",
+      "line": 26,
+      "tests": [
+        {
+          "name": "workbook_write_recovers_work_status_card",
+          "PASS": [
+            {
+              "line": 695,
+              "raw": "        PASS [   0.227s] (690/699) sheltie-runtime::workbook_txn workbook_write_recovers_work_status_card"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R11 删除证明",
+      "line": 27,
+      "tests": [
+        {
+          "name": "remove_marker_cannot_be_borrowed_from_another_internal_id",
+          "PASS": [
+            {
+              "line": 683,
+              "raw": "        PASS [   0.371s] (678/699) sheltie-runtime::workbook_txn remove_marker_cannot_be_borrowed_from_another_internal_id"
+            }
+          ]
+        },
+        {
+          "name": "marker_replaced_after_validation_cannot_prove_deletion",
+          "PASS": [
+            {
+              "line": 439,
+              "raw": "        PASS [   0.163s] (434/699) sheltie-runtime::crash marker_replaced_after_validation_cannot_prove_deletion"
+            }
+          ]
+        },
+        {
+          "name": "remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle",
+          "PASS": [
+            {
+              "line": 56,
+              "raw": "        PASS [   3.324s] ( 51/699) sheltie-cli::reliability_crash remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R12 发布闭包",
+      "line": 28,
+      "tests": [
+        {
+          "name": "publication_checks_each_start_input_reference_and_owner_field",
+          "PASS": [
+            {
+              "line": 578,
+              "raw": "        PASS [   1.577s] (573/699) sheltie-runtime::service publication_checks_each_start_input_reference_and_owner_field"
+            }
+          ]
+        },
+        {
+          "name": "final_only_publication_recovery_checks_start_input_bytes",
+          "PASS": [
+            {
+              "line": 558,
+              "raw": "        PASS [   0.208s] (553/699) sheltie-runtime::service final_only_publication_recovery_checks_start_input_bytes"
+            }
+          ]
+        },
+        {
+          "name": "workbook_publication_recovery_checks_owner_and_manifest_identity",
+          "PASS": [
+            {
+              "line": 691,
+              "raw": "        PASS [   0.384s] (686/699) sheltie-runtime::workbook_txn workbook_publication_recovery_checks_owner_and_manifest_identity"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R13 cleanup",
+      "line": 29,
+      "tests": [
+        {
+          "name": "cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan",
+          "PASS": [
+            {
+              "line": 664,
+              "raw": "        PASS [   0.214s] (659/699) sheltie-runtime::workbook_txn cleanup_index_rejects_a_decodable_effect_path_that_points_into_an_orphan"
+            }
+          ]
+        },
+        {
+          "name": "malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed",
+          "PASS": [
+            {
+              "line": 676,
+              "raw": "        PASS [   0.070s] (671/699) sheltie-runtime::workbook_txn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_removed"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R14 树装入/摘要",
+      "line": 30,
+      "tests": [
+        {
+          "name": "digest_matches_independent_vectors_on_disk",
+          "PASS": [
+            {
+              "line": 609,
+              "raw": "        PASS [   0.010s] (604/699) sheltie-runtime::workbook_digest digest_matches_independent_vectors_on_disk"
+            }
+          ]
+        },
+        {
+          "name": "tree_reader_rejects_symlinked_parent_directory",
+          "PASS": [
+            {
+              "line": 616,
+              "raw": "        PASS [   0.009s] (611/699) sheltie-runtime::workbook_digest tree_reader_rejects_symlinked_parent_directory"
+            }
+          ]
+        },
+        {
+          "name": "total_limit_rejects_before_staging_or_registering_source_files",
+          "PASS": [
+            {
+              "line": 653,
+              "raw": "        PASS [   0.010s] (648/699) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R15 stats 快照",
+      "line": 31,
+      "tests": [
+        {
+          "name": "stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load",
+          "PASS": [
+            {
+              "line": 145,
+              "raw": "        PASS [   0.299s] (140/699) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R16 replan",
+      "line": 32,
+      "tests": [
+        {
+          "name": "fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files",
+          "PASS": [
+            {
+              "line": 98,
+              "raw": "        PASS [   3.498s] ( 93/699) sheltie-cli::scenario_spec_dev replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles",
+          "PASS": [
+            {
+              "line": 107,
+              "raw": "        PASS [  23.441s] (102/699) sheltie-cli::scenario_spec_dev replan::fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R17 全验证闭包",
+      "line": 33,
+      "tests": [],
+      "missing": []
+    },
+    {
+      "finding": "R18 必需 sync",
+      "line": 34,
+      "tests": [
+        {
+          "name": "publication_sync_failures_leave_effect_pending_and_retry_same_object",
+          "PASS": [
+            {
+              "line": 584,
+              "raw": "        PASS [   2.498s] (579/699) sheltie-runtime::service publication_sync_failures_leave_effect_pending_and_retry_same_object"
+            }
+          ]
+        },
+        {
+          "name": "start_replay_sync_failure_preserves_own_commit_snapshot",
+          "PASS": [
+            {
+              "line": 593,
+              "raw": "        PASS [   0.246s] (588/699) sheltie-runtime::service start_replay_sync_failure_preserves_own_commit_snapshot"
+            }
+          ]
+        },
+        {
+          "name": "moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload",
+          "PASS": [
+            {
+              "line": 48,
+              "raw": "        PASS [   0.204s] ( 43/699) sheltie-cli::reliability_crash moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R19 锁内建库",
+      "line": 35,
+      "tests": [
+        {
+          "name": "real_install_waits_for_a_concurrent_workbook_add_store_initializer",
+          "PASS": [
+            {
+              "line": 700,
+              "raw": "        PASS [   0.099s] (695/699) sheltie-runtime::write_session real_install_waits_for_a_concurrent_workbook_add_store_initializer"
+            }
+          ]
+        },
+        {
+          "name": "real_workbook_add_waits_for_a_concurrent_install_store_initializer",
+          "PASS": [
+            {
+              "line": 701,
+              "raw": "        PASS [   0.097s] (696/699) sheltie-runtime::write_session real_workbook_add_waits_for_a_concurrent_install_store_initializer"
+            }
+          ]
+        },
+        {
+          "name": "old_work_waiting_behind_purge_does_not_recreate_the_removed_store",
+          "PASS": [
+            {
+              "line": 698,
+              "raw": "        PASS [   0.163s] (693/699) sheltie-runtime::write_session old_work_waiting_behind_purge_does_not_recreate_the_removed_store"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O01 根隔离",
+      "line": 36,
+      "tests": [],
+      "missing": []
+    },
+    {
+      "finding": "O02 跨 Work 重放",
+      "line": 37,
+      "tests": [
+        {
+          "name": "cross_work_request_id_is_request_conflict_and_target_untouched",
+          "PASS": [
+            {
+              "line": 497,
+              "raw": "        PASS [   0.338s] (492/699) sheltie-runtime::schema2_replay cross_work_request_id_is_request_conflict_and_target_untouched"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O03 Workbook 身份",
+      "line": 38,
+      "tests": [
+        {
+          "name": "load_rejects_tampered_registered_digest",
+          "PASS": [
+            {
+              "line": 619,
+              "raw": "        PASS [   0.089s] (614/699) sheltie-runtime::workbook_identity load_rejects_tampered_registered_digest"
+            }
+          ]
+        },
+        {
+          "name": "completed_workbook_final_requires_its_current_successful_publisher",
+          "PASS": [
+            {
+              "line": 674,
+              "raw": "        PASS [   0.148s] (669/699) sheltie-runtime::workbook_txn completed_workbook_final_requires_its_current_successful_publisher"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O04 历史回复/观察",
+      "line": 39,
+      "tests": [
+        {
+          "name": "old_submit_replay_after_cancel_returns_original_reply",
+          "PASS": [
+            {
+              "line": 498,
+              "raw": "        PASS [   0.386s] (493/699) sheltie-runtime::schema2_replay old_submit_replay_after_cancel_returns_original_reply"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O05 历史 engine.stats",
+      "line": 40,
+      "tests": [
+        {
+          "name": "begin_replay_regenerates_missing_stats_json",
+          "PASS": [
+            {
+              "line": 550,
+              "raw": "        PASS [   0.387s] (545/699) sheltie-runtime::service begin_replay_regenerates_missing_stats_json"
+            }
+          ]
+        },
+        {
+          "name": "replay_does_not_rewrite_status_card_to_old_revision",
+          "PASS": [
+            {
+              "line": 499,
+              "raw": "        PASS [   0.301s] (494/699) sheltie-runtime::schema2_replay replay_does_not_rewrite_status_card_to_old_revision"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O06 clean home",
+      "line": 41,
+      "tests": [
+        {
+          "name": "self_install_on_new_home_creates_root_store_and_bin",
+          "PASS": [
+            {
+              "line": 624,
+              "raw": "        PASS [   0.056s] (619/699) sheltie-runtime::workbook_identity self_install_on_new_home_creates_root_store_and_bin"
+            }
+          ]
+        },
+        {
+          "name": "clean_home_install_then_update_two_step",
+          "PASS": [
+            {
+              "line": 506,
+              "raw": "        PASS [   0.090s] (501/699) sheltie-runtime::selfmgmt clean_home_install_then_update_two_step"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O07 摘要碰撞",
+      "line": 42,
+      "tests": [
+        {
+          "name": "digest_matches_independent_vectors_on_disk",
+          "PASS": [
+            {
+              "line": 609,
+              "raw": "        PASS [   0.010s] (604/699) sheltie-runtime::workbook_digest digest_matches_independent_vectors_on_disk"
+            }
+          ]
+        },
+        {
+          "name": "framing_collision_pair_now_yields_two_different_digests",
+          "PASS": [
+            {
+              "line": 610,
+              "raw": "        PASS [   0.008s] (605/699) sheltie-runtime::workbook_digest framing_collision_pair_now_yields_two_different_digests"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O08 Workbook/self 幂等",
+      "line": 43,
+      "tests": [
+        {
+          "name": "add_and_remove_replay_return_original_snapshots",
+          "PASS": [
+            {
+              "line": 662,
+              "raw": "        PASS [   0.135s] (657/699) sheltie-runtime::workbook_txn add_and_remove_replay_return_original_snapshots"
+            }
+          ]
+        },
+        {
+          "name": "request_id_rejected_for_readonly_and_self_commands",
+          "PASS": [
+            {
+              "line": 141,
+              "raw": "        PASS [   0.103s] (136/699) sheltie-cli::work request_id_rejected_for_readonly_and_self_commands"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O09 每任务 Git 范围",
+      "line": 44,
+      "tests": [
+        {
+          "name": "two_task_loops_scope_each_task_diff_to_its_own_files",
+          "PASS": [
+            {
+              "line": 109,
+              "raw": "        PASS [   2.885s] (104/699) sheltie-cli::scenario_spec_dev two_task_loops_scope_each_task_diff_to_its_own_files"
+            }
+          ]
+        },
+        {
+          "name": "out_of_whitelist_file_in_second_task_is_flagged",
+          "PASS": [
+            {
+              "line": 94,
+              "raw": "        PASS [   2.564s] ( 89/699) sheltie-cli::scenario_spec_dev out_of_whitelist_file_in_second_task_is_flagged"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O10 人工意见/继续",
+      "line": 45,
+      "tests": [
+        {
+          "name": "conditional_approval_binds_decision_into_scaffold_implement_verify",
+          "PASS": [
+            {
+              "line": 93,
+              "raw": "        PASS [   2.002s] ( 88/699) sheltie-cli::scenario_spec_dev conditional_approval_binds_decision_into_scaffold_implement_verify"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version",
+          "PASS": [
+            {
+              "line": 97,
+              "raw": "        PASS [   3.045s] ( 92/699) sheltie-cli::scenario_spec_dev replan::fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_version"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O11 skill 自包含",
+      "line": 46,
+      "tests": [
+        {
+          "name": "installed_delivery_stays_self_contained_after_source_tree_is_removed",
+          "PASS": [
+            {
+              "line": 134,
+              "raw": "        PASS [   0.244s] (129/699) sheltie-cli::skill_delivery installed_delivery_stays_self_contained_after_source_tree_is_removed"
+            }
+          ]
+        },
+        {
+          "name": "check_skill_fails_when_delivery_link_escapes",
+          "PASS": [
+            {
+              "line": 128,
+              "raw": "        PASS [   1.082s] (123/699) sheltie-cli::skill_delivery check_skill_fails_when_delivery_link_escapes"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O12 输出命名空间",
+      "line": 47,
+      "tests": [
+        {
+          "name": "worker_outputs_named_brief_and_stats_write_and_submit_via_real_chain",
+          "PASS": [
+            {
+              "line": 26,
+              "raw": "        PASS [   0.256s] ( 21/699) sheltie-cli::output_paths worker_outputs_named_brief_and_stats_write_and_submit_via_real_chain"
+            }
+          ]
+        },
+        {
+          "name": "add_rejects_ancestor_and_folded_alias_output_paths_at_cli",
+          "PASS": [
+            {
+              "line": 23,
+              "raw": "        PASS [   0.108s] ( 18/699) sheltie-cli::output_paths add_rejects_ancestor_and_folded_alias_output_paths_at_cli"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "O13 完整事实视图",
+      "line": 48,
+      "tests": [
+        {
+          "name": "text_and_json_agree_on_hand_written_state",
+          "PASS": [
+            {
+              "line": 331,
+              "raw": "        PASS [   0.007s] (326/699) sheltie-core work::render::tests::text_and_json_agree_on_hand_written_state"
+            }
+          ]
+        },
+        {
+          "name": "status_json_carries_reason_and_full_artifact_refs",
+          "PASS": [
+            {
+              "line": 330,
+              "raw": "        PASS [   0.008s] (325/699) sheltie-core work::render::tests::status_json_carries_reason_and_full_artifact_refs"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N01 start 预检",
+      "line": 49,
+      "tests": [
+        {
+          "name": "start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq",
+          "PASS": [
+            {
+              "line": 142,
+              "raw": "        PASS [   0.251s] (137/699) sheltie-cli::work start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq"
+            }
+          ]
+        },
+        {
+          "name": "failed_start_on_new_home_creates_nothing",
+          "PASS": [
+            {
+              "line": 137,
+              "raw": "        PASS [   0.181s] (132/699) sheltie-cli::work failed_start_on_new_home_creates_nothing"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N02 Workbook 生命周期",
+      "line": 50,
+      "tests": [
+        {
+          "name": "remove_rejects_active_reference_and_rolls_back_row",
+          "PASS": [
+            {
+              "line": 685,
+              "raw": "        PASS [   0.184s] (680/699) sheltie-runtime::workbook_txn remove_rejects_active_reference_and_rolls_back_row"
+            }
+          ]
+        },
+        {
+          "name": "completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row",
+          "PASS": [
+            {
+              "line": 672,
+              "raw": "        PASS [   0.171s] (667/699) sheltie-runtime::workbook_txn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N03 schema/持久验证",
+      "line": 51,
+      "tests": [
+        {
+          "name": "schema1_store_rejected_without_touching_file",
+          "PASS": [
+            {
+              "line": 500,
+              "raw": "        PASS [   0.014s] (495/699) sheltie-runtime::schema2_replay schema1_store_rejected_without_touching_file"
+            }
+          ]
+        },
+        {
+          "name": "load_rejects_row_identity_status_and_revision_mismatch",
+          "PASS": [
+            {
+              "line": 425,
+              "raw": "        PASS [   0.023s] (420/699) sheltie-runtime store::tests::load_rejects_row_identity_status_and_revision_mismatch"
+            }
+          ]
+        },
+        {
+          "name": "store_accepts_real_running_and_failed_attempt_states",
+          "PASS": [
+            {
+              "line": 436,
+              "raw": "        PASS [   0.013s] (431/699) sheltie-runtime store::tests::store_accepts_real_running_and_failed_attempt_states"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N04 OS 主体/授权",
+      "line": 52,
+      "tests": [
+        {
+          "name": "audit_principal_ignores_spoofed_user_env",
+          "PASS": [
+            {
+              "line": 20,
+              "raw": "        PASS [   0.205s] ( 15/699) sheltie-cli::os_process audit_principal_ignores_spoofed_user_env"
+            }
+          ]
+        },
+        {
+          "name": "principal_matches_id_un_oracle",
+          "PASS": [
+            {
+              "line": 620,
+              "raw": "        PASS [   0.012s] (615/699) sheltie-runtime::workbook_identity principal_matches_id_un_oracle"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N05 modify-path/JSON",
+      "line": 53,
+      "tests": [
+        {
+          "name": "install_modify_path_flag_is_rejected",
+          "PASS": [
+            {
+              "line": 22,
+              "raw": "        PASS [   0.010s] ( 17/699) sheltie-cli::os_process install_modify_path_flag_is_rejected"
+            }
+          ]
+        },
+        {
+          "name": "self_install_json_stdout_is_single_document",
+          "PASS": [
+            {
+              "line": 119,
+              "raw": "        PASS [   0.049s] (114/699) sheltie-cli::self_cmd self_install_json_stdout_is_single_document"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N06 固定 release/tag",
+      "line": 54,
+      "tests": [
+        {
+          "name": "update_pinned_version_installs_only_that_tag",
+          "PASS": [
+            {
+              "line": 532,
+              "raw": "        PASS [   0.061s] (527/699) sheltie-runtime::selfmgmt update_pinned_version_installs_only_that_tag"
+            }
+          ]
+        },
+        {
+          "name": "update_rejects_manifest_version_not_matching_tag",
+          "PASS": [
+            {
+              "line": 536,
+              "raw": "        PASS [   0.065s] (531/699) sheltie-runtime::selfmgmt update_rejects_manifest_version_not_matching_tag"
+            }
+          ]
+        },
+        {
+          "name": "update_pinned_version_then_rollback_restores_previous",
+          "PASS": [
+            {
+              "line": 533,
+              "raw": "        PASS [   0.078s] (528/699) sheltie-runtime::selfmgmt update_pinned_version_then_rollback_restores_previous"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N07 stats 累计/edge",
+      "line": 55,
+      "tests": [
+        {
+          "name": "entered_via_distinguishes_edges_and_entry",
+          "PASS": [
+            {
+              "line": 316,
+              "raw": "        PASS [   0.008s] (311/699) sheltie-core work::render::tests::entered_via_distinguishes_edges_and_entry"
+            }
+          ]
+        },
+        {
+          "name": "blocked_count_survives_cancel_after_no_legal_edge",
+          "PASS": [
+            {
+              "line": 307,
+              "raw": "        PASS [   0.007s] (302/699) sheltie-core work::render::tests::blocked_count_survives_cancel_after_no_legal_edge"
+            }
+          ]
+        },
+        {
+          "name": "gate_approval_without_a_remaining_edge_adds_a_second_blocked_event",
+          "PASS": [
+            {
+              "line": 46,
+              "raw": "        PASS [   0.452s] ( 41/699) sheltie-cli::reliability_crash gate_approval_without_a_remaining_edge_adds_a_second_blocked_event"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N08 最终审查基线",
+      "line": 56,
+      "tests": [
+        {
+          "name": "fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files",
+          "PASS": [
+            {
+              "line": 98,
+              "raw": "        PASS [   3.498s] ( 93/699) sheltie-cli::scenario_spec_dev replan::fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_files"
+            }
+          ]
+        },
+        {
+          "name": "fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task",
+          "PASS": [
+            {
+              "line": 100,
+              "raw": "        PASS [   9.585s] ( 95/699) sheltie-cli::scenario_spec_dev replan::fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N09 article-review 意见",
+      "line": 57,
+      "tests": [
+        {
+          "name": "first_draft_marks_review_input_absent_without_body",
+          "PASS": [
+            {
+              "line": 75,
+              "raw": "        PASS [   0.272s] ( 70/699) sheltie-cli::scenario_article_review first_draft_marks_review_input_absent_without_body"
+            }
+          ]
+        },
+        {
+          "name": "back_to_draft_binds_review_verdict_path_with_source_occurrence",
+          "PASS": [
+            {
+              "line": 74,
+              "raw": "        PASS [   0.556s] ( 69/699) sheltie-cli::scenario_article_review back_to_draft_binds_review_verdict_path_with_source_occurrence"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N10 冻结根/元数据",
+      "line": 58,
+      "tests": [
+        {
+          "name": "readonly_bits_reduce_accidents_but_digest_is_the_guard",
+          "PASS": [
+            {
+              "line": 621,
+              "raw": "        PASS [   0.163s] (616/699) sheltie-runtime::workbook_identity readonly_bits_reduce_accidents_but_digest_is_the_guard"
+            }
+          ]
+        },
+        {
+          "name": "ds_store_rejected_by_name_at_add",
+          "PASS": [
+            {
+              "line": 618,
+              "raw": "        PASS [   0.020s] (613/699) sheltie-runtime::workbook_identity ds_store_rejected_by_name_at_add"
+            }
+          ]
+        },
+        {
+          "name": "work_readable_after_workbook_removed",
+          "PASS": [
+            {
+              "line": 625,
+              "raw": "        PASS [   0.305s] (620/699) sheltie-runtime::workbook_identity work_readable_after_workbook_removed"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N11 治理历史/版本",
+      "line": 59,
+      "tests": [
+        {
+          "name": "check_specs_shallow_clone_reports_missing_history",
+          "PASS": [
+            {
+              "line": 36,
+              "raw": "        PASS [   1.044s] ( 31/699) sheltie-cli::release_governance check_specs_shallow_clone_reports_missing_history"
+            }
+          ]
+        },
+        {
+          "name": "check_specs_accepts_active_target_without_tag",
+          "PASS": [
+            {
+              "line": 27,
+              "raw": "        PASS [   0.851s] ( 22/699) sheltie-cli::release_governance check_specs_accepts_active_target_without_tag"
+            }
+          ]
+        },
+        {
+          "name": "check_specs_rejects_version_outside_active_target",
+          "PASS": [
+            {
+              "line": 32,
+              "raw": "        PASS [   0.806s] ( 27/699) sheltie-cli::release_governance check_specs_rejects_version_outside_active_target"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N12 同 SHA 质量/MSRV",
+      "line": 60,
+      "tests": [
+        {
+          "name": "release_workflow_gates_announce_on_quality_job",
+          "PASS": [
+            {
+              "line": 33,
+              "raw": "        PASS [   0.007s] ( 28/699) sheltie-cli::release_governance release_workflow_gates_announce_on_quality_job"
+            }
+          ]
+        },
+        {
+          "name": "release_workflow_quality_failure_blocks_announce",
+          "PASS": [
+            {
+              "line": 34,
+              "raw": "        PASS [   0.006s] ( 29/699) sheltie-cli::release_governance release_workflow_quality_failure_blocks_announce"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "N13 自证/假并发/窗口",
+      "line": 61,
+      "tests": [],
+      "missing": []
+    },
+    {
+      "finding": "N14 限额/重复扫描",
+      "line": 62,
+      "tests": [
+        {
+          "name": "file_size_limit_is_exactly_32_mib",
+          "PASS": [
+            {
+              "line": 615,
+              "raw": "        PASS [   2.197s] (610/699) sheltie-runtime::workbook_digest file_size_limit_is_exactly_32_mib"
+            }
+          ]
+        },
+        {
+          "name": "total_size_limit_is_exactly_256_mib",
+          "PASS": [
+            {
+              "line": 626,
+              "raw": "        PASS [  17.570s] (621/699) sheltie-runtime::workbook_digest total_size_limit_is_exactly_256_mib"
+            }
+          ]
+        },
+        {
+          "name": "total_limit_rejects_before_staging_or_registering_source_files",
+          "PASS": [
+            {
+              "line": 653,
+              "raw": "        PASS [   0.010s] (648/699) sheltie-runtime::workbook_repo total_limit_rejects_before_staging_or_registering_source_files"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R20 持久计数",
+      "line": 63,
+      "tests": [],
+      "missing": []
+    },
+    {
+      "finding": "R21 根解析错误",
+      "line": 64,
+      "tests": [],
+      "missing": []
+    },
+    {
+      "finding": "R22 原响应业务绑定",
+      "line": 66,
+      "tests": [
+        {
+          "name": "corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original",
+          "PASS": [
+            {
+              "line": 41,
+              "raw": "        PASS [   0.356s] ( 36/699) sheltie-cli::reliability_crash corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original"
+            }
+          ]
+        },
+        {
+          "name": "corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original",
+          "PASS": [
+            {
+              "line": 40,
+              "raw": "        PASS [   0.249s] ( 35/699) sheltie-cli::reliability_crash corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original"
+            }
+          ]
+        },
+        {
+          "name": "add_snapshot_target_is_bound_before_an_original_response_is_released",
+          "PASS": [
+            {
+              "line": 35,
+              "raw": "        PASS [   0.350s] ( 30/699) sheltie-cli::reliability_crash add_snapshot_target_is_bound_before_an_original_response_is_released"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R23 历史状态",
+      "line": 67,
+      "tests": [
+        {
+          "name": "fail_snapshot_status_matches_the_original_retry_even_after_later_progress",
+          "PASS": [
+            {
+              "line": 45,
+              "raw": "        PASS [   1.016s] ( 40/699) sheltie-cli::reliability_crash fail_snapshot_status_matches_the_original_retry_even_after_later_progress"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    },
+    {
+      "finding": "R24 节点资源",
+      "line": 68,
+      "tests": [
+        {
+          "name": "begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree",
+          "PASS": [
+            {
+              "line": 38,
+              "raw": "        PASS [   0.350s] ( 33/699) sheltie-cli::reliability_crash begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree"
+            }
+          ]
+        }
+      ],
+      "missing": []
+    }
+  ],
+  "gate_checks": [
+    {
+      "name": "fmt",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "check",
+      "argv": [
+        "cargo",
+        "check",
+        "--all-targets",
+        "--all-features"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "nextest",
+      "argv": [
+        "cargo",
+        "nextest",
+        "run",
+        "--all-features",
+        "--no-tests=pass",
+        "--no-fail-fast"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "msrv",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "check",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "core-vocab",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "tests",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "skill",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    },
+    {
+      "name": "dist",
+      "argv": [
+        "dist",
+        "plan",
+        "--output-format=json"
+      ],
+      "exit": 0,
+      "source_hash_match": true,
+      "stdout_hash_match": true
+    }
+  ],
+  "scope": "Execution evidence review only; SK01 missing final Spec approval retained; fresh mutation not executed",
+  "deny": {
+    "metadata": {
+      "argv": [
+        "cargo",
+        "deny",
+        "--offline",
+        "check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "4091333cb112bccac7b5dda0043f4d9ffa129865ffd1e5075b49c8ebba000447",
+      "scope": "Unchanged Cargo/lock/deny dependency input across T34 edits; original offline execution retained. Local cached advisories, no freshness claim."
+    },
+    "stdout_sha_match": true,
+    "cache_only": true,
+    "freshness_not_claimed": true
+  },
+  "SK01": [
+    {
+      "id": "M1-safety-skip-001",
+      "task": "C002-T34",
+      "stage": "independent_spec_review_continuation",
+      "agent": "/root/m1_spec",
+      "observed_utc": "2026-10-01 15:23:42 UTC",
+      "source_input_sha256": "deda6775efbc05e6cef327f6023cc57cc663715abdf7122ac004b5033c4ff67d",
+      "notice": "Agent errored: This content was flagged for possible cybersecurity risk. If this seems wrong, try rephrasing your request. If you’re doing authorized security work that requires more cyber permissive safeguards, apply for Daybreak access via https://platform.openai.com/settings/organization/status-and-access before retrying.\n\nThis agent's turn failed. If you still need this agent, use the available collaboration tools to give it another task.",
+      "requested_scope": "T34 final incremental Spec review: snapshot business binding, checked original/pending_original, Add publication target, historical status and node requires; no source edits.",
+      "status": "skipped_after_actual_platform_interruption",
+      "missing_obligation": "No final Spec approval from this continuation. Earlier returned finding/probe/seam/direction reviews remain historical evidence only.",
+      "retry_performed": false,
+      "not_claimed_as": [
+        "spec_pass",
+        "caught",
+        "equivalent",
+        "security_pass"
+      ],
+      "unaffected_work": "Continue existing Standards and evidence reviews, normal engineering gates and full frozen mutation validation; do not reroute or retry this affected Spec task."
+    }
+  ],
+  "document_note": "H prefix paragraph still says all explicit tests in below table PASS in original675 run; current table has newT33/T34 tests absent from old675. Limit that historical claim to original rows/tests."
+}

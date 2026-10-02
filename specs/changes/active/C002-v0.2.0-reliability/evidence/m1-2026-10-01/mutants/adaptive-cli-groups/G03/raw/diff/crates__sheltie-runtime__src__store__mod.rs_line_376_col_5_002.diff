@@ -1,0 +1,20 @@
+--- crates/sheltie-runtime/src/store/mod.rs
++++ replace file_identity -> (u64, u64) with (1, 0)
+@@ -368,16 +368,15 @@
+             reason: format!("管理根 {} 必须是目录", home.root()),
+         });
+     }
+     Ok(file_identity(&metadata))
+ }
+ 
+ #[cfg(unix)]
+ fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+-    use std::os::unix::fs::MetadataExt as _;
+-    (metadata.dev(), metadata.ino())
++    (1, 0) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(not(unix))]
+ fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+     (0, metadata.len())
+ }

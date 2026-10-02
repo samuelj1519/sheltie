@@ -1,0 +1,184 @@
+{
+  "result": "PASS",
+  "scope": "Independent already complete direct supplemental evidence; no formal results rewrite/SK01 substitute/SK02 execution retry. Old schema control assertion was harness incorrect expected-code only, retained as failed harness history.",
+  "timestamp": "2026-10-02T07:00:15.343420+00:00",
+  "groups": {
+    "schema-release-v2": {
+      "result": "PASS",
+      "ids": [
+        "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with String::new()",
+        "crates/sheltie-runtime/src/selfmgmt.rs:581:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest",
+        "crates/sheltie-runtime/src/selfmgmt.rs:615:26: replace == with != in adapt_cargo_dist_manifest",
+        "crates/sheltie-runtime/src/selfmgmt.rs:615:32: replace && with || in adapt_cargo_dist_manifest"
+      ],
+      "observations": [
+        {
+          "id": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with String::new()",
+          "classification": "independent_supplemental_detected",
+          "oracle": {
+            "binary_sha256": "99194457ee69196d7d092d8ecd99d6e7c3c5ab8e338bc192c54b96aaaf17ad65",
+            "last_cli_exit": 0,
+            "last_response": {
+              "data": {
+                "blocked": null,
+                "current": "outline#1",
+                "done": [],
+                "flow": "default",
+                "last_attempt": null,
+                "name": "default",
+                "next": [
+                  {
+                    "args": {
+                      "node": "outline",
+                      "work": "2026-10-02-001-default"
+                    },
+                    "executor": "agent",
+                    "op": "attempt begin",
+                    "tier": "standard"
+                  },
+                  {
+                    "args": {
+                      "work": "2026-10-02-001-default"
+                    },
+                    "op": "work cancel"
+                  }
+                ],
+                "pending": [
+                  "summary"
+                ],
+                "pending_publish": false,
+                "status": {
+                  "kind": "active"
+                },
+                "visits": {
+                  "outline": "1/1",
+                  "summary": "0/1"
+                },
+                "work_id": "2026-10-02-001-default",
+                "workbook": "two-step@1.0.0"
+              },
+              "next": [
+                {
+                  "args": {
+                    "node": "outline",
+                    "work": "2026-10-02-001-default"
+                  },
+                  "executor": "agent",
+                  "op": "attempt begin",
+                  "tier": "standard"
+                },
+                {
+                  "args": {
+                    "work": "2026-10-02-001-default"
+                  },
+                  "op": "work cancel"
+                }
+              ],
+              "ok": true
+            },
+            "complete": false
+          }
+        },
+        {
+          "id": "crates/sheltie-runtime/src/selfmgmt.rs:581:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest",
+          "classification": "independent_supplemental_detected",
+          "oracle": {
+            "binary_sha256": "d69070fa4eda9858071f711258ca84819f53af8f61db01aca52362ae3f1df45a",
+            "last_cli_exit": 1,
+            "last_response": {
+              "error": {
+                "code": "UPDATE_UNAVAILABLE",
+                "detail": {
+                  "reason": "\u53d1\u5e03\u6e05\u5355\u65e2\u4e0d\u662f\u7626\u683c\u5f0f\u4e5f\u89e3\u4e0d\u51fa cargo-dist \u7684\u5b57\u6bb5"
+                },
+                "message": "\u6ca1\u6709\u53ef\u7528\u7684\u66f4\u65b0\uff1a\u53d1\u5e03\u6e05\u5355\u65e2\u4e0d\u662f\u7626\u683c\u5f0f\u4e5f\u89e3\u4e0d\u51fa cargo-dist \u7684\u5b57\u6bb5"
+              },
+              "next": [],
+              "ok": false
+            },
+            "complete": false
+          }
+        },
+        {
+          "id": "crates/sheltie-runtime/src/selfmgmt.rs:615:26: replace == with != in adapt_cargo_dist_manifest",
+          "classification": "independent_supplemental_detected",
+          "oracle": {
+            "binary_sha256": "51f4424f8d2486119bd0eb79b684a7fbcef02e20f1f57058f6822665312e21e5",
+            "last_cli_exit": 1,
+            "last_response": {
+              "error": {
+                "code": "UPDATE_UNAVAILABLE",
+                "detail": {
+                  "reason": "\u53d1\u5e03\u6e05\u5355\u91cc\u6ca1\u6709 aarch64-apple-darwin \u7684\u5305"
+                },
+                "message": "\u6ca1\u6709\u53ef\u7528\u7684\u66f4\u65b0\uff1a\u53d1\u5e03\u6e05\u5355\u91cc\u6ca1\u6709 aarch64-apple-darwin \u7684\u5305"
+              },
+              "next": [],
+              "ok": false
+            },
+            "complete": false
+          }
+        },
+        {
+          "id": "crates/sheltie-runtime/src/selfmgmt.rs:615:32: replace && with || in adapt_cargo_dist_manifest",
+          "classification": "independent_supplemental_detected",
+          "oracle": {
+            "binary_sha256": "11b936d7c718678683145b77c9347b3deb1f020c1967f038b30d26b8ba4b3385",
+            "last_cli_exit": 1,
+            "last_response": {
+              "error": {
+                "code": "UPDATE_UNAVAILABLE",
+                "detail": {
+                  "reason": "\u8bfb\u4e0d\u4e86\u53d1\u5e03\u5305 /private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded\uff1a/private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded \u4e0d\u5b58\u5728"
+                },
+                "message": "\u6ca1\u6709\u53ef\u7528\u7684\u66f4\u65b0\uff1a\u8bfb\u4e0d\u4e86\u53d1\u5e03\u5305 /private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded\uff1a/private/tmp/m1-extra-release-zxwzmqtm/release/v9.9.9/invalid-not-downloaded \u4e0d\u5b58\u5728"
+              },
+              "next": [],
+              "ok": false
+            },
+            "complete": false
+          }
+        }
+      ],
+      "raw_members_verified": 57,
+      "raw_manifest_sha256": "9bd58c486831502dabc860afc47071b328ea02e3f12b38a583dfef7b4861a30b",
+      "errors": []
+    },
+    "publication": {
+      "result": "PASS",
+      "ids": [
+        "crates/sheltie-runtime/src/effects.rs:1050:9: replace || with && in verify_publish_object"
+      ],
+      "observations": [
+        {
+          "id": "crates/sheltie-runtime/src/effects.rs:1050:9: replace || with && in verify_publish_object",
+          "classification": "independent_supplemental_detected",
+          "oracle": {
+            "binary_sha256": "c9daf357a64d5230c81deba39d36bcaa4f3ea75e2a9afab58cb277a54add5d48",
+            "last_cli_exit": 0,
+            "last_response": {
+              "data": {
+                "digest": "1d4694ea5b93bff6f26ce94f8c0b5ebbf23d40a048985bdb9a90a766c58a4dc9",
+                "flows": [
+                  "default"
+                ],
+                "id": "two-step",
+                "replayed": true,
+                "requires": [],
+                "version": "1.0.0"
+              },
+              "next": [],
+              "ok": true,
+              "request_id": "extra-publication"
+            },
+            "complete": false
+          }
+        }
+      ],
+      "raw_members_verified": 28,
+      "raw_manifest_sha256": "2e2e2343661ba2d7402bd4e65aabf3a882eb8b33ba867e493926a57c534c19f5",
+      "errors": []
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/service.rs
++++ replace || with && in WorkService::workbook_publication
+@@ -706,17 +706,17 @@
+             return Err(Error::StoreCorrupt {
+                 detail: format!("Work {work} 的未发布Start效果归属不一致"),
+             });
+         }
+         let segments = pending.split('/').collect::<Vec<_>>();
+         if segments.len() != 3
+             || segments[0] != "pending"
+             || segments[2] != "payload"
+-            || uuid::Uuid::parse_str(segments[1]).is_err()
++            && /* ~ changed by cargo-mutants ~ */ uuid::Uuid::parse_str(segments[1]).is_err()
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("Work {work} 的pending路径无效"),
+             });
+         }
+         if request.work_id.as_deref() != Some(work.as_str()) {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("未发布Start {request_id} 的Work归属不一致"),

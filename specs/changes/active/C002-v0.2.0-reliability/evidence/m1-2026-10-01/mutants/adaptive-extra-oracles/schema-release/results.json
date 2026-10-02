@@ -1,0 +1,35 @@
+{
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "control": [
+    {
+      "argv": [
+        "python3",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/schema.py",
+        "--binary",
+        "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+        "--source",
+        "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-source",
+        "--output",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/schema-release/control-schema"
+      ],
+      "exit": 1,
+      "script": "schema.py"
+    }
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target",
+    "RUSTC_WRAPPER": ""
+  },
+  "mutants": [],
+  "runner_sha256": "8588f6b387e821f1fb9ec3584c617e16e070f221290bb81a033b431bb736662d",
+  "scripts": {
+    "release-array.py": "dfb63d84f124df21298497b4a586c98d717a0bc2b2a04399678c56710e7787ad",
+    "schema.py": "1bee1da08dbe004dff4b6fb9c5a9fee256c11cb26eb31b39c1c4c660baf0cf46"
+  },
+  "tools": {
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  }
+}

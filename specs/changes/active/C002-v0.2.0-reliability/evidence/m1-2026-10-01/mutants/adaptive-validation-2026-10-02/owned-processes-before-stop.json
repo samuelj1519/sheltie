@@ -1,0 +1,145 @@
+{
+  "root": {
+    "pid": 69634,
+    "ppid": 28196,
+    "pgid": 69634,
+    "command": "python3 /private/tmp/m1-resume-pipeline.py"
+  },
+  "owned": [
+    {
+      "pid": 2937,
+      "ppid": 69652,
+      "pgid": 2937,
+      "command": "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/tools/cargo-nextest nextest run --verbose --workspace --all-features"
+    },
+    {
+      "pid": 4120,
+      "ppid": 69652,
+      "pgid": 4120,
+      "command": "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/tools/cargo-nextest nextest run --verbose --workspace --all-features"
+    },
+    {
+      "pid": 69634,
+      "ppid": 28196,
+      "pgid": 69634,
+      "command": "python3 /private/tmp/m1-resume-pipeline.py"
+    },
+    {
+      "pid": 69652,
+      "ppid": 69634,
+      "pgid": 69634,
+      "command": "/Users/shushu/.cargo/bin/cargo-mutants mutants -p sheltie-runtime --timeout 600 --test-tool nextest --output target --exclude crates/*/src/testkit.rs --all-features --copy-vcs true --jobs 4 --test-workspace true --re ^(?:crates/sheltie-runtime/src/effects\\.rs:150:21: replace \\|\\| with && in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:508:57: replace \\|\\| with && in check_workbook_effects|crates/sheltie-runtime/src/effects\\.rs:1080:45: replace \\|\\| with && in verify_start_input_references|crates/sheltie-runtime/src/effects\\.rs:1225:9: replace \\|\\| with && in pending_internal_id|crates/sheltie-runtime/src/failpoint\\.rs:170:34: replace == with != in rendezvous|crates/sheltie-runtime/src/fsx\\.rs:128:28: replace \\| with \\^ in ManagedDir::write_new|crates/sheltie-runtime/src/fsx\\.rs:254:62: replace \\| with & in ManagedFs::open_lock_file|crates/sheltie-runtime/src/fsx\\.rs:289:64: replace \\| with \\^ in ManagedFs::open_existing_lock_file|crates/sheltie-runtime/src/fsx\\.rs:357:9: replace ManagedFs::display_path -> String with String::new\\(\\)|crates/sheltie-runtime/src/fsx\\.rs:426:40: replace \\| with \\^ in ManagedFs::ensure_dir_unlocked|crates/sheltie-runtime/src/fsx\\.rs:737:77: replace \\|\\| with && in ManagedFs::sync_regular_file_handle_locked|crates/sheltie-runtime/src/fsx\\.rs:870:26: replace \\| with \\^ in ManagedFs::write_new_observed_unlocked|crates/sheltie-runtime/src/fsx\\.rs:952:28: replace \\| with \\^ in ManagedFs::write_atomic_unlocked|crates/sheltie-runtime/src/fsx\\.rs:1141:13: replace \\|\\| with && in ManagedFs::replace_regular_file|crates/sheltie-runtime/src/fsx\\.rs:1431:37: replace \\|\\| with && in ManagedFs::set_mode|crates/sheltie-runtime/src/fsx\\.rs:1595:9: replace \\|\\| with && in verify_tree_entry_at|crates/sheltie-runtime/src/fsx\\.rs:1881:28: replace \\| with & in ExternalReadTree::open_file|crates/sheltie-runtime/src/fsx\\.rs:2235:5: replace validate_store_files_locked -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/fsx\\.rs:2377:63: replace \\| with \\^ in open_directory_at|crates/sheltie-runtime/src/fsx\\.rs:2444:44: replace \\| with & in remove_at|crates/sheltie-runtime/src/fsx\\.rs:2506:72: replace != with == in unlink_created_at|crates/sheltie-runtime/src/fsx\\.rs:2676:13: replace \\|\\| with && in SafeFile::verify_seal_reference|crates/sheltie-runtime/src/fsx\\.rs:3008:24: replace \\| with \\^ in make_directories_writable|crates/sheltie-runtime/src/fsx\\.rs:3093:35: replace && with \\|\\| in set_dir_tree_mode|crates/sheltie-runtime/src/fsx\\.rs:3121:35: replace && with \\|\\| in set_dir_tree_mode|crates/sheltie-runtime/src/load\\.rs:294:5: replace require_path -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/pending\\.rs:214:30: replace && with \\|\\| in locate_publish_dir|crates/sheltie-runtime/src/pending\\.rs:664:13: replace && with \\|\\| in cleanup_selected|crates/sheltie-runtime/src/selfmgmt\\.rs:18:41: replace \\* with /|crates/sheltie-runtime/src/selfmgmt\\.rs:474:9: replace \\|\\| with && in checked_version|crates/sheltie-runtime/src/selfmgmt\\.rs:661:12: delete ! in download|crates/sheltie-runtime/src/selfmgmt\\.rs:838:24: replace > with < in wait_bounded_child|crates/sheltie-runtime/src/service\\.rs:601:51: replace match guard !location\\.pending_publish with false in WorkService::load_row|crates/sheltie-runtime/src/service\\.rs:768:56: replace == with != in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:1191:17: replace && with \\|\\| in validate_command_owner|crates/sheltie-runtime/src/snapshot\\.rs:142:17: replace && with \\|\\| in check_data|crates/sheltie-runtime/src/store/mod\\.rs:278:21: replace \\| with \\^ in Store::connect|crates/sheltie-runtime/src/store/mod\\.rs:364:5: replace root_identity -> Result<\\(u64, u64\\)> with Ok\\(\\(1, 1\\)\\)|crates/sheltie-runtime/src/store/mod\\.rs:382:5: replace file_identity -> \\(u64, u64\\) with \\(1, 1\\)|crates/sheltie-runtime/src/workbook_repo\\.rs:388:21: replace \\|\\| with && in WorkbookRepo::load_checked_request|crates/sheltie-runtime/src/workbook_repo\\.rs:656:34: replace && with \\|\\| in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:740:46: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:786:13: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/store/read\\.rs:43:13: replace \\|\\| with && in RequestMetadata::check_row|crates/sheltie-runtime/src/store/schema\\.rs:82:5: replace normalize_sql -> String with \"xyzzy\"\\.into\\(\\))$"
+    },
+    {
+      "pid": 74591,
+      "ppid": 69652,
+      "pgid": 74591,
+      "command": "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/tools/cargo-nextest nextest run --verbose --workspace --all-features"
+    },
+    {
+      "pid": 76532,
+      "ppid": 69652,
+      "pgid": 76532,
+      "command": "/Users/shushu/orca/workspaces/sheltie/codex/target/t31-validation/tools/cargo-nextest nextest run --verbose --workspace --all-features"
+    },
+    {
+      "pid": 78334,
+      "ppid": 74591,
+      "pgid": 78334,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4JyuvT.tmp/target/debug/deps/reliability_crash-ebfa95d002555a0c --exact begin_and_submit_recover_registered_bytes_and_seals_after_real_process_termination --nocapture"
+    },
+    {
+      "pid": 78496,
+      "ppid": 76532,
+      "pgid": 78496,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4P6RRb.tmp/target/debug/deps/release_governance-63aad04acf1ee82a --exact check_specs_accepts_active_target_without_tag --nocapture"
+    },
+    {
+      "pid": 78515,
+      "ppid": 4120,
+      "pgid": 78515,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-f6EKx7.tmp/target/debug/deps/workbook_txn-f5067a9b5aac53cc --exact completed_work_final_requires_its_successful_start_request --nocapture"
+    },
+    {
+      "pid": 78537,
+      "ppid": 74591,
+      "pgid": 78537,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4JyuvT.tmp/target/debug/deps/reliability_crash-ebfa95d002555a0c --exact committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot --nocapture"
+    },
+    {
+      "pid": 78550,
+      "ppid": 76532,
+      "pgid": 78550,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4P6RRb.tmp/target/debug/deps/release_governance-63aad04acf1ee82a --exact check_specs_accepts_rc_of_active_target --nocapture"
+    },
+    {
+      "pid": 78573,
+      "ppid": 4120,
+      "pgid": 78573,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-f6EKx7.tmp/target/debug/deps/workbook_txn-f5067a9b5aac53cc --exact current_workbook_never_uses_an_old_same_second_publisher_when_latest_audit_is_corrupt --nocapture"
+    },
+    {
+      "pid": 78588,
+      "ppid": 78550,
+      "pgid": 78550,
+      "command": "git add -A"
+    },
+    {
+      "pid": 78589,
+      "ppid": 2937,
+      "pgid": 78589,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-umTNqT.tmp/target/debug/deps/workbook_txn-f5067a9b5aac53cc --exact workbook_publication_recovery_checks_owner_and_manifest_identity --nocapture"
+    },
+    {
+      "pid": 78590,
+      "ppid": 78334,
+      "pgid": 78334,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4JyuvT.tmp/target/debug/sheltie --home /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp95836y --json work start --workbook two-step --flow default --input topic=attempt"
+    },
+    {
+      "pid": 78617,
+      "ppid": 2937,
+      "pgid": 78617,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-umTNqT.tmp/target/debug/deps/workbook_txn-f5067a9b5aac53cc --exact workbook_reader_accepts_publication_and_cleanup_after_its_reference_index --nocapture"
+    },
+    {
+      "pid": 78640,
+      "ppid": 78537,
+      "pgid": 78537,
+      "command": "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-source-4JyuvT.tmp/target/debug/sheltie --home /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpYm9P7v --json --request-id t31-history-brief-symlink attempt begin 2026-10-02-001-default --node outline"
+    },
+    {
+      "pid": 78652,
+      "ppid": 78496,
+      "pgid": 78496,
+      "command": "bash /var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpxsHMvY/gov/scripts/check-specs.sh"
+    },
+    {
+      "pid": 78657,
+      "ppid": 78652,
+      "pgid": 78496,
+      "command": "(bash)"
+    },
+    {
+      "pid": 78658,
+      "ppid": 78657,
+      "pgid": 78496,
+      "command": "(grep)"
+    }
+  ],
+  "group_members": [
+    {
+      "pid": 69634,
+      "ppid": 28196,
+      "pgid": 69634,
+      "command": "python3 /private/tmp/m1-resume-pipeline.py"
+    },
+    {
+      "pid": 69652,
+      "ppid": 69634,
+      "pgid": 69634,
+      "command": "/Users/shushu/.cargo/bin/cargo-mutants mutants -p sheltie-runtime --timeout 600 --test-tool nextest --output target --exclude crates/*/src/testkit.rs --all-features --copy-vcs true --jobs 4 --test-workspace true --re ^(?:crates/sheltie-runtime/src/effects\\.rs:150:21: replace \\|\\| with && in check_work_effects|crates/sheltie-runtime/src/effects\\.rs:508:57: replace \\|\\| with && in check_workbook_effects|crates/sheltie-runtime/src/effects\\.rs:1080:45: replace \\|\\| with && in verify_start_input_references|crates/sheltie-runtime/src/effects\\.rs:1225:9: replace \\|\\| with && in pending_internal_id|crates/sheltie-runtime/src/failpoint\\.rs:170:34: replace == with != in rendezvous|crates/sheltie-runtime/src/fsx\\.rs:128:28: replace \\| with \\^ in ManagedDir::write_new|crates/sheltie-runtime/src/fsx\\.rs:254:62: replace \\| with & in ManagedFs::open_lock_file|crates/sheltie-runtime/src/fsx\\.rs:289:64: replace \\| with \\^ in ManagedFs::open_existing_lock_file|crates/sheltie-runtime/src/fsx\\.rs:357:9: replace ManagedFs::display_path -> String with String::new\\(\\)|crates/sheltie-runtime/src/fsx\\.rs:426:40: replace \\| with \\^ in ManagedFs::ensure_dir_unlocked|crates/sheltie-runtime/src/fsx\\.rs:737:77: replace \\|\\| with && in ManagedFs::sync_regular_file_handle_locked|crates/sheltie-runtime/src/fsx\\.rs:870:26: replace \\| with \\^ in ManagedFs::write_new_observed_unlocked|crates/sheltie-runtime/src/fsx\\.rs:952:28: replace \\| with \\^ in ManagedFs::write_atomic_unlocked|crates/sheltie-runtime/src/fsx\\.rs:1141:13: replace \\|\\| with && in ManagedFs::replace_regular_file|crates/sheltie-runtime/src/fsx\\.rs:1431:37: replace \\|\\| with && in ManagedFs::set_mode|crates/sheltie-runtime/src/fsx\\.rs:1595:9: replace \\|\\| with && in verify_tree_entry_at|crates/sheltie-runtime/src/fsx\\.rs:1881:28: replace \\| with & in ExternalReadTree::open_file|crates/sheltie-runtime/src/fsx\\.rs:2235:5: replace validate_store_files_locked -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/fsx\\.rs:2377:63: replace \\| with \\^ in open_directory_at|crates/sheltie-runtime/src/fsx\\.rs:2444:44: replace \\| with & in remove_at|crates/sheltie-runtime/src/fsx\\.rs:2506:72: replace != with == in unlink_created_at|crates/sheltie-runtime/src/fsx\\.rs:2676:13: replace \\|\\| with && in SafeFile::verify_seal_reference|crates/sheltie-runtime/src/fsx\\.rs:3008:24: replace \\| with \\^ in make_directories_writable|crates/sheltie-runtime/src/fsx\\.rs:3093:35: replace && with \\|\\| in set_dir_tree_mode|crates/sheltie-runtime/src/fsx\\.rs:3121:35: replace && with \\|\\| in set_dir_tree_mode|crates/sheltie-runtime/src/load\\.rs:294:5: replace require_path -> Result<\\(\\)> with Ok\\(\\(\\)\\)|crates/sheltie-runtime/src/pending\\.rs:214:30: replace && with \\|\\| in locate_publish_dir|crates/sheltie-runtime/src/pending\\.rs:664:13: replace && with \\|\\| in cleanup_selected|crates/sheltie-runtime/src/selfmgmt\\.rs:18:41: replace \\* with /|crates/sheltie-runtime/src/selfmgmt\\.rs:474:9: replace \\|\\| with && in checked_version|crates/sheltie-runtime/src/selfmgmt\\.rs:661:12: delete ! in download|crates/sheltie-runtime/src/selfmgmt\\.rs:838:24: replace > with < in wait_bounded_child|crates/sheltie-runtime/src/service\\.rs:601:51: replace match guard !location\\.pending_publish with false in WorkService::load_row|crates/sheltie-runtime/src/service\\.rs:768:56: replace == with != in WorkService::workbook_publication|crates/sheltie-runtime/src/service\\.rs:1191:17: replace && with \\|\\| in validate_command_owner|crates/sheltie-runtime/src/snapshot\\.rs:142:17: replace && with \\|\\| in check_data|crates/sheltie-runtime/src/store/mod\\.rs:278:21: replace \\| with \\^ in Store::connect|crates/sheltie-runtime/src/store/mod\\.rs:364:5: replace root_identity -> Result<\\(u64, u64\\)> with Ok\\(\\(1, 1\\)\\)|crates/sheltie-runtime/src/store/mod\\.rs:382:5: replace file_identity -> \\(u64, u64\\) with \\(1, 1\\)|crates/sheltie-runtime/src/workbook_repo\\.rs:388:21: replace \\|\\| with && in WorkbookRepo::load_checked_request|crates/sheltie-runtime/src/workbook_repo\\.rs:656:34: replace && with \\|\\| in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:740:46: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/workbook_repo\\.rs:786:13: replace \\|\\| with && in WorkbookRepo::publication_for_row|crates/sheltie-runtime/src/store/read\\.rs:43:13: replace \\|\\| with && in RequestMetadata::check_row|crates/sheltie-runtime/src/store/schema\\.rs:82:5: replace normalize_sql -> String with \"xyzzy\"\\.into\\(\\))$"
+    }
+  ],
+  "group_equals_owned": false
+}

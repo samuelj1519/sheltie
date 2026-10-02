@@ -1,0 +1,98 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::sync_regular_file_handle_locked\n@@ -729,17 +729,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root || origin.root_ident != self.root_ident && /* ~ changed by cargo-mutants ~ */ origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 754
+        },
+        "start": {
+          "column": 5,
+          "line": 727
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 79,
+        "line": 737
+      },
+      "start": {
+        "column": 77,
+        "line": 737
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::sync_regular_file_handle_locked\n@@ -729,17 +729,17 @@\n         lock: &crate::home::HomeLock,\n         path: &ManagedRelPath,\n         file: &SafeFile,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = file.managed.as_ref().ok_or_else(|| Error::InvalidRequest {\n             reason: format!(\"{} 不是受管文件句柄\", file.path),\n         })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root && /* ~ changed by cargo-mutants ~ */ origin.root_ident != self.root_ident || origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份与同步路径不一致\", file.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, file)?;\n         fsync(&file.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;\n         verify_path_matches_handle(&parent, &leaf, file).map_err(|error| {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::sync_regular_file_handle_locked",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 754
+        },
+        "start": {
+          "column": 5,
+          "line": 727
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:737:37: replace || with && in ManagedFs::sync_regular_file_handle_locked",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 737
+      },
+      "start": {
+        "column": 37,
+        "line": 737
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/service.rs\n+++ replace > with >= in observe_output\n@@ -1575,17 +1575,17 @@\n     home: &Home,\n     name: &str,\n     path: &AbsPath,\n ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {\n     let Some(f) = crate::fsx::open_managed_optional(home, path)? else {\n         return Ok((None, None));\n     };\n     let len = f.metadata().len();\n-    if len > crate::fsx::MAX_FILE_BYTES {\n+    if len >= /* ~ changed by cargo-mutants ~ */ crate::fsx::MAX_FILE_BYTES {\n         return Err(Error::Core(sheltie_core::Error::OutputTooLarge {\n             output: name.to_string(),\n             max_bytes: crate::fsx::MAX_FILE_BYTES,\n             actual: len,\n         }));\n     }\n     let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;\n     Ok((\n",
+    "file": "crates/sheltie-runtime/src/service.rs",
+    "function": {
+      "function_name": "observe_output",
+      "return_type": "-> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1595
+        },
+        "start": {
+          "column": 1,
+          "line": 1571
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/service.rs:1583:12: replace > with >= in observe_output",
+    "package": "sheltie-runtime",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 1583
+      },
+      "start": {
+        "column": 12,
+        "line": 1583
+      }
+    }
+  }
+]

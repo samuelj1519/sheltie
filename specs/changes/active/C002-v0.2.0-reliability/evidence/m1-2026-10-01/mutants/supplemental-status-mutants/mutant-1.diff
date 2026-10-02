@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/work/decide.rs
++++ replace && with || in reply_status_matches
+@@ -521,17 +521,17 @@
+             .is_some_and(|node| status == status_after_failure(attempt.retry, node.max_retries)),
+         Reply::AttemptSubmitted { attempt, .. } => {
+             graph.node(&attempt.node).is_some()
+                 && (status == success_status_at(graph, &attempt.node, true, false)
+                     || status == success_status_at(graph, &attempt.node, true, true))
+         }
+         Reply::GateApproved { node, .. } => {
+             graph.node(node).is_some()
+-                && (status == success_status_at(graph, node, false, false)
++                || /* ~ changed by cargo-mutants ~ */ (status == success_status_at(graph, node, false, false)
+                     || status == success_status_at(graph, node, false, true))
+         }
+         Reply::Started { .. } | Reply::AttemptBegun { .. } => status == WorkStatus::Active,
+         Reply::Cancelled => status == WorkStatus::Cancelled,
+     }
+ }
+ 
+ /// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；

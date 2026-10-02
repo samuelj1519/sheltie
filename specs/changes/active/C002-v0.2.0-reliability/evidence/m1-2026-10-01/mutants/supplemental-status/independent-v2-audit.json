@@ -1,0 +1,475 @@
+{
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "records": 72,
+  "legal_cases": 6,
+  "negative_count": 28,
+  "before_after_pairs": [
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "active"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 14
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 14
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 14
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 14
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 14
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "active"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "active"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "active"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "cancelled"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "facts_equal": true,
+      "tables": [
+        "audit",
+        "requests",
+        "sqlite_sequence",
+        "work_sequence",
+        "workbooks",
+        "works"
+      ],
+      "business_files": 12
+    }
+  ],
+  "derived_fixture_cases_checked": 6,
+  "manifest_members_checked": 59,
+  "errors": [],
+  "result": "PASS",
+  "scope": "Supplemental real CLI baseline only; not mutation caught, formal nextest closure, or SK01 Spec approval"
+}

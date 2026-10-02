@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ replace || with && in checked_version
+@@ -465,17 +465,17 @@
+ fn tag_version(tag: &str) -> String {
+     tag.strip_prefix('v').unwrap_or(tag).to_string()
+ }
+ 
+ /// 版本号只允许一个路径段（无 `/`、`..`、`.`、NUL），防止伪造的版本把 URL/路径带出发布目录。
+ fn checked_version(raw: &str) -> Result<String> {
+     let v = raw.strip_prefix('v').unwrap_or(raw);
+     if v.is_empty()
+-        || v == "."
++        && /* ~ changed by cargo-mutants ~ */ v == "."
+         || v == ".."
+         || v.contains('/')
+         || v.contains('\\')
+         || v.contains('\0')
+     {
+         return Err(Error::UpdateUnavailable {
+             reason: format!("版本 {raw} 不是合法的版本号"),
+         });

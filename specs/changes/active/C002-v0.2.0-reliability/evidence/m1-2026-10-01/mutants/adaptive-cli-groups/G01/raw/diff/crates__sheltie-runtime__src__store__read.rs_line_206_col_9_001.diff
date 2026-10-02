@@ -1,0 +1,28 @@
+--- crates/sheltie-runtime/src/store/read.rs
++++ replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(None))
+@@ -198,24 +198,17 @@
+                 "SELECT intent_hash FROM requests WHERE request_id = ?1",
+                 [request_id],
+                 |row| row.get(0),
+             )
+             .optional()?)
+     }
+ 
+     pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {
+-        let conn = self.connect()?;
+-        Ok(conn
+-            .query_row(
+-                "SELECT work_id FROM requests WHERE request_id = ?1",
+-                [request_id],
+-                |row| row.get(0),
+-            )
+-            .optional()?)
++        Ok(Some(None)) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub(crate) fn inspect_request_metadata(
+         &self,
+         request_id: &str,
+     ) -> Result<Option<RequestMetadata>> {
+         let conn = self.connect()?;
+         Ok(conn

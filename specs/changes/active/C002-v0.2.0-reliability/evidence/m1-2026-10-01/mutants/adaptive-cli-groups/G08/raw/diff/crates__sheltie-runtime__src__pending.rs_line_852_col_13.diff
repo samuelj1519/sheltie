@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ replace || with && in validate_publish_reference
+@@ -844,17 +844,17 @@
+         detail: format!("publish final路径无效：{error}"),
+     })?;
+     if let Some(work) = owner.strip_prefix("work:") {
+         let parsed =
+             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {
+                 detail: format!("publish Work owner {owner:?} 无效：{error}"),
+             })?;
+         if owner != format!("work:{parsed}")
+-            || final_path != format!("works/{parsed}")
++            && /* ~ changed by cargo-mutants ~ */ final_path != format!("works/{parsed}")
+             || digest_root != "workbook"
+             || !valid_digest(digest)
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("publish Work {owner:?} 的final/digest闭包无效"),
+             });
+         }
+         return Ok(());

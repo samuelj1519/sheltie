@@ -1,0 +1,73 @@
+crates/sheltie-runtime/src/fsx.rs:128:79: replace | with & in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:128:79: replace | with ^ in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:128:60: replace | with ^ in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:128:60: replace | with & in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:128:45: replace | with ^ in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:128:28: replace | with ^ in ManagedDir::write_new
+crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:206:29: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Symlink with false in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:211:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with true in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root
+crates/sheltie-runtime/src/fsx.rs:254:81: replace | with & in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:254:81: replace | with ^ in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:254:62: replace | with & in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:254:62: replace | with ^ in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:254:43: replace | with ^ in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:254:26: replace | with ^ in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:260:75: replace || with && in ManagedFs::open_lock_file
+crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:280:13: replace || with && in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:64: replace | with & in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:64: replace | with ^ in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:45: replace | with & in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:45: replace | with ^ in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:26: replace | with & in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:289:26: replace | with ^ in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:297:13: replace || with && in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:296:13: replace || with && in ManagedFs::open_existing_lock_file
+crates/sheltie-runtime/src/fsx.rs:357:9: replace ManagedFs::display_path -> String with String::new()
+crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:407:52: replace || with && in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:79: replace | with & in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:79: replace | with ^ in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:60: replace | with & in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:60: replace | with ^ in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:40: replace | with & in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:426:40: replace | with ^ in ManagedFs::ensure_dir_unlocked
+crates/sheltie-runtime/src/fsx.rs:494:25: replace match guard FileType::from_raw_mode(stat.st_mode) == FileType::Directory with true in ManagedFs::directory_exists
+crates/sheltie-runtime/src/fsx.rs:544:17: delete match arm FileType::Symlink in ManagedFs::directory_entries
+crates/sheltie-runtime/src/fsx.rs:568:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:576:13: replace || with && in ManagedFs::verify_tree_at
+crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at
+crates/sheltie-runtime/src/fsx.rs:617:13: replace || with && in ManagedFs::rename_tree_new
+crates/sheltie-runtime/src/fsx.rs:616:13: replace || with && in ManagedFs::rename_tree_new
+crates/sheltie-runtime/src/fsx.rs:737:77: replace || with && in ManagedFs::sync_regular_file_handle_locked
+crates/sheltie-runtime/src/fsx.rs:737:37: replace || with && in ManagedFs::sync_regular_file_handle_locked
+crates/sheltie-runtime/src/fsx.rs:813:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:813:35: replace || with && in ManagedFs::check_tree_root
+crates/sheltie-runtime/src/fsx.rs:870:77: replace | with & in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:870:77: replace | with ^ in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:870:58: replace | with ^ in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:870:43: replace | with ^ in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:870:26: replace | with ^ in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:891:13: replace || with && in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:890:13: replace || with && in ManagedFs::write_new_observed_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:79: replace | with & in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:79: replace | with ^ in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:60: replace | with & in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:60: replace | with ^ in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:45: replace | with ^ in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:952:28: replace | with ^ in ManagedFs::write_atomic_unlocked
+crates/sheltie-runtime/src/fsx.rs:995:37: replace || with && in ManagedFs::rename_verified_new
+crates/sheltie-runtime/src/fsx.rs:1043:37: replace || with && in ManagedFs::replace_verified_regular_file
+crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file
+crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file
+crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file
+crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file

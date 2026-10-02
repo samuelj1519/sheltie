@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace || with && in verify_publish_object
+@@ -1042,17 +1042,17 @@
+             .ok_or_else(|| Error::StoreCorrupt {
+                 detail: format!("Workbook发布owner {owner:?} 格式无效"),
+             })?;
+     let loaded =
+         crate::workbook_repo::WorkbookRepo::load_managed_dir(home, dir).map_err(|error| {
+             integrity_error(format!("Workbook发布目录 {dir} manifest校验失败"), error)
+         })?;
+     if loaded.manifest.id().as_str() != expected_id
+-        || loaded.manifest.version() != expected_version
++        && /* ~ changed by cargo-mutants ~ */ loaded.manifest.version() != expected_version
+         || loaded.digest.as_str() != digest
+     {
+         return Err(Error::StoreCorrupt {
+             detail: format!("Workbook发布目录 {dir} 的manifest身份或摘要与请求owner不符"),
+         });
+     }
+     Ok(())
+ }

@@ -1,0 +1,627 @@
+{
+  "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source/target/debug/sheltie",
+  "binary_sha256": "03de14b5bbd2da6c30eb3d5df16690b0b73d153f43a65623af2d5a573dd8faf0",
+  "source": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/source",
+  "oracle_sha256": "3626700db4a282e1d532d7c7493c9fe3fb715ac61716446f772f2b546321e024",
+  "fixture_sha256": {
+    "examples/two-step/flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+    "examples/two-step/instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+    "examples/two-step/instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+    "examples/two-step/workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211",
+    "examples/gated-release/flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+    "examples/gated-release/instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+    "examples/gated-release/instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+    "examples/gated-release/workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+  },
+  "cases": [
+    {
+      "name": "submit_active",
+      "legal_status": {
+        "kind": "active"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        0,
+        11
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_terminal",
+      "legal_status": {
+        "kind": "succeeded"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "succeeded"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        11,
+        24
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_gate",
+      "legal_status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        24,
+        36
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "submit_terminal_gate",
+      "legal_status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        36,
+        48
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "approve_active",
+      "legal_status": {
+        "kind": "active"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "succeeded"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        48,
+        60
+      ],
+      "result": "PASS"
+    },
+    {
+      "name": "approve_terminal",
+      "legal_status": {
+        "kind": "succeeded"
+      },
+      "allowed_necessary_statuses": [
+        {
+          "kind": "succeeded"
+        }
+      ],
+      "negative_statuses": [
+        {
+          "kind": "active"
+        },
+        {
+          "kind": "cancelled"
+        },
+        {
+          "kind": "blocked",
+          "reason": "gate"
+        },
+        {
+          "kind": "blocked",
+          "reason": "no_legal_edge"
+        },
+        {
+          "kind": "blocked",
+          "reason": "retries_exhausted"
+        }
+      ],
+      "record_range": [
+        60,
+        72
+      ],
+      "result": "PASS"
+    }
+  ],
+  "fact_observations": [
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_active/1",
+      "sha256": {
+        "before": "99b5071ddb8abb5567377d49dafb5c9032e1bc06f5fd8ed70d0f4d246c5c52f4",
+        "after": "99b5071ddb8abb5567377d49dafb5c9032e1bc06f5fd8ed70d0f4d246c5c52f4"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_active/2",
+      "sha256": {
+        "before": "a6ea3597f0f1f08fe9d0191447be976dc21e3c8bd0eb9ed17af5c473a55f59af",
+        "after": "a6ea3597f0f1f08fe9d0191447be976dc21e3c8bd0eb9ed17af5c473a55f59af"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/submit_active/3",
+      "sha256": {
+        "before": "4a8e42cf1e781c89e39abde5f71b0d32946b51f55e5204136d77b6c958b0b603",
+        "after": "4a8e42cf1e781c89e39abde5f71b0d32946b51f55e5204136d77b6c958b0b603"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_active/5",
+      "sha256": {
+        "before": "5bd308b105ffc51691d2fffdc4f655943e324942266fb5e475183a82a7036b10",
+        "after": "5bd308b105ffc51691d2fffdc4f655943e324942266fb5e475183a82a7036b10"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_terminal/0",
+      "sha256": {
+        "before": "9b6791799894e4bbe8dd44cbfb1738cfcfca9c8477a924d2e70d7936ad670959",
+        "after": "9b6791799894e4bbe8dd44cbfb1738cfcfca9c8477a924d2e70d7936ad670959"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_terminal/2",
+      "sha256": {
+        "before": "cb970e29259b6679774288054b49606821231bc4d22e135a2b8359734e7ceb32",
+        "after": "cb970e29259b6679774288054b49606821231bc4d22e135a2b8359734e7ceb32"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/submit_terminal/3",
+      "sha256": {
+        "before": "b075631c525476d7764c4be66be37ab8b0d9540d9e0857923b684a1ca7f707e8",
+        "after": "b075631c525476d7764c4be66be37ab8b0d9540d9e0857923b684a1ca7f707e8"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_terminal/4",
+      "sha256": {
+        "before": "b83effac43aacdbceb71ace20df953f070a5b36cf4b25494ab5fdb6f788e157f",
+        "after": "b83effac43aacdbceb71ace20df953f070a5b36cf4b25494ab5fdb6f788e157f"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_terminal/5",
+      "sha256": {
+        "before": "3245fd7b45ba259ac4abf345910bfdd04fd0776f971980f7bdd88526d00a7f78",
+        "after": "3245fd7b45ba259ac4abf345910bfdd04fd0776f971980f7bdd88526d00a7f78"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_gate/0",
+      "sha256": {
+        "before": "551d875c9bffd3a072da6a6873e4e8acb0c37e16d3aac42f59ef8d205c838808",
+        "after": "551d875c9bffd3a072da6a6873e4e8acb0c37e16d3aac42f59ef8d205c838808"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_gate/1",
+      "sha256": {
+        "before": "7ac508e402dd6e40cc1d095d044169ce4c3b2c664140f5d73b2ea6714b3a3339",
+        "after": "7ac508e402dd6e40cc1d095d044169ce4c3b2c664140f5d73b2ea6714b3a3339"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_gate/2",
+      "sha256": {
+        "before": "11723fd298745ea20aad813d707eac80f4aa069f69919dff704c0e4ed111f25f",
+        "after": "11723fd298745ea20aad813d707eac80f4aa069f69919dff704c0e4ed111f25f"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_gate/4",
+      "sha256": {
+        "before": "31ece1ef73061b9b3f8c7755bae7eb06a93130bd4120b1f872c12c1ae9e8acb8",
+        "after": "31ece1ef73061b9b3f8c7755bae7eb06a93130bd4120b1f872c12c1ae9e8acb8"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_gate/5",
+      "sha256": {
+        "before": "5ef1909a4db1bc8e204641d7da70f4321efa6b0bb32f180f5468baa715fc7b73",
+        "after": "5ef1909a4db1bc8e204641d7da70f4321efa6b0bb32f180f5468baa715fc7b73"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/submit_terminal_gate/0",
+      "sha256": {
+        "before": "acb6351b6615c44de7d9fcfcd927260c1f9b7b8261fd38e44e1905ea51809f40",
+        "after": "acb6351b6615c44de7d9fcfcd927260c1f9b7b8261fd38e44e1905ea51809f40"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/submit_terminal_gate/1",
+      "sha256": {
+        "before": "16da6c5dc11dc1442478c0f5f9882fc8f07546195e3863735e210918372c9f06",
+        "after": "16da6c5dc11dc1442478c0f5f9882fc8f07546195e3863735e210918372c9f06"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/submit_terminal_gate/2",
+      "sha256": {
+        "before": "d31ca1d1632c82ff9043c6f7a2202689af3edfadd515842e3f8f8fa95e544ea3",
+        "after": "d31ca1d1632c82ff9043c6f7a2202689af3edfadd515842e3f8f8fa95e544ea3"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/submit_terminal_gate/4",
+      "sha256": {
+        "before": "e4d4c800130cad2b74f2e6a7e5441d2e87ee211ef893d6812e718ee53dd600da",
+        "after": "e4d4c800130cad2b74f2e6a7e5441d2e87ee211ef893d6812e718ee53dd600da"
+      },
+      "equal": true
+    },
+    {
+      "case": "submit_terminal_gate",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/submit_terminal_gate/5",
+      "sha256": {
+        "before": "60a93c9479f7cc532b2b60b6fe7765a0c7276d4d0a5b2f927833cdf314502443",
+        "after": "60a93c9479f7cc532b2b60b6fe7765a0c7276d4d0a5b2f927833cdf314502443"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "succeeded"
+      },
+      "directory": "facts/approve_active/1",
+      "sha256": {
+        "before": "0f4658d4a6bfe9e92206339fc3c2e3f41774b3e7f6ecb45074a26ded7833b054",
+        "after": "0f4658d4a6bfe9e92206339fc3c2e3f41774b3e7f6ecb45074a26ded7833b054"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/approve_active/2",
+      "sha256": {
+        "before": "83cca9f753d45ec2938175fba8d85d2c2346c80e1972803aeadffb6e93a566a7",
+        "after": "83cca9f753d45ec2938175fba8d85d2c2346c80e1972803aeadffb6e93a566a7"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/approve_active/3",
+      "sha256": {
+        "before": "f90631569d19803d70101289e1af553165fbc741a963acf4567af0379f7ea2c4",
+        "after": "f90631569d19803d70101289e1af553165fbc741a963acf4567af0379f7ea2c4"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_active",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/approve_active/5",
+      "sha256": {
+        "before": "eed71a39358668a95b4eacfb5083590356502876153e039a518bd9c860699da4",
+        "after": "eed71a39358668a95b4eacfb5083590356502876153e039a518bd9c860699da4"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "active"
+      },
+      "directory": "facts/approve_terminal/0",
+      "sha256": {
+        "before": "765ae8bec9b031d1829cc1569f95d3f4e740a79cf68a3b26e6542061eb98e99f",
+        "after": "765ae8bec9b031d1829cc1569f95d3f4e740a79cf68a3b26e6542061eb98e99f"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "cancelled"
+      },
+      "directory": "facts/approve_terminal/2",
+      "sha256": {
+        "before": "a625c76f9f821d4336d2435f62d270e33049d5b21f3f8f31041624813ad9e27d",
+        "after": "a625c76f9f821d4336d2435f62d270e33049d5b21f3f8f31041624813ad9e27d"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "gate"
+      },
+      "directory": "facts/approve_terminal/3",
+      "sha256": {
+        "before": "01c20f6d8fded23f869e457b59b887f7fa2f04c6d1082fe574ceb1dd7701c1de",
+        "after": "01c20f6d8fded23f869e457b59b887f7fa2f04c6d1082fe574ceb1dd7701c1de"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "no_legal_edge"
+      },
+      "directory": "facts/approve_terminal/4",
+      "sha256": {
+        "before": "62969c6676c10fca53d11dfe7d1399ce3fa80bda4c297fec20808da424fff7e4",
+        "after": "62969c6676c10fca53d11dfe7d1399ce3fa80bda4c297fec20808da424fff7e4"
+      },
+      "equal": true
+    },
+    {
+      "case": "approve_terminal",
+      "status": {
+        "kind": "blocked",
+        "reason": "retries_exhausted"
+      },
+      "directory": "facts/approve_terminal/5",
+      "sha256": {
+        "before": "605056da1ae8126ae9b3bee8e2d89c62b27f66ea833f9768970a7d8f49052c81",
+        "after": "605056da1ae8126ae9b3bee8e2d89c62b27f66ea833f9768970a7d8f49052c81"
+      },
+      "equal": true
+    }
+  ],
+  "derived_fixtures": {
+    "submit_active": {
+      "flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+      "instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+      "instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+      "workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+    },
+    "submit_terminal": {
+      "flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+      "instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+      "instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+      "workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+    },
+    "submit_gate": {
+      "flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "submit_terminal_gate": {
+      "flows/default.toml": "dcf2f0e38abe207b6ee6f6cccfe75bc634db78cf1c792e1da4900af59ad814e5",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "approve_active": {
+      "flows/default.toml": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "approve_terminal": {
+      "flows/default.toml": "dcf2f0e38abe207b6ee6f6cccfe75bc634db78cf1c792e1da4900af59ad814e5",
+      "instructions/archive.md": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b",
+      "instructions/notes.md": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd",
+      "workbook.toml": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    }
+  },
+  "complete": true
+}

@@ -1,0 +1,26 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace ManagedFs::check_tree_root -> Result<()> with Ok(())
+@@ -805,22 +805,17 @@
+         self.check_lock(lock)?;
+         let directory = self.open_dir(Some(path))?;
+         crate::failpoint::sync_error(self.root.as_str(), "publish_final_root_sync")
+             .map_err(|error| Error::io(self.display_path(path), error))?;
+         fsync(&directory).map_err(|error| map_fs_error(&self.display_path(path), error))
+     }
+ 
+     fn check_tree_root(&self, tree: &ManagedTree) -> Result<()> {
+-        if tree.root != self.root || tree.root_ident != self.root_ident {
+-            return Err(Error::InvalidRequest {
+-                reason: "发布目录句柄不属于此管理根".to_string(),
+-            });
+-        }
+-        Ok(())
++        Ok(()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub(crate) fn validate_sqlite_control_file(&self, path: &ManagedRelPath) -> Result<bool> {
+         let display = self.display_path(path);
+         let (parent, leaf) = self.open_parent(path)?;
+         let stat = match statat(&parent, &leaf, AtFlags::SYMLINK_NOFOLLOW) {
+             Ok(stat) => stat,
+             Err(rustix::io::Errno::NOENT) => return Ok(false),
