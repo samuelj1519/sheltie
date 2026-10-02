@@ -1,6 +1,5 @@
 //! `attempt begin | submit | fail`。
 
-use serde_json::json;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::work::Reply;
 
@@ -53,23 +52,12 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         } => (attempt.clone(), brief_path.clone(), output_dir.clone()),
         other => return reply_mismatch("AttemptBegun", other),
     };
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
     let text = next_lines(
         format!("已开始 {attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"),
         &resp,
         &wid,
     );
-    output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &wid,
-    )
+    output::ok_response(text, resp, &wid)
 }
 
 /// `attempt submit`（协议 §3 第 6 步的返回）。
@@ -95,10 +83,6 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Reply::AttemptSubmitted { attempt, outputs } => (attempt.clone(), outputs.clone()),
         other => return reply_mismatch("AttemptSubmitted", other),
     };
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
     let mut text = format!("已提交 {attempt}\n");
     for (name, r) in &outputs {
         text.push_str(&format!(
@@ -108,14 +92,7 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         ));
     }
     let text = next_lines(text, &resp, &wid);
-    output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &wid,
-    )
+    output::ok_response(text, resp, &wid)
 }
 
 /// `attempt fail`。
@@ -141,17 +118,6 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Reply::AttemptFailed { attempt } => attempt.clone(),
         other => return reply_mismatch("AttemptFailed", other),
     };
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
     let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
-    output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &wid,
-    )
+    output::ok_response(text, resp, &wid)
 }

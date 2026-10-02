@@ -152,3 +152,37 @@ T36工作树Rust四门禁exit0；Nextest run `ad1e5b10-625d-4c55-b513-2a8bcf3f06
 
 
 T37仅提交执行效率复盘和通用建议。Rust四门禁exit0；Nextest run `466e6640-7ca7-4486-8bcf-3b0fc259d62c`，699/699、零跳过，原文临时保存于 `/private/tmp/c002-t37-gates/`。docs/specs和显式基准a31824b的任务范围检查通过；独立Spec/Standards复核只针对文档，原M1输入、SK01/SK02和未采用门禁建议不变。
+
+## C002-T38 精简验证
+
+基准：`4b86279a863f941cc282fa6cb772f7359fda585a`。初始工作区干净，候选为本次未提交工作区。生产 diff 由 code-simplifier 编写，Codex逐处复核。改动与分析见 review.md 的 T38 节，行为缺口见 findings.md 的 F38 项；原 M1 候选、变异与 SK01/SK02 不转记为新候选证据。
+
+本次命令和原始 stdout/stderr 保存在 `/private/tmp/sheltie-t38-gates/`，结构化结果为 `results.json`，输入文件清单为 `input-files.json`。使用独立 `CARGO_TARGET_DIR=/private/tmp/sheltie-simplify-t38-target`、`RUSTC_WRAPPER=`、`CARGO_NET_OFFLINE=true`、Nextest线程2；Nextest取仓库既有 `target/t31-validation/tools/cargo-nextest`（0.9.146）。在线公告未刷新，deny仅核本地缓存。工具入口首次使用PATH的Nextest 0.9.140，未满足required 0.9.145，exit92且未执行测试；原文保存在 `/private/tmp/sheltie-t38-simplifier-tests.log`，不计测试FAIL或PASS。
+
+### 候选与结果
+
+- 生产 Rust 改动 10 文件、74 行新增、204 行删除，净减少 130 行。`production.patch` SHA256：`ef5a89085fa3ce5f1333234ee7b8dbed0366494830fb2e239d0f4b4cf39f9349`。
+- 166 项源码/构建配置/fixture 输入清单 SHA256：`bdc6cfc92b4bb45b43d48c0cbec5ddf75db3929460105049da8b5947a69181f0`；门禁前后无输入漂移。`integrity.json` 核对 75 个测试文件、快照或内联测试区域，原字节全部相同。首次辅助检查将 Store 的测试专用 helper 之后的生产方法也算为测试，纠正为该 helper 自身边界后确认未改测试；不是测试执行失败。
+- fmt、check、Clippy、Nextest、MSRV 1.85 locked、docs、specs、core-vocab、tests、skill、dist plan 全部 exit 0。Nextest run `11272072-a410-4024-8cb4-39bad529546b`：41 binaries，699/699、0 skipped、1 slow；测试阶段 164.258 秒，完整命令 174.233 秒。
+- 初次离线 deny 因默认公告库锁位于沙箱只读目录而 exit 1，保留 `deny.stderr`。将同一缓存公告库复制到独立临时目录，仅覆盖 `advisories.db-path` 后重新执行 exit 0；不修改仓库 deny 策略。缓存 commit `db663534ae858abb3fbad408a041ce04209c377f`，策略及覆盖记录见 `deny-cache.json`，仍保留重复依赖/许可警告，不声称在线漏洞公告已刷新。
+- CLI 产物通过 `cargo build -p sheltie-cli --all-features --message-format=json` 获取，exit 0，原文为 `cli-artifacts.jsonl`/`cli-build.stderr`。被测 binary SHA256：`c8cccc8ebded6df26a64c9a4ab713f0ef7cbcce23f052fec7965646751be5567`。
+- code-simplifier 局部补充 `cargo test -p sheltie-core --all-features work::decide::`：49/49 PASS，原文 `/private/tmp/sheltie-t38-simplifier-core-tests.log`；不替代上述全仓运行。
+
+### 新问题的取证
+
+以下探针都在独立临时管理根，未触碰真实用户数据，也未修改仓库测试。结果确认的是现有缺口，不是正向合同 PASS；相关定义、装入与 self 源码相对基准未变，未由本次精简引入。
+
+| Finding | 原文与可重跑入口 | 实际结果 |
+| --- | --- | --- |
+| F38-01 tmp 过期维护 | 全生产源码调用链检查及 `rg -n 'modified\(|cleanup.*tmp|tmp.*cleanup|86_400|86400' crates/sheltie-runtime/src` | 静态确认只有当前 self tmp 清理，未接入跨操作 mtime 维护；未执行过期清理动态 oracle |
+| F38-02 嵌套未知字段 | `/private/tmp/sheltie-t38-nested-fields-cli-probe.py` 与同名 `.json`（SHA256 `b95215e7033d52922ed6c458bb3253d0f04332508e3c59355cc1b822d2ceea1b`） | control exit 0；只增顶层字段 exit 1/STORE_CORRUPT；只增 AttemptId 或 WorkStatus 字段均 exit 0，响应与 control 相等。每例 state_json 原字节、revision/request/audit 和业务文件摘要不变 |
+| F38-03 重复 Flow id | `/private/tmp/sheltie-t38-duplicate-flow-cli-probe.py` 与同名 `.json`（SHA256 `9d6883c3eb5031efb52a93b31538efffce81e5c5537641e016f02250e97c58dd`） | 首次 add committed=true/EFFECT_PENDING，workbooks/requests/audit 各一行、published=0、final 不存在；同请求重放仍失败，无关新 add committed=false 且 pending_request_id 指向该坏请求。后续请求未新增行 |
+
+Codex 对全部生产 diff 复核通过，code-simplifier 对架构/协议文案勘误复核确认与既有源码及 caller 一致。行为缺口保持 OPEN；本次没有重跑全量变异或重新作 M1 验收。最终 docs/specs 和 `scripts/check-task.sh C002-T38 4b86279 --staged` 均 exit 0；原文在本机临时目录，不属于固定 Git 历史归档，本次未提交或发布。
+
+
+### C002-T38 提交授权与证据保存
+
+本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。
+
+恢复方式：从本package运行 `tar -xzf evidence/submissions/C002-T38.tar.gz -C <临时目录>`；根目录为 `C002-T38/`，`contents.json`逐文件给出SHA256与大小。原文中的本机绝对路径保留为历史来源，归档内的相对文件及该清单是提交后的恢复入口。此次归档逐项核字节后才纳入提交，不声称仅hash就是备份。

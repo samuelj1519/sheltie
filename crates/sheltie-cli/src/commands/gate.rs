@@ -1,13 +1,12 @@
 //! `gate approve`。
 
-use serde_json::json;
 use sheltie_core::ids::NodeId;
 use sheltie_core::work::Reply;
 
 use crate::cli::GateCmd;
 use crate::commands::Ctx;
 use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
-use crate::output::Outcome;
+use crate::output::{self, Outcome};
 
 /// `gate approve`：记录 `{ node, occurrence, by, at }` 后按协议决定 Work 状态。
 /// 批准人与时间来自提交时快照（INV-6：身份与时间是系统事实，不取自参数）。
@@ -31,21 +30,10 @@ pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
         other => return reply_mismatch("GateApproved", other),
     };
     // 数据（含 by/at 与 work_status）来自提交时快照，不回读 Store（cli-result/v2）。
-    let mut data = resp.data.clone();
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("replayed".to_string(), json!(resp.replayed));
-    }
     let text = next_lines(
         format!("已批准 {node} 的门槛（第 {occurrence} 次到达）\n"),
         &resp,
         &wid,
     );
-    crate::output::ok_work(
-        text,
-        Some(resp.request_id),
-        Some(resp.revision),
-        data,
-        &resp.next,
-        &wid,
-    )
+    output::ok_response(text, resp, &wid)
 }

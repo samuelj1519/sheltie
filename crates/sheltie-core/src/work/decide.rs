@@ -206,7 +206,7 @@ fn decide_begin(
         started_at: ctx.now.clone(),
         ended_at: None,
     };
-    new_state.attempts.push(attempt.clone());
+    new_state.attempts.push(attempt);
     new_state.updated_at = ctx.now.clone();
 
     if wants_stats {
@@ -229,13 +229,13 @@ fn decide_begin(
             content,
         });
     }
-    let attempt = new_state.attempts[new_state.attempts.len() - 1].clone();
+    let attempt = &new_state.attempts[new_state.attempts.len() - 1];
 
     let attempt_dir = new_state.attempt_dir(&attempt_id);
     let brief_path = attempt_dir.join_segment("brief.md");
     effects.push(Effect::WriteBrief {
         path: brief_path.clone(),
-        content: render_brief(&new_state, graph, &attempt, instruction_text),
+        content: render_brief(&new_state, graph, attempt, instruction_text),
     });
     effects.push(Effect::RefreshStatusCard);
 
@@ -305,17 +305,7 @@ fn bind_inputs(
                     missing: vec![key.clone()],
                     extra: Vec::new(),
                 })?;
-                let obs = observed.ok_or_else(|| Error::ArtifactModified {
-                    input: decl.name.clone(),
-                    path: want.path.as_str().to_string(),
-                })?;
-                if !obs.matches(want) {
-                    return Err(Error::ArtifactModified {
-                        input: decl.name.clone(),
-                        path: want.path.as_str().to_string(),
-                    });
-                }
-                Some(want.clone())
+                Some(bind_frozen_input(&decl.name, want, observed)?)
             }
             InputSource::Resource { path } => {
                 let full = state.workbook_dir().join(path);
@@ -338,19 +328,7 @@ fn bind_inputs(
                 .latest_succeeded_of(src)
                 .and_then(|a| a.outputs.get(output))
             {
-                Some(want) => {
-                    let obs = observed.ok_or_else(|| Error::ArtifactModified {
-                        input: decl.name.clone(),
-                        path: want.path.as_str().to_string(),
-                    })?;
-                    if !obs.matches(want) {
-                        return Err(Error::ArtifactModified {
-                            input: decl.name.clone(),
-                            path: want.path.as_str().to_string(),
-                        });
-                    }
-                    Some(want.clone())
-                }
+                Some(want) => Some(bind_frozen_input(&decl.name, want, observed)?),
                 None => {
                     if decl.required {
                         return Err(Error::InputUnavailable {
@@ -365,6 +343,20 @@ fn bind_inputs(
         bound.insert(decl.name.clone(), artifact);
     }
     Ok((bound, wants_stats))
+}
+
+fn bind_frozen_input(
+    name: &str,
+    reference: &ArtifactRef,
+    observed: Option<&ObservedFile>,
+) -> Result<ArtifactRef> {
+    if !observed.is_some_and(|file| file.matches(reference)) {
+        return Err(Error::ArtifactModified {
+            input: name.to_string(),
+            path: reference.path.as_str().to_string(),
+        });
+    }
+    Ok(reference.clone())
 }
 
 /// `attempt submit` 第 1 到 6 步。

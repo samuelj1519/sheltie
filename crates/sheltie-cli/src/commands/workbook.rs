@@ -36,10 +36,7 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
     match repo.add(&dir, ctx.request_id.clone()) {
         Ok(snapshot) => {
             // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
-            let mut data = snapshot.data.clone();
-            if let serde_json::Value::Object(map) = &mut data {
-                map.insert("replayed".to_string(), serde_json::json!(snapshot.replayed));
-            }
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
             let id = data["id"].as_str().unwrap_or_default().to_string();
             let version = data["version"].as_str().unwrap_or_default().to_string();
             let digest = data["digest"].as_str().unwrap_or_default().to_string();
@@ -200,10 +197,7 @@ fn remove(ctx: &Ctx, spec: &str) -> Outcome {
     let repo = WorkbookRepo::new(ctx.home.clone());
     match repo.remove(&id, &version, ctx.request_id.clone()) {
         Ok(snapshot) => {
-            let mut data = snapshot.data.clone();
-            if let serde_json::Value::Object(map) = &mut data {
-                map.insert("replayed".to_string(), serde_json::json!(snapshot.replayed));
-            }
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
             let text = format!("已删除 {id}@{version}\n");
             output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }

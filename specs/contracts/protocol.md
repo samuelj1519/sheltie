@@ -103,7 +103,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 2. 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`，记下来自哪个 Occurrence 与边类型。重试时沿用上一次的来源。
 3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。来源为 `resource.<path>` 的输入读 Work 的冻结副本，它没有单独记录的摘要，由副本整体摘要覆盖：副本缺失或摘要不符报 `STORE_CORRUPT`（[存储合同 §5.4](storage.md)），不报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
 4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.retry`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
-5. 返回 `{ attempt_id, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
+5. 返回 `{ attempt, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`attempt` 是 `node#n.retry` 字符串，`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
 
 `inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。第 3 步未绑定的可选输入仍在 `inputs` 里占一行，值是 `null`，任务书对它标「尚无」。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
@@ -114,11 +114,11 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 3. 对每个声明输出：文件在 `output_dir/<path>` 存在、是普通文件且非符号链接、硬链接计数为 1（[存储合同 §4](storage.md)）；`required = true` 缺失报 `OUTPUT_MISSING`；大小超 `max_bytes` 报 `OUTPUT_TOO_LARGE`。任一失败则 Attempt 仍 `running`，不改任何状态。
 4. 在提交时记录每个输出的 `ArtifactRef`；COMMIT 后按效果登记封存同一文件对象，失败按 §5 返回 `EFFECT_PENDING`。
 5. Attempt → `succeeded`。然后按顺序判断：节点 `gate = true` → Work `blocked(gate)`；节点无出边 → Work `succeeded`；有出边但每条的目标都已达 `max_visits` → Work `blocked(no_legal_edge)`；否则保持 `active`。
-6. 返回 `{ attempt_id, outputs: {name: ArtifactRef}, work_status }` 与 `next`。
+6. 返回 `{ attempt, outputs: {name: ArtifactRef}, work_status }` 与 `next`。
 
 ### `attempt fail <work> --attempt <id> --reason <text>`
 
-Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表示同一 Occurrence 最多 `k + 1` 次尝试；若这次失败的是第 `k + 1` 次（`retry == max_retries`），Work → `blocked(retries_exhausted)`。返回 `{ attempt_id, work_status }` 与 `next`。
+Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表示同一 Occurrence 最多 `k + 1` 次尝试；若这次失败的是第 `k + 1` 次（`retry == max_retries`），Work → `blocked(retries_exhausted)`。返回 `{ attempt, work_status }` 与 `next`。
 
 ### `gate approve <work> --node <node>`
 
@@ -148,7 +148,7 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 
 ### `work cancel <work>`
 
-非终态即可。Work → `cancelled`。正在 `running` 的 Attempt 保持原样，不伪造结束。返回 `{ work_id, work_status: "cancelled" }` 与空 `next`。
+非终态即可。Work → `cancelled`。正在 `running` 的 Attempt 保持原样，不伪造结束。返回 `{ work_id, work_status: { kind: "cancelled" } }` 与空 `next`。
 
 ## 4. 任务书 `brief.md`
 
@@ -222,6 +222,8 @@ Work: <work_id>（<name>）
 ```
 
 Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `true`；其他业务字段来自提交时的 `ResponseSnapshot`（[存储合同 §1.2](storage.md)），历史 `next` 原样保留——它是历史响应的一部分，续接要查当前状态。`request_id` 在这些写操作成功或返回 `EFFECT_PENDING` 时出现；`revision` 只在已提交的 Work 写操作中出现。只读与 `self` 响应省略不适用字段，`self` 没有请求快照或 `replayed`；所有响应都有 `next` 数组，无合法下一步时为空。
+
+写响应的 `data.work_status` 与状态卡的 `data.status` 都是 WorkStatus 对象：`{"kind":"active"}`、`{"kind":"succeeded"}`、`{"kind":"cancelled"}`，或 `{"kind":"blocked","reason":"gate"}`；受阻原因还可为 `retries_exhausted`、`no_legal_edge`。文本渲染使用 `active`、`blocked(gate)` 等供人阅读的字符串。
 
 失败：
 
@@ -326,7 +328,7 @@ outputs:
 | `REQUEST_CONFLICT` | 同 `request_id` 不同目标或载荷 | 无变化 | 换新 id |
 | `REVISION_CONFLICT` | 并发写入，`expected_revision` 不符 | 无变化 | 重读状态卡再试 |
 | `EFFECT_PENDING` | 效果未完成：当前请求已提交时 `committed = true` 并带自己的原响应；旧效果阻断新请求时 `committed = false`、`pending_request_id` 指向旧请求 | 看 `committed`：当前请求已提交或尚未提交；旧效果仍待恢复 | 先恢复 `pending_request_id`（若有），再用本次 `request_id` 重试 |
-| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 2` 不符（含 schema 1 旧库） | 未打开，拒绝前无任何写入 | 换新管理根；旧记录用旧二进制配旧管理根查 |
+| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 2` 不符（含 schema 1 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
 | `STORE_CORRUPT` | 数据库内容、持久身份或未提交阶段的受管文件不符合同 | 未提交新业务状态 | 人工核查；已提交效果中的完整性错误由 `EFFECT_PENDING.detail.cause` 指明 |
 | `IO` | 文件系统错误，`detail.path` 与系统错误文本 | 视具体操作，响应说明 | 检查权限与磁盘 |
 
