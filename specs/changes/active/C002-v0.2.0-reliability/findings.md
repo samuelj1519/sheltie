@@ -117,4 +117,12 @@
 
 | ID | 级别 / 状态 | 依据、入口与影响 | 修复与验证 |
 | --- | --- | --- | --- |
-| F16-01 | P2 / CLOSED，独立修复复核通过 | spec-dev `instructions/retro.md` 第 5 项仍指向 `attempts/<node>/<n>/<retry>/`，与协议 §3、WorkLayout 实际的 occurrence/attempt 标签不符。反思 worker 按说明定位时会找不到历史报告 | 源码说明改为当前三位编号布局，Workbook 升 0.2.1；真实 add/show/verify 与新 brief producer fixture、688/688、独立复核通过。旧 Work 0.2.0 冻结文件、brief 和历史摘要保留原字节；fixture不算Host/真人通过，T16仍未完成 |
+| F16-01 | P2 / CLOSED，独立修复复核通过 | spec-dev `instructions/retro.md` 第 5 项仍指向 `attempts/<node>/<n>/<retry>/`，与协议 §3、WorkLayout 实际的 occurrence/attempt 标签不符。反思 worker 按说明定位时会找不到历史报告 | 源码说明改为当前三位编号布局，Workbook 升 0.2.1；真实 add/show/verify 与新 brief producer fixture、688/688、独立复核通过。旧 Work 0.2.0 冻结文件、brief 和历史摘要保留原字节；fixture不算Host/真人通过；T16整体完成只以plan与实际宿主证据为准 |
+
+## 8. T17 发布预检发现
+
+| ID | 级别 / 状态 | 依据、入口与影响 | 修复与验证 |
+| --- | --- | --- | --- |
+| F17-01 | P2 / CLOSED，本地独立复核通过 | completed checker误把所有历史事实表第6栏当Result；首修又允许标准表空字段或多列行藏PASS，不能准确核最终证据 | 只认精确模板六列表，首尾与列数严格、六字段非空、至少一非空表，当前Result必须PASS。历史FAIL/SKIP不改。原红例、22/22和独立审查通过 |
+| F17-02 | P2 / CLOSED，本地真实脚本测试通过 | 零active时读取不存在glob，在pipefail下提前exit2；治理fixture又依赖live C002 active与v0.1树，完成迁移后失真 | 零active不读glob，fixture显式自建active/completed/release/tag/CHANGELOG。新增零active合法例和精确完成反例，原10测试保留 |
+| F17-03 | P2 / 待真实CI复核 | PR只做plan，不能在发布批准前取得四平台实物；默认merge SHA也不能证明待发布head候选 | PR upload沿原dist矩阵构建；六job统一候选SHA，quality原文独立上传，publishing仅tag push。静态/fixture及候选独立审查通过，真实四平台尚not_run |

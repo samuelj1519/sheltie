@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/sheltie-core", "crates/sheltie-runtime", "crates/sheltie-cli"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
@@ -44,7 +44,7 @@ targets = [
   "aarch64-unknown-linux-gnu",
 ]
 ci = ["github"]
-pr-run-mode = "plan"
+pr-run-mode = "upload"
 github-release = "announce"
 # release.yml 里有 dist 不生成的自定义步骤（skill 交付打包、质量门禁）；不许 dist init
 # 重新生成时把它们当成过期内容拒绝。重新跑 dist init 后要照注释把这些步骤补回。

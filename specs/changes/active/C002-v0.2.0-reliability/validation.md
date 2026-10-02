@@ -365,3 +365,19 @@ T16 仍 doing，T17 仍 not_run。新的 Workbook/输入缺失真实交互已由
 ### T16 提交收尾
 
 用户随后要求继续执行直到 C002 全部完成，本地任务按计划进入提交循环。T16 的代码、测试、依赖、配置、Workbook、skill 与合同输入仍匹配修复后原运行；复用 `fix-gates/results.json` 的 fmt/check/Clippy、688/688、5/5 及附加工程门禁，依据是最终独立 audit 核实的 277 项实际 SHA256，而不是沿用旧 HEAD 的测试标签。提交前重新运行文档、规格、diff 与 staged task gate；实际结果及提交由下次交接与 Git trailer 定位。既有「未提交」保留为各阶段时点事实，不改写原快照。
+
+## C002-T17 候选准备
+
+T16 已提交 `785552be4fddc8fbbbcbffef7bcf69e65588ff8f`，其历史0.1.0身份与原输入保持。T17 独立目录 `/private/tmp/sheltie-c002-t17-785552b` 保存候选 patch、tracked 输入SHA256、逐命令 argv/环境/UTC/stdout/stderr/退出码与耗时；Cargo 升0.2.0，lock仅三个本地crate版本变化，无依赖升级。
+
+PR 从plan改upload；六个job统一PR head SHA或tag SHA，不混用merge SHA。publishing仅tag push，announce仍需同候选quality与host成功，非发布PR只构建。quality逐门禁原文和工具/源输入以quality-<SHA>独立资产保存，不混入发布assets。完整真实plan给出四平台矩阵；本机实际生成macOS aarch64 tar.xz，尚无其它三平台实物，不把plan当构建PASS。
+
+本地固定输入执行 fmt/check/Clippy、Nextest 700/700（165.357秒，零skip）、core doctest 5/5、MSRV1.85、offline deny及docs/specs/skill/core-vocab/tests均exit0。实际argv与输出摘要见commands；依赖公告复用同本地缓存，未在线刷新。治理测试原10项保留，新增12个独立正反例；旧checker的历史表/零active缺陷及独立审查发现的空字段/列数绕过保留红阶段，最终focused22/22。原文另存 `/private/tmp/sheltie-t17-governance-p2/`，提交证据时一并归档。
+
+本机release binary版本0.2.0/schema2，actualCargoJSON定位后安装到独立home，安装bytes核对。真实dist包sha256 `d55acd1acbc57df9362f2272b686a9ae66d4241033927aadc5a0abfac9c4771d` 用于本地完整manifest镜像的指定版本update/rollback，旧T16候选→0.2.0→旧候选bytes一致、Store不变；这是同schema本地演练，不是远端或正式v0.1.0旧schema更新。
+
+另下载已发布v0.1.0本机包，sha256 `c37ab135f7388910b854cd37a70240da1cfaef23cd313c1641112e0767fd64ad` 与其真实manifest相同。旧self install对不存在home失败，记录原文后按其既有前置条件预建空fixture目录，仅由旧CLI生成schema1。新binary拒绝该Store、旧发布binary拒绝新schema2 Store，均为STORE_SCHEMA_MISMATCH，既有Store字节不变。早期oracle误把允许创建的WAL/SHM控制文件当业务改动，保留失败并按D-039纠正；新增控制文件只为零字节WAL/共享内存，不改旧主库或迁移。`schema-boundary-oracle.json`保存初始hash、实际反例与边界。未操作真实用户home。
+
+独立Reviewer `Codex /root/t16_reopen_review` 未参与T17改动，candidate-review.md保存Standards/Spec及F17-01原红例与修复后复核，候选范围通过；code-simplifier只读认为无需结构性改写，清理一段已失实的CI注释。四平台CI、远端指定版本更新、最终外部发布及生命周期均尚未执行，T17 doing，不新增完整变异、SK01/SK02或全Host PASS。release record草稿仅存临时目录，不预登记released。
+
+本地准备原文已封存155文件逐字回读，档案路径与SHA256见README。完整700测试之后只改package进度与候选CHANGELOG说明；治理测试由fixture自行生成CHANGELOG，不读其live正文。相关docs/specs重新通过，实际dist重新打包说明文件；原更新演练仍绑定原包，不把后一次pack的SHA替换旧CLI日志。候选提交仅固定上述已验证输入供非发布CI，正式task gate仍因doing失败，不冒充任务完成。

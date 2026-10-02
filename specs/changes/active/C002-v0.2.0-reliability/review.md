@@ -295,3 +295,7 @@ docs/specs/diff-check 均 exit 0，正式 task gate exit 1（T16 状态不是 do
 状态更新后实际 docs/specs/diff-check 及工作区 `check-task C002-T16 82c6c55` 均 exit 0，原文见 final-checks；批准前 exit 1 保留。本次未运行 staged 提交门禁、未暂存或提交，不声称提交完成。
 
 独立 Reviewer 最后核最终 104 文件档案及批准前 69 文件档案逐字恢复、实际批准/CLI、六 Work 终态、277 项输入和原工程/最终工作区门禁。28 项核验均通过；派生 `C002-T16-reopen-final.audit.json` 在档案外保存，入口见 README，不修改两份报告或旧快照。本机范围的 T16 收尾通过，T17 not_run 及既有缺失保留。
+
+## T17 候选独立审查
+
+Reviewer仍为未参与T17修改的`Codex /root/t16_reopen_review`。相对T16提交`785552b`复核本轮候选：版本/lock、CI候选与发布边界、治理parser/fixture及历史例外。初次发现F17-01的空字段/列数绕过，保存可复演原反例；worker补红绿后独立重核exact合法例、原空行/多列/无尾pipe反例、green原argv/env/hash，最终22/22。Standards/Spec在候选范围通过，可进入获授权的非发布CI，不预判四平台、远端或T17 done。原文为T17临时目录candidate-review.md，后续同SHA质量与资产另行补核。

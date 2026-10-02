@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.2.0]
+
+### Breaking Changes
+
+- Store 升为 schema 2；旧 schema 1 管理根拒绝读写并保持原样，不自动迁移或清库。
+- 使用 `cli-result/v2`、`workbook-digest/v2` 和新的 Attempt 目录布局；历史 v0.1.0 记录由旧二进制配旧管理根读取。
+
+### Fixed
+
+- 请求身份绑定真实目标，重复请求返回提交时原响应；恢复历史产物时核字节与归属，当前状态卡不回退。
+- Workbook 与 Work 的发布、封存、删除及崩溃恢复统一守文件句柄、事务与根内边界；严格拒绝重复 Flow、未知嵌套字段及不可信持久状态。
+- 成功写操作安全维护过期 tmp，异常仅告警；pending 按归属与恢复事实处理。
+- 协调者补齐输入发现、合法下一步与人工门槛说明；spec-dev 保留原始基线、已验证前缀、完整需求与真实重规划交接。
+- spec-dev 0.2.1 修正反思报告的 Attempt 目录说明，旧冻结版本保留。
+
+### Changed
+
+- 许可统一为 MIT，自包含 skill 交付按同版本合同打包。
+
+### Known Limits
+
+- 历史 M1 的 SK01/SK02 例外、215 项额外执行与最终 Spec 批准缺失仍保留，不代表完整变异或安全验证通过。
+- T16 是当前 Codex 的实际本机场景；usage 缺失，手动 skill 加载未验证自动发现，没有成本收益对照。
+- 四平台实物、同 SHA 质量和真实远端更新/rollback 的结果见对应 release record；历史本机验证不替代该发布证据。
+
 ## [0.1.0] - 2026-09-26
 
 ### Bug Fixes

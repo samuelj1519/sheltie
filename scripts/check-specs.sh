@@ -113,15 +113,61 @@ for package in specs/changes/completed/C*; do
 	if [ -f "$package/validation.md" ]; then
 		grep -Eq '^Candidate: `(SELF|[0-9a-f]{7,40})`' "$package/validation.md" ||
 			fail "$package/validation.md 缺固定候选"
-		invalid_results="$(awk -F'|' '
+		# 历史事实表保留其原结果；只检查 validation 模板定义的最终验证表（C002-T17）。
+		validation_errors="$(awk -F'|' '
+			function trim(value) {
+				gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+				return value
+			}
+			function six_columns() {
+				return NF == 8 && trim($1) == "" && trim($8) == ""
+			}
+			function final_header() {
+				return six_columns() && trim($2) == "Requirement / risk" &&
+					trim($3) == "Mode" && trim($4) == "Input closure" &&
+					trim($5) == "Command / raw run ID" && trim($6) == "Result" &&
+					trim($7) == "Evidence"
+			}
+			function separator( column) {
+				if (!six_columns()) return 0
+				for (column = 2; column <= 7; column++)
+					if (trim($column) !~ /^:?-+:?$/) return 0
+				return 1
+			}
+			function finish_table() {
+				if (inside && rows == 0) print "最终验证表没有数据行"
+				inside = 0
+			}
 			/^\|/ {
-				name = $2; result = $6
-				gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
-				gsub(/^[[:space:]]+|[[:space:]]+$/, "", result)
-				if (name != "" && name != "Requirement / risk" && name !~ /^-+$/ && result != "PASS") print $0
+				if (final_header()) {
+					finish_table()
+					inside = 1; tables++; rows = 0
+					next
+				}
+				if (!inside || separator()) next
+				rows++
+				if (!six_columns()) {
+					print "最终验证行必须为六列：" $0
+					next
+				}
+				empty_column = 0
+				for (column = 2; column <= 7; column++) {
+					if (trim($column) == "") { empty_column = column - 1; break }
+				}
+				if (empty_column) {
+					print "最终验证行第 " empty_column " 列为空字段：" $0
+					next
+				}
+				if (trim($6) != "PASS") print "非 PASS 验证项：" $0
+				next
+			}
+			{ finish_table() }
+			END {
+				finish_table()
+				if (tables == 0) print "缺最终验证表"
 			}
 		' "$package/validation.md")"
-		[ -z "$invalid_results" ] || fail "$package/validation.md 有非 PASS 验证项"
+		[ -z "$validation_errors" ] || fail "$package/validation.md 最终验证表不合格：$validation_errors"
 	fi
 	if [ -f "$package/review.md" ]; then
 		grep -q '^结论：`PASS`' "$package/review.md" || fail "$package/review.md 没有 final PASS"
@@ -209,7 +255,10 @@ fi
 # 不要求已有 tag（发布还没做，不能逼着造 tag），CHANGELOG 允许先写 [Unreleased]。
 current_release="specs/releases/v${version}/README.md"
 base_version="${version%%-*}"
-active_target="$(sed -n 's/^目标版本：`v\([^`]*\)`.*/\1/p' specs/changes/active/C*/README.md 2>/dev/null | head -1)"
+active_target=""
+if [ "$active_count" -gt 0 ]; then
+	active_target="$(sed -n 's/^目标版本：`v\([^`]*\)`.*/\1/p' specs/changes/active/C*/README.md | head -1)"
+fi
 if [ -f "$current_release" ]; then
 	if ! grep -q "^## \[$version\]" CHANGELOG.md; then
 		fail "CHANGELOG.md 没有版本 $version"
