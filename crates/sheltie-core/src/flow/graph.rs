@@ -27,8 +27,9 @@ impl ResourceIndex {
         self.files.get(path)
     }
 
-    /// 测试与样例用：登记一个 UTF-8 小文件。
-    pub fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
+    /// 测试夹具登记 UTF-8 小文件，不暴露为生产 API。
+    #[cfg(any(test, feature = "testkit"))]
+    pub(crate) fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
         if let Ok(p) = RelPath::new(path) {
             self.files.insert(
                 p,
@@ -105,6 +106,22 @@ impl Graph {
     /// 没有出边的节点是终点。
     pub fn is_terminal(&self, id: &NodeId) -> bool {
         self.out_edges(id).is_empty()
+    }
+
+    /// 本节点引用的完整宿主声明，保留节点引用顺序。
+    pub fn node_requires(&self, node: &NodeId) -> Option<Vec<HostRequire>> {
+        Some(
+            self.node(node)?
+                .requires()
+                .iter()
+                .filter_map(|(kind, name)| {
+                    self.requires
+                        .iter()
+                        .find(|require| require.kind == *kind && require.name == *name)
+                        .cloned()
+                })
+                .collect(),
+        )
     }
 
     /// Workbook 声明的全部宿主资源，按 manifest 声明顺序。

@@ -1,5 +1,5 @@
 //! 测试支持：固定图、固定状态、固定时钟、内存里的假文件系统。
-//! 由 T01 写完，后续任务不改。runtime 与 cli 的测试通过 `testkit` feature 使用。
+//! runtime 与 cli 的测试通过 `testkit` feature 使用。
 //!
 //! `Fixture` 把「一个 Work 的状态 + 图 + 假文件」捆在一起，提供与 CLI 同名的动作。
 //! 它调用真实的 `decide`，被测的就是生产路径本身。
@@ -15,7 +15,7 @@ use crate::work::{
     ArtifactRef, Command, Context, Decision, ObservedFile, Principal, Timestamp, WorkState,
     WorkbookRef, decide, input_paths_for, output_paths_for,
 };
-use crate::workbook::{HostRequire, Manifest, RequireKind, parse_manifest};
+use crate::workbook::{Manifest, parse_manifest};
 
 pub const ARTICLE_REVIEW_MANIFEST: &str =
     include_str!("../../../examples/article-review/workbook.toml");
@@ -248,7 +248,8 @@ pub struct Fixture {
 }
 
 impl Fixture {
-    fn from_texts(manifest_text: &str, flow_text: &str, files: &[(&str, &str)]) -> Self {
+    /// 从真实声明与内存文件构造夹具；仍经 parse、compile 与真实 decide。
+    pub fn from_texts(manifest_text: &str, flow_text: &str, files: &[(&str, &str)]) -> Self {
         let manifest = parse_manifest(manifest_text).unwrap_or_else(|e| panic!("manifest：{e}"));
         let def = parse_flow(flow_text).unwrap_or_else(|e| panic!("flow：{e}"));
         let mut res = ResourceIndex::default();
@@ -286,7 +287,8 @@ impl Fixture {
         }
     }
 
-    fn from_example(name: &str) -> Self {
+    /// 用内嵌的样例文件构造夹具，不读取文件系统。
+    pub fn from_example(name: &str) -> Self {
         let files = example_files(name);
         let manifest = files
             .iter()
@@ -450,7 +452,7 @@ kind = "main"
 
     fn observe(&self, path: &AbsPath) -> Option<ObservedFile> {
         self.files.get(path).map(|bytes| {
-            ObservedFile::for_test(path.clone(), Sha256Hex::of_bytes(bytes), bytes.len() as u64)
+            ObservedFile::new(path.clone(), Sha256Hex::of_bytes(bytes), bytes.len() as u64)
         })
     }
 
@@ -597,16 +599,5 @@ kind = "main"
         self.begin("plan-review").unwrap_or_else(|e| panic!("{e}"));
         self.submit_ok("plan-review#1.0", word)
             .unwrap_or_else(|e| panic!("{e}"));
-    }
-}
-
-/// 给 `with_requires` 之类的场景补一条 manifest 声明。
-pub fn require(kind: RequireKind, name: &str) -> HostRequire {
-    HostRequire {
-        kind,
-        name: name.to_string(),
-        version: None,
-        digest: None,
-        source: None,
     }
 }

@@ -5,16 +5,23 @@ use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
 use serde_json::Value;
-use tempfile::TempDir;
+#[path = "../../../sheltie-runtime/tests/common/owned_tempdir.rs"]
+mod owned_tempdir;
+pub use owned_tempdir::OwnedTempDir;
+
+#[cfg(feature = "failpoint")]
+pub mod process;
+
+pub mod store;
 
 pub struct Env {
-    pub dir: TempDir,
+    pub dir: OwnedTempDir,
 }
 
 impl Env {
     pub fn new() -> Self {
         Self {
-            dir: tempfile::tempdir().unwrap(),
+            dir: OwnedTempDir::new(),
         }
     }
 
@@ -41,7 +48,8 @@ impl Env {
         let out = self.cmd(args).output().unwrap();
         assert!(
             out.status.success(),
-            "命令失败：{args:?}\nstdout: {}\nstderr: {}",
+            "命令失败：{args:?}\nexit: {:?}\nstdout: {}\nstderr: {}",
+            out.status.code(),
             String::from_utf8_lossy(&out.stdout),
             String::from_utf8_lossy(&out.stderr)
         );
@@ -164,4 +172,10 @@ pub fn next_begin_nodes(v: &Value) -> Vec<String> {
         .filter(|n| n["op"] == "attempt begin")
         .map(|n| n["args"]["node"].as_str().unwrap().to_string())
         .collect()
+}
+
+pub fn copy_example(name: &str, into: &Path) -> PathBuf {
+    let target = into.join(name);
+    copy_dir(&example_dir(name), &target);
+    target
 }

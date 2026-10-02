@@ -2,11 +2,11 @@
 //! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
 use super::next::legal_next;
 use super::render::{render_brief, render_stats_json};
+use super::start::validate_start_inputs;
 use super::state::{
     Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
 };
@@ -69,6 +69,17 @@ fn guard_not_terminal(state: &WorkState) -> Result<()> {
     Ok(())
 }
 
+fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
+    state.blocked_count =
+        state
+            .blocked_count
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "累计受阻次数超出可表示范围".to_string(),
+            })?;
+    Ok(())
+}
+
 /// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
 /// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
 /// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
@@ -87,28 +98,9 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         });
     };
 
-    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等。
-    let mut wanted: BTreeSet<String> = BTreeSet::new();
-    for node in graph.nodes() {
-        for decl in &node.inputs {
-            if let InputSource::Start { key } = &decl.from {
-                wanted.insert(key.clone());
-            }
-        }
-    }
-    let missing: Vec<String> = wanted
-        .iter()
-        .filter(|k| !inputs.contains_key(*k))
-        .cloned()
-        .collect();
-    let extra: Vec<String> = inputs
-        .keys()
-        .filter(|k| !wanted.contains(*k))
-        .cloned()
-        .collect();
-    if !missing.is_empty() || !extra.is_empty() {
-        return Err(Error::InputMissing { missing, extra });
-    }
+    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等（GF-30 的共享校验，
+    // runtime preflight 与 workbook show 用同一份结果，不各自重算）。
+    validate_start_inputs(graph, inputs.keys())?;
 
     let entry = graph.entry().clone();
     let mut visits = BTreeMap::new();
@@ -130,6 +122,7 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
         visits,
         attempts: Vec::new(),
         approvals: Vec::new(),
+        blocked_count: 0,
         created_at: ctx.now.clone(),
         updated_at: ctx.now.clone(),
     };
@@ -213,7 +206,7 @@ fn decide_begin(
         started_at: ctx.now.clone(),
         ended_at: None,
     };
-    new_state.attempts.push(attempt.clone());
+    new_state.attempts.push(attempt);
     new_state.updated_at = ctx.now.clone();
 
     if wants_stats {
@@ -236,13 +229,13 @@ fn decide_begin(
             content,
         });
     }
-    let attempt = new_state.attempts[new_state.attempts.len() - 1].clone();
+    let attempt = &new_state.attempts[new_state.attempts.len() - 1];
 
     let attempt_dir = new_state.attempt_dir(&attempt_id);
     let brief_path = attempt_dir.join_segment("brief.md");
     effects.push(Effect::WriteBrief {
         path: brief_path.clone(),
-        content: render_brief(&new_state, graph, &attempt, instruction_text),
+        content: render_brief(&new_state, graph, attempt, instruction_text),
     });
     effects.push(Effect::RefreshStatusCard);
 
@@ -252,21 +245,17 @@ fn decide_begin(
         .collect();
     let mut outputs = BTreeMap::new();
     for decl in &def.outputs {
-        outputs.insert(decl.name.clone(), attempt_dir.join(&decl.path));
+        // 声明路径挂在 Attempt 目录的 outputs/ 之下（WorkLayout，O12）。
+        outputs.insert(
+            decl.name.clone(),
+            crate::work::layout::output_path(&attempt_dir, &decl.path),
+        );
     }
-    // 节点引用的 `kind:name` 换成 manifest 里的那条声明，按节点里的顺序。
-    // 编译期已保证每条引用都能在 manifest 找到（flow::compile）。
-    let requires = def
-        .requires
-        .iter()
-        .filter_map(|(kind, name)| {
-            graph
-                .requires()
-                .iter()
-                .find(|r| r.kind == *kind && r.name == *name)
-                .cloned()
-        })
-        .collect();
+    let requires = graph
+        .node_requires(node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {node} 不在图里"),
+        })?;
 
     Ok(Decision {
         state: new_state,
@@ -274,7 +263,8 @@ fn decide_begin(
         reply: Reply::AttemptBegun {
             attempt: attempt_id,
             brief_path,
-            output_dir: attempt_dir,
+            // 输出目录是 Attempt 目录下的 outputs/（协议 §3 attempt begin 第 5 步）。
+            output_dir: crate::work::layout::outputs_dir(&attempt_dir),
             inputs,
             outputs,
             requires,
@@ -315,17 +305,7 @@ fn bind_inputs(
                     missing: vec![key.clone()],
                     extra: Vec::new(),
                 })?;
-                let obs = observed.ok_or_else(|| Error::ArtifactModified {
-                    input: decl.name.clone(),
-                    path: want.path.as_str().to_string(),
-                })?;
-                if !obs.matches(want) {
-                    return Err(Error::ArtifactModified {
-                        input: decl.name.clone(),
-                        path: want.path.as_str().to_string(),
-                    });
-                }
-                Some(want.clone())
+                Some(bind_frozen_input(&decl.name, want, observed)?)
             }
             InputSource::Resource { path } => {
                 let full = state.workbook_dir().join(path);
@@ -348,19 +328,7 @@ fn bind_inputs(
                 .latest_succeeded_of(src)
                 .and_then(|a| a.outputs.get(output))
             {
-                Some(want) => {
-                    let obs = observed.ok_or_else(|| Error::ArtifactModified {
-                        input: decl.name.clone(),
-                        path: want.path.as_str().to_string(),
-                    })?;
-                    if !obs.matches(want) {
-                        return Err(Error::ArtifactModified {
-                            input: decl.name.clone(),
-                            path: want.path.as_str().to_string(),
-                        });
-                    }
-                    Some(want.clone())
-                }
+                Some(want) => Some(bind_frozen_input(&decl.name, want, observed)?),
                 None => {
                     if decl.required {
                         return Err(Error::InputUnavailable {
@@ -375,6 +343,20 @@ fn bind_inputs(
         bound.insert(decl.name.clone(), artifact);
     }
     Ok((bound, wants_stats))
+}
+
+fn bind_frozen_input(
+    name: &str,
+    reference: &ArtifactRef,
+    observed: Option<&ObservedFile>,
+) -> Result<ArtifactRef> {
+    if !observed.is_some_and(|file| file.matches(reference)) {
+        return Err(Error::ArtifactModified {
+            input: name.to_string(),
+            path: reference.path.as_str().to_string(),
+        });
+    }
+    Ok(reference.clone())
 }
 
 /// `attempt submit` 第 1 到 6 步。
@@ -415,6 +397,13 @@ fn decide_submit(
         a.ended_at = Some(ctx.now.clone());
     }
     new_state.status = status_after_success(&new_state, graph, true);
+    // 累计受阻在发生时记录（GF-29）：gate 阻断与 no_legal_edge 各计一次。
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+    ) {
+        increment_blocked_count(&mut new_state)?;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {
@@ -460,7 +449,8 @@ fn check_outputs(
             }
             None => {
                 if decl.required {
-                    let path = state.attempt_dir(attempt).join(&decl.path);
+                    let path =
+                        crate::work::layout::output_path(&state.attempt_dir(attempt), &decl.path);
                     return Err(Error::OutputMissing {
                         output: decl.name.clone(),
                         path: path.as_str().to_string(),
@@ -475,26 +465,65 @@ fn check_outputs(
 /// 节点 Attempt 成功（或门槛刚批准）后 Work 的状态，按协议 `attempt submit` 第 5 步的顺序：
 /// `consider_gate && node.gate` → `Blocked(Gate)`；无出边 → `Succeeded`；
 /// 每条出边目标都 `visits >= max_visits` → `Blocked(NoLegalEdge)`；否则 `Active`。
-fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
-    let Some(def) = graph.node(&state.current.node) else {
+fn success_status_at(
+    graph: &Graph,
+    node: &NodeId,
+    consider_gate: bool,
+    all_maxed: bool,
+) -> WorkStatus {
+    let Some(def) = graph.node(node) else {
         return WorkStatus::Active;
     };
     if consider_gate && def.gate {
         return WorkStatus::Blocked(BlockedReason::Gate);
     }
-    let outs = graph.out_edges(&state.current.node);
-    if outs.is_empty() {
+    if graph.is_terminal(node) {
         return WorkStatus::Succeeded;
     }
-    let all_maxed = outs.iter().all(|e| {
-        graph
-            .node(&e.to)
-            .is_some_and(|t| state.visits_of(&e.to) >= t.max_visits)
-    });
     if all_maxed {
-        return WorkStatus::Blocked(BlockedReason::NoLegalEdge);
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+    } else {
+        WorkStatus::Active
     }
-    WorkStatus::Active
+}
+
+fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -> WorkStatus {
+    let all_maxed = graph.out_edges(&state.current.node).iter().all(|edge| {
+        graph
+            .node(&edge.to)
+            .is_some_and(|target| state.visits_of(&edge.to) >= target.max_visits)
+    });
+    success_status_at(graph, &state.current.node, consider_gate, all_maxed)
+}
+
+/// 失败后的状态只依赖本次重试序号与冻结的重试上限。
+fn status_after_failure(retry: u32, max_retries: u32) -> WorkStatus {
+    if retry >= max_retries {
+        WorkStatus::Blocked(BlockedReason::RetriesExhausted)
+    } else {
+        WorkStatus::Active
+    }
+}
+
+/// 校验历史回复状态的必要条件；不以当前访问计数重建历史状态。
+pub fn reply_status_matches(reply: &Reply, status: WorkStatus, graph: &Graph) -> bool {
+    match reply {
+        Reply::AttemptFailed { attempt } => graph
+            .node(&attempt.node)
+            .is_some_and(|node| status == status_after_failure(attempt.retry, node.max_retries)),
+        Reply::AttemptSubmitted { attempt, .. } => {
+            graph.node(&attempt.node).is_some()
+                && (status == success_status_at(graph, &attempt.node, true, false)
+                    || status == success_status_at(graph, &attempt.node, true, true))
+        }
+        Reply::GateApproved { node, .. } => {
+            graph.node(node).is_some()
+                && (status == success_status_at(graph, node, false, false)
+                    || status == success_status_at(graph, node, false, true))
+        }
+        Reply::Started { .. } | Reply::AttemptBegun { .. } => status == WorkStatus::Active,
+        Reply::Cancelled => status == WorkStatus::Cancelled,
+    }
 }
 
 /// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
@@ -529,8 +558,9 @@ fn decide_fail(
         a.fail_reason = Some(reason_text);
         a.ended_at = Some(ctx.now.clone());
     }
-    if attempt.retry >= max_retries {
-        new_state.status = WorkStatus::Blocked(BlockedReason::RetriesExhausted);
+    new_state.status = status_after_failure(attempt.retry, max_retries);
+    if new_state.status == WorkStatus::Blocked(BlockedReason::RetriesExhausted) {
+        increment_blocked_count(&mut new_state)?;
     }
     new_state.updated_at = ctx.now.clone();
 
@@ -571,6 +601,12 @@ fn decide_approve(
         at: ctx.now.clone(),
     });
     new_state.status = status_after_success(&new_state, graph, false);
+    if matches!(
+        new_state.status,
+        WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+    ) {
+        increment_blocked_count(&mut new_state)?;
+    }
     new_state.updated_at = ctx.now.clone();
 
     Ok(Decision {
@@ -634,7 +670,8 @@ fn engine_stats_artifact(
     let content = serde_json::to_string(&stats).map_err(|e| Error::InvalidRequest {
         reason: format!("engine.stats 序列化失败：{e}"),
     })?;
-    let path = state.attempt_dir(attempt_id).join_segment("stats.json");
+    // 引擎文件与 worker 输出分目录（workbook 合同 §3.2）：engine/stats.json。
+    let path = crate::work::layout::engine_stats_path(&state.attempt_dir(attempt_id));
     let artifact = ArtifactRef {
         sha256: Sha256Hex::of_bytes(content.as_bytes()),
         bytes: content.len() as u64,
@@ -657,7 +694,10 @@ pub fn output_paths_for(
     let dir = state.attempt_dir(attempt);
     let mut paths = BTreeMap::new();
     for decl in &def.outputs {
-        paths.insert(decl.name.clone(), dir.join(&decl.path));
+        paths.insert(
+            decl.name.clone(),
+            crate::work::layout::output_path(&dir, &decl.path),
+        );
     }
     Ok(paths)
 }
@@ -678,25 +718,9 @@ mod tests {
 
     /// 用给定 manifest 与 flow 文本编图并起一个 Work（无起始输入），返回图与 start 的决策。
     fn start_texts(manifest_text: &str, flow_text: &str) -> (Graph, Decision) {
-        let manifest = crate::workbook::parse_manifest(manifest_text).unwrap();
-        let def = crate::flow::parse_flow(flow_text).unwrap();
-        let graph =
-            crate::flow::compile(&def, &manifest, &crate::flow::ResourceIndex::default()).unwrap();
-        let cmd = Command::Start {
-            work_id: crate::ids::WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap())
-                .unwrap(),
-            name: WorkName::normalize("t").unwrap(),
-            workbook: crate::work::WorkbookRef {
-                id: manifest.id.clone(),
-                version: manifest.version.clone(),
-                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
-            },
-            flow: crate::ids::FlowId::new("default").unwrap(),
-            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
-            inputs: BTreeMap::new(),
-        };
-        let d = decide(None, &graph, &cmd, &testkit::ctx()).unwrap();
-        (graph, d)
+        let mut fx = Fixture::from_texts(manifest_text, flow_text, &[]);
+        let decision = fx.start(&[]).unwrap();
+        (fx.graph, decision)
     }
 
     // ── T06 Start ─────────────────────────────────────────────
@@ -1013,7 +1037,7 @@ mod tests {
             stats
                 .path
                 .as_str()
-                .ends_with("attempts/only/1/0/stats.json")
+                .ends_with("attempts/only/occurrence-001/attempt-000/engine/stats.json")
         );
         let written = d.effects.iter().find_map(|e| match e {
             Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
@@ -1026,21 +1050,7 @@ mod tests {
         );
         assert_eq!(stats.bytes, content.len() as u64);
         assert!(content.contains("\"nodes\""));
-    }
-
-    // Task: T07
-    #[test]
-    fn begin_engine_stats_counts_current_attempt() {
-        // stats.json 的口径含本次 Attempt（D-29）：崩溃后的重放用库里的状态重算，逐字节一致。
-        let mut fx = Fixture::with_engine_stats_input();
-        let d = fx.begin("only").unwrap();
-        let a = d.state.latest_attempt_of_current().unwrap();
-        let stats = a.inputs["stats"].as_ref().unwrap();
-        let written = d.effects.iter().find_map(|e| match e {
-            Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
-            _ => None,
-        });
-        let content = written.expect("应有 WriteFile 效果");
+        // stats.json 的口径含本次 Attempt（D-29）。
         assert!(
             content.contains("\"attempts\":1"),
             "本次 Attempt 已计入：{content}"
@@ -1085,7 +1095,7 @@ mod tests {
     fn begin_emits_write_brief_effect() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
-        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/1/0/brief.md") && content.contains("# 任务书"))));
+        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/occurrence-001/attempt-000/brief.md") && content.contains("# 任务书"))));
         assert!(d.effects.contains(&Effect::RefreshStatusCard));
     }
 
@@ -1159,15 +1169,23 @@ mod tests {
         ));
     }
 
-    // Task: T08
+    // Task: C002-T40
     #[test]
     fn submit_rejects_summary_over_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         assert!(matches!(
             fx.submit_ok("draft#1.0", &"x".repeat(4097)),
-            Err(Error::SummaryTooLong { .. })
+            Err(Error::SummaryTooLong {
+                max: 4096,
+                actual: 4097
+            })
         ));
+        let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
+        assert_eq!(
+            d.state.attempts[0].summary.as_ref().unwrap().as_str().len(),
+            4096
+        );
     }
 
     // Task: T08
@@ -1200,25 +1218,25 @@ mod tests {
         assert!(!d.state.attempts[0].outputs.contains_key("maybe"));
     }
 
-    // Task: T08
+    // Task: C002-T40
     #[test]
     fn submit_rejects_output_over_max_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
+        let id = AttemptId::parse("draft#1.0").unwrap();
         let err = fx
-            .submit_with(
-                &AttemptId::parse("draft#1.0").unwrap(),
-                "ok",
-                &[("article", 262_145)],
-            )
+            .submit_with(&id, "ok", &[("article", 262_145)])
             .unwrap_err();
         assert!(matches!(
             err,
             Error::OutputTooLarge {
+                output,
                 max_bytes: 262_144,
-                ..
-            }
+                actual: 262_145
+            } if output == "article"
         ));
+        let d = fx.submit_with(&id, "ok", &[("article", 262_144)]).unwrap();
+        assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
     }
 
     // Task: T08
@@ -1432,35 +1450,13 @@ mod tests {
             stats
                 .path
                 .as_str()
-                .ends_with("attempts/only/1/1/stats.json")
+                .ends_with("attempts/only/occurrence-001/attempt-001/engine/stats.json")
         );
         assert!(
             d.effects
                 .iter()
                 .any(|e| matches!(e, Effect::WriteFile { path, .. } if path == &stats.path))
         );
-    }
-
-    // Task: T08
-    #[test]
-    fn submit_accepts_summary_of_exactly_4096_bytes() {
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
-        assert_eq!(
-            d.state.attempts[0].summary.as_ref().unwrap().as_str().len(),
-            4096
-        );
-    }
-
-    // Task: T08
-    #[test]
-    fn submit_accepts_output_of_exactly_max_bytes() {
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        let id = AttemptId::parse("draft#1.0").unwrap();
-        let d = fx.submit_with(&id, "ok", &[("article", 262_144)]).unwrap();
-        assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
     }
 
     // Task: T08

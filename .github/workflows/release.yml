@@ -50,9 +50,10 @@ jobs:
     runs-on: "ubuntu-22.04"
     outputs:
       val: ${{ steps.plan.outputs.manifest }}
-      tag: ${{ !github.event.pull_request && github.ref_name || '' }}
-      tag-flag: ${{ !github.event.pull_request && format('--tag={0}', github.ref_name) || '' }}
-      publishing: ${{ !github.event.pull_request }}
+      candidate-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+      tag: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+      tag-flag: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && format('--tag={0}', github.ref_name) || '' }}
+      publishing: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -60,6 +61,7 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install dist
         # we specify bash to get pipefail; it guards against the `curl` command
         # failing. otherwise `sh` won't catch that `curl` returned non-0
@@ -70,14 +72,10 @@ jobs:
         with:
           name: cargo-dist-cache
           path: ~/.cargo/bin/dist
-      # sure would be cool if github gave us proper conditionals...
-      # so here's a doubly-nested ternary-via-truthiness to try to provide the best possible
-      # functionality based on whether this is a pull_request, and whether it's from a fork.
-      # (PRs run on the *source* but secrets are usually on the *target* -- that's *good*
-      # but also really annoying to build CI around when it needs secrets to work right.)
+      # 标签推送调用 host；PR 使用 plan，不创建发布。
       - id: plan
         run: |
-          dist ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json
+          dist ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json
           echo "dist ran successfully"
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
@@ -86,6 +84,102 @@ jobs:
         with:
           name: artifacts-plan-dist-manifest
           path: plan-dist-manifest.json
+
+  # 质量门禁（C002-T15；dist 不生成，重新跑 dist init 会丢掉，需照此补回）：
+  # 发布必须挂在同一 SHA 的质量 job 上。announce 的 needs 与 if 挡住质量失败的发布。
+  quality:
+    runs-on: "macos-14"
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          submodules: recursive
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # check-specs 要解析历史 tags/commits，浅检出取不到老 tag。
+          fetch-depth: 0
+      - name: Record and verify the quality candidate
+        shell: bash
+        run: |
+          mkdir quality-evidence
+          printf 'candidate_sha=%s\ncheckout_sha=%s\nevent=%s\nrun_id=%s\nrun_attempt=%s\n' \
+            "$CANDIDATE_SHA" "$(git rev-parse HEAD)" "$GITHUB_EVENT_NAME" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+            > quality-evidence/candidate.txt
+          cat quality-evidence/candidate.txt
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          git show --no-patch --format=fuller HEAD > quality-evidence/commit.txt
+          python3 - <<'PY' > quality-evidence/source-sha256.json
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          paths = subprocess.check_output(["git", "ls-files", "-z"]).split(b"\0")
+          files = [
+              {"path": os.fsdecode(path), "sha256": hashlib.sha256(Path(os.fsdecode(path)).read_bytes()).hexdigest()}
+              for path in paths if path
+          ]
+          print(json.dumps(files, ensure_ascii=False, indent=2))
+          PY
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Install MSRV toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal
+      - uses: taiki-e/install-action@nextest
+      - uses: taiki-e/install-action@cargo-deny
+      - uses: Swatinem/rust-cache@v2.9.2
+      - name: Record quality tools
+        shell: bash
+        run: |
+          rustc -Vv > quality-evidence/tools.txt
+          cargo -V >> quality-evidence/tools.txt
+          cargo +1.85.0 -V >> quality-evidence/tools.txt
+          cargo nextest --version >> quality-evidence/tools.txt
+          cargo deny --version >> quality-evidence/tools.txt
+      - name: Check docs, specs governance, skill and tests
+        shell: bash
+        run: |
+          scripts/check-docs.sh 2>&1 | tee quality-evidence/docs.log
+          scripts/check-specs.sh 2>&1 | tee quality-evidence/specs.log
+          scripts/check-skill.sh 2>&1 | tee quality-evidence/skill.log
+          scripts/check-core-vocab.sh 2>&1 | tee quality-evidence/core-vocab.log
+          scripts/check-tests.sh 2>&1 | tee quality-evidence/test-governance.log
+      - name: Check code format
+        shell: bash
+        run: cargo fmt --all -- --check 2>&1 | tee quality-evidence/fmt.log
+      - name: Check the workspace for errors
+        shell: bash
+        run: cargo check --all-targets --all-features 2>&1 | tee quality-evidence/check.log
+      - name: Lint rust sources
+        shell: bash
+        run: cargo clippy --all-targets --all-features -- -D warnings 2>&1 | tee quality-evidence/clippy.log
+      - name: Check dependencies
+        shell: bash
+        run: cargo deny check 2>&1 | tee quality-evidence/deny.log
+      - name: Execute rust tests
+        shell: bash
+        run: cargo nextest run --all-features --no-tests=pass 2>&1 | tee quality-evidence/nextest.log
+      - name: MSRV 1.85 locked gate
+        shell: bash
+        run: cargo +1.85.0 check --workspace --all-targets --all-features --locked 2>&1 | tee quality-evidence/msrv.log
+      - name: Record quality result
+        if: ${{ always() }}
+        shell: bash
+        env:
+          QUALITY_RESULT: ${{ job.status }}
+        run: |
+          mkdir -p quality-evidence
+          printf 'candidate_sha=%s\nquality_result=%s\n' "$CANDIDATE_SHA" "$QUALITY_RESULT" \
+            > quality-evidence/result.txt
+          cat quality-evidence/result.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload quality evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: quality-${{ env.CANDIDATE_SHA }}
+          path: quality-evidence/
 
   # Build and packages all the platform-specific things
   build-local-artifacts:
@@ -120,6 +214,7 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
+          ref: ${{ needs.plan.outputs.candidate-sha }}
       - name: Install Rust non-interactively if not already installed
         if: ${{ matrix.container }}
         run: |
@@ -179,6 +274,7 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
+          ref: ${{ needs.plan.outputs.candidate-sha }}
       - name: Install cached dist
         uses: actions/download-artifact@v8
         with:
@@ -229,6 +325,7 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
+          ref: ${{ needs.plan.outputs.candidate-sha }}
       - name: Install cached dist
         uses: actions/download-artifact@v8
         with:
@@ -262,10 +359,12 @@ jobs:
     needs:
       - plan
       - host
+      # C002-T15：质量失败不能发布。quality 与 host 同一 SHA，任一失败都挡住建 Release。
+      - quality
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' }}
+    if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.publishing == 'true' && needs.host.result == 'success' && needs.quality.result == 'success' }}
     runs-on: "ubuntu-22.04"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -274,6 +373,7 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
+          ref: ${{ needs.plan.outputs.candidate-sha }}
       # Create a GitHub Release while uploading all files to it
       - name: "Download GitHub Artifacts"
         uses: actions/download-artifact@v8
@@ -285,12 +385,18 @@ jobs:
         run: |
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
+      # 自定义步骤（dist 不生成，重新跑 dist init 会丢掉，需照此补回）：打包自包含
+      # skill 交付并挂成发布资产。资产名 sheltie-skill.tar.gz 与 README「装 skill」的
+      # 下载地址一一对应；打包与校验规则的单一事实源是 scripts/skill-delivery.sh。
+      - name: Pack sheltie skill
+        shell: bash
+        run: scripts/skill-delivery.sh tar artifacts/sheltie-skill.tar.gz
       - name: Create GitHub Release
         env:
           PRERELEASE_FLAG: "${{ fromJson(needs.host.outputs.val).announcement_is_prerelease && '--prerelease' || '' }}"
           ANNOUNCEMENT_TITLE: "${{ fromJson(needs.host.outputs.val).announcement_title }}"
           ANNOUNCEMENT_BODY: "${{ fromJson(needs.host.outputs.val).announcement_github_body }}"
-          RELEASE_COMMIT: "${{ github.sha }}"
+          RELEASE_COMMIT: "${{ needs.plan.outputs.candidate-sha }}"
         run: |
           # Write and read notes from a file to avoid quoting breaking things
           echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt

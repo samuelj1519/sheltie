@@ -1,0 +1,41 @@
+# Change 索引
+
+当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
+Active change：无
+
+只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
+
+## Proposed
+
+| Change | 目标 | 状态 | 入口 |
+| --- | --- | --- | --- |
+| C004 | 面向代码库变更的可验收委派（候选 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C004-verifiable-delegation/README.md) |
+| C005 | 执行者替换与任务接续（第一阶段候选随 v0.3.0） | proposed，实验 `not_run` | [README](proposed/C005-executor-continuity/README.md) |
+| C006 | 成果交付（独立导出组件） | proposed，探针 `not_run` | [README](proposed/C006-result-delivery/README.md) |
+| C007 | 运行前生成 Workbook（第一阶段只做实验） | proposed，实验 `not_run` | [README](proposed/C007-pre-run-workbook-generation/README.md) |
+| C008 | 依赖就绪（自 C006 拆出） | proposed，探针 `not_run` | [README](proposed/C008-dependency-readiness/README.md) |
+
+## Active
+
+无。
+
+## Completed
+
+| Change | 结果 | 入口 |
+| --- | --- | --- |
+| C002 | v0.2.0 可靠性修复，按授权范围完成并发布 macOS aarch64 版本 | [README](completed/C002-v0.2.0-reliability/README.md) |
+| C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
+| C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
+
+## Rejected
+
+无。
+
+## 生命周期
+
+```text
+proposed ──人采用──▶ active ──实现、验证、独立 review──▶ completed ──纳入──▶ release
+    └──人否决──▶ rejected
+```
+
+目录位置就是状态。默认只允许一个 active change。模板见 [templates/](templates/)。

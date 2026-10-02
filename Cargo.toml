@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/sheltie-core", "crates/sheltie-runtime", "crates/sheltie-cli"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
@@ -15,13 +15,16 @@ sheltie-runtime = { path = "crates/sheltie-runtime" }
 
 camino = { version = "1", features = ["serde1"] }
 clap = { version = "4", features = ["derive"] }
-rusqlite = { version = "0.37", features = ["bundled"] }
+rusqlite = { version = "0.37", features = ["bundled", "serialize"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
 thiserror = "2"
 toml = "0.9"
 uuid = { version = "1", features = ["v7"] }
+fs4 = "0.13"
+uzers = "0.12"
+rustix = { version = "=1.1.4", features = ["fs"] }
 
 assert_cmd = "2"
 insta = { version = "1", features = ["json"] }
@@ -36,13 +39,13 @@ installers = ["shell"]
 install-path = "~/.sheltie/bin"
 targets = [
   "aarch64-apple-darwin",
-  "x86_64-apple-darwin",
-  "x86_64-unknown-linux-gnu",
-  "aarch64-unknown-linux-gnu",
 ]
 ci = ["github"]
-pr-run-mode = "plan"
+pr-run-mode = "upload"
 github-release = "announce"
+# release.yml 里有 dist 不生成的自定义步骤（skill 交付打包、质量门禁）；不许 dist init
+# 重新生成时把它们当成过期内容拒绝。重新跑 dist init 后要照注释把这些步骤补回。
+allow-dirty = ["ci"]
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

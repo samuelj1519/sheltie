@@ -1,12 +1,12 @@
 //! Work 的运行时状态。整份 `WorkState` 按一列 JSON 持久化（存储合同 §1.2）。
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
 use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
-use crate::flow::EdgeKind;
+use crate::flow::{EdgeKind, Graph};
 use crate::ids::{AttemptId, FlowId, NodeId, WorkId, WorkName, WorkbookId};
 use crate::path::AbsPath;
 use crate::text::Summary;
@@ -240,7 +240,12 @@ impl BlockedReason {
 
 /// Work 状态。没有 `Failed`：重试耗尽后唯一出路是取消。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "kind", content = "reason")]
+#[serde(
+    rename_all = "snake_case",
+    tag = "kind",
+    content = "reason",
+    deny_unknown_fields
+)]
 pub enum WorkStatus {
     Active,
     Blocked(BlockedReason),
@@ -290,28 +295,182 @@ pub struct WorkState {
     pub visits: BTreeMap<NodeId, u32>,
     pub attempts: Vec<Attempt>,
     pub approvals: Vec<Approval>,
+    /// 累计受阻事实（GF-29）：gate 提交成功、重试耗尽、`no_legal_edge` 发生各 +1，
+    /// 由状态转换在发生时记录，取消后不减少。schema 1 的旧 state 没有该字段，
+    /// 读取按「缺字段即拒绝」处理，不用默认值猜历史。
+    pub blocked_count: u32,
     pub created_at: Timestamp,
     pub updated_at: Timestamp,
 }
 
 impl WorkState {
+    /// 核对持久状态内部必须相符的事实。Store 负责把字段位置映射为 STORE_CORRUPT。
+    pub fn validate_persisted(&self) -> std::result::Result<(), String> {
+        if self.work_id.as_str().get(15..) != Some(self.name.as_str()) {
+            return Err("work_id 与 name 不一致".to_string());
+        }
+        if self.work_id.as_str().get(..10) != Some(self.created_at.day()) {
+            return Err("work_id 日期与 created_at 不一致".to_string());
+        }
+        if self.current.n == 0 || self.visits.get(&self.current.node) != Some(&self.current.n) {
+            return Err("current 与 visits 不一致".to_string());
+        }
+        if self.visits.values().any(|count| *count == 0) {
+            return Err("visits 含零次到达".to_string());
+        }
+
+        let mut seen = BTreeSet::new();
+        let mut running = None;
+        for (index, attempt) in self.attempts.iter().enumerate() {
+            let id = &attempt.id;
+            if id.occurrence == 0
+                || self
+                    .visits
+                    .get(&id.node)
+                    .is_none_or(|count| id.occurrence > *count)
+            {
+                return Err(format!("attempts[{index}].id 与 visits 不一致"));
+            }
+            if !seen.insert(id) {
+                return Err(format!("attempts[{index}].id 重复"));
+            }
+            let valid = match attempt.status {
+                AttemptStatus::Running => {
+                    if running.replace(attempt.occurrence()).is_some() {
+                        return Err("存在多个 running Attempt".to_string());
+                    }
+                    attempt.ended_at.is_none()
+                        && attempt.summary.is_none()
+                        && attempt.fail_reason.is_none()
+                        && attempt.outputs.is_empty()
+                }
+                AttemptStatus::Succeeded => {
+                    attempt.ended_at.is_some()
+                        && attempt.summary.is_some()
+                        && attempt.fail_reason.is_none()
+                }
+                AttemptStatus::Failed => {
+                    attempt.ended_at.is_some()
+                        && attempt.summary.is_none()
+                        && attempt.fail_reason.is_some()
+                        && attempt.outputs.is_empty()
+                }
+            };
+            if !valid {
+                return Err(format!("attempts[{index}] 的 status/结果字段不一致"));
+            }
+        }
+        if running
+            .as_ref()
+            .is_some_and(|occurrence| occurrence != &self.current)
+        {
+            return Err("running Attempt 与 current 不一致".to_string());
+        }
+        if running.is_some()
+            && self.status != WorkStatus::Active
+            && self.status != WorkStatus::Cancelled
+        {
+            return Err("running Attempt 与 Work status 不一致".to_string());
+        }
+
+        for (index, approval) in self.approvals.iter().enumerate() {
+            if !self.attempts.iter().any(|attempt| {
+                attempt.id.node == approval.node
+                    && attempt.id.occurrence == approval.occurrence
+                    && attempt.status == AttemptStatus::Succeeded
+            }) {
+                return Err(format!("approvals[{index}] 没有对应的成功 Attempt"));
+            }
+        }
+
+        let latest = self
+            .latest_attempt_of_current()
+            .map(|attempt| attempt.status);
+        let expected = match self.status {
+            WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
+            | WorkStatus::Succeeded => Some(AttemptStatus::Succeeded),
+            WorkStatus::Blocked(BlockedReason::RetriesExhausted) => Some(AttemptStatus::Failed),
+            WorkStatus::Active | WorkStatus::Cancelled => None,
+        };
+        if expected.is_some_and(|status| latest != Some(status)) {
+            return Err("Work status 与当前 Attempt 不一致".to_string());
+        }
+        if self.status == WorkStatus::Blocked(BlockedReason::Gate)
+            && self.approvals.iter().any(|approval| {
+                approval.node == self.current.node && approval.occurrence == self.current.n
+            })
+        {
+            return Err("当前 gate 已批准却仍受阻".to_string());
+        }
+        // Each blocking event belongs to an ended Attempt or a Gate Approval.
+        // These are necessary bounds, not a reconstruction of the stored total.
+        let maximum = self.attempts.len().saturating_add(self.approvals.len());
+        let minimum = self
+            .approvals
+            .len()
+            .saturating_add(usize::from(matches!(self.status, WorkStatus::Blocked(_))));
+        let count = u64::from(self.blocked_count);
+        if count < minimum as u64 || count > maximum as u64 {
+            return Err("blocked_count 与 Attempt/Approval 受阻事实不一致".to_string());
+        }
+        Ok(())
+    }
+
+    /// 冻结图提供门槛定义；持久状态只能引用已有批准事实，不能推断或补造批准。
+    pub fn validate_gate_facts(&self, graph: &Graph) -> std::result::Result<(), String> {
+        let approved = |node: &NodeId, occurrence: u32| {
+            self.approvals
+                .iter()
+                .any(|approval| &approval.node == node && approval.occurrence == occurrence)
+        };
+        for approval in &self.approvals {
+            if !graph.node(&approval.node).is_some_and(|node| node.gate()) {
+                return Err(format!(
+                    "{}#{} 的批准没有对应门槛",
+                    approval.node, approval.occurrence
+                ));
+            }
+        }
+        let current = graph
+            .node(&self.current.node)
+            .ok_or_else(|| format!("当前Occurrence {} 不在冻结图中", self.current))?;
+        if self.status == WorkStatus::Blocked(BlockedReason::Gate) && !current.gate() {
+            return Err(format!("当前非门槛 {} 不能是Gate受阻", self.current));
+        }
+        for attempt in &self.attempts {
+            let occurrence = attempt.occurrence();
+            let has_left_or_can_leave = occurrence != self.current
+                || matches!(
+                    self.status,
+                    WorkStatus::Active
+                        | WorkStatus::Succeeded
+                        | WorkStatus::Blocked(BlockedReason::NoLegalEdge)
+                );
+            if attempt.status == AttemptStatus::Succeeded
+                && graph.node(&attempt.id.node).is_some_and(|node| node.gate())
+                && has_left_or_can_leave
+                && !approved(&occurrence.node, occurrence.n)
+            {
+                return Err(format!("已离开或可离开的门槛 {occurrence} 缺少批准"));
+            }
+        }
+        Ok(())
+    }
+
     /// 冻结副本目录 `work_dir/workbook`。
     pub fn workbook_dir(&self) -> AbsPath {
         self.work_dir.join_segment("workbook")
     }
 
-    /// Attempt 目录 `work_dir/attempts/<node>/<n>/<retry>`。
+    /// Attempt 目录：单一 `WorkLayout`（架构 §5）。
+    /// `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`。
     pub fn attempt_dir(&self, id: &AttemptId) -> AbsPath {
-        self.work_dir
-            .join_segment("attempts")
-            .join_segment(id.node.as_str())
-            .join_segment(&id.occurrence.to_string())
-            .join_segment(&id.retry.to_string())
+        crate::work::layout::attempt_dir(&self.work_dir, id)
     }
 
-    /// 状态卡路径 `work_dir/status-card.md`。
+    /// 状态卡路径 `work_dir/status-card.md`（当前投影）。
     pub fn status_card_path(&self) -> AbsPath {
-        self.work_dir.join_segment("status-card.md")
+        crate::work::layout::status_card_path(&self.work_dir)
     }
 
     pub fn attempt(&self, id: &AttemptId) -> Option<&Attempt> {
@@ -459,5 +618,48 @@ mod tests {
         ] {
             assert_eq!(Timestamp::parse(s).unwrap().unix_secs(), want, "{s}");
         }
+    }
+
+    // Task: C002-T39
+    #[test]
+    fn work_status_json_keeps_all_variants_and_rejects_unknown_fields_in_any_position() {
+        for (valid, expected) in [
+            (r#"{"kind":"active"}"#, WorkStatus::Active),
+            (
+                r#"{"kind":"blocked","reason":"gate"}"#,
+                WorkStatus::Blocked(BlockedReason::Gate),
+            ),
+            (
+                r#"{"kind":"blocked","reason":"retries_exhausted"}"#,
+                WorkStatus::Blocked(BlockedReason::RetriesExhausted),
+            ),
+            (
+                r#"{"kind":"blocked","reason":"no_legal_edge"}"#,
+                WorkStatus::Blocked(BlockedReason::NoLegalEdge),
+            ),
+            (r#"{"kind":"succeeded"}"#, WorkStatus::Succeeded),
+            (r#"{"kind":"cancelled"}"#, WorkStatus::Cancelled),
+        ] {
+            assert_eq!(serde_json::from_str::<WorkStatus>(valid).unwrap(), expected);
+            assert_eq!(serde_json::to_string(&expected).unwrap(), valid);
+            let before = format!(r#"{{"unexpected":true,{}"#, &valid[1..]);
+            let after = format!(r#"{},"unexpected":true}}"#, &valid[..valid.len() - 1]);
+            for invalid in [before, after] {
+                assert!(
+                    serde_json::from_str::<WorkStatus>(&invalid).is_err(),
+                    "{invalid}"
+                );
+            }
+        }
+        assert_eq!(
+            serde_json::from_str::<WorkStatus>(r#"{"reason":"gate","kind":"blocked"}"#).unwrap(),
+            WorkStatus::Blocked(BlockedReason::Gate)
+        );
+        assert!(
+            serde_json::from_str::<WorkStatus>(
+                r#"{"kind":"blocked","unexpected":true,"reason":"gate"}"#
+            )
+            .is_err()
+        );
     }
 }

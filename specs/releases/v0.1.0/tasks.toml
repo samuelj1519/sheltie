@@ -1,4 +1,4 @@
-# 机器可读的任务表，与 specs/plan.md §2 同源。改计划必改这里。
+# MVP legacy 任务表，与同目录已关闭的 plan.md §2 同源。保留 T01–T26 的检查依据，不再追加后续 change；新任务在 active package 的 tasks.toml 登记。
 # 测试归属不在这里：看测试上方的 `// Task: Tnn` 注释（plan.md §0.5）。
 # files：本任务允许修改的源码文件（白名单）。
 # test_files：测试所在文件，改动只许删 #[ignore 行；与 files 重叠的是混合源文件，改查 #[cfg(test)] 起的测试模块。

@@ -1,0 +1,246 @@
+# C002 任务白名单。用法与 legacy 表相同：scripts/check-task.sh C002-Tnn 按此核对改动范围。
+# 与 MVP 填空不同：行为任务自行编写测试，权限以每个任务的 allow_test_changes 为准；
+# 期望值必须来自独立 oracle（plan.md §1），review 时核对。
+# files / test_files 条目可以是文件或目录（目录作为前缀白名单）。
+# 每个实施任务还需更新本 package 的 progress、validation 并保存可恢复原文；
+# 已完成任务中的 evidence 路径保留历史范围，原文现由 validation.md 的固定 Git 快照定位。
+# 其他 package 文件需经 plan/tasks 白名单勘误后才可修改。
+
+[C002-T01]
+files = ["specs", "CONTEXT.md"]
+test_files = []
+allow_test_changes = true
+
+[C002-T14]
+files = ["crates/sheltie-core", "crates/sheltie-runtime/src/store", "crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-cli/src/commands/workbook.rs", "specs/changes/README.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T02]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-core/src/flow", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T03]
+# specs/releases/v0.1.0/plan.md：T01 修订 workbook 合同 §3.2 后，legacy T04 卡列的
+# rejects_output_path_brief_md 描述的拒绝已取消；按 check-tests 规则把该项改为原位注记，
+# 指向本任务的覆盖测试，不改归档计划的其他内容。
+files = ["crates/sheltie-core", "Cargo.toml", "Cargo.lock", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T04]
+# crates/sheltie-cli/tests/scenario_article_review.rs：管理根入口规范化（本任务）后，
+# 记录路径成为真实形式（macOS 的 /var → /private/var），该测试的期望前缀需同样
+# canonicalize，只改这一处期望，不改断言语义。
+files = ["crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests/scenario_article_review.rs"]
+allow_test_changes = true
+
+[C002-T09]
+files = ["crates/sheltie-core/src/digest.rs", "crates/sheltie-runtime/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-runtime/tests"]
+allow_test_changes = true
+
+[C002-T05]
+# specs/decisions/D-036-os-principal-from-uid.md：users 0.11.0 被 cargo deny 的
+# RUSTSEC advisory 拒绝，按工程规范勘误为同 API 的维护分支 uzers；语义与确认方式不变。
+files = ["crates/sheltie-core/src/workbook", "crates/sheltie-runtime/src", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-cli/src", "Cargo.toml", "Cargo.lock", "specs/decisions/D-036-os-principal-from-uid.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-core"]
+allow_test_changes = true
+
+[C002-T06]
+files = ["crates/sheltie-core/src/work", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-core", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T07]
+files = ["crates", "Cargo.toml", "Cargo.lock", "examples", ".config", ".github", "specs/architecture.md", "specs/contracts", "specs/spec.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T08]
+files = ["crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T10]
+files = ["skills", "crates/sheltie-cli/src", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T11]
+# specs/contracts/workbook.md §3 是 examples/article-review/flows/default.toml 的图
+# （§6「即本文 §3 的图」）；draft 增加可选 review.verdict 输入后两处必须同步。
+# specs/contracts/protocol.md attempt begin 的返回补「未绑定的可选输入值为 null」一句：
+# 本任务的 CLI 例要固定该形状，没有合同依据就是文档没写却断言的行为。
+# crates/sheltie-core/src/flow/compile.rs 的 rejects_input_from_node_that_cannot_reach_consumer
+# 夹具按样例字节同步替换目标（draft 输入改多行数组），断言语义不变。
+files = ["examples/article-review", "crates", "specs/contracts/workbook.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T12]
+# specs/contracts/workbook.md §6：spec-dev 的边数随本任务的回程边 24→25，事实同步。
+# specs/releases/v0.1.0/plan.md：legacy T11 卡列的 spec_dev_compiles_with_eleven_nodes_twenty_four_edges
+# 随本任务的图改动改名 spec_dev_compiles_with_eleven_nodes_twenty_five_edges 并由本任务接管；
+# 按 check-tests 规则把旧名改为原位注记（与 C002-T03 同一处置），不改归档计划的其他内容。
+files = ["workbooks", "crates", "specs/contracts/workbook.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T13]
+files = ["skills", "scripts", "crates", ".github", "README.md", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-T15]
+files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "rust-toolchain.toml", ".github", "scripts", "README.md", ".pre-commit-config.yaml", "specs/changes/active/C002-v0.2.0-reliability/progress.md", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/active/C002-v0.2.0-reliability/evidence"]
+test_files = ["crates"]
+allow_test_changes = true
+
+[C002-M1]
+# M1审查反馈的源码与回归独立归属T32–T34；M1记录最终审查及完整解码/只读投影的工程规范口径。
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/engineering.md"]
+test_files = []
+allow_test_changes = false
+
+[C002-T16]
+# 真实宿主回归发现 retro 报告定位仍为旧布局；同步说明与 Workbook 升版，旧冻结副本不改。
+files = ["specs/changes/active/C002-v0.2.0-reliability", "workbooks/spec-dev/instructions/retro.md", "workbooks/spec-dev/workbook.toml", "workbooks/spec-dev/README.md"]
+test_files = []
+allow_test_changes = true
+
+[C002-T17]
+# 发布预检发现：PR只做plan、CI未固定PR head；completed checker误读历史事实表，治理测试夹具依赖live active目录。
+files = ["specs", "CHANGELOG.md", "README.md", "Cargo.toml", "Cargo.lock", ".github/workflows/release.yml", ".github/workflows/build.yml", "scripts/check-specs.sh", "crates/sheltie-runtime/src/fsx.rs"]
+test_files = ["crates/sheltie-cli/tests/release_governance.rs"]
+allow_test_changes = true
+
+# M1 审查后追加修复。完整任务卡见 repair-plan.md，结果仍仅在 plan.md 主表维护。
+# package 文档范围用于本任务记录；不得覆盖旧 evidence 或改写历史审查失败。
+
+[C002-T18]
+files = ["specs/spec.md","specs/architecture.md","specs/contracts/storage.md","specs/contracts/protocol.md","specs/decisions/D-035-root-write-lock-fs4.md","specs/decisions/D-037-managed-file-handles.md","specs/decisions/D-038-purge-lock-lifecycle.md","specs/decisions/D-039-sqlite-read-control-files.md","specs/decisions/README.md","README.md","_typos.toml",".pre-commit-config.yaml","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = true
+
+[C002-T19]
+files = ["Cargo.toml","Cargo.lock","_typos.toml","crates/sheltie-runtime/Cargo.toml","crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T20]
+files = ["crates/sheltie-core/src/work/command.rs","crates/sheltie-core/src/work/next.rs","crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T21]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T22]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T23]
+files = ["crates/sheltie-runtime/src/selfmgmt.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/error.rs","crates/sheltie-cli/src/commands/self_cmd.rs","crates/sheltie-cli/src/error_map.rs","README.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs","crates/sheltie-runtime/tests/crash.rs","crates/sheltie-runtime/tests/fs_boundary.rs","crates/sheltie-cli/tests/self_cmd.rs"]
+allow_test_changes = true
+
+[C002-T24]
+files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T25]
+files = ["crates/sheltie-runtime/src","crates/sheltie-cli/src","skills/sheltie/SKILL.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T26]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T27]
+files = ["crates/sheltie-runtime/src","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T28]
+# commands/mod.rs：所有成功写命令的统一输出出口需要在打印后补发pending维护告警，保持JSON与退出码不变。
+# CLI只读与发布交错回归直接准备临时SQLite持久状态，故给集成测试显式声明已有workspace依赖rusqlite，并更新锁文件。
+files = ["Cargo.lock","crates/sheltie-runtime/src","crates/sheltie-cli/Cargo.toml","crates/sheltie-cli/src/commands/mod.rs","crates/sheltie-cli/src/commands/work.rs","crates/sheltie-cli/src/commands/workbook.rs","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T29]
+# V28须从真实CLI暂停已装入读者，故集中扩展failpoint的子进程同步配置，并提前提供T31所需CLI feature映射。
+files = ["crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-cli/Cargo.toml","crates/sheltie-cli/src/commands/work.rs","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T30]
+files = ["workbooks/spec-dev","specs/changes/active/C002-v0.2.0-reliability"]
+# 重规划回归放同一CLI测试binary的子模块，复用既有临时Git/真实命令fixture，避免继续扩大旧场景文件。
+# 全仓T30验收发现runtime测试内cargo重建共享CLI引发ENOENT；提前迁入T31的二进制注入步骤，断言/Owner保持。
+test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cli/tests/common/spec_dev_replan.rs","crates/sheltie-core/tests/examples.rs","crates/sheltie-cli/tests/crash.rs","crates/sheltie-cli/tests/os_process.rs","crates/sheltie-runtime/tests/crash.rs","crates/sheltie-runtime/tests/selfmgmt.rs","crates/sheltie-runtime/tests/workbook_identity.rs"]
+allow_test_changes = true
+
+[C002-T31]
+# 真实purge等待者暴露SQLite只读可创建零字节WAL，先澄清上游物理控制文件边界，不改变业务只读不变式。
+# 2026-09-30 用户授权修复实现审查全部七项：接入session/store初始化、集中snapshot解码、CLI单一NextOp映射。
+files = [".pre-commit-config.yaml","_typos.toml","specs/architecture.md","Cargo.toml","crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/decide.rs","specs/spec.md","specs/contracts/storage.md","specs/contracts/protocol.md","specs/decisions/D-039-sqlite-read-control-files.md","crates/sheltie-runtime/src/failpoint.rs","crates/sheltie-runtime/src/fsx.rs","crates/sheltie-runtime/src/fsx","crates/sheltie-runtime/src/home.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/recovery.rs","crates/sheltie-runtime/src/effects.rs","crates/sheltie-runtime/src/pending.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/session.rs","crates/sheltie-runtime/src/store","crates/sheltie-runtime/src/snapshot.rs","crates/sheltie-runtime/src/lib.rs","crates/sheltie-cli/src","crates/sheltie-runtime/src/workbook_repo.rs","crates/sheltie-cli/Cargo.toml","Cargo.lock","scripts/mutants.sh","scripts/check-task.sh",".config/nextest.toml",".github/workflows/build.yml","specs/releases/v0.1.0/plan.md","specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests","crates/sheltie-cli/tests","crates/sheltie-core/tests","crates/sheltie-core/src"]
+allow_test_changes = true
+
+[C002-T32]
+files = ["crates/sheltie-runtime/src", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T33]
+files = ["crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/commands/workbook.rs", "crates/sheltie-runtime/src", "specs/architecture.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T34]
+# R23/R24的状态与资源规则由core提供同一纯函数，runtime只验证历史快照事实。
+files = ["crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src", "specs/contracts/storage.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true
+
+[C002-T35]
+files = ["Cargo.toml", "README.md", "LICENSE-APACHE", "crates/sheltie-core/LICENSE-APACHE", "crates/sheltie-runtime/LICENSE-APACHE", "crates/sheltie-cli/LICENSE-APACHE", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T36]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/decisions/D-039-sqlite-read-control-files.md", "specs/releases/v0.1.0/plan.md"]
+test_files = []
+allow_test_changes = false
+
+[C002-T37]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/guides/README.md", "specs/guides/task-execution-efficiency.md"]
+test_files = []
+allow_test_changes = false
+
+[C002-T38]
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T39]
+# 未提交T38与本任务共处工作区；check-task核两者文件并集，实际增量由开工hash/diff单列。
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/flow_identity.rs", "crates/sheltie-cli/tests/strict_state.rs", "crates/sheltie-cli/tests/tmp_cleanup.rs"]
+allow_test_changes = true
+
+[C002-T40]
+# 本任务只改测试区域/测试专用support；src范围覆盖未提交T38/T39与混合测试文件，另核生产字节闭包。
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-core/tests", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true

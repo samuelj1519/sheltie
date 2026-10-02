@@ -4,9 +4,9 @@
 
 ## 1. 工作方式：spec 先于代码
 
-1. 动手前找到依据。产品行为 → `spec.md`；类型与模块 → `architecture.md`；字段、命令、表结构 → 对应合同；做哪一步 → `plan.md`。
-2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改合同，顺序问题改 `plan.md`。在提交里同时带上文档改动。合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入（M3 教训 D-30：`axoupdater` 写进合同后核对不可行）。
-3. 文档描述目标，不描述进度。代码进度只看 `plan.md` 每个任务的状态与 git 历史。不得把计划中的能力写成「已支持」。
+1. 动手前找到依据。产品行为 → `spec.md`；类型与模块 → `architecture.md`；字段、命令、表结构 → 对应合同；当前任务与进度 → active change 的 `plan.md`。入口见 [change 索引](changes/README.md)。
+2. 依据缺失或冲突时，**先改文档再写代码**。产品问题改 `spec.md`，机制问题改架构或合同，跨任务的重要选择新增 ADR，任务顺序改 active change plan。在提交里同时带上文档改动。合同与任务卡点名第三方库时，先核对其公开 API 能支撑合同的每一步再写入（M3 教训 D-30：`axoupdater` 写进合同后核对不可行）。
+3. 文档描述目标，不描述进度。代码进度只看 active change plan 的任务状态与 git 历史。没有 active change 时不得从 proposed package 自行开工。不得把计划中的能力写成「已支持」。
 4. 一个事实只在一处定义，别处链接。`scripts/check-docs.sh` 检查断链与禁用词。
 
 ## 2. Rust 约定
@@ -22,7 +22,8 @@ examples/             三份样例 Workbook（同时是测试 fixture）
 workbooks/            可分发的业务 Workbook（spec-dev）
 skills/sheltie/       SKILL.md
 scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh
-tasks.toml            机器可读的任务白名单（T01 生成）
+specs/releases/v0.1.0/tasks.toml  MVP legacy 任务白名单
+specs/changes/        后续迭代 package；active change 自带 plan、progress、validation 与 tasks.toml
 .config/nextest.toml  测试运行配置（crash 测试串行）
 dist 配置            根 Cargo.toml 的 [workspace.metadata.dist]（T25 起；0.32.0 不认 T20 手写的 dist-workspace.toml）
 AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
@@ -32,10 +33,10 @@ AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 
 ### 2.2 代码风格
 
-- 每个 crate 根 `#![forbid(unsafe_code)]`；lib crate 另加 `#![deny(clippy::unwrap_used, clippy::expect_used)]`。测试代码可以 `unwrap`。
+- 每个 crate 禁止 `unsafe`；根 `Cargo.toml` 的 `[workspace.lints.rust] unsafe_code = "forbid"` 是实际门禁。lib crate 另禁用 `clippy::unwrap_used` 与 `clippy::expect_used`；测试代码可以 `unwrap`。OS 主体使用 D-036 选定的安全 Rust API，不直接调用 `libc`。
 - 每个 crate 一个 `Error` 枚举，用 `thiserror`。错误携带足够定位的字段（路径、字段名、规则名），CLI 层映射为 [协议](contracts/protocol.md) §7 的错误码。不用 `anyhow` 穿透 crate 边界；`cli` 内部可以用。
 - ID、路径、摘要、有界文本都用 newtype，构造函数校验，字段私有。模块边界不传裸 `String`。
-- 所有 `serde` 结构 `#[serde(deny_unknown_fields)]`。枚举用 `rename_all = "snake_case"`。
+- 完整合同载荷的 `serde` 解码必须使用 `#[serde(deny_unknown_fields)]`，拒绝未知字段。枚举用 `rename_all = "snake_case"`。私有、只读的身份投影可以仅解码所需字段；投影通过不代表完整载荷合格，其余字段仍须在任何业务 I/O 前由完整严格解码拒绝。投影只服务已有调用义务，不作为新的载荷入口。
 - 状态机用 `enum` 表达，`match` 穷尽，不写 `_ =>` 兜底。
 - 函数默认私有；`pub` 只给真实有外部调用者的项。不为 mock 加 trait。
 - 注释只写代码说不出的「为什么」。不写阶段叙述，不写显而易见的「这里做 X」。
@@ -58,14 +59,16 @@ cargo nextest run --all-features --no-tests=pass
 
 ### 3.1 循环
 
-MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。实现者的循环是：
+MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
+
+MVP 填空任务的循环是：
 
 1. 启用本任务的测试（删 `#[ignore = "Tnn"]`），跑 `scripts/task.sh Tnn`，看到全红。编译不过不算红；先让它编译。
 2. 挑一个红的，填对应的 `todo!()`，让它绿。不改签名，不改断言，不改快照。
 3. 下一个红的。
 4. 全绿后跑四条门禁与 `scripts/check-task.sh Tnn`，提交。
 
-写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里（[plan.md §0.5](plan.md)）；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外五条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算；查表与换算类函数（日期、进位、修正项）的用例要覆盖每个修正项生效的区段，找不到判定输入时穷举可达定义域找第一个判定点（`from_unix_secs` 的世纪修正项在 1970 到 2100 年的用例下全部摸不到，判定点是 1970-03-01）。第六条（M2 教训）：重放与恢复类测试要断言重建出的内容与提交时逐字节一致（或摘要相等），只断言「文件存在」不够——`stats.json` 的重建口径与提交口径不一致就是这样漏掉的。
+写新测试的人（T01 的骨架作者、里程碑审查者）遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里（[legacy plan §0.5](releases/v0.1.0/plan.md)）；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外五条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算；查表与换算类函数（日期、进位、修正项）的用例要覆盖每个修正项生效的区段，找不到判定输入时穷举可达定义域找第一个判定点（`from_unix_secs` 的世纪修正项在 1970 到 2100 年的用例下全部摸不到，判定点是 1970-03-01）。第六条（M2 教训）：重放与恢复类测试要断言重建出的内容与提交时逐字节一致（或摘要相等），只断言「文件存在」不够——`stats.json` 的重建口径与提交口径不一致就是这样漏掉的。
 
 ### 3.2 分层
 
@@ -90,7 +93,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
 ## 4. 提交
 
-- 一个 `plan.md` 任务 = 一个提交。提交时 §2.3 四条命令全绿。
+- active change plan 的一个任务 = 一个提交。提交时 §2.3 四条命令和 package plan 的附加门禁全绿。MVP legacy task 保持原有映射。
 - 不留编译不过的中间态；不为「先让它编译」加空实现、假成功或长期兼容层。
 - 一次接口变化涉及的全部调用方、fixture、文档在同一提交里改完。
 - 信息格式（本仓库与 `spec-dev` Workbook 共用）：
@@ -100,12 +103,13 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
   <正文：改了什么、为什么、怎么验证。每段一个意思。不复述 diff。>
 
-  Task: T05
+  Change: C002
+  Task: C002-T05
   Work: 2026-09-24-001-xxx
   Agent: Claude
   ```
 
-  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾三行是 git trailer：`Task` 对应 `plan.md` 的任务或 `spec-dev` 的 `Tnn`，`Work` 只在 Sheltie Work 里运行时填 `work_id`，`Agent` 必填，写实际提交者（模型名或人名）。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行，否则 git 不把 `Task`、`Agent` 认作 trailer。
+  `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾是 git trailer：新迭代的 `Change` 与 `Task` 对应 active package；`Work` 只在 Sheltie Work 里运行时填 `work_id`；`Agent` 必填，写实际提交者。MVP T01–T26 保留只有 `Task` 的 legacy 格式。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行。
 
   ```text
   feat(core): 把 Flow 编译成校验过的图
@@ -113,7 +117,8 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
   按 contracts/workbook.md §4 实现规则 1 到 9。可达性用 BFS。每条规则一个拒绝测试，
   另有 proptest 证明任意 2 到 8 节点的图编译不会 panic。
 
-  Task: T05
+  Change: C002
+  Task: C002-T05
   Agent: Claude
   ```
 
@@ -140,7 +145,7 @@ MVP 期间测试由 [plan.md](plan.md) T01 一次写好并禁用，实现者不�
 
 全仓措辞清扫（改名、去翻译腔）不得动 `#[cfg(test)]` 模块：测试是合同，`check-task.sh` 按「测试零改动」核对。非动不可时，由复核者逐处核实改动只是文字，然后重打 `tNN-review` 基准 tag（M1 第三轮 N1）。
 
-MVP 期间逐任务的审查由编译器、测试与 `scripts/check-task.sh` 承担；模型审查只在 [plan.md](plan.md) 的 M1、M2、M3 三个里程碑做，范围是两个里程碑之间的 diff。
+MVP 的逐任务与 M1–M3 审查规则保存在 [legacy plan](releases/v0.1.0/plan.md)。后续 change 的逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`。
 
 ## 6. 文档写法
 
@@ -148,16 +153,16 @@ MVP 期间逐任务的审查由编译器、测试与 `scripts/check-task.sh` 承
 - 命令、路径、字段、错误码放代码环境，写真实符号，不写近义描述。
 - 表格用于并列映射，编号列表用于顺序步骤。
 - 「必须」「不得」表示强制与禁止，「可以」表示可选。不用「大概」「尽量」。
-- 每份文档只做一种事：规格讲目标，合同讲字段，计划讲步骤，本文讲方法。不混。
+- 每份文档只做一种事：规格讲目标，合同讲字段，change plan 讲步骤，progress 讲当前交接，validation 讲证据，ADR 讲理由，本文讲方法。不混。
 - 改文档跑 `scripts/check-docs.sh`。
 
 ## 7. 遇到缺口
 
 | 发现 | 去哪 |
 | --- | --- |
-| 产品该不该做某事、边界在哪 | 改 `spec.md`，在 `decisions.md` 追加一条 `D-nn` |
+| 产品该不该做某事、边界在哪 | proposed change 写问题与候选；采用后改 `spec.md`，重要选择新增 `decisions/D-nnn-*.md` |
 | 字段、命令、表结构、状态转换没定义 | 改对应合同 |
-| 任务顺序不对、依赖缺失 | 改 `plan.md` |
+| 任务顺序不对、依赖缺失 | 改 active change 的 `plan.md` |
 | 已定义的东西实现错了 | 直接修，补拒绝例 |
 | 局部写法选择 | 自己定，不用问 |
 

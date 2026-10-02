@@ -1,5 +1,7 @@
+nextest-version = { required = "0.9.145" }
+
 [profile.default]
-# 崩溃测试用子进程改同一个二进制与临时目录，串行跑。
+# 崩溃测试使用Cargo注入binary，各例独立临时目录；限制故障进程的资源并发。
 [[profile.default.overrides]]
 filter = "binary(crash)"
 test-group = "serial"

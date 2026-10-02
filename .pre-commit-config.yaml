@@ -4,19 +4,24 @@ repos:
     rev: v6.0.0
     hooks:
       - id: fix-byte-order-marker
+        exclude: ^specs/changes/(active|completed)/.*/evidence/.+\.(jsonl?|stderr|stdout|txt|log|diff|patch|py)$
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-yaml
       - id: check-toml
       - id: end-of-file-fixer
+        exclude: ^specs/changes/(active|completed)/.*/evidence/.+\.(jsonl?|stderr|stdout|txt|log|diff|patch|py)$
       - id: mixed-line-ending
+        exclude: ^specs/changes/(active|completed)/.*/evidence/.+\.(jsonl?|stderr|stdout|txt|log|diff|patch|py)$
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
+        exclude: ^specs/changes/(active|completed)/.*/evidence/.+\.(jsonl?|stderr|stdout|txt|log|diff|patch|py)$
   - repo: https://github.com/crate-ci/typos
     rev: v1.48.0
     hooks:
       - id: typos
+        exclude: ^specs/changes/(active|completed)/.*/evidence/.+\.(jsonl?|stderr|stdout|txt|log|diff|patch|py)$
   - repo: local
     hooks:
       - id: check-docs
@@ -25,6 +30,13 @@ repos:
         entry: scripts/check-docs.sh
         language: script
         files: \.md$
+        pass_filenames: false
+      - id: check-specs
+        name: check specs governance
+        description: Change lifecycle, ADR, release, and agent entry stay consistent.
+        entry: scripts/check-specs.sh
+        language: script
+        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*)
         pass_filenames: false
       - id: check-skill
         name: check sheltie skill

@@ -37,28 +37,114 @@ impl RequireKind {
 }
 
 /// 一条宿主资源声明。身份是 `kind + name`。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+/// Reply 快照读取需要反序列化，字段仍按 manifest 规则校验。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct HostRequire {
-    pub kind: RequireKind,
-    pub name: String,
-    pub version: Option<String>,
-    pub digest: Option<Sha256Hex>,
-    pub source: Option<String>,
+    pub(crate) kind: RequireKind,
+    pub(crate) name: String,
+    pub(crate) version: Option<String>,
+    pub(crate) digest: Option<Sha256Hex>,
+    pub(crate) source: Option<String>,
 }
 
-/// 校验过的 manifest。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct HostRequireWire {
+    kind: RequireKind,
+    name: String,
+    version: Option<String>,
+    digest: Option<Sha256Hex>,
+    source: Option<String>,
+}
+
+impl<'de> Deserialize<'de> for HostRequire {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let wire = HostRequireWire::deserialize(deserializer)?;
+        validate_id(&wire.name, "name").map_err(serde::de::Error::custom)?;
+        if wire
+            .version
+            .as_ref()
+            .is_some_and(|value| value.len() > VERSION_MAX_BYTES)
+        {
+            return Err(serde::de::Error::custom("requires.version 超过 32 字节"));
+        }
+        if wire
+            .source
+            .as_ref()
+            .is_some_and(|value| value.len() > SOURCE_MAX_BYTES)
+        {
+            return Err(serde::de::Error::custom("requires.source 超过 512 字节"));
+        }
+        Ok(Self {
+            kind: wire.kind,
+            name: wire.name,
+            version: wire.version,
+            digest: wire.digest,
+            source: wire.source,
+        })
+    }
+}
+
+impl HostRequire {
+    pub fn kind(&self) -> RequireKind {
+        self.kind
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+/// 校验过的 manifest。外部调用方只能读取，不能修改解析后的定义。
+///
+/// ```compile_fail
+/// use sheltie_core::workbook::parse_manifest;
+/// let mut manifest = parse_manifest("schema = \"workbook/v1\"\nid = \"x\"\nversion = \"1.0.0\"\nname = \"x\"\nflows = [\"flows/f.toml\"]").unwrap();
+/// manifest.flows.clear();
+/// ```
+///
+/// ```compile_fail
+/// use sheltie_core::workbook::Manifest;
+/// let _: Manifest = serde_json::from_str("{}").unwrap();
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Manifest {
-    pub id: WorkbookId,
-    pub version: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub flows: Vec<RelPath>,
-    pub requires: Vec<HostRequire>,
+    pub(crate) id: WorkbookId,
+    pub(crate) version: String,
+    pub(crate) name: String,
+    pub(crate) description: Option<String>,
+    pub(crate) flows: Vec<RelPath>,
+    pub(crate) requires: Vec<HostRequire>,
 }
 
 impl Manifest {
+    pub fn id(&self) -> &WorkbookId {
+        &self.id
+    }
+
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+
+    pub fn flows(&self) -> &[RelPath] {
+        &self.flows
+    }
+
+    pub fn requires(&self) -> &[HostRequire] {
+        &self.requires
+    }
+
     /// 按 `kind:name` 查一条声明。
     pub fn find_require(&self, kind: RequireKind, name: &str) -> Option<&HostRequire> {
         self.requires
@@ -77,6 +163,8 @@ pub const DESCRIPTION_MAX_BYTES: usize = 2048;
 pub const REQUIRES_MAX: usize = 32;
 /// `source` ≤ 512 字节。
 pub const SOURCE_MAX_BYTES: usize = 512;
+/// version 的内部保留名：引擎自己的 staging 目录段（存储合同 §5.3）。
+pub const RESERVED_VERSION: &str = ".staging";
 
 /// 原始 TOML 结构。未知字段拒绝。
 #[derive(Debug, Deserialize)]
@@ -153,6 +241,13 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
         return Err(invalid(
             "version".to_string(),
             "只能含 0-9、A-Z、a-z、.、+ 与 -".to_string(),
+        ));
+    }
+    // version 要作为单个安全目录段（存储合同 §5.3）：拒绝点段与内部保留名。
+    if matches!(dto.version.as_str(), "." | ".." | RESERVED_VERSION) {
+        return Err(invalid(
+            "version".to_string(),
+            format!("不得是 .、.. 或保留名 {RESERVED_VERSION}"),
         ));
     }
 
@@ -263,6 +358,33 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
 mod tests {
     use super::*;
 
+    // Task: C002-T40
+    #[test]
+    fn host_require_snapshot_decode_accepts_valid_fields() {
+        let valid = serde_json::json!({
+            "kind": "skill",
+            "name": "company-api",
+            "version": "^1",
+            "digest": "0".repeat(64),
+            "source": "https://example.com/skill"
+        });
+        let value: HostRequire = serde_json::from_value(valid.clone()).unwrap();
+        assert_eq!(value.kind(), RequireKind::Skill);
+        assert_eq!(value.name(), "company-api");
+        assert_eq!(serde_json::to_value(value).unwrap(), valid);
+        for (field, bad) in [
+            ("name", serde_json::json!("Bad Name")),
+            ("digest", serde_json::json!("not-a-digest")),
+        ] {
+            let mut changed = valid.clone();
+            changed[field] = bad;
+            assert!(
+                serde_json::from_value::<HostRequire>(changed).is_err(),
+                "{field} must be checked"
+            );
+        }
+    }
+
     const MINIMAL: &str = r#"
 schema = "workbook/v1"
 id = "two-step"
@@ -286,11 +408,13 @@ flows = ["flows/default.toml"]
         assert_eq!(m.description, None);
     }
 
-    // Task: T03
+    // Task: C002-T40
     #[test]
     fn rejects_unknown_field() {
-        let err = parse_manifest(&with("author = \"x\"")).unwrap_err();
-        assert!(matches!(err, Error::WorkbookInvalid { .. }));
+        let text = format!("{}\nauthor = \"x\"\n", crate::testkit::TWO_STEP_MANIFEST);
+        let err = parse_manifest(&text).unwrap_err();
+        assert_eq!(err.code(), crate::error::ErrorCode::WorkbookInvalid);
+        assert!(matches!(err, Error::WorkbookInvalid { field, .. } if field == "toml"));
     }
 
     // Task: T03
@@ -323,6 +447,11 @@ flows = ["flows/default.toml"]
     // Task: T03
     #[test]
     fn rejects_description_over_2kib() {
+        let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
+        assert_eq!(
+            parse_manifest(&at).unwrap().description.unwrap().len(),
+            2048
+        );
         let text = with(&format!("description = \"{}\"", "x".repeat(2049)));
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "description")
@@ -419,16 +548,6 @@ name = "db"
 
     // Task: T03
     #[test]
-    fn description_accepts_exactly_2048_bytes() {
-        let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
-        assert_eq!(
-            parse_manifest(&at).unwrap().description.unwrap().len(),
-            2048
-        );
-    }
-
-    // Task: T03
-    #[test]
     fn requires_limit_is_32_items() {
         let reqs = |n: usize| {
             (0..n)
@@ -476,5 +595,19 @@ name = "db"
         assert!(m.find_require(RequireKind::Agent, "b").is_some());
         assert!(m.find_require(RequireKind::Skill, "a").is_none());
         assert!(m.find_require(RequireKind::Agent, "c").is_none());
+    }
+
+    // Task: C002-T05
+    #[test]
+    fn version_rejects_dot_segments_and_reserved_name() {
+        for bad in [".", "..", ".staging"] {
+            let text = MINIMAL.replace("\"1.0.0\"", &format!("\"{bad}\""));
+            assert!(
+                matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "version"),
+                "{bad:?} 应当拒绝"
+            );
+        }
+        // 只改一个条件：同样以点开头的合法 version 仍接受。
+        assert!(parse_manifest(&MINIMAL.replace("\"1.0.0\"", "\".1.0\"")).is_ok());
     }
 }

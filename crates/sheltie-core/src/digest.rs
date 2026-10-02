@@ -32,6 +32,12 @@ impl Sha256Hex {
         Self(format!("{digest:x}"))
     }
 
+    /// 把 sha2 的摘要输出直接转成本类型。流式摘要（`workbook-digest/v2`）的收口：
+    /// 摘出的是字节流的**单次** SHA256，不得再经过 `of_bytes` 二次哈希。
+    pub fn from_sha256(output: sha2::digest::Output<Sha256>) -> Self {
+        Self(format!("{output:x}"))
+    }
+
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -53,6 +59,25 @@ impl TryFrom<String> for Sha256Hex {
     fn try_from(value: String) -> Result<Self> {
         Self::new(value)
     }
+}
+
+/// `workbook-digest/v2` 的域前缀（存储合同 §5.1）。目录摘要字节流以它开头，
+/// 之后是 BE64 文件数与逐文件帧。
+pub const WORKBOOK_DIGEST_V2_PREFIX: &[u8] = b"sheltie-workbook-digest/v2\0";
+
+/// BE64：8 字节大端无符号整数。数量与长度都入流，文件边界无歧义（O07）。
+pub fn be64(value: u64) -> [u8; 8] {
+    value.to_be_bytes()
+}
+
+/// 一个文件的帧头：`BE64(路径字节数) || 路径 || BE64(内容字节数)`，内容字节紧随其后。
+/// 路径按字节序排序、内容以流式供给由 runtime 完成；core 只做纯字节组装。
+pub fn digest_v2_file_frame(path: &[u8], content_len: u64) -> Vec<u8> {
+    let mut out = Vec::with_capacity(16 + path.len());
+    out.extend_from_slice(&be64(path.len() as u64));
+    out.extend_from_slice(path);
+    out.extend_from_slice(&be64(content_len));
+    out
 }
 
 impl From<Sha256Hex> for String {
@@ -92,5 +117,50 @@ mod tests {
         assert_eq!(h.short(), "5891");
         assert_eq!(h.to_string(), hex);
         assert_eq!(String::from(h), hex);
+    }
+
+    // 期望帧字节全部手写，不经过被测函数。
+
+    // Task: C002-T09
+    #[test]
+    fn digest_v2_prefix_is_domain_string_with_nul() {
+        // 域前缀逐字节手写：ASCII 串加一个 NUL。
+        let expected: &[u8] = &[
+            b's', b'h', b'e', b'l', b't', b'i', b'e', b'-', b'w', b'o', b'r', b'k', b'b', b'o',
+            b'o', b'k', b'-', b'd', b'i', b'g', b'e', b's', b't', b'/', b'v', b'2', 0,
+        ];
+        assert_eq!(WORKBOOK_DIGEST_V2_PREFIX, expected);
+        assert_eq!(WORKBOOK_DIGEST_V2_PREFIX.len(), 27);
+    }
+
+    // Task: C002-T09
+    #[test]
+    fn be64_encodes_big_endian_bytes() {
+        assert_eq!(be64(0), [0; 8]);
+        assert_eq!(be64(1), [0, 0, 0, 0, 0, 0, 0, 1]);
+        assert_eq!(be64(256), [0, 0, 0, 0, 0, 0, 1, 0]);
+        assert_eq!(
+            be64(u64::MAX),
+            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+        );
+    }
+
+    // Task: C002-T09
+    #[test]
+    fn digest_v2_file_frame_is_length_prefixed_path_and_content() {
+        // path = "za"（2 字节）、content 3 字节：帧头逐字节手写。
+        assert_eq!(
+            digest_v2_file_frame(b"za", 3),
+            vec![
+                0, 0, 0, 0, 0, 0, 0, 2, // BE64(2)
+                b'z', b'a', //
+                0, 0, 0, 0, 0, 0, 0, 3, // BE64(3)
+            ]
+        );
+        // 空路径零长度内容也在帧里显式编码，边界无歧义。
+        assert_eq!(
+            digest_v2_file_frame(b"", 0),
+            vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
     }
 }

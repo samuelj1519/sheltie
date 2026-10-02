@@ -1,0 +1,97 @@
+# C007 第一阶段任务白名单（草案）。package 采用、移入 active/ 后生效；路径为暂定，C007-T02 按实施起点代码定死并在同一提交里更新本文件与 plan.md。
+# 用法：scripts/check-task.sh C007-Tnn [base] [--staged]。默认基准是最近一个 c007-t* tag（见 plan.md §0.3）。
+# files：本任务允许修改的文件或目录前缀。第一阶段不改产品代码：任何条目都不含 crates/sheltie-core、crates/sheltie-runtime、crates/sheltie-cli 与 skills/。
+# test_files：测试所在文件；allow_test_changes = false 时只许删 #[ignore 行，与 files 重叠的混合源文件从 #[cfg(test)] 起比较；快照不许改。
+# 里程碑 C007-Mn 不经 check-task 核对，不在本表登记。§3 增量组插入时再追加 C007-T20 起的条目。
+
+[C007-T01]
+files = ["specs", "CONTEXT.md"]
+test_files = []
+allow_test_changes = true
+
+# 骨架与工具修复提交（plan.md §0.2 第 9 条的例外）共用本条。
+[C007-T02]
+files = ["crates/sheltie-plan-check", "Cargo.toml", "Cargo.lock", "deny.toml", "scripts", ".config", ".github", "specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = ["crates/sheltie-plan-check"]
+allow_test_changes = true
+
+[C007-T03]
+files = ["crates/sheltie-plan-check/src/constraints.rs"]
+test_files = ["crates/sheltie-plan-check/src/constraints.rs"]
+allow_test_changes = false
+
+[C007-T04]
+files = ["crates/sheltie-plan-check/src/mapping.rs", "crates/sheltie-plan-check/src/graph.rs"]
+test_files = ["crates/sheltie-plan-check/src/mapping.rs", "crates/sheltie-plan-check/src/graph.rs"]
+allow_test_changes = false
+
+[C007-T05]
+files = ["crates/sheltie-plan-check/src/rules/coverage.rs", "crates/sheltie-plan-check/src/graph.rs"]
+test_files = ["crates/sheltie-plan-check/src/rules/coverage.rs"]
+allow_test_changes = false
+
+[C007-T06]
+files = ["crates/sheltie-plan-check/src/rules/candidate.rs"]
+test_files = ["crates/sheltie-plan-check/src/rules/candidate.rs"]
+allow_test_changes = false
+
+[C007-T07]
+files = ["crates/sheltie-plan-check/src/rules/bounds.rs"]
+test_files = ["crates/sheltie-plan-check/src/rules/bounds.rs"]
+allow_test_changes = false
+
+[C007-T08]
+files = ["crates/sheltie-plan-check/src/verdict.rs"]
+test_files = ["crates/sheltie-plan-check/src/verdict.rs"]
+allow_test_changes = false
+
+[C007-T09]
+files = ["crates/sheltie-plan-check/src/load.rs"]
+test_files = ["crates/sheltie-plan-check/tests/load.rs"]
+allow_test_changes = false
+
+[C007-T10]
+files = ["crates/sheltie-plan-check/src/digest.rs", "crates/sheltie-plan-check/src/lock.rs"]
+test_files = ["crates/sheltie-plan-check/tests/digest.rs"]
+allow_test_changes = false
+
+[C007-T11]
+files = ["crates/sheltie-plan-check/src/lock.rs"]
+test_files = ["crates/sheltie-plan-check/tests/lock.rs"]
+allow_test_changes = false
+
+[C007-T12]
+files = ["crates/sheltie-plan-check/src/install.rs", "crates/sheltie-plan-check/src/defaults.rs"]
+test_files = ["crates/sheltie-plan-check/tests/install.rs"]
+allow_test_changes = false
+
+[C007-T13]
+files = ["crates/sheltie-plan-check/src/report.rs"]
+test_files = ["crates/sheltie-plan-check/src/report.rs"]
+allow_test_changes = false
+
+[C007-T14]
+files = ["crates/sheltie-plan-check/src/commands.rs"]
+test_files = ["crates/sheltie-plan-check/tests/cli.rs"]
+allow_test_changes = false
+
+# 场景任务只删 #[ignore 行；场景变红时停下交给里程碑审查者，不改生产代码。
+[C007-T15]
+files = []
+test_files = ["crates/sheltie-plan-check/tests/scenario_check.rs"]
+allow_test_changes = false
+
+[C007-T16]
+files = ["crates/sheltie-plan-check/skill", "crates/sheltie-plan-check/tests/skill.rs"]
+test_files = ["crates/sheltie-plan-check/tests/skill.rs"]
+allow_test_changes = true
+
+[C007-T17]
+files = ["specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false
+
+[C007-T18]
+files = ["specs"]
+test_files = []
+allow_test_changes = false

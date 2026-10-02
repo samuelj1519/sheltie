@@ -42,7 +42,7 @@ impl Tier {
 }
 
 /// 说明书来源：Workbook 内文件，或内联文本。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Instruction {
     File(RelPath),
@@ -50,7 +50,7 @@ pub enum Instruction {
 }
 
 /// 输入来源的四种写法。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InputSource {
     /// `start.<key>`
@@ -67,20 +67,34 @@ pub enum InputSource {
 pub const RESERVED_NODE_IDS: &[&str] = &["start", "resource", "engine"];
 
 /// 一条输入声明。`required = false` 只对 `Node` 来源有意义。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct InputDecl {
-    pub name: String,
-    pub from: InputSource,
-    pub required: bool,
+    pub(crate) name: String,
+    pub(crate) from: InputSource,
+    pub(crate) required: bool,
+}
+
+impl InputDecl {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn source(&self) -> &InputSource {
+        &self.from
+    }
+
+    pub fn required(&self) -> bool {
+        self.required
+    }
 }
 
 /// 一条输出声明。`path` 相对 Attempt 目录。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct OutputDecl {
-    pub name: String,
-    pub path: RelPath,
-    pub required: bool,
-    pub max_bytes: u64,
+    pub(crate) name: String,
+    pub(crate) path: RelPath,
+    pub(crate) required: bool,
+    pub(crate) max_bytes: u64,
 }
 
 impl OutputDecl {
@@ -112,32 +126,85 @@ impl EdgeKind {
 }
 
 /// 一条显式边。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EdgeDef {
-    pub from: NodeId,
-    pub to: NodeId,
-    pub kind: EdgeKind,
+    pub(crate) from: NodeId,
+    pub(crate) to: NodeId,
+    pub(crate) kind: EdgeKind,
 }
 
-/// 一个节点。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+impl EdgeDef {
+    pub fn from(&self) -> &NodeId {
+        &self.from
+    }
+
+    pub fn to(&self) -> &NodeId {
+        &self.to
+    }
+
+    pub fn kind(&self) -> EdgeKind {
+        self.kind
+    }
+}
+
+/// 一个节点。外部调用方可读取，但不能修改已解析节点。
+///
+/// ```compile_fail
+/// use sheltie_core::flow::parse_flow;
+/// let flow = parse_flow("schema = \"flow/v1\"\nid = \"f\"\nentry = \"a\"\n[[nodes]]\nid = \"a\"\ntitle = \"A\"\nexecutor = \"agent\"\ninstruction = { text = \"x\" }").unwrap();
+/// let mut node = flow.nodes()[0].clone();
+/// node.gate = true;
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct NodeDef {
-    pub id: NodeId,
-    pub title: String,
-    pub executor: Executor,
+    pub(crate) id: NodeId,
+    pub(crate) title: String,
+    pub(crate) executor: Executor,
     /// `human` 节点为 `None`（规则 9 禁止声明）；`agent` 节点默认 `Standard`。
-    pub tier: Option<Tier>,
-    pub instruction: Instruction,
-    pub inputs: Vec<InputDecl>,
-    pub outputs: Vec<OutputDecl>,
+    pub(crate) tier: Option<Tier>,
+    pub(crate) instruction: Instruction,
+    pub(crate) inputs: Vec<InputDecl>,
+    pub(crate) outputs: Vec<OutputDecl>,
     /// `kind:name`，必须对应 manifest 的一条 `requires`。
-    pub requires: Vec<(RequireKind, String)>,
-    pub gate: bool,
-    pub max_visits: u32,
-    pub max_retries: u32,
+    pub(crate) requires: Vec<(RequireKind, String)>,
+    pub(crate) gate: bool,
+    pub(crate) max_visits: u32,
+    pub(crate) max_retries: u32,
 }
 
 impl NodeDef {
+    pub fn id(&self) -> &NodeId {
+        &self.id
+    }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn executor(&self) -> Executor {
+        self.executor
+    }
+
+    pub fn gate(&self) -> bool {
+        self.gate
+    }
+
+    pub fn instruction(&self) -> &Instruction {
+        &self.instruction
+    }
+
+    pub fn tier(&self) -> Option<Tier> {
+        self.tier
+    }
+
+    pub fn inputs(&self) -> &[InputDecl] {
+        &self.inputs
+    }
+
+    pub fn requires(&self) -> &[(RequireKind, String)] {
+        &self.requires
+    }
+
     pub const DEFAULT_MAX_VISITS: u32 = 1;
     pub const MAX_MAX_VISITS: u32 = 32;
     pub const DEFAULT_MAX_RETRIES: u32 = 1;
@@ -154,16 +221,43 @@ impl NodeDef {
     }
 }
 
-/// 解析后、编译前的 Flow。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// 解析后、编译前的 Flow。外部调用方不能在解析后改动节点或边。
+///
+/// ```compile_fail
+/// use sheltie_core::flow::parse_flow;
+/// let mut flow = parse_flow("schema = \"flow/v1\"\nid = \"f\"\nentry = \"a\"\n[[nodes]]\nid = \"a\"\ntitle = \"A\"\nexecutor = \"agent\"\ninstruction = { text = \"x\" }").unwrap();
+/// flow.nodes.clear();
+/// ```
+///
+/// ```compile_fail
+/// use sheltie_core::flow::FlowDef;
+/// let _: FlowDef = serde_json::from_str("{}").unwrap();
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct FlowDef {
-    pub id: FlowId,
-    pub entry: NodeId,
-    pub nodes: Vec<NodeDef>,
-    pub edges: Vec<EdgeDef>,
+    pub(crate) id: FlowId,
+    pub(crate) entry: NodeId,
+    pub(crate) nodes: Vec<NodeDef>,
+    pub(crate) edges: Vec<EdgeDef>,
 }
 
 impl FlowDef {
+    pub fn id(&self) -> &FlowId {
+        &self.id
+    }
+
+    pub fn entry(&self) -> &NodeId {
+        &self.entry
+    }
+
+    pub fn nodes(&self) -> &[NodeDef] {
+        &self.nodes
+    }
+
+    pub fn edges(&self) -> &[EdgeDef] {
+        &self.edges
+    }
+
     pub const MAX_NODES: usize = 64;
     pub const MAX_EDGES: usize = 256;
 

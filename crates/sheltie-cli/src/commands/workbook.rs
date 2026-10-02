@@ -4,7 +4,6 @@ use serde_json::json;
 use sheltie_core::path::AbsPath;
 use sheltie_runtime::Error;
 use sheltie_runtime::WorkbookRepo;
-use sheltie_runtime::store::OpenMode;
 
 use crate::cli::{WorkbookCmd, parse_workbook_spec};
 use crate::commands::Ctx;
@@ -24,13 +23,7 @@ pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
 
 /// 相对目录按当前工作目录转成绝对路径；`AbsPath` 只收绝对的。
 fn abs_arg(value: &str) -> Result<AbsPath, Error> {
-    let joined = if std::path::Path::new(value).is_absolute() {
-        value.to_string()
-    } else {
-        let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
-        cwd.join(value).to_string_lossy().into_owned()
-    };
-    AbsPath::new(joined).map_err(Error::from)
+    AbsPath::new(sheltie_runtime::request::lexical_abs(value)?).map_err(Error::from)
 }
 
 /// `workbook add <dir>`（协议 §3：成功返回 `{ id, version, digest, flows, requires }`）。
@@ -39,33 +32,25 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
         Ok(p) => p,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let store = match ctx.store(OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
-    match repo.add(&dir) {
-        Ok(added) => {
-            let data = json!({
-                "id": added.id,
-                "version": added.version,
-                "digest": added.digest.as_str(),
-                "flows": added.flows,
-                "requires": added.requires,
-            });
-            let text = format!(
-                "已装 {}@{}\ndigest: {}\nflows: {}\nrequires: {}\n",
-                added.id,
-                added.version,
-                added.digest.as_str(),
-                added.flows.join(", "),
-                if added.requires.is_empty() {
-                    "无".to_string()
-                } else {
-                    added.requires.join(", ")
-                },
-            );
-            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    match repo.add(&dir, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
+            let id = data["id"].as_str().unwrap_or_default().to_string();
+            let version = data["version"].as_str().unwrap_or_default().to_string();
+            let digest = data["digest"].as_str().unwrap_or_default().to_string();
+            let flows = data["flows"]
+                .as_array()
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|v| v.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                })
+                .unwrap_or_default();
+            let text = format!("已装 {id}@{version}\ndigest: {digest}\nflows: {flows}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }
@@ -73,11 +58,7 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
 
 /// `workbook list`：每个 id 的最高版本（字面排序）标 `latest`。
 fn list(ctx: &Ctx) -> Outcome {
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let rows = match repo.list() {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -92,12 +73,18 @@ fn list(ctx: &Ctx) -> Outcome {
             "version": row.version,
             "digest": row.digest,
             "latest": latest,
+            "pending_publish": row.pending_publish,
         }));
         text.push_str(&format!(
-            "{}  {}  {}\n",
+            "{}  {}  {}{}\n",
             row.id,
             row.version,
-            if latest { "latest" } else { "" }
+            if latest { "latest" } else { "" },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
         ));
     }
     output::ok(text, None, None, data, Vec::new())
@@ -109,11 +96,7 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
         Ok(v) => v,
         Err(m) => return output::param_error(m),
     };
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let loaded = match repo.load(&id, version.as_deref()) {
         Ok(l) => l,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -121,64 +104,80 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
     let mut flows = Vec::with_capacity(loaded.flows.len());
     let mut text = format!(
         "workbook: {}@{}（{}）\ndigest: {}\nrequires: {}\n",
-        loaded.manifest.id,
-        loaded.manifest.version,
-        loaded.manifest.name,
+        loaded.manifest.id(),
+        loaded.manifest.version(),
+        loaded.manifest.name(),
         loaded.digest.as_str(),
-        if loaded.manifest.requires.is_empty() {
+        if loaded.manifest.requires().is_empty() {
             "无".to_string()
         } else {
             loaded
                 .manifest
-                .requires
+                .requires()
                 .iter()
-                .map(|r| format!("{}:{}", r.kind.as_str(), r.name))
+                .map(|r| format!("{}:{}", r.kind().as_str(), r.name()))
                 .collect::<Vec<_>>()
                 .join(", ")
         },
     );
-    for (def, _) in &loaded.flows {
+    if loaded.pending_publish {
+        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
+    }
+    for (def, graph) in &loaded.flows {
+        // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
+        // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
+        let start_inputs = sheltie_core::work::start_requirements(graph);
         flows.push(json!({
-            "id": def.id.as_str(),
-            "entry": def.entry.as_str(),
-            "nodes": def.nodes.iter().map(|n| json!({
-                "id": n.id.as_str(),
-                "title": n.title,
-                "executor": n.executor.as_str(),
-                "gate": n.gate,
+            "id": def.id().as_str(),
+            "entry": def.entry().as_str(),
+            "start_inputs": start_inputs,
+            "nodes": def.nodes().iter().map(|n| json!({
+                "id": n.id().as_str(),
+                "title": n.title(),
+                "executor": n.executor().as_str(),
+                "gate": n.gate(),
             })).collect::<Vec<_>>(),
-            "edges": def.edges.iter().map(|e| json!({
-                "from": e.from.as_str(),
-                "to": e.to.as_str(),
-                "kind": e.kind.as_str(),
+            "edges": def.edges().iter().map(|e| json!({
+                "from": e.from().as_str(),
+                "to": e.to().as_str(),
+                "kind": e.kind().as_str(),
             })).collect::<Vec<_>>(),
         }));
-        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id, def.entry));
-        for n in &def.nodes {
+        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        text.push_str(&format!(
+            "  起始输入: {}\n",
+            if start_inputs.is_empty() {
+                "无".to_string()
+            } else {
+                start_inputs.join(", ")
+            }
+        ));
+        for n in def.nodes() {
             text.push_str(&format!(
                 "  {}  {}  {}{}\n",
-                n.id,
-                n.title,
-                n.executor.as_str(),
-                if n.gate { "  [gate]" } else { "" }
+                n.id(),
+                n.title(),
+                n.executor().as_str(),
+                if n.gate() { "  [gate]" } else { "" }
             ));
         }
-        for e in &def.edges {
+        for e in def.edges() {
             text.push_str(&format!(
                 "  {} -> {}（{}）\n",
-                e.from,
-                e.to,
-                e.kind.as_str()
+                e.from(),
+                e.to(),
+                e.kind().as_str()
             ));
         }
     }
     let data = json!({
-        "id": loaded.manifest.id.as_str(),
-        "version": loaded.manifest.version,
-        "name": loaded.manifest.name,
-        "description": loaded.manifest.description,
+        "id": loaded.manifest.id().as_str(),
+        "version": loaded.manifest.version(),
+        "name": loaded.manifest.name(),
+        "description": loaded.manifest.description(),
         "digest": loaded.digest.as_str(),
-        "requires": loaded.manifest.requires,
+        "pending_publish": loaded.pending_publish,
+        "requires": loaded.manifest.requires(),
         "flows": flows,
     });
     output::ok(text, None, None, data, Vec::new())
@@ -195,21 +194,12 @@ fn remove(ctx: &Ctx, spec: &str) -> Outcome {
             "remove 必须给全版本，写 {id}@<version>；不接受「最高版本」默认"
         ));
     };
-    let store = match ctx.store(OpenMode::ReadWrite) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
-    match repo.remove(&id, &version) {
-        Ok(removed) => {
-            let text = format!("已删除 {}@{}\n", removed.id, removed.version);
-            output::ok(
-                text,
-                ctx.request_id.clone(),
-                None,
-                json!({ "id": removed.id, "version": removed.version }),
-                Vec::new(),
-            )
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    match repo.remove(&id, &version, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
+            let text = format!("已删除 {id}@{version}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }
@@ -229,11 +219,7 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
             Err(m) => return output::param_error(m),
         },
     };
-    let store = match ctx.store(OpenMode::ReadOnly) {
-        Ok(s) => s,
-        Err(e) => return crate::error_map::to_outcome(&e),
-    };
-    let repo = WorkbookRepo::new(ctx.home.clone(), store);
+    let repo = WorkbookRepo::new(ctx.home.clone());
     let rows = match repo.verify(filter.as_ref().map(|(i, v)| (i.as_str(), v.as_str()))) {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -241,14 +227,19 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
     let mut text = String::new();
     for row in &rows {
         text.push_str(&format!(
-            "{}@{}  {}\n",
+            "{}@{}  {}{}\n",
             row.id,
             row.version,
             match row.status {
                 sheltie_runtime::VerifyStatus::Ok => "ok",
                 sheltie_runtime::VerifyStatus::Tampered => "tampered",
                 sheltie_runtime::VerifyStatus::Missing => "missing",
-            }
+            },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
         ));
     }
     let all_ok = rows

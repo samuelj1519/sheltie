@@ -42,12 +42,8 @@ pub enum Group {
 
 #[derive(Debug, Subcommand)]
 pub enum SelfCmd {
-    /// 把当前二进制装到 ~/.sheltie/bin，建管理根。
-    Install {
-        /// 往 shell rc 文件追加 PATH。默认只打印提示。
-        #[arg(long)]
-        modify_path: bool,
-    },
+    /// 把当前二进制装到 ~/.sheltie/bin，建管理根。不写 shell 配置，只打印 PATH 提示。
+    Install,
     /// 下载新版本，校验，原子替换。
     Update {
         #[arg(long, value_name = "VERSION")]
@@ -156,16 +152,29 @@ pub enum GateCmd {
     },
 }
 
-/// `k=v` 解析；`v` 以 `@` 开头读文件。返回 `(key, value)`。
-pub fn parse_input_arg(arg: &str) -> Result<(String, String), String> {
+/// `k=v` 解析；`v` 以 `@` 开头是文件路径（**不读内容**，重放查重之后由 runtime 读）。
+/// 返回 `(key, 值来源)`。
+pub fn parse_input_arg(
+    arg: &str,
+) -> Result<(String, sheltie_runtime::request::InputValue), String> {
     let (key, value) = arg
         .split_once('=')
         .ok_or_else(|| format!("--input 的值 {arg:?} 要是 k=v"))?;
     if key.is_empty() {
         return Err(format!("--input 的值 {arg:?} 缺键"));
     }
-    let value = read_text_arg(value)?;
-    Ok((key.to_string(), value))
+    let source = if let Some(path) = value.strip_prefix('@') {
+        if path.is_empty() {
+            return Err(format!("--input 的值 {arg:?} 的 @ 后要有路径"));
+        }
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+        sheltie_runtime::request::InputValue::AtFile { path: abs }
+    } else {
+        sheltie_runtime::request::InputValue::Literal {
+            text: value.to_string(),
+        }
+    };
+    Ok((key.to_string(), source))
 }
 
 /// `<id>@<version>` 解析。没有 `@` 时版本为 `None`。
@@ -184,10 +193,43 @@ pub fn parse_workbook_spec(spec: &str) -> Result<(String, Option<String>), Strin
     }
 }
 
-/// `--summary` 与 `--reason` 的值：以 `@` 开头读文件，否则原样。`--input` 的 `v` 同一规则。
-pub fn read_text_arg(value: &str) -> Result<String, String> {
-    let Some(path) = value.strip_prefix('@') else {
-        return Ok(value.to_string());
-    };
-    std::fs::read_to_string(path).map_err(|e| format!("读不了 {path}：{e}"))
+/// `--summary` 与 `--reason` 的值来源：以 `@` 开头是文件路径（内容由 runtime 在
+/// 重放查重之后读取），否则字面值。
+pub fn parse_text_arg(value: &str) -> Result<sheltie_runtime::request::InputValue, String> {
+    if let Some(path) = value.strip_prefix('@') {
+        if path.is_empty() {
+            return Err("@ 后要有路径".to_string());
+        }
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+        Ok(sheltie_runtime::request::InputValue::AtFile { path: abs })
+    } else {
+        Ok(sheltie_runtime::request::InputValue::Literal {
+            text: value.to_string(),
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Task: C002-T24
+    #[test]
+    fn input_file_arguments_are_lexical_and_do_not_probe_the_filesystem() {
+        let missing = "/this/path/does/not/exist/sheltie-input";
+        let (key, input) = parse_input_arg(&format!("topic=@{missing}")).unwrap();
+        assert_eq!(key, "topic");
+        assert_eq!(
+            input,
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
+        assert_eq!(
+            parse_text_arg(&format!("@{missing}")).unwrap(),
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
+    }
 }
