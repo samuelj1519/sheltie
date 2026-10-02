@@ -1,6 +1,6 @@
 # C002：v0.2.0 可靠性修复
 
-状态：`active`
+状态：`completed`
 目标版本：`v0.2.0`
 兼容性：`breaking`（schema 2 拒绝旧库；旧管理根和数据原样保留）
 基线：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`
@@ -22,7 +22,7 @@ Owner：Claude（原实施）、Codex（后续修复与收敛）；采用人：�
 | [review.md](review.md) | M1 最终审查结论、范围和限制 |
 | [validation.md](validation.md) | 候选、运行、51 行验收索引及历史证据恢复 |
 
-T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 已按本机构建与实际场景完成，T17 发布候选准备为 `doing`，真实外部发布尚未执行。M1 包含实际 SK01/SK02 跳过：缺最终 Spec 批准及 215 项额外验证，不是完整变异或安全验证通过。
+T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 已按本机构建与实际场景完成，T17 已按用户许可的 macOS aarch64 单平台发布并完成远端验证。M1 包含实际 SK01/SK02 跳过：缺最终 Spec 批准及 215 项额外验证，不是完整变异或安全验证通过。
 
 ## 成功判据
 
@@ -70,3 +70,11 @@ T17 本地候选准备原文见 [`C002-T17-preparation.tar.gz`](evidence/submiss
 本版本Mac限定与第二次Linux质量失败原文见 [`C002-T17-macos-scope.tar.gz`](evidence/submissions/C002-T17-macos-scope.tar.gz)，SHA256 `380f7418b999c4ae9eeb394d06742d65c5d5c0e67d8d507ff7ff633b21ff439f`。43文件逐字回读一致，包含用户排除指示、原FAIL、实际两目标plan、静态/独立审查和新本机700/700与5/5；新两Mac实物及同SHA quality仍待实际CI。
 
 最终aarch64单目标授权与真实consumer核验见 [`C002-T17-aarch64-scope.tar.gz`](evidence/submissions/C002-T17-aarch64-scope.tar.gz)，SHA256 `c8ba24da3f3257746f4c687904f0ec388d0726986adced07f7e63b371e60c890`。11文件逐字一致，保存用户范围/发布许可、同Rust闭包证明、22/22治理测试、实际单目标plan与patch；独立报告另在最终CI封存时收纳，新CI实物与质量不由此预判。
+
+## C002 最终完成
+
+已纳入正式 [v0.2.0 release record](../../../releases/v0.2.0/README.md)。源码tag指向 `8455aed2bcd9ac1739852be3987091a0975e7ac3`，本版本仅macOS aarch64；实际tag质量700/700、零skip，公开实物/skill/安装/默认GitHub指定更新/rollback与独立产品审查通过。所有任务按各自授权范围done；SK01/SK02、额外215项缺失、完整变异/安全、usage和被排除平台的原始结果保持原样。
+
+最终执行原文见 [`C002-T17-final.tar.gz`](evidence/submissions/C002-T17-final.tar.gz)，SHA256 `e71a26b1bd703474373adb6800abafa3aff9bdd83ed29cd93dfb38ce21b9c4f2`，335文件逐字回读一致。包含各阶段批准与原FAIL、两条正式tag CI、公开metadata/checksum/manifest、quality原文、独立报告及远端CLI/oracles；不包含可再生成binary/cache或真实用户home。此最终执行档案不预判后续文档staged gate，门禁/audit另记。
+
+最终lifecycle与staged范围独立核验见 [`C002-T17-final.audit.json`](evidence/submissions/C002-T17-final.audit.json)：26项检查均通过，335文件最终档案与旧12个tar/3个audit迁移字节一致，41个T/M均done、0active、实际发布/远端/record及当前有限矩阵一致。独立重跑docs/specs/tests/staged task/diff五门禁全部exit0；audit在tar外保存，避免自引用，不预判提交成功。

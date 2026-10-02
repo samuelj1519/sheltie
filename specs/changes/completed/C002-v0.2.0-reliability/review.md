@@ -1,5 +1,11 @@
 # C002 独立审查
 
+结论：`PASS`
+Candidate: `8455aed2bcd9ac1739852be3987091a0975e7ac3`
+Reviewer：`Codex /root/t16_reopen_review`，未参与发布执行、CLI、产物或最终文档编写。
+
+此最终结论限定于用户已采用并授权的C002验收范围：本版本macOS aarch64，同SHA完整质量、实物、真实远端与T16闭包。保留历史M1 SK01/SK02、215项额外缺失、Linux/Intel本版排除、完整变异/安全未通过及usage缺失；不是将它们转为PASS。发布后独立原文在最终T17档案的postpublication-review.md，最终文档/门禁另以派生audit核。
+
 M1 结论：**通过**。此结论限定于用户授权的 macOS 源码与离线验收范围，包含两项实际平台暂停后的跳过；不是完整 Spec 批准、全部变异验证或安全验证通过。M1 覆盖 T01–T15、T18–T34；M1 完成时 Linux、真实 Host T16 和发布 T17 均为 `not_run`。后续实施进度只看 [plan.md](plan.md)。
 
 本文合并最终审查；旧候选失败、Reviewer 原文及逐 ID 记录均保存在 [历史快照](validation.md#历史证据恢复)，不删除历史结论或改写原始结果。正文中原文链接统一指向该索引。
@@ -299,3 +305,5 @@ docs/specs/diff-check 均 exit 0，正式 task gate exit 1（T16 状态不是 do
 ## T17 候选独立审查
 
 Reviewer仍为未参与T17修改的`Codex /root/t16_reopen_review`。相对T16提交`785552b`复核本轮候选：版本/lock、CI候选与发布边界、治理parser/fixture及历史例外。初次发现F17-01的空字段/列数绕过，保存可复演原反例；worker补红绿后独立重核exact合法例、原空行/多列/无尾pipe反例、green原argv/env/hash，最终22/22。Standards/Spec在候选范围通过，可进入获授权的非发布CI，不预判四平台、远端或T17 done。原文为T17临时目录candidate-review.md，后续同SHA质量与资产另行补核。
+
+最终lifecycle/staged独立audit26项通过：公开tag/source/record、同SHA原文、目录/普通链接、335文件封存、旧档案迁移、41任务和有限当前矩阵均一致，源/测试/依赖/.github/scripts无改动。五轻量门禁独立实际exit0。审计在tar外保存，原SK/215/平台FAIL与usage缺失不改；提交成功由后续Git结果确认，不在audit中预判。

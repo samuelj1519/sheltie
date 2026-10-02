@@ -1,6 +1,6 @@
 # C002 实施计划
 
-状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
+状态：`completed`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
 
 阅读 [CONTEXT.md](../../../../CONTEXT.md)、[文档地图](../../../README.md) 与 [工程规范](../../../engineering.md)，再按本计划定位任务。问题索引见 [findings.md](findings.md)，已采用机制见 [design.md](design.md)，候选与运行见 [validation.md](validation.md)，最终审查见 [review.md](review.md)，文件范围见 [tasks.toml](tasks.toml)。
 
@@ -70,7 +70,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T34 | done | 快照业务绑定修复与M1存活项回归 | T33；699项与工程门禁、Standards通过；Spec后续实际平台暂停按SK01授权跳过 |
 | C002-M1 | done | 修复后固定候选全链审查（含实际SK01/SK02授权跳过） | T01–T15、T18–T34；[最终验收](review.md)，215项额外执行缺失及最终Spec批准缺失明确保留 |
 | C002-T16 | done | 本机构建真实宿主回归 | M1；真实重开续接、具体最终 gate、独立复核及范围见 validation.md；usage 缺失保留 |
-| C002-T17 | doing | 发布 v0.2.0 | M1、T16；候选与非发布四平台验证准备中，外部发布尚未批准 |
+| C002-T17 | done | 发布 v0.2.0（macOS aarch64） | 用户限定发布范围；同SHA质量/实物/远端/独立审查通过，Linux与Intel excluded_by_user |
 | C002-T35 | done | 项目许可统一为MIT | 用户2026-10-02明确授权；元数据/包文件/文档及提交门禁 |
 | C002-T36 | done | C002文档及历史证据收敛 | 用户2026-10-02明确授权；固定快照、9常规文件、引用与状态复核 |
 | C002-T37 | done | 执行耗时复盘与通用验证预算方案 | 用户要求分析并提交；只记录事实与建议，不采用新门禁 |
