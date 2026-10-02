@@ -1,0 +1,715 @@
+{
+  "candidate": "aa26d2c4f4396302b4b4f00394ada57a7b0e84b8",
+  "input_closure_sha256": "872acb864a3579b4930b3424bdfaa96f27f652bda433048cedf3b455eb694c5c",
+  "input_closure_after_sha256": "872acb864a3579b4930b3424bdfaa96f27f652bda433048cedf3b455eb694c5c",
+  "groups": [
+    {
+      "family": "compile",
+      "evidence_directory": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out",
+      "baseline_summary": "Success",
+      "baseline_counts": [
+        32
+      ],
+      "baseline_cargo_lines": [
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+      ],
+      "mutants": [
+        {
+          "name": "crates/sheltie-core/src/flow/compile.rs:326:5: replace check_rule_10 -> Result<()> with Ok(())",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_326_col_5.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/diff/crates__sheltie-core__src__flow__compile.rs_line_326_col_5.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+          ],
+          "tests_run": [
+            32
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 29,
+              "failed": 3
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.59142275,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 0.595170625,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features",
+                "--lib",
+                "flow::compile::tests::"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/flow/compile.rs:350:16: delete ! in check_rule_10",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_350_col_16.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/diff/crates__sheltie-core__src__flow__compile.rs_line_350_col_16.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+          ],
+          "tests_run": [
+            32
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 23,
+              "failed": 9
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.116751791,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 0.600138417,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features",
+                "--lib",
+                "flow::compile::tests::"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/flow/compile.rs:353:16: delete ! in check_rule_10",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_353_col_16.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/diff/crates__sheltie-core__src__flow__compile.rs_line_353_col_16.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+          ],
+          "tests_run": [
+            32
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 29,
+              "failed": 3
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 1.170976709,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 0.5966775,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features",
+                "--lib",
+                "flow::compile::tests::"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/flow/compile.rs:356:16: delete ! in check_rule_10",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_356_col_16.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/diff/crates__sheltie-core__src__flow__compile.rs_line_356_col_16.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+          ],
+          "tests_run": [
+            32
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 29,
+              "failed": 3
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 1.186608792,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 0.583966709,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features",
+                "--lib",
+                "flow::compile::tests::"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/flow/compile.rs:359:16: delete ! in check_rule_10",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_359_col_16.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/compile/mutants.out/diff/crates__sheltie-core__src__flow__compile.rs_line_359_col_16.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --lib flow::compile::tests::"
+          ],
+          "tests_run": [
+            32
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 30,
+              "failed": 2
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 1.217166542,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 0.590025958,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-core@0.3.0-rc.1",
+                "--all-features",
+                "--lib",
+                "flow::compile::tests::"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "result",
+      "evidence_directory": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out",
+      "baseline_summary": "Success",
+      "baseline_counts": [
+        8
+      ],
+      "baseline_cargo_lines": [
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --package=sheltie-cli",
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-core@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+      ],
+      "mutants": [
+        {
+          "name": "crates/sheltie-core/src/work/result.rs:67:21: replace != with == in result_view",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_67_col_21.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/diff/crates__sheltie-core__src__work__result.rs_line_67_col_21.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+          ],
+          "tests_run": [
+            8
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 3,
+              "failed": 5
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 3.20099475,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 1.66172825,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli",
+                "--test",
+                "work_result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/work/result.rs:73:8: delete ! in result_view",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_73_col_8.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/diff/crates__sheltie-core__src__work__result.rs_line_73_col_8.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+          ],
+          "tests_run": [
+            8
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 3,
+              "failed": 5
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.641086541,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 1.884958666,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli",
+                "--test",
+                "work_result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/work/result.rs:81:51: replace == with != in result_view",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_81_col_51.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/diff/crates__sheltie-core__src__work__result.rs_line_81_col_51.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+          ],
+          "tests_run": [
+            8
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 3,
+              "failed": 5
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.720816083,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 1.827242375,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli",
+                "--test",
+                "work_result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/work/result.rs:83:24: replace != with == in result_view",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_83_col_24.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/diff/crates__sheltie-core__src__work__result.rs_line_83_col_24.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+          ],
+          "tests_run": [
+            8
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 3,
+              "failed": 5
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.836689166,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 1.8849940840000001,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli",
+                "--test",
+                "work_result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-core/src/work/result.rs:116:8: delete ! in result_view",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_116_col_8.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/result_with_cli_baseline/mutants.out/diff/crates__sheltie-core__src__work__result.rs_line_116_col_8.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-cli@0.3.0-rc.1 --all-features --package=sheltie-cli --test work_result"
+          ],
+          "tests_run": [
+            8
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 3,
+              "failed": 5
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.9393656249999998,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 1.9269301250000002,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-cli@0.3.0-rc.1",
+                "--all-features",
+                "--package=sheltie-cli",
+                "--test",
+                "work_result"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "resource",
+      "evidence_directory": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out",
+      "baseline_summary": "Success",
+      "baseline_counts": [
+        11
+      ],
+      "baseline_cargo_lines": [
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features",
+        "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features --test result"
+      ],
+      "mutants": [
+        {
+          "name": "crates/sheltie-runtime/src/load.rs:164:64: replace || with && in validate_work_paths",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_64.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/diff/crates__sheltie-runtime__src__load.rs_line_164_col_64.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features --test result"
+          ],
+          "tests_run": [
+            11
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 10,
+              "failed": 1
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 1.92833525,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 3.600076709,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features",
+                "--test",
+                "result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-runtime/src/load.rs:164:45: replace != with == in validate_work_paths",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_45.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/diff/crates__sheltie-runtime__src__load.rs_line_164_col_45.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features --test result"
+          ],
+          "tests_run": [
+            11
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 9,
+              "failed": 2
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.075609208,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 3.627152958,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features",
+                "--test",
+                "result"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crates/sheltie-runtime/src/load.rs:164:83: replace != with == in validate_work_paths",
+          "summary": "CaughtMutant",
+          "log": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_83.log",
+          "diff": "/private/tmp/sheltie-c004-mutation-m2/resource/mutants.out/diff/crates__sheltie-runtime__src__load.rs_line_164_col_83.diff",
+          "cargo_lines": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features",
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo test --verbose --package=sheltie-runtime@0.3.0-rc.1 --all-features --test result"
+          ],
+          "tests_run": [
+            11
+          ],
+          "test_failure_counts": [
+            {
+              "passed": 9,
+              "failed": 2
+            }
+          ],
+          "phase_results": [
+            {
+              "phase": "Build",
+              "duration": 2.0442485,
+              "process_status": "Success",
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--no-run",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features"
+              ]
+            },
+            {
+              "phase": "Test",
+              "duration": 3.687196708,
+              "process_status": {
+                "Failure": 101
+              },
+              "argv": [
+                "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+                "test",
+                "--verbose",
+                "--package=sheltie-runtime@0.3.0-rc.1",
+                "--all-features",
+                "--test",
+                "result"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_selected": 13,
+  "total_caught": 13,
+  "timeouts": 0,
+  "unviable": 0,
+  "missed": 0,
+  "initial_result_baseline_failure_retained": true
+}

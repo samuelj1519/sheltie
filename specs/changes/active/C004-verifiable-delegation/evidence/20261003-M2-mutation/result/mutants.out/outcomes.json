@@ -1,0 +1,50 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Failure",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.126569125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-core@0.3.0-rc.1",
+            "--all-features"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.12164125,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=sheltie-core@0.3.0-rc.1",
+            "--all-features",
+            "--test",
+            "work_result"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 0,
+  "missed": 0,
+  "caught": 0,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-02T21:38:13.64845Z",
+  "end_time": "2026-10-02T21:38:17.952212Z",
+  "cargo_mutants_version": "27.1.0"
+}

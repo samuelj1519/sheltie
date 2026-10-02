@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/work/result.rs
++++ replace != with == in result_view
+@@ -75,17 +75,17 @@
+     }
+     let (terminal_index, terminal) = state
+         .attempts
+         .iter()
+         .enumerate()
+         .rev()
+         .find(|(_, attempt)| attempt.occurrence() == state.current)
+         .ok_or_else(|| "成功 Work 缺少对应终点 Attempt".to_string())?;
+-    if terminal.status != AttemptStatus::Succeeded {
++    if terminal.status == /* ~ changed by cargo-mutants ~ */ AttemptStatus::Succeeded {
+         return Err("成功 Work 的终点 Attempt 未成功".to_string());
+     }
+ 
+     let mut artifacts = Vec::new();
+     for input in node.inputs().iter().filter(|input| input.result()) {
+         let reference = terminal
+             .inputs
+             .get(input.name())

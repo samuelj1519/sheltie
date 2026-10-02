@@ -1,0 +1,424 @@
+{
+  "compile": [
+    {
+      "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ replace check_rule_10 -> Result<()> with Ok(())\n@@ -318,55 +318,17 @@\n                 \"human 节点不得声明 tier\",\n             ));\n         }\n     }\n     Ok(())\n }\n \n fn check_rule_10(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {\n-    for (i, node) in def.nodes.iter().enumerate() {\n-        let terminal = out_edges.get(&node.id).is_none_or(Vec::is_empty);\n-        let mut selected = BTreeSet::new();\n-        let slots = node\n-            .inputs\n-            .iter()\n-            .enumerate()\n-            .map(|(j, input)| {\n-                (\n-                    format!(\"nodes[{i}].inputs[{j}].result\"),\n-                    input.name.as_str(),\n-                    input.required,\n-                    input.result,\n-                )\n-            })\n-            .chain(node.outputs.iter().enumerate().map(|(j, output)| {\n-                (\n-                    format!(\"nodes[{i}].outputs[{j}].result\"),\n-                    output.name.as_str(),\n-                    output.required,\n-                    output.result,\n-                )\n-            }));\n-        for (path, name, required, result) in slots {\n-            if !result {\n-                continue;\n-            }\n-            if !terminal {\n-                return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n-            }\n-            if !required {\n-                return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n-            }\n-            if !selected.insert(name) {\n-                return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n-            }\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(test)]\n mod tests {\n     use super::*;\n     use crate::error::Error;\n     use crate::flow::parse::parse_flow;\n     use crate::testkit;\n",
+      "file": "crates/sheltie-core/src/flow/compile.rs",
+      "function": {
+        "function_name": "check_rule_10",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 365
+          },
+          "start": {
+            "column": 1,
+            "line": 325
+          }
+        }
+      },
+      "genre": "FnValue",
+      "name": "crates/sheltie-core/src/flow/compile.rs:326:5: replace check_rule_10 -> Result<()> with Ok(())",
+      "package": "sheltie-core",
+      "replacement": "Ok(())",
+      "span": {
+        "end": {
+          "column": 11,
+          "line": 364
+        },
+        "start": {
+          "column": 5,
+          "line": 326
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -342,17 +342,17 @@\n                 (\n                     format!(\"nodes[{i}].outputs[{j}].result\"),\n                     output.name.as_str(),\n                     output.required,\n                     output.result,\n                 )\n             }));\n         for (path, name, required, result) in slots {\n-            if !result {\n+            if  /* ~ changed by cargo-mutants ~ */result {\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n",
+      "file": "crates/sheltie-core/src/flow/compile.rs",
+      "function": {
+        "function_name": "check_rule_10",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 365
+          },
+          "start": {
+            "column": 1,
+            "line": 325
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/flow/compile.rs:350:16: delete ! in check_rule_10",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 17,
+          "line": 350
+        },
+        "start": {
+          "column": 16,
+          "line": 350
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -345,17 +345,17 @@\n                     output.required,\n                     output.result,\n                 )\n             }));\n         for (path, name, required, result) in slots {\n             if !result {\n                 continue;\n             }\n-            if !terminal {\n+            if  /* ~ changed by cargo-mutants ~ */terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n             if !selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n",
+      "file": "crates/sheltie-core/src/flow/compile.rs",
+      "function": {
+        "function_name": "check_rule_10",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 365
+          },
+          "start": {
+            "column": 1,
+            "line": 325
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/flow/compile.rs:353:16: delete ! in check_rule_10",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 17,
+          "line": 353
+        },
+        "start": {
+          "column": 16,
+          "line": 353
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -348,17 +348,17 @@\n             }));\n         for (path, name, required, result) in slots {\n             if !result {\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n-            if !required {\n+            if  /* ~ changed by cargo-mutants ~ */required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n             if !selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n         }\n     }\n     Ok(())\n",
+      "file": "crates/sheltie-core/src/flow/compile.rs",
+      "function": {
+        "function_name": "check_rule_10",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 365
+          },
+          "start": {
+            "column": 1,
+            "line": 325
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/flow/compile.rs:356:16: delete ! in check_rule_10",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 17,
+          "line": 356
+        },
+        "start": {
+          "column": 16,
+          "line": 356
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -351,17 +351,17 @@\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n-            if !selected.insert(name) {\n+            if  /* ~ changed by cargo-mutants ~ */selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n         }\n     }\n     Ok(())\n }\n \n #[cfg(test)]\n",
+      "file": "crates/sheltie-core/src/flow/compile.rs",
+      "function": {
+        "function_name": "check_rule_10",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 365
+          },
+          "start": {
+            "column": 1,
+            "line": 325
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/flow/compile.rs:359:16: delete ! in check_rule_10",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 17,
+          "line": 359
+        },
+        "start": {
+          "column": 16,
+          "line": 359
+        }
+      }
+    }
+  ],
+  "result": [
+    {
+      "diff": "--- crates/sheltie-core/src/work/result.rs\n+++ replace != with == in result_view\n@@ -59,17 +59,17 @@\n         revision,\n         workbook: state.workbook.clone(),\n         flow: state.flow.clone(),\n         status: state.status,\n         effects_pending,\n         r#final: false,\n         artifacts: Vec::new(),\n     };\n-    if state.status != WorkStatus::Succeeded {\n+    if state.status == /* ~ changed by cargo-mutants ~ */ WorkStatus::Succeeded {\n         return Ok(view);\n     }\n     let node = graph\n         .node(&state.current.node)\n         .ok_or_else(|| \"成功 Work 的当前节点不在冻结图中\".to_string())?;\n     if !graph.is_terminal(&state.current.node) {\n         return Err(\"成功 Work 的当前节点不是终点\".to_string());\n     }\n",
+      "file": "crates/sheltie-core/src/work/result.rs",
+      "function": {
+        "function_name": "result_view",
+        "return_type": "-> std::result::Result<ResultView, String>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 121
+          },
+          "start": {
+            "column": 1,
+            "line": 48
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-core/src/work/result.rs:67:21: replace != with == in result_view",
+      "package": "sheltie-core",
+      "replacement": "==",
+      "span": {
+        "end": {
+          "column": 23,
+          "line": 67
+        },
+        "start": {
+          "column": 21,
+          "line": 67
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/work/result.rs\n+++ delete ! in result_view\n@@ -65,17 +65,17 @@\n         artifacts: Vec::new(),\n     };\n     if state.status != WorkStatus::Succeeded {\n         return Ok(view);\n     }\n     let node = graph\n         .node(&state.current.node)\n         .ok_or_else(|| \"成功 Work 的当前节点不在冻结图中\".to_string())?;\n-    if !graph.is_terminal(&state.current.node) {\n+    if  /* ~ changed by cargo-mutants ~ */graph.is_terminal(&state.current.node) {\n         return Err(\"成功 Work 的当前节点不是终点\".to_string());\n     }\n     let (terminal_index, terminal) = state\n         .attempts\n         .iter()\n         .enumerate()\n         .rev()\n         .find(|(_, attempt)| attempt.occurrence() == state.current)\n",
+      "file": "crates/sheltie-core/src/work/result.rs",
+      "function": {
+        "function_name": "result_view",
+        "return_type": "-> std::result::Result<ResultView, String>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 121
+          },
+          "start": {
+            "column": 1,
+            "line": 48
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/work/result.rs:73:8: delete ! in result_view",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 9,
+          "line": 73
+        },
+        "start": {
+          "column": 8,
+          "line": 73
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/work/result.rs\n+++ replace == with != in result_view\n@@ -73,17 +73,17 @@\n     if !graph.is_terminal(&state.current.node) {\n         return Err(\"成功 Work 的当前节点不是终点\".to_string());\n     }\n     let (terminal_index, terminal) = state\n         .attempts\n         .iter()\n         .enumerate()\n         .rev()\n-        .find(|(_, attempt)| attempt.occurrence() == state.current)\n+        .find(|(_, attempt)| attempt.occurrence() != /* ~ changed by cargo-mutants ~ */ state.current)\n         .ok_or_else(|| \"成功 Work 缺少对应终点 Attempt\".to_string())?;\n     if terminal.status != AttemptStatus::Succeeded {\n         return Err(\"成功 Work 的终点 Attempt 未成功\".to_string());\n     }\n \n     let mut artifacts = Vec::new();\n     for input in node.inputs().iter().filter(|input| input.result()) {\n         let reference = terminal\n",
+      "file": "crates/sheltie-core/src/work/result.rs",
+      "function": {
+        "function_name": "result_view",
+        "return_type": "-> std::result::Result<ResultView, String>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 121
+          },
+          "start": {
+            "column": 1,
+            "line": 48
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-core/src/work/result.rs:81:51: replace == with != in result_view",
+      "package": "sheltie-core",
+      "replacement": "!=",
+      "span": {
+        "end": {
+          "column": 53,
+          "line": 81
+        },
+        "start": {
+          "column": 51,
+          "line": 81
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/work/result.rs\n+++ replace != with == in result_view\n@@ -75,17 +75,17 @@\n     }\n     let (terminal_index, terminal) = state\n         .attempts\n         .iter()\n         .enumerate()\n         .rev()\n         .find(|(_, attempt)| attempt.occurrence() == state.current)\n         .ok_or_else(|| \"成功 Work 缺少对应终点 Attempt\".to_string())?;\n-    if terminal.status != AttemptStatus::Succeeded {\n+    if terminal.status == /* ~ changed by cargo-mutants ~ */ AttemptStatus::Succeeded {\n         return Err(\"成功 Work 的终点 Attempt 未成功\".to_string());\n     }\n \n     let mut artifacts = Vec::new();\n     for input in node.inputs().iter().filter(|input| input.result()) {\n         let reference = terminal\n             .inputs\n             .get(input.name())\n",
+      "file": "crates/sheltie-core/src/work/result.rs",
+      "function": {
+        "function_name": "result_view",
+        "return_type": "-> std::result::Result<ResultView, String>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 121
+          },
+          "start": {
+            "column": 1,
+            "line": 48
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-core/src/work/result.rs:83:24: replace != with == in result_view",
+      "package": "sheltie-core",
+      "replacement": "==",
+      "span": {
+        "end": {
+          "column": 26,
+          "line": 83
+        },
+        "start": {
+          "column": 24,
+          "line": 83
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-core/src/work/result.rs\n+++ delete ! in result_view\n@@ -108,17 +108,17 @@\n         artifacts.push(selected(\n             terminal,\n             &output.name,\n             ResultSlotKind::Output,\n             reference,\n         ));\n     }\n     artifacts.sort_by(|left, right| left.key.cmp(&right.key));\n-    if !effects_pending {\n+    if  /* ~ changed by cargo-mutants ~ */effects_pending {\n         view.r#final = true;\n         view.artifacts = artifacts;\n     }\n     Ok(view)\n }\n \n fn selected(\n     attempt: &Attempt,\n",
+      "file": "crates/sheltie-core/src/work/result.rs",
+      "function": {
+        "function_name": "result_view",
+        "return_type": "-> std::result::Result<ResultView, String>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 121
+          },
+          "start": {
+            "column": 1,
+            "line": 48
+          }
+        }
+      },
+      "genre": "UnaryOperator",
+      "name": "crates/sheltie-core/src/work/result.rs:116:8: delete ! in result_view",
+      "package": "sheltie-core",
+      "replacement": "",
+      "span": {
+        "end": {
+          "column": 9,
+          "line": 116
+        },
+        "start": {
+          "column": 8,
+          "line": 116
+        }
+      }
+    }
+  ],
+  "resource": [
+    {
+      "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace || with && in validate_work_paths\n@@ -156,17 +156,17 @@\n                             corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的冻结资源 {path} 未被观察\",\n                                     declaration.name(),\n                                 ),\n                             )\n                         })?;\n-                        if reference.sha256 != observed.sha256 || reference.bytes != observed.bytes\n+                        if reference.sha256 != observed.sha256 && /* ~ changed by cargo-mutants ~ */ reference.bytes != observed.bytes\n                         {\n                             return Err(corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的摘要/字节数与冻结资源不一致\",\n                                     declaration.name(),\n                                 ),\n                             ));\n",
+      "file": "crates/sheltie-runtime/src/load.rs",
+      "function": {
+        "function_name": "validate_work_paths",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 236
+          },
+          "start": {
+            "column": 1,
+            "line": 77
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-runtime/src/load.rs:164:64: replace || with && in validate_work_paths",
+      "package": "sheltie-runtime",
+      "replacement": "&&",
+      "span": {
+        "end": {
+          "column": 66,
+          "line": 164
+        },
+        "start": {
+          "column": 64,
+          "line": 164
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_work_paths\n@@ -156,17 +156,17 @@\n                             corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的冻结资源 {path} 未被观察\",\n                                     declaration.name(),\n                                 ),\n                             )\n                         })?;\n-                        if reference.sha256 != observed.sha256 || reference.bytes != observed.bytes\n+                        if reference.sha256 == /* ~ changed by cargo-mutants ~ */ observed.sha256 || reference.bytes != observed.bytes\n                         {\n                             return Err(corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的摘要/字节数与冻结资源不一致\",\n                                     declaration.name(),\n                                 ),\n                             ));\n",
+      "file": "crates/sheltie-runtime/src/load.rs",
+      "function": {
+        "function_name": "validate_work_paths",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 236
+          },
+          "start": {
+            "column": 1,
+            "line": 77
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-runtime/src/load.rs:164:45: replace != with == in validate_work_paths",
+      "package": "sheltie-runtime",
+      "replacement": "==",
+      "span": {
+        "end": {
+          "column": 47,
+          "line": 164
+        },
+        "start": {
+          "column": 45,
+          "line": 164
+        }
+      }
+    },
+    {
+      "diff": "--- crates/sheltie-runtime/src/load.rs\n+++ replace != with == in validate_work_paths\n@@ -156,17 +156,17 @@\n                             corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的冻结资源 {path} 未被观察\",\n                                     declaration.name(),\n                                 ),\n                             )\n                         })?;\n-                        if reference.sha256 != observed.sha256 || reference.bytes != observed.bytes\n+                        if reference.sha256 != observed.sha256 || reference.bytes == /* ~ changed by cargo-mutants ~ */ observed.bytes\n                         {\n                             return Err(corrupt(\n                                 &state.work_id,\n                                 format!(\n                                     \"attempts[{index}].inputs.{} 的摘要/字节数与冻结资源不一致\",\n                                     declaration.name(),\n                                 ),\n                             ));\n",
+      "file": "crates/sheltie-runtime/src/load.rs",
+      "function": {
+        "function_name": "validate_work_paths",
+        "return_type": "-> Result<()>",
+        "span": {
+          "end": {
+            "column": 2,
+            "line": 236
+          },
+          "start": {
+            "column": 1,
+            "line": 77
+          }
+        }
+      },
+      "genre": "BinaryOperator",
+      "name": "crates/sheltie-runtime/src/load.rs:164:83: replace != with == in validate_work_paths",
+      "package": "sheltie-runtime",
+      "replacement": "==",
+      "span": {
+        "end": {
+          "column": 85,
+          "line": 164
+        },
+        "start": {
+          "column": 83,
+          "line": 164
+        }
+      }
+    }
+  ]
+}

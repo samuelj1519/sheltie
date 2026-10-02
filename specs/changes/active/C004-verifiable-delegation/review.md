@@ -1,5 +1,10 @@
 # C004 独立审查
 
+结论：`PASS`（本轮实际采用的实现闭包；授权延期/未知项不在PASS范围）
+Candidate: `aa26d2c4f4396302b4b4f00394ada57a7b0e84b8`
+
+最终独立Reviewer：`/root/independent_review`。本结论不含真实用户收益、原版本环境门禁、在线fresh更新、全mutation或未执行平台；具体限制见validation独立缺项表。
+
 方案审查：`通过`（首次读者实施规划、产品边界与工具静态接线）。
 历史审查时 package 为 `proposed`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
 
@@ -13,7 +18,7 @@
 
 48 文件方案正文闭包：`53b84534c979016aa822e671a723edc0b479bf31e94780bd46956b43a4187eea`，不含五份 review.md。范围为五包其余七份文件及共同入口、权威、指南和来源。域为 `sheltie-proposal-docs/v1\0`，按路径排序，逐项 BE64 路径长度/UTF-8 路径/BE64 内容长度/原字节，再求 sha256。复算一致，记录不改变正文。
 
-## 两次实施审查
+## 历史方案中的阶段审查判据（当时 not_run）
 
 | 范围 | 独立复杂模型的判据 | 状态 |
 | --- | --- | --- |
@@ -79,3 +84,13 @@ T01 完整回归实际 728/728 通过；T02 11、T03 2 仍 ignore。自有临时
 记录通过。独立 Reviewer `/root/independent_review` 核授权未制造实际用户行为，actor/配对材料/盲审接受/usage缺项与机制证据分离，真实试用和净收益未记PASS。初稿误把未建立会话规程写成工具无能力，作者已收窄为实际缺少原宿主标识、保存/关闭/重开规程与接续观察；不必尝试关闭当前持续执行会话。补验标准、预算与停止规则可用。
 
 本轮Task完成仅覆盖前提盘点与交接，原真实增量义务not_run并按用户环境跳过授权延期，不能从T03演练、M1/M2代码审查或预先批准推断真实接受/质量收益。详见 [前提记录](experiments/readiness.md)。
+
+## C004-M2 最终完整实现结论
+
+实现闭包通过，按用户已授权例外限定。候选 `aa26d2c4f4396302b4b4f00394ada57a7b0e84b8`。Reviewer引用前阶段具体候选/run并补组合来源、INV、严格完整装入、终点/gate、state/card/实时/历史、只读全链、method/skill路由与Rust工程；无新增生产必改。
+
+Reviewer独立核完整741/741无skip及check/clippy/fmt/governance；13selected mutation的raw76files每BuildSuccess/TestFailure101及非零失败断言，baseline32/8/11，未执行其余105；原result0-mutant baseline失败保留。deny政策只变temp db-path，缓存117edb3快照检查通过，在线未完成清楚。生产/测试/fixture/config未漂移。
+
+真实trial/用户收益和nextest原0.9.145授权not_run；在线fresh更新执行后终止未完成；历史LEAK causeunknown保留。本轮按实现范围归档，原真实义务与环境缺项留同一package等待后期补验；不是完整用户价值验收、发布或全安全结论。阶段M1通过从未用来替代M2。
+
+收口独立复核通过：Candidate与实现限定PASS表一致，所有授权延期/未完成/unknown项独立完整保留，未把not_run改PASS；日志原字节保全后可按已有授权归档并采用C005。生产闭包未变，未发布。

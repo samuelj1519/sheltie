@@ -1,0 +1,59 @@
+--- crates/sheltie-core/src/flow/compile.rs
++++ replace check_rule_10 -> Result<()> with Ok(())
+@@ -318,55 +318,17 @@
+                 "human 节点不得声明 tier",
+             ));
+         }
+     }
+     Ok(())
+ }
+ 
+ fn check_rule_10(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
+-    for (i, node) in def.nodes.iter().enumerate() {
+-        let terminal = out_edges.get(&node.id).is_none_or(Vec::is_empty);
+-        let mut selected = BTreeSet::new();
+-        let slots = node
+-            .inputs
+-            .iter()
+-            .enumerate()
+-            .map(|(j, input)| {
+-                (
+-                    format!("nodes[{i}].inputs[{j}].result"),
+-                    input.name.as_str(),
+-                    input.required,
+-                    input.result,
+-                )
+-            })
+-            .chain(node.outputs.iter().enumerate().map(|(j, output)| {
+-                (
+-                    format!("nodes[{i}].outputs[{j}].result"),
+-                    output.name.as_str(),
+-                    output.required,
+-                    output.result,
+-                )
+-            }));
+-        for (path, name, required, result) in slots {
+-            if !result {
+-                continue;
+-            }
+-            if !terminal {
+-                return Err(invalid("10", path, "只有终点节点可以声明最终成果"));
+-            }
+-            if !required {
+-                return Err(invalid("10", path, "最终成果必须是必需输入或输出"));
+-            }
+-            if !selected.insert(name) {
+-                return Err(invalid("10", path, "最终成果的输入与输出逻辑名不得重复"));
+-            }
+-        }
+-    }
+-    Ok(())
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+     use crate::error::Error;
+     use crate::flow::parse::parse_flow;
+     use crate::testkit;

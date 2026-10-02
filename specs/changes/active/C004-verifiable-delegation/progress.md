@@ -15,3 +15,5 @@ T02 公开 result 与 status 全视图已接通，最新冻结 11/11 及完整�
 T03方法/技能路径及冻结场景已通过独立审查；受控trace18次调用和最终3文件字节一致。下一动作T04核真实试用前提，缺外部前提按用户授权记录not_run与后续入口，再交M2完整候选审查。
 
 T04前提盘点与授权延期记录通过独立事实复核，实际trial/真人首次复用/真正重开/净收益not_run，usage null。下一动作M2对完整实现候选做最终范围审查、工程门禁与预算内定向突变；环境例外和未知旧LEAK必须保留。
+
+M2实现闭包按授权范围通过，源码候选aa26d2c4f4396302b4b4f00394ada57a7b0e84b8：完整741/741、13selected caught、cached deny通过；真实trial/原nextest版本门禁not_run，onlinefresh未完成，旧LEAKunknown。下一动作归档本轮C004并按用户顺序激活C005；原件和全部缺项仍在本package补验，不发布。

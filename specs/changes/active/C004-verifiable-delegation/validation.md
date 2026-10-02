@@ -1,6 +1,10 @@
 # C004 验证
 
-状态：`not_run`。方案检查不代表实现、用户收益或平台验证。本文件保存 oracle 与真实执行索引；任务状态只在 plan。
+Candidate: `aa26d2c4f4396302b4b4f00394ada57a7b0e84b8`
+
+最终表只核本轮实际采用且执行的实现/机制子范围；授权延期与未完成外部义务另列，不构成PASS。
+
+状态：实施证据已执行；真实用户试用、在线依赖更新及要求的 nextest 版本门禁按授权 `not_run`/未完成。具体范围见本轮最终索引，方案检查不代表用户收益或未执行平台验证。本文件保存 oracle 与真实执行索引；任务状态只在 plan。
 
 ## 1. 机制矩阵
 
@@ -33,12 +37,22 @@ T01 先验证原语和所有受影响既有消费者；M1 只核完整架构/测
 
 | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| 阶段架构/原语/测试/M1 | not_run | 待 T01 骨架与真实用例 | — | not_run | — |
-| result/status 真实链 | not_run | 待采用候选 | — | not_run | — |
-| 完整工程与定向突变 | not_run | 待稳定候选 | — | not_run | — |
-| 方法/skill 场景 | not_run | 待实现方法 | — | not_run | — |
-| 新真实任务与重开 | not_run | 待真实使用者与新任务 | — | not_run | — |
-| 平台与发布 | not_run | 只验证实际采用范围 | — | not_run | — |
+| 阶段架构/原语/测试/M1 | executed | 基础0cedb8c、测试修订2914e856 | T01/M1实际run及独立counterexamples | PASS | T01/M1段及evidence |
+| result/status 真实实现链 | executed | T02 b4749dd，0.3.0-rc.1；历史旧LEAK仍unknown | 11冻结+739全链与独立4CLI | PASS | T02段；不声明零历史leak |
+| 完整工程与选定13突变 | executed | 实现候选aa26d2c；Rust1.98.1/arm64；mutation只选13 | M2 741全链；13selected mutation | PASS | M2段；不覆盖剩余105候选 |
+| 缓存快照下依赖许可/来源/漏洞检查 | executed_cached | policy未改，仅db路径隔离；cache117edb3截至2026-10-02 | cargo deny offline all-features locked | PASS | M2 deny原文；不覆盖在线fresh更新 |
+| 方法/skill机制场景 | executed | T03 fbe80ad，方法图/上限冻结；不含真人试用 | 场景2、consumer23、controlled18CLI | PASS | T03段；不声明用户收益 |
+
+### 授权延期与未完成义务
+
+| 义务 | 当前状态 | 原因与补验入口 | 禁止推导 |
+| --- | --- | --- | --- |
+| 新真实配对任务、连续实际使用者、真人首次/复用/真正重开、盲审与接受 | not_run / deferred_by_user | T04 [前提记录](experiments/readiness.md)，按stage-1/C007 metrics补齐真实输入/actor与原文 | 不能从机制、独审或预先批准推断收益/接受 |
+| nextest0.9.145原环境门禁 | not_run | 原命令92；现0.9.140 override已实际执行，原版本环境后续补验 | 不把override称原版本已执行 |
+| 在线fresh advisory获取与完整在线deny | executed_then_terminated / incomplete | 本任务隔离fetch4m51s后TERM143，未完成；cached快照结果有明确commit/time | 不把离线缓存称在线最新 |
+| T02旧SIGKILL测试LEAK原因与当时PID/FD | unknown | 原739PASS+1LEAK；一次局部诊断未复现但不能溯及证明，保留原文 | 不改原run、不加等待配置掩盖 |
+| 其余105 mutation候选与全代码/全安全覆盖 | not_run / not_adopted_scope | 本轮固定风险只选13，剩余未执行 | 不宣称全突变或全安全PASS |
+| 其他平台与外部发布/安装 | not_run / not_applicable | 只实际aarch64 macOS；新候选尚未发布，无对外动作 | 不推导跨平台或发布PASS |
 
 执行后每行写退出码、非零测试数、输入闭包和原文链接。相同闭包证据复用要引用原 run ID；不同方法、模型、feature 或环境不混算。完整原文只保存一次，review 只链接本表。
 
@@ -115,3 +129,23 @@ LEAK 出现在 `implementation_repairs::killed_first_store_initializer_allows_th
 ## C004-T04 本轮真实试用边界
 
 [前提盘点](experiments/readiness.md)按授权记录已确认缺项与补验入口；没有正式用户run。任务输入/使用历史/两组配置及活动/独立盲审/实际接受/原宿主会话动作的可核规程与原文均未建立；usage null。用户已批准执行，不等于这些行为已发生。独立事实复核通过，仅覆盖记录。docs/specs/tests/diff退出0；纯记录不重跑Rust，不虚构task.sh零测试PASS。当前真实trial/result-quality/cost-benefit/真正重开为not_run，后续按stage-1与C007指标补验。
+
+## C004-M2 稳定完整实现候选
+
+源码候选：`aa26d2c4f4396302b4b4f00394ada57a7b0e84b8`；生产/消费者闭包 `82f2f9f27cef1a03bb644270de4ae4870436393107170168274262147fcea410`（265文件，排evidence/progress/review/validation）。M2仅追加plan/tasks与记录，编译/测试/fixture/协议/技能输入已冻结，记录/governance变化另核。
+
+[check](evidence/20261003-M2-check.txt)、[clippy](evidence/20261003-M2-clippy.txt) exit0；fmt/docs/specs/tests/skill/corevocab/diff通过。[完整nextest](evidence/20261003-M2-nextest.txt) run `3e66086a-21f6-450e-ade2-6a4b567c07e3` 为741/741 PASS、2slow、0skip、exit0。实际0.9.140 override；0.9.145原环境门禁未运行。T02旧1LEAK不会因本run未再报告而改成误报或证明历史无残留。
+
+### 依赖检查与环境边界
+
+初始default [wrapper拒绝](evidence/20261003-M2-deny-wrapper-error.txt)为sccache sandbox错误；隔离RUSTC_WRAPPER后 [advisory lock拒绝](evidence/20261003-M2-deny-readonly-db.txt)来自只读全局缓存，均非代码fail。policy保持deny.toml全部条款，复制现有advisory缓存到自有/private/tmp，临时config只改db-path。在线检查4分51秒无输出，按预算只终止唯一使用本任务临时配置的cargo-deny PID86315，exit143；[原文](evidence/20261003-M2-deny-online-stopped.txt)保留，在线更新未完成，不当漏洞/许可PASS。
+
+再从未被该fetch修改的原缓存独立复制，执行 `CARGO_TARGET_DIR=/private/tmp/sheltie-c004-target RUSTC_WRAPPER= cargo deny --offline --config /private/tmp/sheltie-c004-deny-offline.toml --all-features --locked check`，exit0：[advisories/bans/licenses/sources均ok](evidence/20261003-M2-deny-offline.txt)。[cache身份](evidence/20261003-M2-advisory-cache.json)中RustSec数据库为 `117edb3bed98e9be112f277b7615eea3252e7c43`、`2026-10-02T10:58:33+02:00`；其他历史缓存不冒充本次最新数据库。此结果只对应该缓存快照；在线fresh更新仍待后续环境补验，没有修改第三方license policy。
+
+### 有预算的定向突变
+
+固定cargo-mutants27.1.0、候选aa26、临时复制source、jobs1、no-config/no-shuffle/baseline run、test-tool cargo、隔离/private/tmp/sheltie-c004-mutant-target。3files候选inventory为118，只按 [选定清单](evidence/20261003-M2-selected-mutants.json)运行13：compile规则10五项（32-test baseline）、result选择/终点/效果资格五项（8真实CLI baseline）、resource完整引用三项（11真实runtime baseline）。总实际174秒，整体预算12分钟；测试60秒/构建120秒timeout，零测试、漂移或连续两timeout就停止，没有触发。
+
+[完整命令与时序](evidence/20261003-M2-mutation/execution.json)、[逐变体核验](evidence/20261003-M2-mutation/verified-summary.json)以及各组mutants.out原始diff/log/outcomes完整保存。初始result baseline工具27.1错误选择core并传work_result目标，exit4，0变体执行；原result目录保留，不算caught。修正加显式CLI cargo package参数仍baseline run，实际8-test baseline及5个变体执行成功。
+
+最终13/13 caught，0 survivor/timeout/unviable；每个Build=Success、Test=Failure101且存在真实非零失败断言，不把编译失败当caught。Worker记录21:37:40Z→21:40:34Z，输入closure `872acb864a3579b4930b3424bdfaa96f27f652bda433048cedf3b455eb694c5c` 前后相同；该工具closure域/范围与上述consumer总闭包不同，不混算。只证明选定13项，不证明剩余105候选或全代码/全安全覆盖。cargo test是这次mutation的实际执行器，不覆盖未执行nextest原版本环境门禁。

@@ -1,0 +1,21 @@
+--- crates/sheltie-core/src/work/result.rs
++++ delete ! in result_view
+@@ -65,17 +65,17 @@
+         artifacts: Vec::new(),
+     };
+     if state.status != WorkStatus::Succeeded {
+         return Ok(view);
+     }
+     let node = graph
+         .node(&state.current.node)
+         .ok_or_else(|| "成功 Work 的当前节点不在冻结图中".to_string())?;
+-    if !graph.is_terminal(&state.current.node) {
++    if  /* ~ changed by cargo-mutants ~ */graph.is_terminal(&state.current.node) {
+         return Err("成功 Work 的当前节点不是终点".to_string());
+     }
+     let (terminal_index, terminal) = state
+         .attempts
+         .iter()
+         .enumerate()
+         .rev()
+         .find(|(_, attempt)| attempt.occurrence() == state.current)

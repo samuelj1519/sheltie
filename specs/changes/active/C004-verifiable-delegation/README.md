@@ -5,7 +5,7 @@
 兼容性：不设计兼容层或数据迁移；仅实现采用后的单一合同
 基线：`18e043f2ff7680683ca2d9b7aca2b82fbf4cdbeb`
 Owner：`Codex /root`
-权威性：已由用户采用；实施进度只看 plan，验证和发布按实际证据报告
+权威性：本轮实现闭包已验收；真实试用、原版本工具门禁与在线fresh依赖更新按授权延期，历史LEAK cause unknown。实施进度只看 plan，完整边界见 validation
 
 ## 产品目标
 

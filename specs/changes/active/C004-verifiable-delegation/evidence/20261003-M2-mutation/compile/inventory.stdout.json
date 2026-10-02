@@ -1,0 +1,162 @@
+[
+  {
+    "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ replace check_rule_10 -> Result<()> with Ok(())\n@@ -318,55 +318,17 @@\n                 \"human 节点不得声明 tier\",\n             ));\n         }\n     }\n     Ok(())\n }\n \n fn check_rule_10(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {\n-    for (i, node) in def.nodes.iter().enumerate() {\n-        let terminal = out_edges.get(&node.id).is_none_or(Vec::is_empty);\n-        let mut selected = BTreeSet::new();\n-        let slots = node\n-            .inputs\n-            .iter()\n-            .enumerate()\n-            .map(|(j, input)| {\n-                (\n-                    format!(\"nodes[{i}].inputs[{j}].result\"),\n-                    input.name.as_str(),\n-                    input.required,\n-                    input.result,\n-                )\n-            })\n-            .chain(node.outputs.iter().enumerate().map(|(j, output)| {\n-                (\n-                    format!(\"nodes[{i}].outputs[{j}].result\"),\n-                    output.name.as_str(),\n-                    output.required,\n-                    output.result,\n-                )\n-            }));\n-        for (path, name, required, result) in slots {\n-            if !result {\n-                continue;\n-            }\n-            if !terminal {\n-                return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n-            }\n-            if !required {\n-                return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n-            }\n-            if !selected.insert(name) {\n-                return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n-            }\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(test)]\n mod tests {\n     use super::*;\n     use crate::error::Error;\n     use crate::flow::parse::parse_flow;\n     use crate::testkit;\n",
+    "file": "crates/sheltie-core/src/flow/compile.rs",
+    "function": {
+      "function_name": "check_rule_10",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 365
+        },
+        "start": {
+          "column": 1,
+          "line": 325
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-core/src/flow/compile.rs:326:5: replace check_rule_10 -> Result<()> with Ok(())",
+    "package": "sheltie-core",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 364
+      },
+      "start": {
+        "column": 5,
+        "line": 326
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -342,17 +342,17 @@\n                 (\n                     format!(\"nodes[{i}].outputs[{j}].result\"),\n                     output.name.as_str(),\n                     output.required,\n                     output.result,\n                 )\n             }));\n         for (path, name, required, result) in slots {\n-            if !result {\n+            if  /* ~ changed by cargo-mutants ~ */result {\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n",
+    "file": "crates/sheltie-core/src/flow/compile.rs",
+    "function": {
+      "function_name": "check_rule_10",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 365
+        },
+        "start": {
+          "column": 1,
+          "line": 325
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-core/src/flow/compile.rs:350:16: delete ! in check_rule_10",
+    "package": "sheltie-core",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 350
+      },
+      "start": {
+        "column": 16,
+        "line": 350
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -345,17 +345,17 @@\n                     output.required,\n                     output.result,\n                 )\n             }));\n         for (path, name, required, result) in slots {\n             if !result {\n                 continue;\n             }\n-            if !terminal {\n+            if  /* ~ changed by cargo-mutants ~ */terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n             if !selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n",
+    "file": "crates/sheltie-core/src/flow/compile.rs",
+    "function": {
+      "function_name": "check_rule_10",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 365
+        },
+        "start": {
+          "column": 1,
+          "line": 325
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-core/src/flow/compile.rs:353:16: delete ! in check_rule_10",
+    "package": "sheltie-core",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 353
+      },
+      "start": {
+        "column": 16,
+        "line": 353
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -348,17 +348,17 @@\n             }));\n         for (path, name, required, result) in slots {\n             if !result {\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n-            if !required {\n+            if  /* ~ changed by cargo-mutants ~ */required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n             if !selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n         }\n     }\n     Ok(())\n",
+    "file": "crates/sheltie-core/src/flow/compile.rs",
+    "function": {
+      "function_name": "check_rule_10",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 365
+        },
+        "start": {
+          "column": 1,
+          "line": 325
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-core/src/flow/compile.rs:356:16: delete ! in check_rule_10",
+    "package": "sheltie-core",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 356
+      },
+      "start": {
+        "column": 16,
+        "line": 356
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/flow/compile.rs\n+++ delete ! in check_rule_10\n@@ -351,17 +351,17 @@\n                 continue;\n             }\n             if !terminal {\n                 return Err(invalid(\"10\", path, \"只有终点节点可以声明最终成果\"));\n             }\n             if !required {\n                 return Err(invalid(\"10\", path, \"最终成果必须是必需输入或输出\"));\n             }\n-            if !selected.insert(name) {\n+            if  /* ~ changed by cargo-mutants ~ */selected.insert(name) {\n                 return Err(invalid(\"10\", path, \"最终成果的输入与输出逻辑名不得重复\"));\n             }\n         }\n     }\n     Ok(())\n }\n \n #[cfg(test)]\n",
+    "file": "crates/sheltie-core/src/flow/compile.rs",
+    "function": {
+      "function_name": "check_rule_10",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 365
+        },
+        "start": {
+          "column": 1,
+          "line": 325
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-core/src/flow/compile.rs:359:16: delete ! in check_rule_10",
+    "package": "sheltie-core",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 359
+      },
+      "start": {
+        "column": 16,
+        "line": 359
+      }
+    }
+  }
+]
