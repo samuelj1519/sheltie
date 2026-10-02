@@ -57,3 +57,7 @@
 T01 完整回归实际 728/728 通过；T02 11、T03 2 仍 ignore。自有临时副本中，仅移除 ignore 控制通过，revision 断言 3→4 准确被冻结门禁拒绝；见 [冻结守卫](evidence/20261003-M1-freeze-guard.txt)。第一次临时 fixture 缺 completed 目录只作 [环境诊断](evidence/20261003-M1-freeze-invalid-fixture.txt)，不作反例或行为红。真实候选从未修改。
 
 本结论仅授权进入已采用的 T02/T03；nextest 0.9.145 原环境门禁按用户授权 not_run，实际 0.9.140 override 范围已执行。公开功能、真实用户质量/收益和 M2 尚未验收。
+
+## C004-T05 独立测试期望修复
+
+通过。Reviewer `/root/independent_review` 未编写该期望。首次接口 draft 11 实际为 10 PASS/1 FAIL，fixture 别名错误，生产规范根正确。作者仅在 expected Work 目录上添加 std canonicalize/unwrap，再拼固定子路径；不改摘要、大小、来源、只读与业务断言，不从结果生成期望。单独提交保留 T02 ignore，公开接线仍归 T02。最新完整测试修复 SHA 在提交后固定。

@@ -86,6 +86,8 @@ fn result_lists_explicit_terminal_bindings_and_sealed_outputs_without_writes() {
     assert_eq!(
         artifacts[0]["path"],
         env.work_dir(&work)
+            .canonicalize()
+            .unwrap()
             .join("start-inputs/topic")
             .to_str()
             .unwrap()

@@ -1,0 +1,29 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.30s
+────────────
+ Nextest run ID 6b9c2456-775c-4d26-9cb7-887389831e99 with nextest profile: default
+    Starting 19 tests across 2 binaries (45 binaries skipped)
+        PASS [   0.570s] ( 1/19) sheltie-runtime::result schema_two_is_rejected_without_migrating_or_rewriting_original_bytes
+        PASS [   0.590s] ( 2/19) sheltie-cli::work_result result_rejects_request_id_before_opening_a_store
+        PASS [   1.067s] ( 3/19) sheltie-runtime::result status_read_combines_revision_and_current_frozen_pointers_without_writing
+        PASS [   1.352s] ( 4/19) sheltie-runtime::result result_selects_terminal_bound_input_and_sealed_output_in_key_order
+        PASS [   1.414s] ( 5/19) sheltie-runtime::result pending_resource_loading_compares_logical_path_and_observed_bytes_separately
+        PASS [   1.463s] ( 6/19) sheltie-runtime::result result_rejects_resource_reference_digest_or_size_drift_without_changing_originals
+        PASS [   1.734s] ( 7/19) sheltie-runtime::result result_hides_artifacts_until_gate_and_file_effects_are_complete
+        PASS [   0.998s] ( 8/19) sheltie-runtime::result status_read_uses_one_snapshot_when_a_new_attempt_commits_between_queries
+        PASS [   2.331s] ( 9/19) sheltie-runtime::result result_distinguishes_cancelled_work_and_success_without_explicit_selection
+        PASS [   2.388s] (10/19) sheltie-cli::work_result result_rejects_a_published_request_with_invalid_effects_without_repairing_it
+        PASS [   2.398s] (11/19) sheltie-cli::work_result result_lists_explicit_terminal_bindings_and_sealed_outputs_without_writes
+        PASS [   2.421s] (12/19) sheltie-cli::work_result result_returns_frozen_references_without_claiming_source_bytes_were_rechecked
+        PASS [   2.452s] (13/19) sheltie-cli::work_result status_provides_the_current_brief_frozen_inputs_and_running_drafts
+        PASS [   2.468s] (14/19) sheltie-cli::work_result result_hides_committed_outputs_until_their_file_effects_finish
+        PASS [   1.940s] (15/19) sheltie-runtime::result status_read_reports_this_work_pending_effects_and_ignores_unrelated_corruption
+        PASS [   2.536s] (16/19) sheltie-cli::work_result result_is_empty_until_the_terminal_gate_is_approved
+        PASS [   2.868s] (17/19) sheltie-cli::work_result result_distinguishes_no_selection_from_cancelled_and_active_work
+        PASS [   2.936s] (18/19) sheltie-runtime::result all_read_payloads_reject_unknown_fields_before_frozen_workbook_io
+        PASS [   3.832s] (19/19) sheltie-runtime::result status_read_rejects_incomplete_or_conflicting_request_audit_closure
+────────────
+     Summary [   4.402s] 19 tests run: 19 passed, 0 skipped

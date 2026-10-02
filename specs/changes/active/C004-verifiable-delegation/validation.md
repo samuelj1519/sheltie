@@ -82,3 +82,11 @@ fmt、docs/specs/tests/skill/corevocab/diff 通过；测试登记 741 个、任�
 C004-M1 最终固定基础 SHA：`0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`；独立阶段准备通过，冻结守卫及提交后治理见 [review](review.md#c004-m1-最终阶段准备结论)。M1 只新增审查/证据/交接，未改编译或运行输入，不重跑未受影响 Rust。
 
 M1 初次范围门禁退出 1：两份独立冻结守卫原文未列入 M1 files。初次本地记录提交在该失败后误执行；已补两个精确证据路径，重新核范围并修正同一个本地 M1 提交。生产/测试/fixture 和 T01 基准没有变化。
+
+## C004-T05 规范根 oracle 修复
+
+[真实 alias 失败](evidence/20261003-T05-alias-oracle-red.txt)：T02 draft、binary 0.3.0-rc.1，run `8b6c3faf-a864-4b72-9b85-c200db135395` 为 10 PASS/1 FAIL、退出 100。生产返回规范路径，期望使用了系统别名；不记环境豁免。
+
+[修复消费者验证](evidence/20261003-T05-alias-oracle-green.txt)：同 draft 公开接口与修正 oracle，19/19 PASS、退出 0，含 11 T02 与 8 已实现读取原语。实际 nextest 0.9.140 override，原 0.9.145 环境门禁不变。该 run 只证明修正期望与真实消费者吻合，不把尚未提交/完整验收的 T02 当产品完成。T05 提交只含 oracle 与记录，原 T02 ignore 保留。
+
+隔离过程：初始工作区全为本会话 11 个已明确归属的 T02 草稿，按内容 sha256 记录并保留在本地 stash `13538700ac45b3ea18280e32b7ccdb1c3b77f2cc`；T05 提交后重新应用这些草稿，不删除或覆盖他人修改。

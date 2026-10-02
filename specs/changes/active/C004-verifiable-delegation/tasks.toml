@@ -35,3 +35,8 @@ allow_test_changes = false
 files = ["specs/changes/active/C004-verifiable-delegation/review.md", "specs/changes/active/C004-verifiable-delegation/validation.md", "specs/changes/active/C004-verifiable-delegation/progress.md"]
 test_files = []
 allow_test_changes = false
+
+[C004-T05]
+files = ["specs/changes/active/C004-verifiable-delegation"]
+test_files = ["crates/sheltie-cli/tests/work_result.rs"]
+allow_test_changes = true

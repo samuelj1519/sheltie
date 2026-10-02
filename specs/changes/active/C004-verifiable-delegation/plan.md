@@ -28,6 +28,7 @@ T01 将每项真实需求映射到采用能力，同步裁剪 README/spec/design
 | C004-T02 | todo | Codex /root / 完整行为实现者 | M1 | 冻结接口上的 status/result 完整真实链 |
 | C004-T03 | todo | Codex /root / 方法实现者 | T02 | 已审定方法与使用说明按固定材料接通 |
 | C004-T04 | todo | 简单模型操作；复杂模型分析；独立质量审阅者 | T03 | 新任务质量、成本与续接证据 |
+| C004-T05 | done | Codex /root；独立 Reviewer | T02 冻结用例的规范根路径期望修复 | M1、实际 alias 失败 |
 | C004-M2 | todo | 未参与被审设计/测试/实现的复杂模型 | T04 | 完整采用闭环、Rust 工程、方法和真实结果 |
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
@@ -115,3 +116,9 @@ M1 只证明交接可实施，不证明最终功能或用户收益。需修改�
 先语义短反馈，再在稳定候选运行完整工程门禁及有预算的定向突变，包含实际 CLI 消费者。未执行、timeout、平台和用户缺项分别报告；修复交明确作者并增量复核。全部实际采用义务通过才可 completed；发布另行决定。
 
 M1 冻结基准：`0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`。Reviewer `/root/independent_review` 通过阶段准备；T02/T03 使用该完整 SHA。公开能力、真实价值与 M2 未完成。
+
+### C004-T05 修复冻结用例的规范根期望
+
+**Owner。** 复杂作者 Codex /root；独立 Reviewer `/root/independent_review`。仅修 `work_result.rs` 的 expected 管理根路径：临时目录可经系统别名 `/var` 创建，真实 Home 按规范解析为 `/private/var`。用 std canonicalize 独立确定已存在夹具 Work 目录，再拼固定 `start-inputs/topic`。摘要、大小、来源与只读判据不变，不用被测 result 生成答案。
+
+**验证。** 实际 T02 draft 先复现 11 用例中 10 PASS/1 FAIL（路径别名）；复杂作者修期望后相同真实消费者 19/19 PASS（含 11 T02 和 8 T01 runtime），独立 Reviewer 核期望和规范根合同通过。此次提交保留所有 T02 ignore，生产接线与开发版本变更仍归 T02，不把 draft 功能验收写成 T05 产品 PASS。完整修复 SHA 作为 T02/T03 最新独立测试基准。
