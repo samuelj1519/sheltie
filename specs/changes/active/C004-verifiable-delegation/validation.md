@@ -78,3 +78,7 @@ fmt、docs/specs/tests/skill/corevocab/diff 通过；测试登记 741 个、任�
 [卡片修复](evidence/20261003-T01-card-oracle-repaired.txt) 和 [投影修复](evidence/20261003-T01-projection-repaired.txt) 分别通过；[最终全回归](evidence/20261003-T01-regression-final.txt) run `6acddb6a-86d1-44d9-a278-f785c715cf6a`，命令 `CARGO_TARGET_DIR=/private/tmp/sheltie-c004-target RUSTC_WRAPPER= cargo nextest run --override-version-check --all-features --no-tests=pass --no-fail-fast`，退出 0，728/728 PASS，2 slow（60.342s/69.842s，通过且非 timeout），13 T02/T03 阶段 ignore。工具为 nextest 0.9.140，Rust 1.98.1 / aarch64-apple-darwin；0.9.145 原版本门禁仍 not_run。
 
 本阶段基础满足；不把 13 后续阶段 ignore、公开 caller 的预定红、缺真实用户/平台/发布替代为完整产品或价值 PASS。T01 提交前范围门禁与 M1 完整候选随后登记。
+
+C004-M1 最终固定基础 SHA：`0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`；独立阶段准备通过，冻结守卫及提交后治理见 [review](review.md#c004-m1-最终阶段准备结论)。M1 只新增审查/证据/交接，未改编译或运行输入，不重跑未受影响 Rust。
+
+M1 初次范围门禁退出 1：两份独立冻结守卫原文未列入 M1 files。初次本地记录提交在该失败后误执行；已补两个精确证据路径，重新核范围并修正同一个本地 M1 提交。生产/测试/fixture 和 T01 基准没有变化。

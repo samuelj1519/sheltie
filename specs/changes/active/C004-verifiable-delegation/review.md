@@ -49,3 +49,11 @@
 第二次 no-fail-fast 全回归执行 728：727 PASS/1 FAIL；真实 publication consumer 暴露 status() 返回卡 JSON 却把实时 metadata 放进配对文本。作者修复私有 status_projection 共享一次严格读取：card API 输出纯共有投影，status_read 渲染完整实时 DTO。Reviewer 核职责且独立 3/3 通过（run `de36c8c7-7ac3-4f5a-8f40-dd268f213d63`），见 [投影独立复核](evidence/20261003-M1-independent-projection.txt)。未降低旧 oracle，不使用字符串剥离或第二事实路径。
 
 最终候选完整现行回归 run `6acddb6a-86d1-44d9-a278-f785c715cf6a`：728/728 PASS、2 slow、13 后续阶段 ignore，退出 0；check/clippy/fmt 与治理通过。nextest 实际版本 override 的授权边界保持，0.9.145 原环境门禁 not_run。T01 可提交基础候选；M1 完整 SHA 在提交后记录。公开 result、最终方法与真实价值尚未验收。
+
+## C004-M1 最终阶段准备结论
+
+通过。独立 Reviewer `/root/independent_review` 未参与合同、原语、oracle 或实现；最终固定 `0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`。已核总体合同、全部 caller、同快照读取、完整资源真值、解码顺序、纯卡/实时视图、真实行为 red、M1 手册及白名单，无剩余必改。提交后独立 check-task/docs/specs/tests/diff 通过。
+
+T01 完整回归实际 728/728 通过；T02 11、T03 2 仍 ignore。自有临时副本中，仅移除 ignore 控制通过，revision 断言 3→4 准确被冻结门禁拒绝；见 [冻结守卫](evidence/20261003-M1-freeze-guard.txt)。第一次临时 fixture 缺 completed 目录只作 [环境诊断](evidence/20261003-M1-freeze-invalid-fixture.txt)，不作反例或行为红。真实候选从未修改。
+
+本结论仅授权进入已采用的 T02/T03；nextest 0.9.145 原环境门禁按用户授权 not_run，实际 0.9.140 override 范围已执行。公开功能、真实用户质量/收益和 M2 尚未验收。
