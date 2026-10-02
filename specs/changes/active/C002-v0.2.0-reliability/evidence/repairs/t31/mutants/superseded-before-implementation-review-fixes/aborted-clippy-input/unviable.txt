@@ -1,8 +1,0 @@
-crates/sheltie-core/src/flow/def.rs:201:9: replace NodeDef::inputs -> &[InputDecl] with Vec::leak(vec![Default::default()])
-crates/sheltie-core/src/flow/def.rs:205:9: replace NodeDef::requires -> &[(RequireKind, String)] with Vec::leak(vec![(Default::default(), "xyzzy".into())])
-crates/sheltie-core/src/flow/def.rs:205:9: replace NodeDef::requires -> &[(RequireKind, String)] with Vec::leak(vec![(Default::default(), String::new())])
-crates/sheltie-core/src/flow/def.rs:220:9: replace NodeDef::output -> Option<&OutputDecl> with Some(Box::leak(Box::new(Default::default())))
-crates/sheltie-core/src/flow/def.rs:246:9: replace FlowDef::id -> &FlowId with Box::leak(Box::new(Default::default()))
-crates/sheltie-core/src/flow/def.rs:250:9: replace FlowDef::entry -> &NodeId with Box::leak(Box::new(Default::default()))
-crates/sheltie-core/src/flow/def.rs:254:9: replace FlowDef::nodes -> &[NodeDef] with Vec::leak(vec![Default::default()])
-crates/sheltie-core/src/flow/def.rs:258:9: replace FlowDef::edges -> &[EdgeDef] with Vec::leak(vec![Default::default()])

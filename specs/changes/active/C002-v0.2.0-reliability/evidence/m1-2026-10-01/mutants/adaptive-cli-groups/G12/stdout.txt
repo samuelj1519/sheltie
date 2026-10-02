@@ -1,7 +1,0 @@
-Found 11 mutants to test
-ok       Unmutated baseline in 22s build + 1s test
-MISSED   crates/sheltie-runtime/src/selfmgmt.rs:838:24: replace > with < in wait_bounded_child in 2s build + 2s test
-MISSED   crates/sheltie-runtime/src/selfmgmt.rs:838:24: replace > with >= in wait_bounded_child in 4s build + 3s test
-MISSED   crates/sheltie-runtime/src/selfmgmt.rs:855:24: replace > with < in wait_bounded_child in 4s build + 2s test
-MISSED   crates/sheltie-runtime/src/selfmgmt.rs:855:24: replace > with >= in wait_bounded_child in 4s build + 2s test
-11 mutants tested in 68s: 4 missed, 7 caught

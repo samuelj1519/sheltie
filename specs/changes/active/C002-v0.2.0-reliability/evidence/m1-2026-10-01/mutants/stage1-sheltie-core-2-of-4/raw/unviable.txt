@@ -1,3 +1,0 @@
-crates/sheltie-core/src/work/render.rs:565:5: replace render_stats_json -> StatsJson with Default::default()
-crates/sheltie-core/src/work/state.rs:26:9: replace Timestamp::parse -> Result<Self> with Ok(Default::default())
-crates/sheltie-core/src/work/state.rs:66:9: replace Timestamp::from_unix_secs -> Self with Default::default()

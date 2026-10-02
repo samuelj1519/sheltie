@@ -1,7 +1,0 @@
-Found 4 mutants to test
-ok       Unmutated baseline in 25s build + 7s test
-MISSED   crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(()) in 8s build + 10s test
-MISSED   crates/sheltie-runtime/src/store/mod.rs:334:9: replace Store::validate -> Result<()> with Ok(()) in 30s build + 13s test
-MISSED   crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql in 33s build + 14s test
-MISSED   crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with "xyzzy".into() in 37s build + 12s test
-4 mutants tested in 84s: 4 missed

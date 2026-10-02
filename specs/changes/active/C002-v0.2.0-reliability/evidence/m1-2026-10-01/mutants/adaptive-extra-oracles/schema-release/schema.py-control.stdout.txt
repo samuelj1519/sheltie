@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/schema.py", line 20, in <module>
-    assert c==1 and v['error']['code']=='STORE_CORRUPT',('SEMANTIC altered schema accepted or wrong error',c,v)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ('SEMANTIC altered schema accepted or wrong error', 1, {'error': {'code': 'STORE_SCHEMA_MISMATCH', 'detail': {'detail': '表 works 的建表语句与 SCHEMA_VERSION 不符'}, 'message': '数据库结构与 SCHEMA_VERSION 不符：表 works 的建表语句与 SCHEMA_VERSION 不符'}, 'next': [], 'ok': False})

@@ -1,22 +1,16 @@
 # C002 实施计划
 
-状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 由用户采用，本计划是当前实施进度的唯一权威。
+状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
 
-本计划供第一次接触仓库、具备 Rust 基础的实现者逐任务执行。先按 [CONTEXT.md](../../../../CONTEXT.md) 使用项目词汇，再读 [specs/README.md](../../../README.md)、[工程规范](../../../engineering.md)、本 package 的 [spec.md](spec.md)、[design.md](design.md) 与 [findings.md](findings.md)。产品行为和机制以根规格、架构及三份合同为准；本计划只规定实施顺序、Owner、验证和交接。任务白名单见 [tasks.toml](tasks.toml)，跨会话入口见 [progress.md](progress.md)，原始运行与结论记入 [validation.md](validation.md)。
+阅读 [CONTEXT.md](../../../../CONTEXT.md)、[文档地图](../../../README.md) 与 [工程规范](../../../engineering.md)，再按本计划定位任务。问题索引见 [findings.md](findings.md)，已采用机制见 [design.md](design.md)，候选与运行见 [validation.md](validation.md)，最终审查见 [review.md](review.md)，文件范围见 [tasks.toml](tasks.toml)。
 
-2026-09-28 候选 `e1a8126` 的 [M1独立审查](review-m1-2026-09-28.md) 发现R01–R19。用户要求提供全部修复方案和初级工程师执行计划，追加T18–T31：机制方案见 [repair-design.md](repair-design.md)，逐任务卡与开工步骤见 [repair-plan.md](repair-plan.md)，验收样例与故障窗口见 [repair-validation.md](repair-validation.md)。追加任务采用时尚未实施；当前完成情况以第2节状态表为准。T18先固定点明的上游合同调整与API可行性，不允许新人在合同矛盾间自行选择。旧任务的历史完成状态保留，当前新反例按追加任务关闭。
+## 授权与验收范围
 
-2026-09-28 用户明确豁免T18–T31与最终M1中的Linux运行。此授权覆盖本计划及repair-plan中对Linux原生运行的要求；各Linux项保留`not_run`，结论只针对macOS测试，不写成跨平台PASS。其余任务、反例、独立review和Rust门禁照常执行。
-
-2026-10-01 用户进一步要求“先跳过可能会触发安全的相关任务，继续执行到T31完成”。本次T31收尾暂缓新增安全边界复现、观察点插桩及相关存活体处分；尚未结束的runtime变异全workspace复验是混合安全验证流水线，一并停止续跑。已完成清单、原始结果和独立复核保留，未完成项逐项记`deferred_by_user`，不得改记caught、equivalent或PASS。T31在此明确豁免范围内完成代码修复、正常可靠性/并发/崩溃验证、工程门禁、文档及提交；M1仍需独立审查，必须保留这批暂缓项的边界。
-
-2026-10-01 用户要求M1完整覆盖全部已完成C002任务，并授权恢复暂缓验证。仅在具体项目实际触发平台安全提示且暂停时，记录项目、阶段、提示原文与缺失义务，跳过该项目并继续其余项目；不得预先把原269项整体跳过，不得把实际跳过项标caught、equivalent或安全PASS。M1按本次明确例外完成其余审查、修复与门禁，结论必须列出实际跳过项和验收限制。Linux豁免保持not_run，T16/T17仍有独立门槛。
-
-2026-10-02 用户要求在保证质量的前提下简化验证并提速。M1改为按能力和真实consumer选择验证：保留当前完整2514项第一阶段、已完整结束的workspace原文、关键真实CLI/并发/故障窗口与正常工程门禁；优先关闭有精确独立证明的等价、无当前producer或平台不适用项，其余用共享的直接oracle或相关测试组复验。已由直接oracle发现的变异不再逐项重复699项；无法明确影响范围或缺少可靠oracle的项才送全workspace。每个ID仍须有完整diff、consumer、原始结果、处分依据与独立Reviewer；不得把未运行/中断改记caught或PASS。临时受控观察副本须单独绑定控制、插点、变异、源码及原文，不冒充正式冻结二进制的运行。自动全量队列停止的原文保留为WIP；安全跳过、Linux与T16/T17边界保持原授权。
-
-`ceadc465` 是 T01 首次提交，独立审查发现合同矛盾和门禁证据缺口；本次勘误与审查记录见 [validation.md](validation.md)。T01 关闭后，按下表依赖先完成 T14，再开始 T02。已有提交和旧审查 PASS 不自动转成当前候选 PASS。
-
-2026-10-02 最终M1按上述简化与实际跳过授权完成。SK01缺最终Spec批准；SK02为新共享事件补充oracle任务实际暂停，215个精确ID的未完成义务逐项保留，不推定每个ID都触发提示。2514项证据核算完整，完整变异验证仍未通过；详见[最终审查](review-m1-2026-10-02.md)及[验收范围](evidence/m1-2026-10-01/acceptance-scope.json)。这不扩展到Linux、T16或T17。
+- 2026-09-28 的 M1 预审发现 R01–R19，追加 T18–T31；后续 R20–R24 分别纳入 T31/T33/T34。具体历史任务卡与失败原文从 [固定快照](validation.md#历史证据恢复)恢复。
+- 用户豁免 T18–T31 与 M1 的 Linux 原生运行，保留 `not_run`，不记跨平台 PASS。
+- T31 于 2026-10-01 按当时 269 项暂缓范围完成。M1 随后获准恢复暂缓验证，只跳过实际触发平台提示而暂停的任务；原 T31 豁免不改写为完整验证通过。
+- 2026-10-02 用户采用能力分组流程：复用同闭包完整运行和精确静态证明，用真实 consumer 选择 CLI 组或共享 oracle，影响不明才跑全 workspace。中断、未运行与受控观察副本分开计，不改写正式 mutation 标签。
+- M1 按实际 SK01/SK02 例外完成：缺最终 Spec 批准及 215 项额外执行。2514 项记录无漏无重，完整变异与安全验证仍未通过。T16/T17 保持各自门槛；此次文档收敛不改变这些状态。
 
 ## 1. 采用与执行规则
 
@@ -24,7 +18,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 
 每个行为修复都需要合法例、只改变一个条件的反例、真实 caller 与失败停止路径。摘要、字节、Git 范围和历史响应使用独立 oracle；测试 helper 不得计算自己的期望。开发使用每任务独立临时管理根；不能对真实用户 home 做格式实验。
 
-**格式切换只有一次。** T03 的 WorkLayout、T06 的新事实视图/累计字段、T09 的新摘要、T07 的请求快照/schema 2 属于同一次持久格式切换。T03/T06/T09 先提供纯实现与独立测试，产品调用方在 T07 一次切换，不先把新语义写入 schema 1。T03/T06/T09 完成只表示准备单元完成，O07/O12/O13/N07 的产品闭环仍待 T07/M1。T07 必须同步全部 caller、fixtures、格式标识、旧库拒绝和文档，不能留下混用分支。准备单元只服务这个已采用修复，不作为未来扩展接口。
+**格式切换只有一次。** T03 的 WorkLayout、T06 的新事实视图/累计字段、T09 的新摘要、T07 的请求快照/schema 2 属于同一次持久格式切换。T03/T06/T09 先提供纯实现与独立测试，产品调用方在 T07 一次切换，不先把新语义写入 schema 1。T03/T06/T09 当时仅为准备单元；产品接入与验收由后续 T07/M1 负责，实际结果见 validation.md。T07 必须同步全部 caller、fixtures、格式标识、旧库拒绝和文档，不能留下混用分支。准备单元只服务这个已采用修复，不作为未来扩展接口。
 
 ### 每个任务的执行循环
 
@@ -58,26 +52,27 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T13 | done | skill 安装产物自包含 | T10 |
 | C002-T15 | done | self 生命周期、CI、MSRV 与发布门禁 | T08、T10–T14 |
 | C002-T18 | done | 固定修复合同、接口与平台API门槛 | 用户豁免Linux并保留not_run；macOS门禁与双轴独立review通过 |
-| C002-T19 | done | 受管路径、目录句柄与安全文件原语 | T18 done；Linux运行豁免且not_run；[macOS门禁与双轴独立review](evidence/t19-managed-fs-2026-09-28/README.md) |
-| C002-T20 | done | 持久路径与效果的可信装入 | T19 done；[macOS门禁与双轴独立review](evidence/t20-trusted-load-2026-09-28/README.md) |
-| C002-T21 | done | 受限目录枚举、摘要和复制 | T19；[macOS全树观察与复制](evidence/repairs/t21/README.md)，Linux `not_run` |
-| C002-T22 | done | 同句柄输出观察与封存 | T19、T20、T21；[macOS真实COMMIT至封存窗口](evidence/repairs/t22/README.md)，Linux `not_run` |
-| C002-T23 | done | self文件链与purge锁生命周期 | T19、T21、T18合同采用；[macOS门禁与双轴Review](evidence/repairs/t23/README.md)；Linux `not_run` |
-| C002-T24 | done | 请求解析、历史目标与锁内建库 | T20、T21；[macOS门禁与双轴Review](evidence/repairs/t24/README.md)；并发初始化 follow-up `edb86f1` 及[真实add/install复验](evidence/repairs/t24-followup/README.md)；Linux `not_run` |
-| C002-T25 | done | 统一恢复与准确提交错误 | T20、T21、T22、T24；[macOS全链门禁与双轴独立Review](evidence/repairs/t25/README.md)；Linux `not_run`。published元数据清理及stderr诊断交T28/V25，未关闭 |
-| C002-T26 | done | 发布完整归属与必要sync | T19–T21、T25；[macOS门禁与双轴独立Review](evidence/repairs/t26/README.md)，Linux `not_run` |
-| C002-T27 | done | 同对象删除与完成证明 | T25、T26；[macOS门禁与双轴独立Review](evidence/repairs/t27/README.md)，Linux `not_run` |
-| C002-T28 | done | pending安全清理与只读发现 | T25–T27；[macOS全仓门禁与双轴独立Review](evidence/repairs/t28/README.md)，Linux `not_run` |
-| C002-T29 | done | stats与next同次装入 | T25、T28；[macOS真实CLI交错与双轴Review](evidence/repairs/t29/README.md)，Linux `not_run` |
-| C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](evidence/repairs/t30/README.md)；Linux `not_run` |
+| C002-T19 | done | 受管路径、目录句柄与安全文件原语 | T18 done；Linux运行豁免且not_run；[macOS门禁与双轴独立review](validation.md#历史证据恢复) |
+| C002-T20 | done | 持久路径与效果的可信装入 | T19 done；[macOS门禁与双轴独立review](validation.md#历史证据恢复) |
+| C002-T21 | done | 受限目录枚举、摘要和复制 | T19；[macOS全树观察与复制](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T22 | done | 同句柄输出观察与封存 | T19、T20、T21；[macOS真实COMMIT至封存窗口](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T23 | done | self文件链与purge锁生命周期 | T19、T21、T18合同采用；[macOS门禁与双轴Review](validation.md#历史证据恢复)；Linux `not_run` |
+| C002-T24 | done | 请求解析、历史目标与锁内建库 | T20、T21；[macOS门禁与双轴Review](validation.md#历史证据恢复)；并发初始化 follow-up `edb86f1` 及[真实add/install复验](validation.md#历史证据恢复)；Linux `not_run` |
+| C002-T25 | done | 统一恢复与准确提交错误 | T20、T21、T22、T24；[macOS全链门禁与双轴独立Review](validation.md#历史证据恢复)；Linux `not_run`；当时交T28/V25的清理与告警已纳入后续T28/T31验收 |
+| C002-T26 | done | 发布完整归属与必要sync | T19–T21、T25；[macOS门禁与双轴独立Review](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T27 | done | 同对象删除与完成证明 | T25、T26；[macOS门禁与双轴独立Review](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T28 | done | pending安全清理与只读发现 | T25–T27；[macOS全仓门禁与双轴独立Review](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T29 | done | stats与next同次装入 | T25、T28；[macOS真实CLI交错与双轴Review](validation.md#历史证据恢复)，Linux `not_run` |
+| C002-T30 | done | spec-dev重规划旧输入交接 | T18；[真实CLI/Git冷读、完整binary迁移与双轴Review](validation.md#历史证据恢复)；Linux `not_run` |
 | C002-T31 | done | 确定性交错、正常窗口与变异登记（含2026-10-01用户安全验证豁免） | T19–T30 |
 | C002-T32 | done | M1审查反馈精简与真实caller回归 | T31 |
 | C002-T33 | done | 根解析修复与M1存活体的真实caller回归 | T32 |
 | C002-T34 | done | 快照业务绑定修复与M1存活项回归 | T33；699项与工程门禁、Standards通过；Spec后续实际平台暂停按SK01授权跳过 |
-| C002-M1 | done | 修复后固定候选全链审查（含实际SK01/SK02授权跳过） | T01–T15、T18–T34；[最终验收](review-m1-2026-10-02.md)，215项额外执行缺失及最终Spec批准缺失明确保留 |
+| C002-M1 | done | 修复后固定候选全链审查（含实际SK01/SK02授权跳过） | T01–T15、T18–T34；[最终验收](review.md)，215项额外执行缺失及最终Spec批准缺失明确保留 |
 | C002-T16 | not_run | rc 真实宿主回归 | M1 |
 | C002-T17 | not_run | 发布 v0.2.0 | M1、T16 |
 | C002-T35 | done | 项目许可统一为MIT | 用户2026-10-02明确授权；元数据/包文件/文档及提交门禁 |
+| C002-T36 | done | C002文档及历史证据收敛 | 用户2026-10-02明确授权；固定快照、9常规文件、引用与状态复核 |
 
 ## 3. 任务卡
 
@@ -205,12 +200,12 @@ Owner：runtime `selfmgmt`、CLI self、Cargo/toolchain/deny、`.github/workflow
 
 ## 4. C002-M1 固定候选全链 review
 
-Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；实施者只提供候选、证据与逐条答复。2026-09-28的审查结论为“需修改”，不构成M1关闭；修复后按 [repair-plan.md §6](repair-plan.md#6-m1-最终关闭与后续) 重新固定候选。
+Owner：未参与 T02–T15、T18–T31 被审代码实施的独立 Reviewer；实施者只提供候选、证据与逐条答复。2026-09-28的审查结论为“需修改”，不构成M1关闭；最终候选与范围见 review.md，历史预审不构成当前批准。
 
 1. 冻结候选 commit 与输入闭包。对 O01–O13/N01–N14 建矩阵：每行写 finding、修复 commit、正例、单条件反例、真实入口、原始 run、结果、Owner 与剩余风险。没有独立 oracle、真实 caller 或失败停止路径的项保持未关闭，不由 task `done` 或测试数量推成 PASS。
 2. 在同一候选运行 fmt/check/Clippy/nextest/deny、docs/specs/core-vocab/tests/skill、MSRV 与 `cargo dist plan`。并发测试先同时启动并用同步点制造交错，再 join；摘要、Git 范围、状态卡字节用独立 oracle。补 Work/Workbook 的 COMMIT 前后、发布前后故障窗口；删除后但完成标记前被杀的“结果不明”必须准确停止并返回已提交错误，不能记自动恢复 PASS。core/runtime 突变按能力处置每个存活体，不机械要求每个都加测试。
 3. Reviewer 逐项检查不变式、三 crate 边界、合同与实际 caller、证据原文和实现者答复。审查后若修改影响候选输入闭包，按影响链重跑并记录新 hash。review.md 结论只用“通过 / 需修改 / 阻断”，M1 通过只证明源码与离线闭环，不能代表 Host 或发布。
-4. 同时关闭R01–R24；R21是T33确认的根解析错误，R22–R24是T34确认的原响应、状态及节点资源绑定缺口，详见[审查记录](review-m1-2026-10-01.md)。按 [repair-validation.md](repair-validation.md) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过；用户明确授权的实际平台暂停及Linux例外单独列明。不能以局部task done或历史464全绿替代。
+4. 同时关闭R01–R24；R21是T33确认的根解析错误，R22–R24是T34确认的原响应、状态及节点资源绑定缺口，详见[审查记录](review.md)。按 [验收矩阵](validation.md#验收矩阵) 记录每行修复commit、合法例/单条件反例/真实入口/独立oracle/原始run/Reviewer/结果。完整窗口、突变存活体处置或必需平台证据缺失时保持未通过；用户明确授权的实际平台暂停及Linux例外单独列明。不能以局部task done或历史464全绿替代。
 
 ## 5. C002-T16 rc 真实宿主回归
 
@@ -230,6 +225,27 @@ Owner：发布操作者；发布动作需要用户授权，且 M1 与 T16 全部
 
 取得发布授权后才执行对外发布与 package 生命周期变更。release record 写候选、门禁、Host 证据、兼容限制与已知问题；发布失败不标 `completed`。T16 未运行或不通过时 T17 保持 `not_run`，不能把本计划或离线审查写成产品发布成功。
 
+## 已完成修复任务的维护入口
+
+T18–T31 的原逐步实施手册与 V01–V33 样例已归档。本表保留维护入口和关键义务；任务状态以第 2 节为准，详细正反例/原运行见 [validation.md](validation.md)。发生新行为修复时仍须按第 1 节补真实 caller 和独立 oracle，不套用旧 PASS。
+
+| 任务 | 入口与责任 | 关键义务 |
+| --- | --- | --- |
+| T18 | 上游合同、架构、D-035/D-038/D-039、文件/SQLite API | 先采用 purge/只读控制/参数错误合同，核 macOS 与 MSRV 可行性；Linux not_run |
+| T19 | runtime fsx/Home | 受管路径、目录/普通文件句柄、原子写、sync、类型/链接拒绝 |
+| T20 | Store/load/effects | 持久身份、路径与整组效果可信装入，错误时不改坏事实 |
+| T21 | Workbook/digest/observe | 受限树、framing 摘要、独立向量、exact/+1 和最终副本身份 |
+| T22 | submit/observe/seal | 观察句柄跨 COMMIT；再次核原字节/nlink，恢复只认登记引用 |
+| T23 | selfmgmt/CLI self | install/update/rollback 文件链与 purge 原锁生命周期 |
+| T24 | 请求解析/WriteSession/Store/CLI | 历史目标与 @file 查重优先，锁内按操作限定初始化 |
+| T25 | recovery/load/协议错误 | 两服务统一效果；自己提交与旧 A 阻新 B 的完整响应归属 |
+| T26 | publish/owner/同步 | pending/final 完整闭包、必要 sync 失败不 mark |
+| T27 | delete/完成标记 | 同对象移入与删除；无合法完成证明时停止，新生命周期不动 |
+| T28 | pending/定位与清理 | 全 Store 引用、合法孤儿、只读有界重读、独立 cleanup 告警 |
+| T29 | stats/next caller | 同一装入快照与真实 writer 交错 |
+| T30 | spec-dev Flow/说明/模板 | 被审镜像、原始整体基线、累计 verify 与 fresh worker/Git 正反例 |
+| T31 | 全链测试/并发/变异与 R20 | 真实同步、exit70/SIGKILL、独立 oracle、精确逐 ID 核算与明示缺失 |
+
 ## M1追加修复 C002-T32
 
 Owner：Codex；Reviewer：未参与修改的Spec/Standards Reviewer。承接本轮M1中已确认的接口冗余、Store合同冲突、测试辨别力缺口。范围包括runtime源码、对应真实caller测试及本package；上游Store合同只勘误CAS停止行为。补测采用原合同独立值，不为每个存活体镜像实现写测试。退役接口须核全仓consumer，保留历史变异ID与删除理由。按Rust四门禁、deny/MSRV/文档/skill/dist门禁及独立review完成任务提交，再固定M1变异输入。M1仍负责全部当前已完成任务的最终闭环，安全跳过仅适用于实际平台拦截。
@@ -246,3 +262,7 @@ Owner：Codex；独立Reviewer：Spec/Standards Reviewer。R22由未变异T33候
 ## C002-T35 MIT许可
 
 仅修改项目自身许可声明及Apache许可文件；三个crate继续继承workspace许可并携带MIT正文。第三方许可与依赖允许清单保留各自声明。Task文件范围以tasks.toml为准，验证三个Cargo包的metadata和package --list、文档治理及工程规范提交门禁。该元数据变更不改写历史M1输入或验证结果。
+
+## C002-T36 文档收敛
+
+只合并本package已采用设计、完成任务入口与最终验收摘要，并修正D-039及MVP计划的历史引用；原文固定在validation.md所列归档，不改源码、测试、任务验收范围或T16/T17状态。按工程规范提交门禁与文档治理验证，MIT另属T35。

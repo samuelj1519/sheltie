@@ -1,9 +1,0 @@
-Found 70 mutants to test
-ok       Unmutated baseline in 17s build + 20s test
-MISSED   crates/sheltie-runtime/src/store/commit.rs:183:24: replace match guard code.code == rusqlite::ErrorCode::ConstraintViolation with true in Store::commit in 9s build + 23s test
-MISSED   crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with >= in Store::commit in 42s build + 43s test
-MISSED   crates/sheltie-runtime/src/store/read.rs:365:38: replace > with >= in decode_row in 3s build + 87s test
-MISSED   crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with "xyzzy".into() in 9s build + 90s test
-MISSED   crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with String::new() in 14s build + 85s test
-MISSED   crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql in 11s build + 82s test
-70 mutants tested in 8m: 6 missed, 52 caught, 12 unviable

@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 43, in <module>
-    home=base/'absent'/'nested'/'home';value=ok(home,['self','install']);assert home.is_dir() and (home/'store.db').is_file() and (home/'bin/sheltie').is_file(),('SEMANTIC nested Home missing',value)
-                                             ~~^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/persisted.py", line 20, in ok
-    code,value=run(home,args);assert code==0 and value['ok'],('SEMANTIC legal control rejected',args,code,value);return value
-                                     ^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ('SEMANTIC legal control rejected', ['self', 'install'], 1, {'error': {'code': 'NOT_FOUND', 'detail': {'what': '/private/tmp/m1-extra-fixture-u1xv7o0y/absent'}, 'message': '/private/tmp/m1-extra-fixture-u1xv7o0y/absent 不存在'}, 'next': [], 'ok': False})

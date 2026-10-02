@@ -1,8 +1,9 @@
 # C002 任务白名单。用法与 legacy 表相同：scripts/check-task.sh C002-Tnn 按此核对改动范围。
-# 与 MVP 填空不同：C002 的测试由各任务自己编写，全部任务 allow_test_changes = true；
+# 与 MVP 填空不同：行为任务自行编写测试，权限以每个任务的 allow_test_changes 为准；
 # 期望值必须来自独立 oracle（plan.md §1），review 时核对。
 # files / test_files 条目可以是文件或目录（目录作为前缀白名单）。
-# 每个实施任务还需更新本 package 的 progress、validation 与原始 evidence；
+# 每个实施任务还需更新本 package 的 progress、validation 并保存可恢复原文；
+# 已完成任务中的 evidence 路径保留历史范围，原文现由 validation.md 的固定 Git 快照定位。
 # 其他 package 文件需经 plan/tasks 白名单勘误后才可修改。
 
 [C002-T01]
@@ -212,5 +213,10 @@ allow_test_changes = true
 
 [C002-T35]
 files = ["Cargo.toml", "README.md", "LICENSE-APACHE", "crates/sheltie-core/LICENSE-APACHE", "crates/sheltie-runtime/LICENSE-APACHE", "crates/sheltie-cli/LICENSE-APACHE", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T36]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/decisions/D-039-sqlite-read-control-files.md", "specs/releases/v0.1.0/plan.md"]
 test_files = []
 allow_test_changes = false

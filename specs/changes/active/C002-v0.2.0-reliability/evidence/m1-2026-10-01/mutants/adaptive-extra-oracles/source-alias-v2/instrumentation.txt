@@ -1,7 +1,0 @@
-        if let Some(path) = std::env::var_os("SHELTIE_EXTRA_SOURCE_OPEN_TRACE") {
-            if std::env::var("SHELTIE_TEST_RENDEZVOUS_ID").ok().as_deref() == Some(&display) {
-                use std::io::Write;
-                let mut trace = std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap();
-                writeln!(trace, "{} {} {}", display, opened.st_dev, opened.st_ino).unwrap();
-            }
-        }

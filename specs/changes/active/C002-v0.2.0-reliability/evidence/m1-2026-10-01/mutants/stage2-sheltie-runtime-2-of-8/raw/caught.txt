@@ -1,6 +1,0 @@
-crates/sheltie-runtime/src/failpoint.rs:170:42: replace && with || in rendezvous
-crates/sheltie-runtime/src/fsx.rs:1590:5: replace verify_tree_entry_at -> Result<()> with Ok(())
-crates/sheltie-runtime/src/fsx.rs:2344:38: replace || with && in open_regular_at
-crates/sheltie-runtime/src/selfmgmt.rs:18:41: replace * with +
-crates/sheltie-runtime/src/selfmgmt.rs:475:9: replace || with && in checked_version
-crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((1, 0))

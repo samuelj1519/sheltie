@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/adaptive-extra-oracles/release-array.py", line 20, in <module>
-    assert c==0 and v['ok'],('SEMANTIC valid array release or invalid candidate filtering rejected',case,c,v)
-           ^^^^^^^^^^^^^^^^
-AssertionError: ('SEMANTIC valid array release or invalid candidate filtering rejected', 'valid', 1, {'error': {'code': 'UPDATE_UNAVAILABLE', 'detail': {'reason': '发布清单里没有 aarch64-apple-darwin 的包'}, 'message': '没有可用的更新：发布清单里没有 aarch64-apple-darwin 的包'}, 'next': [], 'ok': False})

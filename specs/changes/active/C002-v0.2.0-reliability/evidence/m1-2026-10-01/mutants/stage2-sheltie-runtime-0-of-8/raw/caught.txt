@@ -1,7 +1,0 @@
-crates/sheltie-runtime/src/fsx.rs:2401:12: delete ! in remove_directory_contents
-crates/sheltie-runtime/src/pending.rs:297:23: replace != with == in prepare_new_request
-crates/sheltie-runtime/src/selfmgmt.rs:477:9: replace || with && in checked_version
-crates/sheltie-runtime/src/selfmgmt.rs:696:8: delete ! in curl
-crates/sheltie-runtime/src/service.rs:1003:20: delete ! in WorkService::load_checked_request
-crates/sheltie-runtime/src/store/mod.rs:364:5: replace root_identity -> Result<(u64, u64)> with Ok((0, 0))
-crates/sheltie-runtime/src/store/read.rs:206:9: replace Store::lookup_request_work -> Result<Option<Option<String>>> with Ok(Some(Some(String::new())))

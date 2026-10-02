@@ -1,8 +1,0 @@
-crates/sheltie-runtime/src/fsx.rs:1789:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())
-crates/sheltie-runtime/src/fsx.rs:1817:52: replace || with && in ExternalReadTree::validate_unchanged
-crates/sheltie-runtime/src/fsx.rs:1919:29: replace + with * in ExternalReadTree::read_file
-crates/sheltie-runtime/src/fsx.rs:1889:13: replace || with && in ExternalReadTree::open_file
-crates/sheltie-runtime/src/fsx.rs:1888:13: replace || with && in ExternalReadTree::open_file
-crates/sheltie-runtime/src/fsx.rs:2950:34: replace + with * in copy_tree_confined
-crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into
-crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push
