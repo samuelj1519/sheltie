@@ -75,6 +75,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T36 | done | C002文档及历史证据收敛 | 用户2026-10-02明确授权；固定快照、9常规文件、引用与状态复核 |
 | C002-T37 | done | 执行耗时复盘与通用验证预算方案 | 用户要求分析并提交；只记录事实与建议，不采用新门禁 |
 | C002-T38 | done | 产品与全代码分析及保持行为的精简 | 用户2026-10-02明确授权；M1完成范围与例外保持原记录 |
+| C002-T39 | done | 修复重复Flow、嵌套严格解码与tmp过期维护 | 用户明确要求修复F38-03/F38-02/F38-01；保留T38工作区 |
 
 ## 3. 任务卡
 
@@ -282,7 +283,17 @@ Owner：code-simplifier负责生产Rust源码，Codex负责规格分析、逐处
 
 先复核diff与消费者，再运行fmt/check/Clippy/nextest四门禁、deny、docs/specs/core-vocab/tests/skill、MSRV 1.85 locked及dist plan；保存本候选输入和完整输出。使用显式基准运行`check-task.sh C002-T38 4b86279 --staged`，另核内联测试与外部测试/快照零改动。既有M1与变异结果仍绑定历史候选，不给新源码复用PASS，不重启历史变异流水线。任务完成以本次分析、精简、复核与验证为准，不新增M1/Host/发布通过声明；本次不自动提交或发布。
 
+## C002-T39 修复T38三项行为缺口
 
-### C002-T38 提交授权与证据保存
+Owner：fix_flow_ids负责Workbook完整装入及真实CLI回归，fix_nested_decode负责core嵌套解码及真实CLI回归，Codex负责tmp维护、集成、证据与复核。保留T38未提交工作区，开工输入保存于`/private/tmp/sheltie-t39-evidence/`；不得回退既有精简或清除真实用户Store。新增测试归属本任务，期望来自合同及独立字节/行快照。
+
+1. F38-03：最终私有副本中跨Flow重复id在COMMIT前报准确字段错误；保留恢复端unique校验。合法多Flow、重复id拒绝后独立合法写、修源同request重试由真实CLI证明；拒绝无业务/request/audit行或最终目录。
+2. F38-02：完整嵌套AttemptId/WorkStatus拒绝未知字段，合法序列化形状不变。真实CLI核state、Reply/NextOp、audit里的单字段反例与合法对照；原state_json/行/业务字节不修写，坏快照不释放成功original。
+3. F38-01：按storage §3.3固定成功CLI写后维护。沿既有锁和句柄，只清tmp直接子项中严格超过24小时的对象；精确边界由传入观察时间的私有原语测试，真实CLI覆盖成功写、只读、失败、链接哨兵和异常对象。叶链接只unlink本身，目录/文件先核同对象；失败仅stderr告警，不改已成功响应。pending永不按年龄清理。
+
+先跑新增真实回归确认红，再修对应路径并确认绿；生产diff交未参与该项修改的Reviewer。统一运行四条Rust门禁、deny（同缓存隔离锁）、MSRV 1.85 locked、docs/specs/core-vocab/tests/skill及dist plan，并用显式基准核任务范围。测试新增属于T39；既有T38精简不被冒充新增修复。局部修复不重启历史完整变异、不重记M1/Host/发布PASS；本次改动仍留工作区，不自动提交。
+
+
+### C002-T39 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。

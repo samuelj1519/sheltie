@@ -169,7 +169,7 @@ Work start/Workbook add先独占创建并fsync owner侧车，再fsync `pending/`
 - 持写锁时，只删除侧车合法且不被任何 `requests.effects_json` 引用的完整 `pending/<内部 id>/` 与对应侧车；这是 COMMIT 前失败的残留。只有侧车而无目录时可核格式后清理；侧车写入中崩溃形成的无目录残片保留并报告，但不阻断其他已归属请求。无侧车的目录、标记不符、路径异常或引用不明时停止并报告，不猜所有权。
 - 已提交且 `published = 0` 的原件在效果完成前不得删除。`published = 1` 后，本请求只剩的空容器、`.owner` 与 `.deleted` 可在持锁时核 Store 记录后清理；清理失败不重做已完成效果，也不按年龄删。
 
-`tmp/` 与 pending 无关：下载、解包等一次性暂存，任何进程可随时清理；写操作顺手清理其中修改时间超过 24 小时的条目，清理不跟随符号链接。过期、时间戳、目录名都不构成删除 pending 的依据。
+`tmp/` 与 pending 无关：下载、解包等一次性暂存，任何进程可随时清理。成功的 CLI 写操作在返回业务响应后，取得既有管理根写锁，顺手清理 tmp 直接子项中修改时间严格超过 24 小时的对象；恰好 24 小时、尚未过期或时间在未来的对象保留。目录按根目录自身的修改时间判断，删除前核同一打开对象并按句柄遍历；叶符号链接只删除链接自身，不跟随目标。特殊对象、硬链接或无法证明对象身份时保留并向 stderr 报维护告警，业务响应、退出码及历史快照不变；只读、失败调用不执行过期维护，不为维护创建管理根、锁或 tmp。过期、时间戳、目录名都不构成删除 pending 的依据。
 
 只读查询遇到未发布Work/Workbook不执行恢复：从当前业务行定位所属publish请求及pending原件；pending必须核owner。published=1且cleanup已清的final由业务行/成功请求/effect/摘要核验，不要求已删的owner。响应在对应对象上标`pending_publish=true`，包含rename已完成但尚未mark窗口；只有unpublished add能让start preflight从合法pending编译Flow。rename交错时有限final→pending→final重读；超界报暂时IO，不取引擎HomeLock、不写业务文件、不回退任意版本。
 

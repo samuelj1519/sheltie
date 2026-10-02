@@ -105,10 +105,10 @@
 
 ## 6. T38 新发现
 
-以下是 `4b86279` 之后的全代码分析结果，不并入历史 M1 的 51 行关闭矩阵，不改写历史任务或运行。T38 只做保持行为的精简；行为缺口保留为 OPEN，不用普通测试全绿关闭。
+以下是 `4b86279` 之后的全代码分析结果，不并入历史 M1 的 51 行关闭矩阵，不改写历史任务或运行。T38发现时三项均为OPEN；随后T39按用户明确授权修复。下表保留T38发现时的问题并列出当前处分，修复的真实正反例与独立审查见validation的T39记录，历史T38取证仍保留。
 
 | ID | 级别 / 状态 | 依据、入口与影响 | 后续修复与验证要求 |
 | --- | --- | --- | --- |
-| F38-03 | P1 / OPEN，真实 CLI 确认 | Workbook 合同 §3 要求 Flow id 在 Workbook 内唯一。runtime `workbook_repo::load_tree` 逐图 parse/compile 后收集，没有跨 Flow 去重；add 先提交重复 id 列表，提交后的 `load_checked_request` 才因 snapshot.data.flows 非唯一拒绝。首次 add 返回 committed=true/EFFECT_PENDING，业务行/request/audit 已登记，published=0，final 不存在；同请求重放仍失败，无关新写被该 pending 阻断 | 在最终私有副本的完整 Workbook 装入阶段、COMMIT 前拒绝重复 Flow id，不能删除恢复端的严校验来放行坏快照。真实 CLI 用两份不同路径/同 id Flow 作单条件反例，以不同 id 作合法对照；反例业务行/request/audit/最终目录均不得新增，随后合法写必须成功。保持既有坏记录原字节，不自动清库或迁移 |
-| F38-01 | P2 / OPEN，静态确认 | storage §3.3 要求写操作顺手清理 `tmp/` 中修改时间超过 24 小时的条目。全部生产源码没有读取 mtime 或遍历过期 tmp 的 caller；selfmgmt 的 `cleanup_self_tmp` 只清当前操作自有目录，WriteSession 的 store-init 异常中断也可留 tmp。因此崩溃残留可持续占用空间，不能声称已实现该合同 | 独立行为任务接入持锁、句柄核归属的过期维护；只清 tmp，不将时间策略用于 pending。真实 CLI 核超过阈值/恰好阈值/未过期、软链哨兵、异常对象与被中断暂存；失败停止或告警需先明确合同 |
-| F38-02 | P2 / OPEN，独立解码与真实 CLI 确认 | core `ids::AttemptId` 与 `work::WorkStatus` 派生 Deserialize 未拒绝未知字段；WorkState 的外层 deny_unknown_fields 不约束内层。新增未知 id/status 字段仍可解码并通过装入校验，Store 的 decode_row 直接使用该路径。违反 engineering §2.2 和 storage §1.2 的完整持久载荷严格装入要求 | 为嵌套完整 DTO 收紧未知字段；补真实 CLI 单字段坏 state/快照/audit 拒绝与合法对照，拒绝不得修写历史。WorkStatus 的嵌套形状同时核清，不能仅给最外层增加属性 |
+| F38-03 | P1 / CLOSED by T39，真实 CLI 与独立审查通过 | Workbook 合同 §3 要求 Flow id 在 Workbook 内唯一。runtime `workbook_repo::load_tree` 逐图 parse/compile 后收集，没有跨 Flow 去重；add 先提交重复 id 列表，提交后的 `load_checked_request` 才因 snapshot.data.flows 非唯一拒绝。首次 add 返回 committed=true/EFFECT_PENDING，业务行/request/audit 已登记，published=0，final 不存在；同请求重放仍失败，无关新写被该 pending 阻断 | 在最终私有副本的完整 Workbook 装入阶段、COMMIT 前拒绝重复 Flow id，不能删除恢复端的严校验来放行坏快照。真实 CLI 用两份不同路径/同 id Flow 作单条件反例，以不同 id 作合法对照；反例业务行/request/audit/最终目录均不得新增，随后合法写必须成功。保持既有坏记录原字节，不自动清库或迁移 |
+| F38-01 | P2 / CLOSED by T39，边界/真实 CLI 与独立审查通过 | storage §3.3 要求写操作顺手清理 `tmp/` 中修改时间超过 24 小时的条目。全部生产源码没有读取 mtime 或遍历过期 tmp 的 caller；selfmgmt 的 `cleanup_self_tmp` 只清当前操作自有目录，WriteSession 的 store-init 异常中断也可留 tmp。因此崩溃残留可持续占用空间，不能声称已实现该合同 | 独立行为任务接入持锁、句柄核归属的过期维护；只清 tmp，不将时间策略用于 pending。真实 CLI 核超过阈值/恰好阈值/未过期、软链哨兵、异常对象与被中断暂存；失败停止或告警需先明确合同 |
+| F38-02 | P2 / CLOSED by T39，独立解码/真实 CLI 与审查通过 | core `ids::AttemptId` 与 `work::WorkStatus` 派生 Deserialize 未拒绝未知字段；WorkState 的外层 deny_unknown_fields 不约束内层。新增未知 id/status 字段仍可解码并通过装入校验，Store 的 decode_row 直接使用该路径。违反 engineering §2.2 和 storage §1.2 的完整持久载荷严格装入要求 | 为嵌套完整 DTO 收紧未知字段；补真实 CLI 单字段坏 state/快照/audit 拒绝与合法对照，拒绝不得修写历史。WorkStatus 的嵌套形状同时核清，不能仅给最外层增加属性 |

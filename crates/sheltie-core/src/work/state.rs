@@ -240,7 +240,12 @@ impl BlockedReason {
 
 /// Work 状态。没有 `Failed`：重试耗尽后唯一出路是取消。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "kind", content = "reason")]
+#[serde(
+    rename_all = "snake_case",
+    tag = "kind",
+    content = "reason",
+    deny_unknown_fields
+)]
 pub enum WorkStatus {
     Active,
     Blocked(BlockedReason),
@@ -613,5 +618,48 @@ mod tests {
         ] {
             assert_eq!(Timestamp::parse(s).unwrap().unix_secs(), want, "{s}");
         }
+    }
+
+    // Task: C002-T39
+    #[test]
+    fn work_status_json_keeps_all_variants_and_rejects_unknown_fields_in_any_position() {
+        for (valid, expected) in [
+            (r#"{"kind":"active"}"#, WorkStatus::Active),
+            (
+                r#"{"kind":"blocked","reason":"gate"}"#,
+                WorkStatus::Blocked(BlockedReason::Gate),
+            ),
+            (
+                r#"{"kind":"blocked","reason":"retries_exhausted"}"#,
+                WorkStatus::Blocked(BlockedReason::RetriesExhausted),
+            ),
+            (
+                r#"{"kind":"blocked","reason":"no_legal_edge"}"#,
+                WorkStatus::Blocked(BlockedReason::NoLegalEdge),
+            ),
+            (r#"{"kind":"succeeded"}"#, WorkStatus::Succeeded),
+            (r#"{"kind":"cancelled"}"#, WorkStatus::Cancelled),
+        ] {
+            assert_eq!(serde_json::from_str::<WorkStatus>(valid).unwrap(), expected);
+            assert_eq!(serde_json::to_string(&expected).unwrap(), valid);
+            let before = format!(r#"{{"unexpected":true,{}"#, &valid[1..]);
+            let after = format!(r#"{},"unexpected":true}}"#, &valid[..valid.len() - 1]);
+            for invalid in [before, after] {
+                assert!(
+                    serde_json::from_str::<WorkStatus>(&invalid).is_err(),
+                    "{invalid}"
+                );
+            }
+        }
+        assert_eq!(
+            serde_json::from_str::<WorkStatus>(r#"{"reason":"gate","kind":"blocked"}"#).unwrap(),
+            WorkStatus::Blocked(BlockedReason::Gate)
+        );
+        assert!(
+            serde_json::from_str::<WorkStatus>(
+                r#"{"kind":"blocked","unexpected":true,"reason":"gate"}"#
+            )
+            .is_err()
+        );
     }
 }

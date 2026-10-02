@@ -8,7 +8,7 @@ pub mod workbook;
 
 use sheltie_runtime::Home;
 
-use crate::cli::{Cli, Group, WorkCmd, WorkbookCmd};
+use crate::cli::{Cli, Group, SelfCmd, WorkCmd, WorkbookCmd};
 use crate::output::{self, Outcome};
 
 /// 一次调用共享的东西。
@@ -44,6 +44,10 @@ pub fn dispatch(cli: Cli) -> i32 {
             | Group::Attempt(_)
             | Group::Gate(_)
     );
+    let cleanup_tmp_after_success = match &cli.group {
+        Group::SelfCmd(command) => !matches!(command, SelfCmd::Version),
+        _ => cleanup_after_success,
+    };
     if cli.request_id.is_some() && read_only {
         let out = crate::output::param_error(
             "--request-id 只用于 Work 与 Workbook 写操作；只读与 self 命令不支持".to_string(),
@@ -64,6 +68,11 @@ pub fn dispatch(cli: Cli) -> i32 {
         Group::Gate(cmd) => gate::run(&ctx, cmd),
     };
     output::print(&outcome, ctx.json);
+    if outcome.exit_code == 0 && cleanup_tmp_after_success {
+        if let Err(error) = ctx.home.cleanup_tmp() {
+            eprintln!("warning: tmp维护未完成：{error}");
+        }
+    }
     if outcome.exit_code == 0 && cleanup_after_success {
         match sheltie_runtime::WorkbookRepo::new(ctx.home.clone()).cleanup_pending() {
             Ok(warnings) => {

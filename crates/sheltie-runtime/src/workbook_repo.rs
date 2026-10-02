@@ -881,9 +881,17 @@ impl WorkbookRepo {
             std::collections::BTreeMap::from([(manifest_path, manifest_bytes.clone())]);
         let manifest = parse_manifest(&read_tree_utf8(&manifest_bytes, "workbook.toml")?)?;
         let mut definitions = Vec::new();
+        let mut flow_ids = std::collections::BTreeSet::new();
         for path in manifest.flows() {
             let bytes = tree.read_file(path, FS_MAX_FILE_BYTES)?;
             let def = parse_flow(&read_tree_utf8(&bytes, path.as_str())?)?;
+            if !flow_ids.insert(def.id().clone()) {
+                return Err(Error::Core(sheltie_core::Error::FlowInvalid {
+                    rule: "1",
+                    path: format!("{}.id", path.as_str()),
+                    reason: format!("Workbook 内 Flow id {} 重复", def.id()),
+                }));
+            }
             captured.insert(path.clone(), bytes);
             definitions.push(def);
         }

@@ -230,3 +230,9 @@ allow_test_changes = false
 files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = []
 allow_test_changes = false
+
+[C002-T39]
+# 未提交T38与本任务共处工作区；check-task核两者文件并集，实际增量由开工hash/diff单列。
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/flow_identity.rs", "crates/sheltie-cli/tests/strict_state.rs", "crates/sheltie-cli/tests/tmp_cleanup.rs"]
+allow_test_changes = true

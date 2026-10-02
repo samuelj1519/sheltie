@@ -112,6 +112,17 @@ impl Home {
         self.root.join_segment("tmp")
     }
 
+    /// 成功CLI写后的独立维护；不创建根、锁或tmp，不参与请求恢复与业务提交。
+    pub fn cleanup_tmp(&self) -> Result<()> {
+        let lock = match self.acquire_existing_lock() {
+            Ok(Some(lock)) => lock,
+            Ok(None) | Err(Error::NotFound { .. }) => return Ok(()),
+            Err(error) => return Err(error),
+        };
+        crate::fsx::ManagedFs::open_existing(self)?
+            .cleanup_expired_tmp(&lock, std::time::SystemTime::now())
+    }
+
     /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。
     pub fn lock_path(&self) -> AbsPath {
         self.root.join_segment(".lock")
