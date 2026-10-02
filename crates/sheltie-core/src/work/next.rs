@@ -67,7 +67,7 @@ impl NextOp {
 /// - `Blocked(Gate)`：`gate approve <current>`、`work cancel`。
 /// - `Blocked(RetriesExhausted | NoLegalEdge)`：`work cancel`。
 /// - 当前 Occurrence 无 Attempt，或最新 `Failed` 且真实失败数未超过 `max_retries`：`attempt begin <current>`（`edge = None`）、`work cancel`。
-/// - 最新 `Running`：`attempt submit`、`attempt fail`、`work cancel`。
+/// - 最新 `Running`：`attempt submit`、`attempt fail`、`work cancel`；本 Occurrence 尚未替换时另列 `attempt replace`。
 /// - 最新 `Succeeded`（无门槛或已批准）：每条出边 `current -> to` 且 `visits[to] < max_visits[to]`
 ///   给一项 `attempt begin <to>` 带 `edge`；再加 `work cancel`。
 ///
@@ -90,15 +90,23 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                 ops
             }
             Some(attempt) => match attempt.status {
-                AttemptStatus::Running => vec![
-                    NextOp::SubmitAttempt {
-                        attempt: attempt.id.clone(),
-                    },
-                    NextOp::FailAttempt {
-                        attempt: attempt.id.clone(),
-                    },
-                    NextOp::Cancel,
-                ],
+                AttemptStatus::Running => {
+                    let mut ops = vec![
+                        NextOp::SubmitAttempt {
+                            attempt: attempt.id.clone(),
+                        },
+                        NextOp::FailAttempt {
+                            attempt: attempt.id.clone(),
+                        },
+                    ];
+                    if !state.has_replacement_of(&state.current) {
+                        ops.push(NextOp::ReplaceAttempt {
+                            attempt: attempt.id.clone(),
+                        });
+                    }
+                    ops.push(NextOp::Cancel);
+                    ops
+                }
                 AttemptStatus::Failed => {
                     // 还能重试就再 begin 当前节点（不带边）；否则只剩取消。
                     let mut ops = Vec::with_capacity(2);

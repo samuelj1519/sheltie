@@ -45,3 +45,7 @@
 独立 Reviewer 结论：`PASS`（只批准预期修订）。旧恢复场景的合法 next 按公开合同确实包含 replace。保留原场景和全部字节 oracle，只手写新增行、迁移 T02 归属并保留 ignore；没有用 renderer/返回值生成期望，也没有修改生产来迁就测试。foundation 实际 1 FAIL 的 raw 与 byte diff 保留，禁用场景尚未通过。新 SHA 再作为 T02 allow_test_changes=false 基准。
 
 Reviewer 确认 T04 可提交。全 cached whitespace 检查的两份原始输出尾空格单列，作者文件通过；不裁剪 raw，不声称全 cached 检查通过。
+
+## C005-T02 短语义审查
+
+独立 Reviewer：`PASS`。一次额度 next、参数身份/理由源、已有 WorkService 调用、原 Response 输出均符合合同，不宣称停止/隔离。c9492f8 测试基准正确；六份测试文件仅删除 11 ignore，oracle/fixture不变；14项草稿字节恢复可核。11 feature与774完整回归通过，原失败保留。此结论不替T03/M2或发布。

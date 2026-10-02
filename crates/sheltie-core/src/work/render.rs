@@ -975,7 +975,6 @@ mod tests {
 
     // Task: C005-T02
     #[test]
-    #[ignore = "C005-T02"]
     fn status_card_active_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();

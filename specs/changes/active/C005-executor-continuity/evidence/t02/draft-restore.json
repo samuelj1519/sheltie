@@ -1,0 +1,77 @@
+{
+  "stash": "f3b93bf0e423316f0a6ce655a0e19c8c4917c64b",
+  "new_test_baseline": "c9492f80969d59897480f138b780dc8c1d83ec62",
+  "checks": [
+    {
+      "path": "crates/sheltie-cli/src/cli.rs",
+      "sha256": "3f26c4c20d463f730c3ff82b508f500579cb26889f434a2cd63dde439a3707b3",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/attempt.rs",
+      "sha256": "1cea040805dcc39fbc189564841bdc86ee2a682a50eb0fa3c061215a281b8538",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-cli/tests/attempt_replace.rs",
+      "sha256": "54648fa1a573625022c57b9ce31d71f33dadba6f5356e26148d932859a090734",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-cli/tests/work.rs",
+      "sha256": "333fb5a3e17ee2f8923a8eac78c474e691b90b92fd8dacfc9f8a51ef81edd947",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/next.rs",
+      "sha256": "c260e627f3112f9475897717d8ca0452ce57fc6e105e3ca25cbb32a575592675",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/render.rs",
+      "sha256": "565118e4b183d869c6811754b482d25e31cc76875232044387b5baec42162f12",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-core/tests/attempt_replace.rs",
+      "sha256": "ac17f368e3389067567f6eee72ba3d3174061e371f3eb506981db0e381718e41",
+      "byte_equal": true
+    },
+    {
+      "path": "crates/sheltie-runtime/tests/service.rs",
+      "sha256": "58a107ed73c3e76093ea2e406cb1fc461f37b25ef9d19eda03e34710984f6149",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/feature-before-enable.txt",
+      "sha256": "5f564d017dc00f4a3e294b8fc47fe95ed5afa15646dc986cf296e92bd1a18f57",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/gates-formatted.txt",
+      "sha256": "cc7b0e9daa887a90b5ba21bf95e304bffd22ab6996e525e453df12be1565285a",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/gates.txt",
+      "sha256": "5db01f78a10d7b1e0edc2e7ca6c8504313fbedf317d4bfc99900bda1515664bb",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/independent-cli.txt",
+      "sha256": "5e4f1244c8a53f49b1f0e4e4311f15b7ad522e0e19f48462aaaa3fecc96f50ae",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/input-closure-final.txt",
+      "sha256": "dd82931f2921f9647e084b3284dbebd1db8b0bb75c25d98ec1bd79f3fd8f6a9e",
+      "byte_equal": true
+    },
+    {
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t02/input-closure.txt",
+      "sha256": "6d580fabf04b882c6182d91541d882d5f3c1ea78108ec44f7329ea138a3ebb4a",
+      "byte_equal": true
+    }
+  ],
+  "plan_merge": "retained T04 and eleven-test list, T02 doing, new full SHA"
+}

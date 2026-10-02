@@ -1,11 +1,7 @@
 # C005 交接
 
-T01 已完成准备与冻结，M1 独立审定完整骨架 `8d00a29e10810c79bb5b44bdc006dc021e26637b`，下一动作 T02 公开接线。公开 CLI 与正常 next 尚未开放 replace；T02 只在三个生产文件接线，复用已实现的 core Decision、runtime 替换、观察、事务及恢复。
+T00/T01/M1/T04/T02 已完成；唯一进度看 plan。公开 replace 与 next 已接通，T01 高风险基础未重写，最新冻结测试基准为 `c9492f80969d59897480f138b780dc8c1d83ec62`。
 
-最终工程门禁 exit 0：fmt/check/clippy、764/764 nextest PASS（2 slow、1 LEAK unknown、10 阶段 ignore）、缓存 advisory 快照 deny、docs/specs/tests/diff。原 nextest 0.9.145 环境门禁 exit 92、not_run；实际补充执行为 0.9.140 override。初次全回归 763 PASS / 1 FAIL 及修复原件保留，未改旧 Store 断言。12 个 runtime 原语和 14 个 core 原语都包含在最终普通回归中。
+最终 11 feature、774/774 全回归（2 slow、0 skip）及完整工程门禁通过。T04补齐旧卡片恢复的手写未来预期，独立审查、真实red、新基准和原公开失败均保存；恢复14项逐字节一致。六份测试文件仅删11个ignore，所有oracle/fixtures保持冻结。
 
-未来 10 项用例在修后候选全部实际 red，编译成功且失败原因吻合；不计功能 PASS。三个历史场景保留原场景、冻结新增 replace 的预期，T02 只删 ignore。M1 core/整体代码独立短审未发现剩余生产必改；正式 M1 已通过修正后的交接与完整 SHA 复核，仅表示阶段二准备就绪。
-
-真实撤销任务、旧执行者处置与宿主记录尚未提供，真实使用 not_run。用户已授权环境不可执行项延期；不会把机制夹具当产品收益。唯一进度来源仍是 plan。
-
-T02完整公开回归发现遗漏的卡片恢复未来oracle；自有草稿已隔离，T04只修一个预期行/归属并独立通过。下一动作提交T04新基准，再逐字节恢复公开草稿、运行11feature及完整774回归。原失败与未跑边界不删。
+下一动作T03准确技能说明、真实试用前提核查与授权延期交接，然后独立M2。未提供真实撤销任务/执行者/宿主处置原件，真实价值仍not_run；原nextest0.9.145、onlinefresh及旧LEAK unknown均保留，不因最终run干净而清洗。

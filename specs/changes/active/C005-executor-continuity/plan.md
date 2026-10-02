@@ -27,7 +27,7 @@
 | C005-T01 | done | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 用户采用开发需求；真实撤销证据在 T03 单列 |
 | C005-M1 | done | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
 | C005-T04 | done | 复杂作者；独立 Reviewer | 补齐遗漏的卡片恢复未来 oracle | M1；T02 全回归实际反例 |
-| C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及 T04 独立测试修订 SHA |
+| C005-T02 | done | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及 T04 独立测试修订 SHA |
 | C005-T03 | todo | 手册执行者；复杂模型负责结论 | 使用说明、真实接续与最终证据 | T02 |
 | C005-M2 | todo | 独立复杂模型 Reviewer | 完整链、工程和真实结果审阅 | T03 |
 
@@ -154,3 +154,5 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 **oracle / 验证。** 由 protocol 的当前 latest running 且本 Occurrence 未替换条件证明新行；不得用 renderer 或实际返回构造 expected。在 M1 的未开放 next 上显式运行这 1 项，预期实际字节少 replace 行而 red，保存非零测试数、run ID 与退出；不是产品 PASS。独立复核唯一预期差异及 frozen caller 可行性后提交新完整测试基准。docs/specs/tests/diff 和 `scripts/check-task.sh C005-T04 <本任务开工完整提交> --staged` 通过；提交后同基准再核。
 
 **交接。** T02 重新应用已保存的自有公开接线草稿，验证八个原源码/测试文件与原 stash 逐字节一致；保留原失败，不覆盖 evidence。新 feature 共 11 项；只有全部通过后删本任务 ignore。T02 的 allow_test_changes=false 基准改为本修订完整 SHA，生产/测试范围和任何 oracle 不隐式放宽。
+
+T04 最新独立测试基准：`c9492f80969d59897480f138b780dc8c1d83ec62`。T02 使用此完整 SHA；M1 基础接口未改。

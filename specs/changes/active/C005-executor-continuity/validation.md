@@ -105,3 +105,15 @@ Rust/fixture/命令冻结运行的 whole consumer 为 `f43d18f21c87b6c539379af3c
 feature 现在为 11 项，不能把该 ignore/red 当 PASS。修订提交完整 SHA 是下一 T02 冻结基准；基础生产代码未改。
 
 T04 全 cached `diff --check` exit 2，仅两份不可变原文的工具尾空格（status-card-red.txt:29、status-card-byte-diff.txt:4）；原字节保留。明确排除这两个已知 raw 文件的作者范围 cached 检查 exit 0，详见 [结构化原结果](evidence/t04/whitespace-check.json)。不把 unstaged 或作者范围通过记成全 cached 通过。
+
+## C005-T02 正式接线与冻结验证
+
+最新测试基准 `c9492f80969d59897480f138b780dc8c1d83ec62`。生产只改 next.rs 与 CLI 的 enum/dispatch/wrapper；T01 的状态、决定、strict snapshot、FD、事务和恢复基础未变。[自有草稿恢复证明](evidence/t02/draft-restore.json) 确认八个源码/测试文件及六份原 raw 共 14 项逐字节相同，唯一 plan 冲突保留双方意图与新基准，stash 未删除。
+
+初轮 [10 feature](evidence/t02/feature-before-enable.txt) run `2c9655ad-fec2-4964-a6a0-e842468e4a55` 为 10/10 PASS。首次 [fmt](evidence/t02/gates.txt) 因删除 ignore 留下 fn 缩进 exit 1，恢复原缩进后，测试差异仍只有 ignore 删除。[旧完整回归](evidence/t02/gates-formatted.txt) run `4d3300ab-4da7-41c6-ba6c-19bc86f0b039` 为 773 PASS / 1 FAIL、0 skip，遗漏卡片预期的唯一实际失败交 T04 独立修订，未放宽生产或测试。
+
+[修后 11 feature](evidence/t02/feature-revised.txt) run `94fb155a-080a-44a5-b6ef-1fe3632ab473` 为 11/11 PASS、763 filter 外未执行。删除全部 11 个 ignore 后，[完整门禁](evidence/t02/gates-revised.txt) exit 0，run `4b8d6190-d811-4235-9faf-c5ff24f4b84f` 为 774/774 PASS、2 slow、0 skip、本 run 无 LEAK。旧三条 LEAK unknown 不因这次未报告而撤销。fmt/check/clippy all targets/features、cached deny、docs141/specs8/1active/tests774/241cards/diff通过。实际 nextest 0.9.140 override、rustc 1.98.1/macOS arm64；原要求的 0.9.145 和 online fresh 仍 not_run。
+
+最终 code/test/fixture/命令 consumer hash `d638dc62a9399d0efed1842a74aedf09dd49a6694034a9405f60f22eecfa836a`（272 files，同 consumer 域，排除记录/诊断）。只删除六份测试文件中的 11 ignore，所有断言、helpers、fixtures 与 snapshots 和新基准一致。独立短审通过，[关键 CLI 3 项](evidence/t02/independent-cli.txt) run `30a7e9f0-c04a-4855-a8b9-3819e901c595` 另实际 PASS；维护性短审认为无必要重构。该功能完成不代表 T03 真实收益或 M2 完成。
+
+T02 全 cached whitespace 检查 exit2，仅 gates.txt:3 的原 fmt 空上下文与 gates-revised.txt:796/800 的原 cargo-deny 诊断尾空格；原字节不裁剪。明确排除这两份已知raw的作者范围检查exit0，[结构化结果](evidence/t02/whitespace-check.json)保存；不声称全cached通过。

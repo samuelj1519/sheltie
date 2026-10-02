@@ -507,7 +507,6 @@ fn persisted_replacement_rejects_reason_combinations_number_gaps_and_second_supe
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence() {
     let mut fixture = running();
     let json = serde_json::to_value(sheltie_core::work::status_card_json(

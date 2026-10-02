@@ -48,7 +48,6 @@ fn state(env: &Env, work: &str) -> Value {
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_is_atomic_and_business_failures_use_history_not_attempt_number() {
     let (env, _source, work) = fixture(1, false);
     let original = env.begin(&work, "execute");
@@ -170,7 +169,6 @@ fn replacement_is_atomic_and_business_failures_use_history_not_attempt_number() 
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_does_not_consume_zero_business_retries_or_approve_a_gate() {
     let (env, _source, work) = fixture(0, true);
     env.begin(&work, "execute");
@@ -225,7 +223,6 @@ fn replacement_does_not_consume_zero_business_retries_or_approve_a_gate() {
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_replays_original_file_reason_and_rejects_conflicting_intent() {
     let (env, source, work) = fixture(1, false);
     env.begin(&work, "execute");
@@ -257,7 +254,6 @@ fn replacement_replays_original_file_reason_and_rejects_conflicting_intent() {
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_reason_has_exact_limit_and_missing_identity_is_not_found() {
     for length in [4096, 4097] {
         let (env, _source, work) = fixture(1, false);
@@ -299,7 +295,6 @@ fn replacement_reason_has_exact_limit_and_missing_identity_is_not_found() {
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt() {
     let (env, _source, work) = fixture(1, false);
     let begun = env.begin(&work, "execute");
@@ -337,7 +332,6 @@ fn replacement_refuses_modified_frozen_input_without_revoking_the_running_attemp
 // Task: C005-T02
 #[cfg(feature = "failpoint")]
 #[test]
-#[ignore = "C005-T02"]
 fn replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats() {
     for point in ["before_commit", "after_commit_before_effects"] {
         let (env, _source, work) = fixture(1, false);

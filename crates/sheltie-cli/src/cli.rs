@@ -142,6 +142,15 @@ pub enum AttemptCmd {
         #[arg(long)]
         reason: String,
     },
+    /// 撤销当前尝试的正式提交资格并领取新任务书。
+    Replace {
+        work: String,
+        #[arg(long)]
+        attempt: String,
+        /// 替换理由，或 `@file`。
+        #[arg(long)]
+        reason: String,
+    },
 }
 
 #[derive(Debug, Subcommand)]

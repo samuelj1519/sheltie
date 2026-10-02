@@ -10,7 +10,6 @@ use sheltie_runtime::{Error, WorkbookRepo};
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn status_card_missing_is_regenerated_on_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
     let started = svc

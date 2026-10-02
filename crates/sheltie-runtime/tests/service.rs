@@ -1158,7 +1158,6 @@ fn recover_submit_stops_and_keeps_unpublished(
 
 // Task: C005-T02
 #[test]
-#[ignore = "C005-T02"]
 fn post_commit_card_failure_returns_committed_response() {
     let (_dir, home, svc) = home_with_example("two-step");
     let started = start_two_step(&svc);

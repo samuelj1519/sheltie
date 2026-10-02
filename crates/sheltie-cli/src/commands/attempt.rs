@@ -1,4 +1,4 @@
-//! `attempt begin | submit | fail`。
+//! `attempt begin | submit | fail | replace`。
 
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::work::Reply;
@@ -8,7 +8,7 @@ use crate::commands::Ctx;
 use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
 use crate::output::{self, Outcome};
 
-/// `--summary` 与 `--reason` 经 `cli::read_text_arg`；`--attempt` 经 `AttemptId::parse`。
+/// `--summary` 与 `--reason` 经 `cli::parse_text_arg`；`--attempt` 经 `AttemptId::parse`。
 /// `begin` 已随 T18 一并实现（`work cancel` 的测试要走它验证 `WORK_TERMINAL`，见 plan.md T18 任务卡）；
 /// `submit` 与 `fail` 归 T19。
 pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
@@ -24,6 +24,11 @@ pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
             attempt,
             reason,
         } => fail(ctx, &work, &attempt, &reason),
+        AttemptCmd::Replace {
+            work,
+            attempt,
+            reason,
+        } => replace(ctx, &work, &attempt, &reason),
     }
 }
 
@@ -119,5 +124,43 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         other => return reply_mismatch("AttemptFailed", other),
     };
     let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
+    output::ok_response(text, resp, &wid)
+}
+
+fn replace(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
+    let reason = match crate::cli::parse_text_arg(reason) {
+        Ok(value) => value,
+        Err(message) => return output::param_error(message),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(value) => value,
+        Err(error) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(error)),
+    };
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(value) => value,
+        Err(outcome) => return outcome,
+    };
+    let resp = match svc.replace(&wid, &attempt, &reason, ctx.request_id.clone()) {
+        Ok(value) => value,
+        Err(error) => return crate::error_map::to_outcome(&error),
+    };
+    let Reply::AttemptReplaced {
+        replaced_attempt,
+        attempt,
+        brief_path,
+        output_dir,
+        ..
+    } = &resp.reply
+    else {
+        return reply_mismatch("AttemptReplaced", &resp.reply);
+    };
+    let text = next_lines(
+        format!(
+            "已替换 {replaced_attempt}，新尝试：{attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"
+        ),
+        &resp,
+        &wid,
+    );
     output::ok_response(text, resp, &wid)
 }

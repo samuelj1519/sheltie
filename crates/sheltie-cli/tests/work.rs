@@ -552,7 +552,6 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
 // Task: C005-T02
 #[cfg(feature = "failpoint")]
 #[test]
-#[ignore = "C005-T02"]
 fn stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load() {
     use std::time::Duration;
     let env = Env::new();

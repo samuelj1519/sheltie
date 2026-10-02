@@ -1,0 +1,19 @@
+{
+  "full": {
+    "command": "git diff --cached --check",
+    "chunk_id": "00e04e",
+    "wall_time_seconds": 0.00000775,
+    "exit_code": 2,
+    "original_token_count": 81,
+    "output": "specs/changes/active/C005-executor-continuity/evidence/t02/gates-revised.txt:796: trailing whitespace.\n+    │  \nspecs/changes/active/C005-executor-continuity/evidence/t02/gates-revised.txt:800: trailing whitespace.\n+    │  \nspecs/changes/active/C005-executor-continuity/evidence/t02/gates.txt:3: trailing whitespace.\n+ \n"
+  },
+  "authoring": {
+    "command": "git diff --cached --check -- . ':(exclude)specs/changes/active/C005-executor-continuity/evidence/t02/gates.txt' ':(exclude)specs/changes/active/C005-executor-continuity/evidence/t02/gates-revised.txt'",
+    "chunk_id": "8cbce4",
+    "wall_time_seconds": 0.000005875,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "exceptions": "Only original fmt diff context and cargo-deny diagnostic whitespace; preserve raw bytes"
+}
