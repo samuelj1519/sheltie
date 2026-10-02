@@ -43,4 +43,6 @@ sheltie --home "$trial_root" --json work status "$work_id"
 
 `WorkService::replace(&WorkId, &AttemptId, &InputValue, Option<String>) -> Result<Response>` 接收已解析的旧身份及理由源。理由使用既有 `parse_text_arg`，身份使用 `AttemptId::parse`，Work 使用既有 resolve。`Response.reply` 必须为 `AttemptReplaced`，其新旧 Attempt、任务书和输出目录用于文本，`ok_response` 输出已持久的 data、revision、request_id、next。不可回读 Store 补造历史数据。
 
-`legal_next` 的 Running 分支在 fail 后、cancel 前，仅在当前 Occurrence 没有 Superseded 时列 `NextOp::ReplaceAttempt { attempt: latest.id.clone() }`。参数 JSON 及文本占位符渲染已完成，不修改合同。按 plan 的 10 项完整 caller 用例执行 feature；全部通过后删除它们的 ignore，再运行同一完整门禁。
+`legal_next` 的 Running 分支在 fail 后、cancel 前，仅在当前 Occurrence 没有 Superseded 时列 `NextOp::ReplaceAttempt { attempt: latest.id.clone() }`。参数 JSON 及文本占位符渲染已完成，不修改合同。按 plan 的 11 项完整 caller 用例执行 feature；全部通过后删除它们的 ignore，再运行同一完整门禁。
+
+T04 补齐同一完整状态卡恢复场景的未来 replace 行，独立审查后给出新的完整测试基准。T02 采用该修订 SHA，而非旧 M1 SHA；其他基础原语不变。公开运行草稿与失败原文单独保存并逐字节恢复。

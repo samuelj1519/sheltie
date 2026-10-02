@@ -30,3 +30,8 @@ allow_test_changes = false
 files = ["specs/changes/active/C005-executor-continuity/progress.md", "specs/changes/active/C005-executor-continuity/validation.md", "specs/changes/active/C005-executor-continuity/review.md"]
 test_files = []
 allow_test_changes = false
+
+[C005-T04]
+files = ["specs/changes/active/C005-executor-continuity/experiments/runbook.md", "specs/changes/active/C005-executor-continuity/progress.md", "specs/changes/active/C005-executor-continuity/validation.md", "specs/changes/active/C005-executor-continuity/review.md", "specs/changes/active/C005-executor-continuity/evidence/t04"]
+test_files = ["crates/sheltie-runtime/tests/crash.rs"]
+allow_test_changes = true

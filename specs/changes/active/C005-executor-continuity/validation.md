@@ -95,3 +95,13 @@ Rust/fixture/命令冻结运行的 whole consumer 为 `f43d18f21c87b6c539379af3c
 ## C005-M1 采用阶段证据
 
 正式独立 Reviewer 审定 `8d00a29e10810c79bb5b44bdc006dc021e26637b`，阶段 PASS。复用同闭包的最终门禁与实际 red/green，未重复全工程运行。辅助原文 [core 11](evidence/m1/independent-core11.txt) run `f581a1f2-9e1c-46c6-8f6f-99b370a61c10`、[runtime 3](evidence/m1/independent-runtime3.txt) run `628ba848-1ff3-47de-afd0-1dc2d29487ac`；history run `7f28370d-f878-4f79-93a4-06cef4188d3c`、order run `2eafb8b2-0230-4f89-a797-cf6b3880c276`、core state run `92a210ee-d12f-483d-b549-9cd9af833447` 的原文已在 T01 evidence。阶段结论与原因见 review，不把 M1 记为最终产品完成。
+
+## C005-T04 独立 oracle 修订
+
+开工 `6925b73727f84871a02d1d8c33edaf2094e151fa`。公开 T02 原完整回归 run `4d3300ab-4da7-41c6-ba6c-19bc86f0b039` 为 774 执行、773 PASS / 1 FAIL、0 skip：旧卡片恢复手写 next 遗漏 replace。原草稿/全部 raw 保存在自有 stash `f3b93bf0e423316f0a6ce655a0e19c8c4917c64b`，不混进本修订。
+
+复杂作者只改旧恢复场景的 Task 归属、T02 ignore 和手写 replace 一行。M1 未公开 next 的 [真实 red](evidence/t04/status-card-red.txt) run `5e8e29e8-f630-4d5a-a3dc-058c3a832d0a` 为 1 FAIL、1 filter 外未执行、exit 100。[独立字节差异](evidence/t04/status-card-byte-diff.txt) 证明只有该行不同，原输入摘要/23B/所有路径/完整 assert 保留。Reviewer 未编写 oracle，按 current running/未用一次额度的 protocol 资格独立确认该最小修正。
+
+feature 现在为 11 项，不能把该 ignore/red 当 PASS。修订提交完整 SHA 是下一 T02 冻结基准；基础生产代码未改。
+
+T04 全 cached `diff --check` exit 2，仅两份不可变原文的工具尾空格（status-card-red.txt:29、status-card-byte-diff.txt:4）；原字节保留。明确排除这两个已知 raw 文件的作者范围 cached 检查 exit 0，详见 [结构化原结果](evidence/t04/whitespace-check.json)。不把 unstaged 或作者范围通过记成全 cached 通过。

@@ -1,0 +1,22 @@
+{
+  "full": {
+    "command": "git diff --cached --check",
+    "chunk_id": "2fc157",
+    "wall_time_seconds": 0.000008958,
+    "exit_code": 2,
+    "original_token_count": 63,
+    "output": "specs/changes/active/C005-executor-continuity/evidence/t04/status-card-byte-diff.txt:4: trailing whitespace.\n+ \nspecs/changes/active/C005-executor-continuity/evidence/t04/status-card-red.txt:29: trailing whitespace.\n+  Cancelling due to test failure: \n"
+  },
+  "authoring": {
+    "command": "git diff --cached --check -- . ':(exclude)specs/changes/active/C005-executor-continuity/evidence/t04/status-card-red.txt' ':(exclude)specs/changes/active/C005-executor-continuity/evidence/t04/status-card-byte-diff.txt'",
+    "chunk_id": "2428a8",
+    "wall_time_seconds": 0.000006084,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "exceptions": [
+    "status-card-red.txt:29 immutable tool output",
+    "status-card-byte-diff.txt:4 immutable byte comparison"
+  ]
+}

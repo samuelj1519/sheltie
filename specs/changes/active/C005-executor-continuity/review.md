@@ -39,3 +39,9 @@
 独立 core 3 项、辅助 core 11 项、runtime 3 项、history/strict 3 项和顺序修复 2 项均实际通过，原 run ID 与输出保留。最终门禁 764/764 PASS（2 slow、1 LEAK unknown、10 phase ignore），10 项有效 future-red，T01 提交前后 scope PASS。原 nextest 0.9.145 与在线 fresh advisory 仍 not_run；无零残留或真实收益声明。
 
 所有 source/test/fixture/合同与 T01 骨架一致；M1 工作区只有计划和记录变化。可进入已授权 T02。
+
+## C005-T04 测试修订短审
+
+独立 Reviewer 结论：`PASS`（只批准预期修订）。旧恢复场景的合法 next 按公开合同确实包含 replace。保留原场景和全部字节 oracle，只手写新增行、迁移 T02 归属并保留 ignore；没有用 renderer/返回值生成期望，也没有修改生产来迁就测试。foundation 实际 1 FAIL 的 raw 与 byte diff 保留，禁用场景尚未通过。新 SHA 再作为 T02 allow_test_changes=false 基准。
+
+Reviewer 确认 T04 可提交。全 cached whitespace 检查的两份原始输出尾空格单列，作者文件通过；不裁剪 raw，不声称全 cached 检查通过。

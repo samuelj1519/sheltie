@@ -8,8 +8,9 @@ use sheltie_core::ids::NodeId;
 #[cfg(feature = "failpoint")]
 use sheltie_runtime::{Error, WorkbookRepo};
 
-// Task: C002-T40
+// Task: C005-T02
 #[test]
+#[ignore = "C005-T02"]
 fn status_card_missing_is_regenerated_on_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
     let started = svc
@@ -58,6 +59,7 @@ outline#1.0 running\n\n\
 ## 合法下一步\n\n\
 - sheltie attempt submit {wid} --attempt outline#1.0 --summary \"<一句话结论>\"\n\
 - sheltie attempt fail {wid} --attempt outline#1.0 --reason \"<原因>\"\n\
+- sheltie attempt replace {wid} --attempt outline#1.0 --reason \"<原因>\"\n\
 - sheltie work cancel {wid}\n"
     );
     assert_eq!(

@@ -26,7 +26,8 @@
 | C005-T00 | done | Codex /root；独立 Reviewer | 采用、前版归档和唯一实施入口 | 用户明确采用 |
 | C005-T01 | done | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 用户采用开发需求；真实撤销证据在 T03 单列 |
 | C005-M1 | done | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
-| C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及完整骨架 SHA |
+| C005-T04 | done | 复杂作者；独立 Reviewer | 补齐遗漏的卡片恢复未来 oracle | M1；T02 全回归实际反例 |
+| C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及 T04 独立测试修订 SHA |
 | C005-T03 | todo | 手册执行者；复杂模型负责结论 | 使用说明、真实接续与最终证据 | T02 |
 | C005-M2 | todo | 独立复杂模型 Reviewer | 完整链、工程和真实结果审阅 | T03 |
 
@@ -84,7 +85,7 @@ primitives 至少执行一项 T01 测试并全部通过；future-red 至少执�
 
 **范围。** 生产代码只改 `core/work/next.rs` 的 Running 资格列举，以及 CLI `cli.rs`、`commands/attempt.rs` 的参数与分发。复用 T01 完整实现的纯 Decision、runtime 库 wrapper、观察、事务、stats/brief 效果及恢复；不重写这些基础。测试文件只删除本任务 ignore 标记；混合源码的测试段、断言、fixtures 和 snapshots 保持冻结。不修改载荷、schema、snapshot 归属、OS/并发/恢复政策或上游合同。
 
-**测试。** `replacement_is_atomic_and_business_failures_use_history_not_attempt_number`、`replacement_does_not_consume_zero_business_retries_or_approve_a_gate`、`replacement_replays_original_file_reason_and_rejects_conflicting_intent`、`replacement_reason_has_exact_limit_and_missing_identity_is_not_found`、`replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt`、`replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats`、`stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load`、`status_card_active_mid_flow`、`public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence`、`post_commit_card_failure_returns_committed_response`。
+**测试。** `replacement_is_atomic_and_business_failures_use_history_not_attempt_number`、`replacement_does_not_consume_zero_business_retries_or_approve_a_gate`、`replacement_replays_original_file_reason_and_rejects_conflicting_intent`、`replacement_reason_has_exact_limit_and_missing_identity_is_not_found`、`replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt`、`replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats`、`stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load`、`status_card_active_mid_flow`、`public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence`、`status_card_missing_is_regenerated_on_next_write`、`post_commit_card_failure_returns_committed_response`。
 
 **执行步骤。**
 
@@ -143,3 +144,13 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 原 C002-T25 的 `post_commit_card_failure_returns_committed_response` 同样保留完整提交错误场景，未来 next 新增 replace 后转为 C005-T02 冻结用例。三个既有场景的阶段 skip 与实际 future-red 一并记录，不算已通过。
 
 完整 T01 骨架：`8d00a29e10810c79bb5b44bdc006dc021e26637b`。M1 通过后 T02 用此 SHA 核固定测试；M1 仅记录不改变源码或 oracle。
+
+### C005-T04：补齐卡片恢复的未来 next 字节 oracle
+
+**Owner / 输入。** 复杂作者负责唯一测试修订，独立 Reviewer 核预期依据。开工完整提交 `6925b73727f84871a02d1d8c33edaf2094e151fa`。T02 首次完整公开回归实际 774 执行、773 PASS / 1 FAIL、零 skip，原完整状态卡恢复用例遗漏了协议规定的 replace 行；全部原件在自有 T02 stash `f3b93bf0e423316f0a6ce655a0e19c8c4917c64b`，不混入本任务。
+
+**范围与执行。** 只修 `runtime/tests/crash.rs` 的 `status_card_missing_is_regenerated_on_next_write`：原场景、完整字节断言、输入摘要/大小与路径保持，只在 fail 后、cancel 前手写 replace 行；归属改 C005-T02 并加其 ignore。同步本 package 的清单与 runbook。正常 CLI/next 保持 M1 骨架，不修改生产实现。
+
+**oracle / 验证。** 由 protocol 的当前 latest running 且本 Occurrence 未替换条件证明新行；不得用 renderer 或实际返回构造 expected。在 M1 的未开放 next 上显式运行这 1 项，预期实际字节少 replace 行而 red，保存非零测试数、run ID 与退出；不是产品 PASS。独立复核唯一预期差异及 frozen caller 可行性后提交新完整测试基准。docs/specs/tests/diff 和 `scripts/check-task.sh C005-T04 <本任务开工完整提交> --staged` 通过；提交后同基准再核。
+
+**交接。** T02 重新应用已保存的自有公开接线草稿，验证八个原源码/测试文件与原 stash 逐字节一致；保留原失败，不覆盖 evidence。新 feature 共 11 项；只有全部通过后删本任务 ignore。T02 的 allow_test_changes=false 基准改为本修订完整 SHA，生产/测试范围和任何 oracle 不隐式放宽。
