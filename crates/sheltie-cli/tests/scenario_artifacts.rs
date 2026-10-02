@@ -5,6 +5,7 @@ mod common;
 
 use std::path::Path;
 
+use common::store::store_rows;
 use common::*;
 
 // Task: T22
@@ -99,15 +100,23 @@ fn submit_oversize_output_is_output_too_large() {
     assert_eq!(e["error"]["code"], "OUTPUT_TOO_LARGE");
 }
 
-// Task: T22
+// Task: C002-T40
 #[test]
 fn submit_with_symlink_output_is_rejected() {
+    use std::os::unix::fs::MetadataExt;
+
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
     let b = env.begin(&wid, "outline");
     let out = Path::new(b["data"]["output_dir"].as_str().unwrap()).join("outline.md");
-    std::os::unix::fs::symlink("/etc/hosts", &out).unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let target = outside.path().join("sentinel.txt");
+    std::fs::write(&target, b"outside output sentinel").unwrap();
+    let bytes = std::fs::read(&target).unwrap();
+    let mode = std::fs::metadata(&target).unwrap().mode();
+    std::os::unix::fs::symlink(&target, &out).unwrap();
+    let before = store_rows(&env);
     let (e, code) = env.fail(&[
         "attempt",
         "submit",
@@ -118,5 +127,16 @@ fn submit_with_symlink_output_is_rejected() {
         "软链",
     ]);
     assert_eq!(code, 1);
-    assert_ne!(e["ok"], true);
+    assert_eq!(e["ok"], false);
+    assert_eq!(e["error"]["code"], "INVALID_REQUEST");
+    assert!(
+        e["error"]["detail"]["reason"]
+            .as_str()
+            .unwrap()
+            .contains("符号链接")
+    );
+    assert_eq!(store_rows(&env), before);
+    assert_eq!(std::fs::read(&target).unwrap(), bytes);
+    assert_eq!(std::fs::metadata(&target).unwrap().mode(), mode);
+    assert_eq!(std::fs::read_link(&out).unwrap(), target);
 }

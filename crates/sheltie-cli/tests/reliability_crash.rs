@@ -4,14 +4,17 @@
 
 mod common;
 
+#[cfg(feature = "failpoint")]
+use common::process::Process;
+use common::store::store_rows;
 use common::*;
 use rusqlite::{Connection, OpenFlags, OptionalExtension};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::os::unix::process::ExitStatusExt;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, Output, Stdio};
-use std::time::{Duration, Instant};
+use std::process::{Command, Stdio};
+use std::time::Duration;
 
 #[derive(Clone, Copy, Debug)]
 enum Termination {
@@ -19,78 +22,6 @@ enum Termination {
     Kill,
 }
 const MODES: [Termination; 2] = [Termination::Exit70, Termination::Kill];
-
-struct Process {
-    child: Option<Child>,
-    release: Option<PathBuf>,
-}
-impl Process {
-    fn spawn(env: &Env, args: &[&str], point: Option<(&str, &str, &Path)>) -> Self {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_sheltie"));
-        command.args(["--home", &env.home(), "--json"]).args(args);
-        command.env_remove("SHELTIE_FAILPOINT");
-        for key in [
-            "SHELTIE_TEST_RENDEZVOUS_NAME",
-            "SHELTIE_TEST_RENDEZVOUS_ID",
-            "SHELTIE_TEST_RENDEZVOUS_DIR",
-        ] {
-            command.env_remove(key);
-        }
-        if let Some((name, id, directory)) = point {
-            command
-                .env("SHELTIE_TEST_RENDEZVOUS_NAME", name)
-                .env("SHELTIE_TEST_RENDEZVOUS_ID", id)
-                .env("SHELTIE_TEST_RENDEZVOUS_DIR", directory);
-        }
-        Self {
-            child: Some(
-                command
-                    .stdout(Stdio::piped())
-                    .stderr(Stdio::piped())
-                    .spawn()
-                    .unwrap(),
-            ),
-            release: point.map(|(_, _, directory)| directory.join("release")),
-        }
-    }
-    fn reached(&mut self, directory: &Path, point: &str) {
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !directory.join("reached").exists() {
-            assert!(
-                self.child.as_mut().unwrap().try_wait().unwrap().is_none(),
-                "子进程在{point}之前结束"
-            );
-            assert!(Instant::now() < deadline, "未到精确同步点{point}");
-            std::thread::sleep(Duration::from_millis(1));
-        }
-        assert_eq!(
-            std::fs::read(directory.join("reached")).unwrap(),
-            point.as_bytes()
-        );
-    }
-    fn release(&self) {
-        std::fs::write(self.release.as_ref().unwrap(), b"release").unwrap();
-    }
-    fn finish(mut self) -> Output {
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while self.child.as_mut().unwrap().try_wait().unwrap().is_none() {
-            assert!(Instant::now() < deadline, "子进程完成超时");
-            std::thread::sleep(Duration::from_millis(1));
-        }
-        self.child.take().unwrap().wait_with_output().unwrap()
-    }
-}
-impl Drop for Process {
-    fn drop(&mut self) {
-        if let Some(child) = self.child.as_mut() {
-            if let Some(release) = &self.release {
-                let _ = std::fs::write(release, b"release");
-            }
-            let _ = child.kill();
-            let _ = child.wait();
-        }
-    }
-}
 
 fn stop(env: &Env, args: &[&str], point: &str, mode: Termination) {
     let output = match mode {
@@ -1215,43 +1146,6 @@ fn gate_approval_without_a_remaining_edge_adds_a_second_blocked_event() {
     );
 }
 
-fn store_facts(env: &Env) -> Value {
-    use rusqlite::types::Value as SqlValue;
-    let conn = connection(env);
-    let mut facts = serde_json::Map::new();
-    for (table, order) in [
-        ("works", "work_id"),
-        ("requests", "request_id"),
-        ("audit", "seq"),
-        ("work_sequence", "day"),
-        ("workbooks", "id,version"),
-    ] {
-        let mut statement = conn
-            .prepare(&format!("SELECT * FROM {table} ORDER BY {order}"))
-            .unwrap();
-        let columns = statement.column_count();
-        let rows = statement
-            .query_map([], |row| {
-                (0..columns)
-                    .map(|column| {
-                        Ok(match row.get::<_, SqlValue>(column)? {
-                            SqlValue::Null => Value::Null,
-                            SqlValue::Integer(value) => json!(value),
-                            SqlValue::Real(value) => json!(value),
-                            SqlValue::Text(value) => json!(value),
-                            SqlValue::Blob(value) => json!(value),
-                        })
-                    })
-                    .collect::<rusqlite::Result<Vec<_>>>()
-            })
-            .unwrap()
-            .collect::<rusqlite::Result<Vec<_>>>()
-            .unwrap();
-        facts.insert(table.into(), json!(rows));
-    }
-    Value::Object(facts)
-}
-
 // Task: C002-T31
 #[test]
 fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic() {
@@ -1275,7 +1169,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
         )
         .unwrap();
         drop(conn);
-        let before = store_facts(&env);
+        let before = store_rows(&env);
         let files = tree(&env.dir.path().join("works"));
         for args in [
             vec!["work", "status", &work],
@@ -1286,7 +1180,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
             eprintln!("counter={count} argv={args:?} exit={exit} response={error}");
             assert_eq!(exit, 1);
             assert_eq!(error["error"]["code"], "STORE_CORRUPT");
-            assert_eq!(store_facts(&env), before);
+            assert_eq!(store_rows(&env), before);
             same_files(&env.dir.path().join("works"), &files);
         }
         let id = "t31-corrupt-counter-approve";
@@ -1304,7 +1198,7 @@ fn impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_p
         assert_eq!(exit, 1);
         assert_eq!(error["error"]["code"], "STORE_CORRUPT");
         assert!(record(&env, id).is_none());
-        assert_eq!(store_facts(&env), before);
+        assert_eq!(store_rows(&env), before);
         same_files(&env.dir.path().join("works"), &files);
     }
 }
@@ -1651,7 +1545,7 @@ fn corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original() {
                 rusqlite::params![snapshot.to_string(), rid],
             )
             .unwrap();
-        let before = store_facts(&env);
+        let before = store_rows(&env);
         let (error, exit) = env.fail(&args);
         assert_eq!(exit, 1);
         assert_eq!(error["error"]["code"], "EFFECT_PENDING");
@@ -1659,7 +1553,7 @@ fn corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original() {
         assert_eq!(error["committed"], true);
         assert_eq!(error["request_id"], rid);
         assert!(error.get("original").is_none(), "{field}: {error}");
-        assert_eq!(store_facts(&env), before);
+        assert_eq!(store_rows(&env), before);
     }
 }
 
@@ -1691,7 +1585,7 @@ fn corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original() 
                 rusqlite::params![snapshot.to_string(), old],
             )
             .unwrap();
-        let before_rows = store_facts(&env);
+        let before_rows = store_rows(&env);
         let before_files = ["workbooks", "pending"].map(|name| tree(&env.dir.path().join(name)));
         let next = "t34-blocked-add";
         let (error, exit) = env.fail(&[
@@ -1712,7 +1606,7 @@ fn corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original() 
             error["error"]["detail"].get("pending_original").is_none(),
             "{field}: {error}"
         );
-        assert_eq!(store_facts(&env), before_rows);
+        assert_eq!(store_rows(&env), before_rows);
         assert_eq!(
             ["workbooks", "pending"].map(|name| tree(&env.dir.path().join(name))),
             before_files
@@ -1756,7 +1650,7 @@ fn add_snapshot_target_is_bound_before_an_original_response_is_released() {
                 rusqlite::params![snapshot.to_string(), rid],
             )
             .unwrap();
-        let before_rows = store_facts(&env);
+        let before_rows = store_rows(&env);
         let before_files = tree(&env.workbook_dir("two-step", "1.0.0"));
         let (error, exit) = env.fail(&args);
         assert_eq!(exit, 1);
@@ -1765,7 +1659,7 @@ fn add_snapshot_target_is_bound_before_an_original_response_is_released() {
         assert_eq!(error["committed"], true);
         assert_eq!(error["request_id"], rid);
         assert!(error.get("original").is_none(), "{field}: {error}");
-        assert_eq!(store_facts(&env), before_rows);
+        assert_eq!(store_rows(&env), before_rows);
         assert_eq!(tree(&env.workbook_dir("two-step", "1.0.0")), before_files);
     }
 }
@@ -1839,7 +1733,7 @@ fn fail_snapshot_status_matches_the_original_retry_even_after_later_progress() {
                     rusqlite::params![changed.to_string(), rid],
                 )
                 .unwrap();
-            let before = store_facts(&env);
+            let before = store_rows(&env);
             let (error, exit) = env.fail(&args);
             assert_eq!(exit, 1);
             assert_eq!(error["error"]["code"], "EFFECT_PENDING");
@@ -1847,7 +1741,7 @@ fn fail_snapshot_status_matches_the_original_retry_even_after_later_progress() {
             assert_eq!(error["committed"], true);
             assert_eq!(error["request_id"], rid);
             assert!(error.get("original").is_none(), "{rid} {status}: {error}");
-            assert_eq!(store_facts(&env), before);
+            assert_eq!(store_rows(&env), before);
             Connection::open(env.dir.path().join("store.db"))
                 .unwrap()
                 .execute(
@@ -1893,7 +1787,7 @@ fn begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree(
             rusqlite::params![snapshot.to_string(), rid],
         )
         .unwrap();
-    let before_rows = store_facts(&env);
+    let before_rows = store_rows(&env);
     let before_files = tree(&env.dir.path().join("works"));
     let (error, exit) = env.fail(&args);
     assert_eq!(exit, 1);
@@ -1902,6 +1796,6 @@ fn begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree(
     assert_eq!(error["committed"], true);
     assert_eq!(error["request_id"], rid);
     assert!(error.get("original").is_none(), "{error}");
-    assert_eq!(store_facts(&env), before_rows);
+    assert_eq!(store_rows(&env), before_rows);
     assert_eq!(tree(&env.dir.path().join("works")), before_files);
 }

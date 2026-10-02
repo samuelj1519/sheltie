@@ -35,6 +35,11 @@ fn review_back_edge_creates_second_draft_occurrence() {
     let s3 = env.submit_all(&wid, &r2, "通过");
     let p = env.follow_begin(&s3, "publish");
     assert_eq!(p["data"]["attempt"], "publish#1.0");
+    let article = p["data"]["inputs"]["article"].as_str().unwrap();
+    assert!(
+        article.contains("/attempts/draft/occurrence-002/attempt-000/outputs/article.md"),
+        "{article}"
+    );
 }
 
 // Task: T21
@@ -95,24 +100,6 @@ fn human_executor_node_is_begun_and_submitted_like_agent() {
     )));
     let done = env.submit_all(&wid, &p, "定稿");
     assert_eq!(done["data"]["work_status"]["kind"], "succeeded");
-}
-
-// Task: T21
-#[test]
-fn downstream_binds_latest_succeeded_occurrence_output() {
-    let env = Env::new();
-    let wid = start_review(&env);
-    let after_review = draft_then_review_fail(&env, &wid);
-    let b2 = env.follow_begin(&after_review, "draft");
-    let s2 = env.submit_all(&wid, &b2, "改了");
-    let r2 = env.follow_begin(&s2, "review");
-    let s3 = env.submit_all(&wid, &r2, "通过");
-    let p = env.follow_begin(&s3, "publish");
-    let article = p["data"]["inputs"]["article"].as_str().unwrap();
-    assert!(
-        article.contains("/attempts/draft/occurrence-002/attempt-000/outputs/article.md"),
-        "{article}"
-    );
 }
 
 // Task: T21

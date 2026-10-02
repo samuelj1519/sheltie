@@ -6,13 +6,14 @@ mod common;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+use common::store::{StoreRows, store_rows};
 use common::*;
-use rusqlite::{Connection, types::Value as SqlValue};
+use rusqlite::Connection;
 use serde_json::{Value, json};
 
 #[derive(Debug, PartialEq)]
 struct Persisted {
-    rows: BTreeMap<&'static str, Vec<Vec<SqlValue>>>,
+    rows: StoreRows,
     files: BTreeMap<PathBuf, Option<Vec<u8>>>,
 }
 
@@ -21,24 +22,7 @@ fn connection(env: &Env) -> Connection {
 }
 
 fn persisted(env: &Env) -> Persisted {
-    let connection = connection(env);
-    let mut rows = BTreeMap::new();
-    for (table, query) in [
-        ("workbooks", "SELECT * FROM workbooks ORDER BY id, version"),
-        ("works", "SELECT * FROM works ORDER BY work_id"),
-        ("work_sequence", "SELECT * FROM work_sequence ORDER BY day"),
-        ("requests", "SELECT * FROM requests ORDER BY request_id"),
-        ("audit", "SELECT * FROM audit ORDER BY seq"),
-    ] {
-        let mut statement = connection.prepare(query).unwrap();
-        let columns = statement.column_count();
-        let values = statement
-            .query_map([], |row| (0..columns).map(|index| row.get(index)).collect())
-            .unwrap()
-            .collect::<Result<Vec<Vec<SqlValue>>, _>>()
-            .unwrap();
-        rows.insert(table, values);
-    }
+    let rows = store_rows(env);
     fn record(root: &Path, path: &Path, files: &mut BTreeMap<PathBuf, Option<Vec<u8>>>) {
         let metadata = std::fs::symlink_metadata(path).unwrap();
         let relative = path.strip_prefix(root).unwrap().to_path_buf();

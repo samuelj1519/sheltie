@@ -197,8 +197,44 @@ HEAD：`4b86279a863f941cc282fa6cb772f7359fda585a`；候选为保留 T38 精简�
 F38-03/F38-02/F38-01按本次修复、正反例、真实caller与独立审查关闭；不是仅凭717全绿关闭。原文在本机临时目录，不属于固定Git历史归档。本次未提交、推送或发布；未修写已有坏Store，M1原例外、Linux/T16/T17状态不变。
 
 
-### C002-T39 提交授权与证据保存
+## C002-T40 测试精简验证
+
+HEAD为`4b86279a863f941cc282fa6cb772f7359fda585a`，候选是保留T38/T39的未提交工作区。本次初始文件字节、diff、717项名单在`/private/tmp/sheltie-t40-evidence/`；`input-tree/`为逐哈希核验的原始镜像。最初Git archive/diff未包含三个未跟踪T39测试，随后从固定旧原文恢复并逐SHA验证，计量基准完整，不把缺失文件误记为新增测试。
+
+| 局部证据 | 实际范围 |
+| --- | --- |
+| core | 205/205及5/5 compile_fail通过；`/private/tmp/sheltie-t40-core-test.log` |
+| runtime | run `f3672b0e-2496-4268-aa38-809827aeb6ff`，103/103通过、204显式scope排除；runtime test/summary文件见scope report |
+| CLI | 12个受影响binary 118/118通过；后续8/8 skill及1/1 symlink，均各绑定实际输入，不相加称全仓PASS |
+| schema定向负控 | 正控2/2；只在私有副本禁表形状比较后2 FAIL，已正常编译，原文`schema-control.log`/`schema-negative.log` |
+| 提交前观察定向负控 | 正控1/1；仅注入revision+1违规写后1 FAIL，精确全表不变断言失败，原文`observation-control.log`/`observation-negative.log` |
+| CLI叶软链定向负控 | 正控1/1；只在私有副本open_regular_at跟随stat并移除NOFOLLOW后1 FAIL，原文`cli-symlink-control.log`/`cli-symlink-negative.log` |
+
+三类负控的命令、退出码与原文SHA为`negative-controls.json`；试验只在独立镜像和临时Home，源文件复原，不涉及真实用户管理根，不是完整mutants运行。
+
+默认非测试支持源码的52文件去测试AST前后相同，token SHA256 `8cdf7bcd5e65df18148fd00b2f5b37dca628f7e7b84851f3076b9066f71e0461`。7个快照、44项fixture/config/依赖字节不变；验证器、实际输入和指标在`integrity.json`、`fingerprint-command.json`、`line-metrics.json`。仅testkit feature支持API收口/公开已有构造器有变化，不计默认生产行为变化。
+
+717条原test identity的`coverage-map.json`逐条绑定保留/退休/合并，31消失名字均有真实当前replacement；2新名字为参数化改名与schema2合法控制。三份scope dispositions保存case/oracle/window、原/现函数或hash，最终独立Reviewer全文核验，不只按测试数判断覆盖。37个Rust文件净少896行，仍保留688个入口和5个compile_fail；统计包含新shared支持文件且不含文档。
+
+完整冻结候选门禁全部exit0。命令/环境/退出码/原文位于`gates/results.json`及逐命令stdout/stderr；离线Cargo、RUSTC_WRAPPER空、build jobs2、Nextest0.9.146/threads2、独立target。deny用原公告缓存独立db-path重新执行，不声称在线刷新。新src/test/支持文件纳入输入闭包，不沿用717原run作为当前688运行证明。
+
+独立审查三scope“通过”，原文`/private/tmp/sheltie-t40-independent-review.md`；21条legacy注记与checker原字节另核。当前改动未提交；普通门禁与本次定向负控不扩为完整M1/变异/Host/发布PASS，既有SK01/SK02和Linux/T16/T17限制不变。
+
+
+T40最终Nextest run `8c8a31ba-5bb2-4b0e-a679-13c4e4ad63f4`：44 binaries，688/688、0 skipped、1 slow；core205/runtime307/CLI176。测试阶段162.308秒，全命令178.959秒；core doctest5/5。fmt/check/Clippy、core-doc、离线deny、MSRV1.85 locked、docs/specs/core-vocab/tests/skill与dist plan全部exit0。
+
+171项构建/测试/配置/fixture输入清单SHA256 `678e58742b852744f015e08f0d494dbb2f64d239a5c3622b37da0af67ddb23b5`，收尾无字节漂移。独立审查原文SHA256 `e52572428afe7215218ea5a3e6435df0290496ca5576ec21196a4189e4b65379`；处置与真实语义审查通过不代替实际普通门禁，两类结果分别保存。最终docs/specs/tests与 `scripts/check-task.sh C002-T40 4b86279 --staged` 均exit0，完整收尾结果为 `final-checks.json`；原文为本机临时证据。
+
+单次重型add限额测试仍69.847秒，和T39的69.877秒接近；总测试阶段也接近T39的166.013秒。输入和case集合已变，未经重复受控基线不将差异解释为可靠提速。本次结果是测试维护代码减少、覆盖集中且弱判定修正，不承诺执行耗时大幅下降。
+
+
+### C002-T40 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。
 
-恢复方式：从本package运行 `tar -xzf evidence/submissions/C002-T39.tar.gz -C <临时目录>`；根目录为 `C002-T39/`，`contents.json`逐文件给出SHA256与大小。原文中的本机绝对路径保留为历史来源，归档内的相对文件及该清单是提交后的恢复入口。此次归档逐项核字节后才纳入提交，不声称仅hash就是备份。
+恢复方式：从本package运行 `tar -xzf evidence/submissions/C002-T40.tar.gz -C <临时目录>`；根目录为 `C002-T40/`，`contents.json`逐文件给出SHA256与大小。原文中的本机绝对路径保留为历史来源，归档内的相对文件及该清单是提交后的恢复入口。此次归档逐项核字节后才纳入提交，不声称仅hash就是备份。
+
+
+### 分阶段提交的构建缓存复核
+
+首次T39钩子正常执行，但共享target因历史文件mtime早于既有产物而复用旧core/runtime，选择714项，12项已运行中1项失败、702未运行；该失败不记PASS，原输出保留会话，结构化原状态收进T40档案的submission目录。重建文件清单及mtime处理已修正；各阶段采用独立target，T38补核699/699，T39钩子717/717，零跳过，源字节与166/169原清单相同。原门禁、该失败、后续fresh结果分别记录，不混为一次run。T40钩子使用单独target，并核171项源输入，不复用错误产物。

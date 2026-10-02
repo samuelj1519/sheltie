@@ -736,50 +736,15 @@ mod tests {
     // Task: T10
     #[test]
     fn brief_require_row_takes_version_from_manifest_and_names_kind() {
-        use crate::digest::Sha256Hex;
-        use crate::flow::{ResourceIndex, compile, parse_flow};
-        use crate::ids::{FlowId, NodeId, WorkId, WorkName};
-        use crate::path::AbsPath;
-        use crate::work::WorkbookRef;
-        use crate::work::command::Command;
-        use crate::work::decide::decide;
-        use crate::workbook::parse_manifest;
-
-        let manifest = parse_manifest(
+        let mut fx = Fixture::from_texts(
             "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
-        )
-        .unwrap();
-        let def = parse_flow(
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"用公司 API 做点事。\" }\nrequires = [\"skill:company-api\", \"mcp:db\"]\n",
+            &[],
         )
-        .unwrap();
-        let graph = compile(&def, &manifest, &ResourceIndex::default()).unwrap();
-        let start = Command::Start {
-            work_id: WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap()).unwrap(),
-            name: WorkName::normalize("t").unwrap(),
-            workbook: WorkbookRef {
-                id: manifest.id.clone(),
-                version: manifest.version.clone(),
-                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
-            },
-            flow: FlowId::new("default").unwrap(),
-            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
-            inputs: BTreeMap::new(),
-        };
-        let d0 = decide(None, &graph, &start, &crate::testkit::ctx()).unwrap();
-        let d1 = decide(
-            Some(&d0.state),
-            &graph,
-            &Command::BeginAttempt {
-                node: NodeId::new("only").unwrap(),
-                observed_inputs: BTreeMap::new(),
-                instruction_text: "用公司 API 做点事。".to_string(),
-            },
-            &crate::testkit::ctx(),
-        )
-        .unwrap();
-        let a = d1.state.latest_attempt_of_current().unwrap();
-        let text = render_brief(&d1.state, &graph, a, "用公司 API 做点事。");
+        .started_with(&[]);
+        fx.begin("only").unwrap();
+        let a = fx.state().latest_attempt_of_current().unwrap();
+        let text = render_brief(fx.state(), &fx.graph, a, "用公司 API 做点事。");
         // 版本取自 manifest，没写时填 `-`；说明里的「此 <kind>」随类型变（protocol.md §4）。
         assert!(text.contains(
             "| skill | company-api | ^1 | 请确认你的宿主已装此 skill；未装请停下并告知用户 |\n\
@@ -792,52 +757,17 @@ mod tests {
     // Task: T10
     #[test]
     fn brief_require_version_ignores_crossed_kind_name_pairs() {
-        use crate::digest::Sha256Hex;
-        use crate::flow::{ResourceIndex, compile, parse_flow};
-        use crate::ids::{FlowId, NodeId, WorkId, WorkName};
-        use crate::path::AbsPath;
-        use crate::work::WorkbookRef;
-        use crate::work::command::Command;
-        use crate::work::decide::decide;
-        use crate::workbook::parse_manifest;
-
         // skill:db 与 mcp:db 同 name 不同 kind；mcp:db 才是节点引用的那条。
         // 版本查找若把 && 写成 ||，会先命中 skill:db 的 1.0。
-        let manifest = parse_manifest(
+        let mut fx = Fixture::from_texts(
             "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
-        )
-        .unwrap();
-        let def = parse_flow(
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:db\"]\n",
+            &[],
         )
-        .unwrap();
-        let graph = compile(&def, &manifest, &ResourceIndex::default()).unwrap();
-        let start = Command::Start {
-            work_id: WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap()).unwrap(),
-            name: WorkName::normalize("t").unwrap(),
-            workbook: WorkbookRef {
-                id: manifest.id.clone(),
-                version: manifest.version.clone(),
-                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
-            },
-            flow: FlowId::new("default").unwrap(),
-            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
-            inputs: BTreeMap::new(),
-        };
-        let d0 = decide(None, &graph, &start, &crate::testkit::ctx()).unwrap();
-        let d1 = decide(
-            Some(&d0.state),
-            &graph,
-            &Command::BeginAttempt {
-                node: NodeId::new("only").unwrap(),
-                observed_inputs: BTreeMap::new(),
-                instruction_text: "做这一件事。".to_string(),
-            },
-            &crate::testkit::ctx(),
-        )
-        .unwrap();
-        let a = d1.state.latest_attempt_of_current().unwrap();
-        let text = render_brief(&d1.state, &graph, a, "做这一件事。");
+        .started_with(&[]);
+        fx.begin("only").unwrap();
+        let a = fx.state().latest_attempt_of_current().unwrap();
+        let text = render_brief(fx.state(), &fx.graph, a, "做这一件事。");
         assert!(
             text.contains("| mcp | db | 3.0 |"),
             "版本必须来自 mcp:db 那条声明：\n{text}"
@@ -882,15 +812,6 @@ mod tests {
             "x",
         );
         assert!(entry.contains("来自: 入口"));
-        fx.submit_ok("draft#1.0", "ok").unwrap();
-        fx.begin("review").unwrap();
-        let via = render_brief(
-            fx.state(),
-            &fx.graph,
-            fx.state().latest_attempt_of_current().unwrap(),
-            "x",
-        );
-        assert!(via.contains("来自: draft#1（main 边）"));
     }
 
     // Task: T10
@@ -1058,12 +979,14 @@ mod tests {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         fx.fail("draft#1.0", "一").unwrap();
+        assert_eq!(fx.state().blocked_count, 0);
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 0);
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.1", "ok").unwrap();
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 0);
 
         let fx = exhausted_draft();
+        assert_eq!(fx.state().blocked_count, 1);
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
 
         let fx = no_legal_edge();
@@ -1073,8 +996,10 @@ mod tests {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
         fx.submit_ok("notes#1.0", "写好了").unwrap();
+        assert_eq!(fx.state().blocked_count, 1);
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
         fx.approve("notes").unwrap();
+        assert_eq!(fx.state().blocked_count, 1, "批准不清除已发生的受阻事实");
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
     }
 
@@ -1122,26 +1047,6 @@ mod tests {
         assert_eq!(fx.state().blocked_count, 1, "取消不得减少累计受阻");
         let stats = render_stats_json(fx.state(), &fx.graph);
         assert_eq!(stats.blocked_count, 1);
-    }
-
-    // Task: C002-T06
-    #[test]
-    fn blocked_count_accumulates_across_kinds_and_keeps_after_approve() {
-        // 重试耗尽 +1。
-        let fx = exhausted_draft();
-        assert_eq!(fx.state().blocked_count, 1);
-        // gate 提交成功 +1；批准后保留。
-        let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
-        fx.begin("notes").unwrap();
-        fx.submit_ok("notes#1.0", "写好了").unwrap();
-        assert_eq!(fx.state().blocked_count, 1);
-        fx.approve("notes").unwrap();
-        assert_eq!(fx.state().blocked_count, 1, "批准不清除已发生的受阻事实");
-        // 普通成功与可重试失败不计。
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "一").unwrap();
-        assert_eq!(fx.state().blocked_count, 0);
     }
 
     // Task: C002-T06

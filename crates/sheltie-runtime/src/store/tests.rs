@@ -53,6 +53,84 @@ fn input(
     }
 }
 
+// 手写合同schema2；不使用production TABLES/create_script作为自己的期望。
+const HANDWRITTEN_WORKS: &str = "CREATE TABLE works (
+  work_id     TEXT PRIMARY KEY,
+  revision    INTEGER NOT NULL,
+  status      TEXT NOT NULL,
+  state_json  TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+)";
+
+fn handwritten_schema2(works: &str) -> (tempfile::TempDir, Home) {
+    let (dir, home) = temp_home();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    assert!(
+        connection
+            .set_db_config(
+                rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,
+                true
+            )
+            .unwrap()
+    );
+    connection
+        .execute_batch("PRAGMA journal_mode = WAL;")
+        .unwrap();
+    connection
+        .execute_batch(&format!(
+            "CREATE TABLE workbooks (id TEXT NOT NULL, version TEXT NOT NULL, digest TEXT NOT NULL, dir TEXT NOT NULL, added_at TEXT NOT NULL, PRIMARY KEY (id, version));
+             {works};
+             CREATE TABLE work_sequence (day TEXT PRIMARY KEY, last INTEGER NOT NULL);
+             CREATE TABLE requests (request_id TEXT PRIMARY KEY, intent_hash TEXT NOT NULL, work_id TEXT, reply_json TEXT NOT NULL, effects_json TEXT NOT NULL, published INTEGER NOT NULL, at TEXT NOT NULL);
+             CREATE TABLE audit (seq INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL, revision INTEGER NOT NULL, request_id TEXT NOT NULL, principal TEXT NOT NULL, command_json TEXT NOT NULL, at TEXT NOT NULL);
+             INSERT INTO work_sequence VALUES ('2026-10-02', 7);
+             PRAGMA user_version = 2;"
+        ))
+        .unwrap();
+    drop(connection);
+    (dir, home)
+}
+
+fn assert_schema2_shape_rejected(works: String) {
+    let (dir, home) = handwritten_schema2(&works);
+    let main_before = std::fs::read(home.store_path().as_path()).unwrap();
+    let wal = dir.path().join("store.db-wal");
+    let wal_before = std::fs::read(&wal).unwrap();
+    assert!(!wal_before.is_empty());
+    for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
+        let error = Store::open(&home.store_path(), mode).unwrap_err();
+        let Error::StoreSchemaMismatch { detail } = error else {
+            panic!("same-version形状错误须准确定位：{error:?}");
+        };
+        assert_eq!(detail, "表 works 的建表语句与 SCHEMA_VERSION 不符");
+        assert_eq!(
+            std::fs::read(home.store_path().as_path()).unwrap(),
+            main_before
+        );
+        assert_eq!(std::fs::read(&wal).unwrap(), wal_before);
+    }
+}
+
+// Task: C002-T40
+#[test]
+fn handwritten_schema2_control_accepts_both_open_modes() {
+    let (_dir, home) = handwritten_schema2(HANDWRITTEN_WORKS);
+    for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
+        let store = Store::open(&home.store_path(), mode).unwrap();
+        assert!(store.list_works().unwrap().is_empty());
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let last: i64 = connection
+            .query_row(
+                "SELECT last FROM work_sequence WHERE day='2026-10-02'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(last, 7);
+    }
+}
+
 // Task: T13
 #[test]
 fn open_creates_schema_with_user_version_1() {
@@ -93,26 +171,10 @@ fn open_rejects_wrong_user_version() {
     ));
 }
 
-// Task: T13
+// Task: C002-T40
 #[test]
 fn open_rejects_same_version_different_table_shape() {
-    // 手工造一个「旧结构」库：user_version = 1，但 works 表少一列。
-    let (d, home) = temp_home();
-    let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
-    conn.execute_batch(
-        "CREATE TABLE workbooks (id TEXT NOT NULL, version TEXT NOT NULL, digest TEXT NOT NULL, dir TEXT NOT NULL, added_at TEXT NOT NULL, PRIMARY KEY (id, version));
-         CREATE TABLE works (work_id TEXT PRIMARY KEY, revision INTEGER NOT NULL, state_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-         CREATE TABLE work_sequence (day TEXT PRIMARY KEY, last INTEGER NOT NULL);
-         CREATE TABLE requests (request_id TEXT PRIMARY KEY, work_id TEXT, payload_hash TEXT NOT NULL, reply_json TEXT NOT NULL, at TEXT NOT NULL);
-         CREATE TABLE audit (seq INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL, revision INTEGER NOT NULL, request_id TEXT NOT NULL, principal TEXT NOT NULL, command_json TEXT NOT NULL, at TEXT NOT NULL);
-         PRAGMA user_version = 1;",
-    )
-    .unwrap();
-    drop(conn);
-    assert!(matches!(
-        Store::open(&home.store_path(), OpenMode::ReadWrite),
-        Err(Error::StoreSchemaMismatch { .. })
-    ));
+    assert_schema2_shape_rejected(HANDWRITTEN_WORKS.replace("  status      TEXT NOT NULL,\n", ""));
 }
 
 // Task: T13
@@ -215,30 +277,12 @@ fn lazy_readonly_store_rejects_a_hardlinked_journal_sidecar() {
     );
 }
 
-// Task: T13
+// Task: C002-T40
 #[test]
 fn open_rejects_same_whitespace_different_column_type() {
-    // 与 schema::TABLES 同空白、只把 works 表的 TEXT 换成 BLOB：
-    // 「去掉全部空白后比较」不能被替换成「只比较空白」。
-    let (d, home) = temp_home();
-    let conn = rusqlite::Connection::open(d.path().join("store.db")).unwrap();
-    let mut script = String::new();
-    for (name, sql) in super::schema::TABLES {
-        let sql = if *name == "works" {
-            sql.replace("TEXT", "BLOB")
-        } else {
-            (*sql).to_string()
-        };
-        script.push_str(&sql);
-        script.push_str(";\n");
-    }
-    script.push_str("PRAGMA user_version = 1;");
-    conn.execute_batch(&script).unwrap();
-    drop(conn);
-    assert!(matches!(
-        Store::open(&home.store_path(), OpenMode::ReadWrite),
-        Err(Error::StoreSchemaMismatch { .. })
-    ));
+    assert_schema2_shape_rejected(
+        HANDWRITTEN_WORKS.replace("state_json  TEXT", "state_json  BLOB"),
+    );
 }
 
 // Task: T13
@@ -359,16 +403,6 @@ fn allocate_seq_starts_at_1_per_day_and_increments() {
     assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 1);
     assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 2);
     assert_eq!(store.allocate_seq("2026-09-25").unwrap(), 1);
-}
-
-// Task: T13
-#[test]
-fn allocate_seq_is_not_reused_after_failed_start() {
-    let (_d, home) = temp_home();
-    let store = open_rw(&home);
-    let _ = store.allocate_seq("2026-09-24").unwrap();
-    // 假装 start 失败了，什么都没写入 works；下一次仍然是 2。
-    assert_eq!(store.allocate_seq("2026-09-24").unwrap(), 2);
 }
 
 // Task: T13

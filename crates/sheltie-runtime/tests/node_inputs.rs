@@ -5,12 +5,7 @@ use common::*;
 use rusqlite::Connection;
 use serde_json::json;
 use sheltie_core::ids::{AttemptId, NodeId};
-use sheltie_runtime::request::InputValue;
 use std::path::PathBuf;
-
-fn lit(text: &str) -> InputValue {
-    InputValue::Literal { text: text.into() }
-}
 
 // Task: C002-T31
 #[test]

@@ -236,3 +236,9 @@ allow_test_changes = false
 files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-cli/tests/flow_identity.rs", "crates/sheltie-cli/tests/strict_state.rs", "crates/sheltie-cli/tests/tmp_cleanup.rs"]
 allow_test_changes = true
+
+[C002-T40]
+# 本任务只改测试区域/测试专用support；src范围覆盖未提交T38/T39与混合测试文件，另核生产字节闭包。
+files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-core/tests", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
+allow_test_changes = true

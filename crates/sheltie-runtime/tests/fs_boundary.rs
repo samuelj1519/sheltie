@@ -7,52 +7,14 @@ mod common;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 
+use common::two_step_args as start_args;
 use common::*;
 use sheltie_core::ids::AttemptId;
 use sheltie_runtime::Error;
 use sheltie_runtime::fsx::{ExternalReadFile, ManagedFs, ManagedRelPath};
-use sheltie_runtime::{StartArgs, WorkService};
-
-fn sentinel(dir: &Path, name: &str) -> std::path::PathBuf {
-    let p = dir.join(name);
-    std::fs::write(&p, format!("sentinel-{name}")).unwrap();
-    p
-}
-
-fn snapshot(path: &Path) -> (Vec<u8>, u32) {
-    let bytes = std::fs::read(path).unwrap();
-    let mode = std::fs::metadata(path).unwrap().permissions().mode();
-    (bytes, mode)
-}
 
 fn canonical_abs(path: &Path) -> sheltie_core::path::AbsPath {
     abs(&std::fs::canonicalize(path).unwrap())
-}
-
-fn lit(s: &str) -> sheltie_runtime::request::InputValue {
-    sheltie_runtime::request::InputValue::Literal {
-        text: s.to_string(),
-    }
-}
-
-fn start_args(inputs: &[(&str, &str)]) -> StartArgs {
-    StartArgs {
-        workbook_id: "two-step".into(),
-        version: None,
-        flow: "default".into(),
-        name: None,
-        inputs: inputs
-            .iter()
-            .map(|(k, v)| {
-                (
-                    k.to_string(),
-                    sheltie_runtime::request::InputValue::Literal {
-                        text: v.to_string(),
-                    },
-                )
-            })
-            .collect(),
-    }
 }
 
 /// works 被换成指向根外的软链后，start 不得沿它写整棵 Work（O01 复现的反面）。
@@ -257,11 +219,11 @@ fn oversize_declared_output_rejected_at_observation_as_output_too_large() {
     );
 }
 
-/// 观察拒绝发生在 COMMIT 之前：Store 的 revision 与状态不变。
-// Task: C002-T04
+/// 观察拒绝发生在 COMMIT 之前：Store 的完整行与外部哨兵均不变。
+// Task: C002-T40
 #[test]
 fn observation_rejection_before_commit_leaves_store_unchanged() {
-    let (_d, _home, svc) = home_with_example("two-step");
+    let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(start_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(
@@ -276,10 +238,17 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
     };
     // 输出被换成软链：观察即拒绝，提交与效果都不发生。
     let out = Path::new(output_dir.as_str()).join("outline.md");
-    let sent = sentinel(tempfile::tempdir().unwrap().path(), "keep-output");
+    let outside = tempfile::tempdir().unwrap();
+    let sent = sentinel(outside.path(), "keep-output");
+    let sentinel_before = snapshot(&sent);
     std::os::unix::fs::symlink(&sent, &out).unwrap();
 
-    let before = svc.status(&wid).unwrap();
+    let connection = rusqlite::Connection::open_with_flags(
+        home.store_path().as_str(),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let before = store_rows(&connection);
     let err = svc
         .submit(
             &wid,
@@ -289,12 +258,12 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
         )
         .unwrap_err();
     assert!(err.to_string().contains("符号链接"), "{err:?}");
-    let after = svc.status(&wid).unwrap();
-    // 状态卡的 current 与 JSON 状态一致即 revision 未推进（begin 后没有新的写事务）。
     assert_eq!(
-        serde_json::to_string(&before.1.status).unwrap(),
-        serde_json::to_string(&after.1.status).unwrap()
+        store_rows(&connection),
+        before,
+        "观察拒绝不得改变revision、state_json、requests或audit"
     );
+    assert_eq!(snapshot(&sent), sentinel_before);
 }
 
 /// 独占原子写的单元行为：不覆盖已有目标名之外，还拒绝在同目录预留的软链临时名。
@@ -589,12 +558,6 @@ fn managed_rename_rejects_symlink_source_without_moving_or_touching_target() {
     );
     assert!(!home.root().as_path().join(target.as_str()).exists());
     assert_eq!(snapshot(&sentinel_path), sentinel_before);
-}
-
-// 引用 WorkService 避免未使用告警的兜底（service 在多个用例中使用）。
-#[allow(dead_code)]
-fn _svc_ref(s: &WorkService) {
-    let _ = s.list();
 }
 
 // Task: C002-T34

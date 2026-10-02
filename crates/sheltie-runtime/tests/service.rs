@@ -14,26 +14,6 @@ use sheltie_runtime::{Error, StartArgs};
 
 static POST_COMMIT_SYNC_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-fn lit(s: &str) -> InputValue {
-    InputValue::Literal {
-        text: s.to_string(),
-    }
-}
-
-fn inputs_lit(pairs: &[(&str, &str)]) -> std::collections::BTreeMap<String, InputValue> {
-    pairs.iter().map(|(k, v)| (k.to_string(), lit(v))).collect()
-}
-
-fn two_step_start_args() -> StartArgs {
-    StartArgs {
-        workbook_id: "two-step".into(),
-        version: None,
-        flow: "default".into(),
-        name: None,
-        inputs: inputs_lit(&[("topic", "给新人介绍 Sheltie")]),
-    }
-}
-
 fn unpublished_start_fixture() -> (
     OwnedTempDir,
     sheltie_runtime::Home,
@@ -46,7 +26,10 @@ fn unpublished_start_fixture() -> (
     let (dir, home, svc) = home_with_example("two-step");
     let request_id = format!("t26-start-{}", uuid::Uuid::now_v7());
     let started = svc
-        .start(two_step_start_args(), Some(request_id.clone()))
+        .start(
+            two_step_args(&[("topic", "给新人介绍 Sheltie")]),
+            Some(request_id.clone()),
+        )
         .unwrap();
     let work = work_id_of(&started);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -238,18 +221,6 @@ fn begin_loads_graph_from_frozen_copy_not_repository() {
     };
     assert!(brief.contains("列一份提纲"));
     assert!(!brief.contains("被改过的说明"));
-}
-
-// Task: T16
-#[test]
-fn status_works_after_workbook_removed() {
-    let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&start_two_step(&svc));
-    svc.cancel(&wid, None).unwrap();
-    repo(&home).remove("two-step", "1.0.0", None).unwrap();
-    let (card, json) = svc.status(&wid).unwrap();
-    assert_eq!(json.status, WorkStatus::Cancelled);
-    assert!(card.contains("status: cancelled"));
 }
 
 // Task: T16
@@ -1288,121 +1259,64 @@ fn historical_write_with_missing_parent_keeps_committed_snapshot() {
 
 // Task: C002-T25
 #[test]
-fn malformed_started_workbook_ref_is_not_projected_as_success() {
-    let (_dir, home, svc) = home_with_example("two-step");
-    let request_id = "t25-start-workbook-ref";
-    svc.start(two_step_start_args(), Some(request_id.to_string()))
-        .unwrap();
-    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    let reply: String = conn
-        .query_row(
-            "SELECT reply_json FROM requests WHERE request_id = ?1",
-            [request_id],
-            |row| row.get(0),
+fn malformed_started_identity_is_not_projected_as_success() {
+    for (field, value) in [
+        ("workbook", serde_json::json!({})),
+        ("name", serde_json::json!("other-valid-name")),
+    ] {
+        let (_dir, home, svc) = home_with_example("two-step");
+        let request_id = format!("t25-start-{field}");
+        let args = two_step_args(&[("topic", "给新人介绍 Sheltie")]);
+        svc.start(args.clone(), Some(request_id.clone())).unwrap();
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let reply: String = conn
+            .query_row(
+                "SELECT reply_json FROM requests WHERE request_id = ?1",
+                [&request_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+        snapshot["data"][field] = value;
+        conn.execute(
+            "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+            rusqlite::params![snapshot.to_string(), request_id],
         )
         .unwrap();
-    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
-    snapshot["data"]["workbook"] = serde_json::json!({});
-    conn.execute(
-        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
-        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
-    )
-    .unwrap();
-    drop(conn);
-
-    let error = svc
-        .start(two_step_start_args(), Some(request_id.to_string()))
-        .unwrap_err();
-    assert_effect_pending_without_original(error, true, request_id, None);
-}
-
-// Task: C002-T25
-#[test]
-fn malformed_started_name_is_not_projected_as_success() {
-    let (_dir, home, svc) = home_with_example("two-step");
-    let request_id = "t25-start-name";
-    svc.start(two_step_start_args(), Some(request_id.to_string()))
-        .unwrap();
-    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    let reply: String = conn
-        .query_row(
-            "SELECT reply_json FROM requests WHERE request_id = ?1",
-            [request_id],
-            |row| row.get(0),
-        )
-        .unwrap();
-    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
-    snapshot["data"]["name"] = serde_json::json!("other-valid-name");
-    conn.execute(
-        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
-        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
-    )
-    .unwrap();
-    drop(conn);
-
-    let error = svc
-        .start(two_step_start_args(), Some(request_id.to_string()))
-        .unwrap_err();
-    assert_effect_pending_without_original(error, true, request_id, None);
+        let error = svc.start(args, Some(request_id.clone())).unwrap_err();
+        assert_effect_pending_without_original(error, true, &request_id, None);
+    }
 }
 
 // Task: C002-T25
 #[test]
 fn malformed_cancelled_status_is_not_projected_as_success() {
-    let (_dir, home, svc) = home_with_example("two-step");
-    let started = svc.start(two_step_start_args(), None).unwrap();
-    let wid = work_id_of(&started);
-    let request_id = "t25-cancelled-status";
-    svc.cancel(&wid, Some(request_id.to_string())).unwrap();
-
-    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    let reply: String = conn
-        .query_row(
-            "SELECT reply_json FROM requests WHERE request_id = ?1",
-            [request_id],
-            |row| row.get(0),
+    for value in [
+        serde_json::json!({"kind":"active"}),
+        serde_json::json!({"kind":"cancelled","unknown":"extra"}),
+    ] {
+        let (_dir, home, svc) = home_with_example("two-step");
+        let wid = work_id_of(&start_two_step(&svc));
+        let request_id = "t25-cancelled-status";
+        svc.cancel(&wid, Some(request_id.into())).unwrap();
+        let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let reply: String = conn
+            .query_row(
+                "SELECT reply_json FROM requests WHERE request_id = ?1",
+                [request_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
+        snapshot["data"]["work_status"] = value;
+        conn.execute(
+            "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
+            rusqlite::params![snapshot.to_string(), request_id],
         )
         .unwrap();
-    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
-    snapshot["data"]["work_status"] = serde_json::json!({"kind":"active"});
-    conn.execute(
-        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
-        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
-    )
-    .unwrap();
-    drop(conn);
-
-    let error = svc.cancel(&wid, Some(request_id.to_string())).unwrap_err();
-    assert_effect_pending_without_original(error, true, request_id, None);
-}
-
-// Task: C002-T25
-#[test]
-fn unknown_nested_status_field_is_not_projected_as_success() {
-    let (_dir, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(two_step_start_args(), None).unwrap());
-    let request_id = "t25-cancelled-status-extra";
-    svc.cancel(&wid, Some(request_id.to_string())).unwrap();
-
-    let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    let reply: String = conn
-        .query_row(
-            "SELECT reply_json FROM requests WHERE request_id = ?1",
-            [request_id],
-            |row| row.get(0),
-        )
-        .unwrap();
-    let mut snapshot: serde_json::Value = serde_json::from_str(&reply).unwrap();
-    snapshot["data"]["work_status"] = serde_json::json!({"kind":"cancelled","unknown":"extra"});
-    conn.execute(
-        "UPDATE requests SET reply_json = ?1 WHERE request_id = ?2",
-        rusqlite::params![serde_json::to_string(&snapshot).unwrap(), request_id],
-    )
-    .unwrap();
-    drop(conn);
-
-    let error = svc.cancel(&wid, Some(request_id.to_string())).unwrap_err();
-    assert_effect_pending_without_original(error, true, request_id, None);
+        let error = svc.cancel(&wid, Some(request_id.into())).unwrap_err();
+        assert_effect_pending_without_original(error, true, request_id, None);
+    }
 }
 
 // Task: C002-T25
@@ -1725,8 +1639,6 @@ fn submit_at_seal_sync_point(
     u64,
     std::result::Result<sheltie_runtime::Response, Error>,
 ) {
-    use std::time::{Duration, Instant};
-
     let (dir, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let begun = svc.begin(&wid, &node("outline"), None).unwrap();
@@ -1745,14 +1657,6 @@ fn submit_at_seal_sync_point(
         rendezvous.path(),
     )
     .unwrap();
-    struct SyncGuard;
-    impl Drop for SyncGuard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = SyncGuard;
-
     let submit_home = home.clone();
     let submit_work = wid.clone();
     let submit_request = request_id.clone();
@@ -1765,25 +1669,11 @@ fn submit_at_seal_sync_point(
         )
     });
     let release_path = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !rendezvous.path().join("reached").exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !rendezvous.path().join("reached").exists() {
-        let _ = std::fs::write(&release_path, b"release");
-        let _ = child.join();
-        panic!("submit 未到达 COMMIT 后、seal 前的同步点");
-    }
-    struct ReleaseGuard(std::path::PathBuf);
-    impl Drop for ReleaseGuard {
-        fn drop(&mut self) {
-            let _ = std::fs::write(&self.0, b"release");
-        }
-    }
-    let _release = ReleaseGuard(release_path.clone());
+    let mut worker = RendezvousWorker::single(child, rendezvous.path());
+    worker.wait("submit 未到达 COMMIT 后、seal 前的同步点");
     mutate(&output);
     std::fs::write(&release_path, b"release").unwrap();
-    let result = child.join().unwrap();
+    let result = worker.finish().unwrap();
     (dir, home, wid, output, request_id, base_revision, result)
 }
 
@@ -2192,7 +2082,10 @@ fn real_workbook_add_and_start_final_publications_serve_status_and_show() {
 
     let svc = service(&home);
     let started = svc
-        .start(two_step_start_args(), Some("t26-work-start".to_string()))
+        .start(
+            two_step_args(&[("topic", "给新人介绍 Sheltie")]),
+            Some("t26-work-start".to_string()),
+        )
         .unwrap();
     let work = work_id_of(&started);
     let (card, _) = svc.status(&work).unwrap();
@@ -2387,7 +2280,10 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
         )
         .unwrap();
         let error = svc
-            .start(two_step_start_args(), Some(request_id.clone()))
+            .start(
+                two_step_args(&[("topic", "给新人介绍 Sheltie")]),
+                Some(request_id.clone()),
+            )
             .unwrap_err();
         sheltie_runtime::failpoint::disarm_sync_error().unwrap();
         let Error::EffectPending {
@@ -2428,7 +2324,10 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
 
     let inode = std::fs::metadata(&final_path).unwrap().ino();
     let replayed = svc
-        .start(two_step_start_args(), Some(request_id.clone()))
+        .start(
+            two_step_args(&[("topic", "给新人介绍 Sheltie")]),
+            Some(request_id.clone()),
+        )
         .unwrap();
     assert!(replayed.replayed);
     assert_eq!(std::fs::metadata(&final_path).unwrap().ino(), inode);
@@ -2455,8 +2354,6 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn publication_refuses_payload_directory_replaced_after_sync() {
-    use std::time::{Duration, Instant};
-
     let _serial = POST_COMMIT_SYNC_LOCK.lock().unwrap();
     let (dir, home, svc, work, request_id, payload, final_path) = unpublished_start_fixture();
     let moved = dir.path().join("synced-original-payload");
@@ -2467,29 +2364,14 @@ fn publication_refuses_payload_directory_replaced_after_sync() {
         rendezvous.path(),
     )
     .unwrap();
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = Guard;
     let recovery_service = svc.clone();
     let recovery_work = work.clone();
     let recovery = std::thread::spawn(move || {
         recovery_service.cancel(&recovery_work, Some("t26-replacement-blocker".to_string()))
     });
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = recovery.join();
-        panic!("发布没有到达目录同步后的身份交错点");
-    }
+    let mut worker = RendezvousWorker::single(recovery, rendezvous.path());
+    worker.wait("发布没有到达目录同步后的身份交错点");
     std::fs::rename(&payload, &moved).unwrap();
     std::fs::create_dir(&payload).unwrap();
     std::fs::create_dir(payload.join("start-inputs")).unwrap();
@@ -2500,7 +2382,7 @@ fn publication_refuses_payload_directory_replaced_after_sync() {
     .unwrap();
     std::fs::write(&release, b"release").unwrap();
 
-    let error = recovery.join().unwrap().unwrap_err();
+    let error = worker.finish().unwrap().unwrap_err();
     let Error::EffectPending {
         committed,
         pending_request_id,

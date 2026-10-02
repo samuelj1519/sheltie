@@ -76,6 +76,7 @@ package Owner 负责指派每个任务的实施者与未参与该任务修改的
 | C002-T37 | done | 执行耗时复盘与通用验证预算方案 | 用户要求分析并提交；只记录事实与建议，不采用新门禁 |
 | C002-T38 | done | 产品与全代码分析及保持行为的精简 | 用户2026-10-02明确授权；M1完成范围与例外保持原记录 |
 | C002-T39 | done | 修复重复Flow、嵌套严格解码与tmp过期维护 | 用户明确要求修复F38-03/F38-02/F38-01；保留T38工作区 |
+| C002-T40 | done | 按能力精简测试、共享支持并修正弱oracle | 用户要求彻底精简审计相关部分；保留T38/T39工作区 |
 
 ## 3. 任务卡
 
@@ -293,7 +294,17 @@ Owner：fix_flow_ids负责Workbook完整装入及真实CLI回归，fix_nested_de
 
 先跑新增真实回归确认红，再修对应路径并确认绿；生产diff交未参与该项修改的Reviewer。统一运行四条Rust门禁、deny（同缓存隔离锁）、MSRV 1.85 locked、docs/specs/core-vocab/tests/skill及dist plan，并用显式基准核任务范围。测试新增属于T39；既有T38精简不被冒充新增修复。局部修复不重启历史完整变异、不重记M1/Host/发布PASS；本次改动仍留工作区，不自动提交。
 
+## C002-T40 测试精简与oracle修正
 
-### C002-T39 提交授权与证据保存
+Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试及测试专用支持；Codex拥有本package记录、legacy任务卡Replacement注记、整体验证和复核。开工文件字节、未提交diff与717项测试名单在`/private/tmp/sheltie-t40-evidence/`固定，保留T38/T39已完成改动。范围为上一轮三份只读审计中的确定删除、同层断言合并、支持代码重复、旧语义和弱oracle，不修改默认生产行为、依赖、快照字节、业务Workbook或安全文件实现。
+
+删除或合并前逐项登记旧测试→保留用例→入口/条件/独立oracle/故障窗口。7条确定退休候选优先处理；中等信心项须核真实producer/consumer后决定，不能只因名字、相似断言或耗时删除。迁移独有断言后才合并：engine.stats、统计、图终点、Workbook生命周期、completed submit、Active引用、installed tamper、@file/@summary、article-review回环。精确限额两端、所有合法/非法状态、五个compile_fail、七份快照、T39新增拒绝链和真实COMMIT/rename/delete/锁/句柄窗口保留。
+
+共享实际重复的目录复制、SQL行快照、子进程rendezvous/RAII和spec-dev写入提交夹具；expected仍来自手写合同值、原字节/行或独立观察，不让helper计算自己的答案，不构建通用测试框架。core保持无I/O；删除的测试support不得连带破坏真实调用者。修正schema形状反例的版本早退，保留合法schema2对照、单字段坏列/类型及准确表定位；修正观察拒绝测试的悬空哨兵和仅Active断言，核revision/state/request/audit及真实外部字节/权限。对这两类弱oracle以独立临时源码副本的定向负控制证明辨别力，不续跑全量变异。
+
+未参与测试修改的Reviewer逐项核覆盖映射、夹具、判定来源与替代门禁。同步MVP卡中被点名的退休函数为原位Replacement注记，保留历史完成事实，不改checker放宽规则。新测试与新增覆盖归本任务；未改变覆盖的原函数保留原归属，映射只在本package记录。局部验证后冻结候选，运行fmt/check/Clippy/nextest、core doctest、deny（本地缓存）、MSRV1.85、docs/specs/core-vocab/tests/skill和dist plan及显式任务范围门禁。报告实际测试/支持代码减少与保留cases，不按函数数宣称完整产品覆盖；M1/SK、Linux/Host/发布边界不变。本次仍留工作区，不自动提交或发布。
+
+
+### C002-T40 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。

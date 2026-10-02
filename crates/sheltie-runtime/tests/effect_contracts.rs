@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::*;
-use rusqlite::{Connection, types::Value as SqlValue};
+use rusqlite::Connection;
 use serde_json::{Value, json};
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_runtime::request::InputValue;
@@ -27,24 +27,7 @@ fn set_effects(conn: &Connection, rid: &str, effects: &Value, published: i64) {
     )
     .unwrap();
 }
-type StoreRows = Vec<Vec<Vec<SqlValue>>>;
 type BusinessFiles = BTreeMap<PathBuf, (u32, Vec<u8>)>;
-
-fn rows(conn: &Connection) -> StoreRows {
-    ["workbooks", "works", "work_sequence", "requests", "audit"]
-        .into_iter()
-        .map(|table| {
-            let mut q = conn
-                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
-                .unwrap();
-            let n = q.column_count();
-            q.query_map([], |r| (0..n).map(|i| r.get(i)).collect())
-                .unwrap()
-                .map(Result::unwrap)
-                .collect()
-        })
-        .collect()
-}
 fn files(root: &Path) -> BusinessFiles {
     fn walk(base: &Path, dir: &Path, out: &mut BusinessFiles) {
         if !dir.exists() {
@@ -78,7 +61,11 @@ fn assert_unchanged(
     before_rows: StoreRows,
     before_files: BusinessFiles,
 ) {
-    assert_eq!(rows(conn), before_rows, "拒绝前不得提交或改变完成标记");
+    assert_eq!(
+        store_rows(conn),
+        before_rows,
+        "拒绝前不得提交或改变完成标记"
+    );
     assert_eq!(
         files(home.root().as_path().as_std_path()),
         before_files,
@@ -120,7 +107,7 @@ fn begin_replay_checks_content_and_hash_even_when_the_existing_brief_matches() {
             std::fs::remove_file(original.data["brief_path"].as_str().unwrap()).unwrap();
         }
         set_effects(&conn, rid, &changed, i64::from(!missing));
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         assert_effect_pending(
             svc.begin(&work, &node, Some(rid.into())).unwrap_err(),
@@ -176,7 +163,7 @@ fn submit_replay_requires_exactly_the_committed_output_references_and_seal() {
             }
         }
         set_effects(&conn, rid, &changed, 0);
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         assert_effect_pending(
             svc.submit(&work, &attempt, &summary, Some(rid.into()))
@@ -288,7 +275,7 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
                 }
             }
             set_effects(&conn, rid, &changed, 1);
-            let before_rows = rows(&conn);
+            let before_rows = store_rows(&conn);
             let before_files = files(home.root().as_path().as_std_path());
             let error = if remove {
                 repo.remove("two-step", "1.0.0", Some(rid.into()))
@@ -349,7 +336,7 @@ fn unpublished_workbook_publish_checks_registered_digest_and_audit_time() {
         assert_ne!(value, pristine);
         conn.execute(&format!("UPDATE workbooks SET {field}=?1"), [value])
             .unwrap();
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let snapshot = assert_effect_pending(
             repo.add(&source, Some(rid.into())).unwrap_err(),
@@ -387,7 +374,7 @@ fn cleanup_preserves_unreferenced_objects_claiming_a_committed_request() {
     .unwrap();
     std::fs::write(pending.join(format!("{id}.owner")),json!({"format":"pending/v1","internal_id":id,"request_id":"existing-request","op":"add_workbook"}).to_string()+"\n").unwrap();
     let conn = Connection::open(home.store_path().as_str()).unwrap();
-    let before_rows = rows(&conn);
+    let before_rows = store_rows(&conn);
     let before_files = files(home.root().as_path().as_std_path());
     let warnings = repo.cleanup_pending().unwrap();
     assert!(
@@ -436,14 +423,14 @@ fn cleanup_validates_completed_remove_metadata_before_any_deletion_and_is_repeat
             });
             std::fs::write(&owner, json.to_string() + "\n").unwrap();
         }
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let warnings = repo.cleanup_pending().unwrap();
         if corruption == "none" {
             assert!(warnings.is_empty(), "{warnings:?}");
             assert!(!container.exists() && !owner.exists() && !marker.exists());
             assert!(repo.cleanup_pending().unwrap().is_empty());
-            assert_eq!(rows(&conn), before_rows);
+            assert_eq!(store_rows(&conn), before_rows);
         } else {
             assert!(warnings.iter().any(|w| w.contains(id)));
             assert_unchanged(&home, &conn, before_rows, before_files);
@@ -476,7 +463,7 @@ fn begin_recovery_checks_required_prepare_and_history_effects_before_io() {
                 .all(|op| op["kind"] != missing)
         );
         set_effects(&conn, rid, &changed, 0);
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let snapshot = assert_effect_pending(
             svc.begin(&work, &node, Some(rid.into())).unwrap_err(),
@@ -509,7 +496,7 @@ fn cleanup_warns_about_unpublished_reference_even_when_all_metadata_is_missing()
         .unwrap();
     assert!(repo.cleanup_pending().unwrap().is_empty());
     set_effects(&conn, rid, &pristine, 0);
-    let before_rows = rows(&conn);
+    let before_rows = store_rows(&conn);
     let before_files = files(home.root().as_path().as_std_path());
     let warnings = repo.cleanup_pending().unwrap();
     assert!(warnings.iter().any(|w| w.contains(rid) && w.contains(id)));
@@ -615,7 +602,7 @@ fn cleanup_checks_the_entire_request_index_before_removing_a_legitimate_orphan()
             _ => unreachable!(),
         }
         set_effects(&conn, changed_request, &changed, 1);
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let error = repo.cleanup_pending().unwrap_err();
         assert_eq!(
@@ -691,7 +678,7 @@ fn submit_snapshot_data_must_match_the_committed_reply_output_references() {
             rusqlite::params![changed.to_string(), rid],
         )
         .unwrap();
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         assert_effect_pending_without_original(
             svc.submit(&work, &attempt, &summary, Some(rid.into()))
@@ -774,7 +761,7 @@ fn approval_snapshot_data_must_match_the_approved_node_and_occurrence() {
             rusqlite::params![changed.to_string(), rid],
         )
         .unwrap();
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let error = svc.approve(&work, &node, Some(rid.into())).unwrap_err();
         if field == "by" {
@@ -830,7 +817,7 @@ fn persisted_start_command_cannot_claim_a_different_flow_than_the_frozen_work() 
             )
             .unwrap();
         }
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         for error in [
             svc.status(&work).unwrap_err(),
@@ -885,7 +872,7 @@ fn readonly_work_loading_checks_the_start_effect_shape_and_digest() {
             _ => unreachable!(),
         }
         set_effects(&conn, rid, &changed, 1);
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         for error in [
             svc.status(&work).unwrap_err(),
@@ -913,7 +900,7 @@ fn unpublished_work_cannot_use_the_completed_owner_cleanup_fallback() {
     let pristine = effects(&conn, rid);
     assert!(repo(&home).cleanup_pending().unwrap().is_empty());
     set_effects(&conn, rid, &pristine, 0);
-    let before_rows = rows(&conn);
+    let before_rows = store_rows(&conn);
     let before_files = files(home.root().as_path().as_std_path());
     for error in [
         svc.status(&work).unwrap_err(),
@@ -1002,7 +989,7 @@ fn begin_replay_rejects_audit_and_snapshot_metadata_drift_without_business_chang
             rusqlite::params![changed.to_string(), rid],
         )
         .unwrap();
-        let before_rows = rows(&conn);
+        let before_rows = store_rows(&conn);
         let before_files = files(home.root().as_path().as_std_path());
         let error = svc.begin(&work, &node, Some(rid.into())).unwrap_err();
         let sheltie_runtime::Error::EffectPending {
@@ -1070,7 +1057,7 @@ fn cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan() {
             _ => unreachable!(),
         }
         set_effects(&connection, "delete-reference", &changed, 1);
-        let before_rows = rows(&connection);
+        let before_rows = store_rows(&connection);
         let before_files = files(home.root().as_path().as_std_path());
         assert_eq!(
             repository.cleanup_pending().unwrap_err().code(),
@@ -1161,7 +1148,7 @@ fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
                     rusqlite::params![snapshot.to_string(), rid],
                 )
                 .unwrap();
-            let before_rows = rows(&connection);
+            let before_rows = store_rows(&connection);
             let before_files = files(home.root().as_path().as_std_path());
             let error = if remove {
                 repository

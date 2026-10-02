@@ -3,6 +3,8 @@
 
 mod common;
 
+#[cfg(feature = "failpoint")]
+use common::process::Process;
 use common::*;
 use predicates::prelude::*;
 
@@ -29,35 +31,6 @@ fn work_start_creates_work_and_prints_next() {
             .join("status-card.md")
             .exists()
     );
-}
-
-// Task: T18
-#[test]
-fn work_start_missing_input_exits_1_with_input_missing() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let (v, code) = env.fail(&[
-        "work",
-        "start",
-        "--workbook",
-        "two-step",
-        "--flow",
-        "default",
-    ]);
-    assert_eq!(code, 1);
-    assert_eq!(v["error"]["code"], "INPUT_MISSING");
-}
-
-// Task: T18
-#[test]
-fn work_start_accepts_at_file_input() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let f = env.dir.path().join("topic.txt");
-    std::fs::write(&f, "来自文件").unwrap();
-    let wid = env.start("two-step", &[("topic", &format!("@{}", f.display()))]);
-    let content = std::fs::read_to_string(env.work_dir(&wid).join("start-inputs/topic")).unwrap();
-    assert_eq!(content, "来自文件");
 }
 
 // Task: T18
@@ -167,15 +140,6 @@ fn work_id_prefix_ambiguous_lists_candidates() {
     assert_eq!(e["error"]["code"], "INVALID_REQUEST");
     let msg = e["error"].to_string();
     assert!(msg.contains(&a) && msg.contains(&b));
-}
-
-// Task: T18
-#[test]
-fn work_start_default_name_is_flow_id() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let wid = env.start("two-step", &[("topic", "x")]);
-    assert!(wid.ends_with("-default"));
 }
 
 // Task: T18
@@ -372,6 +336,16 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     ]);
     assert_eq!(code, 1);
     assert_eq!(v["error"]["code"], "NOT_FOUND");
+    assert!(
+        v["error"]["message"].as_str().unwrap().contains("ghost"),
+        "{v}"
+    );
+    assert!(
+        env.ok(&["work", "list"])["data"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
     // 缺 flow：NOT_FOUND。
@@ -530,37 +504,6 @@ fn request_id_rejected_for_readonly_and_self_commands() {
 
 // Task: C002-T10
 #[test]
-fn named_but_missing_workbook_is_not_silently_replaced() {
-    let env = Env::new();
-    env.add_example("two-step");
-    // 协调者按用户指定的 ghost 开工：NOT_FOUND，不换已装的 two-step。
-    let (v, code) = env.fail(&[
-        "work",
-        "start",
-        "--workbook",
-        "ghost",
-        "--flow",
-        "default",
-        "--input",
-        "topic=x",
-    ]);
-    assert_eq!(code, 1);
-    assert_eq!(v["error"]["code"], "NOT_FOUND");
-    assert!(
-        v["error"]["message"].as_str().unwrap().contains("ghost"),
-        "{v}"
-    );
-    // 没有任何 Work 被创建。
-    assert!(
-        env.ok(&["work", "list"])["data"]
-            .as_array()
-            .unwrap()
-            .is_empty()
-    );
-}
-
-// Task: C002-T10
-#[test]
 fn resume_after_replay_reads_current_status_not_historical_next() {
     let env = Env::new();
     env.add_example("two-step");
@@ -610,51 +553,24 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load() {
-    use std::process::{Child, Command, Stdio};
-    use std::time::{Duration, Instant};
-    struct PausedReader {
-        child: Option<Child>,
-        release: std::path::PathBuf,
-    }
-    impl Drop for PausedReader {
-        fn drop(&mut self) {
-            if let Some(child) = self.child.as_mut() {
-                let _ = std::fs::write(&self.release, b"release");
-                let _ = child.kill();
-                let _ = child.wait();
-            }
-        }
-    }
+    use std::time::Duration;
     let env = Env::new();
     env.add_example("two-step");
     let work = env.start("two-step", &[("topic", "snapshot")]);
     let sync = tempfile::tempdir().unwrap();
-    let child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
-        .args(["--home", &env.home(), "--json", "work", "stats", &work])
-        .env("SHELTIE_TEST_RENDEZVOUS_NAME", "stats_after_load")
-        .env("SHELTIE_TEST_RENDEZVOUS_ID", &work)
-        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
-    let mut reader = PausedReader {
-        child: Some(child),
-        release: sync.path().join("release"),
-    };
-    let deadline = Instant::now() + Duration::from_secs(15);
-    while !sync.path().join("reached").exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !sync.path().join("reached").exists() {
-        panic!("真实CLI读者未到达stats装入后的同步点");
-    }
+    let point = "stats_after_load";
+    let mut reader = Process::spawn(
+        &env,
+        &["work", "stats", &work],
+        Some((point, &work, sync.path())),
+    );
+    reader.reached_with_timeout(sync.path(), point, Duration::from_secs(15));
     let writer = env
         .cmd(&["attempt", "begin", &work, "--node", "outline"])
         .timeout(Duration::from_secs(60))
         .output();
-    std::fs::write(sync.path().join("release"), b"release").unwrap();
-    let result = reader.child.take().unwrap().wait_with_output().unwrap();
+    reader.release();
+    let result = reader.finish();
     let writer = writer.unwrap();
     assert!(
         writer.status.success(),

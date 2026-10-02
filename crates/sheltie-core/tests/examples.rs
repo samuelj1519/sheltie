@@ -3,36 +3,15 @@
 
 use sheltie_core::flow::{Executor, Tier, compile, parse_flow};
 use sheltie_core::ids::NodeId;
-use sheltie_core::testkit::{example_files, resources_of};
+use sheltie_core::testkit::Fixture;
 use sheltie_core::workbook::parse_manifest;
 
 fn compile_example(name: &str) -> sheltie_core::flow::Graph {
-    let files = example_files(name);
-    let manifest = files
-        .iter()
-        .find(|(p, _)| *p == "workbook.toml")
-        .map(|(_, c)| *c)
-        .unwrap();
-    let flow = files
-        .iter()
-        .find(|(p, _)| *p == "flows/default.toml")
-        .map(|(_, c)| *c)
-        .unwrap();
-    let m = parse_manifest(manifest).unwrap();
-    let f = parse_flow(flow).unwrap();
-    compile(&f, &m, &resources_of(name)).unwrap()
+    Fixture::from_example(name).graph
 }
 
 fn id(s: &str) -> NodeId {
     NodeId::new(s).unwrap()
-}
-
-// Task: T11
-#[test]
-fn all_examples_compile() {
-    for name in ["two-step", "article-review", "gated-release", "spec-dev"] {
-        compile_example(name);
-    }
 }
 
 // Task: T11
@@ -183,25 +162,6 @@ fn spec_dev_retro_reads_engine_stats() {
 
 // Task: T11
 #[test]
-fn spec_dev_optional_inputs_all_point_to_reachable_upstream() {
-    // 编译规则 5 已经保证；这里再确认每个可选输入都是 Node 来源。
-    let g = compile_example("spec-dev");
-    for n in g.nodes() {
-        for i in n.inputs() {
-            if !i.required() {
-                assert!(
-                    matches!(i.source(), sheltie_core::flow::InputSource::Node { .. }),
-                    "{}.{}",
-                    n.id(),
-                    i.name()
-                );
-            }
-        }
-    }
-}
-
-// Task: T11
-#[test]
 fn spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate() {
     let g = compile_example("spec-dev");
     let gated: Vec<_> = g
@@ -228,16 +188,6 @@ fn spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review() {
         .map(|n| n.id().as_str().to_string())
         .collect();
     assert_eq!(strong, vec!["spec", "plan", "scaffold", "review"]);
-}
-
-// Task: T11
-#[test]
-fn mutated_two_step_manifest_with_extra_field_is_rejected() {
-    let text = format!(
-        "{}\nauthor = \"x\"\n",
-        sheltie_core::testkit::TWO_STEP_MANIFEST
-    );
-    assert!(parse_manifest(&text).is_err());
 }
 
 // Task: C002-T30
@@ -330,8 +280,7 @@ name = "alpha"
 #[test]
 fn public_legal_next_does_not_offer_retry_at_the_node_retry_limit() {
     use sheltie_core::work::{NextOp, WorkStatus, legal_next};
-    let mut fixture =
-        sheltie_core::testkit::Fixture::two_step().started_with(&[("topic", "retry")]);
+    let mut fixture = Fixture::two_step().started_with(&[("topic", "retry")]);
     fixture.begin("outline").unwrap();
     fixture.fail("outline#1.0", "failed").unwrap();
     assert!(

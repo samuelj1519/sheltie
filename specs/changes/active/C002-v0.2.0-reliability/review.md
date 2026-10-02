@@ -199,6 +199,67 @@ SQLite 状态、请求快照、audit 和效果登记各有职责，不是四套�
 fix_flow_ids 和 fix_nested_decode 分别实现前两项，Codex实现 tmp 整链；未参与三项编写的 review_repairs 负责独立规格、错误及文件边界审查。code-simplifier 只读复核认为 tmp 三种对象分支各有必要义务，无需再抽象。最终审查、红绿原文与普通门禁见 [T39 验证](validation.md#c002-t39-修复验证)。本次不重新作完整 M1/变异/Host/发布验收，改动仍留工作区。
 
 
-### C002-T39 提交授权与证据保存
+## C002-T40 测试精简审查（2026-10-02）
+
+用户明确要求彻底精简上一轮审计相关部分。保留T38/T39未提交工作区，以其实际文件字节为起点；本次只改测试及测试专用支持，默认生产行为、依赖、配置、业务Workbook和七份快照保持。core、runtime、CLI分别实施，未参与编写的`review_repairs`逐项审查结论均为“通过”。普通完整候选门禁另见 [T40验证](validation.md#c002-t40-测试精简验证)。
+
+### 实际结果与覆盖
+
+37个Rust文件净减少896行（含注释、空行和支持代码）：core 9文件292行，runtime 13文件433行，CLI 15文件171行。Nextest测试入口从717收敛到688；30个入口退休/合并，1个入口改名，另增1个独立schema2合法控制，因此31个旧名字消失、2个新名字出现。减少入口不代表减少产品条件：独有case/oracle先迁移，多状态、多输入、exact/+1和错误优先序仍逐项执行。
+
+- core：合并engine.stats、blocked_count、终点及限额两端；删除被严格包含的smoke/日期前缀、只复演SHA wrapper的旧向量和重复manifest样例。实际runtime五向量、prefix/BE64/frame独立字节、七个快照、五个compile_fail、状态矛盾/overflow/日历/proptest/public legal_next均保留。复用已有Fixture构造，不引入I/O；testkit接口仅为真实测试caller公开，删除无consumer支持函数。新增resource拒绝和精确错误/roundtrip判据单独归T40。
+- runtime：3条严格重复/旧tmp布局退休，9条先迁移独有oracle再合并；原新生命周期分别核相同与不同bytes，0/1历史终态查询仍两cases，多个错误字段仍单条件反例。共享literal/start、SQL行、哨兵、限额树、tar动作及11处现有同步生命周期，未改变write_session的特殊释放顺序。
+- CLI：6条重复或同入口测试先移首轮@file字节、@summary正文、最新Occurrence路径及ghost身份判据再合并。共享原始SqlValue快照、Process的env清理/精确同步/timeout/Drop释放kill等待、目录复制和5处真实T01写入/门禁/提交动作；冷worker expected仍来自绑定文件、原字节和Git证据。不同目录软链复制策略的skill helper保留私有实现，未增模式框架。所有T39独立边界保留。
+
+表中是全部消失的原测试名字；逐一保留入口、条件、原/现函数字节、oracle和故障窗口的完整机器映射为`/private/tmp/sheltie-t40-evidence/coverage-map.json`及三份scope dispositions。其他原名字逐项核对为保留或支持重构，717条原身份无遗漏。
+
+| 原测试 | 当前保留能力入口 | 处分 |
+| --- | --- | --- |
+| `attempt_submit_summary_from_at_file` | `submit_request_replay_does_not_reread_a_deleted_summary_file` | merged_unique_oracle_first |
+| `downstream_binds_latest_succeeded_occurrence_output` | `review_back_edge_creates_second_draft_occurrence` | merged_unique_oracle_first |
+| `work_start_missing_input_exits_1_with_input_missing` | `start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq` | retired_strict_subset |
+| `work_start_accepts_at_file_input` | `start_request_replay_does_not_require_the_original_input_file` | merged_unique_oracle_first |
+| `work_start_default_name_is_flow_id` | `work_start_creates_work_and_prints_next` | retired_strict_subset |
+| `named_but_missing_workbook_is_not_silently_replaced` | `start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq` | merged_unique_oracle_first |
+| `digest_v2_framing_known_vectors_match_independent_hashes` | `of_bytes_matches_known_vector`、`digest_v2_prefix_is_domain_string_with_nul`、`be64_encodes_big_endian_bytes`、`digest_v2_file_frame_is_length_prefixed_path_and_content`、`digest_matches_independent_vectors_on_disk`、`framing_collision_pair_now_yields_two_different_digests` | retired |
+| `node_with_out_edges_is_not_terminal` | `compiles_article_review_example` | merged |
+| `begin_engine_stats_counts_current_attempt` | `begin_binds_engine_stats_and_emits_write_file` | merged |
+| `submit_accepts_summary_of_exactly_4096_bytes` | `submit_rejects_summary_over_4096_bytes` | merged_and_strengthened |
+| `submit_accepts_output_of_exactly_max_bytes` | `submit_rejects_output_over_max_bytes` | merged_and_strengthened |
+| `blocked_count_accumulates_across_kinds_and_keeps_after_approve` | `stats_blocked_count_by_reason` | merged |
+| `host_require_snapshot_decode_rejects_one_invalid_field` | `host_require_snapshot_decode_accepts_valid_fields`、`host_requirement_snapshots_accept_exact_byte_limits_and_reject_one_extra_byte` | merged_and_strengthened |
+| `description_accepts_exactly_2048_bytes` | `rejects_description_over_2kib` | merged |
+| `timestamp_day_is_date_prefix` | `timestamp_parse_accepts_utc_second_precision` | retired |
+| `all_examples_compile` | `no_example_declares_requires` | retired |
+| `spec_dev_optional_inputs_all_point_to_reachable_upstream` | `rejects_optional_input_on_start_or_resource_source`、`rejects_optional_engine_stats_input`、`spec_dev_replanning_uses_required_review_copies_and_reachable_optional_history`、`spec_dev_escalation_inputs_cover_return_edge_to_verify`、`spec_dev_binds_decision_into_scaffold_implement_verify` | retired_and_boundary_repaired |
+| `mutated_two_step_manifest_with_extra_field_is_rejected` | `rejects_unknown_field` | merged_and_strengthened |
+| `allocate_seq_is_not_reused_after_failed_start` | `allocate_seq_starts_at_1_per_day_and_increments` | retired_duplicate |
+| `submit_replay_after_output_change_returns_original_snapshot` | `completed_submit_replay_does_not_seal_or_rewrite_the_output_again` | merged_oracles |
+| `update_rejects_checksum_mismatch_and_leaves_binary_intact` | `update_failed_digest_leaves_old_binary_and_cleans_tmp` | retired_duplicate |
+| `status_works_after_workbook_removed` | `work_readable_after_workbook_removed` | merged_cases |
+| `malformed_started_workbook_ref_is_not_projected_as_success` | `malformed_started_identity_is_not_projected_as_success` | renamed_parameterized |
+| `malformed_started_name_is_not_projected_as_success` | `malformed_started_identity_is_not_projected_as_success` | merged_cases |
+| `unknown_nested_status_field_is_not_projected_as_success` | `malformed_cancelled_status_is_not_projected_as_success` | merged_cases |
+| `self_install_on_new_home_creates_root_store_and_bin` | `install_copies_current_exe_and_is_idempotent` | merged_oracles |
+| `remove_rejects_when_active_work_references_version` | `remove_rejects_active_reference_and_rolls_back_row` | merged_oracles |
+| `remove_moves_dir_to_tmp_before_delete` | `remove_deletes_row_and_directory` | retired_obsolete_contract |
+| `verify_reports_tampered_after_byte_change` | `load_rejects_tampered_registered_digest` | merged_oracles |
+| `old_remove_replay_does_not_delete_readded_workbook` | `completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row` | merged_oracles |
+| `old_add_replay_does_not_bind_to_a_readded_workbook_lifecycle` | `completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row` | merged_oracles |
+
+### 修正弱判定依据
+
+两条schema形状测试用独立手写schema2、合法只读/读写控制、单列缺失/类型变化、准确works定位和非空main/WAL逐字节不变；不再以版本1早退冒充表形状覆盖。提交前观察拒绝测试保持真实外部TempDir存活，并核全表revision/state/request/audit、哨兵字节/权限不变。CLI输出叶软链也核准确错误和同类完整事实；恢复正例从“文件存在”加强为登记历史字节/当前状态卡事实。
+
+独立私有源码副本的正控全部通过；禁止表形状比较后两条schema测试失败，submit前注入仅revision违规写后观察测试失败，叶读取同时改成follow stat与open后CLI软链测试失败。均正常编译、真实执行后失败；这些是定向辨别力证据，不是完整变异验证或旧M1账本的新处分。
+
+### 边界与治理
+
+保留不同消费者、COMMIT/rename/delete标记/parent sync、观察句柄与锁替换、历史/当前响应、只读/恢复/清理、Exit70与SIGKILL的独立义务，未因相似名称或重型耗时删反例。MVP卡21条退休或加强归属只作原位Replacement历史注记；移除注记后与开工原文逐字节相同，checker未改。测试default之外的testkit支持接口变化只证明本仓库消费者闭合，不声明任意外部feature consumer兼容。
+
+独立审查原文为`/private/tmp/sheltie-t40-independent-review.md`，本机临时证据不属于固定Git历史归档。当前完整普通门禁688/688与5/5 compile_fail均通过，7快照与默认生产AST保留；M1/SK、完整变异缺失、Linux/T16/T17状态保持原记录。本次不自动提交或发布。
+
+
+### C002-T40 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。

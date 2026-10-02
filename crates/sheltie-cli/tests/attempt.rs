@@ -93,30 +93,6 @@ fn effect_pending_cli_json_contains_full_original_work_success_envelope() {
 
 // Task: T19
 #[test]
-fn attempt_submit_summary_from_at_file() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let wid = env.start("two-step", &[("topic", "x")]);
-    let b = env.begin(&wid, "outline");
-    let out_dir = Path::new(b["data"]["output_dir"].as_str().unwrap());
-    std::fs::write(out_dir.join("outline.md"), "提纲").unwrap();
-    let f = env.dir.path().join("summary.txt");
-    std::fs::write(&f, "来自文件的摘要").unwrap();
-    env.ok(&[
-        "attempt",
-        "submit",
-        &wid,
-        "--attempt",
-        "outline#1.0",
-        "--summary",
-        &format!("@{}", f.display()),
-    ]);
-    let st = env.status(&wid);
-    assert_eq!(st["data"]["last_attempt"]["summary"], "来自文件的摘要");
-}
-
-// Task: T19
-#[test]
 fn attempt_fail_then_begin_retries_same_occurrence() {
     let env = Env::new();
     env.add_example("two-step");

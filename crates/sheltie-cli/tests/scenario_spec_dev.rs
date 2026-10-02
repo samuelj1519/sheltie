@@ -546,6 +546,22 @@ const ENCODE_PY_STUB: &str = "def encode(rows):\n    raise NotImplementedError  
 const TEST_EXPORT_PY_SKIPPED: &str = "import pytest\n\nfrom src.export import export\n\n\n@pytest.mark.skip(reason=\"T01\")\ndef test_export():\n    assert export([\"a\"]) == \"a\"\n";
 const TEST_ENCODE_PY_SKIPPED: &str = "import pytest\n\nfrom src.encode import encode\n\n\n@pytest.mark.skip(reason=\"T02\")\ndef test_encode():\n    assert encode([\"a\"]) == \"a\"\n";
 
+/// 只准备真实 T01 写入、门禁与提交；审批、change 元数据和期望值留在 caller。
+fn commit_export_task(proj: &Proj, agent: &str) -> (String, String) {
+    let base = proj.head();
+    std::fs::write(proj.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
+    std::fs::write(
+        proj.root().join("tests/test_export.py"),
+        unskip(TEST_EXPORT_PY_SKIPPED),
+    )
+    .unwrap();
+    proj.gate();
+    let candidate = proj.commit(&format!(
+        "feat(export): 导出入口\n\nTask: T01\nAgent: {agent}"
+    ));
+    (base, candidate)
+}
+
 /// verify.md 对干净完成的 T01 的核对（手写 oracle）。
 fn assert_t01_clean(proj: &Proj, base: &str, commit: &str, v: &Value) {
     let diff = proj.diff_names(base, commit);
@@ -600,15 +616,7 @@ fn two_task_loops_scope_each_task_diff_to_its_own_files() {
             .unwrap()
             .ends_with("/attempts/plan-review/occurrence-001/attempt-000/outputs/decision.md")
     );
-    let t01_base = proj.head();
-    std::fs::write(proj.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
-    std::fs::write(
-        proj.root().join("tests/test_export.py"),
-        unskip(TEST_EXPORT_PY_SKIPPED),
-    )
-    .unwrap();
-    proj.gate();
-    let t01_commit = proj.commit("feat(export): 导出入口\n\nTask: T01\nAgent: sim");
+    let (t01_base, t01_commit) = commit_export_task(&proj, "sim");
     let change1 = change_done(
         "T01",
         &t01_base,
@@ -753,15 +761,7 @@ fn out_of_whitelist_file_in_second_task_is_flagged() {
 
     // T01 干净完成（与正例同一路径）。
     let im1 = env.follow_begin(&sc, "implement");
-    let t01_base = proj.head();
-    std::fs::write(proj.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
-    std::fs::write(
-        proj.root().join("tests/test_export.py"),
-        unskip(TEST_EXPORT_PY_SKIPPED),
-    )
-    .unwrap();
-    proj.gate();
-    let t01_commit = proj.commit("feat(export): 导出入口\n\nTask: T01\nAgent: sim");
+    let (t01_base, t01_commit) = commit_export_task(&proj, "sim");
     let change1 = change_done(
         "T01",
         &t01_base,
@@ -930,22 +930,39 @@ fn shared_file_keeps_future_task_placeholders() {
     submit_outputs(&env, &wid, &v, &[("report", &r)], "通过，下一任务 T02");
 }
 
+fn feature_task_fixture(env: &Env, name: &str, source: &str) -> (Proj, String, Value) {
+    let proj = Proj::init(env, name);
+    let baseline = proj.head();
+    let work = start_spec_dev(env, &proj);
+    plan_and_approve(env, &work, &proj, &baseline, "条件：无。");
+    let scaffold = do_scaffold(env, &work, &proj, &[("src/feature.py", source)]);
+    (proj, work, scaffold)
+}
+
+fn submit_feature_task(
+    env: &Env,
+    work: &str,
+    proj: &Proj,
+    implement: &Value,
+    source: &str,
+) -> (String, Value) {
+    let base = proj.head();
+    std::fs::write(proj.root().join("src/feature.py"), source).unwrap();
+    proj.gate();
+    let commit = proj.commit("feat(feature): 步骤二\n\nTask: T01\nAgent: sim");
+    let change = change_done("T01", &base, &commit, 0, &["src/feature.py"], "");
+    let submitted = submit_outputs(env, work, implement, &[("change", &change)], "完成 T01");
+    (base, env.follow_begin(&submitted, "verify"))
+}
+
 // Task: C002-T12
 #[test]
 fn own_task_placeholder_left_behind_is_flagged() {
     let env = Env::new();
-    let proj = Proj::init(&env, "g2n");
-    let baseline0 = proj.head();
-    let wid = start_spec_dev(&env, &proj);
-    plan_and_approve(&env, &wid, &proj, &baseline0, "条件：无。");
-    let sc = do_scaffold(
+    let (proj, wid, sc) = feature_task_fixture(
         &env,
-        &wid,
-        &proj,
-        &[(
-            "src/feature.py",
-            "def step_one():\n    raise NotImplementedError  # T01\n\n\ndef step_two():\n    raise NotImplementedError  # T02\n",
-        )],
+        "g2n",
+        "def step_one():\n    raise NotImplementedError  # T01\n\n\ndef step_two():\n    raise NotImplementedError  # T02\n",
     );
 
     // 单条件反例：把 T02 的占位体填了，本任务的还留着。
@@ -957,18 +974,13 @@ fn own_task_placeholder_left_behind_is_flagged() {
             .unwrap()
             .ends_with("/attempts/plan-review/occurrence-001/attempt-000/outputs/decision.md")
     );
-    let base = proj.head();
-    std::fs::write(
-        proj.root().join("src/feature.py"),
+    let (base, v) = submit_feature_task(
+        &env,
+        &wid,
+        &proj,
+        &im,
         "def step_one():\n    raise NotImplementedError  # T01\n\n\ndef step_two():\n    return 2\n",
-    )
-    .unwrap();
-    proj.gate();
-    let commit = proj.commit("feat(feature): 步骤二\n\nTask: T01\nAgent: sim");
-    let change = change_done("T01", &base, &commit, 0, &["src/feature.py"], "");
-    let s = submit_outputs(&env, &wid, &im, &[("change", &change)], "完成 T01");
-
-    let v = env.follow_begin(&s, "verify");
+    );
     let (own_left, unmarked) = placeholder_left(&read(&proj.root().join("src/feature.py")), "T01");
     assert_eq!(own_left, ["    raise NotImplementedError  # T01"]);
     assert!(unmarked.is_empty());
@@ -990,34 +1002,21 @@ fn own_task_placeholder_left_behind_is_flagged() {
 #[test]
 fn unmarked_placeholder_is_flagged() {
     let env = Env::new();
-    let proj = Proj::init(&env, "g2u");
-    let baseline0 = proj.head();
-    let wid = start_spec_dev(&env, &proj);
-    plan_and_approve(&env, &wid, &proj, &baseline0, "条件：无。");
-    let sc = do_scaffold(
+    let (proj, wid, sc) = feature_task_fixture(
+        &env,
+        "g2u",
+        "def step_one():\n    raise NotImplementedError\n\n\ndef step_two():\n    raise NotImplementedError  # T02\n",
+    );
+
+    // 唯一不同条件：本任务占位体没有 Task 标记。
+    let im = env.follow_begin(&sc, "implement");
+    let (base, v) = submit_feature_task(
         &env,
         &wid,
         &proj,
-        &[(
-            "src/feature.py",
-            // 与 G2n 同一动作，唯一不同的条件：T01 的占位体没带任务编号。
-            "def step_one():\n    raise NotImplementedError\n\n\ndef step_two():\n    raise NotImplementedError  # T02\n",
-        )],
-    );
-
-    let im = env.follow_begin(&sc, "implement");
-    let base = proj.head();
-    std::fs::write(
-        proj.root().join("src/feature.py"),
+        &im,
         "def step_one():\n    raise NotImplementedError\n\n\ndef step_two():\n    return 2\n",
-    )
-    .unwrap();
-    proj.gate();
-    let commit = proj.commit("feat(feature): 步骤二\n\nTask: T01\nAgent: sim");
-    let change = change_done("T01", &base, &commit, 0, &["src/feature.py"], "");
-    let s = submit_outputs(&env, &wid, &im, &[("change", &change)], "完成 T01");
-
-    let v = env.follow_begin(&s, "verify");
+    );
     let (own_left, unmarked) = placeholder_left(&read(&proj.root().join("src/feature.py")), "T01");
     // 没标编号的占位体归不了谁：本任务占位清单是空的，它照样判「不通过」。
     assert!(own_left.is_empty());
@@ -1279,15 +1278,7 @@ fn verify_escalation_continue_binds_opinion_on_return() {
     let sc = scaffold_two_files(&env, &wid, &proj);
 
     let im1 = env.follow_begin(&sc, "implement");
-    let t01_base = proj.head();
-    std::fs::write(proj.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
-    std::fs::write(
-        proj.root().join("tests/test_export.py"),
-        unskip(TEST_EXPORT_PY_SKIPPED),
-    )
-    .unwrap();
-    proj.gate();
-    let t01_commit = proj.commit("feat(export): 导出入口\n\nTask: T01\nAgent: sim");
+    let (t01_base, t01_commit) = commit_export_task(&proj, "sim");
     let change1 = change_done(
         "T01",
         &t01_base,
@@ -1434,15 +1425,7 @@ fn replan_after_first_task_keeps_original_baseline_for_final_review() {
 
     // 任务 1 完成。
     let im1 = env.follow_begin(&sc, "implement");
-    let t01_base = proj.head();
-    std::fs::write(proj.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
-    std::fs::write(
-        proj.root().join("tests/test_export.py"),
-        unskip(TEST_EXPORT_PY_SKIPPED),
-    )
-    .unwrap();
-    proj.gate();
-    let t01_commit = proj.commit("feat(export): 导出入口\n\nTask: T01\nAgent: sim");
+    let (t01_base, t01_commit) = commit_export_task(&proj, "sim");
     let change1 = change_done(
         "T01",
         &t01_base,

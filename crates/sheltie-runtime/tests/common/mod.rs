@@ -124,6 +124,39 @@ pub fn service(home: &Home) -> WorkService {
     WorkService::new(home.clone())
 }
 
+pub fn sentinel(dir: &Path, name: &str) -> PathBuf {
+    let path = dir.join(name);
+    std::fs::write(&path, format!("sentinel-{name}")).unwrap();
+    path
+}
+
+pub fn snapshot(path: &Path) -> (Vec<u8>, u32) {
+    use std::os::unix::fs::PermissionsExt as _;
+    (
+        std::fs::read(path).unwrap(),
+        std::fs::metadata(path).unwrap().permissions().mode(),
+    )
+}
+
+pub type StoreRows = Vec<Vec<Vec<rusqlite::types::Value>>>;
+
+pub fn store_rows(conn: &rusqlite::Connection) -> StoreRows {
+    ["workbooks", "works", "work_sequence", "requests", "audit"]
+        .into_iter()
+        .map(|table| {
+            let mut query = conn
+                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
+                .unwrap();
+            let columns = query.column_count();
+            query
+                .query_map([], |row| (0..columns).map(|i| row.get(i)).collect())
+                .unwrap()
+                .map(Result::unwrap)
+                .collect()
+        })
+        .collect()
+}
+
 /// 装好一个样例并返回服务。
 pub fn home_with_example(name: &str) -> (OwnedTempDir, Home, WorkService) {
     let (dir, home) = temp_home();
@@ -132,25 +165,34 @@ pub fn home_with_example(name: &str) -> (OwnedTempDir, Home, WorkService) {
     (dir, home, svc)
 }
 
+pub fn lit(text: &str) -> sheltie_runtime::request::InputValue {
+    sheltie_runtime::request::InputValue::Literal {
+        text: text.to_string(),
+    }
+}
+
+pub fn inputs_lit(
+    pairs: &[(&str, &str)],
+) -> std::collections::BTreeMap<String, sheltie_runtime::request::InputValue> {
+    pairs
+        .iter()
+        .map(|(key, value)| (key.to_string(), lit(value)))
+        .collect()
+}
+
+pub fn two_step_args(inputs: &[(&str, &str)]) -> sheltie_runtime::StartArgs {
+    sheltie_runtime::StartArgs {
+        workbook_id: "two-step".into(),
+        version: None,
+        flow: "default".into(),
+        name: None,
+        inputs: inputs_lit(inputs),
+    }
+}
+
 pub fn start_two_step(svc: &WorkService) -> sheltie_runtime::Response {
-    svc.start(
-        sheltie_runtime::StartArgs {
-            workbook_id: "two-step".into(),
-            version: None,
-            flow: "default".into(),
-            name: None,
-            inputs: [(
-                "topic".to_string(),
-                sheltie_runtime::request::InputValue::Literal {
-                    text: "给新人介绍 Sheltie".to_string(),
-                },
-            )]
-            .into_iter()
-            .collect(),
-        },
-        None,
-    )
-    .unwrap()
+    svc.start(two_step_args(&[("topic", "给新人介绍 Sheltie")]), None)
+        .unwrap()
 }
 
 pub fn work_id_of(resp: &sheltie_runtime::Response) -> sheltie_core::ids::WorkId {
@@ -175,37 +217,56 @@ pub fn output_dir_of(resp: &sheltie_runtime::Response) -> AbsPath {
 }
 
 #[cfg(feature = "failpoint")]
-pub struct RendezvousWorker {
-    releases: [PathBuf; 2],
-    worker: Option<std::thread::JoinHandle<()>>,
+pub struct RendezvousWorker<T> {
+    releases: Vec<PathBuf>,
+    worker: Option<std::thread::JoinHandle<T>>,
 }
 
 #[cfg(feature = "failpoint")]
-impl RendezvousWorker {
-    pub fn new(worker: std::thread::JoinHandle<()>, before: &Path, after: &Path) -> Self {
+impl<T> RendezvousWorker<T> {
+    pub fn new(worker: std::thread::JoinHandle<T>, before: &Path, after: &Path) -> Self {
         Self {
-            releases: [before.join("release"), after.join("release")],
+            releases: vec![before.join("release"), after.join("release")],
             worker: Some(worker),
         }
     }
 
-    pub fn finish(&mut self) -> std::thread::Result<()> {
-        for release in &self.releases {
-            let _ = std::fs::write(release, b"release");
+    pub fn single(worker: std::thread::JoinHandle<T>, rendezvous: &Path) -> Self {
+        Self {
+            releases: vec![rendezvous.join("release")],
+            worker: Some(worker),
         }
-        let result = self
-            .worker
-            .take()
-            .map(|worker| worker.join())
-            .unwrap_or(Ok(()));
-        let _ = sheltie_runtime::failpoint::disarm_rendezvous();
+    }
+
+    pub fn wait(&self, message: &str) {
+        use std::time::{Duration, Instant};
+        let reached = self.releases[0].parent().unwrap().join("reached");
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !reached.exists() {
+            assert!(Instant::now() < deadline, "{message}");
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+
+    pub fn finish(&mut self) -> std::thread::Result<T> {
+        for release in &self.releases {
+            std::fs::write(release, b"release").unwrap();
+        }
+        let result = self.worker.take().unwrap().join();
+        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
         result
     }
 }
 
 #[cfg(feature = "failpoint")]
-impl Drop for RendezvousWorker {
+impl<T> Drop for RendezvousWorker<T> {
     fn drop(&mut self) {
-        let _ = self.finish();
+        if let Some(worker) = self.worker.take() {
+            for release in &self.releases {
+                let _ = std::fs::write(release, b"release");
+            }
+            let _ = worker.join();
+            let _ = sheltie_runtime::failpoint::disarm_rendezvous();
+        }
     }
 }

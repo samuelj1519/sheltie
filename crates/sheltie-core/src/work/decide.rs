@@ -718,25 +718,9 @@ mod tests {
 
     /// 用给定 manifest 与 flow 文本编图并起一个 Work（无起始输入），返回图与 start 的决策。
     fn start_texts(manifest_text: &str, flow_text: &str) -> (Graph, Decision) {
-        let manifest = crate::workbook::parse_manifest(manifest_text).unwrap();
-        let def = crate::flow::parse_flow(flow_text).unwrap();
-        let graph =
-            crate::flow::compile(&def, &manifest, &crate::flow::ResourceIndex::default()).unwrap();
-        let cmd = Command::Start {
-            work_id: crate::ids::WorkId::new("2026-09-24", 1, &WorkName::normalize("t").unwrap())
-                .unwrap(),
-            name: WorkName::normalize("t").unwrap(),
-            workbook: crate::work::WorkbookRef {
-                id: manifest.id.clone(),
-                version: manifest.version.clone(),
-                digest: Sha256Hex::of_bytes(b"fixture-workbook"),
-            },
-            flow: crate::ids::FlowId::new("default").unwrap(),
-            work_dir: AbsPath::new("/sheltie-test/works/2026-09-24-001-t").unwrap(),
-            inputs: BTreeMap::new(),
-        };
-        let d = decide(None, &graph, &cmd, &testkit::ctx()).unwrap();
-        (graph, d)
+        let mut fx = Fixture::from_texts(manifest_text, flow_text, &[]);
+        let decision = fx.start(&[]).unwrap();
+        (fx.graph, decision)
     }
 
     // ── T06 Start ─────────────────────────────────────────────
@@ -1066,21 +1050,7 @@ mod tests {
         );
         assert_eq!(stats.bytes, content.len() as u64);
         assert!(content.contains("\"nodes\""));
-    }
-
-    // Task: T07
-    #[test]
-    fn begin_engine_stats_counts_current_attempt() {
-        // stats.json 的口径含本次 Attempt（D-29）：崩溃后的重放用库里的状态重算，逐字节一致。
-        let mut fx = Fixture::with_engine_stats_input();
-        let d = fx.begin("only").unwrap();
-        let a = d.state.latest_attempt_of_current().unwrap();
-        let stats = a.inputs["stats"].as_ref().unwrap();
-        let written = d.effects.iter().find_map(|e| match e {
-            Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
-            _ => None,
-        });
-        let content = written.expect("应有 WriteFile 效果");
+        // stats.json 的口径含本次 Attempt（D-29）。
         assert!(
             content.contains("\"attempts\":1"),
             "本次 Attempt 已计入：{content}"
@@ -1199,15 +1169,23 @@ mod tests {
         ));
     }
 
-    // Task: T08
+    // Task: C002-T40
     #[test]
     fn submit_rejects_summary_over_4096_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         assert!(matches!(
             fx.submit_ok("draft#1.0", &"x".repeat(4097)),
-            Err(Error::SummaryTooLong { .. })
+            Err(Error::SummaryTooLong {
+                max: 4096,
+                actual: 4097
+            })
         ));
+        let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
+        assert_eq!(
+            d.state.attempts[0].summary.as_ref().unwrap().as_str().len(),
+            4096
+        );
     }
 
     // Task: T08
@@ -1240,25 +1218,25 @@ mod tests {
         assert!(!d.state.attempts[0].outputs.contains_key("maybe"));
     }
 
-    // Task: T08
+    // Task: C002-T40
     #[test]
     fn submit_rejects_output_over_max_bytes() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
+        let id = AttemptId::parse("draft#1.0").unwrap();
         let err = fx
-            .submit_with(
-                &AttemptId::parse("draft#1.0").unwrap(),
-                "ok",
-                &[("article", 262_145)],
-            )
+            .submit_with(&id, "ok", &[("article", 262_145)])
             .unwrap_err();
         assert!(matches!(
             err,
             Error::OutputTooLarge {
+                output,
                 max_bytes: 262_144,
-                ..
-            }
+                actual: 262_145
+            } if output == "article"
         ));
+        let d = fx.submit_with(&id, "ok", &[("article", 262_144)]).unwrap();
+        assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
     }
 
     // Task: T08
@@ -1479,28 +1457,6 @@ mod tests {
                 .iter()
                 .any(|e| matches!(e, Effect::WriteFile { path, .. } if path == &stats.path))
         );
-    }
-
-    // Task: T08
-    #[test]
-    fn submit_accepts_summary_of_exactly_4096_bytes() {
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        let d = fx.submit_ok("draft#1.0", &"a".repeat(4096)).unwrap();
-        assert_eq!(
-            d.state.attempts[0].summary.as_ref().unwrap().as_str().len(),
-            4096
-        );
-    }
-
-    // Task: T08
-    #[test]
-    fn submit_accepts_output_of_exactly_max_bytes() {
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        let id = AttemptId::parse("draft#1.0").unwrap();
-        let d = fx.submit_with(&id, "ok", &[("article", 262_144)]).unwrap();
-        assert_eq!(d.state.attempts[0].outputs["article"].bytes, 262_144);
     }
 
     // Task: T08
