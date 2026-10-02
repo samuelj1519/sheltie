@@ -1,0 +1,13 @@
+run_id: C004-T00-20261003
+input: adoption and package relocation only; no Rust/input behavior changes
+command: scripts/check-docs.sh
+exit: 0
+stdout: check-docs: OK (131 个文件)
+command: scripts/check-specs.sh
+exit: 0
+stdout: check-specs: OK (8 个 change，1 个 active)
+command: git diff --check
+exit: 0
+stdout: empty
+independent reviewer: /root/independent_review
+final: 通过, docs/specs/diff independently rerun, no edits

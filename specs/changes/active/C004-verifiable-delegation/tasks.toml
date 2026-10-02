@@ -1,3 +1,8 @@
+[C004-T00]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C004-verifiable-delegation", "specs/changes/proposed/C004-verifiable-delegation", "specs/changes/proposed/C005-executor-continuity", "specs/changes/proposed/C006-result-delivery", "specs/changes/proposed/C007-pre-run-workbook-generation", "specs/changes/proposed/C008-dependency-readiness"]
+test_files = []
+allow_test_changes = true
+
 # 采用后生效。复杂作者先准备接口、原语与测试；简单实现者只启用和通过冻结用例。
 # 实现任务基准为M1骨架或独立测试修订完整SHA；文档/审查任务基准为各自开工候选。
 

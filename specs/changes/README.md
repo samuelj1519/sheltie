@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[C004 明确成果与可靠接续](active/C004-verifiable-delegation/README.md)
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -9,17 +9,18 @@ Active change：无
 
 | Change | 目标 | 状态 | 入口 |
 | --- | --- | --- | --- |
-| C004 | 紧凑当前指针、终点显式成果与最小方法 | proposed，按通用增量需求采用 | [README](proposed/C004-verifiable-delegation/README.md) |
 | C005 | 原子撤销旧 Attempt 资格并重新领取 | proposed，普通接续不需要替换 | [README](proposed/C005-executor-continuity/README.md) |
 | C006 | 核完全部字节后发布一份完整新副本 | proposed，按真实复制需求采用 | [README](proposed/C006-result-delivery/README.md) |
 | C007 | 当前版本上的完整任务、方法复用与续接试用 | proposed，实验 not_run | [README](proposed/C007-pre-run-workbook-generation/README.md) |
 | C008 | 真实必需资源造成摩擦后的单宿主只读预检 | proposed，条件未满足不采用 | [README](proposed/C008-dependency-readiness/README.md) |
 
-优先采用 C007 的共同试用，完整观察用户结果、质量和总成本；根据证据选择 C004 的最小增量。明确的同等近期需求也可直接支持采用，不要求先发生事故。C005/C006 依赖实际通用合同但不相互依赖；C008 只由真实宿主资源问题触发。一次只执行一个 active package，不为凑齐编号实现全部方案。任务以完整行为和实际风险划分，流程见[共同指南](../guides/proposal-implementation.md)。
+优先采用 C007 的共同试用，完整观察用户结果、质量和总成本；根据证据选择 C004 的最小增量。明确的同等近期需求也可直接支持采用，不要求先发生事故。C005/C006 依赖实际通用合同但不相互依赖；C008 只由真实宿主资源问题触发。本次用户已明确授权 C004–C008 按顺序实施；一次只执行一个 active package，实际证据与 `not_run` 分开记录。任务以完整行为和实际风险划分，流程见[共同指南](../guides/proposal-implementation.md)。
 
 ## Active
 
-无。
+| Change | 目标 | 入口 |
+| --- | --- | --- |
+| C004 | 明确成果与可靠接续；2026-10-03 由用户采用全部范围 | [README](active/C004-verifiable-delegation/README.md)、[plan](active/C004-verifiable-delegation/plan.md) |
 
 ## Completed
 

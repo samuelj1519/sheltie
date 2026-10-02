@@ -1,9 +1,9 @@
 # C004 独立审查
 
 方案审查：`通过`（首次读者实施规划、产品边界与工具静态接线）。
-package 仍为 `proposed`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
+历史审查时 package 为 `proposed`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
 
-## 当前完整计划
+## 历史方案审查（采用前）
 
 源码基线：`5256aa5e86614bd09eb9553076a04d2522ff38a4`。
 独立 Reviewer：`/root/review_product_docs`，未参与本次实施计划、契约、oracle 或资产的编写。
@@ -23,3 +23,7 @@ package 仍为 `proposed`；架构准备、产品代码、测试资产、真实�
 每任务短语义复核保留；阶段对同闭包已经核准的工作引用原候选与 run，不重复全套门禁。M1 是准备就绪，不是公开功能、用户价值或 M2 PASS。Reviewer 不编写被审修复，问题交复杂作者补接口/测试并重固定基准。
 
 文档、规格、测试声明/归属、五份任务 TOML/plan 对齐与 diff 静态检查通过；没有执行未来 Rust 用例或真实实验。实际命令与原文见 [validation](validation.md)，任务状态只见 [plan](plan.md)。全部实际采用义务完成后才能 completed；发布、推送、合并和外部安装不随方案通过发生。
+
+## C004-T00 采用与实施入口
+
+开工候选：`18e043f2ff7680683ca2d9b7aca2b82fbf4cdbeb`。独立 Reviewer：`/root/independent_review`。首轮发现 change 顶部与迁移 package 的旧状态残留；作者已修正采用状态与历史审查标题。授权、一次 active、迁移链接、逐项 not_run、无虚假产品/价值/发布 PASS 已核。最终短复核：通过。Reviewer 独立重跑 docs/specs/diff，未修改文件；产品与用户价值不在 T00 结论内。
