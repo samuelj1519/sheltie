@@ -2,7 +2,7 @@
 
 Candidate: `none`
 
-状态：`proposed`。以下是预定 oracle；实现、真实使用和实施审阅均为 `not_run`。
+状态：`active`。以下是预定 oracle；实现、真实使用和实施审阅均为 `not_run`。
 
 ## 1. 机制验收
 
@@ -63,3 +63,7 @@ T01 复杂作者创建 `verification/commands.sh`、所有阶段 tests/fixtures 
 M1 核原语、普通回归、有效 red、骨架可编译且没有未完成正常入口。T02 开工基准是 M1 审定骨架或最新独立测试修订的完整 SHA，allow_test_changes=false；只能删除归本任务 ignore。测试/fixture/合同缺口交复杂作者新增明确修复任务，独立复核后固定新基准，不隐式继承旧批准。正式 feature 必须非零实际执行、全部通过且无本任务 ignore。
 
 M2 核完整用户链与实际使用。对 M1 已审且闭包未变化的内容引用原 closure 和 run ID，不重复全套；新增调用/配置/fixture/效果或异常分支按影响补验。每项任务仍有短语义复核，原输出只保存一次。T03 是手册和实际使用，不以无 Rust 用例的 task.sh 验收。
+
+## C005-T00 采用入口证据
+
+开工Candidate `23932afc1577a0b20a6b1cf7ad23ab8ac6186571`。本轮仅C004归档、C005采用、状态/索引/引用文字，无code/fixture输入变更。docs139、spec8change1active、tests741/205cards及diff通过（exit0）。独立Reviewer核采用授权、真实需求/宿主处置不造事实、已有C004 scope PASS与缺项仍分开，并逐字节核132原文移动无漂移。初次target/Owner字段替换漏匹配的结构检查失败保留为作者诊断，修后通过，不算产品验证。

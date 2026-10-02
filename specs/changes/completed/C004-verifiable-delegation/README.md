@@ -1,6 +1,6 @@
 # C004：明确成果与可靠接续
 
-状态：`active`
+状态：`completed`（本轮实现闭包；授权延期义务见 validation）
 目标版本：`v0.3.0`（开发目标，尚未发布）
 兼容性：不设计兼容层或数据迁移；仅实现采用后的单一合同
 基线：`18e043f2ff7680683ca2d9b7aca2b82fbf4cdbeb`
@@ -40,4 +40,4 @@ Owner：`Codex /root`
 
 [spec](spec.md)规定用户行为；[design](design.md)定义字段与数据来源；[plan](plan.md)给出四个任务与两个阶段：复杂模型准备架构/原语/测试，简单模型按冻结接口执行，每阶段由独立复杂模型审阅；[tasks](tasks.toml)限制范围；[validation](validation.md)索引证据；[review](review.md)记录审查；[progress](progress.md)只作交接。执行方式见[实施指南](../../../guides/proposal-implementation.md)。
 
-本 package 已采用，采用范围与授权例外见 [adoption](adoption.md)。先同步上游合同，依 plan 实施；发布另行决定。
+本轮实现闭包已独立验收并归档，采用范围与授权例外见 [adoption](adoption.md) 和 [validation](validation.md)。真实试用与环境缺项后续在本 package 补验；发布另行决定。

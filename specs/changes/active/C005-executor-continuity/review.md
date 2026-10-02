@@ -1,9 +1,9 @@
 # C005 独立审查
 
 方案审查：`通过`（首次读者实施规划、产品边界与工具静态接线）。
-package 仍为 `proposed`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
+历史方案审查时 package 为 `proposed`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
 
-## 当前完整计划
+## 历史方案审查（采用前）
 
 源码基线：`5256aa5e86614bd09eb9553076a04d2522ff38a4`。
 独立 Reviewer：`/root/review_product_docs`，未参与本次实施计划、契约、oracle 或资产的编写。
@@ -23,3 +23,7 @@ package 仍为 `proposed`；架构准备、产品代码、测试资产、真实�
 每任务短语义复核保留；阶段对同闭包已经核准的工作引用原候选与 run，不重复全套门禁。M1 是准备就绪，不是公开功能、用户价值或 M2 PASS。Reviewer 不编写被审修复，问题交复杂作者补接口/测试并重固定基准。
 
 文档、规格、测试声明/归属、五份任务 TOML/plan 对齐与 diff 静态检查通过；没有执行未来 Rust 用例或真实实验。实际命令与原文见 [validation](validation.md)，任务状态只见 [plan](plan.md)。全部实际采用义务完成后才能 completed；发布、推送、合并和外部安装不随方案通过发生。
+
+## C005-T00 采用与C004归档
+
+通过。独立 Reviewer `/root/independent_review` 未参与采用记录编写；首轮清理C004 plan/新active README/spec/采用条件/根当前合同等残留文字，作者修后增量通过。明确开发需求直接采用与真实使用前提分开，不主张已发生事故、停止或隔离；撤销正式资格不代表停止进程。唯一active、scope完成边界和未发布准确。Reviewer独立逐字节核C004迁移132份evidence：无缺失、无变化，授权缺项保持。docs/specs/tests/diff通过；无Rust变化不重跑。

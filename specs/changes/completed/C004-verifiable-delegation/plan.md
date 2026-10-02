@@ -1,6 +1,6 @@
 # C004 实施计划
 
-状态：`active`。用户已明确采用本方案全范围；采用记录见 [adoption](adoption.md)。实现与审查按实际证据推进。
+状态：`completed`（本轮实际实现闭包）。用户已采用，原真实试用与环境义务按授权延期；采用范围见 [adoption](adoption.md)，验收与缺项见 [validation](validation.md)。
 
 ## 1. 首次读者与采用范围
 

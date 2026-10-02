@@ -1,6 +1,6 @@
 # C006 产品方案
 
-状态：`proposed`。结果资格与选择只在 [C004](../../active/C004-verifiable-delegation/spec.md)定义。本文件定义可编辑副本，不定义第二套结果。
+状态：`proposed`。结果资格与选择只在 [C004](../../completed/C004-verifiable-delegation/spec.md)定义。本文件定义可编辑副本，不定义第二套结果。
 
 ## 1. 用户路径与命令
 
