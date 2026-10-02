@@ -4,12 +4,12 @@
 
 mod common;
 
+#[cfg(feature = "failpoint")]
+use common::process::Process;
 use common::*;
 use rusqlite::Connection;
 use serde_json::Value;
 use std::os::unix::process::ExitStatusExt;
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
 
 // Task: C002-T31
 #[test]
@@ -25,30 +25,15 @@ fn killed_first_store_initializer_allows_the_same_add_request_to_retry() {
         "add",
         source.to_str().unwrap(),
     ];
-    let mut child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
-        .args(["--home", &env.home(), "--json"])
-        .args(args)
-        .env(
-            "SHELTIE_TEST_RENDEZVOUS_NAME",
-            "write_session_after_store_create",
-        )
-        .env("SHELTIE_TEST_RENDEZVOUS_ID", &home)
-        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !sync.path().join("reached").exists() {
-        if child.try_wait().unwrap().is_some() || Instant::now() >= deadline {
-            let _ = child.kill();
-            let output = child.wait_with_output().unwrap();
-            panic!("初始化未到指定窗口：{output:?}");
-        }
-        std::thread::sleep(Duration::from_millis(1));
-    }
-    child.kill().unwrap();
-    assert_eq!(child.wait_with_output().unwrap().status.signal(), Some(9));
+    let point = "write_session_after_store_create";
+    let mut process = Process::spawn(
+        &env,
+        &args,
+        Some((point, home.to_str().unwrap(), sync.path())),
+    );
+    process.reached(sync.path(), point);
+    process.child.as_mut().unwrap().kill().unwrap();
+    assert_eq!(process.finish().status.signal(), Some(9));
     let reply = env.ok(&args);
     assert_eq!(reply["request_id"], "init-kill");
     assert_eq!(reply["data"]["replayed"], false);

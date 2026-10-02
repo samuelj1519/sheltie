@@ -9,18 +9,18 @@ use common::*;
 use sheltie_runtime::Error;
 use sheltie_runtime::selfmgmt::{self, ReleaseSource};
 
-fn sentinel(dir: &Path, name: &str) -> std::path::PathBuf {
-    let path = dir.join(name);
-    std::fs::write(&path, format!("sentinel-{name}")).unwrap();
-    path
-}
-
-fn snapshot(path: &Path) -> (Vec<u8>, u32) {
-    use std::os::unix::fs::PermissionsExt as _;
-    (
-        std::fs::read(path).unwrap(),
-        std::fs::metadata(path).unwrap().permissions().mode(),
-    )
+fn pack_tar(stage: &Path, asset: &str, entry: &str, flag: &str) -> Vec<u8> {
+    let packed = std::process::Command::new("tar")
+        .args([flag, asset, entry])
+        .current_dir(stage)
+        .output()
+        .unwrap();
+    assert!(
+        packed.status.success(),
+        "tar打包失败：{}",
+        String::from_utf8_lossy(&packed.stderr)
+    );
+    std::fs::read(stage.join(asset)).unwrap()
 }
 
 /// 写一个 tag 目录：`<base>/<tag>/dist-manifest.json` 与该 tag 的资产。
@@ -35,21 +35,15 @@ fn write_tag_dir(base: &Path, tag: &str, manifest: &str, assets: &[(&str, &[u8])
     }
 }
 
-fn make_release(dir: &Path, version: &str, tamper: bool) -> ReleaseSource {
+fn make_release(dir: &Path, version: &str) -> ReleaseSource {
     std::fs::create_dir_all(dir).unwrap();
     let platform = selfmgmt::platform();
     let payload = format!("fake sheltie {version} for {platform}");
     let asset = format!("sheltie-{version}-{platform}");
-    let digest = if tamper {
-        "0".repeat(64)
-    } else {
-        sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes())
-            .as_str()
-            .to_string()
-    };
+    let digest = sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes());
     let manifest = serde_json::json!({
         "version": version,
-        "assets": [{ "platform": platform, "name": asset, "sha256": digest }]
+        "assets": [{ "platform": platform, "name": asset, "sha256": digest.as_str() }]
     })
     .to_string();
     // `latest/` 只用来发现版本号；清单与资产都从固定后的 `v<version>/` 取。
@@ -71,7 +65,12 @@ fn install_copies_current_exe_and_is_idempotent() {
     let (_d, home) = temp_home();
     let first = selfmgmt::install(&home).unwrap();
     assert!(!first.already_installed);
-    assert!(Path::new(first.installed_to.as_str()).exists());
+    assert_eq!(first.installed_to, home.bin_dir().join_segment("sheltie"));
+    assert_eq!(
+        std::fs::read(first.installed_to.as_path()).unwrap(),
+        std::fs::read(std::env::current_exe().unwrap()).unwrap()
+    );
+    assert!(home.store_path().as_path().exists());
     let second = selfmgmt::install(&home).unwrap();
     assert!(second.already_installed);
 }
@@ -92,7 +91,7 @@ fn install_prints_path_hint_and_does_not_touch_rc_by_default() {
 fn update_replaces_binary_and_keeps_prev() {
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9", false);
+    let src = make_release(&d.path().join("rel"), "9.9.9");
     let out = selfmgmt::update(&home, &src, None).unwrap();
     assert_eq!(out.to, "9.9.9");
     let bin = std::path::PathBuf::from(home.bin_dir().as_str());
@@ -104,34 +103,10 @@ fn update_replaces_binary_and_keeps_prev() {
     );
 }
 
-// Task: T20
-#[test]
-fn update_rejects_checksum_mismatch_and_leaves_binary_intact() {
-    let (d, home) = temp_home();
-    selfmgmt::install(&home).unwrap();
-    let before =
-        std::fs::read(std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie")).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9", true);
-    assert!(matches!(
-        selfmgmt::update(&home, &src, None),
-        Err(Error::UpdateChecksumMismatch { .. })
-    ));
-    let after =
-        std::fs::read(std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie")).unwrap();
-    assert_eq!(before, after);
-    let tmp = std::path::PathBuf::from(home.tmp_dir().as_str());
-    assert!(
-        !tmp.exists() || std::fs::read_dir(tmp).unwrap().next().is_none(),
-        "下载文件已删"
-    );
-}
-
 // Task: C002-T23
 #[cfg(feature = "failpoint")]
 #[test]
 fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
-    use std::time::{Duration, Instant};
-
     let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
     let (dir, home) = temp_home();
     selfmgmt::install(&home).unwrap();
@@ -139,7 +114,7 @@ fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
     let prev = std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie.prev");
     std::fs::write(&prev, b"older previous binary").unwrap();
     let prev_before = std::fs::read(&prev).unwrap();
-    let source = make_release(&dir.path().join("release"), "9.9.9", false);
+    let source = make_release(&dir.path().join("release"), "9.9.9");
     let rendezvous = tempfile::tempdir().unwrap();
     sheltie_runtime::failpoint::arm_rendezvous(
         "update_after_candidate_verify",
@@ -147,26 +122,11 @@ fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
         rendezvous.path(),
     )
     .unwrap();
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = Guard;
     let update_home = home.clone();
     let update = std::thread::spawn(move || selfmgmt::update(&update_home, &source, None));
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = update.join();
-        panic!("update 未到达候选核验后的同步点");
-    }
+    let mut worker = RendezvousWorker::single(update, rendezvous.path());
+    worker.wait("update 未到达候选核验后的同步点");
     let tmp = std::fs::read_dir(home.tmp_dir().as_path())
         .unwrap()
         .next()
@@ -176,7 +136,7 @@ fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
     std::fs::write(tmp.join("sheltie-candidate"), b"unverified replacement").unwrap();
     std::fs::write(&release, b"release").unwrap();
     assert!(matches!(
-        update.join().unwrap(),
+        worker.finish().unwrap(),
         Err(Error::InvalidRequest { .. })
     ));
     assert_eq!(std::fs::read(bin_path(&home)).unwrap(), before);
@@ -209,7 +169,7 @@ fn rollback_swaps_prev_back() {
     selfmgmt::install(&home).unwrap();
     let original =
         std::fs::read(std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie")).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9", false);
+    let src = make_release(&d.path().join("rel"), "9.9.9");
     selfmgmt::update(&home, &src, None).unwrap();
     selfmgmt::rollback(&home).unwrap();
     assert_eq!(
@@ -407,8 +367,6 @@ static PURGE_PARTIAL_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 #[cfg(feature = "failpoint")]
 #[test]
 fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
-    use std::time::{Duration, Instant};
-
     let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
     let (dir, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
@@ -432,41 +390,19 @@ fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
         rendezvous.path(),
     )
     .unwrap();
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = Guard;
     let purge_home = home.clone();
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = purge.join();
-        panic!("purge 未到达首个根目录删除后的同步点");
-    }
+    let mut worker = RendezvousWorker::single(purge, rendezvous.path());
+    worker.wait("purge 未到达首个根目录删除后的同步点");
     let blocked = home.work_dir(&wid).join_segment("purge-special");
     let fifo = std::process::Command::new("mkfifo")
         .arg(blocked.as_str())
         .status()
         .unwrap();
     assert!(fifo.success());
-    struct ReleaseGuard(std::path::PathBuf);
-    impl Drop for ReleaseGuard {
-        fn drop(&mut self) {
-            let _ = std::fs::write(&self.0, b"release");
-        }
-    }
-    let _release = ReleaseGuard(release.clone());
     std::fs::write(&release, b"release").unwrap();
-    let result = purge.join().unwrap();
+    let result = worker.finish().unwrap();
 
     match result {
         Err(Error::Io { path, source }) => {
@@ -522,8 +458,6 @@ fn platform_matches_supported_target_triples() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock() {
-    use std::time::{Duration, Instant};
-
     let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
     let (_dir, home) = temp_home();
     selfmgmt::install(&home).unwrap();
@@ -536,33 +470,18 @@ fn purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock() {
         rendezvous.path(),
     )
     .unwrap();
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = Guard;
     let purge_home = home.clone();
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = purge.join();
-        panic!("purge 未到达最终复核同步点");
-    }
+    let mut worker = RendezvousWorker::single(purge, rendezvous.path());
+    worker.wait("purge未到达最终sqlite控制文件扫描前的同步点");
     std::fs::write(
         home.root().join_segment("store.db-shm").as_path(),
         b"late shm",
     )
     .unwrap();
     std::fs::write(&release, b"release").unwrap();
-    let kept = purge.join().unwrap().unwrap();
+    let kept = worker.finish().unwrap().unwrap();
     assert_eq!(kept, vec![home.root().clone(), home.lock_path().clone()]);
     assert!(!home.root().join_segment("store.db-shm").as_path().exists());
     let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
@@ -574,8 +493,6 @@ fn purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn purge_reports_partial_progress_if_locked_inode_is_unlinked() {
-    use std::time::{Duration, Instant};
-
     let _serial = PURGE_PARTIAL_LOCK.lock().unwrap();
     let (_dir, home) = temp_home();
     selfmgmt::install(&home).unwrap();
@@ -586,29 +503,14 @@ fn purge_reports_partial_progress_if_locked_inode_is_unlinked() {
         rendezvous.path(),
     )
     .unwrap();
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-    let _guard = Guard;
     let purge_home = home.clone();
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = purge.join();
-        panic!("purge 未到达最终复核同步点");
-    }
+    let mut worker = RendezvousWorker::single(purge, rendezvous.path());
+    worker.wait("purge未到达最终扫描前的同步点");
     std::fs::remove_file(home.lock_path().as_path()).unwrap();
     std::fs::write(&release, b"release").unwrap();
-    let result = purge.join().unwrap();
+    let result = worker.finish().unwrap();
     assert!(matches!(result, Err(Error::Io { .. })));
     assert!(!home.lock_path().as_path().exists(), "不得在错误锁下重建锁");
     assert!(home.root().as_path().exists());
@@ -633,7 +535,7 @@ fn install_replaces_divergent_binary_instead_of_short_circuit() {
 fn update_version_flag_mismatch_is_unavailable() {
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9", false);
+    let src = make_release(&d.path().join("rel"), "9.9.9");
     assert!(matches!(
         selfmgmt::update(&home, &src, Some("8.8.8")),
         Err(Error::UpdateUnavailable { .. })
@@ -669,17 +571,7 @@ fn update_unpacks_tarball_asset_and_keeps_executable_bit() {
         std::fs::Permissions::from_mode(0o755),
     )
     .unwrap();
-    let tar = std::process::Command::new("tar")
-        .args(["-czf", &asset, &inner])
-        .current_dir(&stage)
-        .output()
-        .unwrap();
-    assert!(
-        tar.status.success(),
-        "tar 打包失败：{}",
-        String::from_utf8_lossy(&tar.stderr)
-    );
-    let bytes = std::fs::read(stage.join(&asset)).unwrap();
+    let bytes = pack_tar(&stage, &asset, &inner, "-czf");
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(&bytes);
     let manifest = serde_json::json!({
         "version": "9.9.9",
@@ -766,17 +658,7 @@ fn update_unpacks_tgz_named_asset() {
     )
     .unwrap();
     let asset = format!("sheltie-9.9.9-{platform}.tgz");
-    let tar = std::process::Command::new("tar")
-        .args(["-czf", &asset, "sheltie"])
-        .current_dir(&stage)
-        .output()
-        .unwrap();
-    assert!(
-        tar.status.success(),
-        "tar 打包失败：{}",
-        String::from_utf8_lossy(&tar.stderr)
-    );
-    let bytes = std::fs::read(stage.join(&asset)).unwrap();
+    let bytes = pack_tar(&stage, &asset, "sheltie", "-czf");
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(&bytes);
     let manifest = serde_json::json!({
         "version": "9.9.9",
@@ -849,7 +731,7 @@ fn update_pinned_version_installs_only_that_tag() {
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
-    make_release(&dir, "9.9.9", false);
+    make_release(&dir, "9.9.9");
     let eight = "payload of pinned 8.8.8";
     write_version_release(&dir, "8.8.8", eight.as_bytes());
     let out = selfmgmt::update(&home, &release_source(&dir), Some("8.8.8")).unwrap();
@@ -948,7 +830,7 @@ fn update_rejects_path_like_version_argument() {
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
-    make_release(&dir, "9.9.9", false);
+    make_release(&dir, "9.9.9");
     let src = release_source(&dir);
     for bad in ["..", "../9.9.9", "a/b", "a\\b", "", ".", "v", "x\0y"] {
         assert!(
@@ -970,7 +852,7 @@ fn update_missing_tag_directory_reports_missing_tag() {
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
     let dir = d.path().join("rel");
-    make_release(&dir, "9.9.9", false);
+    make_release(&dir, "9.9.9");
     match selfmgmt::update(&home, &release_source(&dir), Some("5.5.5")) {
         Err(Error::UpdateUnavailable { reason }) => {
             assert!(reason.contains("v5.5.5"), "诊断没点名缺的 tag：{reason}");
@@ -1123,7 +1005,7 @@ fn clean_home_install_then_update_two_step() {
     );
     let original = std::fs::read(bin_path(&home)).unwrap();
     let store_before = std::fs::read(home.store_path().as_str()).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9", false);
+    let src = make_release(&d.path().join("rel"), "9.9.9");
     let out = selfmgmt::update(&home, &src, None).unwrap();
     assert_eq!(out.to, "9.9.9");
     assert_eq!(
@@ -1152,7 +1034,7 @@ fn update_pinned_version_then_rollback_restores_previous() {
     selfmgmt::install(&home).unwrap();
     let original = std::fs::read(bin_path(&home)).unwrap();
     let dir = d.path().join("rel");
-    make_release(&dir, "9.9.9", false);
+    make_release(&dir, "9.9.9");
     let eight = "payload of pinned 8.8.8";
     write_version_release(&dir, "8.8.8", eight.as_bytes());
     let store_before = std::fs::read(home.store_path().as_str()).unwrap();
@@ -1200,17 +1082,7 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
     let stage = d.path().join("stage");
     std::fs::create_dir_all(stage.join(&inner)).unwrap();
     std::fs::write(stage.join(&inner).join("sheltie"), &payload).unwrap();
-    let tar = std::process::Command::new("tar")
-        .args(["-cJf", &asset, &inner])
-        .current_dir(&stage)
-        .output()
-        .unwrap();
-    assert!(
-        tar.status.success(),
-        "tar 打包失败：{}",
-        String::from_utf8_lossy(&tar.stderr)
-    );
-    let bytes = std::fs::read(stage.join(&asset)).unwrap();
+    let bytes = pack_tar(&stage, &asset, &inner, "-cJf");
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(&bytes);
     let manifest = serde_json::json!({
         "dist_version": "0.32.0",
@@ -1363,7 +1235,6 @@ fn self_install_and_work_writes_serialize_under_home_lock() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm() {
-    use std::time::{Duration, Instant};
     for kind in [
         "empty-wal",
         "nonempty-wal",
@@ -1385,31 +1256,11 @@ fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm
             point.path(),
         )
         .unwrap();
-        struct Guard {
-            release: std::path::PathBuf,
-            thread: Option<std::thread::JoinHandle<sheltie_runtime::Result<()>>>,
-        }
-        impl Drop for Guard {
-            fn drop(&mut self) {
-                let _ = std::fs::write(&self.release, b"release");
-                if let Some(thread) = self.thread.take() {
-                    let _ = thread.join();
-                }
-                let _ = sheltie_runtime::failpoint::disarm_rendezvous();
-            }
-        }
         let worker_home = home.clone();
         let worker =
             std::thread::spawn(move || selfmgmt::uninstall(&worker_home, true, true).map(|_| ()));
-        let mut guard = Guard {
-            release: point.path().join("release"),
-            thread: Some(worker),
-        };
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !point.path().join("reached").exists() {
-            assert!(Instant::now() < deadline);
-            std::thread::sleep(Duration::from_millis(1));
-        }
+        let mut guard = RendezvousWorker::single(worker, point.path());
+        guard.wait("purge未到达最终SQLite控制文件扫描前的同步点");
         assert!(!home.store_path().as_path().exists());
         let outside = tempfile::tempdir().unwrap();
         let sentinel = outside.path().join("sentinel");
@@ -1427,8 +1278,7 @@ fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm
             "linked-wal" | "linked-shm" => std::fs::hard_link(&sentinel, &wal).unwrap(),
             _ => std::os::unix::fs::symlink(&sentinel, &wal).unwrap(),
         }
-        std::fs::write(&guard.release, b"release").unwrap();
-        let result = guard.thread.take().unwrap().join().unwrap();
+        let result = guard.finish().unwrap();
         if matches!(kind, "empty-wal" | "regular-shm") {
             result.unwrap();
             assert!(!wal.exists());

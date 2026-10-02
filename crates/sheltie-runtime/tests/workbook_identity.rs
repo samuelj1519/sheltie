@@ -8,25 +8,8 @@ use std::path::Path;
 
 use common::*;
 use sheltie_core::error::ErrorCode;
-use sheltie_core::ids::{NodeId, WorkId};
-use sheltie_runtime::{Error, Home, StartArgs, WorkService, WorkbookRepo};
-
-fn two_step_args() -> StartArgs {
-    StartArgs {
-        workbook_id: "two-step".into(),
-        version: None,
-        flow: "default".into(),
-        name: None,
-        inputs: [(
-            "topic".to_string(),
-            sheltie_runtime::request::InputValue::Literal {
-                text: "t".to_string(),
-            },
-        )]
-        .into_iter()
-        .collect(),
-    }
-}
+use sheltie_core::ids::NodeId;
+use sheltie_runtime::{Error, Home, WorkService, WorkbookRepo};
 
 /// 已装目录被改后：verify 报 tampered，start 不再静默接受（O03）。
 // Task: C002-T05
@@ -39,8 +22,15 @@ fn load_rejects_tampered_registered_digest() {
     std::fs::write(&f, "被人改了").unwrap();
 
     let rows = svc_status_repo(&home).verify(None).unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(
+        (&rows[0].id[..], &rows[0].version[..]),
+        ("two-step", "1.0.0")
+    );
     assert_eq!(rows[0].status, sheltie_runtime::VerifyStatus::Tampered);
-    let err = svc.start(two_step_args(), None).unwrap_err();
+    let err = svc
+        .start(two_step_args(&[("topic", "t")]), None)
+        .unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookTampered, "{err:?}");
     // 拒绝发生在任何物化之前。
     assert!(
@@ -99,19 +89,6 @@ fn ds_store_rejected_by_name_at_add() {
     assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
 }
 
-/// 新管理根上 `self install` 直接可用：建根、store.db 与 bin（O06）。
-// Task: C002-T05
-#[test]
-fn self_install_on_new_home_creates_root_store_and_bin() {
-    let (_d, home) = temp_home();
-    sheltie_runtime::selfmgmt::install(&home).unwrap();
-    assert!(home.store_path().as_path().exists());
-    assert!(home.bin_dir().join_segment("sheltie").as_path().exists());
-    // 幂等：再来一次返回 already_installed。
-    let again = sheltie_runtime::selfmgmt::install(&home).unwrap();
-    assert!(again.already_installed);
-}
-
 /// 只读打开不存在的库：NOT_FOUND 且不创建任何目录（GF-30）。
 // Task: C002-T05
 #[test]
@@ -149,28 +126,33 @@ fn principal_matches_id_un_oracle() {
 // Task: C002-T05
 #[test]
 fn work_readable_after_workbook_removed() {
-    let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(two_step_args(), None).unwrap());
-    let begun = svc
-        .begin(&wid, &NodeId::new("outline").unwrap(), None)
-        .unwrap();
-    write_output(&output_dir_of(&begun), "outline.md", "提纲");
-    // 提交后取消进入终态，再删 Workbook。
-    svc.submit(
-        &wid,
-        &sheltie_core::ids::AttemptId::parse("outline#1.0").unwrap(),
-        &sheltie_runtime::request::InputValue::Literal {
-            text: "完成".to_string(),
-        },
-        None,
-    )
-    .unwrap();
-    svc.cancel(&wid, None).unwrap();
+    for submitted_history in [false, true] {
+        let (_d, home, svc) = home_with_example("two-step");
+        let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
+        if submitted_history {
+            let begun = svc
+                .begin(&wid, &NodeId::new("outline").unwrap(), None)
+                .unwrap();
+            write_output(&output_dir_of(&begun), "outline.md", "提纲");
+            // 提交后取消进入终态，再删 Workbook。
+            svc.submit(
+                &wid,
+                &sheltie_core::ids::AttemptId::parse("outline#1.0").unwrap(),
+                &sheltie_runtime::request::InputValue::Literal {
+                    text: "完成".to_string(),
+                },
+                None,
+            )
+            .unwrap();
+        }
+        svc.cancel(&wid, None).unwrap();
 
-    repo(&home).remove("two-step", "1.0.0", None).unwrap();
-    let (card, json) = svc.status(&wid).unwrap();
-    assert!(card.contains(&format!("# Work {wid}")));
-    assert_eq!(json.status, sheltie_core::work::WorkStatus::Cancelled);
+        repo(&home).remove("two-step", "1.0.0", None).unwrap();
+        let (card, json) = svc.status(&wid).unwrap();
+        assert!(card.contains(&format!("# Work {wid}")));
+        assert!(card.contains("status: cancelled"));
+        assert_eq!(json.status, sheltie_core::work::WorkStatus::Cancelled);
+    }
 }
 
 /// 只读位是减少误写，不是不可绕过：同用户 chmod 可改冻结副本，改后引擎按摘要拒绝；
@@ -179,7 +161,7 @@ fn work_readable_after_workbook_removed() {
 #[test]
 fn readonly_bits_reduce_accidents_but_digest_is_the_guard() {
     let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(two_step_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let frozen = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
     // 只读位在（含根 0555；N10）。
     let mode = std::fs::metadata(&frozen).unwrap().permissions().mode() & 0o777;
@@ -215,10 +197,4 @@ fn readonly_bits_reduce_accidents_but_digest_is_the_guard() {
         .begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
-}
-
-/// 让 dead-code 检查满意：helper 在多个用例间共享。
-#[allow(dead_code)]
-fn _wid_of(svc: &WorkService, args: StartArgs) -> WorkId {
-    work_id_of(&svc.start(args, None).unwrap())
 }

@@ -9,6 +9,11 @@ use serde_json::Value;
 mod owned_tempdir;
 pub use owned_tempdir::OwnedTempDir;
 
+#[cfg(feature = "failpoint")]
+pub mod process;
+
+pub mod store;
+
 pub struct Env {
     pub dir: OwnedTempDir,
 }
@@ -170,19 +175,7 @@ pub fn next_begin_nodes(v: &Value) -> Vec<String> {
 }
 
 pub fn copy_example(name: &str, into: &Path) -> PathBuf {
-    fn copy(source: &Path, target: &Path) {
-        std::fs::create_dir_all(target).unwrap();
-        for entry in std::fs::read_dir(source).unwrap() {
-            let entry = entry.unwrap();
-            let destination = target.join(entry.file_name());
-            if entry.file_type().unwrap().is_dir() {
-                copy(&entry.path(), &destination);
-            } else {
-                std::fs::copy(entry.path(), destination).unwrap();
-            }
-        }
-    }
     let target = into.join(name);
-    copy(&example_dir(name), &target);
+    copy_dir(&example_dir(name), &target);
     target
 }

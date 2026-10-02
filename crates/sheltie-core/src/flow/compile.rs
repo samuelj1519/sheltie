@@ -356,6 +356,8 @@ mod tests {
         assert_eq!(g.node_count(), 3);
         assert_eq!(g.edge_count(), 3);
         assert!(g.is_terminal(&NodeId::new("publish").unwrap()));
+        assert!(!g.is_terminal(&NodeId::new("draft").unwrap()));
+        assert!(!g.is_terminal(&NodeId::new("review").unwrap()));
     }
 
     // Task: T05
@@ -438,14 +440,21 @@ mod tests {
         assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
     }
 
-    // Task: T05
+    // Task: C002-T40
     #[test]
     fn rejects_optional_input_on_start_or_resource_source() {
-        let text = base().replace(
+        for declaration in [
             "{ name = \"topic\", from = \"start.topic\" }",
-            "{ name = \"topic\", from = \"start.topic\", required = false }",
-        );
-        assert_eq!(rule_of(compile_text(&text).unwrap_err()), "5");
+            "{ name = \"checklist\", from = \"resource.resources/review-checklist.md\" }",
+        ] {
+            let optional = declaration.replace(" }", ", required = false }");
+            let text = base().replace(declaration, &optional);
+            assert_eq!(
+                rule_of(compile_text(&text).unwrap_err()),
+                "5",
+                "{declaration}"
+            );
+        }
     }
 
     // Task: T05
@@ -703,14 +712,6 @@ mod tests {
             rule_of(compile_with(&resources_with(path, 33_554_433)).unwrap_err()),
             "7"
         );
-    }
-
-    // Task: T05
-    #[test]
-    fn node_with_out_edges_is_not_terminal() {
-        let g = compile_text(base()).unwrap();
-        assert!(!g.is_terminal(&NodeId::new("draft").unwrap()));
-        assert!(!g.is_terminal(&NodeId::new("review").unwrap()));
     }
 
     // ── M1 复核待修（合同 workbook.md §4 规则 5 新增一句，见 decisions.md M1 记录 B1） ─────

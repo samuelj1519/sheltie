@@ -382,15 +382,7 @@ fn prepare_cold_replan(env: &Env, mutation: &str) -> (Value, Proj, String, Strin
     }
     let scaffold = scaffold_two_files(env, &work, &project);
     let implement = env.follow_begin(&scaffold, "implement");
-    let base = project.head();
-    std::fs::write(project.root().join("src/export.py"), EXPORT_PY_DONE).unwrap();
-    std::fs::write(
-        project.root().join("tests/test_export.py"),
-        unskip(TEST_EXPORT_PY_SKIPPED),
-    )
-    .unwrap();
-    project.gate();
-    let candidate = project.commit("feat(export): 导出入口\n\nTask: T01\nAgent: cold-fixture");
+    let (base, candidate) = commit_export_task(&project, "cold-fixture");
     let plan_source = input_path(&implement, "plan");
     let change = format!(
         "{}\n原始基线: {original}\n继承来源: {}\n\n{}",

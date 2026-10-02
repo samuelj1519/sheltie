@@ -3,6 +3,8 @@
 mod common;
 
 use common::Env;
+#[cfg(feature = "failpoint")]
+use common::process::Process;
 use std::fs::{File, FileTimes};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
@@ -206,9 +208,6 @@ fn special_tmp_entry_is_preserved_and_warned_after_successful_write() {
 #[cfg(feature = "failpoint")]
 #[test]
 fn replaced_expired_directory_is_preserved_and_warned_without_changing_the_reply() {
-    use std::process::{Command, Stdio};
-    use std::time::Instant;
-
     let env = Env::new();
     env.add_example("two-step");
     let work = env.start("two-step", &[("topic", "test")]);
@@ -225,31 +224,15 @@ fn replaced_expired_directory_is_preserved_and_warned_without_changing_the_reply
     std::fs::write(old.join("old-payload"), b"old private tmp").unwrap();
     set_age(&old, Duration::from_secs(86_410));
     let sync = tempfile::tempdir().unwrap();
-    let mut child = Command::new(env!("CARGO_BIN_EXE_sheltie"))
-        .args(["--home", &env.home(), "--json"])
-        .args(args)
-        .env("SHELTIE_TEST_RENDEZVOUS_NAME", "delete_before_root_unlink")
-        .env("SHELTIE_TEST_RENDEZVOUS_ID", "tmp-cleanup")
-        .env("SHELTIE_TEST_RENDEZVOUS_DIR", sync.path())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !sync.path().join("reached").exists() {
-        if child.try_wait().unwrap().is_some() || Instant::now() >= deadline {
-            let _ = child.kill();
-            let output = child.wait_with_output().unwrap();
-            panic!("过期目录未停在unlink前：{output:?}");
-        }
-        std::thread::sleep(Duration::from_millis(1));
-    }
+    let point = "delete_before_root_unlink";
+    let mut process = Process::spawn(&env, &args, Some((point, "tmp-cleanup", sync.path())));
+    process.reached(sync.path(), point);
     let held = env.dir.path().join("tmp/retained-old");
     std::fs::rename(&old, &held).unwrap();
     std::fs::create_dir(&old).unwrap();
     std::fs::write(old.join("sentinel"), b"replacement bytes").unwrap();
-    std::fs::write(sync.path().join("release"), b"release").unwrap();
-    let output = child.wait_with_output().unwrap();
+    process.release();
+    let output = process.finish();
     assert!(output.status.success());
     let mut reply: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(reply["data"]["replayed"], true);

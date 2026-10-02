@@ -84,6 +84,11 @@ fn start_request_replay_does_not_require_the_original_input_file() {
         input_arg.as_str(),
     ];
     let first = env.ok(&args);
+    let work = first["data"]["work_id"].as_str().unwrap();
+    assert_eq!(
+        std::fs::read_to_string(env.work_dir(work).join("start-inputs/topic")).unwrap(),
+        "first observed value"
+    );
     std::fs::write(&input, "changed after commit").unwrap();
     let changed = env.ok(&args);
     assert_eq!(changed["data"]["replayed"], true);
@@ -167,6 +172,10 @@ fn submit_request_replay_does_not_reread_a_deleted_summary_file() {
         summary_arg.as_str(),
     ];
     let first = env.ok(&args);
+    assert_eq!(
+        env.status(&wid)["data"]["last_attempt"]["summary"],
+        "recorded summary"
+    );
     std::fs::remove_file(summary).unwrap();
     let replay = env.ok(&args);
     assert_eq!(replay["data"]["replayed"], true);

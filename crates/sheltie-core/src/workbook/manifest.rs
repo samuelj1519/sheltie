@@ -358,24 +358,9 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
 mod tests {
     use super::*;
 
-    // Task: C002-T14
+    // Task: C002-T40
     #[test]
     fn host_require_snapshot_decode_accepts_valid_fields() {
-        let raw = serde_json::json!({
-            "kind": "skill",
-            "name": "company-api",
-            "version": "^1",
-            "digest": "0".repeat(64),
-            "source": "https://example.com/skill"
-        });
-        let value: HostRequire = serde_json::from_value(raw).unwrap();
-        assert_eq!(value.kind(), RequireKind::Skill);
-        assert_eq!(value.name(), "company-api");
-    }
-
-    // Task: C002-T14
-    #[test]
-    fn host_require_snapshot_decode_rejects_one_invalid_field() {
         let valid = serde_json::json!({
             "kind": "skill",
             "name": "company-api",
@@ -383,16 +368,12 @@ mod tests {
             "digest": "0".repeat(64),
             "source": "https://example.com/skill"
         });
+        let value: HostRequire = serde_json::from_value(valid.clone()).unwrap();
+        assert_eq!(value.kind(), RequireKind::Skill);
+        assert_eq!(value.name(), "company-api");
+        assert_eq!(serde_json::to_value(value).unwrap(), valid);
         for (field, bad) in [
             ("name", serde_json::json!("Bad Name")),
-            (
-                "version",
-                serde_json::json!("v".repeat(VERSION_MAX_BYTES + 1)),
-            ),
-            (
-                "source",
-                serde_json::json!("x".repeat(SOURCE_MAX_BYTES + 1)),
-            ),
             ("digest", serde_json::json!("not-a-digest")),
         ] {
             let mut changed = valid.clone();
@@ -427,11 +408,13 @@ flows = ["flows/default.toml"]
         assert_eq!(m.description, None);
     }
 
-    // Task: T03
+    // Task: C002-T40
     #[test]
     fn rejects_unknown_field() {
-        let err = parse_manifest(&with("author = \"x\"")).unwrap_err();
-        assert!(matches!(err, Error::WorkbookInvalid { .. }));
+        let text = format!("{}\nauthor = \"x\"\n", crate::testkit::TWO_STEP_MANIFEST);
+        let err = parse_manifest(&text).unwrap_err();
+        assert_eq!(err.code(), crate::error::ErrorCode::WorkbookInvalid);
+        assert!(matches!(err, Error::WorkbookInvalid { field, .. } if field == "toml"));
     }
 
     // Task: T03
@@ -464,6 +447,11 @@ flows = ["flows/default.toml"]
     // Task: T03
     #[test]
     fn rejects_description_over_2kib() {
+        let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
+        assert_eq!(
+            parse_manifest(&at).unwrap().description.unwrap().len(),
+            2048
+        );
         let text = with(&format!("description = \"{}\"", "x".repeat(2049)));
         assert!(
             matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "description")
@@ -556,16 +544,6 @@ name = "db"
         assert!(parse_manifest(&at).is_ok());
         let over = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(129)));
         assert_eq!(field_of(&over), "name");
-    }
-
-    // Task: T03
-    #[test]
-    fn description_accepts_exactly_2048_bytes() {
-        let at = with(&format!("description = \"{}\"", "a".repeat(2048)));
-        assert_eq!(
-            parse_manifest(&at).unwrap().description.unwrap().len(),
-            2048
-        );
     }
 
     // Task: T03

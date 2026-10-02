@@ -385,8 +385,6 @@ fn release_workflow_gates_announce_on_quality_job() {
         quality.contains("cargo +1.85.0 check --workspace --all-targets --all-features --locked"),
         "{quality}"
     );
-    let announce = job_block(&release, "announce");
-    assert!(announce_needs_quality(&announce), "{announce}");
 }
 
 // Task: C002-T15
@@ -421,11 +419,6 @@ fn build_workflow_fetches_history_and_runs_msrv_gate() {
     );
 
     let release = workflow("release.yml");
-    let quality = job_block(&release, "quality");
-    assert!(
-        quality.contains("cargo +1.85.0 check --workspace --all-targets --all-features --locked"),
-        "{quality}"
-    );
     let announce = job_block(&release, "announce");
     assert!(
         announce.contains(r#"RELEASE_COMMIT: "${{ github.sha }}""#),

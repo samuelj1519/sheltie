@@ -10,24 +10,7 @@ use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_core::ids::{AttemptId, NodeId};
 use sheltie_core::path::AbsPath;
-use sheltie_runtime::request::InputValue;
 use sheltie_runtime::{Error, Home, StartArgs, WorkService, WorkbookRepo};
-
-fn lit(s: &str) -> InputValue {
-    InputValue::Literal {
-        text: s.to_string(),
-    }
-}
-
-fn start_args() -> StartArgs {
-    StartArgs {
-        workbook_id: "two-step".into(),
-        version: None,
-        flow: "default".into(),
-        name: None,
-        inputs: [("topic".to_string(), lit("t"))].into_iter().collect(),
-    }
-}
 
 /// schema 1 main/WAL 被各真实写入口拒绝，且拒绝前不建.lock或改写持久字节（D-033）。
 // Task: C002-T24
@@ -89,10 +72,6 @@ fn schema1_store_rejected_without_touching_file() {
         !home.lock_path().as_path().exists(),
         "拒绝旧schema不得创建.lock"
     );
-    assert!(
-        !home.lock_path().as_path().exists(),
-        "拒绝旧schema不得创建.lock"
-    );
     assert_eq!(std::fs::read(&db).unwrap(), before, "拒绝不得改写main");
     assert_eq!(std::fs::read(&wal).unwrap(), wal_before, "拒绝不得改写WAL");
 }
@@ -102,10 +81,10 @@ fn schema1_store_rejected_without_touching_file() {
 #[test]
 fn cross_work_request_id_is_request_conflict_and_target_untouched() {
     let (_d, _home, svc) = home_with_example("two-step");
-    let a = work_id_of(&svc.start(start_args(), None).unwrap());
+    let a = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let args2 = StartArgs {
         name: Some("second".into()),
-        ..start_args()
+        ..two_step_args(&[("topic", "t")])
     };
     let b = work_id_of(&svc.start(args2, None).unwrap());
 
@@ -117,54 +96,11 @@ fn cross_work_request_id_is_request_conflict_and_target_untouched() {
     assert_eq!(card.status, sheltie_core::work::WorkStatus::Active);
 }
 
-/// 文件变化后 submit 重放：观察摘要不影响意图指纹，重放返回原快照（§2.1）。
-// Task: C002-T07
-#[test]
-fn submit_replay_after_output_change_returns_original_snapshot() {
-    let (_d, _home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
-    let begun = svc
-        .begin(&wid, &NodeId::new("outline").unwrap(), None)
-        .unwrap();
-    let output_dir = match &begun.reply {
-        sheltie_core::work::Reply::AttemptBegun { output_dir, .. } => output_dir.clone(),
-        other => panic!("{other:?}"),
-    };
-    write_output(&output_dir, "outline.md", "第一版");
-    let first = svc
-        .submit(
-            &wid,
-            &AttemptId::parse("outline#1.0").unwrap(),
-            &lit("完成"),
-            Some("r-sub".into()),
-        )
-        .unwrap();
-    // 提交后有人改了输出文件字节；同请求重放不再观察，返回原快照。
-    let sealed_path = Path::new(output_dir.as_str()).join("outline.md");
-    let mut m = std::fs::metadata(&sealed_path).unwrap().permissions();
-    m.set_mode(0o644);
-    std::fs::set_permissions(&sealed_path, m).unwrap();
-    std::fs::write(&sealed_path, "被改了").unwrap();
-
-    let again = svc
-        .submit(
-            &wid,
-            &AttemptId::parse("outline#1.0").unwrap(),
-            &lit("完成"),
-            Some("r-sub".into()),
-        )
-        .unwrap();
-    assert!(again.replayed);
-    assert_eq!(again.revision, first.revision);
-    assert_eq!(again.reply, first.reply, "快照逐字段原样");
-    assert_eq!(again.data, first.data);
-}
-
 // Task: C002-T22
 #[test]
 fn completed_submit_replay_does_not_seal_or_rewrite_the_output_again() {
     let (_d, _home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap();
@@ -196,6 +132,8 @@ fn completed_submit_replay_does_not_seal_or_rewrite_the_output_again() {
         .unwrap();
     assert!(replay.replayed);
     assert_eq!(replay.revision, first.revision);
+    assert_eq!(replay.reply, first.reply);
+    assert_eq!(replay.data, first.data);
     assert_eq!(std::fs::read(&output).unwrap(), b"later bytes");
     assert_eq!(
         std::fs::metadata(output).unwrap().permissions().mode(),
@@ -208,7 +146,7 @@ fn completed_submit_replay_does_not_seal_or_rewrite_the_output_again() {
 #[test]
 fn start_replay_after_workbook_removed_returns_original_snapshot() {
     let (_d, home, svc) = home_with_example("two-step");
-    let args = start_args();
+    let args = two_step_args(&[("topic", "t")]);
     let wid = work_id_of(&svc.start(args.clone(), Some("r-start".into())).unwrap());
     svc.cancel(&wid, None).unwrap();
     WorkbookRepo::new(home.clone())
@@ -231,7 +169,7 @@ fn start_replay_after_workbook_removed_returns_original_snapshot() {
 #[test]
 fn old_submit_replay_after_cancel_returns_original_reply() {
     let (_d, _home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap();
@@ -272,7 +210,7 @@ fn old_submit_replay_after_cancel_returns_original_reply() {
 #[test]
 fn replay_does_not_rewrite_status_card_to_old_revision() {
     let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let card_path = Path::new(home.work_dir(&wid).as_str()).join("status-card.md");
 
     let begun = svc
@@ -310,7 +248,7 @@ fn replay_does_not_rewrite_status_card_to_old_revision() {
 #[test]
 fn replay_with_modified_brief_reports_integrity_error() {
     let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(&wid, &NodeId::new("outline").unwrap(), Some("r-m".into()))
         .unwrap();
@@ -390,7 +328,7 @@ fn workbook_remove_replay_and_readd() {
 #[test]
 fn two_writers_serialize_under_home_lock() {
     let (_d, _home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap();
@@ -439,11 +377,11 @@ fn two_writers_serialize_under_home_lock() {
 }
 
 /// begin 的崩溃窗口（COMMIT 后、效果前）：下一次写操作先恢复，再执行新命令（§3.1）。
-// Task: C002-T07
+// Task: C002-T40
 #[test]
 fn begin_effects_recovered_by_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&svc.start(start_args(), None).unwrap());
+    let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
     let begun = svc
         .begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap();
@@ -454,6 +392,7 @@ fn begin_effects_recovered_by_next_write() {
         other => panic!("{other:?}"),
     };
     // 模拟「COMMIT 后、发布前」被杀：请求已提交但效果文件不存在。
+    let original_brief = std::fs::read(&brief).unwrap();
     std::fs::remove_file(&brief).unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute("UPDATE requests SET published = 0", [])
@@ -468,5 +407,18 @@ fn begin_effects_recovered_by_next_write() {
         None,
     )
     .unwrap();
-    assert!(brief.exists(), "恢复按登记字节补写任务书");
+    assert_eq!(
+        std::fs::read(&brief).unwrap(),
+        original_brief,
+        "恢复按提交时的原字节补写任务书"
+    );
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let pending: i64 = connection
+        .query_row(
+            "SELECT count(*) FROM requests WHERE published = 0",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(pending, 0);
 }

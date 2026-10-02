@@ -5,7 +5,7 @@
 use sheltie_core::error::ErrorCode;
 use sheltie_core::flow::Executor;
 use sheltie_core::ids::NodeId;
-use sheltie_core::work::{Command, Timestamp};
+use sheltie_core::work::Command;
 
 // Task: T01
 #[test]
@@ -59,13 +59,4 @@ fn command_name_is_cli_verb() {
         node: NodeId::new("review").unwrap(),
     };
     assert_eq!(approve.name(), "gate approve");
-}
-
-// Task: T01
-#[test]
-fn timestamp_day_is_date_prefix() {
-    assert_eq!(
-        Timestamp::parse("2026-09-24T03:00:00Z").unwrap().day(),
-        "2026-09-24"
-    );
 }

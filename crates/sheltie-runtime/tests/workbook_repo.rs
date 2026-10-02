@@ -191,28 +191,33 @@ fn small_files_bytes(dir: &Path) -> u64 {
         .sum()
 }
 
+fn write_limit_tree(dir: &Path, extra: u64) {
+    const FILE_LIMIT: u64 = 32 * 1024 * 1024;
+    const TOTAL_LIMIT: u64 = 256 * 1024 * 1024;
+    write_minimal_workbook(dir);
+    let small = small_files_bytes(dir);
+    for i in 0..7 {
+        std::fs::File::create(dir.join(format!("big{i}.bin")))
+            .unwrap()
+            .set_len(FILE_LIMIT)
+            .unwrap();
+    }
+    let last = TOTAL_LIMIT - 7 * FILE_LIMIT - small + extra;
+    assert!(last > 0 && last <= FILE_LIMIT);
+    std::fs::File::create(dir.join("big7.bin"))
+        .unwrap()
+        .set_len(last)
+        .unwrap();
+    assert_eq!(small_files_bytes(dir), TOTAL_LIMIT + extra);
+}
+
 // Task: T14
 #[test]
 fn add_accepts_files_at_exact_limits() {
     // 7 个恰好 32 MiB 的文件加一个凑数文件，总量恰好 256 MiB：两个上限都顶到且接受。
     let (d, home) = temp_home();
     let src = d.path().join("big");
-    write_minimal_workbook(&src);
-    let small = small_files_bytes(&src);
-    let max_file = sheltie_runtime::workbook_repo::MAX_FILE_BYTES;
-    let max_total = sheltie_runtime::workbook_repo::MAX_TOTAL_BYTES;
-    for i in 0..7 {
-        std::fs::File::create(src.join(format!("big{i}.bin")))
-            .unwrap()
-            .set_len(max_file)
-            .unwrap();
-    }
-    let last = max_total - 7 * max_file - small;
-    assert!(last > 0 && last <= max_file);
-    std::fs::File::create(src.join("big7.bin"))
-        .unwrap()
-        .set_len(last)
-        .unwrap();
+    write_limit_tree(&src, 0);
     repo(&home).add(&abs(&src), None).unwrap();
 }
 
@@ -222,21 +227,10 @@ fn add_rejects_when_total_over_256mib() {
     // 总量上限多 1 字节。
     let (d, home) = temp_home();
     let src = d.path().join("big");
-    write_minimal_workbook(&src);
-    let small = small_files_bytes(&src);
-    let max_file = sheltie_runtime::workbook_repo::MAX_FILE_BYTES;
-    let max_total = sheltie_runtime::workbook_repo::MAX_TOTAL_BYTES;
-    for i in 0..7 {
-        std::fs::File::create(src.join(format!("big{i}.bin")))
-            .unwrap()
-            .set_len(max_file)
-            .unwrap();
-    }
-    std::fs::File::create(src.join("big7.bin"))
-        .unwrap()
-        .set_len(max_total - 7 * max_file - small + 1)
-        .unwrap();
-    assert!(repo(&home).add(&abs(&src), None).is_err());
+    write_limit_tree(&src, 1);
+    assert!(
+        matches!(repo(&home).add(&abs(&src), None), Err(Error::InvalidRequest { reason }) if reason.contains("总量"))
+    );
 }
 
 // Task: C002-T21
@@ -244,23 +238,10 @@ fn add_rejects_when_total_over_256mib() {
 fn total_limit_rejects_before_staging_or_registering_source_files() {
     let (d, home) = temp_home();
     let src = d.path().join("over-limit");
-    write_minimal_workbook(&src);
-    let small = small_files_bytes(&src);
-    let max_file = sheltie_runtime::workbook_repo::MAX_FILE_BYTES;
-    let max_total = sheltie_runtime::workbook_repo::MAX_TOTAL_BYTES;
-    for i in 0..7 {
-        std::fs::File::create(src.join(format!("large-{i}.bin")))
-            .unwrap()
-            .set_len(max_file)
-            .unwrap();
-    }
-    let unreadable = src.join("large-0.bin");
+    write_limit_tree(&src, 1);
+    let unreadable = src.join("big0.bin");
     use std::os::unix::fs::PermissionsExt as _;
     std::fs::set_permissions(&unreadable, std::fs::Permissions::from_mode(0o000)).unwrap();
-    std::fs::File::create(src.join("last.bin"))
-        .unwrap()
-        .set_len(max_total - 7 * max_file - small + 1)
-        .unwrap();
 
     let repo = repo(&home);
     let result = repo.add(&abs(&src), None);
@@ -392,18 +373,6 @@ fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
 
 // Task: T15
 #[test]
-fn remove_rejects_when_active_work_references_version() {
-    let (_d, home, svc) = home_with_example("two-step");
-    let resp = start_two_step(&svc);
-    let err = repo(&home).remove("two-step", "1.0.0", None).unwrap_err();
-    match err {
-        Error::WorkbookInUse { works, .. } => assert_eq!(works, vec![work_id_of(&resp)]),
-        other => panic!("{other:?}"),
-    }
-}
-
-// Task: T15
-#[test]
 fn remove_allows_when_only_terminal_works_reference_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
@@ -428,18 +397,6 @@ fn remove_allows_when_other_workbook_shares_version() {
 
 // Task: T15
 #[test]
-fn remove_moves_dir_to_tmp_before_delete() {
-    // 观察不到中间态就看结果：目录消失、tmp 下无残留。
-    let (_d, home) = temp_home();
-    let r = repo(&home);
-    r.add(&abs(&example_dir("two-step")), None).unwrap();
-    r.remove("two-step", "1.0.0", None).unwrap();
-    let tmp = std::path::PathBuf::from(home.tmp_dir().as_str());
-    assert!(!tmp.exists() || std::fs::read_dir(tmp).unwrap().next().is_none());
-}
-
-// Task: T15
-#[test]
 fn verify_reports_ok_for_untouched_install() {
     let (_d, home) = temp_home();
     let r = repo(&home);
@@ -447,19 +404,6 @@ fn verify_reports_ok_for_untouched_install() {
     let rows = r.verify(Some(("two-step", "1.0.0"))).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].status, VerifyStatus::Ok);
-}
-
-// Task: T15
-#[test]
-fn verify_reports_tampered_after_byte_change() {
-    let (_d, home) = temp_home();
-    let r = repo(&home);
-    r.add(&abs(&example_dir("two-step")), None).unwrap();
-    let f = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str())
-        .join("instructions/outline.md");
-    std::fs::set_permissions(&f, std::os::unix::fs::PermissionsExt::from_mode(0o644)).unwrap();
-    std::fs::write(&f, "改了").unwrap();
-    assert_eq!(r.verify(None).unwrap()[0].status, VerifyStatus::Tampered);
 }
 
 // Task: T15

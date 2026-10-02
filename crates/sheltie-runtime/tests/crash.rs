@@ -8,24 +8,61 @@ use sheltie_core::ids::NodeId;
 #[cfg(feature = "failpoint")]
 use sheltie_runtime::{Error, WorkbookRepo};
 
-// Task: T23
+// Task: C002-T40
 #[test]
 fn status_card_missing_is_regenerated_on_next_write() {
     let (_d, home, svc) = home_with_example("two-step");
-    let wid = work_id_of(&start_two_step(&svc));
+    let started = svc
+        .start(
+            sheltie_runtime::StartArgs {
+                name: Some("卡片恢复".into()),
+                ..two_step_args(&[("topic", "给新人介绍 Sheltie")])
+            },
+            None,
+        )
+        .unwrap();
+    let wid = work_id_of(&started);
     let card = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("status-card.md");
     std::fs::remove_file(&card).unwrap();
     svc.begin(&wid, &NodeId::new("outline").unwrap(), None)
         .unwrap();
-    assert!(card.exists());
+    let bytes = std::fs::read(&card).unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let (revision, state): (u64, String) = connection
+        .query_row(
+            "SELECT revision, state_json FROM works WHERE work_id = ?1",
+            [wid.as_str()],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(revision, 2);
+    let state: serde_json::Value = serde_json::from_str(&state).unwrap();
+    assert_eq!(state["status"]["kind"], "active");
+    let expected = format!(
+        "# Work {wid}（卡片恢复）\n\n\
+workbook: two-step@1.0.0   flow: default   status: active\n\
+current: outline#1\n\
+done: 无\n\
+pending: summary\n\
+visits: outline 1/1, summary 0/1\n\n\
+## 最近一次尝试\n\n\
+outline#1.0 running\n\n\
+## 合法下一步\n\n\
+- sheltie attempt submit {wid} --attempt outline#1.0 --summary \"<一句话结论>\"\n\
+- sheltie attempt fail {wid} --attempt outline#1.0 --reason \"<原因>\"\n\
+- sheltie work cancel {wid}\n"
+    );
+    assert_eq!(
+        bytes,
+        expected.as_bytes(),
+        "卡来自begin后的最新事实且字节符合状态卡合同"
+    );
 }
 
 // Task: C002-T27
 #[cfg(feature = "failpoint")]
 #[test]
 fn marker_replaced_after_validation_cannot_prove_deletion() {
-    use std::time::{Duration, Instant};
-
     let (_dir, home) = temp_home();
     let repo = WorkbookRepo::new(home.clone());
     repo.add(
@@ -71,22 +108,13 @@ fn marker_replaced_after_validation_cannot_prove_deletion() {
     let recovery = std::thread::spawn(move || {
         WorkbookRepo::new(recovery_home).remove("two-step", "1.0.0", Some(recovery_id))
     });
-    let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !reached.exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !reached.exists() {
-        let _ = std::fs::write(&release, b"release");
-        let _ = recovery.join();
-        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        panic!("marker校验后没有到达同步交错点");
-    }
+    let mut worker = RendezvousWorker::single(recovery, rendezvous.path());
+    worker.wait("marker校验后没有到达同步交错点");
     std::fs::rename(marker.as_path(), &moved_marker).unwrap();
     std::fs::write(marker.as_path(), b"{\"format\":\"broken\"}\n").unwrap();
     std::fs::write(&release, b"release").unwrap();
-    let error = recovery.join().unwrap().unwrap_err();
+    let error = worker.finish().unwrap().unwrap_err();
     sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
 
     let Error::EffectPending {

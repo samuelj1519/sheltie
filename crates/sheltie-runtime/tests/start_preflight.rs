@@ -4,9 +4,10 @@
 
 mod common;
 
+use common::two_step_args as start_args;
 use common::*;
 use sheltie_core::error::ErrorCode;
-use sheltie_runtime::{Error, Home, StartArgs};
+use sheltie_runtime::{Error, Home};
 
 /// 独立 oracle：绕过 runtime 直接查 SQLite，读 `works`、`work_sequence`、`requests` 行数。
 fn db_counts(home: &Home) -> (i64, i64, i64) {
@@ -20,26 +21,6 @@ fn db_counts(home: &Home) -> (i64, i64, i64) {
             .unwrap()
     };
     (count("works"), count("work_sequence"), count("requests"))
-}
-
-fn start_args(inputs: &[(&str, &str)]) -> StartArgs {
-    StartArgs {
-        workbook_id: "two-step".into(),
-        version: None,
-        flow: "default".into(),
-        name: None,
-        inputs: inputs
-            .iter()
-            .map(|(k, v)| {
-                (
-                    k.to_string(),
-                    sheltie_runtime::request::InputValue::Literal {
-                        text: v.to_string(),
-                    },
-                )
-            })
-            .collect(),
-    }
 }
 
 /// 断言一次失败之后：三张表与调用前相同、`works/` 下没有目录、报错码正确。
@@ -57,6 +38,13 @@ fn assert_unchanged(home: &Home, before: (i64, i64, i64), err: &Error, code: Err
     assert_eq!(entries, 0, "失败的 start 不得物化任何 Work 目录");
 }
 
+fn assert_first_sequence(response: &sheltie_runtime::Response) {
+    assert!(
+        matches!(&response.reply, sheltie_core::work::Reply::Started { work_id, .. }
+        if work_id.as_str().contains("-001-"))
+    );
+}
+
 // Task: C002-T02
 #[test]
 fn missing_start_input_rejected_before_seq_and_materialization() {
@@ -72,10 +60,7 @@ fn missing_start_input_rejected_before_seq_and_materialization() {
             Some("11111111-1111-1111-1111-111111111111".into()),
         )
         .unwrap();
-    assert!(
-        matches!(&resp.reply, sheltie_core::work::Reply::Started { work_id, .. }
-        if work_id.as_str().contains("-001-"))
-    );
+    assert_first_sequence(&resp);
 }
 
 // Task: C002-T02
@@ -89,10 +74,7 @@ fn extra_start_input_rejected_before_seq() {
     assert_unchanged(&home, before, &err, ErrorCode::InputMissing);
 
     let resp = svc.start(start_args(&[("topic", "t")]), None).unwrap();
-    assert!(
-        matches!(&resp.reply, sheltie_core::work::Reply::Started { work_id, .. }
-        if work_id.as_str().contains("-001-"))
-    );
+    assert_first_sequence(&resp);
 }
 
 // Task: C002-T02
@@ -125,10 +107,7 @@ fn missing_flow_rejected_before_seq() {
     assert_unchanged(&home, before, &err, ErrorCode::NotFound);
 
     let resp = svc.start(start_args(&[("topic", "t")]), None).unwrap();
-    assert!(
-        matches!(&resp.reply, sheltie_core::work::Reply::Started { work_id, .. }
-        if work_id.as_str().contains("-001-"))
-    );
+    assert_first_sequence(&resp);
 }
 
 // Task: C002-T02

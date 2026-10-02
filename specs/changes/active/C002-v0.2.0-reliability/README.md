@@ -44,3 +44,4 @@ T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 真实宿主�
 | --- | --- | --- |
 | C002-T38 | [`C002-T38.tar.gz`](evidence/submissions/C002-T38.tar.gz) | `44f580d08ca1d6485d68b12d1ea0a7f0c4193cd0d80c6c961299006dfc680686` |
 | C002-T39 | [`C002-T39.tar.gz`](evidence/submissions/C002-T39.tar.gz) | `b7e06a8ae7fbb49e0212f70e35b9770f02ba019ff07613baefee0625c1467649` |
+| C002-T40 | [`C002-T40.tar.gz`](evidence/submissions/C002-T40.tar.gz) | `e169239ca600e6a6bb2237fdffa76fb0020a3f8a22aac974a46b0fccf940bc79` |

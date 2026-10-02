@@ -91,17 +91,7 @@ fn rejected(base: &WorkState, label: &str, change: impl FnOnce(&mut WorkState)) 
 }
 
 fn gated_fixture(flow: &str) -> Fixture {
-    let manifest = parse_manifest(MANIFEST).unwrap();
-    let flow = parse_flow(flow).unwrap();
-    let graph = compile(&flow, &manifest, &ResourceIndex::default()).unwrap();
-    let mut fixture = Fixture::two_step();
-    fixture.instructions = graph
-        .nodes()
-        .map(|node| (node.id().clone(), "do".into()))
-        .collect();
-    fixture.graph = graph;
-    fixture.manifest = manifest;
-    fixture.started_with(&[])
+    Fixture::from_texts(MANIFEST, flow, &[]).started_with(&[])
 }
 
 // Task: C002-T31
