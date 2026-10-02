@@ -1,6 +1,6 @@
 # C002 独立审查
 
-结论：**通过**。此结论限定于用户授权的 macOS 源码与离线验收范围，包含两项实际平台暂停后的跳过；不是完整 Spec 批准、全部变异验证或安全验证通过。M1 覆盖当前已完成的 T01–T15、T18–T34；Linux、真实 Host T16 和发布 T17 均为 `not_run`。
+M1 结论：**通过**。此结论限定于用户授权的 macOS 源码与离线验收范围，包含两项实际平台暂停后的跳过；不是完整 Spec 批准、全部变异验证或安全验证通过。M1 覆盖 T01–T15、T18–T34；M1 完成时 Linux、真实 Host T16 和发布 T17 均为 `not_run`。后续实施进度只看 [plan.md](plan.md)。
 
 本文合并最终审查；旧候选失败、Reviewer 原文及逐 ID 记录均保存在 [历史快照](validation.md#历史证据恢复)，不删除历史结论或改写原始结果。正文中原文链接统一指向该索引。
 
@@ -259,7 +259,39 @@ fix_flow_ids 和 fix_nested_decode 分别实现前两项，Codex实现 tmp 整�
 
 独立审查原文为`/private/tmp/sheltie-t40-independent-review.md`，本机临时证据不属于固定Git历史归档。当前完整普通门禁688/688与5/5 compile_fail均通过，7快照与默认生产AST保留；M1/SK、完整变异缺失、Linux/T16/T17状态保持原记录。本次不自动提交或发布。
 
+## T16 部分证据与交接复核
+
+Reviewer：`Codex /root/t16_evidence_review`，未参与本轮记录、运行或 worker 产物。初次结论为「需修改」：冻结 task-rules 明确允许纯文档例外，不能将 T04 仅因没有函数体判为违规。记录和用户审核问题已纠正，不新增产品 finding。
+
+纠正后记录内容结论为「通过」，范围只含候选 `82c6c551` 的构建、工程原文、请求/响应、ArtifactRef/Finder oracle、未完成项及人工交接。Reviewer 独立核了 Nextest 首次 exit 92 与最终 688/688、5/5 compile-fail、8 个实际封存引用、安装 bytes 和档案原文。完整审查原文保存在 T16 归档的 `independent-review.md`；归档加入最终记录后另核文件字节与引用，不沿用旧 hash。
+
+初次归档不是 T16 验收通过：当时真实人工门槛、定稿、方案审核与条件、back/重规划、重开会话、Host 版本及至少两个 spec-dev 已验证任务均缺证据。普通工程门禁通过；正式 `check-task C002-T16 82c6c55` exit 1（状态不是 done），完成门禁仍 FAIL，未提交或发布。后续已补项见下节；当前进度和原文索引见 [plan.md](plan.md)、[validation.md](validation.md#c002-t16-当前宿主回归)。
+
+### 后续阶段复核
+
+同一独立 Reviewer 的 `continuation-review.md` 与 `final-review.md` 单列后续真实批准、两次人工复制、受控 back、实际改方案与新版批准、四任务原始前缀及整体代码/CLI。最终任务报告和整体审查均实际 26/26、零 skip；环境限定当前空 venv 与继承沙箱闭包，不作全局 Host 信任结论。SDK 私有 policy 查询仅辅助观察，不以未知语义升级 PASS。
+
+F16-01 修复复核通过：三个 Workbook 文件在先修订的 T16 白名单内，0.2.1 注册/副本/新 brief 与正确 WorkLayout 一致；原 0.2.0 冻结和历史 brief 未改。producer fixture 产物合成，不能替代真人或模型；反思建议只有一条有证据的问题，不凑数量。Reviewer 初次报告未预判尚运行的修复门禁；其后实际 688/688、5/5 与全工程门禁退出0，原文见 fix-gates。
+
+最终仍不是 T16 完成：Work006 待真实重开会话继续，Work003 retro gate 待用户批准；usage 无可用计量，手动读取 skill 不证明自动发现。后续按当前 CLI 继续并复核这些必需项后，才可完成 T16 状态和提交。T17 发布仍未运行，旧 M1/SK/Linux 限制不改。
+
+### 真实重开后的阶段复核
+
+Reviewer：`Codex /root/t16_reopen_review`，未参与本轮 CLI、worker 产物或 package 修改。独立报告见重开续接档案的 `reopened-session/independent-review.md`，档案入口及摘要见 [README](README.md)。当前阶段结论为「通过」，T16 完成资格仍受 Work003 retro 的实际批准与 CLI gate 阻挡；前节未重开的结论保留为历史时点事实。
+
+Reviewer 核新会话九次 CLI 原文与退出码/hash、Work006 running→succeeded 的 revision 2→5、当前 next、任务书绑定原提纲、417 字五段摘要质量及两份封存产物。当前 39 个唯一产物 bytes/hash/单链接/0444 全匹配；52 个重复引用位置不当作独立产物数。真实重开以用户陈述为来源，手动 skill 不证明自动发现；usage 缺失、Work/Attempt 耗时含等待，不推算成本。旧三阶段档案、修复后 688/688 与 5/5 原门禁及原始限制均保留。
+
+docs/specs/diff-check 均 exit 0，正式 task gate exit 1（T16 状态不是 done），没有放宽 checker 或提前标完成。待具体批准后再核 CLI gate、当前终态及新阶段封存，才给 T16 最终结论；本轮未提交或发布。
+
 
 ### C002-T40 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。
+
+### 最终具体批准后的 T16 复核
+
+同一独立 Reviewer 在 `reopened-session/final-review.md` 补核用户具体答复、批准前新 status、实际 approve revision 40/succeeded、最终 status/stats 及只读 audit/request 的一致性。结论「通过」，范围限定 plan §5 的本机真实场景；旧批准前报告和 pending 档案保持原样。结合既有真实交互、人工复制、受控 back、四任务/条件/重规划、Finder、错误恢复及本轮重开续接，必需项已齐，T16 可按该范围标 done。usage 缺失不是 0，手动 skill 不证明自动发现，0.1.0 二进制不写成新版 rc，旧 M1/SK/Linux/完整变异与 T17 限制不改。最终状态门禁与新档案仍按实际结果另行收尾，不把本次 gate 批准当提交或发布授权。
+
+状态更新后实际 docs/specs/diff-check 及工作区 `check-task C002-T16 82c6c55` 均 exit 0，原文见 final-checks；批准前 exit 1 保留。本次未运行 staged 提交门禁、未暂存或提交，不声称提交完成。
+
+独立 Reviewer 最后核最终 104 文件档案及批准前 69 文件档案逐字恢复、实际批准/CLI、六 Work 终态、277 项输入和原工程/最终工作区门禁。28 项核验均通过；派生 `C002-T16-reopen-final.audit.json` 在档案外保存，入口见 README，不修改两份报告或旧快照。本机范围的 T16 收尾通过，T17 not_run 及既有缺失保留。

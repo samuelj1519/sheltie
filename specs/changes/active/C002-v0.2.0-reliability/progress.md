@@ -28,7 +28,7 @@ MVP21条替代只记原位历史注记，checker未放宽。T38/T39/T40均留在
 
 ## 下一入口
 
-T16 真实宿主回归仍 not_run。准备实际 rc SHA、独立管理根、自包含 skill、Host 版本、逐命令记录与清理说明；按 plan 的场景让真实操作者验证跨会话续接、人工条件、usage/耗时/质量。缺数据如实记录，不用合成 worker 或离线图替代。
+T16 的真实重开续接与最终 gate 已完成，独立复核通过；当前结果见本文末尾「T16 当前交接」。后续仅核当前 CLI 与封存证据，T17 仍等待单独发布授权。
 
 T17 仍 not_run，依赖 M1/T16 必需项与单独发布授权。当前 Cargo 版本保持 0.1.0；不因本文收敛执行推送、发布或宿主安装。
 
@@ -45,3 +45,28 @@ T38/T39分别已提交；T40精简结果确认到位并获提交授权，本源�
 ## 本轮提交结果
 
 T38已提交 `20aa655717aabad87289e70d4629c4188757470a`，T39已提交 `84bafa37f57ac2fda6aa5c223f6930f4f0882a87`；两者源码分别对应699/717原输入闭包，并在独立target补核699/717零跳过。T40本提交保留最终688/688和5/5compile_fail的原文与源字节；本提交hash由git历史和Task trailer定位。三个任务均已确认本轮范围到位，后续入口仍是T16，不扩为发布授权。
+
+## T16 当前交接
+
+源码候选 `82c6c55159592db5cdb485549e933960863de185`；独立目录 `/private/tmp/sheltie-c002-t16-82c6c55`，管理根为其 `home/`。本机 release 二进制、skill 与输入清单在 `delivery/`、`candidate.json`；仍显示 `0.1.0`。本轮 688/688、5/5 compile-fail 与工程门禁通过，原文及逐命令记录见 [T16 验证](validation.md#c002-t16-当前宿主回归)。未重启历史变异队列。
+
+新会话先手动读取 `delivery/sheltie/SKILL.md`，再用 `delivery/sheltie-bin --home /private/tmp/sheltie-c002-t16-82c6c55/home --json work list` 发现 Work。每个 Work 先查询 `work status`，只按当前 `next` 继续；不要从历史重放的 `next` 推进，不把本文当引擎状态。
+
+| Work | 本轮观察 | 后续动作 |
+| --- | --- | --- |
+| `2026-10-02-001-t16-two-step` | 两个真实 worker 完成；旧 submit 返回原响应，当前终态不回退 | 新会话只读查询，核对封存产物 |
+| `2026-10-02-002-t16-gate` | 用户实际批准后已归档，Work succeeded | 只读核对当前状态及批准事实 |
+| `2026-10-02-003-t16-spec-dev` | 四任务、重规划、整体审查、交付、反思均完成；本轮展示产物后取得具体批准，retro gate 成功，Work succeeded，revision 40，next 为空 | 只读核对终态、批准事实和封存产物 |
+| `2026-10-02-004-t16-article` | 用户实际复制、核字节相同并提交，Work succeeded | 只读核对人工产物及当前终态 |
+| `2026-10-02-005-t16-back` | 用户实际复制第二份修订稿后已提交，Work succeeded，revision 11 | 只读核对 back 和人工产物；不将受控反例当自然质量 |
+| `2026-10-02-006-t16-续接` | 用户确认真实关闭并重开；新会话通过 CLI 查询、核原提纲后提交，真实 summary worker 完成并封存；Work succeeded，revision 5，next 为空 | 只读核对续接响应和封存产物 |
+
+已收到实际 gate、两版方案审批、改方案决定及两次文章手动复制完成。四任务及 CLI 条件通过；新的 Workbook/Flow 和输入缺失交互也已由用户实际答复，数据给齐后直接启动，未重复追问。用户本轮确认真实关闭并重开，新会话手动读取交付 skill 后通过 CLI 发现并完成 Work006；Work003 也在展示 delivery/lessons 后获具体批准，最终 gate 成功，T16 必需场景最终独立复核通过，按本机范围收尾为 done。重开事实来自用户陈述，不声称窗口或进程自动认证。已记录的宿主 bundle 元数据为 `com.openai.codex`、`26.928.31416`、build `12553`（应用显示名 ChatGPT）；本宿主窗口访问被工具安全限制拒绝，证据只含运行应用标识与 Info.plist，不证明窗口匹配。usage 仍缺失，手动读取 skill 不证明自动发现。T16 完成不扩大为自动发现、全平台 Host 或发布通过。
+
+F16-01 已修复源码 Workbook 0.2.1；真实 add/show/verify 与新 brief 的 producer fixture 通过，旧冻结 0.2.0 和历史 brief 保留。修复后的完整 688/688、5/5 compile-fail 与工程门禁通过；F16 的合成 producer 产物不算 Host/真人证明。当前真实开发 Work 仍按冻结 0.2.0 运行，不改已登记摘要。批准前正式门禁曾因 T16 未 done 而 FAIL，原文保留；本轮未提交或发布。
+
+Work006 原 outline 的 SHA256 为 `db1dd9ca5730f74dd2329e6afd6fc0ebb509c3e251c2fb48798d90c3a19c1ca1`，983 bytes；重开后独立核字节未变，已按当前 CLI next 提交。summary 为 417 字、五段、1260 bytes，SHA256 `e1c7b576cf0cdec6657e0f6fc0c7f870b11d531681e9bd5fd05147201ab5c752`。`resume-checkpoint.json` 保留未提交的历史续接点，不改成第二套状态。Work003 的交付说明在 `attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md`，反思在 `attempts/retro/occurrence-001/attempt-000/outputs/lessons.md`；本轮实际答复「批准 Work003 最终 retro gate」与来源保存在 `reopened-session/work003-gate-approval.json`。当前终态以批准后 CLI status 为准，不用整个 C002 发布授权替代本地演练批准。
+
+管理根与演练项目先保留用于续接。清理时先归档证据并核对路径，再用这份候选的 `self uninstall --purge`，按其明确确认流程执行；不得操作真实 `~/.sheltie`。本轮未清理或发布。
+
+T16 当前已按本机范围完成，正式工作区 task gate 与 docs/specs/diff-check 均 exit 0；独立报告和原文入口见 validation/README。保留批准前快照与 FAIL 原文，不把后续成功改写成旧阶段 PASS。本轮未暂存或提交；T17 仍 not_run，发布授权尚未取得。

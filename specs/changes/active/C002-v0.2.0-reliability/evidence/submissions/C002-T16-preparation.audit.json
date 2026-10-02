@@ -1,0 +1,52 @@
+{
+  "reviewer": "Codex /root/t16_evidence_review",
+  "scope": "最终T16部分回归档案字节、引用与完成边界收尾；只读、不重跑测试；不替代完整T16验收或旧M1Spec批准",
+  "archive_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz",
+  "archive_sha256": "f83bd4549b4e99592f4f14885c44db715891c5f913926c48502969dcb9146173",
+  "archive_size_bytes": 249637,
+  "file_count": 364,
+  "checks": {
+    "sha256_matches_expected": true,
+    "file_count_is_364": true,
+    "all_archived_bytes_match_local": true,
+    "required_raw_evidence_present": true,
+    "independent_review_matches_reviewer_original": true,
+    "readme_hash_matches_archive": true,
+    "initial_incorrect_patch_kept_as_history": true,
+    "corrected_patch_covers_pure_document_exception": true,
+    "archive_excludes_self_referential_manifest": true,
+    "archive_excludes_binaries": true,
+    "project_git_objects_included": true,
+    "recovery_layout_and_absolute_path_limitation_documented": true,
+    "nextest_initial_exit_92_preserved": true,
+    "nextest_final_688_and_zero_skipped_raw_present": true,
+    "compile_fail_5_of_5_raw_present": true,
+    "documentation_gates_exit_0": true,
+    "task_completion_gate_exit_1_preserved": true,
+    "pass_and_completion_fail_separate": true,
+    "all_recorded_gate_hashes_match": true
+  },
+  "missing_local_files": [],
+  "byte_mismatches": [],
+  "missing_required_files": [],
+  "conclusion": "通过",
+  "remaining_t16_boundaries": [
+    "真实gate批准尚未取得，archive worker未执行",
+    "人工article final未生成，article back回环未跑",
+    "spec-dev方案人工决定/条件/修改尚未取得，未重规划或完成至少两个独立验证任务",
+    "真实关闭并重开会话尚未完成",
+    "Host version/build缺失，usage为null，手动读skill不证明自动发现",
+    "未指定Workbook/缺输入的人机往返尚未验收"
+  ],
+  "task_status": {
+    "C002-T16": "doing",
+    "C002-T17": "not_run",
+    "task_completion_gate": "FAIL exit 1: status is not done"
+  },
+  "notes": [
+    "新归档包括演练project/.git，与旧初审档案不同；初审排除Git对象的描述仅属旧快照。",
+    "二进制仍为本机0.1.0候选，dist plan不是v0.2.0四平台发布资产。",
+    "保留初次需修改、纠正后有限通过和正式任务完成门禁失败，不提升M1/SK、Linux、完整变异或发布范围。",
+    "本audit为归档后的派生核验文件，不应塞回已核归档造成hash自引用。"
+  ]
+}

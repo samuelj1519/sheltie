@@ -106,7 +106,8 @@ test_files = []
 allow_test_changes = false
 
 [C002-T16]
-files = ["specs/changes/active/C002-v0.2.0-reliability"]
+# 真实宿主回归发现 retro 报告定位仍为旧布局；同步说明与 Workbook 升版，旧冻结副本不改。
+files = ["specs/changes/active/C002-v0.2.0-reliability", "workbooks/spec-dev/instructions/retro.md", "workbooks/spec-dev/workbook.toml", "workbooks/spec-dev/README.md"]
 test_files = []
 allow_test_changes = true
 

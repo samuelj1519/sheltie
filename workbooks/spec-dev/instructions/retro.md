@@ -8,7 +8,7 @@
 2. `decision`、`escalation`（若有）：人两次介入分别说了什么。人说的话是最贵的信号。
 3. `review`（若有）与 `delivery`：审查发现了什么、遗留了什么。止损交付时没有 `review`，把「为什么止损」当第一条线索。
 4. `plan`：只读「门禁」与「基线」。`spec`：只在需要对照范围时查。
-5. 各步骤的报告第一行：用 `stats` 里到达次数多的节点定位，去 Work 目录 `attempts/<node>/<n>/<retry>/` 下读对应报告的**第一行与「发现」「备注」**，不读全文。
+5. 各步骤的报告第一行：用 `stats` 里到达次数多的节点定位，去 Work 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/outputs/` 下读对应报告的**第一行与「发现」「备注」**，不读全文。Occurrence 和 retry 分别按三位数补零；例如第二次到达、首次尝试是 `occurrence-002/attempt-000/outputs/`。
 6. `template`：输出格式。
 
 ## 怎么做

@@ -122,4 +122,5 @@ sheltie work start --workbook spec-dev --flow default \
 每次采纳 `retro` 的建议出新版本，在这里记一行：版本、采纳了哪些 `Ln`、否决了哪些与原因。`retro` 下次运行会读这一节核对效果。
 
 - 0.1.0 初版。
+- 0.2.1 修 C002 真实宿主回归发现的反思报告定位：按当前 WorkLayout 的 `occurrence-<NNN>/attempt-<NNN>/outputs/` 读取历史报告，Occurrence 和 retry 分别补三位零。已运行 Work 的冻结副本保留原字节。
 - 0.2.0 修 C002 审查确认的三处交付闭环缺口（O09/O10/N08）：任务验证改按「任务基线..候选」核对，占位体带任务编号、只查本任务；`plan-review` 决定写批准版本摘要并交给 `scaffold`/`implement`/`verify` 逐条核对；整体审查固定用 Work 原始基线，改方案不再重设。这一版不是 `retro` 建议，记在这里是为了版本可追溯。
