@@ -4,5 +4,6 @@ Research notes 保存一手来源、适用范围和推导，供 change/ADR 引�
 
 | 日期 | 主题 | 入口 |
 | --- | --- | --- |
+| 2026-10-03 | 以用户结果制定方案与 Rust 工程裁决 | [来源笔记](2026-10-03-product-rust-design.md) |
 | 2026-09-27 | specs 与版本迭代文档治理 | [来源笔记](2026-09-27-document-governance-sources.md) |
 | 2026-09-27 | C004–C007 agent 工作流与 Rust 工程一手资料 | [来源笔记](2026-09-27-agent-rust-guidance.md) |

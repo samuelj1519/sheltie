@@ -1,191 +1,125 @@
 # C006 实施计划
 
-状态：`proposed`。任务均为 `todo`；采用后本表是本方案唯一的实施状态来源。先读 [共同实施指南](../../../guides/proposal-implementation.md)、[规格](spec.md)、[设计](design.md) 与 [验证](validation.md)。
+状态：`proposed`。未采用，不执行。本方案涉及安全文件原语和原字节接口，采用两阶段交付；小型说明与真实使用按固定手册完成。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)。
 
-## 1. 入口与协作
+阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
-现有三个 crate 的入口在 [工程规范](../../../engineering.md) §2。本方案默认只新增 `crates/sheltie-export`。初级开发者先读 `crates/sheltie-cli/src/cli.rs`、`commands/work.rs::run`、`commands/workbook.rs::add` 理解命令分派，再读 `crates/sheltie-runtime/src/fsx.rs::ManagedFs/ManagedDir` 理解句柄与原子不替换写入；不得直接调用 runtime 来复制文件。
+## 1. 首次阅读与职责
 
-强模型在每阶段先冻结行为、接口、手写 oracle、路径白名单与实际验收命令，并完成平台难点。简单模型只填冻结接口和接通真实调用链，不改测试、fixture、断言或限额。编译失败不算红；当前阶段测试可执行的真实行为失败才算红。每阶段骨架完成后，将后续任务卡的「验收用例」换成真实测试名、归属与筛选命令，在同一提交更新 `tasks.toml`。不能把一批启用测试独立拆成完成任务。
+先读 AGENTS/CONTEXT、specs 入口、本 package README/spec/design/validation、[工程规范](../../../engineering.md)与 C004 实际结果合同，再沿下表读源文件。仅需结果指针时不采用。
 
-代码任务完成后按工程规范运行必要工程门禁、归属测试与 `scripts/check-task.sh <task> <本阶段骨架commit> --staged`。文档/探针/发行配置任务没有 Rust 归属测试时不跑零测试的 `task.sh`，运行任务卡列出的实际检查；工程规范提交要求仍有效。所有命令使用隔离的 `CARGO_TARGET_DIR` 与 `RUSTC_WRAPPER=`。采用前不执行任务检查，不创建 tag、不发布、不正式安装。
+| 类型 / 入口 | 先理解什么 |
+| --- | --- |
+| `core/work/result.rs::result_view`、`runtime/service.rs::WorkService::result` | 最终资格、effects_pending、revision 和来源来自同一次可信读取 |
+| `ManagedFs::open_regular`、`load.rs` | 原件路径经归属验证；摘要/大小从同一文件句柄取得 |
+| `fsx.rs::{verify_tree_at,rename_tree_new,sync_managed_tree}` | 句柄身份、NOREPLACE 和 sync 各自保证与移动后失败 |
+| `commands/mod.rs::dispatch`、`output.rs::print` | raw bytes 必须避开 String/JSON 打印；错误只去 stderr |
+| 拟 `source.rs`、`target.rs` | 严格 DTO/子进程与安全目标原语，由复杂作者完整实现 |
+| 拟 `export.rs`、`main.rs`、`Error`/输出状态 | 简单实现者按已定步骤组织整份复制，不能决定 OS 政策 |
 
-## 2. 任务与里程碑
+复杂模型承担总体接口、平台原语与完整阶段 oracle；简单模型/初级开发者承担已冻结接口内的编排接线。安全难点在 T01 交付真实实现，不是空骨架。M1/M2 由未参与相应设计、代码、tests/oracle 的复杂模型独立审阅。
 
-| ID | 状态 | Owner | 目标 | 依赖 |
+## 2. 任务与阶段
+
+| ID | 状态 | Owner | 交付 | 依赖 |
 | --- | --- | --- | --- | --- |
-| C006-T01 | todo | 强模型架构与 oracle 作者 | 冻结合同，完成并实测平台操作，搭 M1 骨架 | C004 结果合同已验收、人采用 C006 |
-| C006-T02 | todo | 简单模型 | 完成可信结果读取、不可变请求和明确结果投影 | T01 |
-| C006-M1 | todo | 独立强模型 | 审查源、请求与平台约束 | T02 |
-| C006-T03 | todo | 强模型阶段骨架作者 | 搭逐项复制、恢复与真实 CLI 场景骨架和测试 | M1 |
-| C006-T04 | todo | 简单模型 | 完成逐项新增、同字节恢复与清单最后发布 | T03 |
-| C006-T05 | todo | 简单模型 | 接通真实命令、完整失败报告与端到端执行 | T04 |
-| C006-M2 | todo | 独立强模型 | 审查真实 CLI、崩溃与竞争恢复 | T05 |
-| C006-T06 | todo | 强模型发行与探针设计者 | 冻结双归档、安装核对和副本实验 oracle | M2 |
-| C006-T07 | todo | 简单模型 | 接通本地双归档分发与显式安装指南 | T06 |
-| C006-T08 | todo | 简单模型执行者 | 跑真实副本探针、封存最终证据 | T07 |
-| C006-M3 | todo | 独立强模型 | 审查价值、分发和最终整链 | T08 |
+| C006-T01 | todo | 复杂模型架构、原语与测试作者 | 源合同、实际安全原语、窄骨架与阶段测试 | 人采用、C004 结果已验收 |
+| C006-M1 | todo | 独立复杂模型 Reviewer | 安全及实现准备审查 | T01 |
+| C006-T02 | todo | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
+| C006-T03 | todo | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
+| C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
-每个 M 由未参与本阶段被审骨架、平台实现、测试或生产代码的强模型执行。结论需修改时，由发现责任任务修复同一问题及真实 caller 回归；复核固定修复候选。里程碑审查不是实现任务，不能用自己的自查冒充。
+阶段 1 入口为 C004 结果候选和副本需求；出口为 primitive green、普通行为回归通过、真实 feature caller 可编译且有意义 red、工具及引擎未激活未完成复制/raw 入口。阶段 2 入口为 M1 骨架完整 SHA、冻结 source/target 接口与命令；出口为全链行为、实际使用及 M2 采用义务完成。工具的安全实现可以主要由 T01 完成，不为模型分工拆空任务。
 
-## 3. M1：源、请求与平台
+T01 原语测试归 T01，交接时实际 green；T01 创建的新完整行为测试归 T02，初始带 `#[ignore = "C006-T02"]`，显式运行得到有意义 red。已有正确 metadata/读路径无需全红。T03 只执行实际手册；确有必要的新 Rust 行为用例时由复杂作者在 T01 提前冻结、归属 T03 并同步其 test_files 和命令；没有则 T03 测试表为空。
 
-### C006-T01：先定边界并证明平台能力
+### C006-T01：交付可信源与安全目标原语
 
-**Owner / 依赖。** 强模型；人采用、C004 结果与可信 Artifact 字节接口已验收。
+**Owner / 输入。** 复杂模型；C004 DTO、实际副本需求、当前完整提交、平台与锁定库 API。读取已有体验记录，不另建设平行价值实验。
 
-**读取与范围。** 读 [C004 设计 §6 结果合同](../C004-verifiable-delegation/design.md#6-结果合同)、`crates/sheltie-runtime/src/fsx.rs::{ManagedFs,ManagedDir}`、根 Cargo 的 `rustix` 与 unsafe lint、`specs/contracts/protocol.md`。改上游架构/新增导出合同/指南、根 workspace 清单；新增导出器 `Cargo.toml`、`src/{main,source,request,target,export,output,error}.rs` 与 `tests/{source,request,target}.rs`。T01 如需新的跨任务决定，采用后新增明确编号 ADR 并回写任务卡，初级读者不得依 glob 推测结论。
+**范围。** design 真实路径、全部正常/raw caller、拟 `crates/sheltie-export` 的 manifest/source/target/error/output 与阶段骨架、所有阶段测试、Cargo workspace/lock 和 dist 排除；上游 architecture/protocol、指南与工程清单。阶段资产为 `verification/commands.sh`、`experiments/runbook.md`。测试覆盖 runtime 的拟 `tests/result_artifact.rs`、已有 `tests/fs_boundary.rs`，CLI 的拟 `tests/result_artifact.rs`，exporter 的拟 `tests/{source,target,export,cli,crash}.rs` 和混合源码内私有原语测试；fixtures 与新 helpers 也由本阶段创建。
 
-**输入 / 输出。** 输入：已验收 C004 合同、一份真实需要副本的结果、当前 macOS 机器。输出：唯一 JSON schema 与字节 oracle、错误枚举、文件名规则/大小限额、关键安全文件操作的完整实现、阶段骨架与逐项交接清单。
+**执行步骤。**
 
-**步骤。** 1. 验证副本需求；没有需求记录停止，不继续扩大范围。2. 固定 `work-result/v1` 的精确字段和源读取参数，确定版本比对与 stdout 错误路径。3. 固定 request/manifest 严格解码、稳定序列化、目标 key 编码、完整名称/大小边界与阶段测试归属。4. 完整实现目录逐段打开、身份核对、单硬链接检查、进程锁、临时文件与原子不替换发布；在当前支持平台实际执行。5. 搭可编译的 source/request/output 骨架，后续填空只能标本阶段任务 ID。6. 将 T02 验收用例改为实际测试名称和筛选命令。
+1. 固定单一 work-result/v1、raw 参数/错误、manifest、大小限额、输出状态与权限；核 source.attempt 是终点绑定/封存身份。
+2. 创建外围 package，明确 `publish=false`、`package.metadata.dist.dist=false`；核 workspace dist 覆盖和本地计划确实排除 exporter。
+3. 完整实现 strict DTO、校验类型、子进程 argv/stdin/stdout/stderr/exit、资源上限及可信同句柄源读取原语，覆盖 Work/revision/key/final/effects 绑定。
+4. 完整实现父目录逐段句柄、身份/管理根重叠、私有目录和独占文件、软硬链接拒绝、读回、sync、整目录 NOREPLACE 与移动后未确认错误。真实支持平台实测；不留系统调用政策给简单实现者。
+5. 完整实现 raw stdout 路由所需原语和错误 stderr 路径；普通 metadata 回归仍通过。未完成的引擎 raw 模式和 exporter 编排不挂正常入口，窄骨架可编译且不返回假成功。
+6. 写真实 source/target、runtime/CLI、并发/kill/sync oracle；T01 原语直接走实际 FS/runtime 边界取得 green，T02 完整新行为经两份 binary 入口可执行并得到有意义 red。模拟只替换外部错误边界，不代替真实成功链。
+7. 固定 `verification/commands.sh` 的 primitives/future-red/feature/regression/gates/dist-plan 命令、测试数、失败签名、平台和预算；Cargo JSON 取 executable，不猜 target 路径。
+8. 在 runbook 固定 T03 构建/操作/质量/计时/残留核查，保存原语 green、feature red、普通回归及完整骨架 SHA，交 M1。
 
-**验收用例。** 完整支持平台的新增文件与同字节只读核对；逐段软链、硬链、根重叠、目录替换、竞争同名、并发锁和目录同步故障各有拒绝例，根外哨兵字节和权限不变。新 JSON 任意未知字段被拒；每个限额恰好接受/多一个拒绝。平台期望来自真实 OS 语义，序列化期望是手写字节。
+**oracle。** 源实际 bytes/size/sha/exit；DTO 未知字段、过时 revision 和待完成效果；raw 非 UTF-8/零字节不转码；句柄路径替换、软硬链接与 NOREPLACE 冲突哨兵不变；移动后 sync 失败准确 unconfirmed。所有规范高风险义务在此有真实实现和独立预期。真实 feature red 可因 raw/工具入口未接通或编排未实现，且必须有真实 CLI 或持久消费者的行为断言失败，不能仅凭占位 panic。
 
-**测试与归属。** `tests/target.rs` 的关键平台测试归 T01，由本任务实现并绿；source/request 测试由 T01 写，归 T02。本任务可以创建测试。实测命令须写入阶段交接与 validation，不留待初级决定。
+**验证与交接。** 创建命令文件后运行：
 
-**停止。** 无真实副本需求、C004 无稳定快照/可信字节接口、safe API 无法兑现平台语义、缺当前支持平台，都先停止相应范围。不得增加 unsafe、直接 Store 读取或第二结果选择方法。
+```bash
+bash specs/changes/active/C006-result-delivery/verification/commands.sh primitives
+bash specs/changes/active/C006-result-delivery/verification/commands.sh future-red
+bash specs/changes/active/C006-result-delivery/verification/commands.sh regression
+bash specs/changes/active/C006-result-delivery/verification/commands.sh dist-plan
+scripts/check-tests.sh
+scripts/check-docs.sh
+scripts/check-specs.sh
+scripts/check-task.sh C006-T01 <T01 开工完整提交> --staged
+scripts/check-task.sh C006-T01 <同一完整提交>
+```
 
-**命令 / 交接 / 提交。** 跑工程门禁、`scripts/task.sh C006-T01`、文档检查；记录平台/二进制/实际测试名及原始输出。T01 一提交，正文解释边界与 API 实测；交接完整 hash，T02 以该 hash 作不可改 oracle 基准。
+primitives 含 `scripts/task.sh C006-T01`，实际非零数量且通过；future-red 至少一项真实 T02 用例、非零退出和预定失败，不计 feature PASS。运行完整工程门禁与 `cargo deny check`，记录隔离 CARGO_TARGET_DIR/RUSTC_WRAPPER、两个 binary、counts、平台及原 run ID。交接所有参数/类型、可用安全原语、有效 red、平台与 dist 排除证据、fixture closure、骨架完整 SHA、runbook 和未跑项。
 
-### C006-T02：读取可信字节并冻结请求
+**停止。** 只需指针、C004 载荷不确定、safe API 或实机不能兑现目录原子不替换/同步、raw 需文字转码或已有正确行为受损时，由复杂作者修范围或接口；不交简单实现者降级保证。
 
-**Owner / 依赖。** 简单模型；T01 骨架与独立计算 oracle。
+## C006-M1：审查安全与实现准备
 
-**读取与范围。** 读冻结导出合同、`source.rs` 的结果/Artifact 子进程接口、`request.rs` 的 `freeze_request`、`output.rs` 的稳定结果投影签名；只改这三个生产文件。拟函数名由 T01 固定为真实符号后写回卡片，不得由实现者增加新接口。
+独立复杂模型实查 source、target、raw 原语已完成而非空骨架；核真实平台、资源上限、身份/链接、sync/未确认分支、严格来源与 dist 排除。核实际 green、非零完整行为 red、普通回归、测试/混合白名单、冻结命令与初级开发者能照接的接口。未完成 raw/export 路径不得作为正常用户能力出现。缺原语、fixture 或 oracle 交 T01 修复，再独立复核。
 
-**输入 / 输出。** 输入：固定引擎路径、完整 Work ID、目标父目录、request ID。输出：已核 `work-result/v1`、同字节稳定 request、完整 commit 引用和 Artifact 路径映射；失败在成果发布前停止。
+保存审查候选、closure、原 run ID 与平台未跑项；未变化的 T01 证据可引用，不重跑机械全套。通过仅表示阶段 2 准备完成，不是复制、用户价值或发行 PASS。运行文档/治理和 diff 检查；`scripts/check-task.sh C006-M1 <M1 开工完整提交> --staged`，提交后以同基准再检查。
 
-**步骤。** 1. 将 result JSON 与 version 响应完整严格解码。2. 拒绝非最终结果、摘要/版本不匹配和 key 碰撞。3. 在 T01 目标句柄上原子创建或核对 request。4. Artifact 原始 stdout spool，独立核大小/sha256和进程退出；失败前缀不能发布。5. 生成不含当前运行时间的报告字节。
+### C006-T02：用固定原语完成整份副本
 
-**验收用例。** 同版本明确 Artifact+完整 commit 生成手写期望 request；不同结果/参数、未知字段、损坏字节、stdout 截断、退出非零、版本不匹配均拒绝；existing request 字节不改。
+**Owner / 输入。** 简单模型或初级开发者；M1 骨架或最新独立测试修订完整 SHA、冻结 source/target 接口、测试和命令文件。
 
-**测试与归属。** T01 创建 `tests/{source,request}.rs`，归 T02；只填生产代码，不改测试与 fixture。阶段骨架完成后这里记录实际测试名。
+**范围。** exporter `export.rs/main.rs` 的编排与分发、引擎 `cli.rs`、`commands/work.rs/mod.rs` 的正式接线。source/target/strict DTO/error、大小、OS、资源回收和发布政策已由 T01 实现，不修改；测试只删本任务 ignore。正常入口在全链满足后激活，不能阶段中暴露半成品。
 
-**停止。** 参数无法从签名取得、C004 返回与冻结格式不同、源查询需要 Work 写操作时交回 T01。
+**执行步骤。**
 
-**命令 / 交接 / 提交。** `scripts/task.sh C006-T02`、工程门禁、`scripts/check-task.sh C006-T02 <T01提交> --staged`。交接真实 request/报告样本、源失败输出、剩余未实现调用点；一任务一提交。
+1. 核 M1、骨架 SHA、白名单和工作树，读学习导航及固定命令。
+2. 跑 future-red，核真实行为用例数和失败签名；编译错误或零测试退回准备阶段。
+3. 按固定 DTO 取得最终结果；通过 source 原语接收每项字节到独占私有目标，逐项核 size/sha/exit。
+4. 按 target 原语读回全部成果、写固定清单、同步树，用已完成 NOREPLACE 原语发布，准确映射 complete/unconfirmed。
+5. 接正式 raw CLI 和 exporter 参数分派，直接使用 T01 原字节路由；只读路径不触发写后清理或业务写回。
+6. 逐条跑 feature 及 crash/竞态，全部满足后只删本任务 ignore，核无残留半接线。
+7. 跑普通消费者回归、工程门禁与短语义复核，保存实际文件/哨兵/Store 前后证据，交 T03。
 
-### C006-M1：独立强模型审查
+**oracle。** 两份真实 binary 的 C004 metadata→固定 revision/key raw→独立 size/sha/exit→全体暂存→清单→NOREPLACE→sync；所有规范拒绝/kill 窗口按冻结矩阵。源非零、缺 bytes、链接、目标竞争、父身份变化不得发表完成；移动后未确认不得删除补偿。只复制明确最终 Artifacts，业务状态不变。
 
-核对 C004 单一结果来源、候选报告未被拼接、自报与实际字节区分、完整请求身份、版本闭合、无 Store 写入、平台句柄/硬链/不替换和根外哨兵。用真实当前平台重跑关键拒绝与首次并发。缺任一能力则列 finding，不能让简单模型带着未决 OS 语义进入 M2。
+**验证。**
 
-## 4. M2：完整复制与接续
+```bash
+bash specs/changes/active/C006-result-delivery/verification/commands.sh feature
+bash specs/changes/active/C006-result-delivery/verification/commands.sh regression
+bash specs/changes/active/C006-result-delivery/verification/commands.sh gates
+scripts/check-task.sh C006-T02 <阶段骨架或最新独立测试修订完整提交> --staged
+scripts/check-task.sh C006-T02 <同一完整提交>
+```
 
-### C006-T03：搭复制和真实 caller 测试
+feature 含 `scripts/task.sh C006-T02`，实际非零数量、全部通过且无本任务 ignore。原语未变化时引用 M1 closure/原 run；新增真实 binary 链必须有新运行。保存 binary hash、counts、byte 比对、故障结果、未跑项和下一动作。
 
-**Owner / 依赖。** 强模型；M1 通过的固定候选。
+**停止 / 交回。** 需修改 source/target、DTO、OS/恢复/限额政策、测试或 fixture 时停止相关实现。把最小 caller 复现与输出交复杂作者；在同 package 分配修复任务、范围和 oracle，独立审查后更新完整基准。简单实现者不得根据 stderr 自然语言猜成功或改断言。
 
-**读取与范围。** 读已实现 `source/request/target`，新增并冻结 `export.rs` 的逐项复制/恢复接口、`main.rs` 的调用接线及 `output.rs` 的失败报告；创建 `tests/{export,cli,crash}.rs` 与最小 fixtures，修改阶段 plan/task 白名单。
+### C006-T03：按手册完成首次使用与副本证据
 
-**输入 / 输出。** 输入：已冻结 request 与目标句柄。输出：可编译阶段骨架、每个故障窗口的期望文件集合与字节、真实双二进制执行 fixture、具体 failpoint/kill 命令；不引入新的业务状态。
+T03 若只有说明和真实操作记录，范围基准用本任务开工完整提交；若 T01 已预制并归属 T03 的 Rust 场景测试，复杂作者先将实际文件加入 T03 test_files、固定 allow_test_changes=false，并像 T02 一样以 M1 骨架或最新独立测试修订完整 SHA 核冻结测试。手册必须写明实际采用哪一种，初级执行者不自行选择基准。
 
-**步骤。** 1. 明确锁、临时文件、request 与清单的写入顺序。2. 为 T04/T05 写正反例，oracle 不调用 exporter 生成期望。3. 实现必要故障注入点，不通过 fake 直接写成功。4. 真实 CLI fixture 从 Cargo JSON executable 找二进制。5. 将 T04/T05 卡片的验收用例换成真实测试名、归属与命令。
+**Owner / 输入。** 手册执行者；T02 候选、T01 runbook、已明确副本用途。复杂模型负责产品结论与不明失败分析，不把判断留给初级执行者。
 
-**验收用例。** 正常两文件复制；每个中断窗口可接续；manifest 仍在但某项改字节拒绝；相同项不重写；不同 request 不碰彼此；真实子进程源失败、跨 fs、权限拒绝、引擎业务状态不变。
+**范围 / 操作。** 按 `experiments/runbook.md` 的实际构建与二进制路径，用同一最终结果执行手工复制与工具复制，分开记录找结果、接收、核对和失败处置。补准确 `specs/guides/result-export.md`，核首次读者能取得正确可编辑副本。机制可在临时目录跑；真实用户位置须已有授权。
 
-**测试与归属。** `tests/export.rs` 与相应 crash oracle 归 T04；`tests/cli.rs`、真实 kill/跨 fs 与状态不变归 T05。T03 完整实现注入设施及其自身测试；实现任务不改断言。不能以全部测试预先 ignore 后逐步「启用」取代生产接线。
+**oracle / 停止。** 字节与清单一致、不会覆盖、残留/unconfirmed 能准确核查；用户只需指针或无收益也能如实结论。无真实用途保持价值 not_run；缺授权只停相关真实位置写入。缺陷交修复任务，不改合同、oracle 或成功标准。
 
-**停止。** 故障 oracle 需要猜 request 字节、结果身份变化或跨 fs 无载体时先记录具体缺口，不标 PASS。
+**验证 / 交接。** 执行冻结 runbook、文档/diff 检查；仅有提前冻结的 T03 Rust 行为用例才跑 task.sh，否则记录真实操作，不用零测试验收。范围检查为 `scripts/check-task.sh C006-T03 <runbook 已确定的完整范围基准> --staged`，提交后以同基准再检查。交接总投入、失败处置、实际指南、候选与全部 not_run 给 M2；不发布或正式安装。
 
-**命令 / 交接 / 提交。** 运行工程门禁和 T03 自身归属测试（若存在；无自身 Rust 测试就不用 `task.sh`）；证明填空测试可执行且按合同失败。交接骨架 hash、测试归属、故障输入和原始 run ID；一任务一提交。
+## C006-M2：独立完整验收
 
-### C006-T04：完成新增复制与恢复
-
-**Owner / 依赖。** 简单模型；T03 阶段骨架。
-
-**读取与范围。** 只填 `src/export.rs` 冻结函数；文件系统安全操作调用 T01 `target`，不重新实现路径规则。
-
-**输入 / 输出。** 输入：不可变请求与锁定目标句柄。输出：正确副本、确定性 result/manifest 字节，或明确的部分完成/冲突事实。
-
-**步骤。** 1. 每项先安全读取现存文件。2. 同字节跳过，缺失时获取引擎字节并原子新增，不同字节停止。3. 读回全部成果；最后新增报告与清单。4. 恢复仅清理可证明当前请求归属的临时名，再重复同一规则。
-
-**验收用例。** 缺失项补写/相同字节不改 inode；来源清单与实际成果不一致拒绝；杀进程后 request 未丢、已完成项不改、清单最后出现；竞争目标不覆盖。
-
-**测试与归属。** T03 的 T04 测试不可改。测试名由 T03 正式填写。
-
-**停止。** 想用普通 rename、需要写 Work 回执或删除用户冲突文件时交回骨架作者。
-
-**命令 / 交接 / 提交。** `scripts/task.sh C006-T04`、工程门禁、`scripts/check-task.sh C006-T04 <T03提交> --staged`；交接故障恢复前后目录清单与实际字节证据；一任务一提交。
-
-### C006-T05：接通命令与真实失败报告
-
-**Owner / 依赖。** 简单模型；T04 实现。
-
-**读取与范围。** 只改 `src/main.rs` 和 `src/output.rs`，把 T02/T04 的真实流程接入参数分派、人读与 JSON 输出；不以单独启用场景测试作为任务。
-
-**输入 / 输出。** 输入：规格 §1 的完整命令。输出：实际成果位置、请求/结果摘要、完成或部分结果，以及稳定退出码。
-
-**步骤。** 1. 参数严格校验，固定引擎绝对路径。2. 完整调用版本/结果/请求/锁/逐项复制。3. 所有 stderr 与 stdout 分离。4. 跨 fs 用真实字节复制；运行真实 kill/竞争场景。5. 对照导出前后引擎状态、请求和审计语义。
-
-**验收用例。** 用真实双二进制完成，再同请求恢复；中途非零、破坏目标、改版本、改父目录、跨设备都走公开 CLI，输出不能声称完成；Store 业务行不新增。
-
-**测试与归属。** T03 的 T05 测试和 fixtures 不可改；真实平台/跨 fs 缺失按 validation 划定 `not_run`。
-
-**停止。** 需修改接口、fixture 或源信任规则时交回 T03，不能在 CLI 根据自然语言错误分类。
-
-**命令 / 交接 / 提交。** `scripts/task.sh C006-T05`、工程门禁、`scripts/check-task.sh C006-T05 <T03提交> --staged`；交接真实 stdout/stderr/退出码与两份 binary hash；一任务一提交。
-
-### C006-M2：独立强模型审查
-
-检查真实双 CLI 全链、所有 kill 窗口、目标/源替换、部分完成、单请求并发、跨 fs、清单最后与不可覆盖。审查者独立核对实际文件字节、权限与业务状态；不得仅复读实现者 PASS。明确记录不支持平台与未跑项。
-
-## 5. M3：明确安装与产品证据
-
-### C006-T06：冻结发行与真实探针
-
-**Owner / 依赖。** 强模型；M2 通过候选。
-
-**读取与范围。** 读根 `Cargo.toml` 的 dist 配置、`.github/workflows/release.yml`、现有 release/安装指南、`crates/sheltie-runtime/src/selfmgmt.rs` 版本来源。创建 `scripts/check-export-dist.sh` 的本地 oracle，定义双归档名称/同 tag 来源/sha256/权限与版本不符拒绝；在 package `experiments/` 创建探针说明、计时表和输入闭包，不改 `selfmgmt`。
-
-**输入 / 输出。** 输入：同一候选两份二进制、一个真实副本需要。输出：可以本地重跑的归档检查脚本、独立安装步骤、先冻结的测量与质量判断规则。
-
-**步骤。** 1. 从实际 dist API 确定本地双归档构建方式。2. 冻结同版本引擎与 exporter 配对与显式安装路径，保留原引擎 self 行为。3. 编写本地归档正反 oracle。4. 区分找结果与复制收益，固定人工计时/冲突处理/字节质量标准。5. 将 T07/T08 的暂定命令换成可直接执行的真实命令。
-
-**验收用例。** 同候选双归档正确安装到临时位置；缺另一归档、损坏 sha256、错误 executable/权限和版本不匹配拒绝。探针能判明仅结果视图已够用，不能强行导出制造价值。
-
-**测试与归属。** 发行脚本 oracle 由 T06 编写；T07 不修改。无 Rust 归属测试，不调用 `task.sh`。发行脚本验证自身正确性用手工错误归档和完整输出。
-
-**停止。** 配置需要改成引擎 self 双 binary 原子更新平台、无法证明同 tag 来源或需要真实 release 发布才能测时，先收窄本地归档方案，不自动扩展。
-
-**命令 / 交接 / 提交。** 文档检查、脚本语法检查与冻结后的本地 oracle；工程规范要求仍有效。交接实际构建/检验命令、归档期望、测量表和强模型设计 hash；一任务一提交。
-
-### C006-T07：本地双归档与安装指南
-
-**Owner / 依赖。** 简单模型；T06 冻结的本地发行合同。
-
-**读取与范围。** 改根 `Cargo.toml`、exporter `Cargo.toml`、`.github/workflows/release.yml` 与 `specs/guides/` 中 T06 指定的导出器指南；只接现有 dist 与明确定义的发行文件，不改 self 实现/Store/宿主配置。
-
-**输入 / 输出。** 输入：同一候选版本和 T06 归档 oracle。输出：本地同版本双归档、完整 sha256、临时安装核对证据与首次读者命令。
-
-**步骤。** 1. 接入既有发行任务生成独立 exporter 资产，不重建版本指针平台。2. 同一候选生成两份归档。3. 在临时目录独立安装，执行版本和正常/拒绝场景。4. 指南明确引擎 self 更新后 exporter 不匹配会拒绝，以及取得同 tag 版本的办法。
-
-**验收用例。** 同版本可用；拿错 tag 或缺 asset 时明确拒绝；安装指南无隐含 PATH、默认管理根或宿主配置写入。
-
-**测试与归属。** 只运行 T06 冻结的归档脚本与真实 binary 场景；不得修改 oracle。配置任务无 Rust 归属，不跑零测试的 `task.sh`。
-
-**停止。** 发行 API 与合同不同、需要发布真实 tag 或修改自更新语义时交回 T06。
-
-**命令 / 交接 / 提交。** 本地打包/归档 oracle、文档检查、工程门禁和 `scripts/check-task.sh C006-T07 <T06提交> --staged`。交接归档来源与 byte hash；一任务一提交，不 push/发布。
-
-### C006-T08：真实副本探针与证据封存
-
-**Owner / 依赖。** 简单模型；T07 本地候选。真实用户位置写入须已明确授权；探针可以在临时目录完成机制部分。
-
-**读取与范围。** 只改本 package `experiments/`、`validation.md`、`progress.md`、`review.md`；不在探针任务暗中修生产代码。
-
-**输入 / 输出。** 输入：冻结的真实任务结果、计时/质量标准、同候选双 binary。输出：实际需求结论、分开的找结果/副本人工分钟、逐字节质量、冲突体验、完整候选与验证表。
-
-**步骤。** 1. 按 T06 冻结顺序执行手工复制与 exporter 路径。2. 记录人工介入，缺数据写未知。3. 验证结果、源报告、完整 commit 与目标字节。4. 封存全部原始输出和输入闭包，列 `not_run`。5. 将机制、价值与 release 状态分别交给 M3。
-
-**验收用例。** 用户需要副本且操作正确；用户只需要 commit 引用、复制收益无改善或冲突体验不可用也能如实得出暂不采用/缩小范围结论。不能仅拿生成的示例作真实需求证据。
-
-**测试与归属。** 无新 Rust 测试，不跑 `task.sh`；复用已验证候选必须满足同输入闭包和原 run ID，不能只写模式名。
-
-**停止。** 生产缺陷交回责任任务；用户位置授权缺失只停止外部写入，完成临时目录验证和证据整理。
-
-**命令 / 交接 / 提交。** 预注册探针命令、文档检查、`scripts/check-task.sh C006-T08 <T06提交> --staged`；其他提交门禁按共同指南。交接完整候选与未跑项；一任务一提交。
-
-### C006-M3：独立强模型整链审查
-
-复读冻结方案与真实任务，核对 C004 结果选择→引擎可信字节→request→逐项发布→读回→manifest→同请求恢复→同版本归档。产品结论单独回答副本需求与人工收益。平台/真实任务缺证据则按范围阻断；M3 完成不代表 release 已发布，不将 exporter 实验成绩升级成 C004/C005/C007/C008 完成。
+独立复杂模型核来源到整份副本的真实用户链、所有错误/竞态/crash、平台、根外哨兵、业务状态、Rust 工程、dist 排除及首次读者真实结果。对 M1 后未改变的安全原语/合同引用原 closure 和 run ID，新增编排和正常入口核新证据；不重复运行未受影响全套。机制、质量、人工成本、样本和发布范围分别结论。修复交责任任务后复核；运行文档/治理和 diff 检查；`scripts/check-task.sh C006-M2 <M2 开工完整提交> --staged`，提交后同基准检查。审查不授权外部发行。

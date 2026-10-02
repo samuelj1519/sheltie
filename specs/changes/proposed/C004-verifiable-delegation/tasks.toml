@@ -1,47 +1,22 @@
-# C004 任务范围。采用后生效。实现任务的混合源码必须逐文件登记；骨架交接时按实际文件核对并收窄。
-# check-task 显式传阶段骨架或独立测试修订commit。里程碑传审查开始候选，不自动使用README基线。
+# 采用后生效。复杂作者先准备接口、原语与测试；简单实现者只启用和通过冻结用例。
+# 实现任务基准为M1骨架或独立测试修订完整SHA；文档/审查任务基准为各自开工候选。
 
 [C004-T01]
-files = ["specs/changes/active/C004-verifiable-delegation"]
-test_files = []
+files = ["crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/state.rs", "crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/result.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src/result.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/load.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-runtime/src/store/schema.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/snapshot.rs", "crates/sheltie-runtime/src/error.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/work.rs", "specs/contracts", "specs/architecture.md", "specs/spec.md", "CONTEXT.md", "examples", "workbooks/spec-dev", "specs/changes/active/C004-verifiable-delegation", "crates/sheltie-cli/src/commands/self_cmd.rs", "crates/sheltie-cli/src/commands/mod.rs", "crates/sheltie-core/src/error.rs", "crates/sheltie-core/src/testkit.rs", "specs/engineering.md", "examples/code-change", "skills/sheltie"]
+test_files = ["crates/sheltie-core/src/flow/parse.rs","crates/sheltie-core/src/flow/compile.rs","crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/render.rs","crates/sheltie-core/src/work/result.rs","crates/sheltie-core/src/work/snapshots","crates/sheltie-core/tests/examples.rs","crates/sheltie-runtime/src/store/tests.rs","crates/sheltie-runtime/tests/result.rs","crates/sheltie-runtime/tests/schema2_replay.rs","crates/sheltie-cli/tests/work_result.rs","crates/sheltie-cli/tests/work.rs","crates/sheltie-cli/tests/scenario_artifacts.rs","crates/sheltie-cli/tests/scenario_article_review.rs","crates/sheltie-cli/tests/scenario_gated_release.rs","crates/sheltie-cli/tests/scenario_workbook_lifecycle.rs","crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cli/tests/self_cmd.rs","crates/sheltie-core/src/testkit.rs","crates/sheltie-cli/tests/scenario_code_change.rs","crates/sheltie-cli/tests/skill.rs","crates/sheltie-cli/tests/skill_delivery.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/store/read.rs","crates/sheltie-runtime/src/error.rs","crates/sheltie-cli/src/cli.rs","crates/sheltie-cli/src/error_map.rs"]
 allow_test_changes = true
 
 [C004-T02]
-files = ["specs/changes/active/C004-verifiable-delegation"]
-test_files = []
-allow_test_changes = true
+files = ["crates/sheltie-core/src/flow/def.rs","crates/sheltie-core/src/flow/parse.rs","crates/sheltie-core/src/flow/compile.rs","crates/sheltie-core/src/flow/graph.rs","crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/render.rs","crates/sheltie-core/src/work/result.rs","crates/sheltie-core/src/work/mod.rs","crates/sheltie-runtime/src/result.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/load.rs","crates/sheltie-runtime/src/lib.rs","crates/sheltie-runtime/src/store/schema.rs","crates/sheltie-runtime/src/store/read.rs","crates/sheltie-runtime/src/snapshot.rs","crates/sheltie-runtime/src/error.rs","crates/sheltie-cli/src/cli.rs","crates/sheltie-cli/src/output.rs","crates/sheltie-cli/src/error_map.rs","crates/sheltie-cli/src/commands/work.rs","crates/sheltie-cli/src/commands/self_cmd.rs","crates/sheltie-cli/src/commands/mod.rs","crates/sheltie-core/src/error.rs","specs/changes/active/C004-verifiable-delegation/progress.md","specs/changes/active/C004-verifiable-delegation/validation.md","specs/changes/active/C004-verifiable-delegation/review.md"]
+test_files = ["crates/sheltie-core/src/flow/parse.rs","crates/sheltie-core/src/flow/compile.rs","crates/sheltie-core/src/work/state.rs","crates/sheltie-core/src/work/render.rs","crates/sheltie-core/src/work/result.rs","crates/sheltie-core/src/work/snapshots","crates/sheltie-core/tests/examples.rs","crates/sheltie-runtime/src/store/tests.rs","crates/sheltie-runtime/tests/result.rs","crates/sheltie-runtime/tests/schema2_replay.rs","crates/sheltie-cli/tests/work_result.rs","crates/sheltie-cli/tests/work.rs","crates/sheltie-cli/tests/scenario_artifacts.rs","crates/sheltie-cli/tests/scenario_article_review.rs","crates/sheltie-cli/tests/scenario_gated_release.rs","crates/sheltie-cli/tests/scenario_workbook_lifecycle.rs","crates/sheltie-cli/tests/scenario_spec_dev.rs","crates/sheltie-cli/tests/self_cmd.rs","crates/sheltie-core/src/testkit.rs","crates/sheltie-runtime/src/service.rs","crates/sheltie-runtime/src/store/read.rs","crates/sheltie-runtime/src/error.rs","crates/sheltie-cli/src/cli.rs","crates/sheltie-cli/src/error_map.rs"]
+allow_test_changes = false
 
 [C004-T03]
-files = ["specs/changes/active/C004-verifiable-delegation", "specs/spec.md", "specs/architecture.md", "specs/engineering.md", "specs/contracts", "CONTEXT.md", "Cargo.toml", "Cargo.lock", "crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "crates/sheltie-verify", "crates/sheltie-cli/Cargo.toml", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-core/Cargo.toml"]
-test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests", "crates/sheltie-verify/tests"]
-allow_test_changes = true
+files = ["examples/code-change", "skills/sheltie", "workbooks/spec-dev", "specs/changes/active/C004-verifiable-delegation"]
+test_files = ["crates/sheltie-core/tests/examples.rs", "crates/sheltie-cli/tests/scenario_code_change.rs", "crates/sheltie-cli/tests/skill.rs", "crates/sheltie-cli/tests/skill_delivery.rs"]
+allow_test_changes = false
 
 [C004-T04]
-files = ["crates/sheltie-verify/src/profile.rs", "crates/sheltie-verify/src/snapshot.rs", "crates/sheltie-verify/src/run.rs", "crates/sheltie-verify/src/report.rs", "specs/changes/active/C004-verifiable-delegation/progress.md", "specs/changes/active/C004-verifiable-delegation/validation.md"]
-test_files = ["crates/sheltie-verify/src/profile.rs", "crates/sheltie-verify/src/snapshot.rs", "crates/sheltie-verify/src/run.rs", "crates/sheltie-verify/src/report.rs", "crates/sheltie-verify/tests/profile.rs", "crates/sheltie-verify/tests/snapshot.rs", "crates/sheltie-verify/tests/run.rs"]
-allow_test_changes = false
-
-[C004-T05]
-files = ["crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/observation.rs", "crates/sheltie-core/src/work/command.rs", "crates/sheltie-core/src/work/state.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs", "crates/sheltie-core/src/work/layout.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src/observation.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/request.rs", "crates/sheltie-runtime/src/snapshot.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-runtime/src/load.rs", "crates/sheltie-runtime/src/failpoint.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-runtime/src/store/schema.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/verify.rs", "crates/sheltie-cli/src/commands/mod.rs", "specs/changes/active/C004-verifiable-delegation/progress.md", "specs/changes/active/C004-verifiable-delegation/validation.md"]
-test_files = ["crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/observation.rs", "crates/sheltie-core/src/work/command.rs", "crates/sheltie-core/src/work/state.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-core/src/work/next.rs", "crates/sheltie-core/src/work/layout.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src/observation.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/request.rs", "crates/sheltie-runtime/src/snapshot.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-runtime/src/load.rs", "crates/sheltie-runtime/src/failpoint.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-runtime/src/store/schema.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/verify.rs", "crates/sheltie-cli/src/commands/mod.rs", "crates/sheltie-runtime/tests/observation.rs", "crates/sheltie-cli/tests/native_check.rs"]
-allow_test_changes = false
-
-[C004-T06]
-files = ["specs/contracts/protocol.md", "specs/contracts/workbook.md", "specs/architecture.md", "specs/spec.md", "CONTEXT.md", "specs/changes/active/C004-verifiable-delegation", "crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "crates/sheltie-verify/src", "examples/code-change", "skills/sheltie"]
-test_files = ["crates/sheltie-core", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
-allow_test_changes = true
-
-[C004-T07]
-files = ["crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/result.rs", "crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src/result.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-verify/src/report.rs", "specs/changes/active/C004-verifiable-delegation/progress.md", "specs/changes/active/C004-verifiable-delegation/validation.md"]
-test_files = ["crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/graph.rs", "crates/sheltie-core/src/work/result.rs", "crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-runtime/src/result.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-cli/src/cli.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs", "crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-verify/src/report.rs", "crates/sheltie-runtime/tests/result.rs", "crates/sheltie-cli/tests/work_result.rs"]
-allow_test_changes = false
-
-[C004-T08]
-files = ["examples/code-change", "skills/sheltie", "workbooks/spec-dev", "specs/changes/active/C004-verifiable-delegation/progress.md", "specs/changes/active/C004-verifiable-delegation/validation.md"]
-test_files = ["crates/sheltie-core/tests/examples.rs", "crates/sheltie-cli/tests/scenario_code_change.rs", "crates/sheltie-cli/tests/skill.rs"]
-allow_test_changes = false
-
-[C004-T09]
 files = ["specs/changes/active/C004-verifiable-delegation"]
 test_files = []
 allow_test_changes = true
@@ -52,11 +27,6 @@ test_files = []
 allow_test_changes = false
 
 [C004-M2]
-files = ["specs/changes/active/C004-verifiable-delegation/review.md", "specs/changes/active/C004-verifiable-delegation/validation.md", "specs/changes/active/C004-verifiable-delegation/progress.md"]
-test_files = []
-allow_test_changes = false
-
-[C004-M3]
 files = ["specs/changes/active/C004-verifiable-delegation/review.md", "specs/changes/active/C004-verifiable-delegation/validation.md", "specs/changes/active/C004-verifiable-delegation/progress.md"]
 test_files = []
 allow_test_changes = false

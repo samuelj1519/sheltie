@@ -5,9 +5,9 @@
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 Active change：无
 Completed：[`C002 v0.2.0 可靠性修复`](changes/completed/C002-v0.2.0-reliability/README.md)，任务历史见其 [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
-Proposed：[C004 可核对的任务闭环](changes/proposed/C004-verifiable-delegation/README.md)、[C005 显式执行者替换](changes/proposed/C005-executor-continuity/README.md)、[C006 按需导出明确结果](changes/proposed/C006-result-delivery/README.md)、[C007 固定模板编写实验](changes/proposed/C007-pre-run-workbook-generation/README.md)、[C008 单宿主外部预检实验](changes/proposed/C008-dependency-readiness/README.md)。任务与实验尚未执行，不构成必须全部实施的版本清单。
+Proposed：[C004 明确成果与可靠接续](changes/proposed/C004-verifiable-delegation/README.md)、[C005 撤销旧 Attempt 提交资格](changes/proposed/C005-executor-continuity/README.md)、[C006 完整成果副本](changes/proposed/C006-result-delivery/README.md)、[C007 完整任务体验实验](changes/proposed/C007-pre-run-workbook-generation/README.md)、[C008 按需单宿主预检](changes/proposed/C008-dependency-readiness/README.md)。全部任务和实验未执行，不构成必须全部实施的版本清单。
 
-下一阶段先验证完整任务的人工投入与质量，C004 提供核心闭环，C005/C006 按实际需要实施，C007/C008 只采用实验范围。共同实施方式见[分阶段搭建与实现](guides/proposal-implementation.md)。
+下一阶段以 C007 作为共同真实任务试用入口，观察首次使用、复用与中断后的总投入和质量；C004 按明确需求提供通用增量，C005/C006/C008 由各自问题触发。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
 
 当前版本为 v0.2.0。上游规格与合同描述当前格式（schema 2、`workbook-digest/v2`、新 Work 目录布局、`cli-result/v2`）；C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
 

@@ -1,37 +1,28 @@
-# 采用后生效。proposed 不运行 task.sh/check-task。阶段测试与实际命令由强模型骨架任务冻结。
-# 每次 check-task 显式使用本阶段骨架或独立测试修订 commit。
+# 人采用并移入 active/ 后生效；proposed 不执行任务。
+# T01 复杂模型完整准备和测试；T02 冻结边界由确切 files 路径控制。
+# T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。
 
 [C007-T01]
-files = ["specs/changes/active/C007-pre-run-workbook-generation"]
-test_files = []
+files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/protocol.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/confirmed-input", "specs/changes/active/C007-pre-run-workbook-generation/experiments/shared-method.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/first-use.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/samples", "specs/changes/active/C007-pre-run-workbook-generation/experiments/oracle", "specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts", "specs/changes/active/C007-pre-run-workbook-generation/experiments/preparation", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
+test_files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts/test_collect_run.py"]
 allow_test_changes = true
-
-[C007-T02]
-files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/runs/pilot", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
-test_files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts/test-validate-draft.py"]
-allow_test_changes = false
-
-[C007-T03]
-files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/templates", "specs/changes/active/C007-pre-run-workbook-generation/experiments/fixtures/formal", "specs/changes/active/C007-pre-run-workbook-generation/experiments/oracle", "specs/changes/active/C007-pre-run-workbook-generation/experiments/prompts", "specs/changes/active/C007-pre-run-workbook-generation/experiments/protocol.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
-test_files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts/test-validate-draft.py"]
-allow_test_changes = true
-
-[C007-T04]
-files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/runs/formal", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
-test_files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts/test-validate-draft.py"]
-allow_test_changes = false
-
-[C007-T05]
-files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/report.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
-test_files = []
-allow_test_changes = false
 
 [C007-M1]
 files = ["specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
 test_files = []
-allow_test_changes = false
+allow_test_changes = true
+
+[C007-T02]
+files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/runs", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
+test_files = []
+allow_test_changes = true
+
+[C007-T03]
+files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/report.md", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
+test_files = []
+allow_test_changes = true
 
 [C007-M2]
 files = ["specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
 test_files = []
-allow_test_changes = false
+allow_test_changes = true

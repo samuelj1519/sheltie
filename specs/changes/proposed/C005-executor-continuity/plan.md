@@ -1,150 +1,124 @@
 # C005 实施计划
 
-状态：`proposed`；未采用，不执行本计划。任务全部 `todo`，实现与实验为 `not_run`。共用规则见[提案实施指南](../../../guides/proposal-implementation.md)；工程门禁与提交格式见[工程规范](../../../engineering.md)。
+状态：`proposed`。未采用，不执行本计划。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
 
-## 1. 先读项目，再选动作
+阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
-首次接触项目的实现者先读 `CONTEXT.md`、`specs/README.md`、本 package 的 README/spec/design/validation，再读任务卡点名的合同与源文件。C004 完成候选是采用输入：先演示 `work handoff` 恢复原 running Attempt，再确认这次需要撤销旧提交资格，而不是仅缺交接材料。
+## 1. 首次阅读与职责
 
-强模型先定整体架构、格式变化和关键验收判据，再按里程碑搭建该阶段骨架与测试。简单模型只实现已冻结边界，不修改接口、断言、夹具期望或快照。新增缺口交回本阶段骨架作者；review 由未参与该阶段设计和实现的强模型完成。不会预先写完整 package 的全部测试。
+先读 `AGENTS.md`、`CONTEXT.md`、`specs/README.md`、本 package 的 README/spec/design/validation，再读 `specs/engineering.md` 与当前任务点名源码。普通接续已经可用，采用证据须说明为什么需要撤销旧提交资格。
 
-所有拟新增路径均由阶段骨架作者创建。骨架提交后填写提交 hash；填空任务用此 hash 作为 `check-task.sh` 显式基准。`scripts/task.sh` 只用于已登记 Rust 用例的实现任务；骨架、文档、实际实验和独立 review 不因没有测试归属而强行运行它。
+| 类型 / 入口 | 先理解什么 |
+| --- | --- |
+| `AttemptId`、`AttemptStatus`、`WorkState::validate_persisted` | 顺序号、真实失败和 superseded 是三个不同事实 |
+| `decide`、`legal_next` | core 只从输入产生决定；替换及次序不由 CLI 猜 |
+| `reply_status_matches`、`validate_command_owner` | 历史 fail 用截至该 Attempt 的失败前缀，而非当前总数 |
+| `WorkService::run_command`、`RequestIntent`、`snapshot::check_data` | 查重、观察、事务、历史快照各自的输入和归属 |
+| `effects.rs`、`recovery.rs`、`WorkLayout` | COMMIT 后按登记字节发布，不能从最新状态重建旧任务书 |
+| `AttemptCmd`、`commands/attempt.rs::run` | CLI 仅解析和接线，不改变合同、恢复或资格政策 |
 
-## 2. 任务与里程碑
+复杂模型作者负责总体接口、真实 caller 可行性、可信原语与阶段测试；简单模型或初级开发者负责固定边界内的纯状态变换和接线。真实使用任务按冻结手册执行，产品判断交复杂模型。两次里程碑由未参与其设计、测试或实现的复杂模型独立审阅。
 
-| ID | 状态 | Owner | 依赖 | 交付 |
+## 2. 任务与阶段
+
+| ID | 状态 | Owner | 交付 | 依赖 |
 | --- | --- | --- | --- | --- |
-| C005-T01 | todo | 强模型 / 架构与 M1 骨架 Owner | C004 完成，采用决定 | 上游合同、格式闭包、core 骨架与 M1 判据 |
-| C005-T02 | todo | 简单模型 / core 实现 Owner | T01 | 纯状态替换、计数和投影 |
-| C005-M1 | todo | 独立强模型 | T02 | core 契约审查；未解决阻断项不进 M2 |
-| C005-T03 | todo | 强模型 / M2 骨架 Owner | M1 通过 | runtime 事务、快照与恢复骨架及测试 |
-| C005-T04 | todo | 简单模型 / runtime 实现 Owner | T03 | 替换写链、真实输入观察、幂等恢复 |
-| C005-M2 | todo | 独立强模型 | T04 | 真实 Store/caller/崩溃链审查 |
-| C005-T05 | todo | 强模型 / M3 骨架 Owner | M2 通过 | CLI 骨架、真实场景与手工实验固定口径 |
-| C005-T06 | todo | 简单模型 / CLI 实现 Owner | T05 | replace 命令、help、错误与 skill |
-| C005-T07 | todo | 实验执行者；强模型负责证据复核 | T06 | 完整回归与真实接续原始证据 |
-| C005-M3 | todo | 独立强模型 | T07 | 全链审查与采用范围验收结论 |
+| C005-T01 | todo | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 人采用、真实撤销需求 |
+| C005-M1 | todo | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
+| C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及完整骨架 SHA |
+| C005-T03 | todo | 手册执行者；复杂模型负责结论 | 使用说明、真实接续与最终证据 | T02 |
+| C005-M2 | todo | 独立复杂模型 Reviewer | 完整链、工程和真实结果审阅 | T03 |
 
-里程碑只审查和记录。review 文档提交使用审查开始时的固定候选作为 `check-task.sh` 显式基准，避免把先前实现与快照更新算作本次审查改动。审查发现需要改测试或代码时，交回对应骨架 Owner，按共用指南登记独立修复任务，同步 plan/tasks 并固定新的测试基准；审查者不得替实现者补代码再签署独立通过。计划任务与 `tasks.toml` 中的 T/M 条目一一对应。
+阶段 1 的入口是当前采用候选；出口是普通行为仍正确、高风险原语通过、阶段新行为测试可执行且有意义地失败、CLI/next 尚未发布替换操作。阶段 2 的入口是 M1 审定的完整骨架提交和冻结命令；出口是正式行为、真实使用与 M2 采用义务完成。M1 不表示替换功能已交付。
 
-## 3. M1：把替换定义为一个有界原子动作
+T01 原语用例归属 T01，交接时为 green。新替换行为测试由 T01 创建，归属 T02，初始带 `#[ignore = "C005-T02"]`；运行它们记录真实 red，编译失败、零测试、仅占位 panic 或只测私有 stub 不算 red。已有正确 caller 保持原行为，不要求全部造红。T03 不凭文案生成镜像 Rust 测试；确有真实新行为用例时由复杂作者在 T01 提前冻结、归属 T03 并同步其 test_files 和命令；没有则 T03 测试表为空。
 
-### C005-T01：总体架构、合同与 core 骨架
+### C005-T01：确定全局接口并实现可信基础
 
-**Owner / 依赖。** 强模型；C004 完成候选和人采用本方案。先确认是否有实际撤销需求。
+**Owner / 输入。** 复杂模型；采用决定、当前完整提交、撤销场景、schema/协议和冻结方法。
 
-**入口。** `ids.rs::AttemptId`、`flow/def.rs::NodeDef`、`flow/parse.rs::NodeDto`、`work/state.rs::AttemptStatus`、`work/command.rs::Command/Reply`、`work/decide.rs::decide`、`work/next.rs::legal_next`。路径均在 `crates/sheltie-core/src/`。跨层 caller 是 runtime 的 `service.rs`、`snapshot.rs`、`load.rs`、`effects.rs` 与 CLI 的 `cli.rs`、`output.rs`、`error_map.rs`；先用 `rg` 找出全部穷尽分支和字段引用。
+**范围。** design 的完整路径表与全部真实消费者；包括 number 改名影响的 ID/layout/render、命令与回复、state 载荷、failed/next/replay、runtime snapshot/load/request/effects/recovery、CLI begin/self 文案和当前格式 fixtures。先用全仓符号搜索核耦合，在本任务同步具体白名单。新增阶段资产为 `verification/commands.sh`、`experiments/runbook.md`；新行为测试放在拟 `crates/sheltie-runtime/tests/attempt_replace.rs`、`crates/sheltie-cli/tests/attempt_replace.rs`，既有 service/schema2_replay/crash/replay 和混合源码测试在本阶段完成耦合改动。
 
-**输入 → 输出。** 输入为 C004 的当前类型和冻结合同；输出为 spec §2–6 的精确上游合同、架构图、字段与错误表、可编译 core 骨架、M1 用例及其固定期望。整体接口在此定稿，后续阶段只按自己的 caller 补骨架。
+**执行步骤。**
 
-**步骤。**
+1. 确认撤销需求与固定一次规则，更新上游 spec、architecture、protocol、storage、CONTEXT；选定唯一格式，不制作兼容层。
+2. 逐一追踪 `AttemptId.retry` 的真实 caller，完成 number 接口和全部序列化/布局/fixture 改动，使既有命令完整可编译和可运行。
+3. 完整实现 Superseded 载荷约束、失败计数及截至原 Attempt 的 failed 前缀校验。历史校验须通过真实 `validate_command_owner` caller，而非独立 helper 演示。
+4. 完整实现冻结输入同句柄观察、严格 replacement 意图/响应/归属校验、精确任务书/stats 效果绑定和恢复原语。时间、主体、CAS、事务与文件政策由本任务作者解决。
+5. 为纯替换 Decision 和调用接线留最小可编译骨架，固定参数、返回和可用原语。CLI 不接受 replace，生产 next 不列 replace；不把未完成路径或假成功交给用户。
+6. 写真实状态、runtime/CLI、请求重放、并发和 crash 用例。手写期望包含 replace→fail→begin→fail→重放首次 fail 的可达历史；T01 原语测试运行通过，T02 行为用例先禁用但能显式运行得到有意义 red。
+7. 在 `verification/commands.sh` 固定 `primitives`、`future-red`、`feature`、`regression`、`gates` 的实际过滤器、测试数、失败签名和预算；在 runbook 固定 T03 任务、操作、计时、质量标准与停止条件。
+8. 保持普通行为回归通过，短语义复核后保存原始输出与完整骨架 SHA，再交 M1。骨架中的 T02 占位只服务真实未来 caller，不加伪造状态、长期 dead_code 放行或额外状态库。
 
-1. 固定采用起点 hash，核对本文真实路径；同步上游词汇、产品、架构、Workbook/协议/Store 合同和 tasks.toml。
-2. 定 schema 与响应版本，明确旧库只读拒绝；字段重命名涉及的类型、序列化和 caller（包括 `work/layout.rs::attempt_dir`）在同一个提交闭合，不能让同一版本承载两种 retry 含义。
-3. 定 ReplaceAttempt 参数、AttemptReplaced 回复、superseded 信息、max_replacements 范围及派生计数接口。补全部穷尽匹配，不用临时兜底假成功。
-4. 搭建本阶段纯函数骨架，未实现行为用带 `C005-T02` 的占位；创建归属 T02 的正反例和固定期望。后续 runtime/CLI 行为测试到对应阶段再写。
-5. 核对普通流程仍完整工作；尚未实现的替换不得通过公开 CLI 路径触发。若编译闭包必须提前完成跨层机械改动，明确记录这些改动与基准，不抢做其后行为。
+**oracle。** Superseded 字段组合及一次上限；number 与 failed 独立；损坏历史身份、输入或状态拒绝；COMMIT 后 brief/stats 原字节恢复。替换测试经真实 WorkService/CLI 入口断言状态与文件，不只断言 helper 返回错误。完整 feature red 可以因当前 CLI 不支持 replace 或骨架尚未完成而失败，失败位置必须符合已冻结的用户行为预期。
 
-**验收用例。** 拟新增、归属 T02：`replace_preserves_occurrence_and_frozen_inputs`、`replace_rejects_non_running_attempt`、`replace_at_limit_keeps_old_attempt_running`、`replacement_does_not_consume_business_retry`、`attempt_number_advances_after_failure_and_replacement`、`replace_rejects_changed_frozen_input`、`replacement_limit_accepts_32_and_rejects_33`、`replace_closes_open_observation_without_copying_completed_qualification`。位于 core 的相应 `#[cfg(test)]` 模块，测试名不带任务编号。用手写状态验证 2 次替换后第 1 次失败，不能只造默认 0。
+**验证与交接。** T01 创建脚本后运行：
 
-**停止 / 验证 / 交接。** 输入身份或历史快照无法从参数核实时，先修接口；不得要求简单模型在实现里猜。运行完整编译门禁、未受影响回归和新用例的预期失败；仅新增未实现行为需要红，编译失败不算红。交接接口表、用例路径、预期红列表、骨架 commit 和下一任务白名单；T01 提交不要求 `task.sh C005-T01`。
+```bash
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh primitives
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh future-red
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh regression
+scripts/check-tests.sh
+scripts/check-docs.sh
+scripts/check-specs.sh
+scripts/check-task.sh C005-T01 <T01 开工完整提交> --staged
+scripts/check-task.sh C005-T01 <同一完整提交>
+```
 
-### C005-T02：实现 core 替换、计数与投影
+primitives 至少执行一项 T01 测试并全部通过；future-red 至少执行一项 T02 行为测试、实际非零退出且失败签名吻合，不能把该失败写为 feature PASS。改动跨 crate/状态/格式，运行工程完整门禁；命令文件记录隔离 `CARGO_TARGET_DIR`、`RUSTC_WRAPPER=`、counts 和 run ID。交接骨架完整 SHA、字段/符号、所有测试归属、有效 red、原语 green、fixture closure、预算、未跑平台和冻结 runbook。
 
-**Owner / 依赖。** 简单模型；T01 骨架、接口表与测试基准已冻结。
+**停止。** caller 无法接通、现有正确行为被破坏、载荷/原件来源不明或恢复只能猜字节时，本复杂作者修正接口和测试后再交接。不得把困难原语留给简单实现者。
 
-**入口 / 范围。** core 的 `ids.rs`、`error.rs`、`flow/{def,parse,compile,graph}.rs`、`work/{state,command,decide,next,layout,render,mod}.rs`。只填 T02 的实现占位与必要导出；测试只能删除本任务 ignore 标记。
+## C005-M1：审查实现准备
 
-**输入 → 输出。** 输入为固定 WorkState、图、冻结输入观察和 Context；输出为同一个 Decision 中的旧 superseded / 新 running、精确 brief/stats 效果或明确拒绝。
+独立复杂模型核总体边界、普通行为、所有接口 caller、原语真实实现、严载荷、历史失败前缀、精确效果与可信恢复。确认普通用户尚不能调用未完成替换，测试可编译、有非零执行与有效 feature red，T02 只需纯变换/接线即可完成。核白名单混合源文件与 test_files 精确同路径；缺接口或 oracle 时交 T01 修复再独立复核。
 
-**步骤。** 校验目标状态和上限；继承输入并核对；检查分配顺序号；更新旧新 Attempt，并在同一 Decision 关闭旧 open 观察、保持 completed 历史及新观察为空；生成 stats 和任务书；将合法 next、统计、begin/fail 中的业务重试逻辑一起改为 failed 计数。不能以 number 判断业务上限。
+保存完整审查候选、输入闭包、原 run ID 与未完成义务。可引用同闭包下 T01 原运行，不机械重跑完整工程门禁。记录通过、需修改或阻断；通过只授权进入已采用的阶段 2。运行文档/治理和 diff 检查；`scripts/check-task.sh C005-M1 <M1 开工完整提交> --staged`，提交后以同基准再检查。
 
-**验收用例。** T01 创建的归属 T02 用例；骨架完成时本字段改为「测试」，列出实际存在的名字和路径。正例为允许的首次替换；反例只改一个条件：旧状态、输入摘要、上限或目标 Occurrence。旧 attempt submit/fail 应拒绝，新 attempt 成功后走原合法出边。
+### C005-T02：实现固定替换行为并接通入口
 
-**停止 / 验证 / 交接。** 不得改快照或期望让实现通过；接口缺口交回 T01 Owner。运行 `scripts/task.sh C005-T02`、工程门禁与 `scripts/check-task.sh C005-T02 <T01骨架commit> --staged`。交接绿色用例、真实计数与新旧状态差异；一个任务一个提交。
+**Owner / 输入。** 简单模型或初级开发者；M1 审定骨架完整 SHA、冻结接口、测试和 `verification/commands.sh`。先按学习导航确认每个参数来自哪里，不扩展接口。
 
-### C005-M1：独立强模型 review
+**范围。** `core/work/decide.rs`、`next.rs` 的冻结纯变换；`runtime/service.rs` 调用已完成观察/事务原语；`cli.rs`、`commands/attempt.rs` 的参数与分发。测试文件只删除本任务 ignore 标记；混合源码的测试段、断言、fixtures 和 snapshots 保持冻结。不修改载荷、schema、snapshot 归属、OS/并发/恢复政策或上游合同。
 
-固定候选和测试输入闭包，逐条核 spec 的合法/拒绝规则，检查所有 begin/fail/next/render caller 都使用同一计数定义，特别是 max_retries=0、替换上限=0/32、输入修改和序号溢出。核上限拒绝仍允许原尝试完成，人工暂停没有隐式状态改变。证据和 findings 写 review/validation；未解决阻断项先返回 T01/T02。
+**执行步骤。**
 
-## 4. M2：把状态转换接入真实持久链
+1. 记录完整骨架或最新独立测试修订 SHA，检查 M1 结论及工作树归属。
+2. 跑 future-red，核实际测试数与既定失败签名，不能接受编译失败或零测试。
+3. 用 T01 固定资格与计数原语实现旧 Superseded、新 Running 的一个 Decision；继承冻结引用和进入来源。
+4. 按冻结接口生成新 stats/brief 效果；用已验证写链提交，不能拆成撤销后 begin。
+5. 接 runtime wrapper 和 CLI 解析，最后开放正常 replace 与 next；输出只用原持久快照。
+6. 逐项运行 feature 测试，全部满足后仅删除本任务 ignore，复核正式 CLI 与旧迟到拒绝。
+7. 运行受影响普通消费者、工程门禁和语义短审，保存原字节恢复/并发证据后交 T03。
 
-### C005-T03：runtime 骨架与故障 oracle
+**oracle。** 一次替换、第二次拒绝但当前可继续；旧迟到 submit/fail 拒绝；并发至多一成功；原 reason 文件删除仍重放；历史首次 fail 在当前 blocked 后仍 active；原 begin/replace 重放及当前 status/next 分开。测试名称和过滤器由 T01 固定，不由实现者自行挑通过用例。
 
-**Owner / 依赖。** 强模型；M1 通过。
+**验证。**
 
-**入口。** runtime 的 `WorkService::begin/run_command/replay`（`service.rs`）、`RequestIntent`（`request.rs`）、`snapshot.rs::check_data`、`load.rs`、`effects.rs`、`store/{schema,read,commit}.rs`、`failpoint.rs`；阅读 storage 合同的事务与恢复表。
+```bash
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh feature
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh regression
+bash specs/changes/active/C005-executor-continuity/verification/commands.sh gates
+scripts/check-task.sh C005-T02 <阶段骨架或最新独立测试修订完整提交> --staged
+scripts/check-task.sh C005-T02 <同一完整提交>
+```
 
-**输入 → 输出。** 输入为已通过的 core Decision 合同；输出为 `WorkService::replace` 与意图/快照/效果骨架，以及拟新增 `crates/sheltie-runtime/tests/attempt_replace.rs` 的归属 T04 测试。只为真实缺失故障窗口补 failpoint。
+feature 内含 `scripts/task.sh C005-T02`，至少一项实际执行、全部通过；正式验收无本任务 ignore。保存候选、counts、run ID、精确字节与未跑项。原语未变时引用 M1 闭包及原运行，不重复扩散验证。
 
-**步骤。** 沿 begin 的完整写链定位锁、输入观察、提交、prepare_attempt、write_file、快照核对和恢复；为新命令逐入口补接口。用独立临时 SHELTIE_HOME、手写 reason 文件和固定时钟构造 oracle；校验主体来自系统 API，不信 USER 环境变量。测试不得直接把替换成功写进 Store。
+**停止 / 交回。** 无法按接口完成、需改测试/fixture、严格载荷或恢复政策时停止相关实现，给复杂作者最小复现、真实 caller、缺数据和失败输出。复杂作者在同 package 明确修复任务/范围/oracle；修订测试后独立复核，更新完整测试基准。简单实现者不得改断言迁就代码。
 
-**验收用例。** 拟新增归属 T04：`replace_replay_returns_original_attempt_and_brief_bytes`、`replace_rejects_changed_request_reason`、`replace_before_commit_leaves_old_attempt_running`、`replace_after_commit_recovers_one_new_attempt`、`late_submit_after_replace_is_rejected`、`submit_and_replace_accept_at_most_one`、`replacement_snapshot_rejects_mismatched_attempts`、`old_begin_replay_after_replace_keeps_historical_next`、`replace_interrupts_running_execution_and_rejects_late_completion`、`replace_rejects_prior_schema_without_mutation`。重放正例删掉原 reason 文件，另造新 request-id 负例；崩溃检查字节与摘要，不只检查文件存在。
+### C005-T03：按手册完成真实接续与说明
 
-**停止 / 验证 / 交接。** 不能独立核对历史替换响应时回合同 Owner；不放宽快照校验。运行编译门禁和普通持久链回归，记录新行为预期红。交接 T03 骨架 commit、故障点、固定快照与 T04 用例归属；不要求 `task.sh C005-T03`。
+T03 若只有说明和真实操作记录，范围基准用本任务开工完整提交；若 T01 已预制并归属 T03 的 Rust 场景测试，复杂作者先将实际文件加入 T03 test_files、固定 allow_test_changes=false，并像 T02 一样以 M1 骨架或最新独立测试修订完整 SHA 核冻结测试。手册必须写明实际采用哪一种，初级执行者不自行选择基准。
 
-### C005-T04：实现事务、快照和幂等恢复
+**Owner / 输入。** 手册执行者；T02 固定候选、T01 runbook、真实任务与旧进程停止/隔离条件。结论、标准变更或不明失败由复杂模型分析。
 
-**Owner / 依赖。** 简单模型；T03 骨架冻结。
+**范围 / 操作。** 按 `experiments/runbook.md` 的具体命令先演示继续原 Attempt，再在真实需要时替换，完成原目标，记录输入/标准/gate 保持、额外解释、重做和总投入。完善 `skills/sheltie/SKILL.md` 的准确操作说明；涉及 skill 修改时读 writing-for-agents skill。故障注入不计真实撤销需求。
 
-**入口 / 范围。** T03 点名的 runtime 源文件；`attempt_replace.rs` 测试只启用，不改断言。
+**oracle / 停止。** 新执行者使用原冻结输入与标准完成成果，旧正式提交被拒绝，普通重开不产生新 Attempt。无真实样本保留价值 not_run；不能人工制造额度问题。生产缺陷回到责任修复任务；不自行改合同、测试或成功标准。
 
-**输入 → 输出。** 输入为 CLI 尚未接入的 replace 参数；输出为持久响应或无状态变化的拒绝，COMMIT 后失败准确显示 EFFECT_PENDING。
+**验证 / 交接。** 执行 runbook 冻结命令、`scripts/check-skill.sh`、文档检查和 diff 检查；有冻结 T03 Rust 行为用例才运行其 task.sh，否则用真实命令记录，不虚构零测试 PASS。范围检查为 `scripts/check-task.sh C005-T03 <runbook 已确定的完整范围基准> --staged`，提交后以同基准再检查。交接实际投入、候选、标准、原 run ID 与全部 not_run 项给 M2。
 
-**步骤。** 构造完整目标与 reason 参数的意图；先查重放，再真实观察输入；从系统取得时间/主体；运行 core；在一次事务提交旧新尝试、审计、request，并将旧 open 原生执行记录关闭为 interrupted；登记并发布新目录/brief；严格校验新旧快照与原审计，恢复历史精确字节。并发负例不得靠自动 retry 隐藏 revision 冲突。
+## C005-M2：独立完整验收
 
-**验收用例。** T03 创建的归属 T04 用例；阶段骨架完成后登记实际名字。正例覆盖完整替换与同请求重放，反例覆盖 late submit、不同 reason、损坏快照、输入改变与 COMMIT 前后故障。
-
-**停止 / 验证 / 交接。** 不改 oracle、不新增第二份计数/状态；缺 caller 交回 T03。运行 `scripts/task.sh C005-T04`、工程门禁与 `scripts/check-task.sh C005-T04 <T03骨架commit> --staged`。交接原始输出、事务表与效果字节；一个任务一个提交。
-
-### C005-M2：独立强模型 review
-
-固定候选；从 WorkService::replace 到 snapshot、Store commit、effects 和 replay 逐个追踪。复核真实输入观察在事务前、旧新状态同一事务、COMMIT 后不二次替换、旧请求历史资格与当前状态分离。核拒绝旧格式前未写数据；重新检查新增效果窗口所需故障测试，避免重复跑无关昂贵实验。未解决阻断项返回 T03/T04。
-
-## 5. M3：形成可用入口并验证增量价值
-
-### C005-T05：CLI 骨架、场景与真实实验配置
-
-**Owner / 依赖。** 强模型；M2 通过。
-
-**入口。** CLI 的 `cli.rs::AttemptCmd`、`commands/attempt.rs::run`、`commands/work.rs::resolve/next_lines`、`output.rs`、`error_map.rs`；C004 `work handoff` 的实际符号；`skills/sheltie/SKILL.md`。
-
-**输入 → 输出。** 输入为完整 runtime API；输出为 replace 参数/输出骨架、拟新增 `crates/sheltie-cli/tests/attempt_replace.rs` 的归属 T06 测试，以及 validation 中固定的真实接续任务与对照。
-
-**步骤。** 写严格 clap 参数与 help；固定 JSON 用同一 Response 输出旧新身份、不回读当前 Store；场景用真实子进程和临时目录，经 begin→replace→迟到拒绝→新 submit→gate/结束完整调用。添加普通恢复场景证明没有命令时仍可原 submit。根据真实任务配置上限、工作区和停止旧进程的人工步骤。
-
-**验收用例。** 拟新增归属 T06：`replace_cli_returns_new_brief_and_original_inputs`、`replace_cli_replay_preserves_original_json`、`replace_limit_error_keeps_old_submit_available`、`reopened_session_continues_original_attempt_without_replace`、`replacement_preserves_candidate_and_gate_requirements`。已有完整场景可能已经通过，记录其回归结果，不强求全部先红。
-
-**停止 / 验证 / 交接。** 无真实替换需要时价值实验保持 not_run，不人为耗尽额度；不据此扩大宿主适配范围。运行编译、help/参数 oracle 与既有场景回归；交接 T05 commit、CLI 用例、实验输入闭包和对照材料。
-
-### C005-T06：接入 CLI 与使用说明
-
-**Owner / 依赖。** 简单模型；T05 骨架与测试冻结。
-
-**入口 / 范围。** `cli.rs`、`commands/attempt.rs`、`output.rs`、`error_map.rs`、`skills/sheltie/SKILL.md`；测试只启用归属 T06 的用例。
-
-**输入 → 输出。** 参数解析成功后调用真实 WorkService::replace；JSON 与文本准确给出旧新 Attempt、任务书和 next。上限拒绝指出原 Attempt 仍能按C004已有收集/提交资格继续；不能提示 Work 已不能恢复。
-
-**步骤。** 填参数分发、runtime 调用、reply 检查、错误映射和原快照输出；skill 说明先读交接视图、按需替换、历史 next 的范围与共享工作区人工责任。不能在 skill 内建立状态文件。
-
-**验收用例。** T05 创建的归属 T06 用例，实际名字在骨架提交时登记。正例走新尝试提交，反例走旧迟到提交与上限拒绝；同时运行普通单 agent、门槛、终态回归。
-
-**停止 / 验证 / 交接。** 发现缺数据字段回 T05，不从当前 Store 拼补历史响应。运行 `scripts/task.sh C005-T06`、工程门禁、`scripts/check-skill.sh` 与 `scripts/check-task.sh C005-T06 <T05骨架commit> --staged`。一个任务一个提交。
-
-### C005-T07：完整回归与真实接续证据
-
-**Owner / 依赖。** 实验执行者；强模型独立核输入与口径。T06 完成，不承担代码修复。
-
-**入口。** validation 的机制矩阵与真实接续实验、C004 handoff/result、已实现 replace CLI、package 的 review/progress。
-
-**输入 → 输出。** 输入为固定候选、Workbook 摘要、任务、原 AttemptId、宿主版本与已确认停止条件；输出为原始命令/日志、接续结果、人工投入、重做与约束保持证据。
-
-**步骤。** 完成机制矩阵；对同一类任务分别记录原恢复与显式替换结果；核上限拒绝后仍能继续原 Attempt；在实际需要撤销的任务上使用替换并完成原目标。只统计真实时间，不把 fixtures 的故障注入计成产品收益。
-
-**验收用例。** validation 预先冻结的机制与真实任务表；本任务不另创建 Rust 用例，不要求 `task.sh C005-T07`。
-
-**停止 / 验证 / 交接。** 失败返回相应实施任务修复；缺真实样本保留 not_run 并记录原因，不伪造 PASS。运行本任务实际实验命令、文档门禁与 `git diff --check`，按工程规范完成提交检查，并运行 `scripts/check-task.sh C005-T07 <T06完成候选> --staged`。交接完整输入闭包、原始 run ID、候选与所有未完成项。
-
-### C005-M3：独立强模型全链 review
-
-在固定候选上核产品目标、设计边界、真实 caller、故障恢复、输入/候选/证据保持和 junior 交接可执行性。分别报告机制结论与真实价值结论；静态/fixture PASS 不能替代真实接续结果。确认普通恢复不被强制替换、独立审查不被自动放宽、没有偷偷引入额度预算或驱动器。人决定是否完成本 change 及版本发布，review 不自动发布。
+独立复杂模型核产品需求、完整 CLI→runtime→core、状态/计数、真实历史 caller、事务/恢复、next/结果、Rust 工程和首次读者真实接续结果。M1 未变化的原语/合同可引用其完整闭包与 run ID；实际新增行为和受影响消费者必须核新证据。机制、质量、成本、真实样本和平台分别结论，不把 M1、静态审查或 fixture PASS 当产品价值。修复交责任任务再复核；审查与证据按 M2 开工完整 SHA 记录，运行文档/治理和 diff 检查；`scripts/check-task.sh C005-M2 <M2 开工完整提交> --staged`，提交后同基准检查。不自行发布、安装或扩大范围。

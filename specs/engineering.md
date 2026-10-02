@@ -44,7 +44,16 @@ AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 
 ### 2.3 命令
 
-在仓库根运行。每次提交前四条都要过：
+在仓库根运行。按实际影响选择每次提交的必需检查；源码、fixture、说明文件、生成输入和构建配置都可能是消费者的输入，不能只按文件后缀判断。
+
+| 变化 | 每次提交的必需检查 | 完整工程门禁 |
+| --- | --- | --- |
+| 纯文案、方案或实验记录 | docs/specs、TOML 与事实/引用复核；涉及测试声明时 check-tests | 不要求无关 Rust 重跑 |
+| Workbook、skill、fixture 或生成输入 | 上述检查与实际解析、CLI 场景或生成消费者 | 影响边界无法证明时扩展 |
+| Rust 实现 | fmt/check/clippy、任务测试和受影响真实消费者；新增依赖另跑 deny | 跨 crate 公共接口、协议、状态/持久格式改变时运行 |
+| 稳定产品里程碑或发布候选 | 完整采用闭包与独立审查 | 必须运行全部四条；deny 及文档/规格/skill/测试治理按实际闭包运行 |
+
+完整工程门禁为：
 
 ```bash
 cargo fmt --all -- --check
@@ -53,13 +62,13 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo nextest run --all-features --no-tests=pass
 ```
 
-另有 `cargo deny check`（依赖许可与漏洞）与 `scripts/check-docs.sh`。CI 跑同一组，本地 pre-commit 也跑同一组。
+另有 `cargo deny check`（依赖许可与漏洞）、`scripts/check-docs.sh`、`scripts/check-specs.sh`、`scripts/check-tests.sh`、`scripts/check-skill.sh` 和 `scripts/check-core-vocab.sh`。CI 根据自己的候选和环境运行完整要求；本地 pre-commit 有文件触发过滤，不能代替任务卡对间接消费者的判断。手工验证记录保存在 package validation 中，不假设钩子已经支持结果复用。
 
 ## 3. 测试：先红后绿
 
 ### 3.1 循环
 
-MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。 后续方案采用[分阶段搭建与实现](guides/proposal-implementation.md)时，由强模型先定总体接口与关键 oracle，再按阶段搭骨架和测试，简单模型实现，独立强模型审查里程碑。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
+MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史。后续任务按[完整行为实施指南](guides/proposal-implementation.md)面向首次接触项目的初级实现者：复杂模型或同等经验作者先定总体契约、阶段接口与独立测试，并完整实现高风险原语；简单模型在冻结接口上实现主体或执行实验。每个阶段由未参与准备、测试或实现的复杂模型审查。小实验先完整准备工具而不拆空骨架；有能力负责人可合并工作，但不得取消独立期望和必要阶段检查。
 
 MVP 填空任务的循环是：
 
@@ -93,7 +102,7 @@ MVP 填空任务的循环是：
 
 ## 4. 提交
 
-- active change plan 的一个任务 = 一个提交。提交时 §2.3 四条命令和 package plan 的附加门禁全绿。MVP legacy task 保持原有映射。
+- active change plan 的一个任务 = 一个提交。提交时 §2.3 适用门禁和 package plan 的附加门禁全绿。MVP legacy task 保持原有映射。
 - 不留编译不过的中间态；不为「先让它编译」加空实现、假成功或长期兼容层。
 - 一次接口变化涉及的全部调用方、fixture、文档在同一提交里改完。
 - 信息格式（本仓库与 `spec-dev` Workbook 共用）：

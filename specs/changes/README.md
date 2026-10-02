@@ -9,13 +9,13 @@ Active change：无
 
 | Change | 目标 | 状态 | 入口 |
 | --- | --- | --- | --- |
-| C004 | 可核对的任务闭环：实际工具检查、接续材料、明确结果 | proposed，探针与实现 not_run | [README](proposed/C004-verifiable-delegation/README.md) |
-| C005 | 显式替换旧 Attempt；普通恢复继续原 Attempt | proposed，按替换需求采用 | [README](proposed/C005-executor-continuity/README.md) |
-| C006 | 消费 C004 结果的独立按需导出 | proposed，按外部副本需求采用 | [README](proposed/C006-result-delivery/README.md) |
-| C007 | 固定模板与任务输入的编写体验实验 | proposed，不改产品代码 | [README](proposed/C007-pre-run-workbook-generation/README.md) |
-| C008 | 有真实必需资源时做单宿主外部预检 | proposed，不改内核准入 | [README](proposed/C008-dependency-readiness/README.md) |
+| C004 | 紧凑当前指针、终点显式成果与最小方法 | proposed，按通用增量需求采用 | [README](proposed/C004-verifiable-delegation/README.md) |
+| C005 | 原子撤销旧 Attempt 资格并重新领取 | proposed，普通接续不需要替换 | [README](proposed/C005-executor-continuity/README.md) |
+| C006 | 核完全部字节后发布一份完整新副本 | proposed，按真实复制需求采用 | [README](proposed/C006-result-delivery/README.md) |
+| C007 | 当前版本上的完整任务、方法复用与续接试用 | proposed，实验 not_run | [README](proposed/C007-pre-run-workbook-generation/README.md) |
+| C008 | 真实必需资源造成摩擦后的单宿主只读预检 | proposed，条件未满足不采用 | [README](proposed/C008-dependency-readiness/README.md) |
 
-先以 C007 或 C004 的轻量实验取得真实摩擦与质量证据；产品实施以 C004 为核心，C005/C006 由各自的需求触发。C008 没有真实必需宿主资源时不采用。一次只执行一个 active package，不为了凑齐编号实现全部方案。各阶段的强模型骨架、简单模型实现与独立强模型里程碑按[共同指南](../guides/proposal-implementation.md)执行。
+优先采用 C007 的共同试用，完整观察用户结果、质量和总成本；根据证据选择 C004 的最小增量。明确的同等近期需求也可直接支持采用，不要求先发生事故。C005/C006 依赖实际通用合同但不相互依赖；C008 只由真实宿主资源问题触发。一次只执行一个 active package，不为凑齐编号实现全部方案。任务以完整行为和实际风险划分，流程见[共同指南](../guides/proposal-implementation.md)。
 
 ## Active
 

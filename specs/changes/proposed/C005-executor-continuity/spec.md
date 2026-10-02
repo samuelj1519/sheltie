@@ -1,73 +1,75 @@
 # C005 产品方案
 
-状态：`proposed`；实现与实验均为 `not_run`。本文件定义候选行为，采用后先同步上游合同。
+状态：`proposed`。本文件定义候选行为，采用后先更新上游权威。实施、测试与真实使用为 `not_run`。
 
-## 1. 何时继续，何时替换
+## 1. 使用场景
 
-| 场景 | 操作 | 结果 |
+| 场景 | 操作 | 引擎变化 |
 | --- | --- | --- |
-| 原会话恢复、协调者重开、人工等待后继续 | 读取 `work handoff`，继续原 Attempt | 不改状态，不消耗任何次数 |
-| 新执行者接手，旧执行者已确认停止且不需撤销提交资格 | 读取交接视图，继续原 Attempt | 原任务书和提交资格保持有效 |
-| 需要撤销旧 Attempt 的提交资格 | `attempt replace` | 旧尝试终止，新尝试在同一 Occurrence 开始 |
-| 任务执行失败 | `attempt fail` | 按 `max_retries` 处理 |
-| 候选需返工 | Workbook 的显式回边 | 按 `max_visits` 处理 |
+| 重开会话、等待后继续、已确认旧执行者停止后换人 | 读取当前 `work status` 与任务书，继续原 Attempt | 无 |
+| 必须撤销旧 Attempt 的正式提交资格 | `attempt replace` | 原子结束旧尝试并开始新尝试 |
+| 执行确实失败 | `attempt fail` | 统计真实失败，按 `max_retries` 处理 |
+| 产物需要返工 | Workbook 显式回边 | 按 `max_visits` 到达下一 Occurrence |
 
-操作者判断是否需要替换。引擎不从额度错误、自然语言回复或宿主名推断。替换理由是调用者报告；引擎确立的事实只有「这个请求替换了这个 Attempt」。
+操作者判断是否撤销资格。替换理由属于调用者报告；引擎只确立替换请求和状态转换事实。不同执行者可以使用同一 Attempt，因此 Attempt 不表示已认证的执行者身份。
 
-## 2. 候选命令与返回
+## 2. 命令与响应
 
 ```text
 sheltie attempt replace <work> --attempt <旧 AttemptId> --reason <文本或 @file>
 ```
 
-全局 `--request-id` 规则与其他写命令相同。时间由 runtime 的系统时钟提供，主体由 runtime 的真实 OS 进程身份取得；均不接受调用者注入。
+全局 `--request-id` 沿用写命令的幂等规则。时间和操作者身份来自 runtime 系统边界，不接受 CLI 注入。理由最多 4096 字节，超出报 `SUMMARY_TOO_LONG`；文件参数的意图与重放按公开写命令合同处理。
 
-`EX-01` **原子替换。** 只接受活动 Work 当前 Occurrence 的最新 `running` Attempt。一次事务内将它记为 `superseded`，登记替换理由与结束时间，创建同一 Occurrence 的新 `running` Attempt。响应含 `replaced_attempt`、新 `attempt`、`number`、`brief_path`、`output_dir`、输入输出路径、`requires` 和提交时的 `next`。不得分成「先撤销、再 begin」两次写操作。C004 的原生执行记录若仍为 open，同一事务将其关闭为 interrupted；completed 记录原样保留并归属旧 Attempt，新 Attempt 不继承旧记录的完成资格。旧 runner 的迟到完成通过 execution_id/状态 CAS 拒绝。
+成功的持久响应包含 `replaced_attempt`、新 `attempt`、`node`、`occurrence`、`number`、`brief_path`、`output_dir`、`inputs`、`outputs`、`requires`、`revision` 和提交时 `next`。路径与声明来源和 `attempt begin` 一致。CLI 不在提交后回读当前状态补造历史响应。
 
-`EX-02` **保持工作依据。** 新 Attempt 继承旧 Attempt 的 `entered_from` 和冻结输入引用，开始前核对这些输入的摘要。`engine.stats` 是引擎投影，以包含新 Attempt 的提交后状态生成；它的输入引用和精确字节随此次请求保存。新任务书使用本 Work 冻结说明书，并链接 C004 的交接视图。旧未提交输出没有 ArtifactRef，只提供草稿路径和未封存标记，不自动提升为新 Attempt 的正式输入或输出。
+## 3. 状态与计数合同
 
-`EX-03` **撤销正式提交资格。** 旧 Attempt 保留原输入、时间和历史请求，其状态为 `superseded`。旧 `submit`、`fail` 返回 `ATTEMPT_NOT_RUNNING`。旧 Attempt 的成功 `begin` 请求仍可历史重放，返回历史快照；返回的 `next` 不代表当前合法操作，继续前查询当前状态。
+| ID | 规则 |
+| --- | --- |
+| EX-01 | 只接受 active Work 当前 Occurrence 的最新 `running` Attempt。在一次事务中将旧 Attempt 结束为 `superseded`，记录理由与结束时间，并追加一个新 `running` Attempt。不能拆成两次写操作。 |
+| EX-02 | 同一 Occurrence 最多存在一个 `superseded` Attempt。已有替换事实时，新替换返回 `REPLACEMENTS_EXHAUSTED`，不改变业务状态；当前 Attempt 保持原资格。每个新 Occurrence 有自己的固定一次额度。 |
+| EX-03 | 新 Attempt 继承旧 `entered_from` 和冻结输入引用，包括原本未绑定的可选输入。非 `engine.stats` 输入在提交前核对实际摘要和大小。`engine.stats` 从含新 Attempt 的提交后状态生成，精确字节随请求保存。 |
+| EX-04 | 旧未提交输出仍是未封存草稿，不成为新 Attempt 的正式输入或输出。旧任务书和原请求保留。新任务书使用 Work 的冻结说明书。 |
+| EX-05 | Attempt 显示为 `node#occurrence.number`。后缀从 0 起，每次创建新 Attempt 加 1；它是顺序号，不是失败数。加法溢出拒绝且不改变业务状态。 |
+| EX-06 | 业务失败直接统计同一 Occurrence 的 `failed` Attempt。`max_retries=k` 允许 k 次业务重试；第 k+1 次真实失败进入 `blocked(retries_exhausted)`。`superseded` 不计失败；顺序号不能决定重试资格或历史 fail 状态。 |
+| EX-07 | 非终态 Work 中旧 superseded Attempt 的新 `submit`、`fail` 返回 `ATTEMPT_NOT_RUNNING`；Work 已终态时按前置顺序返回 `WORK_TERMINAL`。旧成功请求仍按历史快照重放，其 `next` 只代表当时状态；继续操作前查询当前 `work status`。 |
+| EX-08 | 替换不跳过 Node、修改输入、增加失败、自动批准门槛或改变成果标准。等待不产生新状态。 |
 
-## 3. 三种计数
-
-`EX-04` **顺序号。** Attempt 的显示形状为 `node#occurrence.number`。后缀从 0 开始，每次创建新 Attempt 加 1，包括失败后的重试与替换。字段称为 `number`，不再用 `retry` 表示这个后缀。加法采用检查运算；溢出拒绝请求且不改变状态。
-
-`EX-05` **业务失败。** 在同一 Occurrence 中直接统计 `failed` Attempt 数量。`max_retries = k` 允许第一个尝试失败后再有 k 次业务重试；第 `k + 1` 次真实失败按已有合同进入 `blocked(retries_exhausted)`。`superseded` 不计入失败；顺序号大于 `max_retries` 也不会独立触发阻塞。上游返工次数仍由 `max_visits` 定义。
-
-`EX-06` **替换上限。** Node 候选字段 `max_replacements` 为整数，范围 `0..=32`，默认 `0`，随 Workbook 冻结。0 表示关闭替换；32 是首版有界合同的候选上限，不代表观测数据。已替换次数直接统计同一 Occurrence 的 `superseded` Attempt，不另存计数。若已替换数等于上限，再次替换返回 `REPLACEMENTS_EXHAUSTED`，整个请求无状态改变，旧 Attempt 继续 `running`。它的收集/提交资格继续遵守 C004 的原生观察规则：无记录可收集，open 时不能 submit，完整报告发布后可 submit；fail/cancel仍可用，不进入新阻塞状态。上限不能通过重新开始进程、换 request-id 或切模型重置。
+一个固定替换机会用于行政撤销，业务失败仍按已有 Workbook 重试规则处理。固定额度不需要 Workbook 配置；替换事实由 Attempt 历史统计。
 
 ## 4. 合法操作与失败
 
-| 前置条件 | `replace` 的结果 | Work / Attempt 的变化 |
+| 条件 | 结果 | 业务状态 |
 | --- | --- | --- |
-| 当前最新尝试 running，替换数小于上限，输入核对成功 | 成功，返回新任务书 | 同一 revision 同时旧 superseded、新 running |
-| 同一 request-id、相同参数已成功 | 重放原响应 | 无新增 Attempt、审计或 revision |
-| 同一 request-id、目标或理由参数不同 | `REQUEST_CONFLICT` | 无变化 |
-| 旧尝试已 succeeded / failed / superseded | `ATTEMPT_NOT_RUNNING` | 无变化 |
-| 给出的 running 尝试不属于当前 Occurrence | 非法操作错误 | 无变化 |
-| Work 已 blocked / succeeded / cancelled | 现有状态对应的非法操作或终态错误 | 无变化 |
-| 替换数达到上限 | `REPLACEMENTS_EXHAUSTED` | 旧尝试仍 running |
-| 冻结输入缺失、变化或路径不安全 | 现有输入/完整性错误 | 无变化 |
-| COMMIT 后任务书发布失败 | `EFFECT_PENDING`，`committed = true` | 替换已提交；用同 request-id 恢复 |
+| active、当前最新 running、没有替换事实、输入完整 | 成功返回新任务书 | 旧 superseded、新 running、一次 revision |
+| 已有同 request-id、同参数的成功请求 | 原成功响应重放 | 无新增 Attempt 或 revision |
+| 同 request-id 改目标或理由参数 | `REQUEST_CONFLICT` | 无变化 |
+| 目标不存在 | `NOT_FOUND` | 无变化 |
+| 目标存在但非 running | `ATTEMPT_NOT_RUNNING` | 无变化 |
+| running 目标非当前最新 | `ILLEGAL_NEXT` | 无变化 |
+| Work 已 succeeded / cancelled | `WORK_TERMINAL` | 无变化 |
+| Work blocked | `ILLEGAL_NEXT` | 无变化 |
+| 同 Occurrence 已经替换过 | `REPLACEMENTS_EXHAUSTED` | 当前 Attempt 不变 |
+| 冻结输入缺失、修改或路径不安全 | 现有输入或完整性错误 | 无变化 |
+| COMMIT 后任务书效果失败 | `EFFECT_PENDING`、`committed=true` | 替换已提交；同 request-id 恢复 |
 
-`next` 仅在活动 Work 的当前 running Attempt 且上限未耗尽时列出 `attempt replace`，并携带该 AttemptId。其他操作仍遵守 C004 的观察规则：无记录仍给CollectOutput和candidate待填参数，open时不重新开放submit，完整报告发布后才给submit；replace只追加自身操作，不重算或覆盖C004这组资格。查询仍提供交接与结果视图；它们是只读入口，不进入推进操作集合。
+新请求先核 Work 非终态，再核目标身份、active/当前最新资格、替换额度、理由和输入；幂等重放先于这些新请求校验。
 
-## 5. 保证与责任
+`next` 仅对满足 EX-01、EX-02 的状态列出 `attempt replace` 与目标 AttemptId。替换额度耗尽不新增 Work 阻塞状态；原有 `submit`、`fail`、`cancel` 仍遵守各自条件。
 
-- 引擎保证正常接口不会接受已被替换 Attempt 的新提交。它不停止旧进程、不阻止同权限程序直接修改文件或 Store，也不撤销已发生的宿主副作用。
-- 旧执行者是否停止、是否共享工作区，由操作者检查。无法确认停止时，先停止旧进程或准备隔离工作区，再让新执行者工作；Sheltie 不代办这些宿主动作。
-- 输入与标准不因换人放宽。审查者独立性由 Workbook 和协调者安排，不新增身份资格系统或审查发现账本。
-- 人工暂停不需要写专用状态。Work 在没有命令时保持原状态；不会因等待太久被引擎转换为只能取消。
+## 5. 保证范围
 
-## 6. 采用时同步的上游
+引擎保证正式接口拒绝已撤销资格的 Attempt。它不停止旧进程、不阻止同权限程序修改宿主文件、不撤销已经发生的副作用，也不提供多人并发开发隔离。接手前，操作者检查旧进程与共享工作区；这项人工报告不升级为引擎核实事实。
 
-| 文件 | 必须同步的内容 |
+## 6. 采用后同步的上游
+
+| 文件 | 内容 |
 | --- | --- |
-| `CONTEXT.md`、`specs/spec.md` | Attempt 的 superseded 状态、顺序号定义、显式替换与上限；不新增资源等待承诺 |
-| `specs/architecture.md` | 状态转换、原子替换、合法操作、统计和交接投影 |
-| `specs/contracts/workbook.md` | Node `max_replacements` 的类型、范围、默认值与冻结规则 |
-| `specs/contracts/protocol.md` | replace 参数、成功载荷、next 项、错误和历史响应口径 |
-| `specs/contracts/storage.md` | 新状态字段、请求意图、快照绑定、效果恢复与格式版本 |
-| `skills/sheltie/SKILL.md` | 继续与替换的选择、共享工作区限制、历史 next 使用规则 |
+| `CONTEXT.md`、`specs/spec.md` | superseded、顺序号、显式撤销和固定一次规则 |
+| `specs/architecture.md` | 状态转换、统计、原子替换与持久状态不变式 |
+| `specs/contracts/protocol.md` | 命令、响应、next、错误、历史响应范围 |
+| `specs/contracts/storage.md` | 新状态与理由字段、意图、快照、效果、格式版本 |
+| `skills/sheltie/SKILL.md` | 继续与替换的选择、共享工作区责任、历史 next |
 
-格式版本由采用起点一次确定。旧 Store 整体只读拒绝，不自动迁移、不清空；拒绝前不能改业务数据。已有数据保留供原版本读取。新 Workbook 字段省略即关闭替换，普通流程不增加动作。
+本方案不改变 Workbook 的配置字段。采用时为持久格式及变更的响应格式明确选择新版本，完整严格解码；旧 Store 保留并整体拒绝，不自动迁移、不清空，不建立兼容读写路径。
