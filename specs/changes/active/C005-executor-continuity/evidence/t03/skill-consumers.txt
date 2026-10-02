@@ -1,0 +1,17 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.29s
+────────────
+ Nextest run ID d54560df-a0a3-4f1d-8009-714fe09e4f27 with nextest profile: default
+    Starting 9 tests across 2 binaries (25 binaries skipped)
+        PASS [   0.265s] (1/9) sheltie-cli::skill_delivery generated_reference_keeps_authority_prose_verbatim
+        PASS [   0.273s] (2/9) sheltie-cli::skill_delivery check_skill_fails_when_reference_source_is_gone
+        PASS [   0.458s] (3/9) sheltie-cli::skill_delivery check_skill_fails_when_delivery_misses_one_reference
+        PASS [   0.578s] (4/9) sheltie-cli::skill every_command_in_skill_exists
+        PASS [   0.613s] (5/9) sheltie-cli::skill_delivery installed_delivery_stays_self_contained_after_source_tree_is_removed
+        PASS [   0.619s] (6/9) sheltie-cli::skill_delivery check_skill_fails_when_delivery_link_escapes
+        PASS [   0.687s] (7/9) sheltie-cli::skill_delivery release_tarball_matches_readme_install_shape
+        PASS [   0.736s] (8/9) sheltie-cli::skill_delivery check_skill_passes_on_repository_skill
+        PASS [   0.777s] (9/9) sheltie-cli::skill_delivery check_skill_fails_when_delivery_reference_is_stale
+────────────
+     Summary [   0.777s] 9 tests run: 9 passed, 0 skipped

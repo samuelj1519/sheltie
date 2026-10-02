@@ -49,3 +49,7 @@ Reviewer 确认 T04 可提交。全 cached whitespace 检查的两份原始输�
 ## C005-T02 短语义审查
 
 独立 Reviewer：`PASS`。一次额度 next、参数身份/理由源、已有 WorkService 调用、原 Response 输出均符合合同，不宣称停止/隔离。c9492f8 测试基准正确；六份测试文件仅删除 11 ignore，oracle/fixture不变；14项草稿字节恢复可核。11 feature与774完整回归通过，原失败保留。此结论不替T03/M2或发布。
+
+## C005-T03 短审
+
+独立 Reviewer：限定范围 `PASS`。已完成机制与真实not_run分开，接手前操作者确认停止/隔离、不升级引擎保证；真实字段全null且授权延期，原义务仍保留。修后9技能消费者和治理检查通过，新LEAK unknown另记；代码/oracle未变。范围只覆盖说明与交接，不覆盖真实撤销价值。

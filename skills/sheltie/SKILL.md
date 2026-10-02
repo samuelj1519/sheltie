@@ -1,6 +1,6 @@
 ---
 name: sheltie
-description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或 Work、从当前指针继续任务、查询明确最终成果、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
+description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或 Work、从当前指针继续任务、显式撤销旧 Attempt 资格、查询明确最终成果、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
 ---
 
 # Sheltie 协调者
@@ -10,7 +10,7 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
 ## 铁律
 
 1. 只做 `next` 里的事——`next` 只限定**这个 Work 的推进**。每次写操作的响应都带
-   `next` 数组，每项都能直接拼成命令执行；`next` 之外的操作会被引擎拒绝，被拒绝了
+   `next` 数组，给出合法操作和目标身份；摘要与失败、替换理由由调用者补充。`next` 之外的操作会被引擎拒绝，被拒绝了
    就回到 `next` 里选，不要绕过。发现与管理工作另有入口：`workbook list/show/verify`、
    `workbook add/remove`、`work start`、`work list`，它们不受某个 Work 的 `next` 限制；
    `next` 为空只说明这个 Work 已终态，不是无事可做。
@@ -53,7 +53,7 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
    `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的
    唯一前缀即可指代这个 Work。
 
-3. **核对宿主资源。** `work start` 与每次 `attempt begin` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
+3. **核对宿主资源。** `work start`、`attempt begin` 与 `attempt replace` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
 
 4. **领任务书。** 从 `next` 选一条 `attempt begin` 执行：
 
@@ -97,6 +97,16 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
    ```
 
    重开会话先读当前 status，按 resume 读取当前 Attempt 的 brief 与冻结 inputs。draft_outputs 只给声明草稿位置，不证明文件已存在或封存；effects_pending=true 时只读查询不会恢复，按已登记写请求的恢复方式处理。确认旧执行者与共享工作区已妥善处置后继续原 running Attempt；会话重开不改状态，不为它调用 fail 或 begin。
+
+   只有确需撤销旧 Attempt 的正式提交资格时，才从当前 next 选择 replace：
+
+   ```bash
+   sheltie attempt replace <work> --attempt <old_attempt_id> --reason "<替换理由>" --json
+   ```
+
+   安排新执行者继续前，操作者确认旧执行者已停止，或新执行环境已隔离。可以先撤销正式资格；处置未确认时不派新执行者写共享工作区。这属于操作者事实，引擎不停止进程、不隔离宿主、不认证接手者。替换会原子结束旧 Attempt 并创建新 running Attempt，保持原冻结非统计输入、进入来源、说明和 gate；旧草稿不转成新成果。按新响应的任务书和路径继续。
+
+   每个 Occurrence 最多替换一次；额度耗尽返回 `REPLACEMENTS_EXHAUSTED`，当前仍可 submit/fail。行政替换不消耗业务失败重试；Attempt 后缀 number 是从 0 起的创建顺序号，不能当失败数。理由最多 4096 字节，也可用 @file；重放同 request-id 不重新读取理由文件。旧 Attempt 在非终态 Work 中新 submit/fail 返回 `ATTEMPT_NOT_RUNNING`，Work 已终态时返回 `WORK_TERMINAL`；旧成功请求仍按历史重放，继续前重查当前 status。
 
 10. **取得明确成果。** 流程结束后查询：
 

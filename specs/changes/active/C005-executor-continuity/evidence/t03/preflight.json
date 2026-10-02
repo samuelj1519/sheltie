@@ -1,0 +1,20 @@
+{
+  "candidate": "668f2220ac19cc29548d1c19feac4849b6128114",
+  "authorization": "User adopted all C004-C008 plans and authorized recording/skipping operations that cannot be executed",
+  "observed_sources": [
+    "user task in current conversation",
+    "C005 spec and frozen experiments/runbook.md"
+  ],
+  "actual_trial": {
+    "work_id": null,
+    "old_attempt": null,
+    "real_revocation_event": null,
+    "old_executor_stop_or_host_isolation_evidence": null,
+    "new_executor": null,
+    "original_goal_and_acceptance": null,
+    "quality_and_total_activity_cost": null
+  },
+  "result": "not_run",
+  "reason": "No supplied real withdrawal task, actor or host-operation evidence; fixture mechanism and code implementation are not trial or benefit evidence",
+  "handoff": "Provide the frozen real context, verify actor/host facts, then use the runbook with explicit same home; do not manufacture a revocation need"
+}

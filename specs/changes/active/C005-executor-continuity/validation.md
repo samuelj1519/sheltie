@@ -117,3 +117,11 @@ T04 全 cached `diff --check` exit 2，仅两份不可变原文的工具尾空�
 最终 code/test/fixture/命令 consumer hash `d638dc62a9399d0efed1842a74aedf09dd49a6694034a9405f60f22eecfa836a`（272 files，同 consumer 域，排除记录/诊断）。只删除六份测试文件中的 11 ignore，所有断言、helpers、fixtures 与 snapshots 和新基准一致。独立短审通过，[关键 CLI 3 项](evidence/t02/independent-cli.txt) run `30a7e9f0-c04a-4855-a8b9-3819e901c595` 另实际 PASS；维护性短审认为无必要重构。该功能完成不代表 T03 真实收益或 M2 完成。
 
 T02 全 cached whitespace 检查 exit2，仅 gates.txt:3 的原 fmt 空上下文与 gates-revised.txt:796/800 的原 cargo-deny 诊断尾空格；原字节不裁剪。明确排除这两份已知raw的作者范围检查exit0，[结构化结果](evidence/t02/whitespace-check.json)保存；不声称全cached通过。
+
+## C005-T03 说明与授权延期交接
+
+开工候选 `668f2220ac19cc29548d1c19feac4849b6128114`。只改技能与 package 状态元文案/记录，生产代码和 oracle 未变。[前提盘点](evidence/t03/preflight.json) 的真实 Work、撤销事件、执行者、宿主处置与接受/成本全为 null；没有制造事故或替代样本。原真实使用仍 not_run，按已授权无法执行项延期；runbook保留具体触发条件与步骤。
+
+技能区分普通继续与撤销资格，规定新执行者开始前由操作者确认旧已停止或新环境已隔离；可以先撤销正式资格，不升级为引擎停止/隔离保证。独立 Reviewer 限定范围 PASS；不覆盖真实产品净收益。
+
+[首次技能消费者](evidence/t03/skill-consumers.txt) run `d54560df-a0a3-4f1d-8009-714fe09e4f27` 为 9/9 PASS；文案两处修正后 [最终消费者](evidence/t03/skill-consumers-revised.txt) run `e2e42412-cead-461e-a4fc-d11cbf0acf4c` 为 9/9 PASS、1 LEAK unknown（generated_reference_keeps_authority_prose_verbatim）。原文分别保留，不重复计成不同用例或洗掉信号。check-skill/docs/specs/diff通过；无所属Rust测试，不运行零测试task.sh，也不重跑未受影响134秒引擎全门禁。原工具版本与fresh缓存边界保持。
