@@ -1,6 +1,6 @@
 # Sheltie
 
-v0.2.0 的发布范围为 macOS aarch64/x86_64；本版本 Linux 构建与验证按用户决定排除，历史 v0.1.0 Linux 资产保持原样。
+v0.2.0 的发布范围为 macOS aarch64；其余平台按用户决定排除，以后有需求再增加，历史 v0.1.0 Linux 资产保持原样。
 
 本地运行的工作流引擎，给协调者 agent 用。人把做事方法写成 Workbook（TOML 图加自然语言说明），协调者 agent 按图派活，引擎记状态、发任务书、限定合法下一步、守门槛。引擎不判断内容好坏。
 
@@ -8,7 +8,7 @@ v0.2.0 的发布范围为 macOS aarch64/x86_64；本版本 Linux 构建与验证
 
 ## 快速开始
 
-装引擎（本版本 macOS，aarch64 与 x86_64）：
+装引擎（本版本 macOS aarch64）：
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-cli-installer.sh | sh

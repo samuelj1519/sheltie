@@ -239,6 +239,8 @@ T17 分两次固定 Git 闭包：先提交经本地验证与独立审查的候�
 
 2026-10-03 用户明确「此版本可以忽略Linux平台」。T17 本版本必需发布范围调整为 macOS aarch64/x86_64 两个平台及同 SHA 的原生 macOS 完整质量/MSRV、实际安装/远端指定更新/rollback。Linux 原编译/Clippy失败与既有 not_run 记录保留，标为本版本 excluded_by_user，不发布 Linux 资产，不转换为 PASS。原四平台门槛保留为采用时要求及前两候选的事实；以下收尾以此实际版本范围为准，不为后续版本建立永久豁免。
 
+用户随后进一步明确「可以仅发布 macOS aarch64。其余平台以后有需求再增加」。本版本T17最终范围为单一 aarch64-apple-darwin 实物、同SHA的原生Mac完整quality/MSRV、实际安装与远端指定update/rollback；x86_64和Linux均excluded_by_user，原结果保留。新增平台留待真实需求，不自行恢复矩阵；当前范围收敛不放宽本平台的任何门禁。
+
 ## 已完成修复任务的维护入口
 
 T18–T31 的原逐步实施手册与 V01–V33 样例已归档。本表保留维护入口和关键义务；任务状态以第 2 节为准，详细正反例/原运行见 [validation.md](validation.md)。发生新行为修复时仍须按第 1 节补真实 caller 和独立 oracle，不套用旧 PASS。
