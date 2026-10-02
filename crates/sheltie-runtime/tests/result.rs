@@ -432,7 +432,6 @@ fn submit_result(service: &WorkService, work: &sheltie_core::ids::WorkId) -> Str
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_selects_terminal_bound_input_and_sealed_output_in_key_order() {
     let (_dir, home, service, work) = result_fixture(false, true);
     assert!(!service.result(&work).unwrap().0.r#final);
@@ -477,7 +476,6 @@ fn result_selects_terminal_bound_input_and_sealed_output_in_key_order() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_hides_artifacts_until_gate_and_file_effects_are_complete() {
     let (_dir, home, service, work) = result_fixture(true, true);
     let submitted = submit_result(&service, &work);
@@ -502,7 +500,6 @@ fn result_hides_artifacts_until_gate_and_file_effects_are_complete() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_distinguishes_cancelled_work_and_success_without_explicit_selection() {
     let (_dir, _home, service, work) = result_fixture(false, true);
     service.cancel(&work, None).unwrap();

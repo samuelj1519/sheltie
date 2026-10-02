@@ -1,4 +1,4 @@
-//! `work start | list | status | cancel`。
+//! `work start | list | status | result | stats | cancel`。
 
 use std::collections::BTreeMap;
 
@@ -12,12 +12,13 @@ use crate::commands::Ctx;
 use crate::output::{self, Outcome};
 
 /// `start` 先用 `cli::parse_input_arg` 解析全部 `--input`，再调 `WorkService::start`。
-/// `status`、`stats` 与 `list` 只读打开。`<work>` 先经 `WorkService::resolve_work`。
+/// `status`、`result`、`stats` 与 `list` 只读打开。`<work>` 先经 `WorkService::resolve_work`。
 pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
     match cmd {
         WorkCmd::Start(args) => start(ctx, args),
         WorkCmd::List => list(ctx),
         WorkCmd::Status { work } => status(ctx, &work),
+        WorkCmd::Result { work } => result(ctx, &work),
         WorkCmd::Stats { work } => stats(ctx, &work),
         WorkCmd::Cancel { work } => cancel(ctx, &work),
     }
@@ -68,7 +69,7 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // 响应字段全部来自提交时快照（cli-result/v2）：CLI 不再回读 Store 拼数据（O04）。
+    // 响应字段全部来自提交时快照（cli-result/v3）：CLI 不再回读 Store 拼数据（O04）。
     let work_id = match &resp.reply {
         Reply::Started { work_id, .. } => work_id.clone(),
         other => return reply_mismatch("Started", other),
@@ -109,19 +110,30 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(w) => w,
         Err(out) => return out,
     };
-    let (mut text, card, pending_publish) = match svc.status_with_publication(&wid) {
+    let (text, view) = match svc.status_read(&wid) {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    if pending_publish {
-        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
-    }
-    let mut data = serde_json::to_value(&card).unwrap_or(serde_json::Value::Null);
-    if let serde_json::Value::Object(map) = &mut data {
-        map.insert("pending_publish".to_string(), json!(pending_publish));
-    }
     // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
-    output::ok_work_next(text, None, None, data, card.next.clone())
+    output::ok_work_next(text, None, None, json!(view), view.card.next.clone())
+}
+
+fn result(ctx: &Ctx, work: &str) -> Outcome {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
+        Ok(work) => work,
+        Err(out) => return out,
+    };
+    let (view, operations) = match svc.result(&wid) {
+        Ok(result) => result,
+        Err(error) => return crate::error_map::to_outcome(&error),
+    };
+    let next = operations
+        .iter()
+        .map(|operation| sheltie_core::work::render::next_item_json(&view.work_id, operation))
+        .collect();
+    let text = sheltie_core::work::result::render_result(&view);
+    output::ok_work_next(text, None, None, json!(view), next)
 }
 
 /// `work stats`：runtime返回同一次装入的事实视图与next。

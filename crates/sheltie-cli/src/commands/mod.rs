@@ -35,7 +35,12 @@ pub fn dispatch(cli: Cli) -> i32 {
             | Group::Workbook(
                 WorkbookCmd::List | WorkbookCmd::Show { .. } | WorkbookCmd::Verify { .. }
             )
-            | Group::Work(WorkCmd::List | WorkCmd::Status { .. } | WorkCmd::Stats { .. })
+            | Group::Work(
+                WorkCmd::List
+                    | WorkCmd::Status { .. }
+                    | WorkCmd::Result { .. }
+                    | WorkCmd::Stats { .. }
+            )
     );
     let cleanup_after_success = matches!(
         &cli.group,

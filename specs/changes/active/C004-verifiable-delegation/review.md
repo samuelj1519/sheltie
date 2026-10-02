@@ -61,3 +61,9 @@ T01 完整回归实际 728/728 通过；T02 11、T03 2 仍 ignore。自有临时
 ## C004-T05 独立测试期望修复
 
 通过。Reviewer `/root/independent_review` 未编写该期望。首次接口 draft 11 实际为 10 PASS/1 FAIL，fixture 别名错误，生产规范根正确。作者仅在 expected Work 目录上添加 std canonicalize/unwrap，再拼固定子路径；不改摘要、大小、来源、只读与业务断言，不从结果生成期望。单独提交保留 T02 ignore，公开接线仍归 T02。最新完整测试修复 SHA 在提交后固定。
+
+## C004-T02 公开接线独立结论
+
+通过。Reviewer `/root/independent_review` 核 result/status 的 typed 数据与 next 同一上下文、文本/JSON 同源、request-id 在 Store 前拒绝、只读不进入维护、无文件/Store 回查或 Null fallback；独立关键 CLI 4/4 PASS（run `930dd78e-1cb8-4452-8a01-19b85886f8f0`），见 [原文](evidence/20261003-T02-independent-cli.txt)。版本/Unreleased 与冻结测试仅删除 11 ignore 符合范围。首次手册仍指旧 M1，已统一最新修订基准 `2914e8564047809659c4610d151f9ea6ceef7476`，Reviewer 增量通过。
+
+完整适用门禁实际 739/739 PASS、2 T03 ignore；nextest 标记一条旧初始化 SIGKILL 测试为 LEAK。只读诊断与一次独立局部执行未确认代码缺陷，原因 unknown；不通过重复直到变绿、加宽等待或配置隐藏它。原 suite 的 LEAK 事实及历史 PID/FD 缺项保留；它不被局部无复现覆盖。T02 功能与范围通过，未知历史泄漏列为限制，M2 再核整条链与证据边界。

@@ -90,3 +90,16 @@ M1 初次范围门禁退出 1：两份独立冻结守卫原文未列入 M1 files
 [修复消费者验证](evidence/20261003-T05-alias-oracle-green.txt)：同 draft 公开接口与修正 oracle，19/19 PASS、退出 0，含 11 T02 与 8 已实现读取原语。实际 nextest 0.9.140 override，原 0.9.145 环境门禁不变。该 run 只证明修正期望与真实消费者吻合，不把尚未提交/完整验收的 T02 当产品完成。T05 提交只含 oracle 与记录，原 T02 ignore 保留。
 
 隔离过程：初始工作区全为本会话 11 个已明确归属的 T02 草稿，按内容 sha256 记录并保留在本地 stash `13538700ac45b3ea18280e32b7ccdb1c3b77f2cc`；T05 提交后重新应用这些草稿，不删除或覆盖他人修改。
+
+## C004-T02 公开行为与适用门禁
+
+冻结测试基准：`2914e8564047809659c4610d151f9ea6ceef7476`。开发 binary `0.3.0-rc.1`，只改 workspace 三个包版本，没有依赖变化。接口/消费者闭包 `5e2cdec810e72d27005bae8e489e1d53c89f468b48fbe5cd5dc4af584b42fb80`（263 文件，排记录；后续仅手册基准修正与计划状态记录，独立治理另核，不称全部字节相同）。
+
+- [冻结 red](evidence/20261003-T02-frozen-red.txt)：run `370f6057-41f3-412a-bdf7-cb1f48497ac9`，11 执行＝3 runtime PASS＋8 CLI 预定失败，退出 100，保留原命令/路径。
+- [最新冻结 green](evidence/20261003-T02-frozen-green.txt)：run `7e12c178-59a7-4dd0-8a0d-0529053d8959`，11/11 PASS、退出 0；oracle 修复见 T05，T02 测试差异只有 ignore 删除。
+- [check](evidence/20261003-T02-check.txt)、[clippy](evidence/20261003-T02-clippy.txt) 退出 0；fmt/docs/specs/tests/skill/corevocab/diff 通过。
+- [完整工程回归](evidence/20261003-T02-regression.txt)：run `0f862f61-d69c-4a65-a317-a7bb8236f5f0`，739/739 PASS、2 slow、1 LEAK、2 T03 ignore，退出 0；命令为隔离 target/RUSTC_WRAPPER= 下 `cargo nextest run --override-version-check --all-features --no-tests=pass --no-fail-fast`。实际 nextest 0.9.140，要求的 0.9.145 环境门禁仍 not_run。
+
+LEAK 出现在 `implementation_repairs::killed_first_store_initializer_allows_the_same_add_request_to_retry`。nextest 0.9.140 的 [官方语义](https://nexte.st/docs/features/leaky-tests/)是测试退出后输出句柄未在等待期内观察到闭合，不能据此断言永久孤儿。历史 run 没有 PID/FD 观测，cause 保持 unknown。[一次独立诊断](evidence/20261003-T02-leak-diagnostic.json)观察到 exit 后 stderr/stdout EOF 相差 0.040/0.056ms、最终进程组空；很短的一次 CLI 未被采样，不声称全程零遗漏，不溯及证明历史 run。可复现 [脚本](evidence/20261003-T02-leak-diagnose.py)和实际 Cargo/nextest [binary 元数据](evidence/20261003-T02-leak-binaries.json)保留；未改 source/config，未确认责任修复。728/739 等原执行数不因诊断改变。
+
+首轮 schema 独立失败原文由当时工具输出补保存，不重新执行或重命名旧 run：[合法控制](evidence/20261003-M1-schema-original-control-fail.txt)、[形状与初始化](evidence/20261003-M1-schema-original-shape-and-init-fail.txt)。此处只归档迟到原文，历史结论仍在 T01/M1。

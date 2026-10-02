@@ -25,7 +25,7 @@ T01 将每项真实需求映射到采用能力，同步裁剪 README/spec/design
 | C004-T00 | done | Codex /root；独立审阅者 | 用户明确采用 | 采用范围、授权与唯一实施入口 |
 | C004-T01 | done | Codex /root 与 runtime 负责人 / 架构与测试作者 | 人采用、C007 或同等近期需求 | 总体合同、可编译窄骨架、可信读取原语、真实测试和交接手册 |
 | C004-M1 | done | 未参与 T01 的复杂模型 | T01 | 阶段入口可实施；原语绿、新行为有意义红、现有调用者闭合 |
-| C004-T02 | todo | Codex /root / 完整行为实现者 | M1 | 冻结接口上的 status/result 完整真实链 |
+| C004-T02 | done | Codex /root / 完整行为实现者 | M1 | 冻结接口上的 status/result 完整真实链 |
 | C004-T03 | todo | Codex /root / 方法实现者 | T02 | 已审定方法与使用说明按固定材料接通 |
 | C004-T04 | todo | 简单模型操作；复杂模型分析；独立质量审阅者 | T03 | 新任务质量、成本与续接证据 |
 | C004-T05 | done | Codex /root；独立 Reviewer | T02 冻结用例的规范根路径期望修复 | M1、实际 alias 失败 |
@@ -83,7 +83,7 @@ M1 只证明交接可实施，不证明最终功能或用户收益。需修改�
 3. 按固定数据流接 parser/compiler、service、CLI 与只读分派；结果、next 和 revision 取同一上下文。
 4. 覆盖 empty/nonfinal/pending/损坏的既定路径；文本与 JSON 同源，查询不恢复、刷卡或写业务行。
 5. 运行冻结用例和真实消费者，移除本任务 ignore；不改签名、断言、快照、格式、依赖或上限。
-6. 保存命令/退出码/测试数，短审影响链，通过适用门禁后核范围并提交。
+6. 将开发二进制标识为 `0.3.0-rc.1`，同步 workspace/lock 与 Unreleased 说明，区别于已发布的 v0.2.0；不改变已冻结 schema/DTO 或发布外部资产。保存命令/退出码/测试数，短审影响链，通过适用门禁后核范围并提交。
 
 **停止。** 缺必要接口、不能在白名单接通、必须改 oracle/格式或出现来源/原子性缺口时回 T01 作者，在本 package 新增修复任务并重固定测试基准。难度本身不算停止；不得改测试迁就实现。
 
@@ -115,10 +115,12 @@ M1 只证明交接可实施，不证明最终功能或用户收益。需修改�
 
 先语义短反馈，再在稳定候选运行完整工程门禁及有预算的定向突变，包含实际 CLI 消费者。未执行、timeout、平台和用户缺项分别报告；修复交明确作者并增量复核。全部实际采用义务通过才可 completed；发布另行决定。
 
-M1 冻结基准：`0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`。Reviewer `/root/independent_review` 通过阶段准备；T02/T03 使用该完整 SHA。公开能力、真实价值与 M2 未完成。
+历史 M1 基准：`0cedb8c1f3ee7ba8d4041151a5382d3b9e8abb4e`。Reviewer `/root/independent_review` 通过阶段准备；当前 T02/T03 采用末尾的最新独立测试修订基准。公开能力、真实价值与 M2 未完成。
 
 ### C004-T05 修复冻结用例的规范根期望
 
 **Owner。** 复杂作者 Codex /root；独立 Reviewer `/root/independent_review`。仅修 `work_result.rs` 的 expected 管理根路径：临时目录可经系统别名 `/var` 创建，真实 Home 按规范解析为 `/private/var`。用 std canonicalize 独立确定已存在夹具 Work 目录，再拼固定 `start-inputs/topic`。摘要、大小、来源与只读判据不变，不用被测 result 生成答案。
 
 **验证。** 实际 T02 draft 先复现 11 用例中 10 PASS/1 FAIL（路径别名）；复杂作者修期望后相同真实消费者 19/19 PASS（含 11 T02 和 8 T01 runtime），独立 Reviewer 核期望和规范根合同通过。此次提交保留所有 T02 ignore，生产接线与开发版本变更仍归 T02，不把 draft 功能验收写成 T05 产品 PASS。完整修复 SHA 作为 T02/T03 最新独立测试基准。
+
+T02/T03 最新冻结测试修订：`2914e8564047809659c4610d151f9ea6ceef7476`，取代其测试检查基准；M1 原始候选仍保留，T05 只修规范根 oracle。

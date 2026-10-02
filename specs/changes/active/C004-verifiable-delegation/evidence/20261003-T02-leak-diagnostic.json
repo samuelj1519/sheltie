@@ -1,0 +1,303 @@
+{
+  "scope": "One isolated diagnostic; does not replace historical nextest LEAK or its 739-test run.",
+  "command": [
+    "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b",
+    "--exact",
+    "killed_first_store_initializer_allows_the_same_add_request_to_retry",
+    "--nocapture"
+  ],
+  "test_binary_sha256": "01ea917cabdc498a8caf61a56cf9fb8e49cd1fc5532ab2a411f05824d6dd13f9",
+  "application": "/private/tmp/sheltie-c004-target/debug/sheltie",
+  "application_sha256": "181712a401bb0f73563bc75c780d92d46dc5a2e5a1b3be82914533c8da76c517",
+  "exit_code": 0,
+  "observed_exit_ms": 710.428,
+  "pipe_eof_ms": {
+    "stderr": 710.468,
+    "stdout": 710.484
+  },
+  "pipe_eof_after_observed_exit_ms": {
+    "stderr": 0.04,
+    "stdout": 0.056
+  },
+  "streams_still_open_at_end": [],
+  "process_group_snapshots": [
+    {
+      "elapsed_ms": 1.567,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Us",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 53.779,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 102.995,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 152.355,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 203.707,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 252.68,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 301.811,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 351.239,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 400.482,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 453.281,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 508.537,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 560.847,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32443,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "S",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 614.212,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "/private/tmp/sheltie-c004-target/debug/deps/implementation_repairs-7c44e9a0685d0d1b"
+        },
+        {
+          "pid": 32465,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "R",
+          "program": "/private/tmp/sheltie-c004-target/debug/sheltie"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 669.597,
+      "processes": [
+        {
+          "pid": 32441,
+          "ppid": 32440,
+          "pgid": 32441,
+          "state": "Ss",
+          "program": "(implementation_r)"
+        },
+        {
+          "pid": 32465,
+          "ppid": 32441,
+          "pgid": 32441,
+          "state": "R",
+          "program": "(sheltie)"
+        }
+      ]
+    },
+    {
+      "elapsed_ms": 720.558,
+      "processes": []
+    },
+    {
+      "elapsed_ms": 772.188,
+      "processes": []
+    },
+    {
+      "elapsed_ms": 820.763,
+      "processes": []
+    },
+    {
+      "elapsed_ms": 870.834,
+      "processes": []
+    }
+  ],
+  "stdout": "\nrunning 1 test\ntest killed_first_store_initializer_allows_the_same_add_request_to_retry ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.69s\n\n",
+  "stderr": "",
+  "limits": "New process group and direct libtest launch; finite 10ms sampling can miss short-lived descendants. EOF timestamps are observations, not historical closure times."
+}

@@ -59,7 +59,6 @@ fn submit(env: &Env, work: &str) -> Value {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_lists_explicit_terminal_bindings_and_sealed_outputs_without_writes() {
     let (env, _source, work) = fixture(false, true);
     submit(&env, &work);
@@ -123,7 +122,6 @@ fn result_lists_explicit_terminal_bindings_and_sealed_outputs_without_writes() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_is_empty_until_the_terminal_gate_is_approved() {
     let (env, _source, work) = fixture(true, true);
     submit(&env, &work);
@@ -143,7 +141,6 @@ fn result_is_empty_until_the_terminal_gate_is_approved() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_distinguishes_no_selection_from_cancelled_and_active_work() {
     let (env, _source, work) = fixture(false, false);
     let active = env.ok(&["work", "result", &work]);
@@ -170,7 +167,6 @@ fn result_distinguishes_no_selection_from_cancelled_and_active_work() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn status_provides_the_current_brief_frozen_inputs_and_running_drafts() {
     let (env, _source, work) = fixture(false, true);
     let initial = env.status(&work);
@@ -222,7 +218,6 @@ fn status_provides_the_current_brief_frozen_inputs_and_running_drafts() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_rejects_request_id_before_opening_a_store() {
     let env = Env::new();
     let (error, code) = env.fail(&[
@@ -240,7 +235,6 @@ fn result_rejects_request_id_before_opening_a_store() {
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_returns_frozen_references_without_claiming_source_bytes_were_rechecked() {
     let (env, _source, work) = fixture(false, true);
     submit(&env, &work);
@@ -255,7 +249,6 @@ fn result_returns_frozen_references_without_claiming_source_bytes_were_rechecked
 
 // Task: C004-T02
 #[test]
-#[ignore = "C004-T02"]
 fn result_rejects_a_published_request_with_invalid_effects_without_repairing_it() {
     let (env, _source, work) = fixture(false, true);
     submit(&env, &work);
@@ -273,7 +266,6 @@ fn result_rejects_a_published_request_with_invalid_effects_without_repairing_it(
 // Task: C004-T02
 #[cfg(feature = "failpoint")]
 #[test]
-#[ignore = "C004-T02"]
 fn result_hides_committed_outputs_until_their_file_effects_finish() {
     let (env, _source, work) = fixture(false, true);
     let begin = env.begin(&work, "finish");

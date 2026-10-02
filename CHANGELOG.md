@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [Unreleased]
+
+### Added
+
+- 当前 Attempt 的任务书、冻结输入与声明草稿指针；实时 status 同次读取 revision 和未完成效果。
+- 终点 required 输入/输出可显式选择最终成果；只读 `work result` 返回该具体终点绑定或封存的完整引用。
+- 最小代码变更方法的固定实现、独立审查与交付阶段，保留显式返工边。
+
+### Breaking Changes
+
+- 开发候选为 `0.3.0-rc.1`，Store schema 3，公开合同 `cli-result/v3`。旧 schema 1/2 原件保留并整体拒绝，不自动迁移或清空。
+
 ## [0.2.0]
 
 ### Breaking Changes

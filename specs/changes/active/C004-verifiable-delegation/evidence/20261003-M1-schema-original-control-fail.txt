@@ -1,0 +1,29 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+────────────
+ Nextest run ID 19745b44-0cec-49e5-9d45-c44caff9be19 with nextest profile: default
+    Starting 1 test across 47 binaries (737 tests skipped)
+        FAIL [   0.012s] (1/1) sheltie-runtime store::tests::handwritten_schema2_control_accepts_both_open_modes
+  stdout ───
+
+    running 1 test
+    test store::tests::handwritten_schema2_control_accepts_both_open_modes ... FAILED
+
+    failures:
+
+    failures:
+        store::tests::handwritten_schema2_control_accepts_both_open_modes
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 51 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'store::tests::handwritten_schema2_control_accepts_both_open_modes' (58052457) panicked at crates/sheltie-runtime/src/store/tests.rs:120:59:
+    called `Result::unwrap()` on an `Err` value: StoreSchemaMismatch { detail: "user_version 是 2，期望 3" }
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure:
+────────────
+     Summary [   0.013s] 1 test run: 0 passed, 1 failed, 737 skipped
+        FAIL [   0.012s] (1/1) sheltie-runtime store::tests::handwritten_schema2_control_accepts_both_open_modes
+error: test run failed

@@ -1,0 +1,52 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+────────────
+ Nextest run ID 5f56e0eb-bb68-4931-9144-586d5adf9744 with nextest profile: default
+    Starting 2 tests across 47 binaries (736 tests skipped)
+        FAIL [   0.012s] (1/2) sheltie-runtime store::tests::open_rejects_same_version_different_table_shape
+  stdout ───
+
+    running 1 test
+    test store::tests::open_rejects_same_version_different_table_shape ... FAILED
+
+    failures:
+
+    failures:
+        store::tests::open_rejects_same_version_different_table_shape
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 51 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'store::tests::open_rejects_same_version_different_table_shape' (58053475) panicked at crates/sheltie-runtime/src/store/tests.rs:106:9:
+    assertion `left == right` failed
+      left: "user_version 是 2，期望 3"
+     right: "表 works 的建表语句与 SCHEMA_VERSION 不符"
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.470s] (2/2) sheltie-cli::implementation_repairs killed_first_store_initializer_allows_the_same_add_request_to_retry
+  stdout ───
+
+    running 1 test
+    test killed_first_store_initializer_allows_the_same_add_request_to_retry ... FAILED
+
+    failures:
+
+    failures:
+        killed_first_store_initializer_allows_the_same_add_request_to_retry
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.46s
+
+  stderr ───
+
+    thread 'killed_first_store_initializer_allows_the_same_add_request_to_retry' (58053474) panicked at crates/sheltie-cli/tests/implementation_repairs.rs:41:5:
+    assertion `left == right` failed
+      left: 3
+     right: 2
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   0.471s] 2 tests run: 0 passed, 2 failed, 736 skipped
+        FAIL [   0.012s] (1/2) sheltie-runtime store::tests::open_rejects_same_version_different_table_shape
+        FAIL [   0.470s] (2/2) sheltie-cli::implementation_repairs killed_first_store_initializer_allows_the_same_add_request_to_retry
+error: test run failed
