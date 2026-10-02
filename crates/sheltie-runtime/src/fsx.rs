@@ -510,6 +510,84 @@ impl ManagedFs {
         self.directory_entries(path)
     }
 
+    pub(crate) fn cleanup_expired_tmp(
+        &self,
+        lock: &crate::home::HomeLock,
+        now: std::time::SystemTime,
+    ) -> Result<()> {
+        self.check_lock(lock)?;
+        let tmp_path = ManagedRelPath::new("tmp")?;
+        if !self.directory_exists(&tmp_path)? {
+            return Ok(());
+        }
+        let tmp = self.open_tree_locked(lock, &tmp_path)?;
+        let display = self.display_path(&tmp_path);
+        for name in directory_entry_names(&tmp.file, &display)? {
+            if name == "." || name == ".." {
+                continue;
+            }
+            self.check_lock(lock)?;
+            self.verify_tree_at(&tmp, &tmp_path)?;
+            let path = ManagedRelPath::new(format!("tmp/{name}"))?;
+            let display = self.display_path(&path);
+            let before = statat(&tmp.file, &name, AtFlags::SYMLINK_NOFOLLOW)
+                .map_err(|error| map_fs_error(&display, error))?;
+            if !tmp_entry_expired(&before, now) {
+                continue;
+            }
+            match FileType::from_raw_mode(before.st_mode) {
+                FileType::RegularFile => {
+                    let file = self.open_regular(&path)?;
+                    let held = fstat(&file.file).map_err(|error| map_fs_error(&display, error))?;
+                    if before.st_dev != held.st_dev || before.st_ino != held.st_ino {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("{display} 在过期清理观察期间被替换"),
+                        });
+                    }
+                    if tmp_entry_expired(&held, now) {
+                        self.remove_regular_file_if_same(lock, &path, &file)?;
+                    }
+                }
+                FileType::Directory => {
+                    let tree = self.open_tree_locked(lock, &path)?;
+                    let held = fstat(&tree.file).map_err(|error| map_fs_error(&display, error))?;
+                    if before.st_dev != held.st_dev || before.st_ino != held.st_ino {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("{display} 在过期清理观察期间被替换"),
+                        });
+                    }
+                    if tmp_entry_expired(&held, now) {
+                        self.remove_managed_tree(lock, &tree, &path, "tmp-cleanup")?;
+                    }
+                }
+                FileType::Symlink => {
+                    // 链接没有普通文件句柄；只核目录项身份，绝不打开目标。
+                    let current = statat(&tmp.file, &name, AtFlags::SYMLINK_NOFOLLOW)
+                        .map_err(|error| map_fs_error(&display, error))?;
+                    if current.st_dev != before.st_dev
+                        || current.st_ino != before.st_ino
+                        || FileType::from_raw_mode(current.st_mode) != FileType::Symlink
+                    {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("{display} 的过期链接在清理期间被替换"),
+                        });
+                    }
+                    if tmp_entry_expired(&current, now) {
+                        unlinkat(&tmp.file, &name, AtFlags::empty())
+                            .map_err(|error| map_fs_error(&display, error))?;
+                        fsync(&tmp.file).map_err(|error| map_fs_error(&display, error))?;
+                    }
+                }
+                _ => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("{display} 是特殊文件，保留并拒绝过期清理"),
+                    });
+                }
+            }
+        }
+        self.verify_tree_at(&tmp, &tmp_path)
+    }
+
     pub(crate) fn managed_tree_is_empty_locked(
         &self,
         lock: &crate::home::HomeLock,
@@ -1488,6 +1566,15 @@ fn directory_entry_names(directory: &std::fs::File, display: &str) -> Result<Vec
                 })
         })
         .collect()
+}
+
+fn tmp_entry_expired(stat: &rustix::fs::Stat, now: std::time::SystemTime) -> bool {
+    let now_nanos = match now.duration_since(std::time::UNIX_EPOCH) {
+        Ok(duration) => duration.as_nanos() as i128,
+        Err(error) => -(error.duration().as_nanos() as i128),
+    };
+    let modified_nanos = i128::from(stat.st_mtime) * 1_000_000_000 + i128::from(stat.st_mtime_nsec);
+    now_nanos - modified_nanos > 86_400_000_000_000
 }
 
 fn sync_dir_tree(
@@ -3173,5 +3260,40 @@ mod new_atomic_tests {
                 .to_string_lossy()
                 .contains(".tmp-")
         }));
+    }
+
+    // Task: C002-T39
+    #[test]
+    fn tmp_cleanup_preserves_exact_age_and_removes_one_nanosecond_older_objects() {
+        use std::time::Duration;
+
+        let directory = tempfile::tempdir().unwrap();
+        let home = crate::home::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        std::fs::create_dir(directory.path().join("tmp")).unwrap();
+        for is_directory in [false, true] {
+            let path = directory.path().join(if is_directory {
+                "tmp/expired-directory"
+            } else {
+                "tmp/expired-file"
+            });
+            if is_directory {
+                std::fs::create_dir(&path).unwrap();
+                std::fs::write(path.join("child"), b"private tmp").unwrap();
+            } else {
+                std::fs::write(&path, b"private tmp").unwrap();
+            }
+            let modified = std::fs::metadata(&path).unwrap().modified().unwrap();
+            let boundary = modified + Duration::from_secs(86_400);
+            fs.cleanup_expired_tmp(&lock, modified - Duration::from_nanos(1))
+                .unwrap();
+            assert!(path.exists(), "未来时间不得清理");
+            fs.cleanup_expired_tmp(&lock, boundary).unwrap();
+            assert!(path.exists(), "恰好24小时不得清理");
+            fs.cleanup_expired_tmp(&lock, boundary + Duration::from_nanos(1))
+                .unwrap();
+            assert!(!path.exists(), "超过阈值一纳秒应清理");
+        }
     }
 }

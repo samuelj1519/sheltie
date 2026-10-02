@@ -293,6 +293,7 @@ impl From<WorkId> for String {
 
 /// Attempt 的 ID：节点、第几次到达、第几次重试。显示为 `draft#1.0`。
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AttemptId {
     pub node: NodeId,
     pub occurrence: u32,
@@ -546,5 +547,24 @@ mod tests {
         assert!(WorkName::try_from("two  words".to_string()).is_err());
         assert!(serde_json::from_str::<WorkName>("\"文章 初稿\"").is_err());
         assert!(serde_json::from_str::<WorkName>("\"文章-初稿\"").is_ok());
+    }
+
+    // Task: C002-T39
+    #[test]
+    fn attempt_id_json_keeps_its_shape_and_rejects_unknown_fields_in_any_position() {
+        let valid = r#"{"node":"draft","occurrence":2,"retry":1}"#;
+        let attempt: AttemptId = serde_json::from_str(valid).unwrap();
+        assert_eq!(attempt, AttemptId::new(NodeId::new("draft").unwrap(), 2, 1));
+        assert_eq!(serde_json::to_string(&attempt).unwrap(), valid);
+        for invalid in [
+            r#"{"unexpected":true,"node":"draft","occurrence":2,"retry":1}"#,
+            r#"{"node":"draft","unexpected":true,"occurrence":2,"retry":1}"#,
+            r#"{"node":"draft","occurrence":2,"retry":1,"unexpected":true}"#,
+        ] {
+            assert!(
+                serde_json::from_str::<AttemptId>(invalid).is_err(),
+                "{invalid}"
+            );
+        }
     }
 }

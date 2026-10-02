@@ -180,9 +180,25 @@ T37仅提交执行效率复盘和通用建议。Rust四门禁exit0；Nextest run
 
 Codex 对全部生产 diff 复核通过，code-simplifier 对架构/协议文案勘误复核确认与既有源码及 caller 一致。行为缺口保持 OPEN；本次没有重跑全量变异或重新作 M1 验收。最终 docs/specs 和 `scripts/check-task.sh C002-T38 4b86279 --staged` 均 exit 0；原文在本机临时目录，不属于固定 Git 历史归档，本次未提交或发布。
 
+## C002-T39 修复验证
 
-### C002-T38 提交授权与证据保存
+HEAD：`4b86279a863f941cc282fa6cb772f7359fda585a`；候选为保留 T38 精简的未提交工作区。开工 tracked 输入及差异在 `/private/tmp/sheltie-t39-evidence/input-hashes.json`、`input-worktree.patch`，本次修复与上轮精简分别归属。三个新增 CLI 测试文件和 core/fsx 新用例均标 `Task: C002-T39`。
+
+先红后绿的原文：Flow 为 `/private/tmp/sheltie-t39-flow-{red,green}.log` 及 `sheltie-t39-flow-report.md`；嵌套解码为 `/private/tmp/sheltie-f39-decode-{cli,core}-{red,green}.log`；tmp 为本目录下 `tmp-red.log`、`tmp-green-initial.log`、`tmp-green-final.log`、`tmp-green-reviewed.log`、`tmp-exact.log`。Flow 修前 1 PASS/2 FAIL，最终新增 4/4 PASS；嵌套 CLI 修前 4 FAIL/修后 4 PASS，core 修前 2 FAIL/修后 2 PASS；tmp 修前 1 PASS/3 FAIL，最终 CLI 7/7 PASS，真实私有文件清理边界 1/1 PASS。过滤后零用例的其他 binary 不计为额外验证通过。
+
+实现迭代中 FIFO fixture 尝试 rustix mknodat/mkfifoat 时 macOS 不导出该 API，发生编译失败；改用仓库既有 `mkfifo` 测试方式，无新依赖或生产 API。这不是行为红。首个补例编译诊断保留在会话原文，第二次原文为 `tmp-green.log`，最终成功原文另存，不重写为最初通过。
+
+最终全仓门禁均exit0，原始 stdout/stderr 与结构化命令/退出码位于 `/private/tmp/sheltie-t39-evidence/gates/`。输入包括三份未跟踪的新测试；固定清单 SHA256 `311099bf1e295f7a06d61f9e97991ca90ff58f0482a0aa6e3e0a53a6a82b09d1`。`RUSTC_WRAPPER=`、独立 target、离线 Cargo、Nextest 0.9.146/线程2与本机 macOS；deny 复用原缓存公告内容并仅改临时 db-path，实际重新执行，不复用 T38 退出码，不声称在线刷新。
+
+最终结果：fmt/check/Clippy/nextest、离线deny、MSRV 1.85 locked、docs/specs/core-vocab/tests/skill与dist plan均exit0。Nextest run `3284ed1d-b9a5-4546-bce5-dbd06ea6f14d`：44 binaries，717/717、0 skipped、1 slow，测试阶段166.013秒（全命令172.366秒）。相对T38增加18个测试，所有新增用例实际运行。169项构建输入在收尾复核无漂移；Cargo.lock、原fixture、快照与既有T38生产简化保持，本次只改6个生产文件并新增3个CLI测试文件及core/fsx单元回归。
+
+未参与实施的 `/root/review_repairs` 三项审查均“通过”，完整原文 `/private/tmp/sheltie-t39-independent-review.md`（SHA256 `ab77a2d7f4a2e31da5a9efd058d33e07fdee2ee06c4f6e856c217d55dfb0dcd7`），涵盖9个冻结源码/测试hash、真实红绿和目录替换调用链。code-simplifier只读复核确认没有需追加的抽象。`integrity.json`记录实际输入和本次增量，最终docs/specs与 `scripts/check-task.sh C002-T39 4b86279 --staged` 均exit0，完整记录为 `final-checks.json`。
+
+F38-03/F38-02/F38-01按本次修复、正反例、真实caller与独立审查关闭；不是仅凭717全绿关闭。原文在本机临时目录，不属于固定Git历史归档。本次未提交、推送或发布；未修写已有坏Store，M1原例外、Linux/T16/T17状态不变。
+
+
+### C002-T39 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。
 
-恢复方式：从本package运行 `tar -xzf evidence/submissions/C002-T38.tar.gz -C <临时目录>`；根目录为 `C002-T38/`，`contents.json`逐文件给出SHA256与大小。原文中的本机绝对路径保留为历史来源，归档内的相对文件及该清单是提交后的恢复入口。此次归档逐项核字节后才纳入提交，不声称仅hash就是备份。
+恢复方式：从本package运行 `tar -xzf evidence/submissions/C002-T39.tar.gz -C <临时目录>`；根目录为 `C002-T39/`，`contents.json`逐文件给出SHA256与大小。原文中的本机绝对路径保留为历史来源，归档内的相对文件及该清单是提交后的恢复入口。此次归档逐项核字节后才纳入提交，不声称仅hash就是备份。
