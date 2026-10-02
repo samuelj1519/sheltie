@@ -1,4 +1,4 @@
-//! 把 `FlowDef` 编译成 `Graph`。九条规则见 `specs/contracts/workbook.md` §4。
+//! 把 `FlowDef` 编译成 `Graph`。校验规则见 `specs/contracts/workbook.md` §4。
 //!
 //! 每条规则一个私有函数，按顺序调用，任一失败整体拒绝。
 //! 错误一律 `Error::FlowInvalid { rule: "<编号>", path, reason }`。
@@ -36,6 +36,7 @@ pub fn compile(def: &FlowDef, manifest: &Manifest, res: &ResourceIndex) -> Resul
     check_rule_7(def, res)?;
     check_rule_8(def, manifest)?;
     check_rule_9(def)?;
+    check_rule_10(def, &out_edges)?;
     Ok(Graph::from_checked(
         def.entry.clone(),
         def.nodes.clone(),
@@ -321,6 +322,48 @@ fn check_rule_9(def: &FlowDef) -> Result<()> {
     Ok(())
 }
 
+fn check_rule_10(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
+    for (i, node) in def.nodes.iter().enumerate() {
+        let terminal = out_edges.get(&node.id).is_none_or(Vec::is_empty);
+        let mut selected = BTreeSet::new();
+        let slots = node
+            .inputs
+            .iter()
+            .enumerate()
+            .map(|(j, input)| {
+                (
+                    format!("nodes[{i}].inputs[{j}].result"),
+                    input.name.as_str(),
+                    input.required,
+                    input.result,
+                )
+            })
+            .chain(node.outputs.iter().enumerate().map(|(j, output)| {
+                (
+                    format!("nodes[{i}].outputs[{j}].result"),
+                    output.name.as_str(),
+                    output.required,
+                    output.result,
+                )
+            }));
+        for (path, name, required, result) in slots {
+            if !result {
+                continue;
+            }
+            if !terminal {
+                return Err(invalid("10", path, "只有终点节点可以声明最终成果"));
+            }
+            if !required {
+                return Err(invalid("10", path, "最终成果必须是必需输入或输出"));
+            }
+            if !selected.insert(name) {
+                return Err(invalid("10", path, "最终成果的输入与输出逻辑名不得重复"));
+            }
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -347,6 +390,69 @@ mod tests {
 
     fn base() -> &'static str {
         testkit::ARTICLE_REVIEW_FLOW
+    }
+
+    fn result_flow(first: &str, last: &str) -> String {
+        format!(
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"first\"\n[[nodes]]\nid = \"first\"\ntitle = \"First\"\nexecutor = \"agent\"\ninstruction = {{ text = \"x\" }}\n{first}\n[[nodes]]\nid = \"last\"\ntitle = \"Last\"\nexecutor = \"agent\"\ninstruction = {{ text = \"x\" }}\n{last}\n[[edges]]\nfrom = \"first\"\nto = \"last\"\nkind = \"main\"\n"
+        )
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn terminal_required_input_and_output_can_be_selected_results() {
+        let graph = compile_text(&result_flow(
+            "outputs = [{ name = \"out\", path = \"out.md\", result = false }]",
+            "inputs = [{ name = \"upstream\", from = \"first.out\", result = true }]\noutputs = [{ name = \"delivery\", path = \"delivery.md\", result = true }]",
+        ))
+        .unwrap();
+        let node = graph.node(&NodeId::new("last").unwrap()).unwrap();
+        assert!(node.inputs()[0].result());
+        assert!(node.output("delivery").unwrap().result());
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn selected_results_on_nonterminal_input_or_output_are_rejected() {
+        for first in [
+            "inputs = [{ name = \"task\", from = \"start.task\", result = true }]",
+            "outputs = [{ name = \"out\", path = \"out.md\", result = true }]",
+        ] {
+            let error = compile_text(&result_flow(first, "")).unwrap_err();
+            assert!(
+                matches!(error, Error::FlowInvalid { rule: "10", path, .. } if path.ends_with(".result"))
+            );
+        }
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn selected_optional_input_or_output_is_rejected() {
+        let first = "outputs = [{ name = \"out\", path = \"out.md\", required = false }]";
+        for last in [
+            "inputs = [{ name = \"upstream\", from = \"first.out\", required = false, result = true }]",
+            "outputs = [{ name = \"delivery\", path = \"delivery.md\", required = false, result = true }]",
+        ] {
+            assert_eq!(
+                rule_of(compile_text(&result_flow(first, last)).unwrap_err()),
+                "10"
+            );
+        }
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn selected_input_and_output_keys_must_be_unique() {
+        let first = "outputs = [{ name = \"out\", path = \"out.md\" }]";
+        let duplicate = "inputs = [{ name = \"same\", from = \"first.out\", result = true }]\noutputs = [{ name = \"same\", path = \"same.md\", result = true }]";
+        assert!(
+            matches!(compile_text(&result_flow(first, duplicate)), Err(Error::FlowInvalid { rule: "10", path, .. }) if path == "nodes[1].outputs[0].result")
+        );
+        let ordinary = duplicate.replace(
+            "path = \"same.md\", result = true",
+            "path = \"same.md\", result = false",
+        );
+        assert!(compile_text(&result_flow(first, &ordinary)).is_ok());
     }
 
     // Task: T05

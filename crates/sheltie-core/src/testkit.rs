@@ -459,7 +459,7 @@ kind = "main"
     pub fn start(&mut self, inputs: &[(&str, &str)]) -> Result<Decision> {
         let mut refs = BTreeMap::new();
         for (key, value) in inputs {
-            let path = self.work_dir.join_segment("inputs").join_segment(key);
+            let path = crate::work::layout::start_input_path(&self.work_dir, key);
             self.files.insert(path.clone(), value.as_bytes().to_vec());
             refs.insert(
                 (*key).to_string(),

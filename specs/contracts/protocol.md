@@ -1,6 +1,6 @@
 # 公开操作、状态卡与错误
 
-本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v2`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v3`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
 
 ## 1. 全局约定
 
@@ -16,7 +16,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
 
-**只读操作**（`list`、`show`、`status`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 2控制Store、锁和自有未提交pending。
+**只读操作**（`list`、`show`、`status`、`result`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 3控制Store、锁和自有未提交pending。
 
 ## 2. 操作一览
 
@@ -34,7 +34,8 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `workbook verify [<id>@<version>]` | 否 | 重算目录摘要与库中记录对比 |
 | `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | 是 | 创建 Work，冻结一份 Workbook 副本 |
 | `work list` | 否 | 列出 Work 的 id、名称、状态、当前节点、更新时间 |
-| `work status <work>` | 否 | 打印状态卡（文本或 JSON） |
+| `work status <work>` | 否 | 打印紧凑状态与当前 Attempt 接续指针（文本或 JSON） |
+| `work result <work>` | 否 | 返回终点明确选择的最终成果引用与交付就绪事实 |
 | `work stats <work>` | 否 | 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来 |
 | `work cancel <work>` | 是 | 取消 |
 | `attempt begin <work> --node <node>` | 是 | 进入节点并开始一次尝试；返回任务书 |
@@ -124,6 +125,24 @@ Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表
 
 Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`。记录 `{ node, occurrence, by, at }`（`by` 是发起调用的 OS 账户）；用户授权后由 agent 代执行时，`by` 记的是 agent 进程的账户，如实呈现，不表述为「已验证独立真人」（宪章 §5）。然后按 `attempt submit` 第 5 步除门槛之外的规则决定 Work 状态：无出边 → `succeeded`；无合法边 → `blocked(no_legal_edge)`；否则 `active`。返回 `{ node, occurrence, by, at, work_status }` 与 `next`。
 
+### `work result`
+
+`sheltie [--json] work result <work>` 是只读查询，前缀解析遵守 §2，不接受 request-id，不自动恢复或刷状态卡。`data` 为 `work-result/v1`：
+
+| 字段 | 合同 |
+| --- | --- |
+| `format` | 固定 `work-result/v1` |
+| `work_id`、`revision` | 同一 SQLite 读快照的完整 WorkId 和整数 revision |
+| `workbook` | `{id, version, digest}`，本 Work 的冻结身份 |
+| `flow`、`status` | 冻结 Flow ID 和 WorkStatus 对象 |
+| `effects_pending` | 本 Work 关联的已提交请求存在未完成文件效果；严格核完整 requests/audit/effects，不按 published 预筛 |
+| `final` | 仅合法 succeeded 终点、有效 gate 事实且 effects_pending=false 时为 true |
+| `artifacts` | final=false 时为空；否则选中项按 key 排序，每项 `{key,path,sha256,bytes,source:{attempt,kind,name}}` |
+
+`source.kind` 为 `input` 或 `output`；`source.attempt` 是进行绑定或封存的具体成功终点 Attempt 字符串，`name` 是选中槽的逻辑名。ArtifactRef 完整采用该 Attempt 的冻结引用，不选上游最新产物。没有声明时 final=true、artifacts=[]，文本说明“未声明最终成果”；状态声称成功但终点、必需引用或归属矛盾时为 STORE_CORRUPT，不伪装成空选择。next 来自同次状态与图。
+
+该查询列举已封存引用，不声称查询时重新核验全部源字节，不核报告中的 commit、退出码或业务结论。消费与复制原件须按自己的实际读取合同核字节。
+
 ### `work stats <work>`
 
 只读。对 `WorkState` 做计数，不含任何判断：
@@ -203,7 +222,7 @@ Work: <work_id>（<name>）
 
 协调者可以在交给工作 agent 前在任务书后追加上下文，或改写措辞，但不得改变说明书的原意（方向、标准、产出要求）。改写后的版本由协调者自己保存，引擎不收。
 
-## 5. 响应封装（`--json`，`cli-result/v2`）
+## 5. 响应封装（`--json`，`cli-result/v3`）
 
 成功：
 
@@ -273,7 +292,7 @@ Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `tr
 
 ## 6. 状态卡 `status-card.md`
 
-每次影响该 Work 的写操作提交后，`refresh_status_card` 从最新状态重写 `works/<work_id>/status-card.md`；失败按 §5 返回 `EFFECT_PENDING`。`work status` 直接从已校验的 Store 状态生成同样内容，未发布时按存储合同 §3.3 读取受保护的 pending 原件。有界，无历史正文，只有指针。
+每次影响该 Work 的写操作提交后，`refresh_status_card` 从最新状态重写 `works/<work_id>/status-card.md`；失败按 §5 返回 `EFFECT_PENDING`。`work status` 从单一只读 SQLite 事务取得 state/revision、关联 requests/audit/效果与 Start 发布定位，严格核验后生成相同状态投影，未发布时按存储合同 §3.3 读取受保护的 pending 原件。有界，无历史正文，只有指针。
 
 ```markdown
 # Work <work_id>（<name>）
@@ -297,7 +316,11 @@ outputs:
 - sheltie work cancel <work_id>
 ```
 
-`--json` 时输出同样字段的结构化形式，字段与文本一一对应：`work_id / name / workbook / flow / status / current / done / pending / visits / blocked / last_attempt / next`。`last_attempt` 含 `attempt / status / summary / reason / outputs`：失败时 `reason` 是失败原因文本；`outputs` 是 `{name: {path, sha256, bytes}}` 的完整产物引用（与文本卡同样的路径、摘要与大小）。`blocked` 是与文本行相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `null`。`next` 与 §5 响应封装的 `next` 项完全同形。Work 尚未发布完成时另带 `pending_publish: true`（[存储合同 §3.3](storage.md)）。
+`--json` 时输出同样字段的结构化形式，字段与文本一一对应：`work_id / name / workbook / flow / status / current / done / pending / visits / blocked / last_attempt / next`。`last_attempt` 含 `attempt / status / summary / reason / outputs`：失败时 `reason` 是失败原因文本；`outputs` 是 `{name: {path, sha256, bytes}}` 的完整产物引用（与文本卡同样的路径、摘要与大小）。`blocked` 是与文本行相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `null`。`next` 与 §5 响应封装的 `next` 项完全同形。实时查询始终带 `pending_publish` 布尔值；Start 发布尚未完成时为 true（[存储合同 §3.3](storage.md)），否则为 false。
+
+`resume` 无当前 Attempt 时为 null，否则为 `{attempt,brief_path,inputs,draft_outputs}`。attempt 是当前 Occurrence 的最新 Attempt；inputs 按该 Attempt 的冻结映射给完整 ArtifactRef 或 null。draft_outputs 是 `{name: absolute_path}` 对象，仅 running 时按冻结声明派生草稿绝对路径，否则为 `{}`。草稿位置不证明文件存在、完整或封存。默认不展开历史尝试正文。
+
+实时 `work status` 在 data 中另有 `revision`、`effects_pending` 和 `pending_publish`。它们来自同一 Store 读快照；effects_pending 只核本 Work，其他 Work 未完成效果不隐藏当前结果。磁盘卡只保存 state/graph 的共有状态与 resume，不保存实时 revision/效果就绪。refresh_status_card 在 mark_published 之前，不把 pending=true 固化成永久状态。查询不取 HomeLock，不修改业务状态、不恢复效果。
 
 `done` 列出所有成功的 Occurrence；`pending` 列出从未到达的节点；`blocked` 存在时另起一行说明原因（`gate: review#2 需要 gate approve`、`retries_exhausted: draft#2` 或 `no_legal_edge: review#3 的全部出边目标已达 max_visits`）。
 
@@ -328,7 +351,7 @@ outputs:
 | `REQUEST_CONFLICT` | 同 `request_id` 不同目标或载荷 | 无变化 | 换新 id |
 | `REVISION_CONFLICT` | 并发写入，`expected_revision` 不符 | 无变化 | 重读状态卡再试 |
 | `EFFECT_PENDING` | 效果未完成：当前请求已提交时 `committed = true` 并带自己的原响应；旧效果阻断新请求时 `committed = false`、`pending_request_id` 指向旧请求 | 看 `committed`：当前请求已提交或尚未提交；旧效果仍待恢复 | 先恢复 `pending_request_id`（若有），再用本次 `request_id` 重试 |
-| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 2` 不符（含 schema 1 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
+| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 3` 不符（含 schema 1/2 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
 | `STORE_CORRUPT` | 数据库内容、持久身份或未提交阶段的受管文件不符合同 | 未提交新业务状态 | 人工核查；已提交效果中的完整性错误由 `EFFECT_PENDING.detail.cause` 指明 |
 | `IO` | 文件系统错误，`detail.path` 与系统错误文本 | 视具体操作，响应说明 | 检查权限与磁盘 |
 

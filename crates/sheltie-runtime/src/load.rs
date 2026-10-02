@@ -1,11 +1,13 @@
 //! Trust boundaries for data loaded from the Store.
 
+use std::collections::BTreeMap;
+
 use sheltie_core::digest::Sha256Hex;
 use sheltie_core::flow::{Graph, InputSource};
 use sheltie_core::ids::{WorkId, WorkbookId};
-use sheltie_core::path::AbsPath;
+use sheltie_core::path::{AbsPath, RelPath};
 use sheltie_core::work::{
-    AttemptStatus, Timestamp, WorkState, output_paths_for, validate_start_inputs,
+    AttemptStatus, ObservedFile, Timestamp, WorkState, output_paths_for, validate_start_inputs,
 };
 
 use crate::error::{Error, Result};
@@ -73,7 +75,12 @@ pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPa
 }
 
 /// Verify all persisted references against the checked graph and their owning Attempt.
-pub(crate) fn validate_work_paths(home: &Home, state: &WorkState, graph: &Graph) -> Result<()> {
+pub(crate) fn validate_work_paths(
+    home: &Home,
+    state: &WorkState,
+    graph: &Graph,
+    resource_files: &BTreeMap<RelPath, ObservedFile>,
+) -> Result<()> {
     let work_dir = validate_work_root(home, state)?;
     state
         .validate_gate_facts(graph)
@@ -145,6 +152,25 @@ pub(crate) fn validate_work_paths(home: &Home, state: &WorkState, graph: &Graph)
                             &reference.path,
                             &expected,
                         )?;
+                        let observed = resource_files.get(path).ok_or_else(|| {
+                            corrupt(
+                                &state.work_id,
+                                format!(
+                                    "attempts[{index}].inputs.{} 的冻结资源 {path} 未被观察",
+                                    declaration.name(),
+                                ),
+                            )
+                        })?;
+                        if reference.sha256 != observed.sha256 || reference.bytes != observed.bytes
+                        {
+                            return Err(corrupt(
+                                &state.work_id,
+                                format!(
+                                    "attempts[{index}].inputs.{} 的摘要/字节数与冻结资源不一致",
+                                    declaration.name(),
+                                ),
+                            ));
+                        }
                     } else {
                         return Err(corrupt(
                             &state.work_id,

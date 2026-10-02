@@ -100,7 +100,7 @@ impl Store {
     /// 顺序（存储合同 §1.1）：库不存在且 `ReadWrite` → 一个事务内建表并写
     /// `user_version`（无半结构库）；`ReadOnly` 且不存在 → `Error::NotFound`，
     /// 不建库不建目录（GF-30）。库已存在时**先以只读连接**识别 `user_version` 与
-    /// 建表语句：`user_version ≠ 2`（含 schema 1 旧库）报 `StoreSchemaMismatch`，
+    /// 建表语句：`user_version ≠ SCHEMA_VERSION` 报 `StoreSchemaMismatch`，
     /// 拒绝之前对库文件没有任何写入——不改 journal mode、不写 PRAGMA、不建表。
     #[cfg(test)]
     pub(crate) fn open(path: &AbsPath, mode: OpenMode) -> Result<Self> {

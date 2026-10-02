@@ -62,6 +62,8 @@ struct InputDto {
     from: String,
     #[serde(default)]
     required: Option<bool>,
+    #[serde(default)]
+    result: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -73,6 +75,8 @@ struct OutputDto {
     required: Option<bool>,
     #[serde(default)]
     max_bytes: Option<u64>,
+    #[serde(default)]
+    result: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -263,6 +267,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
                 name: inp.name,
                 from,
                 required: inp.required.unwrap_or(true),
+                result: inp.result,
             });
         }
 
@@ -296,6 +301,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
                 path,
                 required: out.required.unwrap_or(true),
                 max_bytes,
+                result: out.result,
             });
         }
 
@@ -696,5 +702,40 @@ instruction = {{ text = "做 A" }}
     fn max_retries_accepts_upper_bound_8() {
         let flow = parse_flow(&minimal("max_retries = 8")).unwrap();
         assert_eq!(flow.nodes[0].max_retries, 8);
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn result_selection_defaults_false_and_accepts_explicit_true() {
+        let flow = parse_flow(&minimal(
+            "inputs = [{ name = \"task\", from = \"start.task\", result = true }]\noutputs = [{ name = \"chosen\", path = \"chosen.md\", result = true }, { name = \"ordinary\", path = \"ordinary.md\" }]",
+        ))
+        .unwrap();
+        let json = serde_json::to_value(&flow).unwrap();
+        assert_eq!(json["nodes"][0]["inputs"][0]["result"], true);
+        assert_eq!(json["nodes"][0]["outputs"][0]["result"], true);
+        assert_eq!(json["nodes"][0]["outputs"][1]["result"], false);
+        let default = parse_flow(&minimal(
+            "inputs = [{ name = \"task\", from = \"start.task\" }]",
+        ))
+        .unwrap();
+        assert_eq!(
+            serde_json::to_value(default).unwrap()["nodes"][0]["inputs"][0]["result"],
+            false
+        );
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn result_selection_rejects_non_boolean_and_unknown_slot_fields() {
+        for field in ["result = \"true\"", "result = 1", "results = true"] {
+            let text = minimal(&format!(
+                "outputs = [{{ name = \"chosen\", path = \"chosen.md\", {field} }}]"
+            ));
+            assert!(matches!(
+                parse_flow(&text),
+                Err(Error::FlowInvalid { rule: "parse", .. })
+            ));
+        }
     }
 }

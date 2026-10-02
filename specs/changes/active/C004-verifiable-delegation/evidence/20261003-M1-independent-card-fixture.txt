@@ -1,0 +1,9 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.2.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+────────────
+ Nextest run ID aca18808-8ee8-4d85-b548-84e25d40d3f3 with nextest profile: default
+    Starting 1 test across 1 binary (1 test skipped)
+        PASS [   0.235s] (1/1) sheltie-runtime::crash status_card_missing_is_regenerated_on_next_write
+────────────
+     Summary [   0.235s] 1 test run: 1 passed, 1 skipped

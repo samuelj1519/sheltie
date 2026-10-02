@@ -82,6 +82,13 @@ struct PreparedCommand {
     observed_outputs: BTreeMap<String, crate::fsx::SafeFile>,
 }
 
+struct ReadRequestPayload {
+    command: Command,
+    snapshot: Response,
+    effects: Vec<EffectOp>,
+    data: crate::snapshot::CheckedData,
+}
+
 impl PreparedCommand {
     fn plain(command: Command) -> Self {
         Self {
@@ -462,21 +469,48 @@ impl WorkService {
 
     /// 只读：状态卡文本与结构化形式。
     pub fn status(&self, work: &WorkId) -> Result<(String, StatusCardJson)> {
-        let loaded = self.load(work)?;
-        Ok((
-            render_status_card(&loaded.state, &loaded.graph),
-            status_card_json(&loaded.state, &loaded.graph),
-        ))
+        let (text, view) = self.status_projection(work)?;
+        Ok((text, view.card))
     }
 
     /// 返回状态卡和本次装入的发布状态事实。
     pub fn status_with_publication(&self, work: &WorkId) -> Result<(String, StatusCardJson, bool)> {
-        let loaded = self.load(work)?;
-        Ok((
-            render_status_card(&loaded.state, &loaded.graph),
-            status_card_json(&loaded.state, &loaded.graph),
-            loaded.pending_publish,
-        ))
+        let (text, view) = self.status_projection(work)?;
+        Ok((text, view.card, view.pending_publish))
+    }
+
+    pub fn status_read(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
+        let (text, view) = self.status_projection(work)?;
+        Ok((view.render(text), view))
+    }
+
+    fn status_projection(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
+        let (loaded, effects_pending) = self.load_read_context(work)?;
+        let view = crate::StatusReadView {
+            card: status_card_json(&loaded.state, &loaded.graph),
+            revision: loaded.revision,
+            effects_pending,
+            pending_publish: loaded.pending_publish,
+        };
+        let text = render_status_card(&loaded.state, &loaded.graph);
+        Ok((text, view))
+    }
+
+    pub fn result(
+        &self,
+        work: &WorkId,
+    ) -> Result<(sheltie_core::work::result::ResultView, Vec<NextOp>)> {
+        let (loaded, effects_pending) = self.load_read_context(work)?;
+        let view = sheltie_core::work::result::result_view(
+            &loaded.state,
+            &loaded.graph,
+            loaded.revision,
+            effects_pending,
+        )
+        .map_err(|detail| Error::StoreCorrupt {
+            detail: format!("Work {work} 的结果投影不合法：{detail}"),
+        })?;
+        Ok((view, legal_next(&loaded.state, &loaded.graph)))
     }
 
     /// 只读：事实视图与next均来自同一次装入的state/revision。
@@ -575,10 +609,132 @@ impl WorkService {
         self.load_row(work, row)
     }
 
+    fn load_read_context(&self, work: &WorkId) -> Result<(Loaded, bool)> {
+        for retry in 0..2 {
+            let bundle = self.store.read_work_bundle(work)?;
+            crate::load::validate_work_root(&self.home, &bundle.work.state)?;
+            let decoded = bundle
+                .requests
+                .iter()
+                .map(|request| decode_read_request(request, work))
+                .collect::<Result<Vec<_>>>()?;
+            let start = bundle.requests.first().ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("Work {work} 缺少Start请求"),
+            })?;
+            let ReadRequestPayload {
+                command,
+                snapshot,
+                effects: ops,
+                data,
+            } = decoded.first().ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("Work {work} 缺少已解码的Start请求"),
+            })?;
+            if !crate::snapshot::start_matches(&bundle.work.state, command, &snapshot.reply, data)
+                || start.row.at != bundle.work.state.created_at.as_str()
+            {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("Work {work} 的Start快照与冻结身份不一致"),
+                });
+            }
+            let [
+                EffectOp::PublishDir {
+                    pending,
+                    final_path,
+                    owner,
+                    digest,
+                    digest_root,
+                },
+                EffectOp::RefreshStatusCard { work_id },
+            ] = ops.as_slice()
+            else {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("Work {work} 的Start发布效果不完整"),
+                });
+            };
+            let segments = pending.split('/').collect::<Vec<_>>();
+            if segments.len() != 3
+                || segments[0] != "pending"
+                || segments[2] != "payload"
+                || uuid::Uuid::parse_str(segments[1]).is_err()
+                || final_path != &format!("works/{work}")
+                || owner != &format!("work:{work}")
+                || digest != bundle.work.state.workbook.digest.as_str()
+                || digest_root != "workbook"
+                || work_id != work.as_str()
+            {
+                return Err(Error::StoreCorrupt {
+                    detail: format!("Work {work} 的Start发布归属不一致"),
+                });
+            }
+            if !start.row.published {
+                if let Err(error) =
+                    verify_pending_owner(&self.home, segments[1], &start.request_id, "start_work")
+                {
+                    // Publication can finish and clean its sidecar after the snapshot.
+                    // Restart the complete read rather than mixing a new flag into old state.
+                    if retry == 0 {
+                        continue;
+                    }
+                    return Err(error);
+                }
+            }
+            let location = crate::pending::PublishLocation {
+                pending: pending.clone(),
+                final_path: final_path.clone(),
+                pending_publish: !start.row.published,
+            };
+            let effects_pending = bundle.requests.iter().any(|request| !request.row.published);
+            let loaded = self.load_row_at(work, bundle.work, &location)?;
+            for (
+                request,
+                ReadRequestPayload {
+                    command,
+                    snapshot,
+                    effects: ops,
+                    data,
+                },
+            ) in bundle.requests.iter().zip(decoded)
+            {
+                validate_command_owner_data(
+                    &request.request_id,
+                    work,
+                    &loaded.state,
+                    &loaded.graph,
+                    &command,
+                    &snapshot,
+                    &data,
+                )?;
+                validate_read_audit(request, &loaded.state, &snapshot.reply)?;
+                check_work_effects(
+                    &self.home,
+                    &request.request_id,
+                    &loaded.state,
+                    &loaded.graph,
+                    &command,
+                    &snapshot.reply,
+                    ops,
+                )?;
+            }
+            return Ok((loaded, effects_pending));
+        }
+        Err(Error::StoreCorrupt {
+            detail: format!("Work {work} 的Start归属无法从完整读快照核实"),
+        })
+    }
+
     fn load_row(&self, work: &WorkId, row: crate::store::read::WorkRow) -> Result<Loaded> {
         let location = self.workbook_publication(work, &row.state)?;
+        self.load_row_at(work, row, &location)
+    }
+
+    fn load_row_at(
+        &self,
+        work: &WorkId,
+        row: crate::store::read::WorkRow,
+        location: &crate::pending::PublishLocation,
+    ) -> Result<Loaded> {
         let (workbook, pending_publish) =
-            crate::pending::read_publish_dir(&self.home, &location, |root| {
+            crate::pending::read_publish_dir(&self.home, location, |root| {
                 let frozen = root.join_segment("workbook");
                 let relative = self.home.to_rel(&frozen)?;
                 if !crate::fsx::managed_directory_exists_readonly(&self.home, &relative)? {
@@ -623,7 +779,7 @@ impl WorkService {
             .ok_or_else(|| Error::StoreCorrupt {
                 detail: format!("冻结副本里没有Flow {}", row.state.flow),
             })?;
-        crate::load::validate_work_paths(&self.home, &row.state, &graph)?;
+        crate::load::validate_work_paths(&self.home, &row.state, &graph, &workbook.resource_files)?;
         Ok(Loaded {
             state: row.state,
             revision: row.revision,
@@ -1156,6 +1312,84 @@ impl crate::recovery::RecoveryAccess for WorkService {
     }
 }
 
+fn decode_read_request(
+    request: &crate::store::read::WorkReadRequest,
+    work: &WorkId,
+) -> Result<ReadRequestPayload> {
+    let id = &request.request_id;
+    Sha256Hex::new(request.row.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
+        detail: format!("请求 {id} 的intent_hash无效：{error}"),
+    })?;
+    sheltie_core::work::Timestamp::parse(&request.row.at).map_err(|error| Error::StoreCorrupt {
+        detail: format!("请求 {id} 的时间无效：{error}"),
+    })?;
+    let persisted: crate::snapshot::PersistedResponse =
+        serde_json::from_str(&request.row.reply_json).map_err(|error| Error::StoreCorrupt {
+            detail: format!("请求 {id} 的响应快照解不开：{error}"),
+        })?;
+    if persisted.request_id != *id
+        || persisted.replayed
+        || i64::try_from(persisted.revision).ok() != Some(request.audit.revision)
+    {
+        return Err(Error::StoreCorrupt {
+            detail: format!("请求 {id} 的响应身份/revision与audit不一致"),
+        });
+    }
+    let command =
+        serde_json::from_str(&request.audit.command_json).map_err(|error| Error::StoreCorrupt {
+            detail: format!("请求 {id} 的audit命令解不开：{error}"),
+        })?;
+    let response = Response {
+        request_id: persisted.request_id,
+        revision: persisted.revision,
+        replayed: persisted.replayed,
+        reply: persisted.reply,
+        data: persisted.data,
+        next: persisted.next,
+    };
+    let data = crate::snapshot::check_data(&response.reply, &response.data, work)?;
+    Ok(ReadRequestPayload {
+        command,
+        snapshot: response,
+        effects: decode_effects(&request.row.effects_json)?,
+        data,
+    })
+}
+
+fn validate_read_audit(
+    request: &crate::store::read::WorkReadRequest,
+    state: &WorkState,
+    reply: &Reply,
+) -> Result<()> {
+    let audit = &request.audit;
+    let time_matches = match reply {
+        Reply::Started { .. } => state.created_at.as_str() == audit.at,
+        Reply::AttemptBegun { attempt, .. } => state
+            .attempt(attempt)
+            .is_some_and(|attempt| attempt.started_at.as_str() == audit.at),
+        Reply::AttemptSubmitted { attempt, .. } | Reply::AttemptFailed { attempt } => state
+            .attempt(attempt)
+            .and_then(|attempt| attempt.ended_at.as_ref())
+            .is_some_and(|at| at.as_str() == audit.at),
+        Reply::GateApproved { node, occurrence } => state.approvals.iter().any(|approval| {
+            approval.node == *node
+                && approval.occurrence == *occurrence
+                && approval.at.as_str() == audit.at
+                && approval.by.0 == audit.principal
+        }),
+        Reply::Cancelled => state.updated_at.as_str() == audit.at,
+    };
+    if audit.principal.is_empty() || !time_matches {
+        return Err(Error::StoreCorrupt {
+            detail: format!(
+                "请求 {} 的audit主体/时间与原执行事实不一致",
+                request.request_id
+            ),
+        });
+    }
+    Ok(())
+}
+
 fn validate_command_owner(
     request_id: &str,
     work_id: &WorkId,
@@ -1164,10 +1398,22 @@ fn validate_command_owner(
     command: &Command,
     snapshot: &Response,
 ) -> Result<()> {
+    let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
+    validate_command_owner_data(request_id, work_id, state, graph, command, snapshot, &data)
+}
+
+fn validate_command_owner_data(
+    request_id: &str,
+    work_id: &WorkId,
+    state: &WorkState,
+    graph: &Graph,
+    command: &Command,
+    snapshot: &Response,
+    data: &crate::snapshot::CheckedData,
+) -> Result<()> {
     use crate::snapshot::CheckedData;
 
-    let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
-    let status = match &data {
+    let status = match data {
         CheckedData::Submitted(status) | CheckedData::Failed(status) => Some(*status),
         CheckedData::Approved(data) => Some(data.work_status),
         _ => None,
@@ -1180,9 +1426,9 @@ fn validate_command_owner(
         });
     }
 
-    let valid = match (command, &snapshot.reply, &data) {
+    let valid = match (command, &snapshot.reply, data) {
         (Command::Start { .. }, Reply::Started { requires, .. }, CheckedData::Started(_)) => {
-            crate::snapshot::start_matches(state, command, &snapshot.reply, &data)
+            crate::snapshot::start_matches(state, command, &snapshot.reply, data)
                 && requires == graph.requires()
         }
         (

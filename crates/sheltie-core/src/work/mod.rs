@@ -8,6 +8,7 @@ pub mod decide;
 pub mod layout;
 pub mod next;
 pub mod render;
+pub mod result;
 pub mod start;
 pub mod state;
 
@@ -21,6 +22,9 @@ pub use next::{NextOp, legal_next};
 pub use render::{
     NodeStatsJson, StatsJson, StatusCardJson, render_brief, render_stats, render_stats_json,
     render_status_card, status_card_json,
+};
+pub use result::{
+    ResultArtifact, ResultSlotKind, ResultSource, ResultView, render_result, result_view,
 };
 pub use start::{start_requirements, validate_start_inputs};
 pub use state::{

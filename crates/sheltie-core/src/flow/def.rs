@@ -72,6 +72,7 @@ pub struct InputDecl {
     pub(crate) name: String,
     pub(crate) from: InputSource,
     pub(crate) required: bool,
+    pub(crate) result: bool,
 }
 
 impl InputDecl {
@@ -86,6 +87,10 @@ impl InputDecl {
     pub fn required(&self) -> bool {
         self.required
     }
+
+    pub fn result(&self) -> bool {
+        self.result
+    }
 }
 
 /// 一条输出声明。`path` 相对 Attempt 目录。
@@ -95,9 +100,14 @@ pub struct OutputDecl {
     pub(crate) path: RelPath,
     pub(crate) required: bool,
     pub(crate) max_bytes: u64,
+    pub(crate) result: bool,
 }
 
 impl OutputDecl {
+    pub fn result(&self) -> bool {
+        self.result
+    }
+
     /// `max_bytes` 默认 1 MiB。
     pub const DEFAULT_MAX_BYTES: u64 = 1_048_576;
     /// `max_bytes` 上限 32 MiB。

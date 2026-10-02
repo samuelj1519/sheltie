@@ -11,6 +11,7 @@ use super::state::{
 };
 use crate::flow::{Graph, InputSource};
 use crate::ids::WorkId;
+use crate::path::AbsPath;
 
 /// 渲染一份 Attempt 的任务书（协议 §4）。快照 `snapshots/*brief*.snap` 是逐字节的标准答案。
 ///
@@ -214,51 +215,78 @@ fn human_size(bytes: u64) -> String {
 /// `blocked` 行的说明：`gate: <occ> 需要 gate approve`；`retries_exhausted: <occ>`；
 /// `no_legal_edge: <occ> 的全部出边目标已达 max_visits`。
 pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
+    let view = status_view(state, graph);
     let mut out = String::new();
-    out.push_str(&format!("# Work {}（{}）\n\n", state.work_id, state.name));
+    out.push_str(&format!("# Work {}（{}）\n\n", view.work_id, view.name));
     out.push_str(&format!(
-        "workbook: {}@{}   flow: {}   status: {}\n",
-        state.workbook.id, state.workbook.version, state.flow, state.status
+        "workbook: {}   flow: {}   status: {}\n",
+        view.workbook, view.flow, view.status
     ));
-    out.push_str(&format!("current: {}\n", state.current));
+    out.push_str(&format!("current: {}\n", view.current));
 
-    let done = done_occurrences(state);
     out.push_str(&format!(
         "done: {}\n",
-        if done.is_empty() {
+        if view.done.is_empty() {
             "无".to_string()
         } else {
-            done.join(", ")
+            view.done.join(", ")
         }
     ));
-    let pending = pending_nodes(state, graph);
     out.push_str(&format!(
         "pending: {}\n",
-        if pending.is_empty() {
+        if view.pending.is_empty() {
             "无".to_string()
         } else {
-            pending.join(", ")
+            view.pending.join(", ")
         }
     ));
-    let visits = visit_items(state, graph)
-        .into_iter()
+    let visits = view
+        .visits
+        .iter()
         .map(|(n, m)| format!("{n} {m}"))
         .collect::<Vec<_>>()
         .join(", ");
     out.push_str(&format!("visits: {visits}\n"));
-    if let Some(line) = blocked_line(state) {
+    if let Some(line) = &view.blocked {
         out.push_str(&format!("blocked: {line}\n"));
     }
 
+    out.push_str("\n## 当前任务\n\n");
+    match &view.resume {
+        None => out.push_str("无\n"),
+        Some(resume) => {
+            out.push_str(&format!(
+                "attempt: {}\nbrief_path: {}\n",
+                resume.attempt, resume.brief_path
+            ));
+            out.push_str("inputs:\n");
+            for (name, reference) in &resume.inputs {
+                match reference {
+                    Some(reference) => out.push_str(&format!(
+                        "  {} → {} (sha256 {}, {} B)\n",
+                        name, reference.path, reference.sha256, reference.bytes,
+                    )),
+                    None => out.push_str(&format!("  {name} → 尚无\n")),
+                }
+            }
+            if !resume.draft_outputs.is_empty() {
+                out.push_str("draft_outputs:\n");
+                for (name, path) in &resume.draft_outputs {
+                    out.push_str(&format!("  {name} → {path}\n"));
+                }
+            }
+        }
+    }
+
     out.push_str("\n## 最近一次尝试\n\n");
-    match state.attempts.last() {
+    match &view.last_attempt {
         None => out.push_str("无\n"),
         Some(a) => {
-            out.push_str(&format!("{} {}\n", a.id, a.status.as_str()));
+            out.push_str(&format!("{} {}\n", a.attempt, a.status.as_str()));
             match a.status {
                 AttemptStatus::Succeeded => {
                     if let Some(s) = &a.summary {
-                        out.push_str(&format!("summary: {}\n", s.as_str()));
+                        out.push_str(&format!("summary: {s}\n"));
                     }
                     if !a.outputs.is_empty() {
                         out.push_str("outputs:\n");
@@ -274,8 +302,8 @@ pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
                     }
                 }
                 AttemptStatus::Failed => {
-                    if let Some(s) = &a.fail_reason {
-                        out.push_str(&format!("reason: {}\n", s.as_str()));
+                    if let Some(s) = &a.reason {
+                        out.push_str(&format!("reason: {s}\n"));
                     }
                 }
                 AttemptStatus::Running => {}
@@ -284,12 +312,11 @@ pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
     }
 
     out.push_str("\n## 合法下一步\n\n");
-    let next = legal_next(state, graph);
-    if next.is_empty() {
+    if view.next.is_empty() {
         out.push_str("- 无\n");
     } else {
-        for op in &next {
-            out.push_str(&format!("- {}\n", op.to_command_line(&state.work_id)));
+        for op in &view.next {
+            out.push_str(&format!("- {}\n", op.to_command_line(&view.work_id)));
         }
     }
     out
@@ -312,6 +339,7 @@ pub struct StatusView {
     /// 与文本卡相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `None`。
     pub blocked: Option<String>,
     pub last_attempt: Option<LastAttemptView>,
+    pub resume: Option<ResumeView>,
     pub next: Vec<NextOp>,
 }
 
@@ -323,6 +351,14 @@ pub struct LastAttemptView {
     pub summary: Option<String>,
     pub reason: Option<String>,
     pub outputs: BTreeMap<String, ArtifactRef>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ResumeView {
+    pub attempt: String,
+    pub brief_path: AbsPath,
+    pub inputs: BTreeMap<String, Option<ArtifactRef>>,
+    pub draft_outputs: BTreeMap<String, AbsPath>,
 }
 
 /// 从状态与图装配事实视图。
@@ -345,6 +381,26 @@ pub fn status_view(state: &WorkState, graph: &Graph) -> StatusView {
             reason: a.fail_reason.as_ref().map(|s| s.as_str().to_string()),
             outputs: a.outputs.clone(),
         }),
+        resume: state.latest_attempt_of_current().map(|attempt| {
+            let attempt_dir = state.attempt_dir(&attempt.id);
+            let mut draft_outputs = BTreeMap::new();
+            if attempt.status == AttemptStatus::Running {
+                if let Some(node) = graph.node(&attempt.id.node) {
+                    for output in &node.outputs {
+                        draft_outputs.insert(
+                            output.name.clone(),
+                            crate::work::layout::output_path(&attempt_dir, &output.path),
+                        );
+                    }
+                }
+            }
+            ResumeView {
+                attempt: attempt.id.to_string(),
+                brief_path: crate::work::layout::brief_path(&attempt_dir),
+                inputs: attempt.inputs.clone(),
+                draft_outputs,
+            }
+        }),
         next: legal_next(state, graph),
     }
 }
@@ -365,6 +421,7 @@ pub struct StatusCardJson {
     pub visits: BTreeMap<String, String>,
     pub blocked: Option<String>,
     pub last_attempt: Option<LastAttemptJson>,
+    pub resume: Option<ResumeView>,
     pub next: Vec<serde_json::Value>,
 }
 
@@ -419,6 +476,7 @@ pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
                 })
                 .collect(),
         }),
+        resume: view.resume,
         next: view
             .next
             .iter()
@@ -694,6 +752,87 @@ mod tests {
     use super::*;
     use crate::testkit::Fixture;
     use crate::work::next::NextOp;
+
+    // Task: C004-T01
+    #[test]
+    fn resume_without_current_attempt_is_null_in_text_and_json() {
+        let fixture = Fixture::article_review().started();
+        assert!(
+            status_view(fixture.state(), &fixture.graph)
+                .resume
+                .is_none()
+        );
+        assert_eq!(
+            serde_json::to_value(status_card_json(fixture.state(), &fixture.graph)).unwrap()["resume"],
+            serde_json::Value::Null
+        );
+        assert!(
+            render_status_card(fixture.state(), &fixture.graph).contains("## 当前任务\n\n无\n")
+        );
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn resume_running_attempt_has_frozen_inputs_and_declared_draft_paths() {
+        let mut fixture = Fixture::article_review().started();
+        fixture.begin("draft").unwrap();
+        let card = status_card_json(fixture.state(), &fixture.graph);
+        let resume = card.resume.unwrap();
+        assert_eq!(resume.attempt, "draft#1.0");
+        assert_eq!(
+            resume.brief_path.as_str(),
+            "/tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-001/attempt-000/brief.md"
+        );
+        assert_eq!(resume.inputs["review"], None);
+        let topic = resume.inputs["topic"].as_ref().unwrap();
+        assert_eq!(
+            topic.path.as_str(),
+            "/tmp/sheltie-test/works/2026-09-24-001-t/start-inputs/topic"
+        );
+        assert_eq!(
+            topic.sha256.as_str(),
+            "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+        );
+        assert_eq!(topic.bytes, 5);
+        assert_eq!(
+            resume.draft_outputs["article"].as_str(),
+            "/tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-001/attempt-000/outputs/article.md"
+        );
+        let text = render_status_card(fixture.state(), &fixture.graph);
+        assert!(text.contains("attempt: draft#1.0"));
+        assert!(text.contains(resume.brief_path.as_str()));
+        assert!(text.contains("review → 尚无"));
+        assert!(text.contains(&format!("{} (sha256 {}, 5 B)", topic.path, topic.sha256)));
+        assert!(text.contains("draft_outputs:"));
+        assert!(text.contains(resume.draft_outputs["article"].as_str()));
+    }
+
+    // Task: C004-T01
+    #[test]
+    fn resume_current_attempt_keeps_brief_and_inputs_after_end_but_removes_drafts() {
+        let mut fixture = Fixture::article_review().started();
+        fixture.begin("draft").unwrap();
+        fixture.fail("draft#1.0", "Interrupted").unwrap();
+        let failed = status_card_json(fixture.state(), &fixture.graph)
+            .resume
+            .unwrap();
+        assert_eq!(failed.attempt, "draft#1.0");
+        assert!(failed.draft_outputs.is_empty());
+        fixture.begin("draft").unwrap();
+        let running = status_card_json(fixture.state(), &fixture.graph)
+            .resume
+            .unwrap();
+        assert_eq!(running.attempt, "draft#1.1");
+        assert!(running.brief_path.as_str().contains("attempt-001/brief.md"));
+        fixture.submit_ok("draft#1.1", "Finished").unwrap();
+        let succeeded = status_card_json(fixture.state(), &fixture.graph)
+            .resume
+            .unwrap();
+        assert_eq!(succeeded.inputs, running.inputs);
+        assert_eq!(succeeded.brief_path, running.brief_path);
+        assert!(succeeded.draft_outputs.is_empty());
+        assert!(!render_status_card(fixture.state(), &fixture.graph).contains("draft_outputs:"));
+    }
 
     // Task: T10
     #[test]

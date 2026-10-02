@@ -47,3 +47,34 @@ T01 先验证原语和所有受影响既有消费者；M1 只核完整架构/测
 输入闭包：T00 采用与链接变更；Rust/方法/实验未改变。2026-10-03 执行 `scripts/check-docs.sh`（131 文件）与 `scripts/check-specs.sh`（8 change、1 active），退出 0。独立 Reviewer 只读核授权、状态/历史与完成边界；状态残留修复后重核。产品实现/用户价值仍为 not_run。
 
 原文索引：[C004-T00-20261003](evidence/20261003-T00.txt)。独立复核通过，仅覆盖采用与文档入口。
+
+## C004-T01 准备过程原文
+
+首次统一 check/clippy 曾因 self 提示访问私有 store 常量而退出 101，随后漏改一个调用参数也退出 101；已用既有公开 `selfmgmt::version_info` 同源取得 schema，完整调用者改齐。保留 [初次编译](evidence/20261003-T01-check.txt)、[参数修订编译](evidence/20261003-T01-check-repaired.txt) 和 [首次 clippy](evidence/20261003-T01-clippy.txt)，均不是行为红。
+
+修订后 [check](evidence/20261003-T01-check-final.txt)、[clippy](evidence/20261003-T01-clippy-final.txt) 退出 0。输入闭包 `cb2304529df7fc6766160e310cb9dd9754d336b197bd7bc975acf209a74751da`（263 文件；源码/测试/fixture/config/协议与消费者，排证据及交接/审查/验证记录）。后续独立发现产生了新修订，以上不覆盖修订后完整闭包。
+
+- [原 task 命令](evidence/20261003-T01-required-nextest.txt)：nextest 0.9.140 < 配置要求 0.9.145，退出 92，测试 not_run；按用户环境授权保留，不安装或更新宿主工具。
+- [原语补测](evidence/20261003-T01-primitives.txt)：run `6685caed-230f-44f5-b255-c9f30bb3e853`，25/25 PASS、713 不在过滤范围；实际版本 override 命令，不称 0.9.145 门禁已执行。
+- [真实 caller 红](evidence/20261003-T01-public-callers-red.txt)：2 执行、2 预定失败、退出 100；status revision 缺失与 CLI result 不可调用，非编译失败或占位 panic。
+- [schema fixture 修复](evidence/20261003-T01-schema-fixtures-repaired.txt)：run `45237845-ca71-49a4-af3b-aa9398d1816b`，合法打开控制、坏列准确定位、CLI 初始化恢复 3/3 PASS，退出 0；其余形状和全回归待完整冻结后运行。
+
+独立首轮需修改项见 [review](review.md)。最终候选、门禁和 M1 结论在实际完成后登记；当前不把准备过程通过当产品能力完成。
+
+## C004-T01 修订候选
+
+修订源码/消费者闭包：`1cc9b7f972ff3a746511b4ee583b5c899572d20f23f3de430bf7c88731c3885f`（263 文件，排 evidence/progress/review/validation）。资源真值与读取顺序的 [行为 red](evidence/20261003-T01-runtime-repair-red.txt)：2/2 预定失败、退出 100、run `a6aebe89-a712-4834-a2b7-40da435c57d2`；[修复 targeted green](evidence/20261003-T01-runtime-repair-green.txt)：16/16 PASS、退出 0、run `f3ac5fa2-005c-4099-9c9b-8b4a0b29082f`，包括实际 pending/原响应消费者。
+
+root 修订后 [check](evidence/20261003-T01-revised-check.txt)、[clippy](evidence/20261003-T01-revised-clippy.txt) 退出 0；[T01 同归属补测](evidence/20261003-T01-revised-primitives.txt) run `32c19836-f360-400a-b8f2-d546f8f867ce` 为 28/28 PASS，退出 0，713 不在本过滤；工具仍为 nextest 0.9.140 override，0.9.145 原环境门禁 not_run。
+
+fmt、docs/specs/tests/skill/corevocab/diff 通过；测试登记 741 个、任务卡 246 个，T01/T02/T03 真实归属为 28/11/2。未启用的公开接口/方法场景保持所属 ignore，不能算本阶段成功。完整现行回归原文写 [此 run](evidence/20261003-T01-regression.txt)，实际结果在结束后登记。
+
+## C004-T01 最终基础闭包
+
+最终生产/消费者闭包 `f30b96b62d973a8017a0a997d4263be19e138815a9c7b2501551f039cb5b3227`（263 文件，排记录）。[最终 check](evidence/20261003-T01-projection-check.txt)、[最终 clippy](evidence/20261003-T01-projection-clippy.txt) 退出 0；fmt 与文档/规格/测试/skill/corevocab/diff 通过。没有新增依赖，deny 留到最终里程碑按实际闭包执行。
+
+[首次全回归](evidence/20261003-T01-regression.txt) 退出 100、499 PASS/1 FAIL/228 未执行；[修订卡片后的全回归](evidence/20261003-T01-regression-repaired.txt) 退出 100、727 PASS/1 FAIL。失败与修复见 review，不删除原 run，不把未执行转换成通过。
+
+[卡片修复](evidence/20261003-T01-card-oracle-repaired.txt) 和 [投影修复](evidence/20261003-T01-projection-repaired.txt) 分别通过；[最终全回归](evidence/20261003-T01-regression-final.txt) run `6acddb6a-86d1-44d9-a278-f785c715cf6a`，命令 `CARGO_TARGET_DIR=/private/tmp/sheltie-c004-target RUSTC_WRAPPER= cargo nextest run --override-version-check --all-features --no-tests=pass --no-fail-fast`，退出 0，728/728 PASS，2 slow（60.342s/69.842s，通过且非 timeout），13 T02/T03 阶段 ignore。工具为 nextest 0.9.140，Rust 1.98.1 / aarch64-apple-darwin；0.9.145 原版本门禁仍 not_run。
+
+本阶段基础满足；不把 13 后续阶段 ignore、公开 caller 的预定红、缺真实用户/平台/发布替代为完整产品或价值 PASS。T01 提交前范围门禁与 M1 完整候选随后登记。

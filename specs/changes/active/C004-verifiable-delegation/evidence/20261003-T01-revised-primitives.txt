@@ -1,0 +1,37 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.2.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.2.0 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.03s
+────────────
+ Nextest run ID 32c19836-f360-400a-b8f2-d546f8f867ce with nextest profile: default
+    Starting 28 tests across 47 binaries (713 tests skipped)
+        PASS [   0.028s] ( 1/28) sheltie-core work::render::tests::resume_without_current_attempt_is_null_in_text_and_json
+        PASS [   0.029s] ( 2/28) sheltie-core work::result::tests::result_uses_sorted_terminal_slots_and_preserves_complete_references
+        PASS [   0.029s] ( 3/28) sheltie-core flow::compile::tests::selected_optional_input_or_output_is_rejected
+        PASS [   0.029s] ( 4/28) sheltie-core work::result::tests::final_work_without_selections_reports_empty_explicit_result
+        PASS [   0.028s] ( 5/28) sheltie-core work::result::tests::missing_selected_reference_is_corrupt_even_when_effects_are_pending
+        PASS [   0.029s] ( 6/28) sheltie-core flow::compile::tests::selected_input_and_output_keys_must_be_unique
+        PASS [   0.029s] ( 7/28) sheltie-core flow::compile::tests::selected_results_on_nonterminal_input_or_output_are_rejected
+        PASS [   0.029s] ( 8/28) sheltie-core work::render::tests::resume_current_attempt_keeps_brief_and_inputs_after_end_but_removes_drafts
+        PASS [   0.030s] ( 9/28) sheltie-core flow::parse::tests::result_selection_rejects_non_boolean_and_unknown_slot_fields
+        PASS [   0.031s] (10/28) sheltie-core flow::compile::tests::terminal_required_input_and_output_can_be_selected_results
+        PASS [   0.030s] (11/28) sheltie-core work::result::tests::pending_effects_withhold_final_artifacts_without_changing_flow_status
+        PASS [   0.031s] (12/28) sheltie-core flow::parse::tests::result_selection_defaults_false_and_accepts_explicit_true
+        PASS [   0.032s] (13/28) sheltie-core work::render::tests::resume_running_attempt_has_frozen_inputs_and_declared_draft_paths
+        PASS [   0.032s] (14/28) sheltie-core work::result::tests::result_uses_specific_frozen_version_after_real_rework
+        PASS [   0.032s] (15/28) sheltie-core work::result::tests::result_supports_start_resource_and_engine_stats_input_slots
+        PASS [   0.033s] (16/28) sheltie-core work::result::tests::gate_blocks_final_result_and_missing_approval_is_corrupt
+        PASS [   0.010s] (17/28) sheltie-core work::result::tests::uncompleted_and_cancelled_work_have_no_final_artifacts
+        PASS [   0.011s] (18/28) sheltie-core work::result::tests::selected_output_must_belong_to_terminal_attempt_and_fit_declared_limit
+        PASS [   0.011s] (19/28) sheltie-core work::result::tests::selected_input_must_match_frozen_source_path_digest_and_size
+        PASS [   0.012s] (20/28) sheltie-core work::result::tests::succeeded_work_requires_successful_terminal_attempt
+        PASS [   0.530s] (21/28) sheltie-runtime::result schema_two_is_rejected_without_migrating_or_rewriting_original_bytes
+        PASS [   0.615s] (22/28) sheltie-runtime::result status_read_uses_one_snapshot_when_a_new_attempt_commits_between_queries
+        PASS [   0.649s] (23/28) sheltie-runtime::result status_read_combines_revision_and_current_frozen_pointers_without_writing
+        PASS [   0.757s] (24/28) sheltie-runtime::result pending_resource_loading_compares_logical_path_and_observed_bytes_separately
+        PASS [   0.772s] (25/28) sheltie-runtime::result result_rejects_resource_reference_digest_or_size_drift_without_changing_originals
+        PASS [   0.931s] (26/28) sheltie-runtime::result status_read_reports_this_work_pending_effects_and_ignores_unrelated_corruption
+        PASS [   1.446s] (27/28) sheltie-runtime::result all_read_payloads_reject_unknown_fields_before_frozen_workbook_io
+        PASS [   3.358s] (28/28) sheltie-runtime::result status_read_rejects_incomplete_or_conflicting_request_audit_closure
+────────────
+     Summary [   3.390s] 28 tests run: 28 passed, 713 skipped

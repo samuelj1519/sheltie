@@ -38,6 +38,7 @@ fn status_card_missing_is_regenerated_on_next_write() {
     assert_eq!(revision, 2);
     let state: serde_json::Value = serde_json::from_str(&state).unwrap();
     assert_eq!(state["status"]["kind"], "active");
+    let work_dir = format!("{}/works/{wid}", home.root().as_str());
     let expected = format!(
         "# Work {wid}（卡片恢复）\n\n\
 workbook: two-step@1.0.0   flow: default   status: active\n\
@@ -45,6 +46,13 @@ current: outline#1\n\
 done: 无\n\
 pending: summary\n\
 visits: outline 1/1, summary 0/1\n\n\
+## 当前任务\n\n\
+attempt: outline#1.0\n\
+brief_path: {work_dir}/attempts/outline/occurrence-001/attempt-000/brief.md\n\
+inputs:\n\
+\x20\x20topic → {work_dir}/start-inputs/topic (sha256 1ebd7fe40a02b8958d721b6ca82726ad34265e78dfb626b97c12bdfd8751f2f7, 23 B)\n\
+draft_outputs:\n\
+\x20\x20outline → {work_dir}/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\n\n\
 ## 最近一次尝试\n\n\
 outline#1.0 running\n\n\
 ## 合法下一步\n\n\

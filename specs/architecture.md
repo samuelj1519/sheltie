@@ -148,6 +148,14 @@ core 不做 I/O，但会告诉 runtime 做什么：
 
 runtime 另有**目录效果**，不是 core Effect：`publish_dir`（把 `pending/<内部 id>/payload/` 原子改名为最终目录）、`prepare_attempt`（在已提交 Attempt 下安全建 `engine/`、`outputs/` 与输出父目录）、`delete_dir`（把已核归属的目录移入本操作自己的 pending 再删除）。这些效果随请求登记进 `requests.effects_json`，带完成标记；崩溃后由下一次写操作在同一管理根写锁内恢复（[存储合同 §3.2](contracts/storage.md)）。文件级效果的精确字节同样登记，保证历史任务书与 `engine/stats.json` 按提交时字节恢复，而不是从最新状态重算。
 
+### 3.3 接续与成果投影
+
+core 的 `status_view`/`StatusCardJson` 提供当前 Occurrence 最新 Attempt 的 resume：任务书路径、已冻结 inputs、仅 running 的声明草稿位置。文本卡与 JSON 使用相同组装来源；卡片不保存实时 I/O 就绪事实。
+
+core 的 `result_view(state, graph, revision, effects_pending)` 从合法成功终点的具体 Attempt.inputs/outputs 选择 result 项。有效无选择为空，成功状态与终点/必需引用矛盾拒绝；revision 由 runtime 参数给出，不从 WorkState 推断。ResultView 不缓存到 Store，不构成第二事实源。
+
+runtime 的 `Store::read_work_bundle` 在单一只读事务取得 WorkRow、完整关联 requests/audit/效果与 Start 定位；已有 bundle 的可信加载不跨连接回查。公开 StatusReadView 将状态投影与 revision/effects_pending/pending_publish 合成一个读取 DTO；WorkService::result 返回同一上下文的 ResultView 与 next。真实文件字节不由普通结果查询重新认证。精确字段见 protocol/storage。
+
 ## 4. 一次写操作的流程
 
 写操作分三段：只读预检、持锁执行、提交后发布（[存储合同 §2](contracts/storage.md)）。`work start`的确定性输入拒绝在创建Home/锁和业务目录之前完成；`workbook add`只在锁前做源结构、类型和限额粗检，内容解析、编译与摘要在锁内私有副本进行。副本内容失败可保留控制Store/锁及自有暂存，业务行、请求、审计与最终Workbook不得出现。
@@ -180,7 +188,7 @@ CLI 解析参数（只解析 @file 路径，不读内容）
 
 ```text
 ~/.sheltie/
-  store.db                          SQLite，SCHEMA_VERSION = 2（schema 1 明确拒绝）
+  store.db                          SQLite，SCHEMA_VERSION = 3（schema 1/2 明确拒绝）
   .lock                             管理根写锁（写操作创建；只读命令不碰）
   bin/sheltie                       当前二进制；bin/sheltie.prev 供回滚
   tmp/                              下载与解包等一次性暂存，可按年龄清理

@@ -1,7 +1,7 @@
 //! `self install | update | rollback | uninstall | version`。除 `install` 建库外不打开 `store.db`。
 //!
 //! 不写任何宿主配置（`INV-3`）：`install` 的 PATH 只是提示文本。安装与更新的提示都要
-//! 说清 Store schema 2 与旧数据保留——rollback 只换回旧二进制，不降级 Store。
+//! 说清 当前 Store schema 与旧数据保留——rollback 只换回旧二进制，不降级 Store。
 
 use serde_json::json;
 use sheltie_runtime::selfmgmt;
@@ -10,9 +10,13 @@ use crate::cli::SelfCmd;
 use crate::commands::Ctx;
 use crate::output::{self, Outcome};
 
-/// Store schema 与降级口径的固定提示（存储合同 §9、C002 design：只换二进制不等于降级）。
-const SCHEMA_NOTE: &str = "Store schema 是 2：旧数据保留在旧管理根，旧二进制拒绝 schema 2 的库。\
-rollback 只换回旧二进制，不降级 Store；查旧记录要旧二进制配旧管理根。";
+fn schema_note(ctx: &Ctx) -> String {
+    format!(
+        "Store schema 是 {}：旧数据保留在旧管理根，旧二进制拒绝当前格式的库。\
+rollback 只换回旧二进制，不降级 Store；查旧记录要旧二进制配旧管理根。",
+        selfmgmt::version_info(&ctx.home).schema_version
+    )
+}
 
 /// `uninstall --purge` 在文本模式下没有 `--yes` 时读一行 stdin，必须是 `yes`；JSON 模式下必须给 `--yes`。
 pub fn run(ctx: &Ctx, cmd: SelfCmd) -> Outcome {
@@ -41,7 +45,9 @@ fn install(ctx: &Ctx) -> Outcome {
             };
             let text = format!(
                 "{verb} {}\n{}\n{}\n",
-                out.installed_to, out.path_hint, SCHEMA_NOTE
+                out.installed_to,
+                out.path_hint,
+                schema_note(ctx)
             );
             output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
         }
@@ -64,7 +70,7 @@ fn update(ctx: &Ctx, version: Option<&str>) -> Outcome {
             } else {
                 format!("已从 {} 升到 {}\n", out.from, out.to)
             };
-            let text = format!("{head}{SCHEMA_NOTE}\n");
+            let text = format!("{head}{}\n", schema_note(ctx));
             output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),

@@ -53,7 +53,7 @@ fn input(
     }
 }
 
-// 手写合同schema2；不使用production TABLES/create_script作为自己的期望。
+// 手写当前schema 3合同；不使用production TABLES/create_script作为自己的期望。
 const HANDWRITTEN_WORKS: &str = "CREATE TABLE works (
   work_id     TEXT PRIMARY KEY,
   revision    INTEGER NOT NULL,
@@ -63,7 +63,7 @@ const HANDWRITTEN_WORKS: &str = "CREATE TABLE works (
   updated_at  TEXT NOT NULL
 )";
 
-fn handwritten_schema2(works: &str) -> (tempfile::TempDir, Home) {
+fn handwritten_current_schema(works: &str) -> (tempfile::TempDir, Home) {
     let (dir, home) = temp_home();
     let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert!(
@@ -85,15 +85,15 @@ fn handwritten_schema2(works: &str) -> (tempfile::TempDir, Home) {
              CREATE TABLE requests (request_id TEXT PRIMARY KEY, intent_hash TEXT NOT NULL, work_id TEXT, reply_json TEXT NOT NULL, effects_json TEXT NOT NULL, published INTEGER NOT NULL, at TEXT NOT NULL);
              CREATE TABLE audit (seq INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL, revision INTEGER NOT NULL, request_id TEXT NOT NULL, principal TEXT NOT NULL, command_json TEXT NOT NULL, at TEXT NOT NULL);
              INSERT INTO work_sequence VALUES ('2026-10-02', 7);
-             PRAGMA user_version = 2;"
+             PRAGMA user_version = 3;"
         ))
         .unwrap();
     drop(connection);
     (dir, home)
 }
 
-fn assert_schema2_shape_rejected(works: String) {
-    let (dir, home) = handwritten_schema2(&works);
+fn assert_current_schema_shape_rejected(works: String) {
+    let (dir, home) = handwritten_current_schema(&works);
     let main_before = std::fs::read(home.store_path().as_path()).unwrap();
     let wal = dir.path().join("store.db-wal");
     let wal_before = std::fs::read(&wal).unwrap();
@@ -115,7 +115,7 @@ fn assert_schema2_shape_rejected(works: String) {
 // Task: C002-T40
 #[test]
 fn handwritten_schema2_control_accepts_both_open_modes() {
-    let (_dir, home) = handwritten_schema2(HANDWRITTEN_WORKS);
+    let (_dir, home) = handwritten_current_schema(HANDWRITTEN_WORKS);
     for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
         let store = Store::open(&home.store_path(), mode).unwrap();
         assert!(store.list_works().unwrap().is_empty());
@@ -162,7 +162,7 @@ fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    // schema 2 是当前版本：模拟 schema 1 旧库（拒绝且文件字节不变）。
+    // schema 3 是当前版本：模拟 schema 1 旧库（拒绝且文件字节不变）。
     conn.pragma_update(None, "user_version", 1).unwrap();
     drop(conn);
     assert!(matches!(
@@ -174,7 +174,9 @@ fn open_rejects_wrong_user_version() {
 // Task: C002-T40
 #[test]
 fn open_rejects_same_version_different_table_shape() {
-    assert_schema2_shape_rejected(HANDWRITTEN_WORKS.replace("  status      TEXT NOT NULL,\n", ""));
+    assert_current_schema_shape_rejected(
+        HANDWRITTEN_WORKS.replace("  status      TEXT NOT NULL,\n", ""),
+    );
 }
 
 // Task: T13
@@ -280,7 +282,7 @@ fn lazy_readonly_store_rejects_a_hardlinked_journal_sidecar() {
 // Task: C002-T40
 #[test]
 fn open_rejects_same_whitespace_different_column_type() {
-    assert_schema2_shape_rejected(
+    assert_current_schema_shape_rejected(
         HANDWRITTEN_WORKS.replace("state_json  TEXT", "state_json  BLOB"),
     );
 }

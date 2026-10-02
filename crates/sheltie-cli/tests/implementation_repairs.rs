@@ -42,7 +42,7 @@ fn killed_first_store_initializer_allows_the_same_add_request_to_retry() {
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, i64>(0))
             .unwrap(),
-        2
+        3
     );
     assert_eq!(
         connection

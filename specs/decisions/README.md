@@ -14,5 +14,6 @@ MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代
 | D-037 | accepted | [受管文件使用目录句柄和安全 API](D-037-managed-file-handles.md) |
 | D-038 | accepted | [purge清除数据并保留根锁](D-038-purge-lock-lifecycle.md) |
 | D-039 | accepted | [只读SQLite允许共享内存控制文件](D-039-sqlite-read-control-files.md) |
+| D-040 | accepted | [成果与接续采用单一 Store 格式](D-040-result-resume-format.md) |
 
 模板字段：状态、日期、关联 change、背景、选择、否决方案、后果、确认方式。

@@ -16,6 +16,7 @@ pub mod observe;
 mod pending;
 mod recovery;
 pub mod request;
+mod result;
 pub mod selfmgmt;
 pub mod service;
 mod session;
@@ -26,6 +27,7 @@ pub mod workbook_repo;
 
 pub use error::{Error, Result};
 pub use home::Home;
+pub use result::StatusReadView;
 pub use service::{Response, StartArgs, WorkService, WorkSummary};
 pub use store::WorkbookRow;
 pub use workbook_repo::{

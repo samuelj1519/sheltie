@@ -137,8 +137,8 @@ kind = "back"
 | `executor` | `"agent"` 或 `"human"` | 必填 | 只表示谁干活。不推断门槛 |
 | `tier` | `"strong"` 或 `"standard"` | `"standard"` | 给协调者选模型的标签：`strong` 需要设计判断，`standard` 是填空、跑命令、对照清单。引擎只透传到 `next` 与任务书，不据此做任何事。`executor = human` 时不得出现 |
 | `instruction` | `{ file = ... }` 或 `{ text = ... }` | 必填 | 恰一个。`file` 是 Workbook 内相对路径，文件 ≤ 64 KiB，UTF-8；`text` 非空、≤ 8 KiB |
-| `inputs` | array | `[]` | 每项 `{ name, from, required? }`；`name` 在节点内唯一；`required` 默认 `true` |
-| `outputs` | array | `[]` | 每项 `{ name, path, required?, max_bytes? }`；`name` 与 `path` 在节点内唯一 |
+| `inputs` | array | `[]` | 每项 `{ name, from, required?, result? }`；`name` 在节点内唯一；`required` 默认 `true` |
+| `outputs` | array | `[]` | 每项 `{ name, path, required?, max_bytes?, result? }`；`name` 与 `path` 在节点内唯一 |
 | `requires` | array of string | `[]` | 每项 `"<kind>:<name>"`，必须对应 `workbook.toml` 的一条 `requires`。引擎把它们列进任务书 |
 | `gate` | bool | `false` | `true` 表示 Attempt 成功后要真人批准才能离开本节点 |
 | `max_visits` | integer | `1` | 1 到 32。本节点到达次数的上限，含回环 |
@@ -173,7 +173,13 @@ kind = "back"
 
 引擎文件（`brief.md`、`engine/stats.json`）在 Attempt 目录根部，worker 输出在 `outputs/` 之下，两套命名空间不再比较；`outputs/brief.md`、`outputs/stats.json` 都是合法输出。
 
-### 3.3 Edge 字段
+### 3.3 最终成果声明
+
+`inputs[]`、`outputs[]` 可声明 `result = true`，默认 false。只允许没有出边的终点 Node，且选中项必须 `required = true`。选中 input/output 的逻辑名跨两类唯一。编译按规则 10 拒绝非终点、可选选中项或重复 key，并点名字段。输入来源仍用 §3.2 的四种写法。
+
+最终选择绑定使 Work 成功的具体终点 Attempt：input 使用开工时已经绑定的 ArtifactRef，output 使用该 Attempt 提交封存的 ArtifactRef。选择方是终点；被绑定输入的生产者可以是其他 Attempt 或起始/参考/引擎文件。没有声明时成果为空，不从历史或目录猜测。读取与就绪合同见 [`work result`](protocol.md#work-result)。
+
+### 3.4 Edge 字段
 
 | 字段 | 规则 |
 | --- | --- |
@@ -195,6 +201,7 @@ kind = "back"
 7. 文件引用存在、大小合规；`instruction.file` 另须 UTF-8，`resource.<path>` 不限编码。
 8. 节点 `requires[]` 的每项都能在 `workbook.toml` 的 `requires` 里找到；同一节点内不重复。
 9. `executor = human` 的节点不得声明 `tier`。
+10. `result = true` 只允许终点的 required input/output；选中逻辑名跨 input/output 唯一。
 
 **为什么允许有环。** `back` 与 `re_review` 边形成环，这是修复回环的本意。`max_visits` 给每个节点一个硬上限，保证任何路径有限。编译期不做环检测，运行期靠计数。
 
@@ -208,15 +215,16 @@ kind = "back"
 - 节点有多个可选输入时，用任务书的「来自」行告诉工作 agent 读哪一份。可选输入一旦绑定过就会一直带着上一次的内容，「来自」是区分新旧的机械依据。
 - 让每份输出文档的第一行成为结论。协调者按第一行选边，下游按第一行决定读不读。
 
-## 6. 三份样例 Workbook
+## 6. 样例 Workbook
 
-仓库 `examples/` 下维护三份样例，它们同时是端到端测试的 fixture：
+仓库 `examples/` 下维护样例，它们同时是端到端测试的 fixture：
 
 | 目录 | 证明什么 |
 | --- | --- |
 | `examples/two-step/` | 两个 `agent` 节点，一条 `main` 边，无审查、无门槛。证明业务无关与最小流程 |
 | `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、可选输入接收打回意见、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
+| `examples/code-change/` | implement → review → deliver 和显式返工边；task/project 冻结输入，终点选择 change/review/delivery |
 
 另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十五条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
 

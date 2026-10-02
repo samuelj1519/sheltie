@@ -78,6 +78,7 @@ pub(crate) struct AuditRow {
     pub revision: i64,
     pub command_json: String,
     pub at: String,
+    pub principal: String,
 }
 
 /// `works` 表一行（`state_json` 已解码）。
@@ -87,7 +88,130 @@ pub struct WorkRow {
     pub state: WorkState,
 }
 
+#[derive(Debug)]
+pub(crate) struct WorkReadRequest {
+    pub(crate) request_id: String,
+    pub(crate) row: RequestRow,
+    pub(crate) audit: AuditRow,
+}
+
+#[derive(Debug)]
+pub(crate) struct WorkReadBundle {
+    pub(crate) work: WorkRow,
+    pub(crate) requests: Vec<WorkReadRequest>,
+}
+
 impl Store {
+    /// Both ownership indexes are read in one SQLite snapshot, including completed effects.
+    pub(crate) fn read_work_bundle(&self, id: &WorkId) -> Result<WorkReadBundle> {
+        use rusqlite::types::ValueRef;
+        use std::collections::BTreeMap;
+
+        let mut conn = self.connect()?;
+        let tx = conn.transaction()?;
+        let work: Option<(i64, String, String)> = tx
+            .query_row(
+                "SELECT revision, status, state_json FROM works WHERE work_id = ?1",
+                [id.as_str()],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?;
+        let Some((revision, status, state_json)) = work else {
+            return Err(Error::NotFound {
+                what: format!("Work {id}"),
+            });
+        };
+        let work = decode_row(id.as_str(), revision, &status, &state_json)?;
+        crate::failpoint::rendezvous("read_bundle_after_work", id.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
+
+        let mut requests = BTreeMap::new();
+        {
+            let mut statement = tx.prepare(
+                "SELECT request_id, intent_hash, reply_json, effects_json, published, work_id, at
+                 FROM requests r WHERE r.work_id = ?1 OR EXISTS (
+                   SELECT 1 FROM audit a WHERE a.request_id = r.request_id AND a.work_id = ?1
+                 ) ORDER BY request_id",
+            )?;
+            let mut rows = statement.query([id.as_str()])?;
+            while let Some(row) = rows.next()? {
+                let request_id: String = row.get(0)?;
+                let published = match row.get_ref(4)? {
+                    ValueRef::Integer(0) => false,
+                    ValueRef::Integer(1) => true,
+                    _ => {
+                        return Err(Error::StoreCorrupt {
+                            detail: format!("请求 {request_id} 的published值无效"),
+                        });
+                    }
+                };
+                requests.insert(
+                    request_id,
+                    RequestRow {
+                        intent_hash: row.get(1)?,
+                        reply_json: row.get(2)?,
+                        effects_json: row.get(3)?,
+                        published,
+                        work_id: row.get(5)?,
+                        at: row.get(6)?,
+                    },
+                );
+            }
+        }
+        let audits = {
+            let mut statement = tx.prepare(
+                "SELECT seq, request_id, work_id, revision, command_json, at, principal FROM audit a
+                 WHERE a.work_id = ?1 OR EXISTS (
+                   SELECT 1 FROM requests r WHERE r.request_id = a.request_id AND r.work_id = ?1
+                 ) ORDER BY revision, seq",
+            )?;
+            statement
+                .query_map([id.as_str()], audit_row_of)?
+                .collect::<rusqlite::Result<Vec<_>>>()?
+        };
+        let mut complete = Vec::with_capacity(audits.len());
+        let mut previous_seq = 0;
+        for audit in audits {
+            let request_id = &audit.request_id;
+            let row = requests
+                .remove(request_id)
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("Work {id} 的audit请求 {request_id} 缺失或重复"),
+                })?;
+            let expected_revision = u64::try_from(complete.len())
+                .ok()
+                .and_then(|value| value.checked_add(1));
+            if row.work_id.as_deref() != Some(id.as_str())
+                || audit.work_id != id.as_str()
+                || u64::try_from(audit.revision).ok() != expected_revision
+                || audit.seq <= previous_seq
+                || row.at != audit.at
+            {
+                return Err(Error::StoreCorrupt {
+                    detail: format!(
+                        "Work {id} 的请求 {request_id} 与audit归属/revision/时间不一致"
+                    ),
+                });
+            }
+            previous_seq = audit.seq;
+            complete.push(WorkReadRequest {
+                request_id: request_id.clone(),
+                row,
+                audit,
+            });
+        }
+        if !requests.is_empty() || u64::try_from(complete.len()).ok() != Some(work.revision) {
+            return Err(Error::StoreCorrupt {
+                detail: format!("Work {id} 的requests/audit闭包与revision不完整"),
+            });
+        }
+        tx.commit()?;
+        Ok(WorkReadBundle {
+            work,
+            requests: complete,
+        })
+    }
+
     /// 读一个 Work。不存在报 `NotFound`；`state_json` 解不出报 `StoreCorrupt`。
     pub fn load_work(&self, id: &WorkId) -> Result<WorkRow> {
         let conn = self.connect()?;
@@ -355,7 +479,7 @@ impl Store {
     pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
-            "SELECT seq, request_id, work_id, revision, command_json, at FROM audit WHERE request_id = ?1 ORDER BY seq",
+            "SELECT seq, request_id, work_id, revision, command_json, at, principal FROM audit WHERE request_id = ?1 ORDER BY seq",
         )?;
         let rows = stmt.query_map([request_id], audit_row_of)?;
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
@@ -365,7 +489,7 @@ impl Store {
     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
-            "SELECT seq, request_id, work_id, revision, command_json, at
+            "SELECT seq, request_id, work_id, revision, command_json, at, principal
              FROM audit ORDER BY seq",
         )?;
         let rows = stmt.query_map([], audit_row_of)?;
@@ -396,6 +520,7 @@ fn audit_row_of(row: &rusqlite::Row<'_>) -> rusqlite::Result<AuditRow> {
         revision: row.get(3)?,
         command_json: row.get(4)?,
         at: row.get(5)?,
+        principal: row.get(6)?,
     })
 }
 

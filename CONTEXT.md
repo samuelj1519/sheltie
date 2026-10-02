@@ -8,7 +8,7 @@
 | --- | --- |
 | Sheltie / `sheltie` | 产品名、仓库名、二进制名 |
 | `sheltie-*` | 只用于 Cargo crate 名（`sheltie-core`、`sheltie-runtime`、`sheltie-cli`） |
-| `workbook/v1`、`flow/v1`、`cli-result/v2` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` 属于 v0.1.0 历史格式 |
+| `workbook/v1`、`flow/v1`、`cli-result/v3`、`work-result/v1` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` / `cli-result/v2` 分别属于 v0.1.0 / v0.2.0 历史格式 |
 | `workbook.toml` | Workbook manifest 文件名 |
 | `SHELTIE_HOME` | 管理根环境变量，默认 `~/.sheltie` |
 
@@ -29,6 +29,8 @@
 | 门槛（gate） | 节点属性。为真时 Attempt 成功后要真人批准才能离开 |
 | 档位（tier） | 节点属性，`strong` 或 `standard`。给协调者选模型的标签，引擎不据此做任何事 |
 | 产物（artifact） | Attempt 的输出文件，提交后按 sha256 冻结 |
+| 草稿（draft output） | running Attempt 的声明输出位置；路径不证明文件已存在或封存 |
+| 最终成果（result） | 成功终点明确选择的冻结输入与封存输出；引用绑定到该具体终点 Attempt |
 | 参考文件（resource） | Workbook 内 `resources/` 下的文件，用 `resource.<path>` 绑成节点输入。随版本冻结，不装进宿主 |
 | 宿主资源（host resource） | 必须装在宿主里才能用的 skill、命名 subagent、MCP。Workbook 在 `requires` 里按 `kind + name` 声明，引擎只列出不安装 |
 | 冻结副本 | `work start` 时复制到 `works/<work_id>/workbook/` 的 Workbook 目录。本 Work 之后只读它 |
