@@ -1,0 +1,629 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 26.013403083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 6.555686916,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/effects.rs",
+          "function": {
+            "function_name": "pending_internal_id",
+            "return_type": "-> Result<&str>",
+            "span": {
+              "start": {
+                "line": 1221,
+                "column": 1
+              },
+              "end": {
+                "line": 1233,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1225,
+              "column": 9
+            },
+            "end": {
+              "line": 1225,
+              "column": 11
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__effects.rs_line_1225_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__effects.rs_line_1225_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.59901875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.65697225,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/pending.rs",
+          "function": {
+            "function_name": "prepare_new_request",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 279,
+                "column": 1
+              },
+              "end": {
+                "line": 335,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 285,
+              "column": 5
+            },
+            "end": {
+              "line": 334,
+              "column": 11
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__pending.rs_line_285_col_5.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__pending.rs_line_285_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.199266459,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.759701875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/fsx.rs",
+          "function": {
+            "function_name": "unlink_created_at",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 2496,
+                "column": 1
+              },
+              "end": {
+                "line": 2513,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 2506,
+              "column": 72
+            },
+            "end": {
+              "line": 2506,
+              "column": 74
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__fsx.rs_line_2506_col_72.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__fsx.rs_line_2506_col_72.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 33.167700333,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 11.006618958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/pending.rs",
+          "function": {
+            "function_name": "cleanup_selected",
+            "return_type": "-> Result<Vec<String>>",
+            "span": {
+              "start": {
+                "line": 341,
+                "column": 1
+              },
+              "end": {
+                "line": 696,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 664,
+              "column": 13
+            },
+            "end": {
+              "line": 664,
+              "column": 15
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__pending.rs_line_664_col_13.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__pending.rs_line_664_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.4601185,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 17.039944,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/pending.rs",
+          "function": {
+            "function_name": "PendingReferenceIndex::from_rows",
+            "return_type": "-> Result<Self>",
+            "span": {
+              "start": {
+                "line": 66,
+                "column": 5
+              },
+              "end": {
+                "line": 152,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 116,
+              "column": 21
+            },
+            "end": {
+              "line": 116,
+              "column": 23
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__pending.rs_line_116_col_21.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__pending.rs_line_116_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 40.539383041,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 17.10962225,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/effects.rs:1224:9: replace || with && in pending_internal_id",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/effects.rs",
+          "function": {
+            "function_name": "pending_internal_id",
+            "return_type": "-> Result<&str>",
+            "span": {
+              "start": {
+                "line": 1221,
+                "column": 1
+              },
+              "end": {
+                "line": 1233,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1224,
+              "column": 9
+            },
+            "end": {
+              "line": 1224,
+              "column": 11
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__effects.rs_line_1224_col_9.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__effects.rs_line_1224_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 41.023006625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 17.210368542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/pending.rs",
+          "function": {
+            "function_name": "valid_internal_id",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 698,
+                "column": 1
+              },
+              "end": {
+                "line": 700,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 699,
+              "column": 5
+            },
+            "end": {
+              "line": 699,
+              "column": 41
+            }
+          },
+          "replacement": "true",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__pending.rs_line_699_col_5.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__pending.rs_line_699_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.724920542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 13.476229417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+          "package": "sheltie-runtime",
+          "file": "crates/sheltie-runtime/src/recovery.rs",
+          "function": {
+            "function_name": "before_write",
+            "return_type": "-> Result<()>",
+            "span": {
+              "start": {
+                "line": 89,
+                "column": 1
+              },
+              "end": {
+                "line": 181,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 121,
+              "column": 36
+            },
+            "end": {
+              "line": 121,
+              "column": 38
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__sheltie-runtime__src__recovery.rs_line_121_col_36.log",
+      "diff_path": "diff/crates__sheltie-runtime__src__recovery.rs_line_121_col_36.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.491902458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.209581958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.1.0",
+            "--all-features",
+            "--package=sheltie-cli@0.1.0",
+            "-E",
+            "package(=sheltie-cli) & (binary(=replay) | binary(=self_cmd) | binary(=workbook) | test(=committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot) | test(=zero_work_revision_is_rejected_by_readonly_and_write_cli_entries) | test(=impossible_persisted_blocked_counts_are_structured_errors_without_writes_or_panic) | test(=exact_system_tmp_parent_alias_reads_the_same_at_file_and_rejects_user_symlinks) | test(=file_inputs_reject_same_volume_replacement_links_and_special_files_at_open) | test(=workbook_source_rejects_a_replaced_directory_at_the_open_boundary) | test(=readonly_sqlite_open_rejects_root_or_store_rebinding_with_unchanged_database_bytes) | test(=relative_input_resolution_reports_a_removed_current_directory_without_registering_a_request) | test(=corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original) | test(=corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original) | test(=add_snapshot_target_is_bound_before_an_original_response_is_released) | test(=fail_snapshot_status_matches_the_original_retry_even_after_later_progress) | test(=begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree))",
+            "--no-tests=fail"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 8,
+  "missed": 8,
+  "caught": 0,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-02T06:06:57.720238Z",
+  "end_time": "2026-10-02T06:08:39.696696Z",
+  "cargo_mutants_version": "27.1.0"
+}

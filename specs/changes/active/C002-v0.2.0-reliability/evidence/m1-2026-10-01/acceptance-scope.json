@@ -1,0 +1,36 @@
+{
+  "task": "C002-M1",
+  "conclusion": "通过",
+  "milestone_complete_with_authorized_exceptions": true,
+  "acceptance_scope": "macOS current completed C002 source and offline acceptance; actual SK01/SK02 task interruptions skipped by user instruction",
+  "product_candidate": "e3eea899877165f8573befee3774555598ec92bd",
+  "frozen_mutation_candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "normal_nextest_run_id": "2e126f6a-1496-4b0b-8d71-583e22d4065e",
+  "normal_tests_passed": 699,
+  "normal_tests_skipped": 0,
+  "inventory_count": 2514,
+  "exact_id_accounting_complete": true,
+  "disposition_complete": false,
+  "missing_execution_count": 215,
+  "full_validation_pass": false,
+  "security_validation_pass": false,
+  "final_spec_approval": false,
+  "actual_skips": [
+    "M1-safety-skip-001",
+    "M1-safety-skip-002"
+  ],
+  "per_mutation_notice_observed": false,
+  "linux": "not_run",
+  "T16": "not_run",
+  "T17": "not_run",
+  "final_ledger_sha256": "3cc0014cf0dbd22587dd4cc36ce7a8adf7920c990425a10b95c0dd8404ffce98",
+  "skip_map_sha256": "cec8f7e0cf16091d2142bddaa5359c696ee5c6fc76fe6a0ae6716fc4fba9c293",
+  "unaffected_work_completed": [
+    "normal engineering gates",
+    "existing capability-group CLI execution",
+    "completed raw evidence audits",
+    "Standards source review",
+    "package final records"
+  ],
+  "limits": "No full Spec/security/cross-platform/Host/release approval; controlled observation supplementary detection retains separate input identity."
+}

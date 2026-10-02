@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_digest.rs
++++ replace || with && in stream_file_into
+@@ -112,17 +112,17 @@
+         if n == 0 {
+             break;
+         }
+         actual = actual
+             .checked_add(n as u64)
+             .ok_or_else(|| Error::InvalidRequest {
+                 reason: format!("{path} 读取字节数溢出"),
+             })?;
+-        if actual > declared || actual > MAX_FILE_BYTES {
++        if actual > declared && /* ~ changed by cargo-mutants ~ */ actual > MAX_FILE_BYTES {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{path} 在读取间变大，与帧头不符"),
+             });
+         }
+         hasher.update(&buf[..n]);
+         file_hasher.update(&buf[..n]);
+         utf8.push(&buf[..n]);
+     }

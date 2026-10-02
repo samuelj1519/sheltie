@@ -1,0 +1,18 @@
+{
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "kind": "supplemental_cli_baseline",
+  "scope": "Four invalid Workbook ID/version grammar cases. Each changes one logical identity and matching publication final/owner to retain target consistency. Successful replay legal before/after, rejection must exclude unqualified original and preserve persisted facts. Not a mutation result.",
+  "files": {
+    "oracle.py": "2bda6f537464f45cee505c2822955fd04d4d8c00aa6b8664c89923fc1feafac8",
+    "baseline/metadata.json": "91a64d095b5f61caa66538081a9198f434adeae5d566dd4618bcc5e550c2f2d4",
+    "baseline/commands.json": "7bdf086d17b3fe0c6e9593537ef2a375711d278e0e042abf6e16d8dc79855415",
+    "baseline/invalid_id/before.json": "edcc2b79b43758badf24ae49f44f83ef5484c5863db15d29e2d2c90146278d77",
+    "baseline/invalid_id/after.json": "edcc2b79b43758badf24ae49f44f83ef5484c5863db15d29e2d2c90146278d77",
+    "baseline/reserved_version/before.json": "0a86c9923e3c46240d50b527206f7f66044028c060c79f4b6a638c0ceec40ab9",
+    "baseline/reserved_version/after.json": "0a86c9923e3c46240d50b527206f7f66044028c060c79f4b6a638c0ceec40ab9",
+    "baseline/invalid_version/before.json": "e06ea04607dbe9c674217372349b922a3a7c0c01371b7b41f3938852e6de8f08",
+    "baseline/invalid_version/after.json": "e06ea04607dbe9c674217372349b922a3a7c0c01371b7b41f3938852e6de8f08",
+    "baseline/overlong_version/before.json": "7605dfa9d661527dfe4e5e3ffa44acacb165300d3078446d6f676ddd3f456068",
+    "baseline/overlong_version/after.json": "7605dfa9d661527dfe4e5e3ffa44acacb165300d3078446d6f676ddd3f456068"
+  }
+}

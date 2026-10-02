@@ -2,7 +2,9 @@
 
 跨会话交接用。任务状态只看 [plan.md](plan.md) 状态列；本文件写「接下来从哪继续」与跨任务事实，不复制任务状态。
 
-## 当前位置
+当前交接见[文末M1最终验收](#当前交接m1最终验收)；下列段落保留各阶段背景，不作为当前执行队列。
+
+## 历史起点与旧任务交接
 
 - 2026-09-27 用户采用 C002，指示按计划执行到完成。2026-09-28 用户明确跳过Linux相关运行，完成其余修复和M1。
 - 实施进度只看 [plan.md](plan.md) 状态列；历史逐任务原始运行在 [evidence/tNN/](evidence/)。候选e1a8126的 [M1独立审查](review-m1-2026-09-28.md) 为“需修改”；追加修复的开工入口是 [repair-plan.md](repair-plan.md) 的T18，先固定上游调整/API门槛，再按T19–T31依赖修复与验证。
@@ -46,8 +48,24 @@ T29已由 `a4f1968` 提交并通过钩子与提交后任务门禁。T30完成req
 T33实际R21根/路径失败传播修复、全API迁移及新增真实caller回归已独立Spec/Standards复核通过；最终693项及工程门禁通过。旧5261e0d变异部分结果在M1 evidence/mutants/superseded-before-t33/，不复用新输入。提交T33后重新冻结同源码并运行完整runtime第一阶段+全部workspace存活复验；core720原直接测试只在精确依赖闭包不变时复用并保留原身份，core4消费者重跑。M1尚未通过，actual safety skip记录为空，Linux/T16/T17边界不变。
 
 
-## T34收尾与下一入口
+## T34阶段交接（历史）
 
 R22/R23/R24已修复；T34最终699项及Rust/MSRV/离线deny/文档/skill/dist门禁通过，Standards增量通过。独立Spec后续复核实际被平台暂停，按授权SK01跳过，不重试、不记Spec通过。原文与缺失义务见M1 safety-skips.json；既有反例与审查反馈仍作为历史证据。
 
 下一步是提交T34后重新冻结M1 source/治理输入。core已经改变，不能再复用旧720项；core/runtime全部重新运行完整第一阶段及所有workspace存活复验。旧5344完整runtime第一阶段及尚未开始的workspace边界保留，非安全跳过；不要启动两条管线。M1仍doing，Linux/T16/T17边界不变。
+
+
+## 2026-10-02 M1冻结验证启动记录（历史）
+
+T34提交`e3eea899877165f8573befee3774555598ec92bd`及钩子/提交后任务门禁已通过。新普通clone为`target/m1-validation/source`、候选`95d78e0677f1ffba6abe5ad9c13430ea53957101`；167项源码与root逐SHA相同，234项治理输入在clone冻结。旧clone保存为`target/m1-validation/source-t33-5344b265`，旧变异原文在M1 mutants/superseded-before-t34。
+
+当前新baseline699/699、零skip，inventory2514（core743/runtime1771）。唯一pipeline持`target/m1-validation/pipeline.lock`，入口`/private/tmp/sheltie-m1-final-pipeline.py`，原文`target/m1-validation/pipeline-t34.stdout.txt`；执行器也归档为M1 mutants/pipeline.py。core4/runtime8完整第一阶段后，所有missed/timeout分别做workspace复验；最终结果出现后还需逐ID处置，不按测试数或执行结束自动关闭M1。执行器拒覆写、固定源码/manifest/脚本SHA、要求完整diff及实际测试失败/编译diagnostic，结束前再核输入。
+
+接续只核当前phase/progress和进程，不重复启动；保持源码冻结。SK01仅独立Spec后续复核实际暂停，按授权跳过、不重试、不改记Spec通过；其他变异继续。Linux/T16/T17边界不变，M1以主表doing为准。
+
+
+## 当前交接：M1最终验收
+
+用户要求精简后按能力分组继续到M1完成，结果见[最终审查](review-m1-2026-10-02.md)。产品候选e3eea899；当前699项全通过；2514项核算完成。实际SK01缺最终Spec批准、SK02缺215项额外执行，均保留原文、未重试，不是完整验证或安全PASS。所有验证队列已结束或停止，不再续跑历史全量队列。
+
+下一任务由plan.md定位T16真实宿主回归，需绑定M1候选及明示限制。T16/T17当前not_run，Linux豁免保持；本次只完成M1，无推送、发布或宿主安装授权。最终记录提交后以git中的C002-M1 trailer定位验收记录提交，源码候选仍e3eea899。

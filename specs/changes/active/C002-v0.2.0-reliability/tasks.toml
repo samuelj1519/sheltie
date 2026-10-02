@@ -99,8 +99,8 @@ test_files = ["crates"]
 allow_test_changes = true
 
 [C002-M1]
-# M1审查反馈的源码与回归独立归属T32–T34；M1记录最终审查。
-files = ["specs/changes/active/C002-v0.2.0-reliability"]
+# M1审查反馈的源码与回归独立归属T32–T34；M1记录最终审查及完整解码/只读投影的工程规范口径。
+files = ["specs/changes/active/C002-v0.2.0-reliability", "specs/engineering.md"]
 test_files = []
 allow_test_changes = false
 

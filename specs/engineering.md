@@ -36,7 +36,7 @@ AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 - 每个 crate 禁止 `unsafe`；根 `Cargo.toml` 的 `[workspace.lints.rust] unsafe_code = "forbid"` 是实际门禁。lib crate 另禁用 `clippy::unwrap_used` 与 `clippy::expect_used`；测试代码可以 `unwrap`。OS 主体使用 D-036 选定的安全 Rust API，不直接调用 `libc`。
 - 每个 crate 一个 `Error` 枚举，用 `thiserror`。错误携带足够定位的字段（路径、字段名、规则名），CLI 层映射为 [协议](contracts/protocol.md) §7 的错误码。不用 `anyhow` 穿透 crate 边界；`cli` 内部可以用。
 - ID、路径、摘要、有界文本都用 newtype，构造函数校验，字段私有。模块边界不传裸 `String`。
-- 所有 `serde` 结构 `#[serde(deny_unknown_fields)]`。枚举用 `rename_all = "snake_case"`。
+- 完整合同载荷的 `serde` 解码必须使用 `#[serde(deny_unknown_fields)]`，拒绝未知字段。枚举用 `rename_all = "snake_case"`。私有、只读的身份投影可以仅解码所需字段；投影通过不代表完整载荷合格，其余字段仍须在任何业务 I/O 前由完整严格解码拒绝。投影只服务已有调用义务，不作为新的载荷入口。
 - 状态机用 `enum` 表达，`match` 穷尽，不写 `_ =>` 兜底。
 - 函数默认私有；`pub` 只给真实有外部调用者的项。不为 mock 加 trait。
 - 注释只写代码说不出的「为什么」。不写阶段叙述，不写显而易见的「这里做 X」。

@@ -1,0 +1,204 @@
+{
+  "binary_sha256": "beec5bd0157fac0d4b42ba7af5cf10a6346bbdbb80cb85013d32af34cd64c666",
+  "oracle_sha256": "90a9134cd62925aea4377e468894c8f2d8f2959b50bc10a72fa8bab82e2e3dc0",
+  "complete": false,
+  "cases": [
+    {
+      "name": "add-control",
+      "original_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "exit": 0,
+      "response": {
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "replayed": true,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "completed-b"
+      },
+      "a_published": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "add-request_id",
+      "original_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "another-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "exit": 1,
+      "response": {
+        "error": {
+          "code": "STORE_CORRUPT",
+          "detail": {
+            "detail": "Workbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548"
+          },
+          "message": "\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548"
+        },
+        "next": [],
+        "ok": false
+      },
+      "a_published": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "add-replayed",
+      "original_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "completed-b",
+        "replayed": true,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "exit": 1,
+      "response": {
+        "error": {
+          "code": "STORE_CORRUPT",
+          "detail": {
+            "detail": "Workbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548"
+          },
+          "message": "\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548"
+        },
+        "next": [],
+        "ok": false
+      },
+      "a_published": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "remove-control",
+      "original_snapshot": {
+        "request_id": "completed-remove-b",
+        "replayed": false,
+        "data": {
+          "id": "cached-book",
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "completed-remove-b",
+        "replayed": false,
+        "data": {
+          "id": "cached-book",
+          "version": "1.0.0"
+        }
+      },
+      "exit": 0,
+      "response": {
+        "data": {
+          "id": "cached-book",
+          "replayed": true,
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "completed-remove-b"
+      },
+      "a_published": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "remove-request_id",
+      "original_snapshot": {
+        "request_id": "completed-remove-b",
+        "replayed": false,
+        "data": {
+          "id": "cached-book",
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "another-b",
+        "replayed": false,
+        "data": {
+          "id": "cached-book",
+          "version": "1.0.0"
+        }
+      },
+      "exit": 0,
+      "response": {
+        "data": {
+          "id": "cached-book",
+          "replayed": true,
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "completed-remove-b"
+      },
+      "a_published": 1
+    }
+  ],
+  "error": "AssertionError(('remove-request_id', 0, {'data': {'id': 'cached-book', 'replayed': True, 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'completed-remove-b'}))"
+}

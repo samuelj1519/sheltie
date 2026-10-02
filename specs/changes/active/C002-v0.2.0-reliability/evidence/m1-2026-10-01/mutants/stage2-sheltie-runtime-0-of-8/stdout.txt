@@ -1,0 +1,41 @@
+Found 45 mutants to test
+ok       Unmutated baseline in 17s build + 26s test
+MISSED   crates/sheltie-runtime/src/effects.rs:123:9: delete match arm Command::SubmitAttempt{attempt, ..} | Command::FailAttempt{attempt, ..} in check_work_effects in 35s build + 218s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1012:5: replace verify_publish_final_state -> Result<()> with Ok(()) in 43s build + 223s test
+MISSED   crates/sheltie-runtime/src/effects.rs:1203:9: replace || with && in delete_dir in 52s build + 225s test
+MISSED   crates/sheltie-runtime/src/effects.rs:156:21: replace || with && in check_work_effects in 55s build + 228s test
+MISSED   crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(()) in 7s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:128:60: replace | with ^ in ManagedDir::write_new in 6s build + 226s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:217:50: replace match guard create_missing with false in ManagedFs::traverse_root in 6s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:276:27: replace match guard error == rustix::io::Errno::NOENT with true in ManagedFs::open_existing_lock_file in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:298:13: replace || with && in ManagedFs::open_existing_lock_file in 7s build + 231s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:426:60: replace | with & in ManagedFs::ensure_dir_unlocked in 7s build + 233s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at in 7s build + 233s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:870:77: replace | with ^ in ManagedFs::write_new_observed_unlocked in 6s build + 233s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:952:60: replace | with & in ManagedFs::write_atomic_unlocked in 7s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source in 5s build + 227s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:1881:66: replace | with ^ in ExternalReadTree::open_file in 7s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2197:5: replace verify_managed_file_bound -> Result<()> with Ok(()) in 7s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2336:43: replace | with ^ in open_regular_at in 6s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2502:5: replace unlink_created_at -> Result<()> with Ok(()) in 6s build + 225s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:2661:13: replace || with && in SafeFile::verify_seal_reference in 7s build + 229s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3008:44: replace | with & in make_directories_writable in 6s build + 228s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3079:32: replace | with & in set_dir_tree_mode in 6s build + 229s test
+MISSED   crates/sheltie-runtime/src/fsx.rs:3107:32: replace | with & in set_dir_tree_mode in 7s build + 226s test
+MISSED   crates/sheltie-runtime/src/home.rs:358:51: replace == with != in Home::is_lock_setup_path_missing in 7s build + 223s test
+MISSED   crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook in 7s build + 224s test
+MISSED   crates/sheltie-runtime/src/recovery.rs:198:33: delete ! in finish_request in 7s build + 221s test
+MISSED   crates/sheltie-runtime/src/selfmgmt.rs:581:9: delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest in 7s build + 227s test
+MISSED   crates/sheltie-runtime/src/service.rs:271:13: replace || with && in WorkService::start in 6s build + 221s test
+MISSED   crates/sheltie-runtime/src/service.rs:713:13: replace || with && in WorkService::workbook_publication in 5s build + 227s test
+MISSED   crates/sheltie-runtime/src/snapshot.rs:144:17: replace && with || in check_data in 6s build + 231s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:150:67: replace match guard mode == OpenMode::ReadOnly with false in Store::open_for_home in 8s build + 235s test
+MISSED   crates/sheltie-runtime/src/store/mod.rs:382:5: replace file_identity -> (u64, u64) with (0, 0) in 6s build + 226s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:342:38: replace || with && in WorkbookRepo::load_checked_request in 6s build + 227s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:568:61: replace == with != in WorkbookRepo::load_checked_request in 6s build + 225s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row in 6s build + 214s test
+MISSED   crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row in 6s build + 156s test
+MISSED   crates/sheltie-runtime/src/store/commit.rs:129:50: replace > with >= in Store::commit in 6s build + 145s test
+45 mutants tested in 40m: 38 missed, 7 caught

@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-transition-2mkypzjk/home",
+      "--json",
+      "--request-id",
+      "extra-transition",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-transition-2mkypzjk/fixture"
+    ],
+    "exit": 70,
+    "failpoint": "after_commit_before_effects",
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-transition-2mkypzjk/home",
+      "--json",
+      "--request-id",
+      "extra-transition",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-transition-2mkypzjk/fixture"
+    ],
+    "exit": 0,
+    "failpoint": null,
+    "stderr": "",
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"extra-transition\"}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-transition-2mkypzjk/home",
+      "--json",
+      "workbook",
+      "show",
+      "two-step@1.0.0"
+    ],
+    "exit": 1,
+    "stderr": "",
+    "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"pending/01a0fb4c20ab73fa99e836ade8a2036c.owner\u7f3a\u5931\u6216\u65e0\u6548\uff1a/private/tmp/m1-extra-transition-2mkypzjk/home/pending/01a0fb4c20ab73fa99e836ade8a2036c.owner \u4e0d\u5b58\u5728\"},\"message\":\"\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1apending/01a0fb4c20ab73fa99e836ade8a2036c.owner\u7f3a\u5931\u6216\u65e0\u6548\uff1a/private/tmp/m1-extra-transition-2mkypzjk/home/pending/01a0fb4c20ab73fa99e836ade8a2036c.owner \u4e0d\u5b58\u5728\"},\"next\":[],\"ok\":false}\n"
+  }
+]

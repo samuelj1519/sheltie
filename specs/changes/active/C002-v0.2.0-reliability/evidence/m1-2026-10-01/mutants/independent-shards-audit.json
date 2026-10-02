@@ -1,0 +1,378 @@
+{
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-0-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-0-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 167,
+      "Unviable": 13,
+      "MissedMutant": 42
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard evidence only; no product/M1 completion claim",
+    "raw_member_set_exact": true,
+    "execution_closure_match": true,
+    "outcomes_index_sha_match": true,
+    "mutants_index_sha_match": true
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-1-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-1-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 130,
+      "Unviable": 21,
+      "MissedMutant": 71
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard evidence only; no product/M1 completion claim",
+    "raw_member_set_exact": true,
+    "execution_closure_match": true,
+    "outcomes_index_sha_match": true,
+    "mutants_index_sha_match": true
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-2-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-2-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 158,
+      "MissedMutant": 44,
+      "Unviable": 20
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [
+      "crates/sheltie-runtime/src/fsx.rs:1500:24: replace || with && in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1500:17: replace == with != in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1500:32: replace == with != in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1940:33: replace || with && in ExternalReadTree::collect",
+      "crates/sheltie-runtime/src/fsx.rs:1940:25: replace == with != in ExternalReadTree::collect",
+      "crates/sheltie-runtime/src/fsx.rs:1940:45: replace == with != in ExternalReadTree::collect"
+    ],
+    "errors": [],
+    "result": "PASS",
+    "execution_closure_match": true,
+    "scope": "completed shard evidence only; no product/M1 completion claim"
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-3-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-3-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 147,
+      "MissedMutant": 46,
+      "Unviable": 29
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [
+      "crates/sheltie-runtime/src/fsx.rs:2468:25: replace || with && in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2468:17: replace == with != in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2468:33: replace == with != in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:34: replace || with && in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:26: replace == with != in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:43: replace == with != in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:3022:26: replace || with && in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3022:18: replace == with != in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3022:35: replace == with != in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3060:26: replace || with && in set_dir_tree_mode",
+      "crates/sheltie-runtime/src/fsx.rs:3060:18: replace == with != in set_dir_tree_mode",
+      "crates/sheltie-runtime/src/fsx.rs:3060:35: replace == with != in set_dir_tree_mode"
+    ],
+    "errors": [],
+    "result": "PASS",
+    "execution_closure_match": true,
+    "scope": "completed shard evidence only; no product/M1 completion claim"
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-4-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-4-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 161,
+      "Unviable": 20,
+      "MissedMutant": 41
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "execution_closure_match": true,
+    "scope": "completed shard evidence only; no product/M1 completion claim"
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-5-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-5-of-8",
+    "exit": 2,
+    "counts": {
+      "Unviable": 47,
+      "CaughtMutant": 129,
+      "MissedMutant": 46
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "exact_requested_set": true,
+    "raw_members_checked": 453,
+    "caught_abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "execution_closure_match": true,
+    "scope": "completed shard evidence only; no product/M1 completion claim"
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-6-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-6-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 167,
+      "Unviable": 25,
+      "MissedMutant": 30
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard evidence only; no product/M1 completion claim"
+  },
+  "5344b26507f80c44e82d5ba1e979044559278740/stage1-runtime-7-of-8": {
+    "candidate": "5344b26507f80c44e82d5ba1e979044559278740",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-runtime-7-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 146,
+      "Unviable": 34,
+      "MissedMutant": 39
+    },
+    "processed": 219,
+    "unique": 219,
+    "raw_members_checked": 447,
+    "errors": [],
+    "result": "PASS",
+    "scope": "old completed shard evidence only; not T34 runtime or M1 completion"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-core-0-of-4": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-core-0-of-4",
+    "exit": 0,
+    "seconds": 178.072,
+    "counts": {
+      "Unviable": 34,
+      "CaughtMutant": 152
+    },
+    "listed": 186,
+    "processed": 186,
+    "unique": 186,
+    "raw_members_checked": 381,
+    "abort_without_FAIL": [],
+    "errors": [],
+    "source_changes": [],
+    "result": "PASS",
+    "scope": "completed core shard execution evidence only; not full mutation/M1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-core-1-of-4": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-core-1-of-4",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 126,
+      "Unviable": 46,
+      "MissedMutant": 14
+    },
+    "listed": 186,
+    "processed": 186,
+    "unique": 186,
+    "raw_members_checked": 381,
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed core shard execution evidence only; missed await workspace; not full mutation/M1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-core-2-of-4": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-core-2-of-4",
+    "exit": 0,
+    "counts": {
+      "CaughtMutant": 183,
+      "Unviable": 3
+    },
+    "listed": 186,
+    "processed": 186,
+    "unique": 186,
+    "raw_members_checked": 381,
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed core shard execution evidence only; missed await workspace; not full mutation/M1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-core-3-of-4": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-core-3-of-4",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 164,
+      "Unviable": 18,
+      "MissedMutant": 3
+    },
+    "listed": 185,
+    "processed": 185,
+    "unique": 185,
+    "raw_members_checked": 379,
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard only; missed await workspace; no fullM1/Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/core-stage1-summary": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "listed": 743,
+    "processed": 743,
+    "unique": 743,
+    "exact_inventory_set": true,
+    "counts": {
+      "Unviable": 101,
+      "CaughtMutant": 625,
+      "MissedMutant": 17
+    },
+    "source_changes": [],
+    "scope": "complete core Stage1 execution only; all missed await workspace"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-runtime-0-of-8": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-0-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 170,
+      "Unviable": 14,
+      "MissedMutant": 38
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "source_changes": [],
+    "scope": "completed shard evidence only; missed await workspace; no fullM1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-runtime-1-of-8": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-1-of-8",
+    "exit": 2,
+    "counts": {
+      "MissedMutant": 73,
+      "CaughtMutant": 128,
+      "Unviable": 21
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard execution evidence only; missed await workspace; not fullM1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-runtime-2-of-8": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-2-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 160,
+      "MissedMutant": 42,
+      "Unviable": 20
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "abort_without_FAIL": [
+      "crates/sheltie-runtime/src/fsx.rs:1500:24: replace || with && in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1500:17: replace == with != in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1500:32: replace == with != in sync_dir_tree",
+      "crates/sheltie-runtime/src/fsx.rs:1940:33: replace || with && in ExternalReadTree::collect",
+      "crates/sheltie-runtime/src/fsx.rs:1940:25: replace == with != in ExternalReadTree::collect",
+      "crates/sheltie-runtime/src/fsx.rs:1940:45: replace == with != in ExternalReadTree::collect"
+    ],
+    "errors": [],
+    "result": "PASS",
+    "scope": "completed shard execution evidence only; missed await workspace; not fullM1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-runtime-3-of-8": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-3-of-8",
+    "exit": 2,
+    "seconds": 1603.006,
+    "counts": {
+      "CaughtMutant": 145,
+      "MissedMutant": 49,
+      "Unviable": 28
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "abort_without_FAIL": [
+      "crates/sheltie-runtime/src/fsx.rs:2468:25: replace || with && in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2468:17: replace == with != in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2468:33: replace == with != in remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:34: replace || with && in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:26: replace == with != in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:2533:43: replace == with != in preflight_remove_at",
+      "crates/sheltie-runtime/src/fsx.rs:3022:26: replace || with && in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3022:18: replace == with != in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3022:35: replace == with != in make_directories_writable",
+      "crates/sheltie-runtime/src/fsx.rs:3060:26: replace || with && in set_dir_tree_mode",
+      "crates/sheltie-runtime/src/fsx.rs:3060:18: replace == with != in set_dir_tree_mode",
+      "crates/sheltie-runtime/src/fsx.rs:3060:35: replace == with != in set_dir_tree_mode"
+    ],
+    "errors": [],
+    "result": "PASS",
+    "source_changes": [],
+    "scope": "completed shard execution evidence only; missed await workspace; not fullM1 or SK01 Spec approval"
+  },
+  "95d78e0677f1ffba6abe5ad9c13430ea53957101/stage1-sheltie-runtime-4-of-8": {
+    "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-4-of-8",
+    "exit": 2,
+    "counts": {
+      "CaughtMutant": 162,
+      "Unviable": 30,
+      "MissedMutant": 30
+    },
+    "listed": 222,
+    "processed": 222,
+    "unique": 222,
+    "raw_members_checked": 453,
+    "abort_without_FAIL": [],
+    "errors": [],
+    "result": "PASS",
+    "source_changes": [],
+    "scope": "completed shard execution evidence only; missed await workspace; not fullM1 or SK01 Spec approval"
+  }
+}

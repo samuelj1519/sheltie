@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-status/oracle-v2.py", line 78, in <module>
+    assert code==1 and error['ok'] is False,(case,status,code,error)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('submit_active', {'kind': 'succeeded'}, 0, {'data': {'attempt': 'outline#1.0', 'outputs': {'outline': {'bytes': 19, 'path': '/private/tmp/m1-status-oracle-hdvoc2dd/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md', 'sha256': 'fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f'}}, 'replayed': True, 'work_status': {'kind': 'succeeded'}}, 'next': [{'args': {'node': 'summary', 'work': '2026-10-02-001-default'}, 'edge': 'main', 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'ok': True, 'request_id': 'status-submit', 'revision': 3})

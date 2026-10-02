@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace || with && in check_workbook_effects
+@@ -500,17 +500,17 @@
+     request_id: &str,
+     audit_work_id: &str,
+     audit_revision: i64,
+     audit_at: &str,
+     identity: WorkbookEffectIdentity,
+     ops: Vec<EffectOp>,
+     registered: Option<&crate::store::WorkbookRow>,
+ ) -> Result<CheckedEffects> {
+-    if !audit_work_id.is_empty() || audit_revision != 0 || ops.len() != 1 {
++    if !audit_work_id.is_empty() || audit_revision != 0 && /* ~ changed by cargo-mutants ~ */ ops.len() != 1 {
+         return Err(Error::StoreCorrupt {
+             detail: "Workbook请求的audit归属或效果数量无效".to_string(),
+         });
+     }
+     check_workbook_snapshot_target(&identity, &ops)?;
+     match (&ops[0], identity) {
+         (
+             EffectOp::PublishDir {

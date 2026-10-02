@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace | with & in ExternalReadTree::open_file
+@@ -1873,17 +1873,17 @@
+                 reason: format!("{display} 在读取前被替换或改变"),
+             });
+         }
+         crate::failpoint::rendezvous("external_tree_after_stat", &display)
+             .map_err(|error| Error::io(&display, error))?;
+         let fd = openat(
+             &current,
+             &entry.name,
+-            OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
++            OFlags::RDONLY | OFlags::NOFOLLOW & /* ~ changed by cargo-mutants ~ */ OFlags::NONBLOCK | OFlags::CLOEXEC,
+             Mode::empty(),
+         )
+         .map_err(|e| map_fs_error(&display, e))?;
+         let opened = fstat(&fd).map_err(|e| map_fs_error(&display, e))?;
+         check_regular_stat(&display, &opened)?;
+         if opened.st_dev as u64 != entry.device
+             || opened.st_ino != entry.inode
+             || opened.st_size as u64 != entry.bytes

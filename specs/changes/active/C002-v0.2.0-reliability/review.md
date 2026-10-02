@@ -99,6 +99,11 @@ MCP 在 CLI 摩擦被真实观测时增加；安装器在真实资源声明需�
 
 T18合同/API探针delta经独立Standards Reviewer和Spec Reviewer复核通过。复核范围是用户采用后的合同文档和macOS arm64探针：恢复了pending owner精确格式与self update/schema边界；保留self install替换分叉二进制的既有行为；区分正常purge沿同一根锁与锁外意外替换；按bundled SQLite实测收窄短main/有效WAL与坏WAL表述；补充`@file`错误边界、RequestIntent名字顺序与SHM例外；T18验证操作职责/API，T19确定私有签名并迁移caller。Linux与真实runtime caller未由Reviewer验证；用户明确豁免Linux，Linux仍`not_run`。
 
-## 10. M1 当前候选复审（2026-10-01）
+## 10. M1 阶段候选复审（2026-10-01）
 
 原实现候选ca6d92f的源码/规格/工程独立复核及本轮精简见[M1审查](review-m1-2026-10-01.md)。代码与文档增量通过，但完整M1结论仍为需修改：269项安全变异暂缓未关闭，不能把T31范围豁免扩大为M1通过。最终输入、运行与逐行关闭边界见[证据矩阵](evidence/m1-2026-10-01/coverage-matrix.md)。Linux仍not_run，Host与发布另由T16/T17验收。
+
+
+## 11. M1 最终验收（2026-10-02）
+
+当前结论以[最终审查](review-m1-2026-10-02.md)为准：通过，限定用户授权的macOS离线验收与实际SK01/SK02跳过。T32–T34已精简并修复R21–R24；当前699项全部通过，2514项逐ID核算完成。215项额外执行缺失、最终Spec批准缺失及Linux/T16/T17 not_run仍明确保留，不写成完整安全验证通过。此前需修改结论与原始运行作为历史保留。

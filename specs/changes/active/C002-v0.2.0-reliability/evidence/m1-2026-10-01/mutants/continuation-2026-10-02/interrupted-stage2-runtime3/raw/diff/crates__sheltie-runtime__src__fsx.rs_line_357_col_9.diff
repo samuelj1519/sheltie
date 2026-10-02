@@ -1,0 +1,25 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace ManagedFs::display_path -> String with String::new()
+@@ -349,21 +349,17 @@
+ 
+     fn open_parent(&self, rel: &ManagedRelPath) -> Result<(std::fs::File, String)> {
+         let leaf = rel.leaf()?.to_string();
+         let parent = rel.parent();
+         Ok((self.open_dir(parent.as_ref())?, leaf))
+     }
+ 
+     fn display_path(&self, rel: &ManagedRelPath) -> String {
+-        format!(
+-            "{}/{}",
+-            self.root.as_str().trim_end_matches('/'),
+-            rel.as_str()
+-        )
++        String::new() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// 持锁安全建立路径中的所有目录段，并对新目录项同步父目录。
+     pub fn ensure_dir(
+         &self,
+         lock: &crate::home::HomeLock,
+         path: &ManagedRelPath,
+     ) -> Result<ManagedDir> {

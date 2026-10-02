@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked
+@@ -390,17 +390,17 @@
+                 segments: prefix.clone(),
+             };
+             match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+                 Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {
+                     return Err(Error::InvalidRequest {
+                         reason: format!("{} 是符号链接，不能作为管理目录", self.display_path(&rel)),
+                     });
+                 }
+-                Ok(stat) if FileType::from_raw_mode(stat.st_mode) != FileType::Directory => {
++                Ok(stat) if false /* ~ changed by cargo-mutants ~ */ => {
+                     return Err(Error::InvalidRequest {
+                         reason: format!("{} 不是目录", self.display_path(&rel)),
+                     });
+                 }
+                 Ok(stat) => {
+                     let opened = open_directory_at(&current, segment, &self.display_path(&rel))?;
+                     let after =
+                         fstat(&opened).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;

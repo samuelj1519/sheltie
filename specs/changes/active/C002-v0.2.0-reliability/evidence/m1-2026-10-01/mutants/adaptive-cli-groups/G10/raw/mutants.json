@@ -1,0 +1,130 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace validate_readonly -> Result<()> with Ok(())\n@@ -24,24 +24,17 @@\n     ReadOnly,\n     ReadWrite,\n }\n \n /// 用 `READ_ONLY | NOFOLLOW` 核对 `user_version` 与逐表建表语句。识别连接在旧库\n /// 拒绝前不改 journal mode、不建表或checkpoint；`NO_CKPT_ON_CLOSE` 防止关闭时写主库。\n /// 只允许 SQLite 在已存在管理根内维护合同认可的 `store.db-shm` 控制文件。\n fn validate_readonly(path: &AbsPath) -> Result<()> {\n-    let conn = rusqlite::Connection::open_with_flags(\n-        path.as_str(),\n-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,\n-    )?;\n-    prevent_checkpoint_on_close(&conn, path)?;\n-    // 识别连接也要等待本地写者（首次建库窗口）。\n-    conn.busy_timeout(std::time::Duration::from_millis(5000))?;\n-    check_schema(&conn)\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n fn prevent_checkpoint_on_close(conn: &rusqlite::Connection, path: &AbsPath) -> Result<()> {\n     if !conn.set_db_config(\n         rusqlite::config::DbConfig::SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE,\n         true,\n     )? {\n         return Err(Error::io(\n",
+    "file": "crates/sheltie-runtime/src/store/mod.rs",
+    "function": {
+      "function_name": "validate_readonly",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 40
+        },
+        "start": {
+          "column": 1,
+          "line": 28
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/mod.rs:32:5: replace validate_readonly -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 39
+      },
+      "start": {
+        "column": 5,
+        "line": 32
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/mod.rs\n+++ replace Store::validate -> Result<()> with Ok(())\n@@ -326,18 +326,17 @@\n             });\n         }\n         Ok(())\n     }\n \n     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。\n     /// 结构校验通过的读写连接才设 WAL。\n     fn validate(&self) -> Result<()> {\n-        let conn = self.connect()?;\n-        check_schema(&conn)\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。\n     pub fn allocate_seq(&self, day: &str) -> Result<u32> {\n         let mut conn = self.connect()?;\n         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;\n         tx.execute(\n             \"INSERT INTO work_sequence (day, last) VALUES (?1, 1)\\n  \\\n",
+    "file": "crates/sheltie-runtime/src/store/mod.rs",
+    "function": {
+      "function_name": "Store::validate",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 336
+        },
+        "start": {
+          "column": 5,
+          "line": 331
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/mod.rs:334:9: replace Store::validate -> Result<()> with Ok(())",
+    "package": "sheltie-runtime",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 335
+      },
+      "start": {
+        "column": 9,
+        "line": 334
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ replace normalize_sql -> String with \"xyzzy\".into()\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    \"xyzzy\".into() /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:5: replace normalize_sql -> String with \"xyzzy\".into()",
+    "package": "sheltie-runtime",
+    "replacement": "\"xyzzy\".into()",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 82
+      },
+      "start": {
+        "column": 5,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/store/schema.rs\n+++ delete ! in normalize_sql\n@@ -74,10 +74,10 @@\n     }\n     script.push_str(&format!(\"PRAGMA user_version = {SCHEMA_VERSION};\\n\"));\n     script.push_str(\"COMMIT;\\n\");\n     script\n }\n \n /// 去掉全部空白，用于比对。\n pub fn normalize_sql(sql: &str) -> String {\n-    sql.chars().filter(|c| !c.is_whitespace()).collect()\n+    sql.chars().filter(|c|  /* ~ changed by cargo-mutants ~ */c.is_whitespace()).collect()\n }\n",
+    "file": "crates/sheltie-runtime/src/store/schema.rs",
+    "function": {
+      "function_name": "normalize_sql",
+      "return_type": "-> String",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 83
+        },
+        "start": {
+          "column": 1,
+          "line": 80
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/sheltie-runtime/src/store/schema.rs:82:28: delete ! in normalize_sql",
+    "package": "sheltie-runtime",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 82
+      },
+      "start": {
+        "column": 28,
+        "line": 82
+      }
+    }
+  }
+]

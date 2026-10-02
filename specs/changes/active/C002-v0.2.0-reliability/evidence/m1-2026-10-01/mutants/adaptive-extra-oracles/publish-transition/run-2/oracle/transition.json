@@ -1,0 +1,57 @@
+{
+  "after": [
+    "extra-transition",
+    "4d33663f5ab4e8acd7df23fc0df34bc0a1ebba721b9fe19c4966766813965e22",
+    "2026-10-02-001-default",
+    "{\"request_id\":\"extra-transition\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-02-001-default\",\"work_dir\":\"/private/tmp/m1-extra-transition-8w7y0d8u/home/works/2026-10-02-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-extra-transition-8w7y0d8u/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+    "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4c13bb76fdb54b3193f01998ff/payload\",\"final\":\"works/2026-10-02-001-default\",\"owner\":\"work:2026-10-02-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-02-001-default\"}]",
+    1,
+    "2026-10-02T06:27:42Z"
+  ],
+  "before": [
+    "extra-transition",
+    "4d33663f5ab4e8acd7df23fc0df34bc0a1ebba721b9fe19c4966766813965e22",
+    "2026-10-02-001-default",
+    "{\"request_id\":\"extra-transition\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-02-001-default\",\"work_dir\":\"/private/tmp/m1-extra-transition-8w7y0d8u/home/works/2026-10-02-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/m1-extra-transition-8w7y0d8u/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"outline\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+    "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4c13bb76fdb54b3193f01998ff/payload\",\"final\":\"works/2026-10-02-001-default\",\"owner\":\"work:2026-10-02-001-default\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-02-001-default\"}]",
+    0,
+    "2026-10-02T06:27:42Z"
+  ],
+  "owner_after": false,
+  "owner_before": true,
+  "writer_reply": {
+    "data": {
+      "flow": "default",
+      "name": "default",
+      "replayed": true,
+      "requires": [],
+      "work_dir": "/private/tmp/m1-extra-transition-8w7y0d8u/home/works/2026-10-02-001-default",
+      "work_id": "2026-10-02-001-default",
+      "workbook": {
+        "digest": "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+        "id": "two-step",
+        "version": "1.0.0"
+      }
+    },
+    "next": [
+      {
+        "args": {
+          "node": "outline",
+          "work": "2026-10-02-001-default"
+        },
+        "executor": "agent",
+        "op": "attempt begin",
+        "tier": "standard"
+      },
+      {
+        "args": {
+          "work": "2026-10-02-001-default"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "ok": true,
+    "request_id": "extra-transition",
+    "revision": 1
+  }
+}

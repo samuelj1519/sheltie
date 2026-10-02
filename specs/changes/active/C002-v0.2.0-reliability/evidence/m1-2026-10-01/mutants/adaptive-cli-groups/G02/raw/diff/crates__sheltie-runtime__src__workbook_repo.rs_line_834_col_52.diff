@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace || with && in WorkbookRepo::load_row_from_directory
+@@ -826,17 +826,17 @@
+                 results: vec![VerifyRow {
+                     id: row.id.clone(),
+                     version: row.version.clone(),
+                     status: VerifyStatus::Tampered,
+                     pending_publish,
+                 }],
+             });
+         }
+-        if loaded.manifest.id().as_str() != row.id || loaded.manifest.version() != row.version {
++        if loaded.manifest.id().as_str() != row.id && /* ~ changed by cargo-mutants ~ */ loaded.manifest.version() != row.version {
+             return Err(Error::StoreCorrupt {
+                 detail: format!(
+                     "Workbook {}@{} 的manifest身份与Store行不一致",
+                     row.id, row.version
+                 ),
+             });
+         }
+         loaded.pending_publish = pending_publish;

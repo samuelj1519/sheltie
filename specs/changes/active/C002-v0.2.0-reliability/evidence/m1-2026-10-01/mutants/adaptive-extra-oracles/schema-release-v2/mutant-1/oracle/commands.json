@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-release-4nkhirf_/home",
+      "--json",
+      "self",
+      "install"
+    ],
+    "env_release_base": "/private/tmp/m1-extra-release-4nkhirf_/release",
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"already_installed\":false,\"installed_to\":\"/private/tmp/m1-extra-release-4nkhirf_/home/bin/sheltie\",\"path_hint\":\"\u628a /private/tmp/m1-extra-release-4nkhirf_/home/bin \u52a0\u8fdb PATH\"},\"next\":[],\"ok\":true}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-release-4nkhirf_/home",
+      "--json",
+      "self",
+      "update",
+      "--version",
+      "9.9.9"
+    ],
+    "env_release_base": "/private/tmp/m1-extra-release-4nkhirf_/release",
+    "exit": 1,
+    "stderr": "",
+    "stdout": "{\"error\":{\"code\":\"UPDATE_UNAVAILABLE\",\"detail\":{\"reason\":\"\u53d1\u5e03\u6e05\u5355\u65e2\u4e0d\u662f\u7626\u683c\u5f0f\u4e5f\u89e3\u4e0d\u51fa cargo-dist \u7684\u5b57\u6bb5\"},\"message\":\"\u6ca1\u6709\u53ef\u7528\u7684\u66f4\u65b0\uff1a\u53d1\u5e03\u6e05\u5355\u65e2\u4e0d\u662f\u7626\u683c\u5f0f\u4e5f\u89e3\u4e0d\u51fa cargo-dist \u7684\u5b57\u6bb5\"},\"next\":[],\"ok\":false}\n"
+  }
+]

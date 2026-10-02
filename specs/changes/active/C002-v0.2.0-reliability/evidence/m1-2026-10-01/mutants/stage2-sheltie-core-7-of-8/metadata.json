@@ -1,0 +1,27 @@
+{
+  "name": "stage2-sheltie-core-7-of-8",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-core",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--test-workspace",
+    "true",
+    "--re",
+    "^(?:crates/sheltie-core/src/work/decide\\.rs:525:31: replace == with != in reply_status_matches|crates/sheltie-core/src/work/state\\.rs:438:17: replace \\|\\| with && in WorkState::validate_gate_facts)$"
+  ],
+  "exit": 0,
+  "seconds": 60.653,
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "execution_closure_sha256": "76e3ee520154f64b232f3f0bdb8d693e8b60ca17231d89bc656b45950c370a56",
+  "listed": 2,
+  "processed": 2,
+  "counts": {
+    "CaughtMutant": 2
+  },
+  "outcomes_sha256": "4b2d869c1ba3bdff7866f508e7c26a776d4d4ac0491574454c154713fa39ed0d",
+  "mutants_sha256": "dd77d02741e115fd59849604bf44a2e28a3e0bc37cbbaa31a92e920214cac4c6"
+}

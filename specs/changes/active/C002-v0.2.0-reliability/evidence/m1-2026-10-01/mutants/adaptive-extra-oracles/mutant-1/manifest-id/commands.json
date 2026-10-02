@@ -1,0 +1,83 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/home",
+      "--json",
+      "--request-id",
+      "extra-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/fixture"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"extra-add\"}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/home",
+      "--json",
+      "--request-id",
+      "extra-add",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/fixture"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"extra-add\"}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/home",
+      "--json",
+      "--request-id",
+      "extra-start",
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--input",
+      "topic=independent"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-extra-fixture-gi6_t4d1/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"extra-start\",\"revision\":1}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/home",
+      "--json",
+      "work",
+      "status",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"blocked\":null,\"current\":\"outline#1\",\"done\":[],\"flow\":\"default\",\"last_attempt\":null,\"name\":\"default\",\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"pending\":[\"summary\"],\"pending_publish\":false,\"status\":{\"kind\":\"active\"},\"visits\":{\"outline\":\"1/1\",\"summary\":\"0/1\"},\"work_id\":\"2026-10-02-001-default\",\"workbook\":\"two-step@1.0.0\"},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-fixture-gi6_t4d1/home",
+      "--json",
+      "work",
+      "status",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"data\":{\"blocked\":null,\"current\":\"outline#1\",\"done\":[],\"flow\":\"default\",\"last_attempt\":null,\"name\":\"default\",\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"pending\":[\"summary\"],\"pending_publish\":false,\"status\":{\"kind\":\"active\"},\"visits\":{\"outline\":\"1/1\",\"summary\":\"0/1\"},\"work_id\":\"2026-10-02-001-default\",\"workbook\":\"two-step@1.0.0\"},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true}\n"
+  }
+]

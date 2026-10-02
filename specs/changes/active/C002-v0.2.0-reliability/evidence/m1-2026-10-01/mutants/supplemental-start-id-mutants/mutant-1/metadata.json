@@ -1,0 +1,37 @@
+{
+  "build_argv": [
+    "cargo",
+    "build",
+    "--offline",
+    "--locked",
+    "--all-features",
+    "--bin",
+    "sheltie",
+    "--message-format=json"
+  ],
+  "build_exit": 0,
+  "seconds": 2.3290438652038574,
+  "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+  "binary_sha256": "e75644dc6ef85c60145bea9850d7853d1c5aee923493a6d8904399e717ab3243",
+  "oracle_argv": [
+    "python3",
+    "/private/tmp/m1-started-work-id-oracle.py",
+    "--binary",
+    "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+    "--source",
+    "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-source",
+    "--output",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-start-id-mutants/mutant-1/oracle"
+  ],
+  "oracle_exit": 1,
+  "raw_sha256": {
+    "build.stderr.txt": "029c9a77b96110a2072b85298d033deb364e96b85c23f51962255acf26ac425d",
+    "build.stdout.jsonl": "2622884424c583a6c47440097ea5021fab5c39c9e409ab9d9ca3b0e9ca49fe90",
+    "oracle.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle.stderr.txt": "2b1e33da93e9e61ec00b59a63d22910080054764658397bd078b8188519a792e",
+    "oracle/before.json": "c5997a6eccdd3a7e6b8ce886fd32f4ef9b52346ce8d83cc8860350cffdf284c2",
+    "oracle/metadata.json": "dd0e9ba952e4935a63f7b5b70bfa913c1bba78333bd689c24898c9c4cd6af99f",
+    "oracle/after.json": "c5997a6eccdd3a7e6b8ce886fd32f4ef9b52346ce8d83cc8860350cffdf284c2",
+    "oracle/commands.json": "8cd59e0ec8ab5e825966fb9f6c364edc64049d05426a67eeb46c701e0a88b225"
+  }
+}

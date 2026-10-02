@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/workbook_repo.rs
++++ replace && with || in WorkbookRepo::publication_for_row
+@@ -648,17 +648,17 @@
+             let raw: serde_json::Value =
+                 serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                     detail: format!("audit {} 命令JSON无效：{error}", audit.request_id),
+                 })?;
+             let workbook_command = matches!(
+                 raw.get("intent").and_then(serde_json::Value::as_str),
+                 Some("add_workbook" | "remove_workbook")
+             );
+-            if !workbook_command && !publisher_ids.contains(audit.request_id.as_str()) {
++            if !workbook_command || /* ~ changed by cargo-mutants ~ */ !publisher_ids.contains(audit.request_id.as_str()) {
+                 continue;
+             }
+             let command: WorkbookAuditCommand =
+                 serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                     detail: format!("Workbook audit {} 命令解不开：{error}", audit.request_id),
+                 })?;
+             let (matches, is_add) = match &command {
+                 WorkbookAuditCommand::AddWorkbook { .. } => {

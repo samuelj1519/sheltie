@@ -1,0 +1,70 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-publication-0a53qvlc/home",
+      "--json",
+      "--request-id",
+      "extra-publication",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-publication-0a53qvlc/fixture"
+    ],
+    "exit": 70,
+    "failpoint": "after_commit_before_effects",
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-publication-0a53qvlc/home",
+      "--json",
+      "--request-id",
+      "extra-publication",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-publication-0a53qvlc/fixture"
+    ],
+    "exit": 0,
+    "failpoint": null,
+    "stderr": "",
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"extra-publication\"}\n"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-publication-a_5vhuid/home",
+      "--json",
+      "--request-id",
+      "extra-publication",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-publication-a_5vhuid/fixture"
+    ],
+    "exit": 70,
+    "failpoint": "after_commit_before_effects",
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/extra-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-extra-publication-a_5vhuid/home",
+      "--json",
+      "--request-id",
+      "extra-publication",
+      "workbook",
+      "add",
+      "/private/tmp/m1-extra-publication-a_5vhuid/fixture"
+    ],
+    "exit": 0,
+    "failpoint": null,
+    "stderr": "",
+    "stdout": "{\"data\":{\"digest\":\"1d4694ea5b93bff6f26ce94f8c0b5ebbf23d40a048985bdb9a90a766c58a4dc9\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"extra-publication\"}\n"
+  }
+]

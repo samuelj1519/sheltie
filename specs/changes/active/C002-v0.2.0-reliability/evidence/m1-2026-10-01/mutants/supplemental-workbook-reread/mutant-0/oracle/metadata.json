@@ -1,0 +1,101 @@
+{
+  "binary_sha256": "9a50b62b5f5aa347957a71386f30b5dd2adaf71834d96fe22df7ec2104d4bb14",
+  "oracle_sha256": "90a9134cd62925aea4377e468894c8f2d8f2959b50bc10a72fa8bab82e2e3dc0",
+  "complete": false,
+  "cases": [
+    {
+      "name": "add-control",
+      "original_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "exit": 0,
+      "response": {
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "replayed": true,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "completed-b"
+      },
+      "a_published": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "add-request_id",
+      "original_snapshot": {
+        "request_id": "completed-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "changed_snapshot": {
+        "request_id": "another-b",
+        "replayed": false,
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "requires": [],
+          "version": "1.0.0"
+        }
+      },
+      "exit": 0,
+      "response": {
+        "data": {
+          "digest": "3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679",
+          "flows": [
+            "default"
+          ],
+          "id": "cached-book",
+          "replayed": true,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "completed-b"
+      },
+      "a_published": 1
+    }
+  ],
+  "error": "AssertionError(('add-request_id', 0, {'data': {'digest': '3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679', 'flows': ['default'], 'id': 'cached-book', 'replayed': True, 'requires': [], 'version': '1.0.0'}, 'next': [], 'ok': True, 'request_id': 'completed-b'}))"
+}

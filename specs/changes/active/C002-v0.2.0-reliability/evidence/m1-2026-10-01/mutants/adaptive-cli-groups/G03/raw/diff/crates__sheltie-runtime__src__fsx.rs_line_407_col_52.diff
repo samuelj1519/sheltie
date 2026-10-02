@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::ensure_dir_unlocked
+@@ -399,17 +399,17 @@
+                     return Err(Error::InvalidRequest {
+                         reason: format!("{} 不是目录", self.display_path(&rel)),
+                     });
+                 }
+                 Ok(stat) => {
+                     let opened = open_directory_at(&current, segment, &self.display_path(&rel))?;
+                     let after =
+                         fstat(&opened).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+-                    if after.st_dev != stat.st_dev || after.st_ino != stat.st_ino {
++                    if after.st_dev != stat.st_dev && /* ~ changed by cargo-mutants ~ */ after.st_ino != stat.st_ino {
+                         return Err(Error::InvalidRequest {
+                             reason: format!("{} 在建立期间被替换", self.display_path(&rel)),
+                         });
+                     }
+                     current = opened;
+                 }
+                 Err(rustix::io::Errno::NOENT) => {
+                     mkdirat(&current, segment, Mode::from_raw_mode(0o700))

@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-10-02T04:54:35.592749+00:00",
+  "scope": "Read-only continuation orchestration approval; no driver started, no Spec approval/M1 completion",
+  "driver_sha256": "9269cebe0b2f8f97f26d2cded19939a7b821996c00015ef9606607d1cbd44853",
+  "original_pipeline_sha256": "dad454e98fffc3e446b5b72acf45ce6b395cb3d9dacc320fe90b340e612ab86e",
+  "status": "PASS",
+  "confirmed": [
+    "Exclusive same fcntl lock before mutation",
+    "Original verify/run/regex helpers loaded from immutable original script through AST function extraction",
+    "Same Rust/cargo/nextest/mutants tool versions checked",
+    "Same source/fixtures/config/features/profile and recorded environment restored",
+    "Original 23 complete shards and baseline reused without mutation rerun",
+    "Interrupted raw directory preserved with byte/SHA manifest; phase3 complete 45 requested IDs rerun",
+    "Existing continuation directory causes fail-closed refusal; driver SHA separately recorded",
+    "Workspace continuation remaining4-7 exact stride selection; final complete uniqueunion and source verify"
+  ],
+  "findings": [
+    {
+      "id": "EVID-RESUME-01",
+      "severity": "medium",
+      "problem": "Original verify pins source manifest and old script but not execution-closure or inventory; run/read metadata take current SHA and can silently adopt evidence drift",
+      "fix": "Pin closure76e3ee... and inventoryefb63f... inside verify; initial fixed expected values or independently checked immutable inputs"
+    },
+    {
+      "id": "EVID-RESUME-02",
+      "severity": "medium",
+      "problem": "Completed load_rows verifies self-consistency of outcome and metadata only, without independent recorded audit/input closure; results.json lacks explicit nonoverwrite guard",
+      "fix": "Bind completed phase outcomes/mutants/metadata/process/rawmanifest to immutable independently verified SHA (or rerun the read-only independent validation before reuse); refuse existing results.json"
+    }
+  ],
+  "reviewed_driver_sha256": "e58b246e10d495eaca5f8cdd1bfca7f27058e2d68558595499dfd8b1247a5503",
+  "reviewed_at": "2026-10-02T04:55:55.721594+00:00",
+  "resolved_findings": [
+    "EVID-RESUME-01: fixed closure and inventory SHA checked initially and every verify",
+    "EVID-RESUME-02: existing results refusal; pinned independent reuse audit/outcomes/mutants plus unique/fullobjects/phases/argv and metadata SHA"
+  ],
+  "remaining_limits": [
+    "Interrupted phase raw can prove partial WIP only; all45 must be rerun",
+    "Prior23 complete raw independently audited before recovery; reuse does not claim new execution",
+    "Final completed new phases still require independent raw evidence audit"
+  ]
+}

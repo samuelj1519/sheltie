@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in SafeFile::verify_seal_reference
+@@ -2669,17 +2669,17 @@
+             return Err(Error::StoreCorrupt {
+                 detail: format!("封存句柄 {} 的内容与提交引用不符", self.path),
+             });
+         }
+         let after = fstat(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))?;
+         check_regular_stat(self.path.as_str(), &after)?;
+         if after.st_dev != before.st_dev
+             || after.st_ino != before.st_ino
+-            || after.st_size as u64 != bytes
++            && /* ~ changed by cargo-mutants ~ */ after.st_size as u64 != bytes
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("封存句柄 {} 在校验期间改变", self.path),
+             });
+         }
+         Ok(())
+     }
+ 

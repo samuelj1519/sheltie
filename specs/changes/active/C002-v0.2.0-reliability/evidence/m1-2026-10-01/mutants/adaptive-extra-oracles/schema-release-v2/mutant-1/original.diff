@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ delete match arm serde_json::Value::Array(arr) in adapt_cargo_dist_manifest
+@@ -573,17 +573,17 @@
+         .ok_or_else(bad)?;
+     let version = tag.strip_prefix('v').ok_or_else(bad)?.to_string();
+     let artifacts = value
+         .get("artifacts")
+         .or_else(|| value.get("assets"))
+         .ok_or_else(bad)?;
+     let list: Vec<&serde_json::Value> = match artifacts {
+         serde_json::Value::Object(map) => map.values().collect(),
+-        serde_json::Value::Array(arr) => arr.iter().collect(),
++         /* ~ changed by cargo-mutants ~ */
+         _ => return Err(bad()),
+     };
+     let mut assets = Vec::new();
+     for artifact in list {
+         let kind = artifact.get("kind").and_then(|v| v.as_str());
+         if kind != Some("executable-zip") {
+             continue;
+         }

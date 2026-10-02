@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::open_lock_file
+@@ -252,17 +252,17 @@
+             &self.root_dir,
+             ".lock",
+             OFlags::RDWR | OFlags::CREATE | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC,
+             Mode::from_raw_mode(0o600),
+         )
+         .map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+         let file = std::fs::File::from(fd);
+         let stat = fstat(&file).map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+-        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile || stat.st_nlink != 1 {
++        if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile && /* ~ changed by cargo-mutants ~ */ stat.st_nlink != 1 {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{} 必须是普通单链接锁文件", lock_path),
+             });
+         }
+         fsync(&file).map_err(|e| map_fs_error(lock_path.as_str(), e))?;
+         fsync(&self.root_dir).map_err(|e| map_fs_error(self.root.as_str(), e))?;
+         Ok(file)
+     }

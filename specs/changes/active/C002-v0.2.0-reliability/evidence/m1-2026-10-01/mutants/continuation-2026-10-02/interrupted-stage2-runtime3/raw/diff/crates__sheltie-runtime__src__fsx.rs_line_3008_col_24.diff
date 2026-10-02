@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace | with ^ in make_directories_writable
+@@ -3000,17 +3000,17 @@
+         Err(error) => Err(error),
+     }
+ }
+ 
+ fn make_directories_writable(parent: &std::fs::File, name: &str, display: &str) -> Result<()> {
+     let fd = openat(
+         parent,
+         name,
+-        OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
++        OFlags::RDONLY ^ /* ~ changed by cargo-mutants ~ */ OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+         Mode::empty(),
+     )
+     .map_err(|e| map_fs_error(display, e))?;
+     let directory = std::fs::File::from(fd);
+     let entries = Dir::read_from(&directory).map_err(|e| map_fs_error(display, e))?;
+     let names = entries
+         .map(|entry| {
+             entry

@@ -1,0 +1,66 @@
+[
+  {
+    "diff": "--- crates/sheltie-core/src/work/decide.rs\n+++ replace == with != in reply_status_matches\n@@ -517,17 +517,17 @@\n pub fn reply_status_matches(reply: &Reply, status: WorkStatus, graph: &Graph) -> bool {\n     match reply {\n         Reply::AttemptFailed { attempt } => graph\n             .node(&attempt.node)\n             .is_some_and(|node| status == status_after_failure(attempt.retry, node.max_retries)),\n         Reply::AttemptSubmitted { attempt, .. } => {\n             graph.node(&attempt.node).is_some()\n                 && (status == success_status_at(graph, &attempt.node, true, false)\n-                    || status == success_status_at(graph, &attempt.node, true, true))\n+                    || status != /* ~ changed by cargo-mutants ~ */ success_status_at(graph, &attempt.node, true, true))\n         }\n         Reply::GateApproved { node, .. } => {\n             graph.node(node).is_some()\n                 && (status == success_status_at(graph, node, false, false)\n                     || status == success_status_at(graph, node, false, true))\n         }\n         Reply::Started { .. } | Reply::AttemptBegun { .. } => status == WorkStatus::Active,\n         Reply::Cancelled => status == WorkStatus::Cancelled,\n",
+    "file": "crates/sheltie-core/src/work/decide.rs",
+    "function": {
+      "function_name": "reply_status_matches",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 535
+        },
+        "start": {
+          "column": 1,
+          "line": 516
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/work/decide.rs:525:31: replace == with != in reply_status_matches",
+    "package": "sheltie-core",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 525
+      },
+      "start": {
+        "column": 31,
+        "line": 525
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-core/src/work/state.rs\n+++ replace || with && in WorkState::validate_gate_facts\n@@ -430,17 +430,17 @@\n             .node(&self.current.node)\n             .ok_or_else(|| format!(\"当前Occurrence {} 不在冻结图中\", self.current))?;\n         if self.status == WorkStatus::Blocked(BlockedReason::Gate) && !current.gate() {\n             return Err(format!(\"当前非门槛 {} 不能是Gate受阻\", self.current));\n         }\n         for attempt in &self.attempts {\n             let occurrence = attempt.occurrence();\n             let has_left_or_can_leave = occurrence != self.current\n-                || matches!(\n+                && /* ~ changed by cargo-mutants ~ */ matches!(\n                     self.status,\n                     WorkStatus::Active\n                         | WorkStatus::Succeeded\n                         | WorkStatus::Blocked(BlockedReason::NoLegalEdge)\n                 );\n             if attempt.status == AttemptStatus::Succeeded\n                 && graph.node(&attempt.id.node).is_some_and(|node| node.gate())\n                 && has_left_or_can_leave\n",
+    "file": "crates/sheltie-core/src/work/state.rs",
+    "function": {
+      "function_name": "WorkState::validate_gate_facts",
+      "return_type": "-> std::result::Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 453
+        },
+        "start": {
+          "column": 5,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-core/src/work/state.rs:438:17: replace || with && in WorkState::validate_gate_facts",
+    "package": "sheltie-core",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 438
+      },
+      "start": {
+        "column": 17,
+        "line": 438
+      }
+    }
+  }
+]

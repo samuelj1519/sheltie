@@ -1,0 +1,34 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace validate_store_files_locked -> Result<()> with Ok(())
+@@ -2227,30 +2227,17 @@
+     }
+     Ok(())
+ }
+ 
+ pub(crate) fn validate_store_files_locked(
+     home: &crate::home::Home,
+     lock: &crate::home::HomeLock,
+ ) -> Result<()> {
+-    let fs = ManagedFs::open_existing(home)?;
+-    let main = ManagedRelPath::new("store.db")?;
+-    let main_exists = fs.open_optional_locked(lock, &main)?.is_some();
+-    let mut sidecar_exists = false;
+-    for name in ["store.db-wal", "store.db-shm", "store.db-journal"] {
+-        fs.check_lock(lock)?;
+-        sidecar_exists |= fs.validate_sqlite_control_file(&ManagedRelPath::new(name)?)?;
+-    }
+-    if !main_exists && sidecar_exists {
+-        return Err(Error::StoreCorrupt {
+-            detail: "store.db不存在但仍有SQLite控制文件；拒绝建立新Store".into(),
+-        });
+-    }
+-    Ok(())
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn map_fs_error(path: &str, errno: rustix::io::Errno) -> Error {
+     let error = std::io::Error::from(errno);
+     if error.kind() == std::io::ErrorKind::NotFound {
+         Error::NotFound {
+             what: path.to_string(),
+         }

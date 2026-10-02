@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace | with & in ManagedDir::write_new
+@@ -120,17 +120,17 @@
+ 
+     pub fn write_new(&self, lock: &crate::home::HomeLock, leaf: &str, bytes: &[u8]) -> Result<()> {
+         self.check_lock(lock)?;
+         let leaf = self.leaf(leaf)?;
+         let display = format!("{}/{}", self.path.as_str(), leaf);
+         let fd = openat(
+             &self.file,
+             &leaf,
+-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
++            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW & /* ~ changed by cargo-mutants ~ */ OFlags::CLOEXEC,
+             Mode::from_raw_mode(0o600),
+         )
+         .map_err(|e| map_fs_error(&display, e))?;
+         let mut file = std::fs::File::from(fd);
+         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;
+         file.sync_all().map_err(|e| Error::io(&display, e))?;
+         fsync(&self.file).map_err(|e| map_fs_error(&display, e))
+     }

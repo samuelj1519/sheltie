@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::replace_regular_file
+@@ -1130,17 +1130,17 @@
+         let target_after =
+             statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| {
+                 Error::RecoveryRequired {
+                     path: dst_path.clone(),
+                     detail: format!("交换已执行但无法观察目标端点；请保留两个端点：{e}"),
+                 }
+             })?;
+         if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile
+-            || source_after.st_nlink != 1
++            && /* ~ changed by cargo-mutants ~ */ source_after.st_nlink != 1
+             || source_after.st_dev != dst_before.st_dev
+             || source_after.st_ino != dst_before.st_ino
+             || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile
+             || target_after.st_nlink != 1
+             || target_after.st_dev != src_before.st_dev
+             || target_after.st_ino != src_before.st_ino
+         {
+             return Err(Error::RecoveryRequired {

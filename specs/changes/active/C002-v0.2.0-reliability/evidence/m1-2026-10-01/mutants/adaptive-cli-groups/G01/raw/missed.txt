@@ -1,0 +1,17 @@
+crates/sheltie-runtime/src/effects.rs:150:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:157:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:159:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/effects.rs:158:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/load.rs:294:5: replace require_path -> Result<()> with Ok(())
+crates/sheltie-runtime/src/effects.rs:149:21: replace || with && in check_work_effects
+crates/sheltie-runtime/src/service.rs:1191:17: replace && with || in validate_command_owner
+crates/sheltie-runtime/src/service.rs:1241:17: replace && with || in validate_command_owner
+crates/sheltie-runtime/src/service.rs:1240:17: replace && with || in validate_command_owner
+crates/sheltie-runtime/src/service.rs:1251:17: replace && with || in validate_command_owner
+crates/sheltie-runtime/src/snapshot.rs:142:17: replace && with || in check_data
+crates/sheltie-runtime/src/snapshot.rs:141:17: replace && with || in check_data
+crates/sheltie-runtime/src/workbook_repo.rs:54:35: replace || with && in decode_added_snapshot
+crates/sheltie-runtime/src/workbook_repo.rs:69:35: replace || with && in decode_removed_snapshot
+crates/sheltie-runtime/src/store/read.rs:43:13: replace || with && in RequestMetadata::check_row
+crates/sheltie-runtime/src/store/read.rs:42:13: replace || with && in RequestMetadata::check_row
+crates/sheltie-runtime/src/store/read.rs:41:13: replace || with && in RequestMetadata::check_row

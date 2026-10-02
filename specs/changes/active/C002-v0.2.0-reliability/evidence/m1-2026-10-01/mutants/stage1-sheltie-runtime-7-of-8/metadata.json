@@ -1,0 +1,29 @@
+{
+  "name": "stage1-sheltie-runtime-7-of-8",
+  "argv": [
+    "scripts/mutants.sh",
+    "sheltie-runtime",
+    "--all-features",
+    "--copy-vcs",
+    "true",
+    "--jobs",
+    "4",
+    "--test-workspace",
+    "false",
+    "--shard",
+    "7/8"
+  ],
+  "exit": 2,
+  "seconds": 1580.107,
+  "candidate": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+  "execution_closure_sha256": "76e3ee520154f64b232f3f0bdb8d693e8b60ca17231d89bc656b45950c370a56",
+  "listed": 217,
+  "processed": 217,
+  "counts": {
+    "CaughtMutant": 135,
+    "Unviable": 37,
+    "MissedMutant": 45
+  },
+  "outcomes_sha256": "49ced123dd95e286f685e910956cc2d4fdf731ee6f63192369726aa33f66c80b",
+  "mutants_sha256": "75d26261e02d616c810ced3250cd55792f99131edfe8a7ca6100e79f64835dcb"
+}

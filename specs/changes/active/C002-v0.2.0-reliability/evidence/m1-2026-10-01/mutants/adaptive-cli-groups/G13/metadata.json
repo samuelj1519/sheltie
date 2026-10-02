@@ -1,0 +1,13 @@
+{
+  "group": "G13",
+  "requested": 5,
+  "processed": 5,
+  "counts": {
+    "CaughtMutant": 1,
+    "MissedMutant": 4
+  },
+  "exit": 2,
+  "seconds": 62.29928112030029,
+  "filter": "package(=sheltie-cli) & (binary(=crash))",
+  "outcomes_sha256": "d4bc31cd17e235154eb20314dec8d8539624a6cacf02f23f42c5b5d9200cd19b"
+}

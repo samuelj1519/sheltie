@@ -1,0 +1,152 @@
+[
+  {
+    "name": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.376,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "check",
+    "argv": [
+      "cargo",
+      "check",
+      "--all-targets",
+      "--all-features"
+    ],
+    "exit": 0,
+    "seconds": 0.239,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd"
+  },
+  {
+    "name": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 0.252,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "2b34696728dc82b03cbf6311d7e3a6a41658bbde097834c3010a78bc82842c1a"
+  },
+  {
+    "name": "nextest",
+    "argv": [
+      "cargo",
+      "nextest",
+      "run",
+      "--all-features",
+      "--no-tests=pass",
+      "--no-fail-fast"
+    ],
+    "exit": 0,
+    "seconds": 186.244,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "499249a8ac64af1d1b504032bdc4637426d99d1aafcccb59cac21cc740e4270f"
+  },
+  {
+    "name": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--workspace",
+      "--all-targets",
+      "--all-features",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 0.367,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "8a2933ae25e59188be988ea6218274cb341f13d8bc4b533f57b12ececd4be8b3"
+  },
+  {
+    "name": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "seconds": 2.175,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "00c805c378c4e2fd7ac01cb5975a14e7c0cdf2b068770b18ee26c4c3751e50c3"
+  },
+  {
+    "name": "specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.445,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+  },
+  {
+    "name": "core-vocab",
+    "argv": [
+      "scripts/check-core-vocab.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.149,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+  },
+  {
+    "name": "tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.082,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "970a047e727e68f8da8700a003ca81601d5945f5b8b16c20caeeb118df528188"
+  },
+  {
+    "name": "skill",
+    "argv": [
+      "scripts/check-skill.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.514,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+  },
+  {
+    "name": "dist",
+    "argv": [
+      "dist",
+      "plan",
+      "--output-format=json"
+    ],
+    "exit": 0,
+    "seconds": 0.824,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "e648bb1409150847726bd045a99effa0bb54b33c2d735437544d64860d9b70ff"
+  },
+  {
+    "name": "deny",
+    "argv": [
+      "cargo",
+      "deny",
+      "--offline",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": null,
+    "source_input_sha256": "2390ad8b68cb86b9e33acf07b9172484d50871d92e990585f7d0af5806a2c1ce",
+    "stdout_sha256": "4091333cb112bccac7b5dda0043f4d9ffa129865ffd1e5075b49c8ebba000447",
+    "scope": "Observed prior tool completion exit0; local cached advisories, not current online advisory freshness. Duration not captured."
+  }
+]

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/m1-late-seal-size-oracle.py", line 47, in <module>
+    assert p.returncode==1 and value['ok'] is False,(p.returncode,value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (0, {'data': {'attempt': 'outline#1.0', 'outputs': {'outline': {'bytes': 27, 'path': '/private/tmp/m1-late-size-13y9y4tp/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md', 'sha256': 'd26e9dfb176943c910c6cfb9197a3c61512812926c7e05abaeebbc703ddf22b5'}}, 'replayed': False, 'work_status': {'kind': 'active'}}, 'next': [{'args': {'node': 'summary', 'work': '2026-10-02-001-default'}, 'edge': 'main', 'executor': 'agent', 'op': 'attempt begin', 'tier': 'standard'}, {'args': {'work': '2026-10-02-001-default'}, 'op': 'work cancel'}], 'ok': True, 'request_id': 'late-size-submit', 'revision': 3})

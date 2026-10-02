@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ replace valid_internal_id -> bool with true
+@@ -691,17 +691,17 @@
+                 )),
+             }
+         }
+     }
+     Ok(warnings)
+ }
+ 
+ fn valid_internal_id(value: &str) -> bool {
+-    uuid::Uuid::parse_str(value).is_ok()
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {
+     format!("request_id={request_id} object={object} reason={reason}")
+ }
+ 
+ fn owner_matches_reference(
+     owner: &PendingOwner,

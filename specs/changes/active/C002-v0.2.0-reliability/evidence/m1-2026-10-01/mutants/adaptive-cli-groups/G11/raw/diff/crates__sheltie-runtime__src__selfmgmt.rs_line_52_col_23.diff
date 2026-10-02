@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ replace == with != in ReleaseSource::asset_url
+@@ -44,17 +44,17 @@
+         } else {
+             format!("{}/download/{tag}/dist-manifest.json", self.base)
+         }
+     }
+ 
+     fn asset_url(&self, tag: &str, name: &str) -> String {
+         if self.is_local() {
+             format!("{}/{tag}/{name}", self.base)
+-        } else if tag == "latest" {
++        } else if tag != /* ~ changed by cargo-mutants ~ */ "latest" {
+             format!("{}/latest/download/{name}", self.base)
+         } else {
+             format!("{}/download/{tag}/{name}", self.base)
+         }
+     }
+ }
+ 
+ #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]

@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ delete ! in delete_dir
+@@ -1158,17 +1158,17 @@
+         }
+         return Ok(());
+     }
+     if pending_exists && final_exists {
+         return Err(Error::StoreCorrupt {
+             detail: format!("删除请求 {request_id} 的final与pending同时存在"),
+         });
+     }
+-    if !pending_exists && !final_exists {
++    if  /* ~ changed by cargo-mutants ~ */pending_exists && !final_exists {
+         return Err(Error::StoreCorrupt {
+             detail: format!("删除请求 {request_id} 两端点均缺失且没有合法完成marker，结果不明"),
+         });
+     }
+ 
+     if final_exists {
+         let tree = fsx::open_managed_tree(home, lock, final_path)?;
+         fsx::verify_managed_tree_at(home, &tree, final_path)?;

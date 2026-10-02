@@ -1,0 +1,411 @@
+{
+  "scope": "Independent supplemental execution evidence only; no formal caught rewrite, no Spec approval, no M1 completion",
+  "timestamp": "2026-10-02T05:55:44.248915+00:00",
+  "groups": {
+    "supplemental-approved-status": {
+      "selection": [
+        "crates/sheltie-runtime/src/service.rs:1177:9: delete match arm CheckedData::Approved(data) in validate_command_owner"
+      ],
+      "records": [
+        {
+          "case": "baseline",
+          "id": null,
+          "build_exit": 0,
+          "oracle_exit": 0,
+          "binary_sha256": "03de14b5bbd2da6c30eb3d5df16690b0b73d153f43a65623af2d5a573dd8faf0",
+          "producer_changes": [
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            }
+          ],
+          "raw_files_verified": 62,
+          "classification": "unmutated_baseline_PASS",
+          "errors": []
+        },
+        {
+          "case": "mutant-0",
+          "id": "crates/sheltie-runtime/src/service.rs:1177:9: delete match arm CheckedData::Approved(data) in validate_command_owner",
+          "build_exit": 0,
+          "oracle_exit": 1,
+          "binary_sha256": "8d0545e4b6d7b199d40d4800af188f23aab55091fe40cdc908bc8c4faea84ac0",
+          "producer_changes": [
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_active",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/kind",
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "submit_terminal_gate",
+              "changed_paths": [
+                "/work_status/reason"
+              ],
+              "unchanged_rows_files": true
+            },
+            {
+              "case": "approve_active",
+              "changed_paths": [
+                "/work_status/kind"
+              ],
+              "unchanged_rows_files": true
+            }
+          ],
+          "raw_files_verified": 46,
+          "classification": "independent_supplemental_detected",
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "result": "PASS"
+    }
+  },
+  "errors": [],
+  "source_checked": {
+    "files": 167,
+    "clone_head": "95d78e0677f1ffba6abe5ad9c13430ea53957101",
+    "clone_clean": true,
+    "errors": []
+  },
+  "artifact_retention_limit": "Historical executable bytes were overwritten in shared isolated build target; runner and independently executed oracle recorded matching artifact SHA, compiler JSON resolves exact executable, and each actual wrong-success trace plus frozen single-diff source is retained. No claim to reread historical binary bytes.",
+  "result": "PASS"
+}

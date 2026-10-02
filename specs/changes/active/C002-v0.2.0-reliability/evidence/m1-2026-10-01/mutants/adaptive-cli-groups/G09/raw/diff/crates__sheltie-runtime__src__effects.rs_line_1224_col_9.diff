@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/effects.rs
++++ replace || with && in pending_internal_id
+@@ -1216,17 +1216,17 @@
+         });
+     }
+     Ok(())
+ }
+ 
+ pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {
+     let segments = pending.split('/').collect::<Vec<_>>();
+     if segments.len() != 3
+-        || segments[0] != "pending"
++        && /* ~ changed by cargo-mutants ~ */ segments[0] != "pending"
+         || segments[2] != "payload"
+         || uuid::Uuid::parse_str(segments[1]).is_err()
+     {
+         return Err(Error::StoreCorrupt {
+             detail: format!("删除效果的pending路径 {pending:?} 无效"),
+         });
+     }
+     Ok(segments[1])

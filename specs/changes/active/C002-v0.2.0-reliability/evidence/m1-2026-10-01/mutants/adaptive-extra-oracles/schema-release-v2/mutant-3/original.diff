@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ replace && with || in adapt_cargo_dist_manifest
+@@ -607,17 +607,17 @@
+                     .get("checksum")
+                     .and_then(|c| c.get("sha256"))
+                     .and_then(|v| v.as_str())
+             })
+             .or_else(|| artifact.get("checksum_sha256").and_then(|v| v.as_str()))
+             .or_else(|| {
+                 let raw = artifact.get("checksum").and_then(|v| v.as_str())?;
+                 let s = raw.strip_prefix("sha256:").unwrap_or(raw);
+-                (s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit())).then_some(s)
++                (s.len() == 64 || /* ~ changed by cargo-mutants ~ */ s.bytes().all(|b| b.is_ascii_hexdigit())).then_some(s)
+             });
+         let Some(sha256) = checksum else {
+             continue;
+         };
+         assets.push(SlimAsset {
+             platform: triple.to_string(),
+             name: name.to_string(),
+             sha256: sha256.to_string(),

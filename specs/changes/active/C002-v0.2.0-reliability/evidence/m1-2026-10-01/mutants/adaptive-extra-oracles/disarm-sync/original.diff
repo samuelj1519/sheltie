@@ -1,0 +1,29 @@
+--- crates/sheltie-runtime/src/failpoint.rs
++++ replace disarm_sync_error -> std::io::Result<()> with Ok(())
+@@ -100,25 +100,17 @@
+     }
+     #[cfg(not(feature = "failpoint"))]
+     let _ = (root, name);
+     Ok(())
+ }
+ 
+ /// Disarm the named sync failure.
+ pub fn disarm_sync_error() -> std::io::Result<()> {
+-    #[cfg(feature = "failpoint")]
+-    {
+-        let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));
+-        let mut state = state
+-            .lock()
+-            .map_err(|_| std::io::Error::other("sync failure configuration lock poisoned"))?;
+-        *state = None;
+-    }
+-    Ok(())
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Return an injected I/O error at a named durable sync boundary.
+ pub(crate) fn sync_error(root: &str, name: &str) -> std::io::Result<()> {
+     #[cfg(feature = "failpoint")]
+     {
+         let state = SYNC_ERROR.get_or_init(|| std::sync::Mutex::new(None));
+         let mut state = state

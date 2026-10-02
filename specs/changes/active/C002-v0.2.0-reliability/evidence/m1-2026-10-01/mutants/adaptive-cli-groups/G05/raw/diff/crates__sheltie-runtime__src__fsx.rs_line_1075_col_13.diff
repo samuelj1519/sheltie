@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::replace_verified_regular_file
+@@ -1067,17 +1067,17 @@
+             })?;
+         let target_after = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)
+             .map_err(|e| Error::RecoveryRequired {
+                 path: self.display_path(to),
+                 detail: format!("候选交换后目标端点无法观察：{e}"),
+             })?;
+         if !stat_matches_handle(&target_after, file)
+             || source_after.st_dev != old_target.st_dev
+-            || source_after.st_ino != old_target.st_ino
++            && /* ~ changed by cargo-mutants ~ */ source_after.st_ino != old_target.st_ino
+         {
+             return Err(Error::RecoveryRequired {
+                 path: self.display_path(to),
+                 detail: "候选交换后端点身份不符；候选、原文件和目标均保留".into(),
+             });
+         }
+         verify_candidate_handle(file, expected).map_err(|error| Error::RecoveryRequired {
+             path: self.display_path(to),

@@ -1,0 +1,169 @@
+{
+  "result": "PASS",
+  "classification": "independent_supplemental_detected",
+  "scope": "Existing rendezvous, no instrumentation; precise real-CLI outer workbook reread. No formal caught rewrite/Spec approval.",
+  "records": [
+    {
+      "group": "baseline",
+      "id": null,
+      "build_exit": 0,
+      "oracle_exit": 0,
+      "observations": [
+        {
+          "case": "add-control",
+          "changed_snapshot_fields": [],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "add-request_id",
+          "changed_snapshot_fields": [
+            "request_id"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "add-replayed",
+          "changed_snapshot_fields": [
+            "replayed"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "remove-control",
+          "changed_snapshot_fields": [],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "remove-request_id",
+          "changed_snapshot_fields": [
+            "request_id"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "remove-replayed",
+          "changed_snapshot_fields": [
+            "replayed"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "group": "mutant-0",
+      "id": "crates/sheltie-runtime/src/workbook_repo.rs:54:35: replace || with && in decode_added_snapshot",
+      "build_exit": 0,
+      "oracle_exit": 1,
+      "observations": [
+        {
+          "case": "add-control",
+          "changed_snapshot_fields": [],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "add-request_id",
+          "changed_snapshot_fields": [
+            "request_id"
+          ],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "independent_supplemental_detected"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "group": "mutant-1",
+      "id": "crates/sheltie-runtime/src/workbook_repo.rs:69:35: replace || with && in decode_removed_snapshot",
+      "build_exit": 0,
+      "oracle_exit": 1,
+      "observations": [
+        {
+          "case": "add-control",
+          "changed_snapshot_fields": [],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "add-request_id",
+          "changed_snapshot_fields": [
+            "request_id"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "add-replayed",
+          "changed_snapshot_fields": [
+            "replayed"
+          ],
+          "actual_cli_exit": 1,
+          "a_published": 1,
+          "ok": false,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "remove-control",
+          "changed_snapshot_fields": [],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "PASS"
+        },
+        {
+          "case": "remove-request_id",
+          "changed_snapshot_fields": [
+            "request_id"
+          ],
+          "actual_cli_exit": 0,
+          "a_published": 1,
+          "ok": true,
+          "reported_result": "independent_supplemental_detected"
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "errors": [],
+  "reachability_evidence": {
+    "source_refs": [
+      "workbook_repo.rs add206-214 and remove1047-1054: recovery then outerinspect/decode",
+      "effects.rs915-920: existing publish_after_tree_sync point"
+    ],
+    "source_sha256": {
+      "workbook_repo.rs": "956d938fc94adf4d338d2ee7b54a1d83db0915b5ba52046e06e18f5096c1b3ad",
+      "effects.rs": "3ad5d88480d843c1b9f8ea5fdab341c53c328bebf2ea3cc133af6ad54018516e",
+      "recovery.rs": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43"
+    },
+    "observed_lawful_A_published": true
+  },
+  "fact_scope_limit": "Only original/changed B snapshot values and publication A observed are retained in metadata/actual commands; oracle asserts B row remains changed on rejection. No independent whole-store/file unchanged claim because lawful A must publish.",
+  "timestamp": "2026-10-02T05:56:37.545792+00:00"
+}

@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::set_mode
+@@ -1423,17 +1423,17 @@
+         operation: &str,
+     ) -> Result<()> {
+         self.check_lock(lock)?;
+         let Some(origin) = &file.managed else {
+             return Err(Error::InvalidRequest {
+                 reason: "不能修改外部只读文件的权限".to_string(),
+             });
+         };
+-        if origin.root != self.root || origin.root_ident != self.root_ident {
++        if origin.root != self.root && /* ~ changed by cargo-mutants ~ */ origin.root_ident != self.root_ident {
+             return Err(Error::InvalidRequest {
+                 reason: "文件句柄不属于此管理根".to_string(),
+             });
+         }
+         let current = fstat(&file.file).map_err(|e| map_fs_error(file.path.as_str(), e))?;
+         check_regular_stat(file.path.as_str(), &current)?;
+         if current.st_dev as u64 != file.meta.dev() || current.st_ino as u64 != file.meta.ino() {
+             return Err(Error::InvalidRequest {

@@ -1,0 +1,64 @@
+[
+  {
+    "equal": true,
+    "label": "manifest-version",
+    "result": {
+      "data": {
+        "blocked": null,
+        "current": "outline#1",
+        "done": [],
+        "flow": "default",
+        "last_attempt": null,
+        "name": "default",
+        "next": [
+          {
+            "args": {
+              "node": "outline",
+              "work": "2026-10-02-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-02-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "pending": [
+          "summary"
+        ],
+        "pending_publish": false,
+        "status": {
+          "kind": "active"
+        },
+        "visits": {
+          "outline": "1/1",
+          "summary": "0/1"
+        },
+        "work_id": "2026-10-02-001-default",
+        "workbook": "two-step@1.0.0"
+      },
+      "next": [
+        {
+          "args": {
+            "node": "outline",
+            "work": "2026-10-02-001-default"
+          },
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "standard"
+        },
+        {
+          "args": {
+            "work": "2026-10-02-001-default"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "ok": true
+    }
+  }
+]

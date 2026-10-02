@@ -1,0 +1,28 @@
+--- crates/sheltie-runtime/src/store/mod.rs
++++ replace root_identity -> Result<(u64, u64)> with Ok((1, 1))
+@@ -356,24 +356,17 @@
+             });
+         }
+         tx.commit()?;
+         Ok(last as u32)
+     }
+ }
+ 
+ fn root_identity(home: &Home) -> Result<(u64, u64)> {
+-    let metadata = std::fs::symlink_metadata(home.root().as_path())
+-        .map_err(|error| Error::io(home.root().as_str(), error))?;
+-    if !metadata.file_type().is_dir() {
+-        return Err(Error::InvalidRequest {
+-            reason: format!("管理根 {} 必须是目录", home.root()),
+-        });
+-    }
+-    Ok(file_identity(&metadata))
++    Ok((1, 1)) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(unix)]
+ fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+     use std::os::unix::fs::MetadataExt as _;
+     (metadata.dev(), metadata.ino())
+ }
+ 

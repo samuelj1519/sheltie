@@ -1,0 +1,131 @@
+[
+  {
+    "build_argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--all-features",
+      "--bin",
+      "sheltie",
+      "--message-format=json"
+    ],
+    "build_exit": 0,
+    "seconds": 1.5917060375213623,
+    "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+    "binary_sha256": "63516725c8e4545311eeda8552f69b86bb0ee76288903ef56d87fb21d6cc489e",
+    "oracle_argv": [
+      "python3",
+      "/private/tmp/m1-started-work-id-oracle.py",
+      "--binary",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--source",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-source",
+      "--output",
+      "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-start-id-mutants/mutant-0/oracle"
+    ],
+    "oracle_exit": 1,
+    "raw_sha256": {
+      "build.stderr.txt": "435bf1fb9d1984bb52d63dbce2c8ee9e6fa78be5e07a1ff65001cd44047ecd4e",
+      "build.stdout.jsonl": "7516ecbe6a4a177bfcbdee1bfb8e1f58cd54140a86451f8977e855276b5518ac",
+      "oracle.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "oracle.stderr.txt": "a71ea4cef45c2b37d250689770b2424d57e46bb66fb66ffd5ea02ca9d6ad348a",
+      "oracle/before.json": "5d334fdb400740d7cecc4128f2ec6b3618d1e50c714c3fe343b6ac50cf6b7e44",
+      "oracle/metadata.json": "f5d56770b9f89770613606bb1ad7b50873c4228cd76523fffe2bb891751afae2",
+      "oracle/after.json": "5d334fdb400740d7cecc4128f2ec6b3618d1e50c714c3fe343b6ac50cf6b7e44",
+      "oracle/commands.json": "afb1508b55498372c3e9a66d557c1ec7adcc6b33ed6ea1ffac786e58b11772b4"
+    },
+    "id": "crates/sheltie-runtime/src/snapshot.rs:144:17: replace && with || in check_data",
+    "diff_sha256": "c4c8de36daac678d523db54c5950f4066424e364c59e34168a1c04b0867eba17",
+    "changed_source_sha256": {
+      "crates/sheltie-runtime/src/snapshot.rs": "b13f8ed17a61a274537cc98801b7f87a70c61e799528524b913e9ef04425e3ff"
+    },
+    "detected": true
+  },
+  {
+    "build_argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--all-features",
+      "--bin",
+      "sheltie",
+      "--message-format=json"
+    ],
+    "build_exit": 0,
+    "seconds": 2.3290438652038574,
+    "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+    "binary_sha256": "e75644dc6ef85c60145bea9850d7853d1c5aee923493a6d8904399e717ab3243",
+    "oracle_argv": [
+      "python3",
+      "/private/tmp/m1-started-work-id-oracle.py",
+      "--binary",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--source",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-source",
+      "--output",
+      "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-start-id-mutants/mutant-1/oracle"
+    ],
+    "oracle_exit": 1,
+    "raw_sha256": {
+      "build.stderr.txt": "029c9a77b96110a2072b85298d033deb364e96b85c23f51962255acf26ac425d",
+      "build.stdout.jsonl": "2622884424c583a6c47440097ea5021fab5c39c9e409ab9d9ca3b0e9ca49fe90",
+      "oracle.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "oracle.stderr.txt": "2b1e33da93e9e61ec00b59a63d22910080054764658397bd078b8188519a792e",
+      "oracle/before.json": "c5997a6eccdd3a7e6b8ce886fd32f4ef9b52346ce8d83cc8860350cffdf284c2",
+      "oracle/metadata.json": "dd0e9ba952e4935a63f7b5b70bfa913c1bba78333bd689c24898c9c4cd6af99f",
+      "oracle/after.json": "c5997a6eccdd3a7e6b8ce886fd32f4ef9b52346ce8d83cc8860350cffdf284c2",
+      "oracle/commands.json": "8cd59e0ec8ab5e825966fb9f6c364edc64049d05426a67eeb46c701e0a88b225"
+    },
+    "id": "crates/sheltie-runtime/src/snapshot.rs:145:17: replace && with || in check_data",
+    "diff_sha256": "8cff1367b8d09774f4d38aa6e1caaea4d6cbc569eec28555cd2a30e5cc005b53",
+    "changed_source_sha256": {
+      "crates/sheltie-runtime/src/snapshot.rs": "2ed0de8072eb30e0927b69b41216720dc67ed41b9ef43949ce7646feb567ad1b"
+    },
+    "detected": true
+  },
+  {
+    "build_argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--all-features",
+      "--bin",
+      "sheltie",
+      "--message-format=json"
+    ],
+    "build_exit": 0,
+    "seconds": 2.685335159301758,
+    "binary": "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+    "binary_sha256": "0e0050f443295bdab62862f91a7e311d89537a74e8e77834de6303f7a090f2d6",
+    "oracle_argv": [
+      "python3",
+      "/private/tmp/m1-started-work-id-oracle.py",
+      "--binary",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--source",
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-source",
+      "--output",
+      "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/supplemental-start-id-mutants/mutant-2/oracle"
+    ],
+    "oracle_exit": 1,
+    "raw_sha256": {
+      "build.stderr.txt": "c7d4e435ba7560292f19fdd5cbb5aa943ee1bfac29ebeb3c4807559e21516d69",
+      "build.stdout.jsonl": "6573d0e2ea0bfd3278775a1f7a33d415343cbe46b90a6d7a9dd965cd776bdc11",
+      "oracle.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "oracle.stderr.txt": "101bbf5f4645c0215e1b4e90c071e74a9cd443e9c4d06d936a25d6f6619fa40a",
+      "oracle/before.json": "9af993bf4e0418036aef6889acde8fe6f7448d5984c53b2f0fe4c16191daffda",
+      "oracle/metadata.json": "cefad332cf68c9f70c5117964ba0a499be67dfd64667e6e8e90067a685bcb256",
+      "oracle/after.json": "9af993bf4e0418036aef6889acde8fe6f7448d5984c53b2f0fe4c16191daffda",
+      "oracle/commands.json": "5066457b519ab8e986409c5d46ade90bc476eec5cf2f0fb28bb685e2c1d1116d"
+    },
+    "id": "crates/sheltie-runtime/src/snapshot.rs:143:17: replace && with || in check_data",
+    "diff_sha256": "71b6efa071a3a768bcbb0d41bb0849c6de1821d25c465bc56ecb439fe35be51c",
+    "changed_source_sha256": {
+      "crates/sheltie-runtime/src/snapshot.rs": "e0d0ba513c981728a1b5676f72977897de3614ec8b773c8e804320f370021053"
+    },
+    "detected": true
+  }
+]

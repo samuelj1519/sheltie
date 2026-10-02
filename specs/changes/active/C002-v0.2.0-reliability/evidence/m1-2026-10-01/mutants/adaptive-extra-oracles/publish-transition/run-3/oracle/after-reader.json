@@ -1,0 +1,24 @@
+{
+  "files": {
+    "workbooks/two-step/1.0.0/flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002",
+    "workbooks/two-step/1.0.0/instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+    "workbooks/two-step/1.0.0/instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+    "workbooks/two-step/1.0.0/workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+  },
+  "rows": {
+    "audit": [
+      "(1, '', 0, 'extra-transition', 'shushu', '{\"intent\":\"add_workbook\",\"source\":\"903088b6a44d6a9e9fa0f8551f7b2f029ee08d7a66e22afdb2875adfc38c4000\"}', '2026-10-02T06:27:43Z')"
+    ],
+    "requests": [
+      "('extra-transition', '903088b6a44d6a9e9fa0f8551f7b2f029ee08d7a66e22afdb2875adfc38c4000', None, '{\"request_id\":\"extra-transition\",\"replayed\":false,\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"requires\":[],\"version\":\"1.0.0\"}}', '[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a0fb4c1a9c739588c9a7b5e2e7455c/payload\",\"final\":\"workbooks/two-step/1.0.0\",\"owner\":\"workbook:two-step@1.0.0\",\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"digest_root\":\"\"}]', 1, '2026-10-02T06:27:43Z')"
+    ],
+    "sqlite_sequence": [
+      "('audit', 1)"
+    ],
+    "work_sequence": [],
+    "workbooks": [
+      "('two-step', '1.0.0', 'db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549', 'workbooks/two-step/1.0.0', '2026-10-02T06:27:43Z')"
+    ],
+    "works": []
+  }
+}

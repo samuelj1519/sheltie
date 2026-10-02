@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/selfmgmt.rs
++++ replace || with && in checked_asset_name
+@@ -481,17 +481,17 @@
+         });
+     }
+     Ok(v.to_string())
+ }
+ 
+ /// 资产名同理：只接受单个文件名，`..`、分隔符一概拒绝（伪造路径不越界）。
+ fn checked_asset_name(raw: &str) -> Result<String> {
+     if raw.is_empty()
+-        || raw == "."
++        && /* ~ changed by cargo-mutants ~ */ raw == "."
+         || raw == ".."
+         || raw.contains('/')
+         || raw.contains('\\')
+         || raw.contains('\0')
+     {
+         return Err(Error::UpdateUnavailable {
+             reason: format!("发布包名 {raw} 不是合法的文件名"),
+         });

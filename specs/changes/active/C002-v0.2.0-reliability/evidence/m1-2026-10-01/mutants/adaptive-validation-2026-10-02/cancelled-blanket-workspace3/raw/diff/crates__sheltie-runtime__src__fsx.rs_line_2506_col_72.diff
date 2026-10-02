@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace != with == in unlink_created_at
+@@ -2498,17 +2498,17 @@
+     leaf: &str,
+     display: &str,
+     created: &std::fs::Metadata,
+ ) -> Result<()> {
+     use std::os::unix::fs::MetadataExt as _;
+     let current = statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW)
+         .map_err(|error| map_fs_error(display, error))?;
+     check_regular_stat(display, &current)?;
+-    if current.st_dev as u64 != created.dev() || current.st_ino as u64 != created.ino() {
++    if current.st_dev as u64 != created.dev() || current.st_ino as u64 == /* ~ changed by cargo-mutants ~ */ created.ino() {
+         return Err(Error::InvalidRequest {
+             reason: format!("{display} 已不再绑定本次创建的inode"),
+         });
+     }
+     unlinkat(parent, leaf, AtFlags::empty()).map_err(|error| map_fs_error(display, error))?;
+     fsync(parent).map_err(|error| map_fs_error(display, error))
+ }
+ 

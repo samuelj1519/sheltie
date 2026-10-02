@@ -1,0 +1,322 @@
+[
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_verified_regular_file\n@@ -1067,17 +1067,17 @@\n             })?;\n         let target_after = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|e| Error::RecoveryRequired {\n                 path: self.display_path(to),\n                 detail: format!(\"候选交换后目标端点无法观察：{e}\"),\n             })?;\n         if !stat_matches_handle(&target_after, file)\n             || source_after.st_dev != old_target.st_dev\n-            || source_after.st_ino != old_target.st_ino\n+            && /* ~ changed by cargo-mutants ~ */ source_after.st_ino != old_target.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n                 path: self.display_path(to),\n                 detail: \"候选交换后端点身份不符；候选、原文件和目标均保留\".into(),\n             });\n         }\n         verify_candidate_handle(file, expected).map_err(|error| Error::RecoveryRequired {\n             path: self.display_path(to),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_verified_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1094
+        },
+        "start": {
+          "column": 5,
+          "line": 1032
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1075
+      },
+      "start": {
+        "column": 13,
+        "line": 1075
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_verified_regular_file\n@@ -1066,17 +1066,17 @@\n                 detail: format!(\"候选交换后源端点无法观察：{e}\"),\n             })?;\n         let target_after = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)\n             .map_err(|e| Error::RecoveryRequired {\n                 path: self.display_path(to),\n                 detail: format!(\"候选交换后目标端点无法观察：{e}\"),\n             })?;\n         if !stat_matches_handle(&target_after, file)\n-            || source_after.st_dev != old_target.st_dev\n+            && /* ~ changed by cargo-mutants ~ */ source_after.st_dev != old_target.st_dev\n             || source_after.st_ino != old_target.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n                 path: self.display_path(to),\n                 detail: \"候选交换后端点身份不符；候选、原文件和目标均保留\".into(),\n             });\n         }\n         verify_candidate_handle(file, expected).map_err(|error| Error::RecoveryRequired {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_verified_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1094
+        },
+        "start": {
+          "column": 5,
+          "line": 1032
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1074
+      },
+      "start": {
+        "column": 13,
+        "line": 1074
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_regular_file\n@@ -1133,17 +1133,17 @@\n                     path: dst_path.clone(),\n                     detail: format!(\"交换已执行但无法观察目标端点；请保留两个端点：{e}\"),\n                 }\n             })?;\n         if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile\n             || source_after.st_nlink != 1\n             || source_after.st_dev != dst_before.st_dev\n             || source_after.st_ino != dst_before.st_ino\n-            || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile\n+            && /* ~ changed by cargo-mutants ~ */ FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile\n             || target_after.st_nlink != 1\n             || target_after.st_dev != src_before.st_dev\n             || target_after.st_ino != src_before.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n                 path: dst_path,\n                 detail: \"原子交换后端点身份或链接数不符；保留两个端点以便恢复\".into(),\n             });\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1160
+        },
+        "start": {
+          "column": 5,
+          "line": 1096
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1141
+      },
+      "start": {
+        "column": 13,
+        "line": 1141
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_regular_file\n@@ -1132,17 +1132,17 @@\n                 Error::RecoveryRequired {\n                     path: dst_path.clone(),\n                     detail: format!(\"交换已执行但无法观察目标端点；请保留两个端点：{e}\"),\n                 }\n             })?;\n         if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile\n             || source_after.st_nlink != 1\n             || source_after.st_dev != dst_before.st_dev\n-            || source_after.st_ino != dst_before.st_ino\n+            && /* ~ changed by cargo-mutants ~ */ source_after.st_ino != dst_before.st_ino\n             || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile\n             || target_after.st_nlink != 1\n             || target_after.st_dev != src_before.st_dev\n             || target_after.st_ino != src_before.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n                 path: dst_path,\n                 detail: \"原子交换后端点身份或链接数不符；保留两个端点以便恢复\".into(),\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1160
+        },
+        "start": {
+          "column": 5,
+          "line": 1096
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1140
+      },
+      "start": {
+        "column": 13,
+        "line": 1140
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_regular_file\n@@ -1131,17 +1131,17 @@\n             statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| {\n                 Error::RecoveryRequired {\n                     path: dst_path.clone(),\n                     detail: format!(\"交换已执行但无法观察目标端点；请保留两个端点：{e}\"),\n                 }\n             })?;\n         if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile\n             || source_after.st_nlink != 1\n-            || source_after.st_dev != dst_before.st_dev\n+            && /* ~ changed by cargo-mutants ~ */ source_after.st_dev != dst_before.st_dev\n             || source_after.st_ino != dst_before.st_ino\n             || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile\n             || target_after.st_nlink != 1\n             || target_after.st_dev != src_before.st_dev\n             || target_after.st_ino != src_before.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n                 path: dst_path,\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1160
+        },
+        "start": {
+          "column": 5,
+          "line": 1096
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1139
+      },
+      "start": {
+        "column": 13,
+        "line": 1139
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::replace_regular_file\n@@ -1130,17 +1130,17 @@\n         let target_after =\n             statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| {\n                 Error::RecoveryRequired {\n                     path: dst_path.clone(),\n                     detail: format!(\"交换已执行但无法观察目标端点；请保留两个端点：{e}\"),\n                 }\n             })?;\n         if FileType::from_raw_mode(source_after.st_mode) != FileType::RegularFile\n-            || source_after.st_nlink != 1\n+            && /* ~ changed by cargo-mutants ~ */ source_after.st_nlink != 1\n             || source_after.st_dev != dst_before.st_dev\n             || source_after.st_ino != dst_before.st_ino\n             || FileType::from_raw_mode(target_after.st_mode) != FileType::RegularFile\n             || target_after.st_nlink != 1\n             || target_after.st_dev != src_before.st_dev\n             || target_after.st_ino != src_before.st_ino\n         {\n             return Err(Error::RecoveryRequired {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::replace_regular_file",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1160
+        },
+        "start": {
+          "column": 5,
+          "line": 1096
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 1138
+      },
+      "start": {
+        "column": 13,
+        "line": 1138
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::remove_regular_file_if_same\n@@ -1200,17 +1200,17 @@\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let origin = observed\n             .managed\n             .as_ref()\n             .ok_or_else(|| Error::InvalidRequest {\n                 reason: format!(\"{} 不是管理根内的文件句柄\", observed.path),\n             })?;\n-        if origin.root != self.root || origin.root_ident != self.root_ident || origin.rel != *path {\n+        if origin.root != self.root || origin.root_ident != self.root_ident && /* ~ changed by cargo-mutants ~ */ origin.rel != *path {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的文件句柄身份不匹配\", observed.path),\n             });\n         }\n         let (parent, leaf) = self.open_parent(path)?;\n         verify_path_matches_handle(&parent, &leaf, observed)?;\n         unlinkat(&parent, &leaf, AtFlags::empty())\n             .map_err(|error| map_fs_error(&self.display_path(path), error))?;\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::remove_regular_file_if_same",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1218
+        },
+        "start": {
+          "column": 5,
+          "line": 1195
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 79,
+        "line": 1208
+      },
+      "start": {
+        "column": 77,
+        "line": 1208
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::set_mode\n@@ -1423,17 +1423,17 @@\n         operation: &str,\n     ) -> Result<()> {\n         self.check_lock(lock)?;\n         let Some(origin) = &file.managed else {\n             return Err(Error::InvalidRequest {\n                 reason: \"不能修改外部只读文件的权限\".to_string(),\n             });\n         };\n-        if origin.root != self.root || origin.root_ident != self.root_ident {\n+        if origin.root != self.root && /* ~ changed by cargo-mutants ~ */ origin.root_ident != self.root_ident {\n             return Err(Error::InvalidRequest {\n                 reason: \"文件句柄不属于此管理根\".to_string(),\n             });\n         }\n         let current = fstat(&file.file).map_err(|e| map_fs_error(file.path.as_str(), e))?;\n         check_regular_stat(file.path.as_str(), &current)?;\n         if current.st_dev as u64 != file.meta.dev() || current.st_ino as u64 != file.meta.ino() {\n             return Err(Error::InvalidRequest {\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::set_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1451
+        },
+        "start": {
+          "column": 5,
+          "line": 1418
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1431:37: replace || with && in ManagedFs::set_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 1431
+      },
+      "start": {
+        "column": 37,
+        "line": 1431
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in ManagedFs::set_mode\n@@ -1437,17 +1437,17 @@\n         check_regular_stat(file.path.as_str(), &current)?;\n         if current.st_dev as u64 != file.meta.dev() || current.st_ino as u64 != file.meta.ino() {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 的句柄身份已改变\", file.path),\n             });\n         }\n         file.set_mode(mode)?;\n         let current = self.open_regular(&origin.rel)?;\n-        if file.meta.dev() != current.meta.dev() || file.meta.ino() != current.meta.ino() {\n+        if file.meta.dev() != current.meta.dev() && /* ~ changed by cargo-mutants ~ */ file.meta.ino() != current.meta.ino() {\n             return Err(Error::InvalidRequest {\n                 reason: format!(\"{} 在{operation}期间被替换\", file.path),\n             });\n         }\n         Ok(())\n     }\n \n     pub fn set_tree_readonly(\n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "ManagedFs::set_mode",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1451
+        },
+        "start": {
+          "column": 5,
+          "line": 1418
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 1445
+      },
+      "start": {
+        "column": 50,
+        "line": 1445
+      }
+    }
+  },
+  {
+    "diff": "--- crates/sheltie-runtime/src/fsx.rs\n+++ replace || with && in check_rename_source\n@@ -1538,17 +1538,17 @@\n }\n \n fn check_rename_source(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {\n     let stat =\n         statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW).map_err(|e| map_fs_error(display, e))?;\n     let kind = FileType::from_raw_mode(stat.st_mode);\n     if kind == FileType::Symlink\n         || (kind == FileType::RegularFile && stat.st_nlink != 1)\n-        || !matches!(kind, FileType::RegularFile | FileType::Directory)\n+        && /* ~ changed by cargo-mutants ~ */ !matches!(kind, FileType::RegularFile | FileType::Directory)\n     {\n         return Err(Error::InvalidRequest {\n             reason: format!(\"{display} 不是可受管移动对象\"),\n         });\n     }\n     Ok(())\n }\n \n",
+    "file": "crates/sheltie-runtime/src/fsx.rs",
+    "function": {
+      "function_name": "check_rename_source",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1553
+        },
+        "start": {
+          "column": 1,
+          "line": 1540
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source",
+    "package": "sheltie-runtime",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1546
+      },
+      "start": {
+        "column": 9,
+        "line": 1546
+      }
+    }
+  }
+]

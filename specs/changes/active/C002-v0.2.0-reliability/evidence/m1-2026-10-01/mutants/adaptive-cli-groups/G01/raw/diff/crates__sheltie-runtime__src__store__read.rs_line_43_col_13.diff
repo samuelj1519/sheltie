@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/store/read.rs
++++ replace || with && in RequestMetadata::check_row
+@@ -35,17 +35,17 @@
+             at: row.get(3)?,
+         })
+     }
+ 
+     pub(crate) fn check_row(&self, request_id: &str, row: &RequestRow) -> Result<()> {
+         if self.intent_hash != row.intent_hash
+             || self.reply_json != row.reply_json
+             || self.work_id != row.work_id
+-            || self.at != row.at
++            && /* ~ changed by cargo-mutants ~ */ self.at != row.at
+         {
+             return Err(Error::StoreCorrupt {
+                 detail: format!("请求 {request_id} 的元数据在校验期间改变"),
+             });
+         }
+         Ok(())
+     }
+ }

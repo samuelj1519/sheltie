@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/service.rs
++++ replace > with >= in observe_output
+@@ -1575,17 +1575,17 @@
+     home: &Home,
+     name: &str,
+     path: &AbsPath,
+ ) -> Result<(Option<ObservedFile>, Option<crate::fsx::SafeFile>)> {
+     let Some(f) = crate::fsx::open_managed_optional(home, path)? else {
+         return Ok((None, None));
+     };
+     let len = f.metadata().len();
+-    if len > crate::fsx::MAX_FILE_BYTES {
++    if len >= /* ~ changed by cargo-mutants ~ */ crate::fsx::MAX_FILE_BYTES {
+         return Err(Error::Core(sheltie_core::Error::OutputTooLarge {
+             output: name.to_string(),
+             max_bytes: crate::fsx::MAX_FILE_BYTES,
+             actual: len,
+         }));
+     }
+     let (sha256, bytes) = f.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+     Ok((

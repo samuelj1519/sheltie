@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::traverse_root
+@@ -203,17 +203,17 @@
+             path_segments.push(segment.to_string());
+             let display = format!("/{}", path_segments.join("/"));
+             let next = match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+                 Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {
+                     return Err(Error::InvalidRequest {
+                         reason: format!("管理根段 {display} 是符号链接"),
+                     });
+                 }
+-                Ok(stat) if FileType::from_raw_mode(stat.st_mode) != FileType::Directory => {
++                Ok(stat) if false /* ~ changed by cargo-mutants ~ */ => {
+                     return Err(Error::InvalidRequest {
+                         reason: format!("管理根段 {display} 不是目录"),
+                     });
+                 }
+                 Ok(_) => open_directory_at(&current, segment, &display)?,
+                 Err(rustix::io::Errno::NOENT) if create_missing => {
+                     match mkdirat(&current, segment, Mode::from_raw_mode(0o700)) {
+                         Ok(()) | Err(rustix::io::Errno::EXIST) => {

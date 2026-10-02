@@ -1,0 +1,1033 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "workbook",
+      "add",
+      "/private/tmp/m1-status-oracle-h2qpezwg/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-80e9-7553-a67d-09ff1759836d\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--input",
+      "topic=x"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-8128-741c-ba58-8ec5def479f4\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "outline"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-8178-70d0-a2bc-9bc382c0a56e\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"outputs\":{\"outline\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"summary\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "work",
+      "cancel",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"replayed\":false,\"work_id\":\"2026-10-02-001-default\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-81c5-72b9-b6b8-8830d8377e8b\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"outputs\":{\"outline\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"summary\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-h2qpezwg/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"outputs\":{\"outline\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-h2qpezwg/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"summary\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "workbook",
+      "add",
+      "/private/tmp/m1-status-oracle-rjeu495j/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-8257-769a-ae7e-75f1e2421ed4\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--input",
+      "topic=x"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"id\":\"two-step\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-828b-7136-8c87-005d181a7bae\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "outline"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/start-inputs/topic\"},\"node\":\"outline\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-82da-7071-9797-e1651715f8df\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "setup-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"outputs\":{\"outline\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"summary\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"setup-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "summary"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"outline\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"node\":\"summary\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/outputs\",\"outputs\":{\"summary\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"summary#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"summary#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-8328-76db-b10f-0f1203698958\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"outputs\":{\"summary\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":5}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"outputs\":{\"summary\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":5}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-rjeu495j/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"outputs\":{\"summary\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-rjeu495j/home/works/2026-10-02-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":5}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "workbook",
+      "add",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/gated-release"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-83fb-76c0-ac8a-cdc0132a01b9\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "gated-release",
+      "--flow",
+      "default",
+      "--input",
+      "version=1.2.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-842f-70c8-95f1-3eb34bff213d\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/start-inputs/version\"},\"node\":\"notes\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-847f-756c-af0d-4e1b73954a88\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "work",
+      "cancel",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"replayed\":false,\"work_id\":\"2026-10-02-001-default\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-84ce-77bf-9ead-0e4d829b86e0\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-w3pe7jzx/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-w3pe7jzx/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "workbook",
+      "add",
+      "/private/tmp/m1-status-oracle-16w5mhy1/gated-release"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"4f604cc9c85cf19a1814fdf8421415522aee8e1b70ee083bcfb35a0424cc29d3\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-856d-702c-9830-820e57998fa2\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "gated-release",
+      "--flow",
+      "default",
+      "--input",
+      "version=1.2.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"4f604cc9c85cf19a1814fdf8421415522aee8e1b70ee083bcfb35a0424cc29d3\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-85a0-75cd-bebc-23b8d4bf760c\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/start-inputs/version\"},\"node\":\"notes\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-85f1-72f8-bed3-fd99b05e35db\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "work",
+      "cancel",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"replayed\":false,\"work_id\":\"2026-10-02-001-default\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-8644-7572-9309-6828b4c465ca\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 1,
+    "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"\u6548\u679c\u672a\u5b8c\u6210\uff08committed=true\uff0ccause=STORE_CORRUPT\uff09\uff1a\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1a\u8bf7\u6c42 status-submit \u7684snapshot\u72b6\u6001\u4e0e\u539f\u64cd\u4f5c\u4e0d\u4e00\u81f4\"},\"next\":[],\"ok\":false,\"request_id\":\"status-submit\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-16w5mhy1/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-16w5mhy1/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":true,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "workbook",
+      "add",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/gated-release"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-86e7-752c-b95a-321833ec8bd2\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "gated-release",
+      "--flow",
+      "default",
+      "--input",
+      "version=1.2.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default\",\"work_id\":\"2026-10-02-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-871b-73bd-b654-7507ebfbf0fd\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default/start-inputs/version\"},\"node\":\"notes\",\"occurrence\":1,\"output_dir\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"replayed\":false,\"requires\":[],\"retry\":0},\"next\":[{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"notes#1.0\",\"work\":\"2026-10-02-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a0fb22-8769-716c-8322-7b469f2fe3cc\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "--request-id",
+      "status-submit",
+      "attempt",
+      "submit",
+      "2026-10-02-001-default",
+      "--attempt",
+      "notes#1.0",
+      "--summary",
+      "independent historical response"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":19,\"path\":\"/private/tmp/m1-status-oracle-1wr8d2_s/home/works/2026-10-02-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"fe7204c7fcc6ac1371912c2d45bdeed9ce08fb3cb12128405fb285d346e48c7f\"}},\"replayed\":false,\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"args\":{\"node\":\"notes\",\"work\":\"2026-10-02-001-default\"},\"op\":\"gate approve\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-submit\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "--request-id",
+      "status-approve",
+      "gate",
+      "approve",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"at\":\"2026-10-02T05:42:19Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-approve\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "work",
+      "cancel",
+      "2026-10-02-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"replayed\":false,\"work_id\":\"2026-10-02-001-default\",\"work_status\":{\"kind\":\"cancelled\"}},\"next\":[],\"ok\":true,\"request_id\":\"01a0fb22-87db-77bf-89b2-3cae8f5a55b2\",\"revision\":5}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "--request-id",
+      "status-approve",
+      "gate",
+      "approve",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"at\":\"2026-10-02T05:42:19Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"replayed\":true,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-approve\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-status-oracle-1wr8d2_s/home",
+      "--json",
+      "--request-id",
+      "status-approve",
+      "gate",
+      "approve",
+      "2026-10-02-001-default",
+      "--node",
+      "notes"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"at\":\"2026-10-02T05:42:19Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"replayed\":true,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[{\"args\":{\"node\":\"archive\",\"work\":\"2026-10-02-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-02-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"status-approve\",\"revision\":4}\n",
+    "stderr": ""
+  }
+]

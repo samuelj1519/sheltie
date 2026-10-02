@@ -150,3 +150,12 @@ T33修复真实R21：Home::resolve/confine吞I/O或保留原路径，lexical_abs
 独立Standards当前源码通过。Spec已返回的反例/seam/方向记录保留，其后续复核实际触发平台风险提示并暂停，按用户明确授权记录`M1-safety-skip-001`、跳过、不重试；不写最终Spec通过。T34 done只适用于本次明确例外；缺失义务见[清单](evidence/m1-2026-10-01/safety-skips.json)。
 
 旧5344候选runtime第一阶段1773完整、core旧720及core4workspace保留；源码guard在runtime workspace创建前停止exit1，非安全跳过。T34改变core/runtime，新M1不得复用任何旧运行为当前PASS，必须重新冻结并全量运行两阶段及存活处置。Linux not_run；M1 doing；T16/T17 not_run。任务/staged、提交与提交后门禁另记。
+
+
+## 2026-10-02 M1 最终分组验收
+
+产品候选e3eea899、变异冻结候选95d78e0，输入闭包与运行身份见[最终审查](review-m1-2026-10-02.md)。[当前门禁](evidence/m1-2026-10-01/current-acceptance/gates/gate-results.json)全部exit0，Nextest run `2e126f6a-1496-4b0b-8d71-583e22d4065e`为699/699、零skip；MSRV1.85 locked通过，deny仅核本地缓存公告。源码未再改动，最终文档门禁另存current-acceptance/finalization。
+
+[独立账本核算](evidence/m1-2026-10-01/mutants/adaptive-validation-2026-10-02/independent-final-accounting.json)通过：2514=1812首轮caught+328编译unviable+74限定静态处分+33完整workspace捕获+30能力CLI捕获+22补充检测+215未完成额外执行。22项包含16直接、6受控观察，原正式Missed标签不改写；中断29项与取消18项均不计完成。
+
+SK01最终Spec续审与SK02新共享事件oracle任务均实际暂停且未重试；[逐项缺失映射](evidence/m1-2026-10-01/mutants/adaptive-validation-2026-10-02/SK02-missing-execution-map.json)不虚构215次提示。[验收范围](evidence/m1-2026-10-01/acceptance-scope.json)区分M1授权例外内完成与full_validation_pass=false。Linux、T16/T17保持not_run；物理非法UTF8目录fixture因环境EPERM未创建。

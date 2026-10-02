@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace && with || in set_dir_tree_mode
+@@ -3085,17 +3085,17 @@
+             if opened.st_dev != stat.st_dev || opened.st_ino != stat.st_ino {
+                 return Err(Error::InvalidRequest {
+                     reason: format!("{child_display} 在遍历期间被替换"),
+                 });
+             }
+             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;
+             fchmod(&child, Mode::from_raw_mode(directory_mode))
+                 .map_err(|e| map_fs_error(&child_display, e))?;
+-            if file_mode == 0o444 && directory_mode == 0o555 {
++            if file_mode == 0o444 || /* ~ changed by cargo-mutants ~ */ directory_mode == 0o555 {
+                 crate::failpoint::sync_error(root, "publish_readonly_nested_dir_sync").map_err(
+                     |error| Error::RecoveryRequired {
+                         path: child_display.clone(),
+                         detail: format!("只读权限已设置但嵌套目录同步失败：{error}"),
+                     },
+                 )?;
+             }
+             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;

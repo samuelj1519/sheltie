@@ -1,0 +1,8 @@
+crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id
+crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())
+crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at
+crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected
+crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows
+crates/sheltie-runtime/src/effects.rs:1224:9: replace || with && in pending_internal_id
+crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true
+crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write

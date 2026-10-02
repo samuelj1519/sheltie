@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/fsx.rs
++++ replace || with && in ManagedFs::set_mode
+@@ -1437,17 +1437,17 @@
+         check_regular_stat(file.path.as_str(), &current)?;
+         if current.st_dev as u64 != file.meta.dev() || current.st_ino as u64 != file.meta.ino() {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{} 的句柄身份已改变", file.path),
+             });
+         }
+         file.set_mode(mode)?;
+         let current = self.open_regular(&origin.rel)?;
+-        if file.meta.dev() != current.meta.dev() || file.meta.ino() != current.meta.ino() {
++        if file.meta.dev() != current.meta.dev() && /* ~ changed by cargo-mutants ~ */ file.meta.ino() != current.meta.ino() {
+             return Err(Error::InvalidRequest {
+                 reason: format!("{} 在{operation}期间被替换", file.path),
+             });
+         }
+         Ok(())
+     }
+ 
+     pub fn set_tree_readonly(

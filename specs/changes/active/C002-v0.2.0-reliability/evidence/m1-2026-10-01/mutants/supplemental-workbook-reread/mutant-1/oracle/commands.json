@@ -1,0 +1,386 @@
+[
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-pxrp0t1l/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-pxrp0t1l/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-pxrp0t1l/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-pxrp0t1l/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-pxrp0t1l/home",
+      "--json",
+      "--request-id",
+      "pending-a",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-pxrp0t1l/later-source"
+    ],
+    "env": {
+      "SHELTIE_FAILPOINT": "after_commit_before_effects"
+    },
+    "exit": 70,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-pxrp0t1l/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-pxrp0t1l/cached-source"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": "",
+    "point": "publish_after_tree_sync(pending-a) after cached-b validation, before outer reread"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-niv2gzcp/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-niv2gzcp/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-niv2gzcp/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-niv2gzcp/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-niv2gzcp/home",
+      "--json",
+      "--request-id",
+      "pending-a",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-niv2gzcp/later-source"
+    ],
+    "env": {
+      "SHELTIE_FAILPOINT": "after_commit_before_effects"
+    },
+    "exit": 70,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-niv2gzcp/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-niv2gzcp/cached-source"
+    ],
+    "exit": 1,
+    "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548\"},\"message\":\"\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548\"},\"next\":[],\"ok\":false}\n",
+    "stderr": "",
+    "point": "publish_after_tree_sync(pending-a) after cached-b validation, before outer reread"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-r_gfbwil/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-r_gfbwil/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-r_gfbwil/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-r_gfbwil/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":true,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-r_gfbwil/home",
+      "--json",
+      "--request-id",
+      "pending-a",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-r_gfbwil/later-source"
+    ],
+    "env": {
+      "SHELTIE_FAILPOINT": "after_commit_before_effects"
+    },
+    "exit": 70,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-r_gfbwil/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-r_gfbwil/cached-source"
+    ],
+    "exit": 1,
+    "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548\"},\"message\":\"\u6570\u636e\u5e93\u5185\u5bb9\u635f\u574f\uff1aWorkbook add\u8bf7\u6c42 completed-b \u7684\u5386\u53f2snapshot\u8eab\u4efd\u65e0\u6548\"},\"next\":[],\"ok\":false}\n",
+    "stderr": "",
+    "point": "publish_after_tree_sync(pending-a) after cached-b validation, before outer reread"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-p35nyrfj/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-p35nyrfj/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-p35nyrfj/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":false,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-p35nyrfj/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":true,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-p35nyrfj/home",
+      "--json",
+      "--request-id",
+      "pending-a",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-p35nyrfj/later-source"
+    ],
+    "env": {
+      "SHELTIE_FAILPOINT": "after_commit_before_effects"
+    },
+    "exit": 70,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-p35nyrfj/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":true,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": "",
+    "point": "publish_after_tree_sync(pending-a) after cached-b validation, before outer reread"
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-fw851sa9/home",
+      "--json",
+      "--request-id",
+      "completed-b",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-fw851sa9/cached-source"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"3dfd4b89a2f4fb634f9e14ccce1ff9dbc6a50b1f80fa28e0b31047e4f05e6679\",\"flows\":[\"default\"],\"id\":\"cached-book\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-fw851sa9/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":false,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-fw851sa9/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "env": null,
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":true,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-fw851sa9/home",
+      "--json",
+      "--request-id",
+      "pending-a",
+      "workbook",
+      "add",
+      "/private/tmp/m1-reread-fw851sa9/later-source"
+    ],
+    "env": {
+      "SHELTIE_FAILPOINT": "after_commit_before_effects"
+    },
+    "exit": 70,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/shushu/orca/workspaces/sheltie/codex/target/m1-validation/supplement-target/debug/sheltie",
+      "--home",
+      "/private/tmp/m1-reread-fw851sa9/home",
+      "--json",
+      "--request-id",
+      "completed-remove-b",
+      "workbook",
+      "remove",
+      "cached-book@1.0.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"id\":\"cached-book\",\"replayed\":true,\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"completed-remove-b\"}\n",
+    "stderr": "",
+    "point": "publish_after_tree_sync(pending-a) after cached-b validation, before outer reread"
+  }
+]

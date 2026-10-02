@@ -1,0 +1,21 @@
+--- crates/sheltie-runtime/src/pending.rs
++++ replace maybe_fail_cleanup -> Result<()> with Ok(())
+@@ -716,17 +716,17 @@
+                 "delete" => "remove_workbook",
+                 "publish" if reference.owner.starts_with("work:") => "start_work",
+                 "publish" => "add_workbook",
+                 _ => "",
+             }
+ }
+ 
+ fn maybe_fail_cleanup(name: &str) -> Result<()> {
+-    crate::failpoint::cleanup_error(name).map_err(|error| Error::io("pending cleanup", error))
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn validate_publish_request_work_id(
+     request: &crate::store::read::RequestEffectRow,
+     owner: &str,
+ ) -> Result<()> {
+     if let Some(work) = owner.strip_prefix("work:") {
+         let parsed =
