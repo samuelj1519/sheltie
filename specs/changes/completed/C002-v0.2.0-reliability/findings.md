@@ -125,5 +125,7 @@
 | --- | --- | --- | --- |
 | F17-01 | P2 / CLOSED，本地独立复核通过 | completed checker误把所有历史事实表第6栏当Result；首修又允许标准表空字段或多列行藏PASS，不能准确核最终证据 | 只认精确模板六列表，首尾与列数严格、六字段非空、至少一非空表，当前Result必须PASS。历史FAIL/SKIP不改。原红例、22/22和独立审查通过 |
 | F17-02 | P2 / CLOSED，本地真实脚本测试通过 | 零active时读取不存在glob，在pipefail下提前exit2；治理fixture又依赖live C002 active与v0.1树，完成迁移后失真 | 零active不读glob，fixture显式自建active/completed/release/tag/CHANGELOG。新增零active合法例和精确完成反例，原10测试保留 |
-| F17-03 | P2 / 待真实CI复核 | PR只做plan，不能在发布批准前取得四平台实物；默认merge SHA也不能证明待发布head候选 | PR upload沿原dist矩阵构建；六job统一候选SHA，quality原文独立上传，publishing仅tag push。静态/fixture及候选独立审查通过，真实四平台尚not_run |
-| F17-04 | P1 / 修复后待真实Linux CI | `fsx.rs`三个`Mode::from_raw_mode`调用传u16；锁定rustix的Darwin RawMode是u16，Linux raw backend是u32，首次两个Linux构建/quality/MSRV都E0308，Mac两包成功 | 保留原constructor的S_IFMT清除与truncate，只用目标推断`as _`做恒等/无损扩宽，不增cfg兼容层，不改权限或句柄同步顺序。独立内容与Mac辅助门禁通过，Linux同入口绿待新CI |
+| F17-03 | P2 / CLOSED，本版ARM真实CI与发布守护通过 | PR只做plan，不能在发布批准前取得四平台实物；默认merge SHA也不能证明待发布head候选 | PR upload沿原dist矩阵构建；六job统一候选SHA，quality原文独立上传，publishing仅tag push。静态/fixture及候选独立审查通过，历史全平台验证与最终ARM范围结果见validation |
+| F17-04 | P1 / CLOSED，33b08bc实际两Linux编译与MSRV成功；Linux完整质量后排除 | `fsx.rs`三个`Mode::from_raw_mode`调用传u16；锁定rustix的Darwin RawMode是u16，Linux raw backend是u32，首次两个Linux构建/quality/MSRV都E0308，Mac两包成功 | 保留原constructor的S_IFMT清除与truncate，只用目标推断`as _`做恒等/无损扩宽，不增cfg兼容层，不改权限或句柄同步顺序。独立内容与Mac辅助门禁通过，Linux同入口绿待新CI |
+
+Linux的4处st_dev同类型cast Clippy失败保留原CI结果，未为本版本修改；按用户单平台许可excluded_by_user，不作为已修复或PASS。此排除不影响当前ARM已执行门禁。

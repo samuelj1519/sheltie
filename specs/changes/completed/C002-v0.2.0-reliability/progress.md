@@ -90,3 +90,11 @@ PR #1 已创建，原candidate7f42e3b的两个Mac资产成功，但Linux构建/q
 用户进一步限定macOS aarch64单平台，其余以后有需求再增加。当前仅一个dist目标与一个原生ARM工程runner；其他平台旧结果保存并excluded_by_user。接下来更新单目标候选至已批准PR，核单平台实物、同SHA完整quality/MSRV与实际安装，再取得正式发布批准；随后远端update/rollback和completed迁移。上方两目标/四目标均为此前输入，不改其SHA或原结果。
 
 本轮「可以仅发布 macOS aarch64」同时明确了该版本单平台发布许可，保存于single-platform-authorization.json。当前仍须先完成实物、同SHA质量与独立核验；条件满足后按此已给许可发布，不重复请求相同授权。此前未授权描述保留为其时点事实。
+
+## 最终交接
+
+C002已按用户许可的macOS aarch64单平台发布v0.2.0；source/tag8455aed2bcd9ac1739852be3987091a0975e7ac3，真实tag质量700/700及MSRV通过，公开资产与skill核验、实际安装/默认远端指定update/rollback及独立发布审查通过。全部任务按原授权范围收尾done；原M1 SK/215/完整安全变异缺失、其他平台排除及usage缺失仍在release record，既有失败档案不改。
+
+当前目录迁为completed，不从proposed自行开新任务。最终文档与task staged gate另存收尾audit后提交；临时演练数据保留，本轮不purge、不改真实home、不合并main。源码tag与后续验收提交分开固定，不能改写已发布tag。
+
+最终独立audit26项与五门禁实际通过，全部41任务按范围done、0active；当前只剩验收记录提交循环，原始已发布source/tag保持8455。提交成功以git Task:C002-T17 trailer及实际返回为准，后续本change不再有实施入口。

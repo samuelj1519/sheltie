@@ -120,7 +120,7 @@ Candidate: `none`
 
 | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| 前置问题：门槛批准人可被 `USER` 伪造 | executed | `296313c` debug 构建；临时 `SHELTIE_HOME`；`examples/gated-release` | `USER=the-human sheltie --json gate approve <work> --node notes` | 缺陷确认：`by = the-human`，Work 转 active | 本次讨论中复现，原始输出未入库；权威记录见 [C002 findings](../../active/C002-v0.2.0-reliability/findings.md) N04 |
+| 前置问题：门槛批准人可被 `USER` 伪造 | executed | `296313c` debug 构建；临时 `SHELTIE_HOME`；`examples/gated-release` | `USER=the-human sheltie --json gate approve <work> --node notes` | 缺陷确认：`by = the-human`，Work 转 active | 本次讨论中复现，原始输出未入库；权威记录见 [C002 findings](../../completed/C002-v0.2.0-reliability/findings.md) N04 |
 | 阶段 1 摩擦探针 | not_run | — | — | — | — |
 | 阶段 2 对照实验 | not_run | — | — | — | — |
 | 失败路径测试 | not_run | 需采用并实现后执行 | — | — | — |

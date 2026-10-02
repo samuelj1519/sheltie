@@ -1,8 +1,8 @@
 # C002 验证与历史索引
 
-Candidate: `e3eea899877165f8573befee3774555598ec92bd`
+Candidate: `8455aed2bcd9ac1739852be3987091a0975e7ac3`
 
-本文件合并最终验收摘要和 51 行覆盖矩阵；产品状态只看 plan.md，审查结论见 review.md。所有运行都属于下列固定输入，文档收敛不构成新运行，也不把未执行项改为 PASS。
+本文件合并最终验收摘要和 51 行覆盖矩阵；产品状态只看 plan.md，审查结论见 review.md。所有运行属于各自阶段的固定输入，文档收敛不构成新运行，也不把未执行项改为 PASS。
 
 ## 候选与正常门禁
 
@@ -287,7 +287,7 @@ Host 为当前 Codex 会话，coordinator `Codex /root`；worker 使用真实 `c
 
 ```bash
 t16_restore_dir="$(mktemp -d /private/tmp/sheltie-t16-restore.XXXXXX)"
-tar -xzf specs/changes/active/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz -C "$t16_restore_dir"
+tar -xzf specs/changes/completed/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz -C "$t16_restore_dir"
 ```
 
 ### 准备阶段交接与发布边界（初次归档）
@@ -407,3 +407,24 @@ Mac限定输入的新完整运行700/700、零skip、165.985秒；doctest5/5、f
 本轮「可以仅发布 macOS aarch64」同时明确了该版本单平台发布许可，保存于single-platform-authorization.json。当前仍须先完成实物、同SHA质量与独立核验；条件满足后按此已给许可发布，不重复请求相同授权。此前未授权描述保留为其时点事实。
 
 单目标改动不涉及Rust/test/lock/toolchain/features/config，`git diff --quiet 6bb8b5a -- crates Cargo.lock rust-toolchain.toml .config`实际exit0；Cargo只删dist的Intel目标。真实22/22治理consumer和新单目标plan均exit0，复用此前700/700与5/5及工程结果按sameRust输入记录；新候选仍须真实同SHA完整MacCI。范围11文件档案入口/SHA见README，不声称其中含当时尚未生成的独立报告。
+
+## 最终验收闭包
+
+当前Candidate指向真正发布source8455，历史M1 source e3eea899877165f8573befee3774555598ec92bd与上表/原档案仍保留。正式release为 [v0.2.0](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0)，publishedAt `2026-10-02T17:03:04Z`，target8455；不是draft或prerelease。tag Release CI37037558064与build37037558052同SHA全部success。原生ARM quality实际700/700、零skip、156.541秒，全部完整工程与MSRV1.85通过；不沿用PR或旧M1证明tag实物。
+
+公开aarch64包1779600bytes，SHA256 `fc63c9d0c7132796cdacd050be102ed5501f637f2db0f19b279da6b4744899e4`；binary `a220309ab437a5de52202acb8b8f933370a45969e2027c55964930818e315130`，完整manifest `8540728b9db73a31a74e7f762128bebed90210ecfb2ec24845786db02a02354b`。tag重建包与PR压缩字节不同，重新核公开包/独立checksum/globalsum/manifest/GitHubdigest，binary与PR相同。8个公开资产只含ARM和通用source/installer/skill，skill独立从8455源生成三文件逐字一致、references无deadlink。
+
+真实公开binary fresh install/version为0.2.0/schema2，installed bytes等于公开binary。另用T16 C002 schema2 updater（显示0.1.0，不冒充旧发布schema1）在独立home默认GitHub来源、SHELTIE_RELEASE_BASE未设，明确版本0.2.0真实下载替换；updated bytes=公开binary、prev=原binary、全部Store文件hash不变。新binary调用rollback后恢复原binary、prev移除、Store仍不变。不是旧Store迁移、不是回退schema，未触及真实用户home。
+
+独立发布前/后报告均由未参与执行的Reviewer核全部raw/hash与源码/asset/CLI一致性，产品与发布事实限定通过；原SK/完整安全变异缺失、usage null、手动skill/用户重开陈述与被排除平台不扩为执行PASS。最终执行335文件档案与README摘要逐字一致，正式lifecycle/staged验证和派生audit在收尾后另存。
+
+| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| 本版原生ARM完整质量与MSRV | executed | source 8455aed | Release 37037558064 与 build 37037558052 | PASS | 同SHA quality logs / final job JSON |
+| 单平台公开实物、manifest、checksum、skill | executed | tag v0.2.0 source 8455aed | published-artifact-oracle / 独立postpublication-review | PASS | 8公开assets与逐字来源核验 |
+| 正式安装及真实远端指定update/rollback | executed | 公开ARMbinary及独立home | commands/published-self 与 remote-* | PASS | CLI原文 / binary及Store before-after SHA |
+| T16真实宿主必需场景 | executed | T16闭包785552be | 六Work / 重开与实际批准 / 独立最终audit | PASS | T16固定档案与原范围保留 |
+| 旧格式拒绝与原数据保持 | executed | 真实v0.1.0 schema1 / 新schema2独立home | schema-boundary-oracle | PASS | 两端STORE_SCHEMA_MISMATCH及既有字节核验 |
+| 授权范围与缺失披露保真 | evidence_review | 本版ARM许可 / M1 SK例外 | 实际用户原话与各阶段独立审查 | PASS | excluded_by_user与原FAIL/not_run保留，不当执行通过 |
+
+最终目录与记录由未参与编写的Reviewer独立复核，26项检查通过。当前41个T/M均done，0active；12个旧tar与3个旧audit只改目录、SHA保持，最终335文件archive逐字一致。实际docs/specs/tests/check-task C002-T17 785552b --staged/git cached diff check全exit0，原argv/raw/hash在lifecycle-gates与派生audit。没有产品/测试/依赖/配置输入改动，复用同source8455正式tag质量700/700与同Rust闭包5/5；不新增staged之外或未知运行的PASS。审计入口见README，源码tag与后续验收提交分离。
