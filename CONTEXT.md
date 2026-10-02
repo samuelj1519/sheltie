@@ -8,7 +8,7 @@
 | --- | --- |
 | Sheltie / `sheltie` | 产品名、仓库名、二进制名 |
 | `sheltie-*` | 只用于 Cargo crate 名（`sheltie-core`、`sheltie-runtime`、`sheltie-cli`） |
-| `workbook/v1`、`flow/v1`、`cli-result/v3`、`work-result/v1` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` / `cli-result/v2` 分别属于 v0.1.0 / v0.2.0 历史格式 |
+| `workbook/v1`、`flow/v1`、`cli-result/v4`、`work-result/v1` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` / `cli-result/v2` 分别属于 v0.1.0 / v0.2.0 历史格式 |
 | `workbook.toml` | Workbook manifest 文件名 |
 | `SHELTIE_HOME` | 管理根环境变量，默认 `~/.sheltie` |
 
@@ -22,7 +22,7 @@
 | Edge | 两个节点间的显式有向边，类型 `main / back / branch / re_review` |
 | Work | 某个 Workbook 版本的一次运行。`work_id` 形如 `2026-09-24-001-文章-初稿`：UTC 日期、当日序号、名字 |
 | Occurrence | 节点在一次 Work 里第 n 次到达，写作 `node#n` |
-| Attempt | 一个 Occurrence 内的一次执行尝试，写作 `node#n.retry`。只有执行事实：`running / succeeded / failed` |
+| Attempt | 一个 Occurrence 内的一次执行尝试，写作 `node#n.number`。记录执行与行政撤销事实：`running / succeeded / failed / superseded` |
 | 任务书（brief） | 引擎为一次 Attempt 生成的文件：说明书原文加绑定好的输入路径与输出要求 |
 | 状态卡（status card） | 引擎生成的紧凑进度视图；只有指针，没有历史正文 |
 | 合法下一步（`next`） | 引擎算出的、协调者当前可以调用的操作集合 |
@@ -42,3 +42,5 @@
 ## 仓库现状
 
 当前 release、active change、proposed change 与实施入口只在 [specs/README.md](specs/README.md) 定义。
+
+Attempt 后缀 number 是同一 Occurrence 从 0 连续递增的创建顺序号，失败数只统计 failed，superseded 不消耗 max_retries。替换在一次写操作中撤销旧资格并开始新 Attempt，每个 Occurrence 固定最多一次；不停止旧进程或证明宿主隔离。

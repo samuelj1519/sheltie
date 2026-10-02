@@ -69,7 +69,7 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // 响应字段全部来自提交时快照（cli-result/v3）：CLI 不再回读 Store 拼数据（O04）。
+    // 响应字段全部来自提交时快照（cli-result/v4）：CLI 不再回读 Store 拼数据（O04）。
     let work_id = match &resp.reply {
         Reply::Started { work_id, .. } => work_id.clone(),
         other => return reply_mismatch("Started", other),

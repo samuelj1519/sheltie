@@ -28,4 +28,5 @@ draft#2.0 running
 
 - sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<一句话结论>"
 - sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
 - sheltie work cancel 2026-09-24-001-t

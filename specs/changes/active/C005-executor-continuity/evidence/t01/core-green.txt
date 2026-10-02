@@ -1,0 +1,283 @@
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running unittests src/lib.rs (/private/tmp/sheltie-c005-target/debug/deps/sheltie_core-bc9b1f0178fa05ef)
+
+running 205 tests
+test digest::tests::be64_encodes_big_endian_bytes ... ok
+test digest::tests::digest_v2_prefix_is_domain_string_with_nul ... ok
+test digest::tests::digest_v2_file_frame_is_length_prefixed_path_and_content ... ok
+test digest::tests::sha256_hex_requires_64_lowercase_hex ... ok
+test digest::tests::sha256_hex_short_display_and_into_string ... ok
+test digest::tests::of_bytes_matches_known_vector ... ok
+test flow::compile::tests::rejects_entry_not_a_node ... ok
+test flow::compile::tests::rejects_duplicate_from_to ... ok
+test flow::compile::tests::rejects_input_from_unknown_output ... ok
+test flow::compile::tests::rejects_duplicate_node_require ... ok
+test flow::compile::tests::accepts_optional_input_on_optional_output ... ok
+test flow::compile::tests::compiles_article_review_example ... ok
+test flow::compile::tests::graph_carries_manifest_requires_in_declaration_order ... ok
+test flow::compile::tests::accepts_binary_resource_input ... ok
+test flow::compile::tests::rejects_input_from_node_that_cannot_reach_consumer ... ok
+test flow::compile::tests::rejects_gate_node_with_empty_text ... ok
+test flow::compile::tests::rejects_graph_without_terminal_node ... ok
+test flow::compile::tests::rejects_missing_instruction_file ... ok
+test flow::compile::tests::instruction_file_limit_is_64_kib ... ok
+test flow::compile::tests::rejects_missing_resource_input_file ... ok
+test flow::compile::tests::rejects_node_id_engine ... ok
+test flow::compile::tests::rejects_node_id_start_or_resource ... ok
+test flow::compile::tests::rejects_node_require_not_declared_in_manifest ... ok
+test flow::compile::tests::rejects_non_utf8_instruction ... ok
+test flow::compile::tests::rejects_optional_engine_stats_input ... ok
+test flow::compile::tests::rejects_required_input_on_optional_output ... ok
+test flow::parse::tests::input_from_parses_engine_stats_only ... ok
+test flow::parse::tests::defaults_gate_false_visits_1_retries_1 ... ok
+test flow::parse::tests::input_from_parses_start_resource_and_node_forms ... ok
+test flow::compile::tests::rejects_unreachable_node ... ok
+test flow::parse::tests::input_from_rejects_three_segments_for_start_and_node ... ok
+test flow::parse::tests::input_from_resource_keeps_slashes_in_path ... ok
+test flow::compile::tests::selected_optional_input_or_output_is_rejected ... ok
+test flow::compile::tests::selected_results_on_nonterminal_input_or_output_are_rejected ... ok
+test flow::compile::tests::selected_input_and_output_keys_must_be_unique ... ok
+test flow::compile::tests::rejects_optional_input_on_start_or_resource_source ... ok
+test flow::compile::tests::terminal_required_input_and_output_can_be_selected_results ... ok
+test flow::parse::tests::input_required_defaults_true_and_parses_false ... ok
+test flow::compile::tests::rejects_tier_on_human_node ... ok
+test flow::parse::tests::instruction_requires_exactly_one_of_file_or_text ... ok
+test flow::parse::tests::accepts_output_paths_named_brief_or_stats ... ok
+test flow::parse::tests::max_retries_accepts_upper_bound_8 ... ok
+test flow::compile::tests::rejects_self_loop_edge ... ok
+test flow::parse::tests::node_requires_parses_kind_colon_name ... ok
+test flow::compile::tests::resource_input_limit_is_32_mib ... ok
+test flow::parse::tests::node_requires_rejects_bad_kind ... ok
+test flow::parse::tests::rejects_max_visits_zero_or_over_32 ... ok
+test flow::parse::tests::parses_three_node_flow ... ok
+test flow::parse::tests::rejects_unknown_edge_kind ... ok
+test ids::tests::attempt_id_formats_as_node_hash_n_dot_retry ... ok
+test flow::parse::tests::tier_defaults_standard_and_parses_strong ... ok
+test flow::parse::tests::title_limit_is_128_bytes ... ok
+test flow::parse::tests::rejects_output_path_outside_portable_charset ... ok
+test ids::tests::attempt_id_parse_error_field_is_attempt_id ... ok
+test flow::parse::tests::result_selection_defaults_false_and_accepts_explicit_true ... ok
+test ids::tests::attempt_id_json_keeps_its_shape_and_rejects_unknown_fields_in_any_position ... ok
+test ids::tests::attempt_id_parse_rejects_plus_sign ... ok
+test flow::parse::tests::result_selection_rejects_non_boolean_and_unknown_slot_fields ... ok
+test ids::tests::attempt_id_requires_number_and_rejects_retired_retry_field ... ok
+test flow::parse::tests::rejects_output_path_duplicate_ancestor_and_folded_alias ... ok
+test ids::tests::id_accepts_exactly_64_bytes ... ok
+test ids::tests::kebab_id_error_field_is_snake_case ... ok
+test ids::tests::names_and_work_ids_convert_into_string ... ok
+test ids::tests::parse_rejects_leading_zero_in_numeric_segments ... ok
+test flow::parse::tests::instruction_text_limit_is_8192_bytes ... ok
+test ids::tests::work_id_builds_from_day_seq_and_name ... ok
+test ids::tests::work_id_parse_rejects_each_misplaced_separator ... ok
+test ids::tests::work_id_parse_rejects_plus_sign_in_seq ... ok
+test ids::tests::work_id_rejects_seq_zero_or_over_999 ... ok
+test ids::tests::work_name_accepts_exactly_48_bytes ... ok
+test ids::tests::work_name_accepts_han_extension_f_h_i_and_compat_supplement ... ok
+test ids::tests::work_name_normalizes_whitespace_and_case ... ok
+test ids::tests::work_name_rejects_leading_or_trailing_dash_alone ... ok
+test ids::tests::work_name_rejects_over_48_bytes_and_bad_chars ... ok
+test ids::tests::work_name_try_from_and_serde_reject_non_canonical ... ok
+test ids::tests::workbook_id_accepts_kebab_case ... ok
+test ids::tests::workbook_id_rejects_uppercase_and_double_dash ... ok
+test path::tests::abs_path_requires_absolute ... ok
+test path::tests::paths_display_and_convert_into_string ... ok
+test path::tests::rel_path_rejects_dotdot_and_absolute ... ok
+test text::tests::bounded_text_deserialize_rejects_over_limit_bytes ... ok
+test text::tests::bounded_text_rejects_over_limit_bytes ... ok
+test work::decide::tests::approve_on_terminal_node_succeeds_work ... ok
+test work::decide::tests::approve_rejects_when_not_blocked_on_gate ... ok
+test work::decide::tests::approve_rejects_wrong_node ... ok
+test work::decide::tests::begin_binds_engine_stats_and_emits_write_file ... ok
+test work::decide::tests::approve_unblocks_and_records_principal_and_time ... ok
+test work::decide::tests::attempt_number_allocation_checks_overflow_without_wraparound ... ok
+test work::decide::tests::begin_after_failed_attempt_increments_retry_not_occurrence ... ok
+test work::decide::tests::begin_reply_lists_node_requires ... ok
+test work::decide::tests::begin_on_entry_creates_running_attempt_with_frozen_inputs ... ok
+test work::decide::tests::begin_rejects_upstream_without_succeeded_attempt ... ok
+test work::decide::tests::begin_reply_requires_ignore_crossed_kind_name_pairs ... ok
+test work::decide::tests::begin_binds_resource_input_under_frozen_workbook_dir ... ok
+test work::decide::tests::begin_rejects_modified_upstream_artifact ... ok
+test work::decide::tests::begin_records_entered_from_occurrence_and_edge_kind ... ok
+test work::decide::tests::begin_with_two_engine_stats_inputs_writes_one_stats_json ... ok
+test work::decide::tests::begin_emits_write_brief_effect ... ok
+test work::decide::tests::begin_via_edge_increments_visits_and_occurrence ... ok
+test work::decide::tests::begin_rejects_node_not_in_next ... ok
+test flow::compile::tests::node_count_limit_is_64 ... ok
+test work::decide::tests::fail_marks_attempt_failed_and_allows_retry ... ok
+test work::decide::tests::fail_at_max_retries_blocks_work ... ok
+test work::decide::tests::begin_filters_edges_whose_target_hit_max_visits ... ok
+test work::decide::tests::retry_binds_engine_stats_under_retry_dir ... ok
+test work::decide::tests::cancel_from_active_and_blocked ... ok
+test work::decide::tests::next_when_blocked_gate_has_only_approve_and_cancel ... ok
+test work::decide::tests::fail_reason_limit_is_4096_bytes ... ok
+test work::decide::tests::next_after_success_lists_out_edges_with_kind ... ok
+test work::decide::tests::start_requires_is_full_manifest_list_in_declaration_order ... ok
+test work::decide::tests::start_requires_carry_manifest_declaration_as_is ... ok
+test work::decide::tests::submit_accepts_missing_optional_output ... ok
+test work::decide::tests::start_next_is_begin_entry_and_cancel ... ok
+test work::decide::tests::start_rejects_missing_start_input_key ... ok
+test work::decide::tests::retry_keeps_entered_from_of_first_attempt ... ok
+test work::decide::tests::start_records_workbook_ref_and_frozen_inputs ... ok
+test work::decide::tests::start_sets_current_to_entry_occurrence_1 ... ok
+test work::decide::tests::submit_marks_attempt_succeeded_and_records_outputs ... ok
+test work::decide::tests::submit_on_gate_node_blocks_work ... ok
+test work::layout::tests::attempt_dir_keeps_two_dimensions_with_padded_labels ... ok
+test work::decide::tests::submit_on_terminal_gate_node_blocks_not_succeeds ... ok
+test work::decide::tests::submit_on_terminal_node_succeeds_work ... ok
+test work::layout::tests::engine_files_and_worker_outputs_are_separate_namespaces ... ok
+test work::decide::tests::start_rejects_extra_start_input_key ... ok
+test work::layout::tests::layout_derives_work_paths_from_root_and_work_id ... ok
+test work::decide::tests::submit_rejects_summary_over_4096_bytes ... ok
+test work::layout::tests::nested_declared_output_keeps_its_subdirectories ... ok
+test work::layout::tests::worker_stats_and_brief_do_not_collide_with_engine_files ... ok
+test work::decide::tests::submit_rejects_missing_required_output ... ok
+test work::decide::tests::submit_rejects_when_attempt_not_running ... ok
+test work::decide::tests::terminal_work_rejects_every_command_with_work_terminal ... ok
+test work::decide::tests::submit_when_every_out_edge_target_hit_max_visits_blocks_no_legal_edge ... ok
+test work::render::tests::brief_for_node_without_requires_omits_section ... ok
+test work::render::tests::brief_require_version_ignores_crossed_kind_name_pairs ... ok
+test work::render::tests::brief_require_row_takes_version_from_manifest_and_names_kind ... ok
+test work::render::tests::brief_shows_entered_from_line_or_entry ... ok
+test work::render::tests::blocked_count_survives_cancel_after_no_legal_edge ... ok
+test work::render::tests::entered_via_distinguishes_edges_and_entry ... ok
+test work::render::tests::next_op_begin_carries_executor_and_tier ... ok
+test work::render::tests::next_op_renders_begin_with_node_flag ... ok
+test work::render::tests::secs_between_matches_independent_calendar_math ... ok
+test work::render::tests::next_items_use_single_protocol_shape ... ok
+test work::render::tests::resume_running_attempt_has_frozen_inputs_and_declared_draft_paths ... ok
+test work::render::tests::status_card_active_mid_flow ... ignored, C005-T02
+test work::decide::tests::begin_leaves_optional_input_unbound_when_upstream_has_no_attempt ... ok
+test work::render::tests::resume_without_current_attempt_is_null_in_text_and_json ... ok
+test work::render::tests::resume_current_attempt_keeps_brief_and_inputs_after_end_but_removes_drafts ... ok
+test work::decide::tests::begin_binds_optional_input_when_upstream_succeeded_later ... ok
+test work::render::tests::stats_total_and_avg_use_timestamps ... ok
+test work::render::tests::status_card_names_retries_exhausted_occurrence ... ok
+test work::render::tests::status_card_explains_no_legal_edge ... ok
+test work::render::tests::status_card_lists_done_occurrences_in_order ... ok
+test work::render::tests::stats_json_counts_visits_failures_and_entered_via ... ok
+test work::result::tests::final_work_without_selections_reports_empty_explicit_result ... ok
+test work::result::tests::gate_blocks_final_result_and_missing_approval_is_corrupt ... ok
+test work::render::tests::text_and_json_agree_on_hand_written_state ... ok
+test work::result::tests::missing_selected_reference_is_corrupt_even_when_effects_are_pending ... ok
+test work::result::tests::pending_effects_withhold_final_artifacts_without_changing_flow_status ... ok
+test work::result::tests::result_supports_start_resource_and_engine_stats_input_slots ... ok
+test flow::compile::tests::edge_count_limit_is_256 ... ok
+test work::result::tests::result_uses_sorted_terminal_slots_and_preserves_complete_references ... ok
+test work::render::tests::stats_blocked_count_by_reason ... ok
+test work::render::tests::brief_marks_unbound_optional_input_as_absent ... ok
+test work::result::tests::selected_input_must_match_frozen_source_path_digest_and_size ... ok
+test work::result::tests::selected_output_must_belong_to_terminal_attempt_and_fit_declared_limit ... ok
+test work::render::tests::status_json_carries_reason_and_full_artifact_refs ... ok
+test work::result::tests::result_uses_specific_frozen_version_after_real_rework ... ok
+test work::start::tests::validate_on_keyless_flow_accepts_empty_and_rejects_any_key ... ok
+test work::state::tests::timestamp_deserialize_validates_and_serialize_is_plain_string ... ok
+test work::state::tests::timestamp_from_unix_secs_matches_known_dates ... ok
+test work::start::tests::validate_accepts_exact_key_set_in_any_order ... ok
+test work::state::tests::timestamp_parse_accepts_utc_second_precision ... ok
+test work::result::tests::uncompleted_and_cancelled_work_have_no_final_artifacts ... ok
+test work::start::tests::start_requirements_lists_keys_in_declaration_order_deduplicated ... ok
+test work::state::tests::timestamp_parse_rejects_offsets_fractions_and_impossible_dates ... ok
+test work::start::tests::validate_rejects_missing_extra_and_both_sorted ... ok
+test work::state::tests::timestamp_unix_secs_matches_independent_calendar_math ... ok
+test work::state::tests::work_status_json_keeps_all_variants_and_rejects_unknown_fields_in_any_position ... ok
+test workbook::manifest::tests::host_require_snapshot_decode_accepts_valid_fields ... ok
+test workbook::manifest::tests::parses_minimal_manifest ... ok
+test workbook::manifest::tests::name_limit_is_128_bytes ... ok
+test work::result::tests::succeeded_work_requires_successful_terminal_attempt ... ok
+test workbook::manifest::tests::parses_requires_with_optional_fields ... ok
+test workbook::manifest::tests::rejects_duplicate_require_kind_name ... ok
+test workbook::manifest::tests::rejects_empty_flows ... ok
+test workbook::manifest::tests::rejects_flow_path_with_dotdot ... ok
+test workbook::manifest::tests::rejects_require_digest_without_sha256_prefix ... ok
+test workbook::manifest::tests::rejects_unknown_field ... ok
+test workbook::manifest::tests::rejects_unknown_require_kind ... ok
+test workbook::manifest::tests::rejects_description_over_2kib ... ok
+test workbook::manifest::tests::rejects_wrong_schema_string ... ok
+test workbook::manifest::tests::require_version_limit_is_32_bytes ... ok
+test workbook::manifest::tests::require_source_limit_is_512_bytes ... ok
+test workbook::manifest::tests::same_kind_different_names_are_not_duplicates ... ok
+test workbook::manifest::tests::version_limit_is_32_bytes ... ok
+test workbook::manifest::tests::version_rejects_dot_segments_and_reserved_name ... ok
+test workbook::manifest::tests::requires_limit_is_32_items ... ok
+test work::render::tests::status_card_blocked_on_gate ... ok
+test work::render::tests::brief_for_review_node ... ok
+test work::render::tests::brief_for_node_with_requires ... ok
+test work::render::tests::status_card_succeeded ... ok
+test work::render::tests::stats_table_mid_flow ... ok
+test work::render::tests::brief_for_human_executor_ends_with_submit_command ... ok
+test work::decide::tests::submit_rejects_output_over_max_bytes ... ok
+test flow::compile::tests::proptest_compile_never_panics ... ok
+
+test result: ok. 204 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/api_surface.rs (/private/tmp/sheltie-c005-target/debug/deps/api_surface-9f0be66df3b6a1ab)
+
+running 3 tests
+test executor_as_str_is_contract_literal ... ok
+test command_name_is_cli_verb ... ok
+test error_code_as_str_matches_serde_and_display ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/attempt_replace.rs (/private/tmp/sheltie-c005-target/debug/deps/attempt_replace-6a862f60cf3f2a57)
+
+running 13 tests
+test public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence ... ignored, C005-T02
+test replacement_reason_accepts_exact_limit_and_rejects_one_more_byte_without_mutation ... ok
+test replacement_rejects_any_changed_frozen_observation_and_optional_rebinding ... ok
+test replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs ... ok
+test zero_retries_still_allows_replacement_but_first_real_failure_blocks ... ok
+test superseded_submit_and_fail_reject_and_terminal_guard_takes_precedence ... ok
+test second_replacement_rejects_without_removing_current_submit_or_fail_eligibility ... ok
+test replacement_checks_target_and_qualification_before_reason_or_inputs ... ok
+test replacement_stats_are_fresh_post_state_bytes_and_old_binding_is_preserved ... ok
+test replacement_quota_resets_for_new_occurrence_and_keeps_entered_from ... ok
+test replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected ... ok
+test persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded ... ok
+test replacement_does_not_consume_failure_budget_and_historical_fail_uses_original_prefix ... ok
+
+test result: ok. 12 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/examples.rs (/private/tmp/sheltie-c005-target/debug/deps/examples-adb466c8f8ff225d)
+
+running 14 tests
+test declared_node_requirements_remain_visible_through_validated_definition_and_graph ... ok
+test two_step_has_one_main_edge_and_no_gate ... ok
+test gated_release_first_node_is_gate ... ok
+test article_review_has_back_edge_human_publish_and_resource_input ... ok
+test article_review_draft_takes_optional_review_verdict_input ... ok
+test public_legal_next_does_not_offer_retry_at_the_node_retry_limit ... ok
+test spec_dev_compiles_with_eleven_nodes_twenty_five_edges ... ok
+test spec_dev_replanning_uses_required_review_copies_and_reachable_optional_history ... ok
+test spec_dev_retro_reads_engine_stats ... ok
+test spec_dev_binds_decision_into_scaffold_implement_verify ... ok
+test spec_dev_strong_tier_nodes_are_spec_plan_scaffold_review ... ok
+test spec_dev_escalation_inputs_cover_return_edge_to_verify ... ok
+test spec_dev_only_retro_is_gated_and_human_nodes_are_plan_review_and_escalate ... ok
+test no_example_declares_requires ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/persisted_contracts.rs (/private/tmp/sheltie-c005-target/debug/deps/persisted_contracts-e9be8888a84a9fc4)
+
+running 5 tests
+test host_requirement_snapshots_accept_exact_byte_limits_and_reject_one_extra_byte ... ok
+test validated_metadata_preserves_declared_values_for_public_consumers ... ok
+test graph_checks_reject_a_gate_block_on_a_non_gate_and_accept_unapproved_cancellation ... ok
+test each_blocking_command_rejects_counter_overflow_without_mutating_its_input ... ok
+test persisted_facts_reject_single_field_contradictions_and_accept_real_lifecycle_states ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sheltie_core
+
+running 5 tests
+test crates/sheltie-core/src/flow/def.rs - flow::def::FlowDef (line 236) - compile fail ... ok
+test crates/sheltie-core/src/flow/def.rs - flow::def::NodeDef (line 162) - compile fail ... ok
+test crates/sheltie-core/src/workbook/manifest.rs - workbook::manifest::Manifest (line 103) - compile fail ... ok
+test crates/sheltie-core/src/flow/def.rs - flow::def::FlowDef (line 242) - compile fail ... ok
+test crates/sheltie-core/src/workbook/manifest.rs - workbook::manifest::Manifest (line 109) - compile fail ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

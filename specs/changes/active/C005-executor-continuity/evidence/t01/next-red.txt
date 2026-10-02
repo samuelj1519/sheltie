@@ -1,0 +1,24 @@
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.99s
+     Running tests/attempt_replace.rs (/private/tmp/sheltie-c005-target/debug/deps/attempt_replace-6a862f60cf3f2a57)
+
+running 1 test
+test public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence ... FAILED
+
+failures:
+
+---- public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence stdout ----
+
+thread 'public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence' (58577358) panicked at crates/sheltie-core/tests/attempt_replace.rs:504:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p sheltie-core --test attempt_replace`

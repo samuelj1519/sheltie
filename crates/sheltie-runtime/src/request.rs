@@ -47,6 +47,11 @@ pub enum RequestIntent {
         attempt: AttemptId,
         reason: SummarySource,
     },
+    ReplaceAttempt {
+        work: WorkId,
+        attempt: AttemptId,
+        reason: SummarySource,
+    },
     ApproveGate {
         work: WorkId,
         node: NodeId,

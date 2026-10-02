@@ -1,0 +1,30 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+────────────
+ Nextest run ID 6ea5d9f7-d451-4c10-a51b-4996c6ffbdad with nextest profile: default
+    Starting 1 test across 1 binary (11 tests skipped)
+        FAIL [   0.317s] (1/1) sheltie-runtime::attempt_replace replacement_with_no_inputs_rejects_changed_entry_source_before_another_write
+  stdout ───
+
+    running 1 test
+    test replacement_with_no_inputs_rejects_changed_entry_source_before_another_write ... FAILED
+
+    failures:
+
+    failures:
+        replacement_with_no_inputs_rejects_changed_entry_source_before_another_write
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.31s
+
+  stderr ───
+
+    thread 'replacement_with_no_inputs_rejects_changed_entry_source_before_another_write' (58632244) panicked at crates/sheltie-runtime/tests/attempt_replace.rs:791:14:
+    called `Result::unwrap_err()` on an `Ok` value: Response { request_id: "after-origin-drift", revision: 6, replayed: false, reply: AttemptFailed { attempt: AttemptId { node: NodeId("working"), occurrence: 1, number: 1 } }, data: Object {"attempt": String("working#1.1"), "work_status": Object {"kind": String("active")}}, next: [BeginAttempt { node: NodeId("working"), edge: None, executor: Agent, tier: Some(Standard) }, Cancel] }
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 
+────────────
+     Summary [   0.317s] 1 test run: 0 passed, 1 failed, 11 skipped
+        FAIL [   0.317s] (1/1) sheltie-runtime::attempt_replace replacement_with_no_inputs_rejects_changed_entry_source_before_another_write
+error: test run failed

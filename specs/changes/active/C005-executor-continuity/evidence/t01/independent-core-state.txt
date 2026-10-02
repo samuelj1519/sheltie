@@ -1,0 +1,10 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+────────────
+ Nextest run ID 92a210ee-d12f-483d-b549-9cd9af833447 with nextest profile: default
+    Starting 3 tests across 5 binaries (237 tests skipped)
+        PASS [   0.008s] (1/3) sheltie-core ids::tests::attempt_id_requires_number_and_rejects_retired_retry_field
+        PASS [   0.009s] (2/3) sheltie-core::attempt_replace persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded
+        PASS [   0.009s] (3/3) sheltie-core::attempt_replace replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected
+────────────
+     Summary [   0.009s] 3 tests run: 3 passed, 237 skipped

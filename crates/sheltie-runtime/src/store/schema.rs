@@ -1,11 +1,11 @@
 //! 表结构。这里是唯一定义；改结构必须同时升 `SCHEMA_VERSION`。
 //!
-//! schema 3（D-040）采用结果声明与接续投影的完整载荷；表结构沿用 C002 的
+//! schema 4（D-041）采用顺序号、替换状态与有界理由的完整载荷；表结构沿用 C002 的
 //! 请求意图、响应快照与效果登记，目录摘要仍为 `workbook-digest/v2`。
 //! 较早 schema 的原库保留并拒绝，不迁移、不清空。
 
 /// `PRAGMA user_version` 的值。
-pub const SCHEMA_VERSION: i64 = 3;
+pub const SCHEMA_VERSION: i64 = 4;
 
 /// 全部建表语句 `(表名, SQL)`。结构校验把 `sqlite_master.sql` 与这里逐表比对（去掉全部空白）。
 pub const TABLES: &[(&str, &str)] = &[

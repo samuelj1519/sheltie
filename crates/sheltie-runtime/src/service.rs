@@ -364,7 +364,7 @@ impl WorkService {
             work: work.clone(),
             node: node.clone(),
         };
-        self.run_command(work, &intent, request_id, &|loaded| {
+        self.run_command(work, &intent, request_id, &|loaded, _| {
             let paths = sheltie_core::work::input_paths_for(&loaded.state, &loaded.graph, node)?;
             let mut observed = BTreeMap::new();
             for (name, path) in paths {
@@ -395,7 +395,7 @@ impl WorkService {
             attempt: attempt.clone(),
             summary: summary.clone(),
         };
-        self.run_command(work, &intent, request_id, &|loaded| {
+        self.run_command(work, &intent, request_id, &|loaded, _| {
             let summary_text = materialize_summary(summary)?;
             let paths =
                 sheltie_core::work::output_paths_for(&loaded.state, &loaded.graph, attempt)?;
@@ -432,11 +432,65 @@ impl WorkService {
             attempt: attempt.clone(),
             reason: reason.clone(),
         };
-        self.run_command(work, &intent, request_id, &|_| {
+        self.run_command(work, &intent, request_id, &|_, _| {
             let reason_text = materialize_summary(reason)?;
             Ok(PreparedCommand::plain(Command::FailAttempt {
                 attempt: attempt.clone(),
                 reason: reason_text,
+            }))
+        })
+    }
+
+    pub fn replace(
+        &self,
+        work: &WorkId,
+        attempt: &AttemptId,
+        reason: &InputValue,
+        request_id: Option<String>,
+    ) -> Result<Response> {
+        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+        let intent = RequestIntent::ReplaceAttempt {
+            work: work.clone(),
+            attempt: attempt.clone(),
+            reason: reason.clone(),
+        };
+        self.run_command(work, &intent, request_id, &|loaded, lock| {
+            let paths = sheltie_core::work::replacement_input_paths_for(
+                &loaded.state,
+                &loaded.graph,
+                attempt,
+            )?;
+            let reason = materialize_summary(reason)?;
+            sheltie_core::text::Summary::new(&reason, "reason").map_err(|_| {
+                Error::Core(sheltie_core::Error::SummaryTooLong {
+                    max: sheltie_core::text::Summary::max_bytes(),
+                    actual: reason.len(),
+                })
+            })?;
+            let mut observed_inputs = BTreeMap::new();
+            for (name, path) in paths {
+                let observed = match path {
+                    Some(path) => {
+                        let file = crate::fsx::open_managed_optional(&self.home, &path)?;
+                        file.map(|file| {
+                            crate::failpoint::rendezvous("replace_after_input_open", path.as_str())
+                                .map_err(|error| Error::io(path.as_str(), error))?;
+                            let (sha256, bytes) =
+                                file.sha256_bounded(crate::fsx::MAX_FILE_BYTES)?;
+                            crate::fsx::verify_managed_file_bound(&self.home, lock, &path, &file)?;
+                            Ok::<_, Error>(ObservedFile::new(path, sha256, bytes))
+                        })
+                        .transpose()?
+                    }
+                    None => None,
+                };
+                observed_inputs.insert(name, observed);
+            }
+            Ok(PreparedCommand::plain(Command::ReplaceAttempt {
+                attempt: attempt.clone(),
+                reason,
+                observed_inputs,
+                instruction_text: instruction_text_of(loaded, &attempt.node)?,
             }))
         })
     }
@@ -452,7 +506,7 @@ impl WorkService {
             work: work.clone(),
             node: node.clone(),
         };
-        self.run_command(work, &intent, request_id, &|_| {
+        self.run_command(work, &intent, request_id, &|_, _| {
             Ok(PreparedCommand::plain(Command::ApproveGate {
                 node: node.clone(),
             }))
@@ -462,7 +516,7 @@ impl WorkService {
     pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
         let intent = RequestIntent::CancelWork { work: work.clone() };
-        self.run_command(work, &intent, request_id, &|_| {
+        self.run_command(work, &intent, request_id, &|_, _| {
             Ok(PreparedCommand::plain(Command::Cancel))
         })
     }
@@ -943,7 +997,7 @@ impl WorkService {
         work: &WorkId,
         intent: &RequestIntent,
         request_id: String,
-        build: &dyn Fn(&Loaded) -> Result<PreparedCommand>,
+        build: &dyn Fn(&Loaded, &crate::home::HomeLock) -> Result<PreparedCommand>,
     ) -> Result<Response> {
         // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
         // 前缀；效果未完成的请求不在这里恢复，交给写路径。
@@ -977,7 +1031,7 @@ impl WorkService {
             principal: principal(),
         };
         let loaded = svc.load(work)?;
-        let prepared = build(&loaded)?;
+        let prepared = build(&loaded, &session.lock)?;
         let cmd = &prepared.command;
         let decision = decide(Some(&loaded.state), &loaded.graph, cmd, &ctx)?;
         let effects = core_effects_to_ops(&svc.home, &decision)?;
@@ -1339,6 +1393,13 @@ fn decode_read_request(
         serde_json::from_str(&request.audit.command_json).map_err(|error| Error::StoreCorrupt {
             detail: format!("请求 {id} 的audit命令解不开：{error}"),
         })?;
+    if let Command::ReplaceAttempt { reason, .. } = &command {
+        sheltie_core::text::Summary::new(reason, "reason").map_err(|error| {
+            Error::StoreCorrupt {
+                detail: format!("请求 {id} 的替换理由不是合法有界文本：{error}"),
+            }
+        })?;
+    }
     let response = Response {
         request_id: persisted.request_id,
         revision: persisted.revision,
@@ -1367,6 +1428,19 @@ fn validate_read_audit(
         Reply::AttemptBegun { attempt, .. } => state
             .attempt(attempt)
             .is_some_and(|attempt| attempt.started_at.as_str() == audit.at),
+        Reply::AttemptReplaced {
+            replaced_attempt,
+            attempt,
+            ..
+        } => {
+            state
+                .attempt(replaced_attempt)
+                .and_then(|old| old.ended_at.as_ref())
+                .is_some_and(|at| at.as_str() == audit.at)
+                && state
+                    .attempt(attempt)
+                    .is_some_and(|new| new.started_at.as_str() == audit.at)
+        }
         Reply::AttemptSubmitted { attempt, .. } | Reply::AttemptFailed { attempt } => state
             .attempt(attempt)
             .and_then(|attempt| attempt.ended_at.as_ref())
@@ -1419,7 +1493,7 @@ fn validate_command_owner_data(
         _ => None,
     };
     if status.is_some_and(|status| {
-        !sheltie_core::work::reply_status_matches(&snapshot.reply, status, graph)
+        !sheltie_core::work::reply_status_matches(&snapshot.reply, status, state, graph)
     }) {
         return Err(Error::StoreCorrupt {
             detail: format!("请求 {request_id} 的snapshot状态与原操作不一致"),
@@ -1468,6 +1542,86 @@ fn validate_command_owner_data(
                 && inputs == &expected_inputs
                 && outputs == &expected_outputs
                 && graph.node_requires(node).as_ref() == Some(requires)
+        }
+        (
+            Command::ReplaceAttempt {
+                attempt: replaced_attempt,
+                reason,
+                observed_inputs,
+                ..
+            },
+            Reply::AttemptReplaced {
+                replaced_attempt: reply_old,
+                attempt,
+                brief_path,
+                output_dir,
+                inputs,
+                outputs,
+                requires,
+            },
+            CheckedData::Replaced,
+        ) => {
+            let old = state
+                .attempt(replaced_attempt)
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 引用未知旧Attempt {replaced_attempt}"),
+                })?;
+            let new = state.attempt(attempt).ok_or_else(|| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 引用未知新Attempt {attempt}"),
+            })?;
+            let node = graph
+                .node(&attempt.node)
+                .ok_or_else(|| Error::StoreCorrupt {
+                    detail: format!("请求 {request_id} 的替换节点不在冻结图中"),
+                })?;
+            let input_paths = new
+                .inputs
+                .iter()
+                .map(|(name, reference)| {
+                    (
+                        name.clone(),
+                        reference.as_ref().map(|reference| reference.path.clone()),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>();
+            let bound = node.inputs().iter().all(|declaration| {
+                let observed = observed_inputs
+                    .get(declaration.name())
+                    .and_then(Option::as_ref);
+                if matches!(
+                    declaration.source(),
+                    sheltie_core::flow::InputSource::EngineStats
+                ) {
+                    observed.is_none()
+                } else {
+                    match old.inputs.get(declaration.name()).and_then(Option::as_ref) {
+                        Some(reference) => observed.is_some_and(|observed| {
+                            observed.path == reference.path
+                                && observed.sha256 == reference.sha256
+                                && observed.bytes == reference.bytes
+                        }),
+                        None => observed.is_none(),
+                    }
+                }
+            });
+            reply_old == replaced_attempt
+                && old.status == sheltie_core::work::AttemptStatus::Superseded
+                && old
+                    .replacement_reason
+                    .as_ref()
+                    .is_some_and(|recorded| recorded.as_str() == reason)
+                && old.occurrence() == new.occurrence()
+                && old.id.number.checked_add(1) == Some(new.id.number)
+                && old.ended_at.as_ref() == Some(&new.started_at)
+                && old.entered_from == new.entered_from
+                && observed_inputs.keys().eq(old.inputs.keys())
+                && bound
+                && brief_path == &state.attempt_dir(attempt).join_segment("brief.md")
+                && output_dir
+                    == &sheltie_core::work::layout::outputs_dir(&state.attempt_dir(attempt))
+                && inputs == &input_paths
+                && outputs == &sheltie_core::work::output_paths_for(state, graph, attempt)?
+                && graph.node_requires(&attempt.node).as_ref() == Some(requires)
         }
         (
             Command::SubmitAttempt { attempt, .. },
@@ -1562,6 +1716,12 @@ fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>
     let mut ops = Vec::new();
     // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。
     if let Reply::AttemptBegun {
+        attempt,
+        output_dir,
+        outputs,
+        ..
+    }
+    | Reply::AttemptReplaced {
         attempt,
         output_dir,
         outputs,
@@ -1674,6 +1834,15 @@ fn snapshot_data(decision: &Decision) -> serde_json::Value {
             inputs,
             outputs,
             requires,
+        }
+        | Reply::AttemptReplaced {
+            attempt,
+            brief_path,
+            output_dir,
+            inputs,
+            outputs,
+            requires,
+            ..
         } => {
             let inputs: serde_json::Map<String, serde_json::Value> = inputs
                 .iter()
@@ -1689,17 +1858,24 @@ fn snapshot_data(decision: &Decision) -> serde_json::Value {
                 .iter()
                 .map(|(k, p)| (k.clone(), serde_json::json!(p.as_str())))
                 .collect();
-            serde_json::json!({
+            let mut data = serde_json::json!({
                 "attempt": attempt.to_string(),
                 "node": attempt.node.as_str(),
                 "occurrence": attempt.occurrence,
-                "retry": attempt.retry,
+                "number": attempt.number,
                 "brief_path": brief_path.as_str(),
                 "output_dir": output_dir.as_str(),
                 "inputs": inputs,
                 "outputs": outputs,
                 "requires": requires,
-            })
+            });
+            if let Reply::AttemptReplaced {
+                replaced_attempt, ..
+            } = &decision.reply
+            {
+                data["replaced_attempt"] = serde_json::json!(replaced_attempt.to_string());
+            }
+            data
         }
         Reply::AttemptSubmitted { attempt, outputs } => {
             let outs: serde_json::Map<String, serde_json::Value> = outputs
@@ -1842,6 +2018,9 @@ fn audit_json(cmd: &Command) -> Result<String> {
     })?;
     if let serde_json::Value::Object(map) = &mut value {
         for field in ["instruction_text", "summary", "reason"] {
+            if field == "reason" && matches!(cmd, Command::ReplaceAttempt { .. }) {
+                continue;
+            }
             if let Some(text) = map.get(field).and_then(|value| value.as_str()) {
                 map.insert(
                     field.to_string(),

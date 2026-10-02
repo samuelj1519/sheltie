@@ -62,6 +62,6 @@ Superseded 的状态字段约束为：有 ended_at 和 replacement_reason，没�
 
 T01 由复杂模型完整闭合 number 的全部消费者、Superseded 严格载荷、失败前缀、冻结输入观察、历史快照归属和精确 effects/recovery。手写合法持久夹具走真实读取 caller 验证历史校验原语；它只证明读取合同，不计实际替换已发生。M1 核完整原语与阶段测试后，T02 用真实 replace→fail→begin→fail 链复核同一义务。
 
-T01 固定 ReplaceAttempt/AttemptReplaced、WorkService::replace 的输入输出和恢复数据。留给 T02 的只是纯状态变换和调用接线；正常 CLI 与 next 在完整行为完成前不提供 replace。阶段骨架须编译并保持普通行为，不能返回假成功。复杂作者创建全部阶段 tests、fixtures、冻结命令和真实使用手册，原语用例归 T01，新行为用例归 T02 并先 ignore。
+T01 固定 ReplaceAttempt/AttemptReplaced、WorkService::replace 的输入输出和恢复数据。本轮复杂作者在 T01 完成必要耦合的纯状态变换及 runtime 库替换原语；留给 T02 的是公开 CLI 与正常 next 接线；正常 CLI 与 next 在完整行为完成前不提供 replace。阶段骨架须编译并保持普通行为，不能返回假成功。复杂作者创建全部阶段 tests、fixtures、冻结命令和真实使用手册，原语用例归 T01，新行为用例归 T02 并先 ignore。
 
 T02 不改状态合同、serde、snapshot、事务、输入/文件政策或测试期望；缺口交复杂作者新增明确修复任务，独立复核后更新测试基准。M2 核正式入口、原子并发、历史重放、恢复与真实接续。未变化的 M1 原语证据可按相同闭包引用，不重复全套验证。

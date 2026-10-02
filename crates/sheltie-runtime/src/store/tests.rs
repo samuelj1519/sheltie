@@ -85,7 +85,7 @@ fn handwritten_current_schema(works: &str) -> (tempfile::TempDir, Home) {
              CREATE TABLE requests (request_id TEXT PRIMARY KEY, intent_hash TEXT NOT NULL, work_id TEXT, reply_json TEXT NOT NULL, effects_json TEXT NOT NULL, published INTEGER NOT NULL, at TEXT NOT NULL);
              CREATE TABLE audit (seq INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL, revision INTEGER NOT NULL, request_id TEXT NOT NULL, principal TEXT NOT NULL, command_json TEXT NOT NULL, at TEXT NOT NULL);
              INSERT INTO work_sequence VALUES ('2026-10-02', 7);
-             PRAGMA user_version = 3;"
+             PRAGMA user_version = 4;"
         ))
         .unwrap();
     drop(connection);

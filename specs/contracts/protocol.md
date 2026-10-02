@@ -1,6 +1,6 @@
 # 公开操作、状态卡与错误
 
-本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v3`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v4`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
 
 ## 1. 全局约定
 
@@ -16,7 +16,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
 
-**只读操作**（`list`、`show`、`status`、`result`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 3控制Store、锁和自有未提交pending。
+**只读操作**（`list`、`show`、`status`、`result`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 4控制Store、锁和自有未提交pending。
 
 ## 2. 操作一览
 
@@ -40,7 +40,8 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 | `work cancel <work>` | 是 | 取消 |
 | `attempt begin <work> --node <node>` | 是 | 进入节点并开始一次尝试；返回任务书 |
 | `attempt submit <work> --attempt <id> --summary <text\|@file>` | 是 | 提交尝试；引擎校验并封存输出 |
-| `attempt fail <work> --attempt <id> --reason <text>` | 是 | 标记尝试失败 |
+| `attempt fail <work> --attempt <id> --reason <text>` | 是 | 标记真实执行失败 |
+| `attempt replace <work> --attempt <id> --reason <text\|@file>` | 是 | 原子撤销旧提交资格并领取新Attempt，每Occurrence固定最多一次 |
 | `gate approve <work> --node <node>` | 是 | 真人批准门槛 |
 
 `<work>` 接受完整 `work_id`（如 `2026-09-24-001-article`）或唯一前缀（如 `2026-09-24-001`）。新请求的前缀有多个匹配时报 `INVALID_REQUEST` 并列出候选；已有 `request_id` 的重放先与 `requests.work_id` 中的原目标核对，后来的同前缀 Work 不改变历史请求。`--input k=v` 的 `v` 以 `@` 开头时读文件内容。`--version` 省略时取该 id 已装的最高版本（字面排序）。
@@ -103,8 +104,8 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 1. `node` 必须出现在当前 `next` 里，否则 `ILLEGAL_NEXT`（响应里附上当前 `next`）。
 2. 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`，记下来自哪个 Occurrence 与边类型。重试时沿用上一次的来源。
 3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。来源为 `resource.<path>` 的输入读 Work 的冻结副本，它没有单独记录的摘要，由副本整体摘要覆盖：副本缺失或摘要不符报 `STORE_CORRUPT`（[存储合同 §5.4](storage.md)），不报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
-4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.retry`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
-5. 返回 `{ attempt, node, occurrence, retry, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`attempt` 是 `node#n.retry` 字符串，`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
+4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.number`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
+5. 返回 `{ attempt, node, occurrence, number, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`attempt` 是 `node#n.number` 字符串，`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
 
 `inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。第 3 步未绑定的可选输入仍在 `inputs` 里占一行，值是 `null`，任务书对它标「尚无」。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
 
@@ -119,7 +120,17 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `attempt fail <work> --attempt <id> --reason <text>`
 
-Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表示同一 Occurrence 最多 `k + 1` 次尝试；若这次失败的是第 `k + 1` 次（`retry == max_retries`），Work → `blocked(retries_exhausted)`。返回 `{ attempt, work_status }` 与 `next`。
+Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表示同一Occurrence允许k次业务失败重试；第k+1次真实failed进入 `blocked(retries_exhausted)`。number是创建顺序号，superseded不算failed或业务重试；原fail响应校验使用到该Attempt为止的failed前缀，不用当前总失败数。返回 `{ attempt, work_status }` 与 `next`。
+
+### `attempt replace <work> --attempt <id> --reason <text\|@file>`
+
+仅新请求按顺序核：Work非终态（终态WORK_TERMINAL）→旧身份存在（无则NOT_FOUND）→running（非running ATTEMPT_NOT_RUNNING）→active当前Occurrence最新资格（否则ILLEGAL_NEXT）→固定一次额度（已用REPLACEMENTS_EXHAUSTED）→有界reason和冻结输入。request-id重放先于这些新请求条件；reason最多4096bytes，@file意图仅词法绝对源路径，提交后重放不再读文件。
+
+在一个Decision/事务/revision中：旧Attempt→superseded，ended_at及replacement_reason；追加同Occurrence新running，number检查加1，继承entered_from和非stats完整inputs（包括optional null）。runtime同句柄核旧引用path/sha/bytes；不重新绑定上游最新，不把旧草稿当新正式文件。新engine.stats按poststate生成，brief使用冻结说明书，精确历史字节登记并沿既有prepare/write/refresh效果链发布。COMMIT后失败EFFECT_PENDING/committed=true，同id恢复同一新Attempt和字节。
+
+持久data为 `{replaced_attempt,attempt,node,occurrence,number,brief_path,output_dir,inputs,outputs,requires}`，结构和来源沿begin；顶层revision/request_id/next来自提交快照。次数后缀从0连续，不是失败数。一个Occurrence至多一个superseded；额度用尽不新增blocked状态，当前Attempt仍可submit/fail/cancel。next仅资格满足时列 `attempt replace`，args `{work,attempt}`；需要调用者补reason。
+
+旧superseded的新submit/fail在非终态返回ATTEMPT_NOT_RUNNING，Work终态先返回WORK_TERMINAL。旧成功请求照历史重放，其next不是当前下一步。替换不改变输入标准、不跳Node或gate、不停旧进程、不认证接手者、不隔离宿主；操作者核旧进程与共享工作区。
 
 ### `gate approve <work> --node <node>`
 
@@ -152,14 +163,14 @@ Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`
 
 status: active   total: 3120s   blocked: 1   approvals: 0
 
-| node | visits | attempts | failed | avg | entered_via |
-| --- | --- | --- | --- | --- | --- |
-| draft | 2/3 | 3 | 1 | 640s | entry×1, review(back)×1 |
-| review | 1/3 | 1 | 0 | 150s | draft(main)×1 |
-| publish | 0/1 | 0 | 0 | 0s |  |
+| node | visits | attempts | failed | superseded | avg | entered_via |
+| --- | --- | --- | --- | --- | --- | --- |
+| draft | 2/3 | 3 | 1 | 0 | 640s | entry×1, review(back)×1 |
+| review | 1/3 | 1 | 0 | 0 | 150s | draft(main)×1 |
+| publish | 0/1 | 0 | 0 | 0 | 0s |  |
 ```
 
-行按图声明顺序。`total` 是 `created_at` 到 `updated_at`。`approvals` 是 `gate approve` 的次数。`avg` 是该节点已结束 Attempt 的平均耗时。`entered_via` 按首次出现顺序列出 `来源节点(边类型)×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / avg_seconds / entered_via`；`entered_via` 是 `{"from": string|null, "edge": string|null, "count": n}` 数组）。
+行按图声明顺序。superseded统计行政撤销次数，不计failed；结束耗时口径仍纳入已结束Attempt。`total` 是 `created_at` 到 `updated_at`。`approvals` 是 `gate approve` 的次数。`avg` 是该节点已结束 Attempt 的平均耗时。`entered_via` 按首次出现顺序列出 `来源节点(边类型)×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / superseded / avg_seconds / entered_via`；`entered_via` 是 `{"from": string|null, "edge": string|null, "count": n}` 数组）。
 
 `entered_via` 保留边的类型：JSON 里是 `{ from, edge, count }` 数组（`from` 为 `null` 表示入口，`edge` 是 `main | back | branch | re_review`）；文本里写 `draft(back)×1`、`entry×1`。`blocked` 是累计受阻事实（GF-29）：gate 节点提交成功 +1，重试耗尽 +1，`no_legal_edge` 发生 +1；取消后不减少，由状态转换在发生时记录。
 
@@ -177,7 +188,7 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 # 任务书：<node.title>
 
 Work: <work_id>（<name>）
-节点: <node>#<n>，第 <retry> 次尝试
+节点: <node>#<n>，第 <number> 次尝试
 来自: <上游节点>#<m>（<edge.kind> 边）        入口节点写「入口」
 执行者: agent（standard）                      human 节点只写 human
 
@@ -222,7 +233,7 @@ Work: <work_id>（<name>）
 
 协调者可以在交给工作 agent 前在任务书后追加上下文，或改写措辞，但不得改变说明书的原意（方向、标准、产出要求）。改写后的版本由协调者自己保存，引擎不收。
 
-## 5. 响应封装（`--json`，`cli-result/v3`）
+## 5. 响应封装（`--json`，`cli-result/v4`）
 
 成功：
 
@@ -284,7 +295,7 @@ Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `tr
 }
 ```
 
-`next` 把当前合法下一步列成命令行，每项能直接执行。`next` 项的形状全协议只有一种（与状态卡 `data.next` 完全相同）：`op`、`args`、以及仅在 `attempt begin` 项上的 `edge`、`executor`、`tier`。只读操作也带 `next`。`executor` 与 `tier` 让协调者在派活前就知道该找谁、用什么模型。
+`next` 列出当前合法操作和目标身份参数。提交摘要与失败、替换理由必须由调用者补充；文本命令中的占位符也须替换为实际内容后执行。`next` 项的形状全协议只有一种（与状态卡 `data.next` 完全相同）：`op`、`args`、以及仅在 `attempt begin` 项上的 `edge`、`executor`、`tier`。只读操作也带 `next`。`executor` 与 `tier` 让协调者在派活前就知道该找谁、用什么模型。
 
 新请求读取用户提供的`@file`时，缺失、不可读、非UTF-8、非普通文件、符号链接、硬链接（`nlink > 1`）或超出[存储合同§5.3](storage.md)的单文件读取上限（32 MiB）均报`INVALID_REQUEST`、退出码2，detail给path/reason。只有新请求读取文件；同路径重放不重新打开。文件源上限依据storage §5.3，摘要/原因文本本身超过4096字节仍报`SUMMARY_TOO_LONG`、退出码1，不与文件源上限合并。
 
@@ -344,15 +355,18 @@ outputs:
 | `ILLEGAL_NEXT` | 操作不在当前 `next` 里，`detail.next` 给出合法集合 | 无变化 | 从 `next` 里选 |
 | `INPUT_UNAVAILABLE` | 上游节点还没有成功产出，`detail.input` 与 `detail.node` 指出哪条输入 | 未进入节点 | 先完成上游 |
 | `ARTIFACT_MODIFIED` | 输入文件当前摘要与记录不符，`detail.path` | 未进入节点 | 人工核查该文件 |
-| `ATTEMPT_NOT_RUNNING` | 对非 `running` 的 Attempt 提交或标失败 | 无变化 | 看状态卡 |
-| `SUMMARY_TOO_LONG` | 摘要超 4096 字节 | 无变化 | 缩短，细节放文件 |
+| `ATTEMPT_NOT_RUNNING` | 对非 `running` 的 Attempt 提交、标失败或替换 | 无变化 | 看状态卡 |
+| `REPLACEMENTS_EXHAUSTED` | 当前Occurrence已使用固定一次行政替换 | 无状态变化，当前Attempt资格保持 | 按current next继续submit/fail/cancel，或既定业务返工路径 |
+| `SUMMARY_TOO_LONG` | 摘要或原因文本超 4096 字节 | 无变化 | 缩短，细节放文件 |
 | `OUTPUT_MISSING` | 必需输出文件不存在，`detail.output` | 无变化，Attempt 仍 `running` | 让工作 agent 补文件 |
 | `OUTPUT_TOO_LARGE` | 输出超 `max_bytes` | 同上 | 缩小 |
 | `REQUEST_CONFLICT` | 同 `request_id` 不同目标或载荷 | 无变化 | 换新 id |
 | `REVISION_CONFLICT` | 并发写入，`expected_revision` 不符 | 无变化 | 重读状态卡再试 |
 | `EFFECT_PENDING` | 效果未完成：当前请求已提交时 `committed = true` 并带自己的原响应；旧效果阻断新请求时 `committed = false`、`pending_request_id` 指向旧请求 | 看 `committed`：当前请求已提交或尚未提交；旧效果仍待恢复 | 先恢复 `pending_request_id`（若有），再用本次 `request_id` 重试 |
-| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 3` 不符（含 schema 1/2 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
+| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 4` 不符（含 schema 1/2/3 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
 | `STORE_CORRUPT` | 数据库内容、持久身份或未提交阶段的受管文件不符合同 | 未提交新业务状态 | 人工核查；已提交效果中的完整性错误由 `EFFECT_PENDING.detail.cause` 指明 |
 | `IO` | 文件系统错误，`detail.path` 与系统错误文本 | 视具体操作，响应说明 | 检查权限与磁盘 |
 
 **重放不是错误。** 同 `request_id` 同意图（目标与用户参数相同）返回原响应，`ok = true`，`data.replayed = true`；观察到的文件变化不影响意图指纹。
+
+替换请求意图保存理由字面参数或文件源路径；替换审计保存物化后的完整有界理由，与被替换 Attempt 的理由逐字核对。已提交重放不重新读取理由文件。

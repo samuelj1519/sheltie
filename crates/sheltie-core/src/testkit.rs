@@ -546,6 +546,26 @@ kind = "main"
         })
     }
 
+    pub fn replace(&mut self, attempt: &str, reason: &str) -> Result<Decision> {
+        let attempt = AttemptId::parse(attempt)?;
+        let paths = crate::work::replacement_input_paths_for(self.state(), &self.graph, &attempt)?;
+        let observed_inputs = paths
+            .into_iter()
+            .map(|(name, path)| (name, path.and_then(|path| self.observe(&path))))
+            .collect();
+        let instruction_text = self
+            .instructions
+            .get(&attempt.node)
+            .cloned()
+            .unwrap_or_default();
+        self.apply(Command::ReplaceAttempt {
+            attempt,
+            reason: reason.to_string(),
+            observed_inputs,
+            instruction_text,
+        })
+    }
+
     pub fn approve(&mut self, node: &str) -> Result<Decision> {
         self.apply(Command::ApproveGate {
             node: NodeId::new(node)?,

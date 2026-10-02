@@ -116,8 +116,10 @@ pub(crate) fn check_work_effects(
     let work = state.work_id.as_str();
     let mut seen_prepare = false;
     let command_attempt = match command {
-        Command::BeginAttempt { .. } => match reply {
-            Reply::AttemptBegun { attempt, .. } => Some(attempt.clone()),
+        Command::BeginAttempt { .. } | Command::ReplaceAttempt { .. } => match reply {
+            Reply::AttemptBegun { attempt, .. } | Reply::AttemptReplaced { attempt, .. } => {
+                Some(attempt.clone())
+            }
             _ => None,
         },
         Command::SubmitAttempt { attempt, .. } | Command::FailAttempt { attempt, .. } => {
@@ -202,8 +204,11 @@ pub(crate) fn check_work_effects(
                 let attempt = state
                     .attempt(attempt_id)
                     .ok_or_else(|| invalid("path", "Attempt不在已校验Work状态中"))?;
-                if !matches!(command, Command::BeginAttempt { .. }) {
-                    return Err(invalid("path", "历史文件只可由begin请求登记"));
+                if !matches!(
+                    command,
+                    Command::BeginAttempt { .. } | Command::ReplaceAttempt { .. }
+                ) {
+                    return Err(invalid("path", "历史文件只可由begin/replace请求登记"));
                 }
                 let expected_brief =
                     home.to_rel(&state.attempt_dir(attempt_id).join_segment("brief.md"))?;
@@ -335,7 +340,8 @@ fn validate_effect_shape(
         (Command::Start { .. }, Reply::Started { .. }) => {
             matches!(ops, [EffectOp::PublishDir { .. }, EffectOp::RefreshStatusCard { work_id }] if work_id == work)
         }
-        (Command::BeginAttempt { .. }, Reply::AttemptBegun { attempt, .. }) => {
+        (Command::BeginAttempt { .. }, Reply::AttemptBegun { attempt, .. })
+        | (Command::ReplaceAttempt { .. }, Reply::AttemptReplaced { attempt, .. }) => {
             let Some(node) = graph.node(&attempt.node) else {
                 return Err(Error::StoreCorrupt {
                     detail: format!("Work {work} 的begin Attempt节点不在冻结图中"),

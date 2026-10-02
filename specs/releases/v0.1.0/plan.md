@@ -251,7 +251,7 @@ fn rejects_self_loop_edge() { … }
 
 **文件。** `crates/sheltie-core/src/work/render.rs` 中的 `render_status_card`、`render_stats`、`status_card_json`。
 
-**测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`、`status_card_active_mid_flow`、`status_card_blocked_on_gate`、`status_card_succeeded`、`stats_table_mid_flow`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`、`stats_json_counts_visits_failures_and_entered_via`。
+**测试。** 快照：`brief_for_review_node`、`brief_for_node_with_requires`、`brief_for_node_without_requires_omits_section`、`brief_marks_unbound_optional_input_as_absent`、`brief_for_human_executor_ends_with_submit_command`、`brief_shows_entered_from_line_or_entry`（`status_card_active_mid_flow` 的当前覆盖归属已转至 C005-T02，保留原场景并核替换操作）、`status_card_blocked_on_gate`、`status_card_succeeded`、`stats_table_mid_flow`。断言：`next_op_renders_begin_with_node_flag`、`next_op_begin_carries_executor_and_tier`、`status_card_lists_done_occurrences_in_order`、`stats_json_counts_visits_failures_and_entered_via`。
 
 **实现要点。** 格式按 [协议 §4、§6](../../contracts/protocol.md)。快照就是标准答案，红了看 `insta` 的 diff 逐行对。不 `cargo insta accept`。
 

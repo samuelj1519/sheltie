@@ -41,7 +41,24 @@ struct BegunData {
     attempt: AttemptId,
     node: NodeId,
     occurrence: u32,
-    retry: u32,
+    number: u32,
+    brief_path: AbsPath,
+    output_dir: AbsPath,
+    inputs: BTreeMap<String, Option<AbsPath>>,
+    outputs: BTreeMap<String, AbsPath>,
+    requires: Vec<HostRequire>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReplacedData {
+    #[serde(deserialize_with = "attempt_from_text")]
+    replaced_attempt: AttemptId,
+    #[serde(deserialize_with = "attempt_from_text")]
+    attempt: AttemptId,
+    node: NodeId,
+    occurrence: u32,
+    number: u32,
     brief_path: AbsPath,
     output_dir: AbsPath,
     inputs: BTreeMap<String, Option<AbsPath>>,
@@ -90,6 +107,7 @@ struct CancelledData {
 pub(crate) enum CheckedData {
     Started(StartedData),
     Begun,
+    Replaced,
     Submitted(WorkStatus),
     Failed(WorkStatus),
     Approved(ApprovedData),
@@ -161,7 +179,7 @@ pub(crate) fn check_data(
             (data.attempt == *attempt
                 && data.node == attempt.node
                 && data.occurrence == attempt.occurrence
-                && data.retry == attempt.retry
+                && data.number == attempt.number
                 && &data.brief_path == brief_path
                 && &data.output_dir == output_dir
                 && &data.inputs == inputs
@@ -173,6 +191,31 @@ pub(crate) fn check_data(
             let data: SubmittedData = parse(value)?;
             (data.attempt == *attempt && &data.outputs == outputs)
                 .then_some(CheckedData::Submitted(data.work_status))
+        }
+        Reply::AttemptReplaced {
+            replaced_attempt,
+            attempt,
+            brief_path,
+            output_dir,
+            inputs,
+            outputs,
+            requires,
+        } => {
+            let data: ReplacedData = parse(value)?;
+            (data.replaced_attempt == *replaced_attempt
+                && data.attempt == *attempt
+                && data.node == attempt.node
+                && data.occurrence == attempt.occurrence
+                && data.number == attempt.number
+                && replaced_attempt.node == attempt.node
+                && replaced_attempt.occurrence == attempt.occurrence
+                && replaced_attempt.number.checked_add(1) == Some(attempt.number)
+                && &data.brief_path == brief_path
+                && &data.output_dir == output_dir
+                && &data.inputs == inputs
+                && &data.outputs == outputs
+                && &data.requires == requires)
+                .then_some(CheckedData::Replaced)
         }
         Reply::AttemptFailed { attempt } => {
             let data: FailedData = parse(value)?;

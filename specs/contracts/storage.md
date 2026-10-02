@@ -1,6 +1,6 @@
 # 存储、事务与恢复
 
-本合同定义 `~/.sheltie` 下的持久结构与写入规则。SQLite 是唯一状态权威（`INV-7`）；目录树里的一切都是投影或产物。schema 版本 `3`；schema 1/2 的旧库被整体拒绝，不迁移、不清空（D-033）。
+本合同定义 `~/.sheltie` 下的持久结构与写入规则。SQLite 是唯一状态权威（`INV-7`）；目录树里的一切都是投影或产物。schema 版本 `4`；schema 1/2/3 的旧库被整体拒绝，不迁移、不清空（D-033）。
 
 ## 1. SQLite
 
@@ -8,16 +8,16 @@
 
 ### 1.1 版本与结构校验
 
-`PRAGMA user_version` 存 `SCHEMA_VERSION`，当前值 `3`，由 `sheltie-runtime/src/store/schema.rs` 的常量唯一定义。
+`PRAGMA user_version` 存 `SCHEMA_VERSION`，当前值 `4`，由 `sheltie-runtime/src/store/schema.rs` 的常量唯一定义。
 
 打开时：
 
 1. 先以只读方式识别：库文件不存在时，只读操作报 `NOT_FOUND`，不建库；写操作在取得管理根写锁后才建库（§2）。
-2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 3` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。`store.db-shm`维护与缺失WAL的零字节创建是D-039明定的SQLite控制文件例外，不能写WAL header/frame或改已有WAL字节；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
+2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 4` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。`store.db-shm`维护与缺失WAL的零字节创建是D-039明定的SQLite控制文件例外，不能写WAL header/frame或改已有WAL字节；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
 3. 结构校验通过后，读写连接才设置 WAL 与 `synchronous = FULL`。
 4. 不自动迁移，不清空。测试放一个 schema 1 的库作负例，断言拒绝且文件字节不变。
 
-建库的 DDL 与 `PRAGMA user_version = 3` 在**同一个事务**里执行。首次建库在内存 SQLite 中生成并核对完整空库，以安全公开的序列化 API 取数据库字节，持锁独占写入自有 `tmp/store-init-<随机 id>/store.db` 并同步文件和父目录，再按同一打开对象以 NOREPLACE 发布为根下 `store.db`，同步源与目标父目录。SQLite 不按暂存绝对路径打开文件，不在暂存阶段切换 WAL；异常中断只留下自有 tmp，最终端点不存在或已经具有完整 schema。后续写操作可以重新创建独立暂存库；不得解释、初始化或删除任意既有 schema 0/1 文件。首次并发建库由管理根写锁串行化。
+建库的 DDL 与 `PRAGMA user_version = 4` 在**同一个事务**里执行。首次建库在内存 SQLite 中生成并核对完整空库，以安全公开的序列化 API 取数据库字节，持锁独占写入自有 `tmp/store-init-<随机 id>/store.db` 并同步文件和父目录，再按同一打开对象以 NOREPLACE 发布为根下 `store.db`，同步源与目标父目录。SQLite 不按暂存绝对路径打开文件，不在暂存阶段切换 WAL；异常中断只留下自有 tmp，最终端点不存在或已经具有完整 schema。后续写操作可以重新创建独立暂存库；不得解释、初始化或删除任意既有 schema 0/1 文件。首次并发建库由管理根写锁串行化。
 
 ### 1.2 表
 
@@ -49,7 +49,7 @@ CREATE TABLE requests (
   request_id   TEXT PRIMARY KEY,
   intent_hash  TEXT NOT NULL,          -- RequestIntent canonical JSON 的 sha256（§2.1）
   work_id      TEXT,                   -- 解析后的完整 WorkId；Workbook 级写操作为 NULL
-  reply_json   TEXT NOT NULL,          -- ResponseSnapshot：提交时的完整响应（cli-result/v3）
+  reply_json   TEXT NOT NULL,          -- ResponseSnapshot：提交时的完整响应（cli-result/v4）
   effects_json TEXT NOT NULL,          -- 效果意图与历史字节登记（§3.2）；删除完成另核 .deleted 标记
   published    INTEGER NOT NULL,       -- 0 初始效果未完成；1 已完成。历史 write_file 可显式核对/补齐
   at           TEXT NOT NULL
@@ -78,13 +78,13 @@ status/result 的 `Store::read_work_bundle` 在单一只读 SQLite 事务取得 
 
 从同一 bundle 的 Start 快照/发布登记定位冻结原件，核 Workbook 身份、图、gate、路径、历史响应与效果，不能回查另一连接拼接较新状态。并发发布后可读已核 final 原件，但仍保留该读快照的效果事实；同快照 published=false 的 Start 无论读取 pending 或 final 均核 owner，不能用已完成清理的例外绕过。若并发完成发布和 owner 清理，只能有限重取整份 bundle 并重新严格装入，不能拼接两版事实。结果投影只接明确 state/graph/revision/effects_pending 参数，不新增状态来源。
 
-schema 3 完整包含结果声明与接续投影变化后的冻结定义/响应合同；旧 schema 2 保留并拒绝，不自动迁移。目录摘要算法与既有写事务/效果格式保持不变。当前格式决定见 [D-040](../decisions/D-040-result-resume-format.md)。
+schema4包含number/superseded/replacement_reason及新response的单一严格载荷；旧schema1/2/3保留并拒绝，不迁移。结果/接续采用决定仍见D-040，当前替换格式见D-041。目录摘要算法与既有写事务/效果格式保持不变。当前格式决定见 [D-041](../decisions/D-041-attempt-number-and-replacement.md)。
 
 ## 2. 写操作与锁
 
 ### 2.1 RequestIntent 与意图指纹
 
-runtime在进入写路径前构造`RequestIntent`，一个枚举覆盖全部写操作：`StartWork`（用户给的Workbook selector、Flow、名字参数原值/省略状态、起始输入参数）、Work写动词（解析后的完整`WorkId`加节点/Attempt/summary/reason等用户参数）、`AddWorkbook`（源目录的词法绝对路径）、`RemoveWorkbook`（完整id与version）。新请求的WorkName仍按协议纯规则规范化；意图保留用户参数，不写回规范化别名。
+runtime在进入写路径前构造`RequestIntent`，一个枚举覆盖全部写操作：`StartWork`（用户给的Workbook selector、Flow、名字参数原值/省略状态、起始输入参数）、Work写动词（解析后的完整`WorkId`加节点/Attempt/summary/reason/replace目标等用户参数）、`AddWorkbook`（源目录的词法绝对路径）、`RemoveWorkbook`（完整id与version）。新请求的WorkName仍按协议纯规则规范化；意图保留用户参数，不写回规范化别名。
 
 - 意图只含用户参数与解析后的目标，不含观察结果、时钟、模型自报事实。`StartWork` 的每个输入按键排序，记录字面值或 `@file` 的词法规范化绝对路径；`SubmitAttempt` 的 `--summary @file` 同样只记录源路径。文件内容是首次执行时的观察结果，不进意图。`AddWorkbook` 的源路径也只做不访问文件系统的词法规范化，不能靠 `canonicalize` 使历史重放依赖源目录仍存在。
 - `intent_hash`是意图canonical JSON的sha256：tag/字段顺序/input键序/非浮点编码以T07独立向量固定，本修复保持该序列化和字段形状。观察到的文件摘要或`@file`内容变化不改变指纹；同路径同request-id重放返回原响应，新request-id才重新读取当前内容。不同名字参数触发`REQUEST_CONFLICT`，即使最终WorkName相同；省略name与显式传入flow名也保留原参数区别。
@@ -140,7 +140,7 @@ COMMIT
 | --- | --- | --- | --- |
 | 只读预检失败 | 无变化（不存在的新根不建库） | 无变化 | 修参数或补输入后重试，可用同 request-id |
 | 序号分配后、staging 完成 | 无 Work 行；可能留空号与本操作的 `pending/<内部 id>/` | 只有本操作的私有暂存；最终目录不存在 | 持写锁时核对暂存标记与「无 Store 引用」后清理；空号不回收 |
-| COMMIT 前 | 本请求未新增业务行/request/audit；首次合法初始化可留空schema 3 Store | 只有自有暂存与控制对象，无最终业务目录 | 同 request-id 重试或换新请求，均从预检重走 |
+| COMMIT 前 | 本请求未新增业务行/request/audit；首次合法初始化可留空schema 4 Store | 只有自有暂存与控制对象，无最终业务目录 | 同 request-id 重试或换新请求，均从预检重走 |
 | COMMIT 后、发布前 | 已提交；`requests.published = 0` | `pending/<内部 id>/payload/` 是唯一原件，**永不按年龄清理** | 下一次写操作在锁内先按 `effects_json` 发布，再处理新命令；同请求重放返回原响应 |
 | 发布中（rename 后、标记前） | `published = 0` | 最终对象在位 | 恢复核对最终对象归属与摘要：同对象视为已完成；不同对象报错，不覆盖 |
 | 发布失败（磁盘满、权限） | 已提交 | 部分 | 响应报 `EFFECT_PENDING`，携带 `committed = true`、request-id 与原响应；Work 写操作另带 revision，不回滚状态 |
@@ -246,6 +246,14 @@ BE64(file_count)
 - 终态 Work 在 Workbook 被删后仍能完整 `work status`。
 
 副本目录缺失或摘要不符时，对该 Work 的一切操作报 `STORE_CORRUPT`，不回退到仓库副本（未发布 Work 例外：按 §3.3 从 pending 原件读取）。
+
+### 5.5 行政替换持久不变式
+
+AttemptId字段只用number，无retry兼容字段。replacement_reason在完整schema4载荷必须出现（null或BoundedText），缺失拒绝，所有state未知字段拒绝。Superseded有ended_at/replacement_reason且无summary/fail_reason/outputs，其他状态replacement_reason=null；每Occurrence连续number、至多一次superseded、有合法接替、唯一当前最新running。
+
+Replace的RequestIntent固定完整WorkId、旧AttemptId及reason字面或@file词法源路径，不含当前时钟/主体/文件内容；audit记录当前真实主体、时间和原命令。Replace命令的reason保存已物化的完整有界文本，与旧Attempt.replacement_reason逐字绑定；intent仍只固定用户字面参数或文件源路径，重放不读取源文件。其他命令的审计摘要政策不变。快照data的旧/新相邻身份、inputs/requires/paths/revision必须匹配对应历史Attempt和审计；新Attempt后来结束不否定replace快照。Fail历史状态仅按截至原Attempt的failed前缀证明。
+
+一个SQLite事务旧superseded+新running+audit/request/effects，未提交拒绝不撤销资格/创建新最终目录；提交后按已有prepare/write/seal/refresh和真实原字节恢复。不得拆两次提交，不加第二计数库、lease、session或执行者身份注册。
 
 ## 6. 历史文件与当前投影
 

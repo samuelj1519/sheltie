@@ -1,6 +1,6 @@
 //! Work 目录的单一布局函数（架构 §5、存储合同目录布局）。
 //!
-//! 新 Store 只有一种布局：`Occurrence` 与 `retry` 是两个真实维度，目录标签
+//! 新 Store 只有一种布局：`Occurrence` 与 `number` 是两个真实维度，目录标签
 //! `occurrence-001` / `attempt-000` 只是零补齐的浏览形式；引擎文件（`brief.md`、
 //! `engine/stats.json`）在 Attempt 目录根部，worker 输出在 `outputs/` 之下，
 //! 两套命名空间不比较（workbook 合同 §3.2）。持久 caller 的切换归 C002-T07；
@@ -36,13 +36,13 @@ pub fn start_input_path(work_dir: &AbsPath, key: &str) -> AbsPath {
 }
 
 /// Attempt 目录 `works/<work_id>/attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`。
-/// 标签零补齐三位；`AttemptId = node#n.retry` 的含义不变。
+/// 标签零补齐三位；`AttemptId = node#n.number` 的含义不变。
 pub fn attempt_dir(work_dir: &AbsPath, attempt: &AttemptId) -> AbsPath {
     work_dir
         .join_segment("attempts")
         .join_segment(attempt.node.as_str())
         .join_segment(&format!("occurrence-{:03}", attempt.occurrence))
-        .join_segment(&format!("attempt-{:03}", attempt.retry))
+        .join_segment(&format!("attempt-{:03}", attempt.number))
 }
 
 /// 任务书 `brief.md`，Attempt 目录根部（引擎命名空间）。
@@ -77,8 +77,8 @@ mod tests {
         AbsPath::new(s).unwrap()
     }
 
-    fn attempt(node: &str, occurrence: u32, retry: u32) -> AttemptId {
-        AttemptId::new(NodeId::new(node).unwrap(), occurrence, retry)
+    fn attempt(node: &str, occurrence: u32, number: u32) -> AttemptId {
+        AttemptId::new(NodeId::new(node).unwrap(), occurrence, number)
     }
 
     fn rel(s: &str) -> RelPath {

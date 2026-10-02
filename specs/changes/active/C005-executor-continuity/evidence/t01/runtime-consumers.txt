@@ -1,0 +1,26 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.33s
+────────────
+ Nextest run ID a1295822-a8e8-488a-b5cc-2debf16ec6e5 with nextest profile: default
+    Starting 18 tests across 4 binaries (111 tests skipped)
+        PASS [   0.076s] ( 1/18) sheltie-runtime store::tests::open_rejects_same_version_different_table_shape
+        PASS [   0.093s] ( 2/18) sheltie-runtime store::tests::handwritten_schema2_control_accepts_both_open_modes
+        PASS [   1.276s] ( 3/18) sheltie-runtime::result schema_two_is_rejected_without_migrating_or_rewriting_original_bytes
+        PASS [   1.416s] ( 4/18) sheltie-runtime::result status_read_uses_one_snapshot_when_a_new_attempt_commits_between_queries
+        PASS [   1.669s] ( 5/18) sheltie-runtime::result status_read_combines_revision_and_current_frozen_pointers_without_writing
+        PASS [   1.749s] ( 6/18) sheltie-runtime::service malformed_current_reply_keeps_commit_identity_and_request_conflict_priority
+        PASS [   1.931s] ( 7/18) sheltie-runtime::service begin_replay_returns_original_reply_and_rewrites_brief
+        PASS [   1.941s] ( 8/18) sheltie-runtime::result pending_resource_loading_compares_logical_path_and_observed_bytes_separately
+        PASS [   1.953s] ( 9/18) sheltie-runtime::result result_rejects_resource_reference_digest_or_size_drift_without_changing_originals
+        PASS [   1.907s] (10/18) sheltie-runtime::service old_effect_blocks_new_request_with_distinct_identities
+        LEAK [   2.016s] (11/18) sheltie-runtime::result result_selects_terminal_bound_input_and_sealed_output_in_key_order
+        PASS [   2.117s] (12/18) sheltie-runtime::result result_hides_artifacts_until_gate_and_file_effects_are_complete
+        PASS [   2.157s] (13/18) sheltie-runtime::service engine_stats_effect_must_match_its_bound_artifact_reference
+        PASS [   2.182s] (14/18) sheltie-runtime::schema2_replay old_submit_replay_after_cancel_returns_original_reply
+        PASS [   2.186s] (15/18) sheltie-runtime::result status_read_reports_this_work_pending_effects_and_ignores_unrelated_corruption
+        PASS [   2.307s] (16/18) sheltie-runtime::result result_distinguishes_cancelled_work_and_success_without_explicit_selection
+        PASS [   2.738s] (17/18) sheltie-runtime::result all_read_payloads_reject_unknown_fields_before_frozen_workbook_io
+        PASS [   4.111s] (18/18) sheltie-runtime::result status_read_rejects_incomplete_or_conflicting_request_audit_closure
+────────────
+     Summary [   4.112s] 18 tests run: 18 passed (1 leaky), 111 skipped

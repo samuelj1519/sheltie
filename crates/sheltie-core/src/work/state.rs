@@ -170,6 +170,7 @@ pub enum AttemptStatus {
     Running,
     Succeeded,
     Failed,
+    Superseded,
 }
 
 impl AttemptStatus {
@@ -178,6 +179,7 @@ impl AttemptStatus {
             Self::Running => "running",
             Self::Succeeded => "succeeded",
             Self::Failed => "failed",
+            Self::Superseded => "superseded",
         }
     }
 }
@@ -196,8 +198,19 @@ pub struct Attempt {
     pub outputs: BTreeMap<String, ArtifactRef>,
     pub summary: Option<Summary>,
     pub fail_reason: Option<Summary>,
+    #[serde(deserialize_with = "required_replacement_reason")]
+    pub replacement_reason: Option<Summary>,
     pub started_at: Timestamp,
     pub ended_at: Option<Timestamp>,
+}
+
+fn required_replacement_reason<'de, D>(
+    deserializer: D,
+) -> std::result::Result<Option<Summary>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Option::<Summary>::deserialize(deserializer)
 }
 
 impl Attempt {
@@ -320,6 +333,8 @@ impl WorkState {
         }
 
         let mut seen = BTreeSet::new();
+        let mut sequences: BTreeMap<Occurrence, &Attempt> = BTreeMap::new();
+        let mut replaced = BTreeSet::new();
         let mut running = None;
         for (index, attempt) in self.attempts.iter().enumerate() {
             let id = &attempt.id;
@@ -334,6 +349,23 @@ impl WorkState {
             if !seen.insert(id) {
                 return Err(format!("attempts[{index}].id 重复"));
             }
+            let occurrence = attempt.occurrence();
+            let expected = match sequences.get(&occurrence) {
+                Some(previous) => {
+                    if !matches!(
+                        previous.status,
+                        AttemptStatus::Failed | AttemptStatus::Superseded
+                    ) {
+                        return Err(format!("attempts[{index}] 没有合法前一次 Attempt"));
+                    }
+                    previous.id.number.checked_add(1)
+                }
+                None => Some(0),
+            };
+            if expected != Some(id.number) {
+                return Err(format!("attempts[{index}].id.number 不连续"));
+            }
+            sequences.insert(occurrence.clone(), attempt);
             let valid = match attempt.status {
                 AttemptStatus::Running => {
                     if running.replace(attempt.occurrence()).is_some() {
@@ -342,23 +374,42 @@ impl WorkState {
                     attempt.ended_at.is_none()
                         && attempt.summary.is_none()
                         && attempt.fail_reason.is_none()
+                        && attempt.replacement_reason.is_none()
                         && attempt.outputs.is_empty()
                 }
                 AttemptStatus::Succeeded => {
                     attempt.ended_at.is_some()
                         && attempt.summary.is_some()
                         && attempt.fail_reason.is_none()
+                        && attempt.replacement_reason.is_none()
                 }
                 AttemptStatus::Failed => {
                     attempt.ended_at.is_some()
                         && attempt.summary.is_none()
                         && attempt.fail_reason.is_some()
+                        && attempt.replacement_reason.is_none()
+                        && attempt.outputs.is_empty()
+                }
+                AttemptStatus::Superseded => {
+                    if !replaced.insert(occurrence) {
+                        return Err("同一 Occurrence 有多次替换".to_string());
+                    }
+                    attempt.ended_at.is_some()
+                        && attempt.replacement_reason.is_some()
+                        && attempt.summary.is_none()
+                        && attempt.fail_reason.is_none()
                         && attempt.outputs.is_empty()
                 }
             };
             if !valid {
                 return Err(format!("attempts[{index}] 的 status/结果字段不一致"));
             }
+        }
+        if sequences
+            .values()
+            .any(|attempt| attempt.status == AttemptStatus::Superseded)
+        {
+            return Err("superseded Attempt 缺少接替 Attempt".to_string());
         }
         if running
             .as_ref()
@@ -371,6 +422,13 @@ impl WorkState {
             && self.status != WorkStatus::Cancelled
         {
             return Err("running Attempt 与 Work status 不一致".to_string());
+        }
+        if self
+            .attempts
+            .last()
+            .is_some_and(|attempt| attempt.occurrence() != self.current)
+        {
+            return Err("最新 Attempt 与 current 不一致".to_string());
         }
 
         for (index, approval) in self.approvals.iter().enumerate() {
@@ -487,6 +545,21 @@ impl WorkState {
             .iter()
             .rev()
             .find(|a| a.occurrence() == self.current)
+    }
+
+    pub(crate) fn failed_count_of(&self, occurrence: &Occurrence) -> usize {
+        self.attempts
+            .iter()
+            .filter(|attempt| {
+                attempt.occurrence() == *occurrence && attempt.status == AttemptStatus::Failed
+            })
+            .count()
+    }
+
+    pub(crate) fn has_replacement_of(&self, occurrence: &Occurrence) -> bool {
+        self.attempts.iter().any(|attempt| {
+            attempt.occurrence() == *occurrence && attempt.status == AttemptStatus::Superseded
+        })
     }
 
     /// 某节点最近一次 `Succeeded` 的 Attempt。

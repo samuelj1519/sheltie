@@ -121,6 +121,19 @@ pub(crate) fn validate_work_paths(
             )?;
         }
 
+        let replaced_predecessor = state.attempts[..index]
+            .iter()
+            .rev()
+            .find(|candidate| candidate.occurrence() == attempt.occurrence())
+            .filter(|previous| previous.status == AttemptStatus::Superseded);
+        if replaced_predecessor
+            .is_some_and(|previous| attempt.entered_from != previous.entered_from)
+        {
+            return Err(corrupt(
+                &state.work_id,
+                format!("attempts[{index}].entered_from 未继承被替换Attempt的进入来源",),
+            ));
+        }
         if attempt.inputs.len() != node.inputs().len() {
             return Err(corrupt(
                 &state.work_id,
@@ -141,6 +154,25 @@ pub(crate) fn validate_work_paths(
                     )
                 })?
                 .as_ref();
+            if let Some(previous) = replaced_predecessor {
+                if !matches!(declaration.source(), InputSource::EngineStats) {
+                    if actual
+                        != previous
+                            .inputs
+                            .get(declaration.name())
+                            .and_then(Option::as_ref)
+                    {
+                        return Err(corrupt(
+                            &state.work_id,
+                            format!(
+                                "attempts[{index}].inputs.{} 未继承被替换Attempt的冻结引用/进入来源",
+                                declaration.name(),
+                            ),
+                        ));
+                    }
+                    continue;
+                }
+            }
             let expected = match declaration.source() {
                 InputSource::Start { key } => state.inputs.get(key),
                 InputSource::Resource { path } => {

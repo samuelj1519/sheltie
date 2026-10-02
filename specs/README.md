@@ -9,7 +9,7 @@ Proposed：[C006 完整成果副本](changes/proposed/C006-result-delivery/READM
 
 本次用户明确要求依次实施 C004–C008；一次只激活一个 package。真实用户、宿主与平台无法执行的义务记录为 `not_run` 并保留补验入口。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
 
-已发布记录为 v0.2.0；C005 当前开发目标为 v0.3.0，尚未发布。当前上游仍是已完成C004的格式（schema 3、`workbook-digest/v2`、Work目录布局、`cli-result/v3`、`work-result/v1`）；C005采用的schema 4 / `cli-result/v4`目标在T01同步，尚未实施；C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
+已发布记录为 v0.2.0；C005 当前开发目标为 v0.3.0，尚未发布。上游在C005-T01同步单一采用目标（schema4、`cli-result/v4`、number/superseded、原`work-result/v1`和`workbook-digest/v2`）；是否实现与完成只看C005 plan，旧schema原件保留；C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
 
 ## 权威文档
 

@@ -22,6 +22,8 @@ pub enum NextOp {
     SubmitAttempt { attempt: AttemptId },
     #[serde(rename = "attempt fail")]
     FailAttempt { attempt: AttemptId },
+    #[serde(rename = "attempt replace")]
+    ReplaceAttempt { attempt: AttemptId },
     #[serde(rename = "gate approve")]
     ApproveGate { node: NodeId },
     #[serde(rename = "work cancel")]
@@ -44,6 +46,9 @@ impl NextOp {
             Self::FailAttempt { attempt } => {
                 format!("sheltie attempt fail {work_id} --attempt {attempt} --reason \"<原因>\"")
             }
+            Self::ReplaceAttempt { attempt } => {
+                format!("sheltie attempt replace {work_id} --attempt {attempt} --reason \"<原因>\"")
+            }
             Self::ApproveGate { node } => format!("sheltie gate approve {work_id} --node {node}"),
             Self::Cancel => format!("sheltie work cancel {work_id}"),
         }
@@ -61,7 +66,7 @@ impl NextOp {
 /// - 终态：空。
 /// - `Blocked(Gate)`：`gate approve <current>`、`work cancel`。
 /// - `Blocked(RetriesExhausted | NoLegalEdge)`：`work cancel`。
-/// - 当前 Occurrence 无 Attempt，或最新 `Failed` 且 `retry < max_retries`：`attempt begin <current>`（`edge = None`）、`work cancel`。
+/// - 当前 Occurrence 无 Attempt，或最新 `Failed` 且真实失败数未超过 `max_retries`：`attempt begin <current>`（`edge = None`）、`work cancel`。
 /// - 最新 `Running`：`attempt submit`、`attempt fail`、`work cancel`。
 /// - 最新 `Succeeded`（无门槛或已批准）：每条出边 `current -> to` 且 `visits[to] < max_visits[to]`
 ///   给一项 `attempt begin <to>` 带 `edge`；再加 `work cancel`。
@@ -98,7 +103,7 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                     // 还能重试就再 begin 当前节点（不带边）；否则只剩取消。
                     let mut ops = Vec::with_capacity(2);
                     if let Some(def) = graph.node(&state.current.node) {
-                        if attempt.id.retry < def.max_retries {
+                        if state.failed_count_of(&state.current) <= def.max_retries as usize {
                             ops.push(NextOp::BeginAttempt {
                                 node: state.current.node.clone(),
                                 edge: None,
@@ -129,6 +134,7 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                     ops.push(NextOp::Cancel);
                     ops
                 }
+                AttemptStatus::Superseded => vec![NextOp::Cancel],
             },
         },
         WorkStatus::Blocked(reason) => {

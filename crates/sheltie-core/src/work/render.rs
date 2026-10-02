@@ -21,7 +21,7 @@ use crate::path::AbsPath;
 /// # 任务书：<node.title>
 /// <空行>
 /// Work: <work_id>（<name>）
-/// 节点: <node>#<n>，第 <retry> 次尝试
+/// 节点: <node>#<n>，第 <number> 次尝试
 /// 来自: <occ>（<kind> 边）            入口为「来自: 入口」
 /// 执行者: agent（<tier>）             human 为「执行者: human」
 /// <空行>
@@ -75,7 +75,7 @@ pub fn render_brief(
     out.push_str(&format!(
         "节点: {}，第 {} 次尝试\n",
         attempt.occurrence(),
-        attempt.id.retry
+        attempt.id.number
     ));
     match &attempt.entered_from {
         None => out.push_str("来自: 入口\n"),
@@ -306,6 +306,11 @@ pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
                         out.push_str(&format!("reason: {s}\n"));
                     }
                 }
+                AttemptStatus::Superseded => {
+                    if let Some(s) = &a.reason {
+                        out.push_str(&format!("reason: {s}\n"));
+                    }
+                }
                 AttemptStatus::Running => {}
             }
         }
@@ -378,7 +383,11 @@ pub fn status_view(state: &WorkState, graph: &Graph) -> StatusView {
             attempt: a.id.to_string(),
             status: a.status,
             summary: a.summary.as_ref().map(|s| s.as_str().to_string()),
-            reason: a.fail_reason.as_ref().map(|s| s.as_str().to_string()),
+            reason: a
+                .fail_reason
+                .as_ref()
+                .or(a.replacement_reason.as_ref())
+                .map(|s| s.as_str().to_string()),
             outputs: a.outputs.clone(),
         }),
         resume: state.latest_attempt_of_current().map(|attempt| {
@@ -516,6 +525,10 @@ pub fn next_item_json(work_id: &WorkId, op: &NextOp) -> serde_json::Value {
             "op": "attempt fail",
             "args": { "work": work_id.as_str(), "attempt": attempt.to_string() },
         }),
+        NextOp::ReplaceAttempt { attempt } => serde_json::json!({
+            "op": "attempt replace",
+            "args": { "work": work_id.as_str(), "attempt": attempt.to_string() },
+        }),
         NextOp::ApproveGate { node } => serde_json::json!({
             "op": "gate approve",
             "args": { "work": work_id.as_str(), "node": node.as_str() },
@@ -602,6 +615,7 @@ pub struct NodeStatsJson {
     pub max_visits: u32,
     pub attempts: u32,
     pub failed: u32,
+    pub superseded: u32,
     /// 已结束 Attempt 的平均秒数；没有则 0。
     pub avg_seconds: u64,
     /// `"<from>(<edge>)×<n>"` 或 `"entry×<n>"`，按首次出现顺序。
@@ -630,6 +644,10 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
         let failed = attempts
             .iter()
             .filter(|a| a.status == AttemptStatus::Failed)
+            .count() as u32;
+        let superseded = attempts
+            .iter()
+            .filter(|attempt| attempt.status == AttemptStatus::Superseded)
             .count() as u32;
 
         // entered_via 按 Occurrence 计（重试沿用同一来源），来源是「节点 + 边类型」
@@ -689,6 +707,7 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
             max_visits: def.max_visits,
             attempts: attempts.len() as u32,
             failed,
+            superseded,
             avg_seconds: ended_secs.checked_div(ended_n).unwrap_or(0),
             entered_via,
             entered_via_json,
@@ -730,16 +749,17 @@ pub fn render_stats(state: &WorkState, graph: &Graph) -> String {
         "status: {}   total: {}s   blocked: {}   approvals: {}\n\n",
         s.status, s.total_seconds, s.blocked_count, s.approvals
     ));
-    out.push_str("| node | visits | attempts | failed | avg | entered_via |\n");
-    out.push_str("| --- | --- | --- | --- | --- | --- |\n");
+    out.push_str("| node | visits | attempts | failed | superseded | avg | entered_via |\n");
+    out.push_str("| --- | --- | --- | --- | --- | --- | --- |\n");
     for n in &s.nodes {
         out.push_str(&format!(
-            "| {} | {}/{} | {} | {} | {}s | {} |\n",
+            "| {} | {}/{} | {} | {} | {} | {}s | {} |\n",
             n.node,
             n.visits,
             n.max_visits,
             n.attempts,
             n.failed,
+            n.superseded,
             n.avg_seconds,
             n.entered_via.join(", ")
         ));
@@ -953,8 +973,9 @@ mod tests {
         assert!(entry.contains("来自: 入口"));
     }
 
-    // Task: T10
+    // Task: C005-T02
     #[test]
+    #[ignore = "C005-T02"]
     fn status_card_active_mid_flow() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();

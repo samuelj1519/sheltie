@@ -158,7 +158,7 @@ fn original_reply(replay: &Value, stored: &Value, id: &str, work: Option<&str>) 
                         "{}#{}.{}",
                         attempt["node"].as_str().unwrap(),
                         attempt["occurrence"],
-                        attempt["retry"]
+                        attempt["number"]
                     ));
                 }
                 for key in ["edge", "executor", "tier"] {

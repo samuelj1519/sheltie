@@ -1,0 +1,40 @@
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+     Running unittests src/lib.rs (/private/tmp/sheltie-c005-target/debug/deps/sheltie_core-bc9b1f0178fa05ef)
+
+running 1 test
+test work::render::tests::status_card_active_mid_flow ... FAILED
+
+failures:
+
+---- work::render::tests::status_card_active_mid_flow stdout ----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Snapshot Summary ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Snapshot file: crates/sheltie-core/src/work/snapshots/sheltie_core__work__render__tests__status_card_active_mid_flow.snap
+Snapshot: status_card_active_mid_flow
+Source: crates/sheltie-core/src/work/render.rs:983
+────────────────────────────────────────────────────────────────────────────────
+Expression: render_status_card(fx.state(), &fx.graph)
+────────────────────────────────────────────────────────────────────────────────
+-old snapshot
++new results
+────────────┬───────────────────────────────────────────────────────────────────
+   23    23 │ ## 合法下一步
+   24    24 │ 
+   25    25 │ - sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<一句话结论>"
+   26    26 │ - sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+   27       │-- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+   28    27 │ - sheltie work cancel 2026-09-24-001-t
+────────────┴───────────────────────────────────────────────────────────────────
+Stopped on the first failure. Run `cargo insta test` to run all snapshots.
+
+thread 'work::render::tests::status_card_active_mid_flow' (58582670) panicked at /Users/shushu/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/insta-1.48.0/src/runtime.rs:719:13:
+snapshot assertion for 'status_card_active_mid_flow' failed in line 983
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    work::render::tests::status_card_active_mid_flow
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 204 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p sheltie-core --lib`

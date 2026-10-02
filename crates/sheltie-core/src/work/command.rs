@@ -75,6 +75,12 @@ pub enum Command {
         attempt: AttemptId,
         reason: String,
     },
+    ReplaceAttempt {
+        attempt: AttemptId,
+        reason: String,
+        observed_inputs: BTreeMap<String, Option<ObservedFile>>,
+        instruction_text: String,
+    },
     ApproveGate {
         node: NodeId,
     },
@@ -89,6 +95,7 @@ impl Command {
             Self::BeginAttempt { .. } => "attempt begin",
             Self::SubmitAttempt { .. } => "attempt submit",
             Self::FailAttempt { .. } => "attempt fail",
+            Self::ReplaceAttempt { .. } => "attempt replace",
             Self::ApproveGate { .. } => "gate approve",
             Self::Cancel => "work cancel",
         }
@@ -144,6 +151,15 @@ pub enum Reply {
     },
     AttemptFailed {
         attempt: AttemptId,
+    },
+    AttemptReplaced {
+        replaced_attempt: AttemptId,
+        attempt: AttemptId,
+        brief_path: AbsPath,
+        output_dir: AbsPath,
+        inputs: BTreeMap<String, Option<AbsPath>>,
+        outputs: BTreeMap<String, AbsPath>,
+        requires: Vec<HostRequire>,
     },
     GateApproved {
         node: NodeId,

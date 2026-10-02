@@ -1,0 +1,277 @@
+Supplemental execution: --override-version-check; the configured-version gate remains not_run.
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+────────────
+ Nextest run ID f4212b4e-a74c-4857-96e3-2ee4605f1094 with nextest profile: default
+    Starting 10 tests across 50 binaries (764 tests skipped)
+        FAIL [   0.008s] ( 1/10) sheltie-core::attempt_replace public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence
+  stdout ───
+
+    running 1 test
+    test public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence ... FAILED
+
+    failures:
+
+    failures:
+        public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence' (58651939) panicked at crates/sheltie-core/tests/attempt_replace.rs:524:5:
+    assertion `left == right` failed
+      left: 0
+     right: 1
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.055s] ( 2/10) sheltie-core work::render::tests::status_card_active_mid_flow
+  stdout ───
+
+    running 1 test
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Snapshot Summary ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    Snapshot file: crates/sheltie-core/src/work/snapshots/sheltie_core__work__render__tests__status_card_active_mid_flow.snap
+    Snapshot: status_card_active_mid_flow
+    Source: crates/sheltie-core/src/work/render.rs:983
+    ────────────────────────────────────────────────────────────────────────────────
+    Expression: render_status_card(fx.state(), &fx.graph)
+    ────────────────────────────────────────────────────────────────────────────────
+    -old snapshot
+    +new results
+    ────────────┬───────────────────────────────────────────────────────────────────
+       23    23 │ ## 合法下一步
+       24    24 │ 
+       25    25 │ - sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<一句话结论>"
+       26    26 │ - sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+       27       │-- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+       28    27 │ - sheltie work cancel 2026-09-24-001-t
+    ────────────┴───────────────────────────────────────────────────────────────────
+    To update snapshots run `cargo insta review`
+    Stopped on the first failure. Run `cargo insta test` to run all snapshots.
+    test work::render::tests::status_card_active_mid_flow ... FAILED
+
+    failures:
+
+    failures:
+        work::render::tests::status_card_active_mid_flow
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 204 filtered out; finished in 0.05s
+
+  stderr ───
+    stored new snapshot /Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core/src/work/snapshots/sheltie_core__work__render__tests__status_card_active_mid_flow.snap.new
+
+    thread 'work::render::tests::status_card_active_mid_flow' (58651941) panicked at /Users/shushu/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/insta-1.48.0/src/runtime.rs:719:13:
+    snapshot assertion for 'status_card_active_mid_flow' failed in line 983
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+ FAIL + LEAK [   0.391s] ( 3/10) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+  stdout ───
+
+    running 1 test
+    test post_commit_card_failure_returns_committed_response ... FAILED
+
+    failures:
+
+    failures:
+        post_commit_card_failure_returns_committed_response
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 54 filtered out; finished in 0.18s
+
+  stderr ───
+
+    thread 'post_commit_card_failure_returns_committed_response' (58651948) panicked at crates/sheltie-runtime/tests/service.rs:1211:5:
+    assertion `left == right` failed
+      left: Array [Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt submit")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt fail")}, Object {"args": Object {"work": String("2026-10-02-001-default")}, "op": String("work cancel")}]
+     right: Array [Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt submit")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt fail")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt replace")}, Object {"args": Object {"work": String("2026-10-02-001-default")}, "op": String("work cancel")}]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.146s] ( 4/10) sheltie-cli::attempt_replace replacement_does_not_consume_zero_business_retries_or_approve_a_gate
+  stdout ───
+
+    running 1 test
+    test replacement_does_not_consume_zero_business_retries_or_approve_a_gate ... FAILED
+
+    failures:
+
+    failures:
+        replacement_does_not_consume_zero_business_retries_or_approve_a_gate
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.14s
+
+  stderr ───
+
+    thread 'replacement_does_not_consume_zero_business_retries_or_approve_a_gate' (58651943) panicked at crates/sheltie-cli/tests/common/mod.rs:49:9:
+    命令失败：["--request-id", "replace-zero", "attempt", "replace", "2026-10-02-001-default", "--attempt", "execute#1.0", "--reason", "administrative change"]
+    exit: Some(2)
+    stdout: 
+    stderr: error: unrecognized subcommand 'replace'
+
+    Usage: sheltie attempt [OPTIONS] <COMMAND>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.153s] ( 5/10) sheltie-cli::attempt_replace replacement_is_atomic_and_business_failures_use_history_not_attempt_number
+  stdout ───
+
+    running 1 test
+    test replacement_is_atomic_and_business_failures_use_history_not_attempt_number ... FAILED
+
+    failures:
+
+    failures:
+        replacement_is_atomic_and_business_failures_use_history_not_attempt_number
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.14s
+
+  stderr ───
+
+    thread 'replacement_is_atomic_and_business_failures_use_history_not_attempt_number' (58651946) panicked at crates/sheltie-cli/tests/common/mod.rs:49:9:
+    命令失败：["--request-id", "replace-once", "attempt", "replace", "2026-10-02-001-default", "--attempt", "execute#1.0", "--reason", "撤销正式资格"]
+    exit: Some(2)
+    stdout: 
+    stderr: error: unrecognized subcommand 'replace'
+
+    Usage: sheltie attempt [OPTIONS] <COMMAND>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.154s] ( 6/10) sheltie-cli::attempt_replace replacement_replays_original_file_reason_and_rejects_conflicting_intent
+  stdout ───
+
+    running 1 test
+    test replacement_replays_original_file_reason_and_rejects_conflicting_intent ... FAILED
+
+    failures:
+
+    failures:
+        replacement_replays_original_file_reason_and_rejects_conflicting_intent
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.15s
+
+  stderr ───
+
+    thread 'replacement_replays_original_file_reason_and_rejects_conflicting_intent' (58651940) panicked at crates/sheltie-cli/tests/common/mod.rs:49:9:
+    命令失败：["--request-id", "file-replace", "attempt", "replace", "2026-10-02-001-default", "--attempt", "execute#1.0", "--reason", "@/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpWpETrd/reason.txt"]
+    exit: Some(2)
+    stdout: 
+    stderr: error: unrecognized subcommand 'replace'
+
+    Usage: sheltie attempt [OPTIONS] <COMMAND>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.154s] ( 7/10) sheltie-cli::attempt_replace replacement_reason_has_exact_limit_and_missing_identity_is_not_found
+  stdout ───
+
+    running 1 test
+    test replacement_reason_has_exact_limit_and_missing_identity_is_not_found ... FAILED
+
+    failures:
+
+    failures:
+        replacement_reason_has_exact_limit_and_missing_identity_is_not_found
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.15s
+
+  stderr ───
+
+    thread 'replacement_reason_has_exact_limit_and_missing_identity_is_not_found' (58651947) panicked at crates/sheltie-cli/tests/common/mod.rs:49:9:
+    命令失败：["--request-id", "reason-boundary", "attempt", "replace", "2026-10-02-001-default", "--attempt", "execute#1.0", "--reason", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
+    exit: Some(2)
+    stdout: 
+    stderr: error: unrecognized subcommand 'replace'
+
+    Usage: sheltie attempt [OPTIONS] <COMMAND>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.154s] ( 8/10) sheltie-cli::attempt_replace replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt
+  stdout ───
+
+    running 1 test
+    test replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt ... FAILED
+
+    failures:
+
+    failures:
+        replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.15s
+
+  stderr ───
+
+    thread 'replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt' (58651942) panicked at crates/sheltie-cli/tests/attempt_replace.rs:321:5:
+    assertion `left == right` failed
+      left: Null
+     right: "ARTIFACT_MODIFIED"
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.156s] ( 9/10) sheltie-cli::attempt_replace replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats
+  stdout ───
+
+    running 1 test
+    test replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats ... FAILED
+
+    failures:
+
+    failures:
+        replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.15s
+
+  stderr ───
+
+    thread 'replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats' (58651945) panicked at crates/sheltie-cli/tests/common/mod.rs:49:9:
+    命令失败：["--request-id", "crash-replace", "attempt", "replace", "2026-10-02-001-default", "--attempt", "execute#1.0", "--reason", "window"]
+    exit: Some(2)
+    stdout: 
+    stderr: error: unrecognized subcommand 'replace'
+
+    Usage: sheltie attempt [OPTIONS] <COMMAND>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.181s] (10/10) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+  stdout ───
+
+    running 1 test
+    test stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load ... FAILED
+
+    failures:
+
+    failures:
+        stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16 filtered out; finished in 1.17s
+
+  stderr ───
+
+    thread 'stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load' (58651944) panicked at crates/sheltie-cli/tests/work.rs:598:5:
+    assertion `left == right` failed
+      left: Array [Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt submit")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt fail")}, Object {"args": Object {"work": String("2026-10-02-001-default")}, "op": String("work cancel")}]
+     right: Array [Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt submit")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt fail")}, Object {"args": Object {"attempt": String("outline#1.0"), "work": String("2026-10-02-001-default")}, "op": String("attempt replace")}, Object {"args": Object {"work": String("2026-10-02-001-default")}, "op": String("work cancel")}]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   1.182s] 10 tests run: 0 passed, 10 failed, 764 skipped
+        FAIL [   0.008s] ( 1/10) sheltie-core::attempt_replace public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence
+        FAIL [   0.055s] ( 2/10) sheltie-core work::render::tests::status_card_active_mid_flow
+ FAIL + LEAK [   0.391s] ( 3/10) sheltie-runtime::service post_commit_card_failure_returns_committed_response
+        FAIL [   1.146s] ( 4/10) sheltie-cli::attempt_replace replacement_does_not_consume_zero_business_retries_or_approve_a_gate
+        FAIL [   1.153s] ( 5/10) sheltie-cli::attempt_replace replacement_is_atomic_and_business_failures_use_history_not_attempt_number
+        FAIL [   1.154s] ( 6/10) sheltie-cli::attempt_replace replacement_replays_original_file_reason_and_rejects_conflicting_intent
+        FAIL [   1.154s] ( 7/10) sheltie-cli::attempt_replace replacement_reason_has_exact_limit_and_missing_identity_is_not_found
+        FAIL [   1.154s] ( 8/10) sheltie-cli::attempt_replace replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt
+        FAIL [   1.156s] ( 9/10) sheltie-cli::attempt_replace replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats
+        FAIL [   1.181s] (10/10) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load
+error: test run failed

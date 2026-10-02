@@ -26,6 +26,7 @@ pub enum ErrorCode {
     InputUnavailable,
     ArtifactModified,
     AttemptNotRunning,
+    ReplacementsExhausted,
     SummaryTooLong,
     OutputMissing,
     OutputTooLarge,
@@ -56,6 +57,7 @@ impl ErrorCode {
             Self::InputUnavailable => "INPUT_UNAVAILABLE",
             Self::ArtifactModified => "ARTIFACT_MODIFIED",
             Self::AttemptNotRunning => "ATTEMPT_NOT_RUNNING",
+            Self::ReplacementsExhausted => "REPLACEMENTS_EXHAUSTED",
             Self::SummaryTooLong => "SUMMARY_TOO_LONG",
             Self::OutputMissing => "OUTPUT_MISSING",
             Self::OutputTooLarge => "OUTPUT_TOO_LARGE",
@@ -132,6 +134,10 @@ pub enum Error {
     /// 对非 `running` 的 Attempt 提交或标失败。
     #[error("Attempt {attempt} 不在运行中")]
     AttemptNotRunning { attempt: AttemptId },
+    #[error("Attempt {attempt} 不存在")]
+    AttemptNotFound { attempt: AttemptId },
+    #[error("Attempt {attempt} 所在 Occurrence 已用完替换机会")]
+    ReplacementsExhausted { attempt: AttemptId },
     /// 摘要超过 4096 字节。
     #[error("摘要超过 {max} 字节，实际 {actual}")]
     SummaryTooLong { max: usize, actual: usize },
@@ -167,6 +173,8 @@ impl Error {
             Self::InputUnavailable { .. } => ErrorCode::InputUnavailable,
             Self::ArtifactModified { .. } => ErrorCode::ArtifactModified,
             Self::AttemptNotRunning { .. } => ErrorCode::AttemptNotRunning,
+            Self::AttemptNotFound { .. } => ErrorCode::NotFound,
+            Self::ReplacementsExhausted { .. } => ErrorCode::ReplacementsExhausted,
             Self::SummaryTooLong { .. } => ErrorCode::SummaryTooLong,
             Self::OutputMissing { .. } => ErrorCode::OutputMissing,
             Self::OutputTooLarge { .. } => ErrorCode::OutputTooLarge,

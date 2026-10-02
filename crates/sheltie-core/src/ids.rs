@@ -291,25 +291,25 @@ impl From<WorkId> for String {
     }
 }
 
-/// Attempt 的 ID：节点、第几次到达、第几次重试。显示为 `draft#1.0`。
+/// Attempt 的 ID：节点、到达次数与从 0 起的尝试顺序号。显示为 `draft#1.0`。
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AttemptId {
     pub node: NodeId,
     pub occurrence: u32,
-    pub retry: u32,
+    pub number: u32,
 }
 
 impl AttemptId {
-    pub fn new(node: NodeId, occurrence: u32, retry: u32) -> Self {
+    pub fn new(node: NodeId, occurrence: u32, number: u32) -> Self {
         Self {
             node,
             occurrence,
-            retry,
+            number,
         }
     }
 
-    /// 解析 `node#n.retry`。失败返回 `Error::InvalidId { field: "attempt_id", .. }`。
+    /// 解析 `node#n.number`。失败返回 `Error::InvalidId { field: "attempt_id", .. }`。
     pub fn parse(value: &str) -> Result<Self> {
         let reject = |reason: &'static str| Error::InvalidId {
             field: "attempt_id".to_string(),
@@ -318,31 +318,44 @@ impl AttemptId {
         };
         let (node_str, rest) = value
             .split_once('#')
-            .ok_or_else(|| reject("格式不是 节点#n.retry"))?;
-        let (occ_str, retry_str) = rest
+            .ok_or_else(|| reject("格式不是 节点#n.number"))?;
+        let (occ_str, number_str) = rest
             .split_once('.')
-            .ok_or_else(|| reject("格式不是 节点#n.retry"))?;
+            .ok_or_else(|| reject("格式不是 节点#n.number"))?;
         let node = NodeId::new(node_str).map_err(|e| match e {
             Error::InvalidId { reason, .. } => reject(reason),
             e => e,
         })?;
         let occurrence: u32 =
             parse_u32_canonical(occ_str).ok_or_else(|| reject("到达次数不是数字"))?;
-        let retry: u32 =
-            parse_u32_canonical(retry_str).ok_or_else(|| reject("重试序号不是数字"))?;
-        Ok(Self::new(node, occurrence, retry))
+        let number: u32 =
+            parse_u32_canonical(number_str).ok_or_else(|| reject("尝试顺序号不是数字"))?;
+        Ok(Self::new(node, occurrence, number))
     }
 }
 
 impl fmt::Display for AttemptId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}#{}.{}", self.node, self.occurrence, self.retry)
+        write!(f, "{}#{}.{}", self.node, self.occurrence, self.number)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Task: C005-T01
+    #[test]
+    fn attempt_id_requires_number_and_rejects_retired_retry_field() {
+        let id: AttemptId =
+            serde_json::from_str(r#"{"node":"draft","occurrence":2,"number":3}"#).unwrap();
+        assert_eq!(id.to_string(), "draft#2.3");
+        assert_eq!(serde_json::to_value(&id).unwrap()["number"], 3);
+        assert!(
+            serde_json::from_str::<AttemptId>(r#"{"node":"draft","occurrence":2,"retry":3}"#)
+                .is_err()
+        );
+    }
 
     fn name(s: &str) -> WorkName {
         WorkName::normalize(s).unwrap()
@@ -552,14 +565,14 @@ mod tests {
     // Task: C002-T39
     #[test]
     fn attempt_id_json_keeps_its_shape_and_rejects_unknown_fields_in_any_position() {
-        let valid = r#"{"node":"draft","occurrence":2,"retry":1}"#;
+        let valid = r#"{"node":"draft","occurrence":2,"number":1}"#;
         let attempt: AttemptId = serde_json::from_str(valid).unwrap();
         assert_eq!(attempt, AttemptId::new(NodeId::new("draft").unwrap(), 2, 1));
         assert_eq!(serde_json::to_string(&attempt).unwrap(), valid);
         for invalid in [
-            r#"{"unexpected":true,"node":"draft","occurrence":2,"retry":1}"#,
-            r#"{"node":"draft","unexpected":true,"occurrence":2,"retry":1}"#,
-            r#"{"node":"draft","occurrence":2,"retry":1,"unexpected":true}"#,
+            r#"{"unexpected":true,"node":"draft","occurrence":2,"number":1}"#,
+            r#"{"node":"draft","unexpected":true,"occurrence":2,"number":1}"#,
+            r#"{"node":"draft","occurrence":2,"number":1,"unexpected":true}"#,
         ] {
             assert!(
                 serde_json::from_str::<AttemptId>(invalid).is_err(),

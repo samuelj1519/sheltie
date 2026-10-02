@@ -1,0 +1,10 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+────────────
+ Nextest run ID 7f28370d-f878-4f79-93a4-06cef4188d3c with nextest profile: default
+    Starting 3 tests across 1 binary (9 tests skipped)
+        PASS [   0.649s] (1/3) sheltie-runtime::attempt_replace failed_history_uses_its_original_prefix_after_replacement_and_later_exhaustion
+        PASS [   1.305s] (2/3) sheltie-runtime::attempt_replace replacement_complete_payloads_are_decoded_before_frozen_workbook_io
+        PASS [   1.353s] (3/3) sheltie-runtime::attempt_replace replacement_history_rejects_forged_reason_input_binding_and_snapshot_identity
+────────────
+     Summary [   1.353s] 3 tests run: 3 passed, 9 skipped

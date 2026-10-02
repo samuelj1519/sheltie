@@ -72,13 +72,14 @@ pub struct WorkState {
 }
 pub struct Occurrence { node: NodeId, n: u32 }
 pub struct Attempt {
-    id: AttemptId,                                    // "<node>#<n>.<retry>"
-    occurrence: Occurrence, retry: u32,
-    status: AttemptStatus,                            // Running | Succeeded | Failed
+    id: AttemptId,                                    // "<node>#<n>.<number>"
+    occurrence: Occurrence, number: u32,
+    status: AttemptStatus,                            // Running | Succeeded | Failed | Superseded
     entered_from: Option<(Occurrence, EdgeKind)>,     // 从哪个 Occurrence 经哪种边到达；入口为 None。任务书「来自」行的来源
     inputs: BTreeMap<String, Option<ArtifactRef>>,    // 开工时冻结；None 只出现在 required=false 且上游尚无产出
     outputs: BTreeMap<String, ArtifactRef>,           // 提交时封存
     summary: Option<BoundedText>,                     // ≤ 4 KiB
+    replacement_reason: Option<BoundedText>,           // 字段必须存在，null或行政撤销理由
     started_at, ended_at: Option<_>,
 }
 pub struct ArtifactRef { path: AbsPath, sha256: Sha256, bytes: u64 }
@@ -106,7 +107,8 @@ pub struct Decision { state: WorkState, effects: Vec<Effect>, reply: Reply }
 | `Start { workbook, flow, name, inputs }` | 无 | 新 `WorkState`，`current = entry#1`，`status = Active` |
 | `BeginAttempt { node }` | `node` 出现在当前 `next` 里 | 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`。新建 `Attempt(Running)`，输入按当前字节冻结 |
 | `SubmitAttempt { attempt, summary, observed: Vec<ObservedFile> }` | 该 Attempt `Running` | 校验输出合同；`Attempt → Succeeded`；然后：有 `gate` → `Blocked(Gate)`；无出边 → `Succeeded`；有出边但目标都到 `max_visits` → `Blocked(NoLegalEdge)`；否则 `Active` |
-| `FailAttempt { attempt, reason }` | 该 Attempt `Running` | `Attempt → Failed`；`retry == max_retries` 则 `Blocked(RetriesExhausted)` |
+| `FailAttempt { attempt, reason }` | 该 Attempt `Running` | `Attempt → Failed`；该Occurrence真实失败数达到max_retries+1则 `Blocked(RetriesExhausted)` |
+| `ReplaceAttempt { attempt, reason, observed_inputs, instruction_text }` | active/current/latest running；同Occurrence尚无superseded | 一个Decision旧Superseded+新Running，number检查加1，继承旧非stats引用/来源，stats按poststate生成；一个事务、一revision |
 | `ApproveGate { node }` | `status = Blocked(Gate)` 且 `node = current.node` | 记录 `Approval`；再按 `SubmitAttempt` 除门槛外的规则定状态 |
 | `Cancel` | 非终态 | `status = Cancelled` |
 
@@ -127,8 +129,8 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp>;
 | 终态 | 空 |
 | `Blocked(Gate)` | `gate approve <node>`、`work cancel` |
 | `Blocked(RetriesExhausted)`、`Blocked(NoLegalEdge)` | `work cancel` |
-| 当前 Occurrence 无 Attempt，或最新 Attempt `Failed` 且 `retry < max_retries` | `attempt begin <current>`、`work cancel` |
-| 最新 Attempt `Running` | `attempt submit`、`attempt fail`、`work cancel` |
+| 当前 Occurrence 无 Attempt，或最新 Attempt `Failed` 且 真实 failed 数 ≤ max_retries | `attempt begin <current>`、`work cancel` |
+| 最新 Attempt `Running` | `attempt submit`、`attempt fail`、未用一次行政额度时`attempt replace`、`work cancel` |
 | 最新 Attempt `Succeeded`（门槛已过或无门槛） | 对每条出边 `current → to`：若 `visits[to] < max_visits[to]` 则 `attempt begin <to>`（附 `edge.kind`）；`work cancel` |
 
 三条硬规则在这里落地：没有边就没有 `attempt begin`（规则 1）；`BeginAttempt` 冻结输入时对照上游 `ArtifactRef.sha256`，不符即 `ARTIFACT_MODIFIED`（规则 2）；`Blocked(Gate)` 时 `next` 不含任何出边（规则 3）。
@@ -155,6 +157,16 @@ core 的 `status_view`/`StatusCardJson` 提供当前 Occurrence 最新 Attempt �
 core 的 `result_view(state, graph, revision, effects_pending)` 从合法成功终点的具体 Attempt.inputs/outputs 选择 result 项。有效无选择为空，成功状态与终点/必需引用矛盾拒绝；revision 由 runtime 参数给出，不从 WorkState 推断。ResultView 不缓存到 Store，不构成第二事实源。
 
 runtime 的 `Store::read_work_bundle` 在单一只读事务取得 WorkRow、完整关联 requests/audit/效果与 Start 定位；已有 bundle 的可信加载不跨连接回查。公开 StatusReadView 将状态投影与 revision/effects_pending/pending_publish 合成一个读取 DTO；WorkService::result 返回同一上下文的 ResultView 与 next。真实文件字节不由普通结果查询重新认证。精确字段见 protocol/storage。
+
+### 3.4 原子行政撤销
+
+`Command::ReplaceAttempt` 输入为旧AttemptId、调用者reason、runtime实际观察的完整输入键map和冻结instruction_text。非stats键继承原绑定，存在者同句柄核path/sha/bytes，未绑定optional保留None；EngineStats不读旧统计，用含新Attempt的Decision状态生成精确文件字节与引用。
+
+`replacement_input_paths_for(state, graph, attempt)` 按终态、身份存在、running、active/currentlatest、一次额度的顺序核资格，再给旧冻结路径，避免runtime读reason文件或观察前撤销状态。模型不注入主体、时钟、hash或替换计数。旧未封存草稿不绑定为新输出/输入。
+
+Superseded 必须有ended_at和replacement_reason，没有summary/fail_reason/outputs；其他状态replacement_reason为null。schema 4 的 replacement_reason 键必须存在，null 合法，缺键不默认 None。其他字段遵守各自的既有载荷合同。每Occurrence number从0连续，后继接在failed/superseded后，至多一个superseded并有接替Attempt，至多一个当前最新running。失败/撤销数从序列派生，无额外counter权威。
+
+历史 `reply_status_matches(reply, status, state, graph)` 先核原Failed身份，再用截至原Attempt的同Occurrence failed前缀核当时状态，不能用number或后续总数。原replace/begin快照在新Attempt后续结束后仍可重放；next只表示提交时事实。事务、请求、审计、效果与原字节恢复遵守 §4 写入链。
 
 ## 4. 一次写操作的流程
 
@@ -188,7 +200,7 @@ CLI 解析参数（只解析 @file 路径，不读内容）
 
 ```text
 ~/.sheltie/
-  store.db                          SQLite，SCHEMA_VERSION = 3（schema 1/2 明确拒绝）
+  store.db                          SQLite，SCHEMA_VERSION = 4（schema 1/2/3 明确拒绝）
   .lock                             管理根写锁（写操作创建；只读命令不碰）
   bin/sheltie                       当前二进制；bin/sheltie.prev 供回滚
   tmp/                              下载与解包等一次性暂存，可按年龄清理
@@ -211,7 +223,7 @@ CLI 解析参数（只解析 @file 路径，不读内容）
       outputs/<declared-path>       工作 agent 写；提交后封存
 ```
 
-路径由 core 的单一 `WorkLayout` 函数生成：`AttemptId = node#n.retry` 保持原含义，目录标签 `occurrence-001` / `attempt-000` 只是零补齐的浏览形式。引擎文件（`brief.md`、`engine/stats.json`）与 worker 输出（`outputs/` 之下）分目录，输出声明路径不再与引擎文件比较。
+路径由 core 的单一 `WorkLayout` 函数生成：`AttemptId = node#n.number` 的字符串形状保持，后缀表示创建顺序号，目录标签 `occurrence-001` / `attempt-000` 只是零补齐的浏览形式。引擎文件（`brief.md`、`engine/stats.json`）与 worker 输出（`outputs/` 之下）分目录，输出声明路径不再与引擎文件比较。
 
 产物不复制。输出文件在 Attempt 的 `outputs/` 下原地封存，以 `ArtifactRef.sha256` 为准；下游绑定时重算摘要核对。
 

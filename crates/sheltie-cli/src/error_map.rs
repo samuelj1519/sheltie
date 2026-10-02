@@ -76,7 +76,9 @@ fn detail_of(err: &Error) -> Option<serde_json::Value> {
             sheltie_core::Error::ArtifactModified { input, path } => {
                 json!({ "input": input, "path": path })
             }
-            sheltie_core::Error::AttemptNotRunning { attempt } => {
+            sheltie_core::Error::AttemptNotFound { attempt }
+            | sheltie_core::Error::ReplacementsExhausted { attempt }
+            | sheltie_core::Error::AttemptNotRunning { attempt } => {
                 json!({ "attempt": attempt.to_string() })
             }
             sheltie_core::Error::SummaryTooLong { max, actual } => {

@@ -15,7 +15,7 @@ fn self_version_works_without_home() {
     // 管理根目录存在但里面什么都没有；self version 不需要 store.db。
     let v = env.ok(&["self", "version"]);
     assert_eq!(v["data"]["version"], env!("CARGO_PKG_VERSION"));
-    assert_eq!(v["data"]["schema_version"], 3);
+    assert_eq!(v["data"]["schema_version"], 4);
     assert!(!env.dir.path().join("store.db").exists());
 }
 
@@ -135,12 +135,12 @@ fn self_update_resolves_relative_release_base_from_command_directory() {
 // Task: C002-T15
 #[test]
 fn self_install_text_prompt_explains_schema2_and_rollback_limit() {
-    // 安装提示要写清 Store schema 3 与旧数据保留，不能误导成「只换二进制即可降级」。
+    // 安装提示要写清 Store schema 4 与旧数据保留，不能误导成「只换二进制即可降级」。
     let env = Env::new();
     let out = env.cmd_text(&["self", "install"]).output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(text.contains("Store schema 是 3"), "{text}");
+    assert!(text.contains("Store schema 是 4"), "{text}");
     assert!(text.contains("旧数据保留在旧管理根"), "{text}");
     assert!(
         text.contains("rollback 只换回旧二进制，不降级 Store"),
@@ -162,7 +162,7 @@ fn self_update_text_prompt_explains_schema2_and_rollback_limit() {
     assert!(out.status.success());
     let text = String::from_utf8_lossy(&out.stdout);
     assert!(text.contains("已是最新"), "{text}");
-    assert!(text.contains("Store schema 是 3"), "{text}");
+    assert!(text.contains("Store schema 是 4"), "{text}");
     assert!(
         text.contains("rollback 只换回旧二进制，不降级 Store"),
         "{text}"

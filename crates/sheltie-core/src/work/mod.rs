@@ -13,7 +13,9 @@ pub mod start;
 pub mod state;
 
 pub use command::{Command, Context, Decision, Effect, ObservedFile, Reply};
-pub use decide::{decide, input_paths_for, output_paths_for, reply_status_matches};
+pub use decide::{
+    decide, input_paths_for, output_paths_for, replacement_input_paths_for, reply_status_matches,
+};
 pub use layout::{
     attempt_dir, brief_path, engine_stats_path, output_path, outputs_dir, start_input_path,
     start_inputs_dir, status_card_path, workbook_copy_dir,

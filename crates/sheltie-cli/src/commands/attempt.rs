@@ -42,7 +42,7 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // 数据来自提交时快照（cli-result/v2），不回读 Store（O04）。
+    // 数据来自提交时快照（cli-result/v4），不回读 Store（O04）。
     let (attempt, brief_path, output_dir) = match &resp.reply {
         Reply::AttemptBegun {
             attempt,

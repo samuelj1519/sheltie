@@ -24,7 +24,7 @@
 | ID | 状态 | Owner | 交付 | 依赖 |
 | --- | --- | --- | --- | --- |
 | C005-T00 | done | Codex /root；独立 Reviewer | 采用、前版归档和唯一实施入口 | 用户明确采用 |
-| C005-T01 | todo | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 人采用、真实撤销需求 |
+| C005-T01 | done | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 用户采用开发需求；真实撤销证据在 T03 单列 |
 | C005-M1 | todo | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
 | C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及完整骨架 SHA |
 | C005-T03 | todo | 手册执行者；复杂模型负责结论 | 使用说明、真实接续与最终证据 | T02 |
@@ -40,13 +40,15 @@ T01 原语用例归属 T01，交接时为 green。新替换行为测试由 T01 �
 
 **范围。** design 的完整路径表与全部真实消费者；包括 number 改名影响的 ID/layout/render、命令与回复、state 载荷、failed/next/replay、runtime snapshot/load/request/effects/recovery、CLI begin/self 文案和当前格式 fixtures。先用全仓符号搜索核耦合，在本任务同步具体白名单。新增阶段资产为 `verification/commands.sh`、`experiments/runbook.md`；新行为测试放在拟 `crates/sheltie-runtime/tests/attempt_replace.rs`、`crates/sheltie-cli/tests/attempt_replace.rs`，既有 service/schema2_replay/crash/replay 和混合源码测试在本阶段完成耦合改动。
 
+**测试。** `attempt_id_requires_number_and_rejects_retired_retry_field`、`attempt_number_allocation_checks_overflow_without_wraparound`、`replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs`、`second_replacement_rejects_without_removing_current_submit_or_fail_eligibility`、`replacement_does_not_consume_failure_budget_and_historical_fail_uses_original_prefix`、`zero_retries_still_allows_replacement_but_first_real_failure_blocks`、`replacement_quota_resets_for_new_occurrence_and_keeps_entered_from`、`superseded_submit_and_fail_reject_and_terminal_guard_takes_precedence`、`replacement_checks_target_and_qualification_before_reason_or_inputs`、`replacement_rejects_any_changed_frozen_observation_and_optional_rebinding`、`replacement_reason_accepts_exact_limit_and_rejects_one_more_byte_without_mutation`、`replacement_stats_are_fresh_post_state_bytes_and_old_binding_is_preserved`、`replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected`、`persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded`、`replacement_records_one_atomic_pair_and_inherits_nonstats_refs_with_new_exact_stats`、`failed_history_uses_its_original_prefix_after_replacement_and_later_exhaustion`、`late_old_writes_and_second_replacement_are_rejected_without_new_records`、`replacement_replay_after_new_attempt_ends_preserves_reason_source_identity_and_bytes`、`qualification_precedes_reason_file_reads_and_modified_input_never_commits`、`replacement_and_submit_or_two_replacements_have_exactly_one_committed_winner`、`schema_three_and_missing_nullable_reason_are_rejected_without_rewriting_records`、`replacement_history_rejects_forged_reason_input_binding_and_snapshot_identity`、`replacement_complete_payloads_are_decoded_before_frozen_workbook_io`、`replacement_with_no_inputs_rejects_changed_entry_source_before_another_write`、`replacement_transaction_crash_boundaries_preserve_exact_committed_history`、`replacement_rejects_a_path_swap_after_opening_the_original_input`。
+
 **执行步骤。**
 
 1. 确认撤销需求与固定一次规则，更新上游 spec、architecture、protocol、storage、CONTEXT；选定唯一格式，不制作兼容层。
 2. 逐一追踪 `AttemptId.retry` 的真实 caller，完成 number 接口和全部序列化/布局/fixture 改动，使既有命令完整可编译和可运行。
 3. 完整实现 Superseded 载荷约束、失败计数及截至原 Attempt 的 failed 前缀校验。历史校验须通过真实 `validate_command_owner` caller，而非独立 helper 演示。
 4. 完整实现冻结输入同句柄观察、严格 replacement 意图/响应/归属校验、精确任务书/stats 效果绑定和恢复原语。时间、主体、CAS、事务与文件政策由本任务作者解决。
-5. 为纯替换 Decision 和调用接线留最小可编译骨架，固定参数、返回和可用原语。CLI 不接受 replace，生产 next 不列 replace；不把未完成路径或假成功交给用户。
+5. 完整实现必要耦合的纯 Decision 和 runtime 库替换原语，固定参数、返回和可用原语；阶段二只接公开 CLI 与正常 next。CLI 不接受 replace，生产 next 不列 replace；不把未完成路径或假成功交给用户。
 6. 写真实状态、runtime/CLI、请求重放、并发和 crash 用例。手写期望包含 replace→fail→begin→fail→重放首次 fail 的可达历史；T01 原语测试运行通过，T02 行为用例先禁用但能显式运行得到有意义 red。
 7. 在 `verification/commands.sh` 固定 `primitives`、`future-red`、`feature`、`regression`、`gates` 的实际过滤器、测试数、失败签名和预算；在 runbook 固定 T03 任务、操作、计时、质量标准与停止条件。
 8. 保持普通行为回归通过，短语义复核后保存原始输出与完整骨架 SHA，再交 M1。骨架中的 T02 占位只服务真实未来 caller，不加伪造状态、长期 dead_code 放行或额外状态库。
@@ -80,15 +82,17 @@ primitives 至少执行一项 T01 测试并全部通过；future-red 至少执�
 
 **Owner / 输入。** 简单模型或初级开发者；M1 审定骨架完整 SHA、冻结接口、测试和 `verification/commands.sh`。先按学习导航确认每个参数来自哪里，不扩展接口。
 
-**范围。** `core/work/decide.rs`、`next.rs` 的冻结纯变换；`runtime/service.rs` 调用已完成观察/事务原语；`cli.rs`、`commands/attempt.rs` 的参数与分发。测试文件只删除本任务 ignore 标记；混合源码的测试段、断言、fixtures 和 snapshots 保持冻结。不修改载荷、schema、snapshot 归属、OS/并发/恢复政策或上游合同。
+**范围。** 生产代码只改 `core/work/next.rs` 的 Running 资格列举，以及 CLI `cli.rs`、`commands/attempt.rs` 的参数与分发。复用 T01 完整实现的纯 Decision、runtime 库 wrapper、观察、事务、stats/brief 效果及恢复；不重写这些基础。测试文件只删除本任务 ignore 标记；混合源码的测试段、断言、fixtures 和 snapshots 保持冻结。不修改载荷、schema、snapshot 归属、OS/并发/恢复政策或上游合同。
+
+**测试。** `replacement_is_atomic_and_business_failures_use_history_not_attempt_number`、`replacement_does_not_consume_zero_business_retries_or_approve_a_gate`、`replacement_replays_original_file_reason_and_rejects_conflicting_intent`、`replacement_reason_has_exact_limit_and_missing_identity_is_not_found`、`replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt`、`replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats`、`stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load`、`status_card_active_mid_flow`、`public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence`、`post_commit_card_failure_returns_committed_response`。
 
 **执行步骤。**
 
 1. 记录完整骨架或最新独立测试修订 SHA，检查 M1 结论及工作树归属。
 2. 跑 future-red，核实际测试数与既定失败签名，不能接受编译失败或零测试。
-3. 用 T01 固定资格与计数原语实现旧 Superseded、新 Running 的一个 Decision；继承冻结引用和进入来源。
-4. 按冻结接口生成新 stats/brief 效果；用已验证写链提交，不能拆成撤销后 begin。
-5. 接 runtime wrapper 和 CLI 解析，最后开放正常 replace 与 next；输出只用原持久快照。
+3. 直接调用已完成的 `WorkService::replace(work, attempt, reason, request_id)`；不改 `Command::ReplaceAttempt`、资格、继承、计数或纯 Decision。
+4. CLI 接受 work、--attempt、--reason，理由经既有 `parse_text_arg`；输出只用持久 Response 的 `AttemptReplaced` 与 data/next，不回读或重算 stats/brief。
+5. Running 的 next 在 fail 后、cancel 前按 `!state.has_replacement_of(&state.current)` 列 `ReplaceAttempt`；正常 CLI 与 next 一起接通。
 6. 逐项运行 feature 测试，全部满足后仅删除本任务 ignore，复核正式 CLI 与旧迟到拒绝。
 7. 运行受影响普通消费者、工程门禁和语义短审，保存原字节恢复/并发证据后交 T03。
 
@@ -129,3 +133,11 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 按用户明确顺序采用 C005 全范围，归档已独立验收的 C004 实现闭包并保留其授权延期。只激活 C005。目录、当前索引、受影响引用与角色准确；doc/spec/TOML/事实与独立短审通过再提交。原 C004 真实试用/工具版本/onlinefresh/未知LEAK边界不因归档消失。
 
 本轮具备总体能力的作者承担准备及主体，保留 T01/M1/T02、独立 oracle、完整 caller 和未参与编写的 Reviewer。T01 可以完整实现必要耦合类型/高风险状态原语，T02 才接公开 replace/next；不制造假成功或正常入口的占位。实际接口、测试与阶段资产在 T01 固定。Schema 4、cli-result/v4 单一目标，旧 Store 1/2/3 原件保留并整体拒绝；Workbook/Flow/result/digest 版本不变。
+
+## T01 阶段调整：受影响状态卡 oracle
+
+原 T10 的 `status_card_active_mid_flow` 保留原真实场景，因正式 next 新增 replace 操作，在 T01 预制完整未来 snapshot 并转为 C005-T02 的 ignore 用例。T01 普通回归明确跳过该未来 oracle；显式 future-red 核它实际少 replace 行。T02 只删除 ignore，不修改场景、断言或 snapshot。新 public-next 用例同时覆盖原资格、额度耗尽、业务重试和新 Occurrence。此覆盖迁移由 M1 独立审查，不把尚未通过的历史场景报告为 PASS。
+
+同一策略用于原 C002-T29 的 stats 单快照用例：旧 reader 仍手写 begin/cancel；新 running reader 的完整未来预期增加 replace。原场景和单快照断言不变，当前显式 red、T02 只删 ignore，暂跳事实单列。
+
+原 C002-T25 的 `post_commit_card_failure_returns_committed_response` 同样保留完整提交错误场景，未来 next 新增 replace 后转为 C005-T02 冻结用例。三个既有场景的阶段 skip 与实际 future-red 一并记录，不算已通过。

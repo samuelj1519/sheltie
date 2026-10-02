@@ -52,6 +52,20 @@ pub fn decide(
                 Command::FailAttempt { attempt, reason } => {
                     decide_fail(state, graph, attempt, reason, ctx)
                 }
+                Command::ReplaceAttempt {
+                    attempt,
+                    reason,
+                    observed_inputs,
+                    instruction_text,
+                } => decide_replace(
+                    state,
+                    graph,
+                    attempt,
+                    reason,
+                    observed_inputs,
+                    instruction_text,
+                    ctx,
+                ),
                 Command::ApproveGate { node } => decide_approve(state, graph, node, ctx),
                 Command::Cancel => decide_cancel(state, ctx),
             }
@@ -143,7 +157,7 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
 /// 1. `node` 必须出现在 `legal_next` 的某个 `BeginAttempt` 项里，否则 `Error::IllegalNext`
 ///    （`next` 字段填每项 `to_command_line` 的结果）。
 /// 2. 若 `node != current.node`：`visits[node] += 1`，`current = node#n`，记下 `entered_from`。
-///    同节点重试：`retry + 1`，沿用上次的 `entered_from`。
+///    同节点重试：`number + 1`，沿用上次的 `entered_from`。
 /// 3. `bind_inputs`。
 /// 4. 新建 `Running` 的 Attempt，`started_at = ctx.now`。
 /// 5. 回复 `Reply::AttemptBegun`；效果 `WriteBrief`（内容用 `render_brief(.., instruction_text)`）与 `RefreshStatusCard`。
@@ -171,7 +185,7 @@ fn decide_begin(
     })?;
 
     let mut new_state = state.clone();
-    let (occ_n, retry, entered_from) = if node != &state.current.node {
+    let (occ_n, number, entered_from) = if node != &state.current.node {
         let edge = graph
             .out_edges(&state.current.node)
             .iter()
@@ -186,11 +200,11 @@ fn decide_begin(
         (n, 0u32, Some((state.current.clone(), edge.kind)))
     } else {
         let prev = state.latest_attempt_of_current();
-        let retry = prev.map(|a| a.id.retry + 1).unwrap_or(0);
+        let number = next_attempt_number(prev)?;
         let entered_from = prev.and_then(|a| a.entered_from.clone());
-        (state.current.n, retry, entered_from)
+        (state.current.n, number, entered_from)
     };
-    let attempt_id = AttemptId::new(node.clone(), occ_n, retry);
+    let attempt_id = AttemptId::new(node.clone(), occ_n, number);
 
     let (mut bound, wants_stats) = bind_inputs(state, graph, node, observed_inputs)?;
 
@@ -203,6 +217,7 @@ fn decide_begin(
         outputs: BTreeMap::new(),
         summary: None,
         fail_reason: None,
+        replacement_reason: None,
         started_at: ctx.now.clone(),
         ended_at: None,
     };
@@ -265,6 +280,237 @@ fn decide_begin(
             brief_path,
             // 输出目录是 Attempt 目录下的 outputs/（协议 §3 attempt begin 第 5 步）。
             output_dir: crate::work::layout::outputs_dir(&attempt_dir),
+            inputs,
+            outputs,
+            requires,
+        },
+    })
+}
+
+fn next_attempt_number(previous: Option<&Attempt>) -> Result<u32> {
+    match previous {
+        None => Ok(0),
+        Some(previous) => previous
+            .id
+            .number
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "Attempt 顺序号超出可表示范围".to_string(),
+            }),
+    }
+}
+
+pub fn replacement_input_paths_for(
+    state: &WorkState,
+    graph: &Graph,
+    attempt: &AttemptId,
+) -> Result<BTreeMap<String, Option<AbsPath>>> {
+    guard_not_terminal(state)?;
+    let record = state
+        .attempt(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    if record.status != AttemptStatus::Running {
+        return Err(Error::AttemptNotRunning {
+            attempt: attempt.clone(),
+        });
+    }
+    if state.status != WorkStatus::Active
+        || state.latest_attempt_of_current().map(|record| &record.id) != Some(attempt)
+    {
+        return Err(Error::IllegalNext {
+            requested: format!("attempt replace {attempt}"),
+            next: legal_next(state, graph)
+                .iter()
+                .map(|operation| operation.to_command_line(&state.work_id))
+                .collect(),
+        });
+    }
+    if state.has_replacement_of(&state.current) {
+        return Err(Error::ReplacementsExhausted {
+            attempt: attempt.clone(),
+        });
+    }
+    let node = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    if record.inputs.len() != node.inputs().len() {
+        return Err(Error::InvalidRequest {
+            reason: "原 Attempt 的输入键集合与声明不一致".to_string(),
+        });
+    }
+    node.inputs()
+        .iter()
+        .map(|declaration| {
+            let reference =
+                record
+                    .inputs
+                    .get(declaration.name())
+                    .ok_or_else(|| Error::InvalidRequest {
+                        reason: format!("原 Attempt 缺少输入 {}", declaration.name()),
+                    })?;
+            let path = if matches!(declaration.source(), InputSource::EngineStats) {
+                None
+            } else {
+                reference.as_ref().map(|reference| reference.path.clone())
+            };
+            Ok((declaration.name().to_string(), path))
+        })
+        .collect()
+}
+
+fn decide_replace(
+    state: &WorkState,
+    graph: &Graph,
+    attempt: &AttemptId,
+    reason: &str,
+    observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
+    instruction_text: &str,
+    ctx: &Context,
+) -> Result<Decision> {
+    let paths = replacement_input_paths_for(state, graph, attempt)?;
+    let reason = Summary::new(reason, "reason").map_err(|_| Error::SummaryTooLong {
+        max: Summary::max_bytes(),
+        actual: reason.len(),
+    })?;
+    if paths.keys().ne(observed_inputs.keys()) {
+        return Err(Error::InvalidRequest {
+            reason: "替换的输入观察键集合与原声明不一致".to_string(),
+        });
+    }
+    let old = state
+        .attempt(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    let node = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    let number = next_attempt_number(Some(old))?;
+    let new_id = AttemptId::new(attempt.node.clone(), attempt.occurrence, number);
+    for declaration in node.inputs() {
+        let observed = observed_inputs
+            .get(declaration.name())
+            .and_then(Option::as_ref);
+        if matches!(declaration.source(), InputSource::EngineStats) {
+            if observed.is_some() {
+                return Err(Error::InvalidRequest {
+                    reason: "替换不能提交 engine.stats 文件观察".to_string(),
+                });
+            }
+        } else {
+            match old.inputs.get(declaration.name()).and_then(Option::as_ref) {
+                Some(reference) => {
+                    if !observed.is_some_and(|file| {
+                        file.path == reference.path
+                            && file.sha256 == reference.sha256
+                            && file.bytes == reference.bytes
+                    }) {
+                        return Err(Error::ArtifactModified {
+                            input: declaration.name().to_string(),
+                            path: reference.path.to_string(),
+                        });
+                    }
+                }
+                None if observed.is_none() => {}
+                None => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("未绑定输入 {} 不能在替换时重新绑定", declaration.name()),
+                    });
+                }
+            }
+        }
+    }
+    let mut new_state = state.clone();
+    let old_mut = new_state
+        .attempt_mut(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    old_mut.status = AttemptStatus::Superseded;
+    old_mut.ended_at = Some(ctx.now.clone());
+    old_mut.replacement_reason = Some(reason);
+    new_state.attempts.push(Attempt {
+        id: new_id.clone(),
+        status: AttemptStatus::Running,
+        entered_from: old.entered_from.clone(),
+        inputs: old.inputs.clone(),
+        outputs: BTreeMap::new(),
+        summary: None,
+        fail_reason: None,
+        replacement_reason: None,
+        started_at: ctx.now.clone(),
+        ended_at: None,
+    });
+    new_state.updated_at = ctx.now.clone();
+    let mut effects = Vec::new();
+    if node
+        .inputs()
+        .iter()
+        .any(|input| matches!(input.source(), InputSource::EngineStats))
+    {
+        let (reference, content) = engine_stats_artifact(&new_state, graph, &new_id)?;
+        let index = new_state.attempts.len() - 1;
+        for declaration in node
+            .inputs()
+            .iter()
+            .filter(|input| matches!(input.source(), InputSource::EngineStats))
+        {
+            new_state.attempts[index]
+                .inputs
+                .insert(declaration.name().to_string(), Some(reference.clone()));
+        }
+        effects.push(Effect::WriteFile {
+            path: reference.path,
+            content,
+        });
+    }
+    let new = &new_state.attempts[new_state.attempts.len() - 1];
+    let directory = new_state.attempt_dir(&new_id);
+    let brief_path = crate::work::layout::brief_path(&directory);
+    effects.push(Effect::WriteBrief {
+        path: brief_path.clone(),
+        content: render_brief(&new_state, graph, new, instruction_text),
+    });
+    effects.push(Effect::RefreshStatusCard);
+    let inputs = new
+        .inputs
+        .iter()
+        .map(|(name, reference)| {
+            (
+                name.clone(),
+                reference.as_ref().map(|reference| reference.path.clone()),
+            )
+        })
+        .collect();
+    let outputs = node
+        .outputs
+        .iter()
+        .map(|output| {
+            (
+                output.name.clone(),
+                crate::work::layout::output_path(&directory, &output.path),
+            )
+        })
+        .collect();
+    let requires = graph
+        .node_requires(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    Ok(Decision {
+        state: new_state,
+        effects,
+        reply: Reply::AttemptReplaced {
+            replaced_attempt: attempt.clone(),
+            attempt: new_id,
+            brief_path,
+            output_dir: crate::work::layout::outputs_dir(&directory),
             inputs,
             outputs,
             requires,
@@ -496,9 +742,9 @@ fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -
     success_status_at(graph, &state.current.node, consider_gate, all_maxed)
 }
 
-/// 失败后的状态只依赖本次重试序号与冻结的重试上限。
-fn status_after_failure(retry: u32, max_retries: u32) -> WorkStatus {
-    if retry >= max_retries {
+/// 失败后的状态只依赖同一 Occurrence 的真实失败数与冻结的重试上限。
+fn status_after_failure(failures: usize, max_retries: u32) -> WorkStatus {
+    if failures > max_retries as usize {
         WorkStatus::Blocked(BlockedReason::RetriesExhausted)
     } else {
         WorkStatus::Active
@@ -506,11 +752,34 @@ fn status_after_failure(retry: u32, max_retries: u32) -> WorkStatus {
 }
 
 /// 校验历史回复状态的必要条件；不以当前访问计数重建历史状态。
-pub fn reply_status_matches(reply: &Reply, status: WorkStatus, graph: &Graph) -> bool {
+pub fn reply_status_matches(
+    reply: &Reply,
+    status: WorkStatus,
+    state: &WorkState,
+    graph: &Graph,
+) -> bool {
     match reply {
-        Reply::AttemptFailed { attempt } => graph
-            .node(&attempt.node)
-            .is_some_and(|node| status == status_after_failure(attempt.retry, node.max_retries)),
+        Reply::AttemptFailed { attempt } => {
+            let Some((index, record)) = state
+                .attempts
+                .iter()
+                .enumerate()
+                .find(|(_, record)| &record.id == attempt)
+            else {
+                return false;
+            };
+            record.status == AttemptStatus::Failed
+                && graph.node(&attempt.node).is_some_and(|node| {
+                    let failures = state.attempts[..=index]
+                        .iter()
+                        .filter(|candidate| {
+                            candidate.occurrence() == record.occurrence()
+                                && candidate.status == AttemptStatus::Failed
+                        })
+                        .count();
+                    status == status_after_failure(failures, node.max_retries)
+                })
+        }
         Reply::AttemptSubmitted { attempt, .. } => {
             graph.node(&attempt.node).is_some()
                 && (status == success_status_at(graph, &attempt.node, true, false)
@@ -521,13 +790,15 @@ pub fn reply_status_matches(reply: &Reply, status: WorkStatus, graph: &Graph) ->
                 && (status == success_status_at(graph, node, false, false)
                     || status == success_status_at(graph, node, false, true))
         }
-        Reply::Started { .. } | Reply::AttemptBegun { .. } => status == WorkStatus::Active,
+        Reply::Started { .. } | Reply::AttemptBegun { .. } | Reply::AttemptReplaced { .. } => {
+            status == WorkStatus::Active
+        }
         Reply::Cancelled => status == WorkStatus::Cancelled,
     }
 }
 
 /// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
-/// `retry == max_retries` 时 Work → `Blocked(RetriesExhausted)`。效果 `RefreshStatusCard`。
+/// 真实失败数超过 `max_retries` 时 Work → `Blocked(RetriesExhausted)`。效果 `RefreshStatusCard`。
 fn decide_fail(
     state: &WorkState,
     graph: &Graph,
@@ -558,7 +829,8 @@ fn decide_fail(
         a.fail_reason = Some(reason_text);
         a.ended_at = Some(ctx.now.clone());
     }
-    new_state.status = status_after_failure(attempt.retry, max_retries);
+    new_state.status =
+        status_after_failure(new_state.failed_count_of(&prev.occurrence()), max_retries);
     if new_state.status == WorkStatus::Blocked(BlockedReason::RetriesExhausted) {
         increment_blocked_count(&mut new_state)?;
     }
@@ -711,6 +983,22 @@ mod tests {
     use crate::work::next::NextOp;
     use crate::work::state::{AttemptStatus, BlockedReason};
     use crate::work::{Effect, Reply, legal_next};
+
+    // Task: C005-T01
+    #[test]
+    fn attempt_number_allocation_checks_overflow_without_wraparound() {
+        let mut fixture = Fixture::article_review().started();
+        fixture.begin("draft").unwrap();
+        let mut attempt = fixture.state().attempts[0].clone();
+        assert_eq!(next_attempt_number(None).unwrap(), 0);
+        assert_eq!(next_attempt_number(Some(&attempt)).unwrap(), 1);
+        attempt.id.number = u32::MAX;
+        assert!(matches!(
+            next_attempt_number(Some(&attempt)),
+            Err(Error::InvalidRequest { .. })
+        ));
+        assert_eq!(attempt.id.number, u32::MAX);
+    }
 
     fn node(s: &str) -> NodeId {
         NodeId::new(s).unwrap()
