@@ -27,6 +27,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Check docs
         run: scripts/check-docs.sh
       - name: Check specs governance
@@ -41,10 +43,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [macos-14, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install Rust
         run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - uses: taiki-e/install-action@nextest
@@ -68,9 +73,12 @@ jobs:
   # MSRV 1.85 locked gate（C002-T15）：stable 通过不能代替；失败时用证据决定
   # 修依赖还是提高声明，不能默默跳过。
   msrv:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install MSRV toolchain
         run: rustup toolchain install 1.85.0 --profile minimal
       - uses: Swatinem/rust-cache@v2.9.2

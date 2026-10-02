@@ -28,9 +28,9 @@ MVP21条替代只记原位历史注记，checker未放宽。T38/T39/T40均留在
 
 ## 下一入口
 
-T16 已提交 `785552be4fddc8fbbbcbffef7bcf69e65588ff8f`；T17 候选准备从本文末尾「T17 当前交接」继续。
+T16 已提交 `785552be4fddc8fbbbcbffef7bcf69e65588ff8f`；T17 从本文末尾「T17 本版本当前入口」继续。
 
-M1/T16 已按各自范围完成；T17 已准备0.2.0本机候选，四平台CI与外部发布还需实际证据和授权，当前发布仍为v0.1.0。
+M1/T16 已按各自范围完成；T17 已准备0.2.0本机候选，本版本两个Mac平台CI与外部发布还需实际证据和授权，当前发布仍为v0.1.0。
 
 ## 文档维护
 
@@ -71,10 +71,16 @@ Work006 原 outline 的 SHA256 为 `db1dd9ca5730f74dd2329e6afd6fc0ebb509c3e251c2
 
 T16 当前已按本机范围完成，正式工作区 task gate 与 docs/specs/diff-check 均 exit 0；独立报告和原文入口见 validation/README。保留批准前快照与 FAIL 原文，不把后续成功改写成旧阶段 PASS。本轮未暂存或提交；T17 仍 not_run，发布授权尚未取得。
 
-## T17 当前交接
+## T17 当前交接（范围调整前）
 
 用户要求继续直到C002全部完成。已准备0.2.0候选、PR四平台非发布构建与同SHA质量证据接线、精确治理表和自包含测试夹具；独立审查及本地700/700、5/5与工程门禁通过。T17目录 `/private/tmp/sheltie-c002-t17-785552b`，逐命令与本机安装/更新/rollback/旧schema保留证据见validation。源码候选提交与最终验收提交分开，当前task完成门禁仍因doing拒绝，不伪造done。
 
 下一步固定候选提交，取得新验证分支推送与draft PR的具体授权，运行实际四平台/同SHA quality；材料齐备后单独取得v0.2.0外部发布批准，再核远端指定版本update/rollback与最终生命周期。旧M1/SK01/SK02、Linux历史、usage缺失保持各自范围，不启历史变异队列、不清理原home。
 
 PR #1 已创建，原candidate7f42e3b的两个Mac资产成功，但Linux构建/quality/MSRV因三处RawMode位宽E0308失败；原文保存不改。三处权限转换已修、本机新700/700与5/5及辅助门禁/独立审查通过；下一步推送新候选到同一非发布验证分支并取完整四平台证据。验证分支已获具体授权，正式发布仍待四平台材料和单独批准。
+
+## T17 本版本当前入口
+
+用户2026-10-03明确可忽略Linux。本版本只发布macOS aarch64/x86_64；当前Cargo dist两个目标，quality/MSRV和产品工程矩阵改为原生Mac，源码摘要用portablePython。上方四平台步骤为范围调整前交接，原33b08bc确实构建四包但Linux质量失败，不能沿用为新输入PASS。
+
+下一步提交当前Mac限定候选、更新已批准验证分支，取同SHA的两个Mac包与完整quality/MSRV原文；实物/manifest/checksum独立核通过后才请求外部发布批准。Linux失败保留并记excluded_by_user，不发布本版Linux包。原SK/usage/Host与源输入边界不改；尚未创建v0.2.0 tag或Release。

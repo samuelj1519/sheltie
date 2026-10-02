@@ -88,7 +88,7 @@ jobs:
   # 质量门禁（C002-T15；dist 不生成，重新跑 dist init 会丢掉，需照此补回）：
   # 发布必须挂在同一 SHA 的质量 job 上。announce 的 needs 与 if 挡住质量失败的发布。
   quality:
-    runs-on: "ubuntu-22.04"
+    runs-on: "macos-14"
     env:
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -109,7 +109,20 @@ jobs:
           cat quality-evidence/candidate.txt
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
           git show --no-patch --format=fuller HEAD > quality-evidence/commit.txt
-          git ls-files -z | xargs -0 sha256sum > quality-evidence/source-sha256.txt
+          python3 - <<'PY' > quality-evidence/source-sha256.json
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          paths = subprocess.check_output(["git", "ls-files", "-z"]).split(b"\0")
+          files = [
+              {"path": os.fsdecode(path), "sha256": hashlib.sha256(Path(os.fsdecode(path)).read_bytes()).hexdigest()}
+              for path in paths if path
+          ]
+          print(json.dumps(files, ensure_ascii=False, indent=2))
+          PY
       - name: Install Rust
         run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - name: Install MSRV toolchain
