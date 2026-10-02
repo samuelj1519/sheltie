@@ -1,0 +1,33 @@
+# C008 adopted experiment task scope. No product source, host configuration or Store paths.
+# This table is not executable while the package remains proposed/.
+# Pure experiment tasks do not require scripts/task.sh (Rust-only ownership).
+
+[C008-T01]
+files = ["specs/changes/active/C008-dependency-readiness/experiment", "specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = ["specs/changes/active/C008-dependency-readiness/experiment/test_probe.py"]
+allow_test_changes = true
+
+[C008-T02]
+files = ["specs/changes/active/C008-dependency-readiness/experiment/probe.py", "specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = ["specs/changes/active/C008-dependency-readiness/experiment/test_probe.py", "specs/changes/active/C008-dependency-readiness/experiment/fixtures"]
+allow_test_changes = false
+
+[C008-M1]
+files = ["specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = []
+allow_test_changes = false
+
+[C008-T03]
+files = ["specs/changes/active/C008-dependency-readiness/experiment/probe.toml", "specs/changes/active/C008-dependency-readiness/experiment/README.md", "specs/changes/active/C008-dependency-readiness/evidence", "specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = []
+allow_test_changes = false
+
+[C008-T04]
+files = ["specs/changes/active/C008-dependency-readiness/evidence", "specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = []
+allow_test_changes = false
+
+[C008-M2]
+files = ["specs/changes/active/C008-dependency-readiness/progress.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/review.md"]
+test_files = []
+allow_test_changes = false

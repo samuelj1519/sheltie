@@ -1,206 +1,80 @@
-# C005 候选设计
+# C005 设计
 
-状态：`proposed`，实现 `not_run`。基准：`296313c6f9fcfd0d6348927b73e7a49578581b6c`。本文件是候选机制，不是当前架构；ADR 草案在采用时移入 `specs/decisions/` 并编号。
+状态：`proposed`；基线见 README。路径表中的「拟新增」文件尚不存在，不是已实现能力。
 
-## 1. 分层
+## 1. 最小增量与模块职责
 
-| 层 | 知道什么 | 不知道什么 |
+| 层 | 入口与职责 | 不承担的职责 |
 | --- | --- | --- |
-| sheltie-core | Attempt 取代与 `superseded` 终态、中断原因闭集、原因来源闭集、四种计数与上限、资源等待的状态转换（§5 转换表） | 执行者是 Claude 还是 Codex；额度窗口是什么 |
-| sheltie-runtime | 存取执行记录、额度观测、交接包投影、事务 | 观测值是否准确 |
-| 外围（skill、驱动层、额度观测器） | 执行入口怎样调用；宿主和提供方的额度通道怎样读取 | Work 状态怎样推进（只能通过 CLI） |
+| core | `Command::ReplaceAttempt`、`decide`、`legal_next`；校验状态、派生计数、产生新状态/brief 效果 | 时钟、宿主观察、进程停止、文件 I/O |
+| runtime | `WorkService::replace`、`RequestIntent::ReplaceAttempt`；取得主体/时间、核输入、持锁提交、快照与恢复 | 原因判断、模型选择、审查结论 |
+| CLI | `AttemptCmd::Replace`；严格解析参数，输出持久响应中的旧/新 Attempt 和任务书 | 回读当前状态来改写历史成功响应 |
+| Workbook 与协调者 | 决定是否替换、处理未封存草稿、安排独立审查 | 把模型自报写成系统核实事实 |
 
-GF-01 不变：内核里不出现 Claude、Codex、订阅等词汇。执行配置和额度池在内核里只是不透明标识。
+不增加 crate、独立状态库、资源等待、执行者绑定或宿主适配器。C004 的交接与结果视图继续从 Store 和冻结引用投影。
 
-## 2. 与 C004 的共用接口
+## 2. 现有入口与新增位置
 
-| 接口 | 含义 | 由谁定义 |
-| --- | --- | --- |
-| 候选快照 | 不透明标识，一个候选一个 | C004 |
-| 执行引用 | 一次 Attempt 的标识（Occurrence 内的顺序即代次，派生）与执行身份三栏（声明、观测、强制） | C005 定义字段，C004 VD-10 使用 |
-| 证据记录 | 条件、候选、规则版本、结果、写入方式 | C004 |
-| 审查记录 | 审查执行、发现、处置 | C004 |
-
-两份提案不各自维护进度。审查者接替时，C005 负责选出合格备选，C004 的发现保留规则负责“原发现不消失”。
-
-“接口定稿”不等于接口可用。C005 第一阶段排在 C004 之前实施时，依赖候选快照、证据记录、审查记录的字段与资格判定一律延后到 C004 实现之后启用（spec EX-01、EX-07），C005 不先造一份替代记录。
-
-## 3. 交接包
-
-交接包是只读投影，字段如下：
-
-| 字段 | 来源 |
+| 真实路径 / 符号 | 实施内容 |
 | --- | --- |
-| Work、当前节点、当前 Occurrence | Store |
-| 合同与标准版本 | Work 开始时的冻结输入 |
-| 当前候选快照 | C004 候选快照；C004 实现前只给最新实现 Attempt 的输出指针 |
-| 已确认的决定 | 门槛批准、阻断项处置等人工记录 |
-| 验证结果 | C004 证据记录；C004 实现后启用 |
-| 未处置的发现 | C004 审查记录；C004 实现后启用 |
-| 未完成事项 | 当前节点的任务书与最近一次输出的摘要指针 |
-| 中断原因与来源 | EX-03 记录 |
-| 未消除的副作用风险 | 旧执行者是否确认停止、是否共用工作区 |
+| `crates/sheltie-core/src/ids.rs` / `AttemptId` | 后缀字段 `retry` 改为 `number`，显示形状不变，严格解析与序号检查；同步 `work/layout.rs::attempt_dir` 的真实引用，保持目录标签与字节不变 |
+| `crates/sheltie-core/src/flow/{def,parse,compile,graph}.rs` / `NodeDef` | 替换上限声明、默认值、范围、图节点投影 |
+| `crates/sheltie-core/src/work/{state,command,decide,next,layout,render}.rs` | 新终态与命令；替换决策；failed/superseded 派生计数；统计、任务书与状态卡 |
+| `crates/sheltie-core/src/error.rs` | 上限拒绝的明确错误 |
+| `crates/sheltie-runtime/src/{request,service,snapshot,load}.rs` | 新意图、输入观察、持久响应严格校验、完整 WorkState 读取 |
+| `crates/sheltie-runtime/src/store/{schema,read,commit}.rs` | 采用起点后的格式版本与一致读写；不另建替换计数表 |
+| `crates/sheltie-runtime/src/effects.rs`、`failpoint.rs` | 核对真实效果入口后复用 prepare_attempt / write_file 恢复；只为新增窗口补故障点 |
+| `crates/sheltie-cli/src/{cli,error_map,output}.rs`、`commands/attempt.rs` | 参数、错误码、原响应输出 |
+| 拟新增 `crates/sheltie-runtime/tests/attempt_replace.rs` | 事务、重放、恢复与快照损坏测试 |
+| 拟新增 `crates/sheltie-cli/tests/attempt_replace.rs` | 真实 CLI 调用链与约束保持 |
 
-交接包有大小上限，超出时只给指针；它不包含对话记录（GF-09 的精神）。第一阶段的实验先用现有状态卡和输出文件模拟交接包，测出缺什么再定字段。
+C004 新增文件以其完成候选为准。C005-T01 必须核对对应符号并更新任务白名单；不能把拟新增路径当成现有入口。采用起点发现模块已经拆分时，先由架构 Owner 修改 plan 与 tasks.toml。
 
-## 4. 取代运行中的 Attempt
+## 3. 状态与输入算法
 
-```text
-Occurrence N
-  Attempt 1  执行者 A  running ── A 额度耗尽
-             attempt supersede（原因：资源不可用，来源：人工报告）
-  Attempt 1  superseded        ── 不计业务重试，切换次数 +1
-  Attempt 2  执行者 B  running ── 同一事务内开放 begin，B 领取
-  （A 恢复后迟到 submit：Attempt 1 不是 running，ATTEMPT_NOT_RUNNING，拒收并记录）
-```
+1. 读取当前 Work 与冻结图，要求状态为 active、目标等于当前 Occurrence 的最新 running Attempt。
+2. 对同一 Occurrence 分别统计 failed 和 superseded；检查节点替换上限。
+3. 对旧 frozen inputs 中非空引用做真实文件观察并核摘要。可选输入的 None 继续 None，不重新挑上游产物。不读取旧未封存输出作为正式输入。
+4. 用检查加法分配下一个 number。复制 entered_from、冻结输入和当前 Node 的说明书依据。
+5. 在一个纯 Decision 中把旧 Attempt 结束为 superseded，并追加新 running Attempt。旧 Attempt 的附属观察若为 open，在同一个 Decision 中关闭为 interrupted；completed 记录保持不变，新 Attempt 的观察为空。替换原因使用有界 Summary，记录为调用者报告；审计的 principal 只来自 runtime 系统身份。
+6. 若节点绑定 engine.stats，从此 Decision 的完整状态生成新引用与精确字节，回填新 Attempt 输入。产生新任务书和刷新状态卡的效果。
 
-- 现行路径只有 `attempt fail`，会消耗 `max_retries`，并把中断记成执行失败；取代是单独的操作，旧 Attempt 进入 `superseded` 终态；
-- 取代与旧 Attempt 的 `submit` 争同一把写锁：先到的生效，后到的看到非 `running` 状态被拒；恢复后按 Store 记录重建同一结果；
-- 谁可以发起取代：任何经 CLI 的调用者（用户、接手的协调者），调用本身记为来源；引擎不判断旧执行者是否真的停了；
-- 代次不另存，是 Occurrence 内 Attempt 的顺序；状态卡和交接包可以显示“第 N 次执行”；
-- Attempt id 后缀按每次 `begin` 的顺序递增，保持唯一；`max_retries` 按本 Occurrence 的 `failed` Attempt 数判定，`superseded` 不占业务失败名额。不能再用后缀与 `max_retries` 比较；业务失败数从 Attempt 记录派生，不另存一份可能分叉的计数；
-- 拒收的迟到提交保留一条记录，交接包和 `work stats` 可见；
-- Store 内每个 Attempt 的输出目录已经分开，旧进程写入的未提交文件留在旧 Attempt 目录，不并入新 Attempt；
-- 旧执行者可能仍在修改共享的 Git 工作区，这在引擎之外。无法确认停止时，新执行者使用分开的工作区，交接包写明这一交接条件。
+输入核对失败时，不能先把旧状态改为 superseded；新的 AttemptId、任何输出目录和审计均不能发表。旧任务书仍是历史文件。新 brief 对旧草稿仅显示未封存指针，由接手者决定如何使用。
 
-Claude Code 交互式 CLI 在额度恢复后可以自动继续，这正是迟到写入的现实来源；`-p` 和后台会话没有这个机制，但用户手动恢复、后台工具仍可能造成迟到写入。
+## 4. 原子提交与并发
 
-## 5. 可恢复的等待
+`WorkService::replace` 使用 `WorkService::run_command` 写链，与 begin 同样经过目标解析、管理根写锁、request 查重、待完成效果恢复、输入观察、core 决策和 revision CAS。WorkState、audit、request 快照在同一 SQLite 事务提交。旧 Attempt 如有 C004 的 open 原生执行记录，在同一事务置为 interrupted；completed 记录保持原字节与归属，新 Attempt 不复制完成资格。旧 runner 的完成写入必须按 execution_id 和仍为 open 的状态做 CAS，不能复活被替换的记录。新 Attempt 以后可以按原合同启动自己的执行。新 Attempt 目录与 brief 由已登记效果在 COMMIT 后发布。
 
-```text
-active ──work wait（资源不可用，带来源）──▶ blocked(resource_wait) ──work resume（新观测或获准尝试）──▶ active
-  │                                        │
-  │                                        ├── 总等待期限已过时 resume ──▶ blocked(continuity_exhausted)
-  │                                        └── work cancel
-  ├── attempt supersede（换执行者，Work 仍 active）
-  └── 资源重试或切换次数将超限 ──▶ blocked(continuity_exhausted) ── 只能 work cancel
-```
+- submit 先提交：旧状态已 succeeded，replace 拒绝，不创建新尝试。
+- replace 先提交：旧状态已 superseded，旧 submit / fail 拒绝。
+- 两个不同请求同时替换同一旧 Attempt：第一个成功，第二个不再符合 running 条件。
+- 上限拒绝：不撤销旧资格，不增 revision，不插入成功请求，旧进程可以完成。
 
-每个操作在一个写锁事务内完成，执行前按 Store 当前状态核对前提：
+写锁约束合作式 CLI。共享 Git 工作区或同权限直接写 Store 的动作不在此并发保证内。
 
-| 当前状态 | 操作 | 前提 | 结果 | 计数 |
-| --- | --- | --- | --- | --- |
-| Work 活动，最新 Attempt `running` | `attempt supersede --reason --source` | 切换次数未超限 | Attempt → `superseded`；Work 仍活动；`next` 给出同一 Occurrence 的 `attempt begin` | 切换 +1 |
-| 同上 | 同上 | 本次将超过切换上限 | Attempt → `superseded`；Work → `blocked(continuity_exhausted)` | 切换 +1，记录耗尽项 |
-| Work 活动，最新 Attempt `running` 或尚未领取 | `work wait --reason resource_unavailable --source` | 资源重试未超限 | 若有 `running` Attempt，转为 `superseded`；Work → `blocked(resource_wait)`，记来源与开始时间 | 资源重试 +1 |
-| 同上 | 同上 | 本次将超过资源重试上限 | 同上，但 Work → `blocked(continuity_exhausted)` | 资源重试 +1，记录耗尽项 |
-| `blocked(resource_wait)` | `work resume --source` | 累计等待未超过总等待期限 | Work → 活动；`next` 给出同一 Occurrence 的 `attempt begin` | 本次等待时长计入累计 |
-| `blocked(resource_wait)` | `work resume --source` | 累计等待已超过期限 | Work → `blocked(continuity_exhausted)` | 记录耗尽项 |
-| `blocked(resource_wait)` | `work cancel` | — | Work → `cancelled` | — |
-| `blocked(resource_wait)` | 旧执行者 `attempt submit` / `attempt fail` | — | 拒绝，`ATTEMPT_NOT_RUNNING` | — |
-| `blocked(continuity_exhausted)` | `work cancel` | — | Work → `cancelled`；其他操作都拒绝 | — |
+## 5. 幂等、快照与恢复
 
-`next` 按这张表给出合法下一步：`running` 时在现有 `submit`、`fail`、`cancel` 之外加入 `supersede` 与 `wait`；`resource_wait` 时只给出 `resume` 与 `cancel`。恢复时声明换执行者的，计一次切换，超限同样进入 `continuity_exhausted`。Occurrence 不变，`max_visits`、`max_retries` 都不受影响。
+`RequestIntent::ReplaceAttempt` 包含完整 WorkId、旧 AttemptId 和 reason 参数的字面值或词法绝对 @file 路径。它不包含时钟、OS 主体、观察摘要或 @file 内容。已提交重放先查原意图，不重新读取 reason 文件或冻结输入。
 
-- 只有原因为“资源不可用”的阻塞可以恢复；其他非门槛原因仍按 GF-14 只能取消；
-- 状态名 `resource_wait` 只表示“在等资源”，不表示已确认耗尽。显示按来源区分：模型自报显示“暂停，未核实”；人工报告显示“用户报告不可用”；提供方通道显示“提供方报告耗尽”；
-- 第一阶段没有额度观测通道，恢复只接受用户或协调者发起的获准尝试；第二阶段驱动层也可以按自动执行政策发起；
-- 恢复需要一次新的观测或一次获准的实际尝试，不能只因为到达了记录的重置时间；
-- 等待期间换执行者算一次切换；换到同一额度池的候选不算恢复。
+响应快照保存旧 AttemptId、新 AttemptId/number、提交时节点与 Occurrence、任务书与输出目录、输入输出路径、requires、revision 和 next。snapshot 与 service 的业务绑定校验同时更新：
 
-## 6. 额度观测来源
+- reply 与 data 的新旧身份必须一致；新旧属于同一 node/Occurrence、顺序号相邻；
+- 对照原 audit 命令和已提交 WorkState 核替换理由、旧终态、新尝试及其冻结输入身份；
+- 历史新 Attempt 后来可以已成功或再次被替换，不能拿当前 running 状态否定原快照；
+- 请求的 next 按提交时状态合法，不用当前次数与状态重新推导历史 next；
+- 效果只核本请求的新 Attempt 与 write_file 字节，不凭当前 brief 重建旧字节。
 
-| 来源 | 形式 | 限制 | 记为 |
-| --- | --- | --- | --- |
-| Codex app-server `account/rateLimits/read` 与 `account/rateLimits/updated` | 主动查询与更新通知；给出窗口、使用比例、窗口时长、重置时间 | 字段可能缺失，`secondary` 可能为空；需要处理超时和登录失效 | 提供方通道 |
-| Claude Code 状态栏输入的 `rate_limits` | 会话内的 5 小时和 7 天窗口，使用比例与重置时间 | 只在 Pro/Max 或相应网关下提供；首条 API 响应后才出现；各窗口可能缺失；过了重置时间会被移除；不是启动前可调用的查询接口 | 宿主通道 |
-| 用户报告 | 用户告诉 Sheltie 某个额度池已耗尽 | 可能过期 | 人工报告 |
-| 模型自报 | 协调者或执行者报告“额度用完了” | 不能当作事实 | 模型自报 |
+COMMIT 前故障没有替换业务事实。COMMIT 后故障保留请求与精确效果；返回 EFFECT_PENDING 或在下次写操作恢复。同 request-id 返回原新 Attempt，不能再 replace 一次。重放后刷新状态卡使用最新 revision，不把历史 next 写成当前状态卡。
 
-状态栏数据要进入 Sheltie，需要用户自己配置状态栏脚本；Sheltie 不写宿主配置（INV-3），只在文档里给出示例。状态栏转发的数据即使字段名看起来像提供方事件，也记为宿主通道。
+## 6. 统计与格式
 
-具体的历史版本号和已知 bug 放在兼容性备注里，不进入业务逻辑。
+attempts 仍表示实际创建过的 Attempt 总数；succeeded、failed、superseded 分开派生。业务 retry 统计从 failed 事实计算，不用 number 的最大值。测试必须包含「替换 2 次后第 1 次失败」和非默认上限，防止默认 0 数据掩盖混淆。
 
-## 7. 执行绑定与自动执行政策
+WorkState、新旧响应数据与 strict serde 同一提交闭合。采用时为整个持久格式选择新的 schema 版本，为修改的响应字段选择明确协议版本；不得在同一个已公布版本里偷偷把 retry 改成 number。旧版本库拒绝而保留。C004 已更改版本时，以 C004 完成候选作为输入确定下一版本；不在 proposal 内提前分配冲突编号。
 
-```text
-Workbook（角色与要求，可分享）
-   └── 用户执行配置（本机，映射到入口、模型、强度、额度池、计费、数据范围）
-          └── Work 执行绑定（开始时冻结：配置版本、候选集合、资格、切换规则、费用与数据边界、自动执行政策）
-                 └── Attempt 执行记录（授权版本、实际选择、请求配置、实际配置、会话身份）
-```
+## 7. 首次实施前必须确认
 
-- 执行绑定在内核里是不透明标识加闭集字段；宿主、模型名只出现在用户配置和外围组件里（GF-01 约束的是引擎代码，不约束 Workbook 或配置数据）；
-- 推理强度等宿主原生参数原样保存，界面可以提供统一的强度标签，但宿主不支持的组合直接拒绝，不静默替换；
-- 新授权版本与旧版本并存，Attempt 按领取时的有效版本关联；
-- 自动执行政策由驱动层读取、由引擎在领取时核对；驱动层不自行扩大政策。
-
-## 8. 宿主失败类别映射
-
-外围组件把宿主返回的失败类别映射到 EX-03 的闭集。映射按后端版本记录，版本变化后重新核对；映射不了的记为“原因未知”。已知需要注意的例子（以 DeepSeek Harness 开发者预览版为例，按其提交 `477b4f4` 核对）：
-
-| 宿主类别 | 实际含义 | 不能映射为 |
-| --- | --- | --- |
-| Claude Code 子代理的 `limit` | 对应 `error_max_turns`、`error_max_budget_usd`、`error_max_structured_output_retries`，是本次调用的轮数、预算或结构化输出重试上限 | 订阅额度耗尽 |
-| 认证与配置失败 | 被归入 `unknown` | 资源不可用 |
-| Codex 子代理的 `access-policy` | 访问政策拒绝 | 能力不足 |
-
-DeepSeek Harness 的官方安全说明写明它未经安全审计，不应作为不可信负载的唯一安全控制；C005 不把它的沙箱当作隔离承诺。实验阶段不为单个宿主写专用代码，只按版本记录能力与映射。
-
-## 9. ADR-C 草案：执行接入边界
-
-状态：`proposed`
-日期：2026-09-27
-关联 change：C005
-
-### 背景
-
-自动接续要求有一个仍在运行、模型之外的主体。spec §6 把“多个 coding CLI 的适配器农场；常驻会话池”列为非目标；INV-3 禁止引擎写宿主配置；INV-6 禁止模型输出成为系统事实。
-
-### 候选
-
-| 方案 | 做法 | 优点 | 缺点 |
-| --- | --- | --- | --- |
-| D0 不设驱动 | 只做人工接续 | 零新增执行边界 | 用户不在场时停住 |
-| D1 最小前台驱动 | 内核之外的前台进程，调用 `claude -p`、`codex exec`，从引擎读权威状态 | 覆盖工作执行者和协调者耗尽；能记录请求配置 | 新增执行入口；需要修订 §6 非目标 |
-| D2 宿主原生机制 | 利用宿主的自动继续、fallback、workflow 的额度等待 | 不新增代码；同宿主、交互式、24 小时内恢复的场景已经可用 | 覆盖不了非交互运行、周额度、跨宿主切换和协调者耗尽；workflow 中途失败会重跑下游；运行中不接受人工输入 |
-| D3 外部受信平台 | 由 CI 等平台启动并提供可验证身份 | 执行来源可由第三方证明 | 本地首批场景中没有可用平台；每次都要推送 |
-
-### 建议
-
-- 第一阶段采用 D0，同时记录宿主原生机制（D2）带来的迟到写入；
-- 第二阶段采用 D1，能用 D2 的地方优先用 D2；
-- D3 保留为“外部受信执行来源”，由团队仓库或独立证明需求触发；
-- ADR 把执行来源抽象为“受信执行来源”，驱动层只是其中一种实现。
-
-### 驱动层的约束
-
-- 在内核之外，以前台进程运行，不做系统服务；
-- 只调用官方认证过的入口，不接触、不保存账户 token；
-- 随时可以停止，Work 仍能人工接续；恢复后只从引擎读取权威状态；
-- 切换不得扩大权限、改变数据处理范围、绕过必需审查，或悄悄转入付费；
-- 分别记录请求的配置、宿主报告的实际配置和会话身份；
-- 只执行引擎返回、且冻结的自动执行政策允许的操作；领取时重新确认；从不生成人工批准；
-- 不宣称提供隔离或安全保证。
-
-### 否决方案
-
-- **只靠 skill 和状态卡实现自动接替。** 协调者停住后没有主体启动后来者。
-- **引擎内置调度器。** 内核会出现宿主词汇（GF-01），引擎也会从记状态变成做选择。选择放在外围，内核只核对选择结果是否满足合同。
-- **常驻会话池。** 引入进程管理和恢复复杂度，与 spec §6 的目的冲突。
-- **把驱动层启动记录直接当作“身份可信”。** 驱动层只能证明“按某配置发起了执行”。
-
-### 后果
-
-- spec §6 非目标需要修订（spec.md §6）；
-- 执行记录新增来源字段；
-- 驱动层需要自己的失败路径测试。
-
-### 确认方式
-
-- 驱动层被杀后，Work 可以人工接续，状态没有分叉；
-- 协调者额度耗尽时，驱动层按预授权切换或等待，并记录原因来源；
-- 共享同一额度池的候选不会被当作备选；
-- 合同要求独立审查时，驱动层不会把作者选为审查者；
-- 门槛阻塞时，驱动层只通知用户，不调用 `gate approve`；
-- 切换前后的权限、数据范围和计费模式不变，除非有显式预授权。
-
-## 10. 待定问题
-
-1. ~~执行代次在 Occurrence 内编号，还是在 Work 内全局编号？~~ 已定：不另设代次，按 Occurrence 内的 Attempt 顺序派生（§4）。
-2. 交接包作为 `work status` 的一个视图，还是新开只读命令？
-3. 资源重试与切换次数的默认上限取多少？需要第一阶段的数据。
-4. ~~“获准的实际尝试”由谁发起？~~ 已定：第一阶段只能由用户或协调者，第二阶段驱动层按自动执行政策发起（§5）。
-5. 额度观测器是驱动层的一部分，还是单独的外围组件？
-6. 执行绑定的新授权版本由谁发起：只能由用户，还是允许驱动层提出、用户确认？
-7. 统一的强度标签有几档，怎样映射到各宿主的原生参数？
+- C004 的交接视图能够显式区分正式 ArtifactRef 与旧未封存草稿。
+- 实际模块和效果入口与路径表一致；当前 effects 模块如已拆分，T01 同步路径。
+- max_replacements 默认关闭是否适合首个 Workbook；启用值由作者在冻结方法里选择，不给 runtime 动态开关。
+- 真实使用确实需要撤销提交资格；若只缺交接材料，先修 C004，C005 不启动。

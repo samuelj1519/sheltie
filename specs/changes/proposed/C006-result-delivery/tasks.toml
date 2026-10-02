@@ -1,112 +1,57 @@
-# C006 任务白名单（草案）。package 采用、移入 active/ 后生效；路径为暂定，C006-T02 按实施起点代码定死并在同一提交里更新本文件与 plan.md。
-# 用法：scripts/check-task.sh C006-Tnn [base] [--staged]。默认基准是最近一个 c006-t* tag（见 plan.md §0.3）。
-# files：本任务允许修改的文件或目录前缀。
-# test_files：测试所在文件；allow_test_changes = false 时只许删 #[ignore 行，与 files 重叠的混合源文件从 #[cfg(test)] 起比较；快照不许改。
-# 里程碑 C006-Mn 不经 check-task 核对，不在本表登记。§3、§4 增量组插入时再追加 C006-T30 起的条目。
+# 采用后生效。proposed 不运行 task.sh/check-task。阶段测试与实际命令由强模型骨架任务冻结。
+# 每次 check-task 显式使用本阶段骨架或独立测试修订 commit。
 
 [C006-T01]
-files = ["specs", "AGENTS.md", "CONTEXT.md"]
-test_files = []
+files = ["specs", "Cargo.toml", "Cargo.lock", "crates/sheltie-export", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/evidence"]
+test_files = ["crates/sheltie-export/tests"]
 allow_test_changes = true
 
-# 骨架与工具修复提交（plan.md §0.2 第 9 条的例外）共用本条。
 [C006-T02]
-files = ["crates", "Cargo.toml", "Cargo.lock", "deny.toml", "scripts", ".config", ".github", "specs/changes/active/C006-result-delivery"]
-test_files = ["crates"]
-allow_test_changes = true
-
-[C006-T03]
-files = ["crates/sheltie-core/src/delivery/request.rs"]
-test_files = ["crates/sheltie-core/src/delivery/request.rs"]
+files = ["crates/sheltie-export/src/source.rs", "crates/sheltie-export/src/request.rs", "crates/sheltie-export/src/output.rs", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/evidence"]
+test_files = ["crates/sheltie-export/tests/source.rs", "crates/sheltie-export/tests/request.rs"]
 allow_test_changes = false
 
+[C006-T03]
+files = ["crates/sheltie-export/src", "crates/sheltie-export/tests", "specs/changes/active/C006-result-delivery"]
+test_files = ["crates/sheltie-export/tests"]
+allow_test_changes = true
+
 [C006-T04]
-files = ["crates/sheltie-core/src/delivery/state.rs"]
-test_files = ["crates/sheltie-core/src/delivery/state.rs"]
+files = ["crates/sheltie-export/src/export.rs", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/evidence"]
+test_files = ["crates/sheltie-export/tests/export.rs", "crates/sheltie-export/tests/crash.rs"]
 allow_test_changes = false
 
 [C006-T05]
-files = ["crates/sheltie-core/src/delivery/receipt.rs"]
-test_files = ["crates/sheltie-core/src/delivery/receipt.rs"]
+files = ["crates/sheltie-export/src/main.rs", "crates/sheltie-export/src/output.rs", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/evidence"]
+test_files = ["crates/sheltie-export/tests/cli.rs", "crates/sheltie-export/tests/crash.rs"]
 allow_test_changes = false
 
 [C006-T06]
-files = ["crates/sheltie-core/src/delivery/observe.rs", "crates/sheltie-core/src/delivery/render.rs"]
-test_files = ["crates/sheltie-core/src/delivery/observe.rs", "crates/sheltie-core/src/delivery/render.rs"]
-allow_test_changes = false
+files = ["scripts/check-export-dist.sh", "specs/changes/active/C006-result-delivery", "specs/guides"]
+test_files = ["scripts/check-export-dist.sh"]
+allow_test_changes = true
 
 [C006-T07]
-files = ["crates/sheltie-core/src/delivery/provenance.rs"]
-test_files = ["crates/sheltie-core/src/delivery/provenance.rs"]
+files = ["Cargo.toml", "Cargo.lock", "crates/sheltie-export/Cargo.toml", ".github/workflows/release.yml", "specs/guides", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/evidence"]
+test_files = ["scripts/check-export-dist.sh"]
 allow_test_changes = false
 
 [C006-T08]
-files = ["crates/sheltie-rootfs/src/overlap.rs", "crates/sheltie-rootfs/src/walk.rs"]
-test_files = ["crates/sheltie-rootfs/tests/walk.rs"]
-allow_test_changes = false
-
-[C006-T09]
-files = ["crates/sheltie-rootfs/src/write.rs"]
-test_files = ["crates/sheltie-rootfs/tests/write.rs"]
-allow_test_changes = false
-
-[C006-T10]
-files = ["crates/sheltie-rootfs/src/read.rs"]
-test_files = ["crates/sheltie-rootfs/tests/read.rs"]
-allow_test_changes = false
-
-[C006-T11]
-files = ["crates/sheltie-runtime/src/store/schema.rs", "crates/sheltie-runtime/src/store/commit.rs", "crates/sheltie-runtime/src/store/read.rs"]
-test_files = ["crates/sheltie-runtime/tests/store.rs"]
-allow_test_changes = false
-
-[C006-T12]
-files = ["crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/failpoint.rs"]
-test_files = ["crates/sheltie-runtime/tests/service.rs", "crates/sheltie-runtime/tests/crash.rs"]
-allow_test_changes = false
-
-[C006-T13]
-files = ["crates/sheltie-cli/src/commands/work.rs", "crates/sheltie-cli/src/commands/delivery.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/error_map.rs"]
-test_files = ["crates/sheltie-cli/tests/delivery.rs"]
-allow_test_changes = false
-
-[C006-T14]
-files = ["crates/sheltie-deliver/src/request.rs", "crates/sheltie-deliver/src/source.rs"]
-test_files = ["crates/sheltie-deliver/tests/source.rs"]
-allow_test_changes = false
-
-[C006-T15]
-files = ["crates/sheltie-deliver/src/export.rs", "crates/sheltie-deliver/src/recover.rs"]
-test_files = ["crates/sheltie-deliver/tests/export.rs"]
-allow_test_changes = false
-
-[C006-T16]
-files = ["crates/sheltie-deliver/src/receipt.rs"]
-test_files = ["crates/sheltie-deliver/tests/receipt.rs"]
-allow_test_changes = false
-
-[C006-T17]
-files = ["crates/sheltie-runtime/src/selfmgmt.rs", "crates/sheltie-cli/src", "Cargo.toml", "crates/sheltie-deliver/Cargo.toml"]
-test_files = ["crates/sheltie-runtime/tests/selfmgmt.rs"]
-allow_test_changes = false
-
-# 场景任务只删 #[ignore 行；场景变红时停下交给里程碑审查者，不改生产代码。
-[C006-T18]
-files = []
-test_files = ["crates/sheltie-deliver/tests/scenario_delivery.rs"]
-allow_test_changes = false
-
-[C006-T19]
-files = ["skills", "crates/sheltie-cli/tests/skill.rs"]
-test_files = ["crates/sheltie-cli/tests/skill.rs"]
-allow_test_changes = true
-
-[C006-T20]
 files = ["specs/changes/active/C006-result-delivery"]
 test_files = []
 allow_test_changes = false
 
-[C006-T21]
-files = ["specs", "CHANGELOG.md", "Cargo.toml", "Cargo.lock", "crates/sheltie-core/Cargo.toml", "crates/sheltie-runtime/Cargo.toml", "crates/sheltie-cli/Cargo.toml", "crates/sheltie-rootfs/Cargo.toml", "crates/sheltie-deliver/Cargo.toml"]
+[C006-M1]
+files = ["specs/changes/active/C006-result-delivery/review.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md"]
+test_files = []
+allow_test_changes = false
+
+[C006-M2]
+files = ["specs/changes/active/C006-result-delivery/review.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md"]
+test_files = []
+allow_test_changes = false
+
+[C006-M3]
+files = ["specs/changes/active/C006-result-delivery/review.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md"]
 test_files = []
 allow_test_changes = false

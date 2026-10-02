@@ -59,7 +59,7 @@ cargo nextest run --all-features --no-tests=pass
 
 ### 3.1 循环
 
-MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
+MVP 期间测试由 [legacy plan](releases/v0.1.0/plan.md) T01 一次写好并禁用，实现者不写测试、不改测试。该方法保留为历史，不自动适用于后续 change。 后续方案采用[分阶段搭建与实现](guides/proposal-implementation.md)时，由强模型先定总体接口与关键 oracle，再按阶段搭骨架和测试，简单模型实现，独立强模型审查里程碑。后续任务按 active package plan 指定测试 Owner；interface 或行为修复必须由同一任务补真实 caller 回归。
 
 MVP 填空任务的循环是：
 
