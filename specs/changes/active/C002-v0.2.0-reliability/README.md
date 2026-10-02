@@ -68,3 +68,5 @@ T17 本地候选准备原文见 [`C002-T17-preparation.tar.gz`](evidence/submiss
 首次CI失败与三处Linux权限位宽修复原文见 [`C002-T17-linux-mode.tar.gz`](evidence/submissions/C002-T17-linux-mode.tar.gz)，SHA256 `3c431a61ba73a0bbd1690b65d4d1bccbe7db2dbe328b75f1902034e8758d5829`。37文件逐字回读一致，包含原失败、批准/推送/PR事实、源码patch、独立内容审查及修复后本机700/700与5/5；此时新Linux CI仍待执行，不宣称四平台完成。
 
 本版本Mac限定与第二次Linux质量失败原文见 [`C002-T17-macos-scope.tar.gz`](evidence/submissions/C002-T17-macos-scope.tar.gz)，SHA256 `380f7418b999c4ae9eeb394d06742d65c5d5c0e67d8d507ff7ff633b21ff439f`。43文件逐字回读一致，包含用户排除指示、原FAIL、实际两目标plan、静态/独立审查和新本机700/700与5/5；新两Mac实物及同SHA quality仍待实际CI。
+
+最终aarch64单目标授权与真实consumer核验见 [`C002-T17-aarch64-scope.tar.gz`](evidence/submissions/C002-T17-aarch64-scope.tar.gz)，SHA256 `c8ba24da3f3257746f4c687904f0ec388d0726986adced07f7e63b371e60c890`。11文件逐字一致，保存用户范围/发布许可、同Rust闭包证明、22/22治理测试、实际单目标plan与patch；独立报告另在最终CI封存时收纳，新CI实物与质量不由此预判。

@@ -399,3 +399,11 @@ Release CI `37029608597`与build CI `37029608698`均pull_request事件，head SH
 Cargo dist当前目标和发布质量/工程矩阵按本版范围改为macOS，原全平台Rust源与三处已完成compile修复保留，不加按版本分支或永久兼容层。新候选必须取得同SHA的两个Mac包/manifest/checksum及原生Mac完整quality/MSRV，才能申请发布授权与完成T17。该例外仅来自本轮实际用户陈述，来源与文字保存于ci/linux-exclusion-authorization.json；不回写旧CI或M1结果。
 
 Mac限定输入的新完整运行700/700、零skip、165.985秒；doctest5/5、fmt/check/Clippy/MSRV/docs/specs全exit0，真实distplan只含aarch64/x86_64 Apple两目标。独立报告macos-scope-review.md核scope/新旧失败/接线及现README说明，限定通过。43文件新档案摘要见README，当前T17仍doing；用户的Linux排除不是外部发布批准。
+
+### 最终单平台范围
+
+用户进一步明确「可以仅发布 macOS aarch64。其余平台以后有需求再增加」，本版只保留aarch64-apple-darwin；其他平台excluded_by_user，原两次LinuxFAIL和曾成功构建的其他包仍留历史，不混入最终发布。Cargo dist与build矩阵各移除Intel目标，其余同SHA质量/MSRV/发布guards保持。Rust生产、测试、依赖、特性、锁和fsx修复均不变；新目标plan与真实consumer治理tests单独核验，复用此前同Rust输入700/700和5/5，不冒充新CI同SHA质量或实物。
+
+本轮「可以仅发布 macOS aarch64」同时明确了该版本单平台发布许可，保存于single-platform-authorization.json。当前仍须先完成实物、同SHA质量与独立核验；条件满足后按此已给许可发布，不重复请求相同授权。此前未授权描述保留为其时点事实。
+
+单目标改动不涉及Rust/test/lock/toolchain/features/config，`git diff --quiet 6bb8b5a -- crates Cargo.lock rust-toolchain.toml .config`实际exit0；Cargo只删dist的Intel目标。真实22/22治理consumer和新单目标plan均exit0，复用此前700/700与5/5及工程结果按sameRust输入记录；新候选仍须真实同SHA完整MacCI。范围11文件档案入口/SHA见README，不声称其中含当时尚未生成的独立报告。

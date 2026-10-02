@@ -39,7 +39,6 @@ installers = ["shell"]
 install-path = "~/.sheltie/bin"
 targets = [
   "aarch64-apple-darwin",
-  "x86_64-apple-darwin",
 ]
 ci = ["github"]
 pr-run-mode = "upload"

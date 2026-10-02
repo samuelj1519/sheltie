@@ -84,3 +84,9 @@ PR #1 已创建，原candidate7f42e3b的两个Mac资产成功，但Linux构建/q
 用户2026-10-03明确可忽略Linux。本版本只发布macOS aarch64/x86_64；当前Cargo dist两个目标，quality/MSRV和产品工程矩阵改为原生Mac，源码摘要用portablePython。上方四平台步骤为范围调整前交接，原33b08bc确实构建四包但Linux质量失败，不能沿用为新输入PASS。
 
 下一步提交当前Mac限定候选、更新已批准验证分支，取同SHA的两个Mac包与完整quality/MSRV原文；实物/manifest/checksum独立核通过后才请求外部发布批准。Linux失败保留并记excluded_by_user，不发布本版Linux包。原SK/usage/Host与源输入边界不改；尚未创建v0.2.0 tag或Release。
+
+## T17 最终单平台入口
+
+用户进一步限定macOS aarch64单平台，其余以后有需求再增加。当前仅一个dist目标与一个原生ARM工程runner；其他平台旧结果保存并excluded_by_user。接下来更新单目标候选至已批准PR，核单平台实物、同SHA完整quality/MSRV与实际安装，再取得正式发布批准；随后远端update/rollback和completed迁移。上方两目标/四目标均为此前输入，不改其SHA或原结果。
+
+本轮「可以仅发布 macOS aarch64」同时明确了该版本单平台发布许可，保存于single-platform-authorization.json。当前仍须先完成实物、同SHA质量与独立核验；条件满足后按此已给许可发布，不重复请求相同授权。此前未授权描述保留为其时点事实。

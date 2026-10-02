@@ -24,11 +24,11 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Known Limits
 
-- 本版本只发布 macOS aarch64/x86_64，Linux 按用户决定排除；原 Linux CI 失败记录保留。
+- 本版本只发布 macOS aarch64，其余平台按用户决定排除，以后有需求再增加；原 Linux CI 失败记录保留。
 
 - 历史 M1 的 SK01/SK02 例外、215 项额外执行与最终 Spec 批准缺失仍保留，不代表完整变异或安全验证通过。
 - T16 是当前 Codex 的实际本机场景；usage 缺失，手动 skill 加载未验证自动发现，没有成本收益对照。
-- 本版本两平台实物、同 SHA 质量和真实远端更新/rollback 的结果见对应 release record；历史本机验证不替代该发布证据。
+- 本版本单平台实物、同 SHA 质量和真实远端更新/rollback 的结果见对应 release record；历史本机验证不替代该发布证据。
 
 ## [0.1.0] - 2026-09-26
 
