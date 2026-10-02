@@ -1,0 +1,10 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+────────────
+ Nextest run ID a7c04f29-471d-403c-a855-aefded5becef with nextest profile: default
+    Starting 2 tests across 47 binaries (739 tests skipped)
+        PASS [   0.778s] (1/2) sheltie-cli::scenario_code_change a_report_summary_cannot_bypass_the_code_change_review_edge
+        PASS [   1.180s] (2/2) sheltie-cli::scenario_code_change code_change_rework_selects_the_exact_reports_bound_by_the_terminal_attempt
+────────────
+     Summary [   1.182s] 2 tests run: 2 passed, 739 skipped

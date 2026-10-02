@@ -18,7 +18,7 @@ Cargo.toml            虚拟 workspace；[workspace.dependencies] 统一版本
 crates/sheltie-core
 crates/sheltie-runtime
 crates/sheltie-cli    二进制名 sheltie
-examples/             三份样例 Workbook（同时是测试 fixture）
+examples/             样例 Workbook（同时是测试 fixture）
 workbooks/            可分发的业务 Workbook（spec-dev）
 skills/sheltie/       SKILL.md
 scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh

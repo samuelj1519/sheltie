@@ -17,7 +17,7 @@ test_files = ["crates/sheltie-core/src/flow/parse.rs","crates/sheltie-core/src/f
 allow_test_changes = false
 
 [C004-T03]
-files = ["examples/code-change", "skills/sheltie", "workbooks/spec-dev", "specs/changes/active/C004-verifiable-delegation"]
+files = ["README.md", "specs/engineering.md", "examples/code-change", "skills/sheltie", "workbooks/spec-dev", "specs/changes/active/C004-verifiable-delegation"]
 test_files = ["crates/sheltie-core/tests/examples.rs", "crates/sheltie-cli/tests/scenario_code_change.rs", "crates/sheltie-cli/tests/skill.rs", "crates/sheltie-cli/tests/skill_delivery.rs"]
 allow_test_changes = false
 

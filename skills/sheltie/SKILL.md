@@ -1,6 +1,6 @@
 ---
 name: sheltie
-description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或进行中的 Work、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
+description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或 Work、从当前指针继续任务、查询明确最终成果、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
 ---
 
 # Sheltie 协调者
@@ -22,13 +22,19 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
    用同一个 id 重发是安全的：同意图返回提交时的原响应（`replayed: true`），不会重复
    执行。重放响应里的 `next` 是**历史**事实；续接一律先 `work status` 查当前状态。
 
+## 选择入口
+
+- 新任务需要选择方法和初始输入时，从下面第 1 步开始；用户已指定的方法与输入直接使用。
+- 已有 Work 要继续时，先按第 9 步查询当前 status，再从当前 next 选择操作；已有 running Attempt 按 resume 继续，不再创建 Work。
+- 用户只要查询状态、统计或最终成果时，只运行相应只读命令（第 9/10 步）；不把查询变为新建、提交或推进。Work ID 未明确时先用 work list 发现已有 Work，再取得目标，不为只读查询要求重新选择 Workbook/Flow。
+
 ## 流程
 
 1. **选 Workbook。** 列出已装的方法，看清它的节点、边、宿主资源声明与**起始输入键**：
 
    ```bash
-   sheltie workbook list
-   sheltie workbook show <id>
+   sheltie workbook list --json
+   sheltie workbook show <id> --json
    ```
 
    `show` 的 `start_inputs` 列出该 Flow 要的全部起始输入键（有序）。用户没有指定
@@ -86,11 +92,25 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
 9. **随时看状态。** 不确定进行到哪，读状态卡与事实视图：
 
    ```bash
-   sheltie work status <work>
-   sheltie work stats <work>
+   sheltie work status <work> --json
+   sheltie work stats <work> --json
    ```
 
-   Work 到 `succeeded` 后，全部产出在 Work 目录里，每份都能追溯到是哪一步、哪一次尝试写的。
+   重开会话先读当前 status，按 resume 读取当前 Attempt 的 brief 与冻结 inputs。draft_outputs 只给声明草稿位置，不证明文件已存在或封存；effects_pending=true 时只读查询不会恢复，按已登记写请求的恢复方式处理。确认旧执行者与共享工作区已妥善处置后继续原 running Attempt；会话重开不改状态，不为它调用 fail 或 begin。
+
+10. **取得明确成果。** 流程结束后查询：
+
+   ```bash
+   sheltie work result <work> --json
+   ```
+
+   只有 final=true 时才给终点选择的 artifacts；路径、摘要、大小与 source 指向该具体终点绑定或封存的槽。终点绑定输入可以由其他步骤生产；没有选择明确为空，不猜最近文件。Work succeeded 和文件引用不代替内容质量、代码候选或检查过程的核验。结果查询列举冻结引用，消费原件时仍按实际读取合同核字节；接受、复制、合并、发布各按已有授权办理。
+
+## 最小代码方法
+
+`code-change` 固定 implement → review → deliver，review 可以沿 back 返工。方法作者准备步骤与稳定规则，任务使用者提供 task（目标和验收）与 project（位置、范围、检查前提）；阶段内由 agent 自主调查和拆分，不为每个代码子任务增加节点。默认没有 gate，实际授权边界由作者在新版本声明。
+
+每次使用自始至终保持相同管理根；专用 --home 的值不能在重开后回落默认。开发候选与已发布版本按各自格式使用独立管理根。图、输入与封存报告保持原版本，目标变化时另开 Work。自然审查的内容返工用 submit 与显式边，执行失败才用 fail。
 
 ## 细节
 

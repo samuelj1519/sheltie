@@ -103,3 +103,11 @@ M1 初次范围门禁退出 1：两份独立冻结守卫原文未列入 M1 files
 LEAK 出现在 `implementation_repairs::killed_first_store_initializer_allows_the_same_add_request_to_retry`。nextest 0.9.140 的 [官方语义](https://nexte.st/docs/features/leaky-tests/)是测试退出后输出句柄未在等待期内观察到闭合，不能据此断言永久孤儿。历史 run 没有 PID/FD 观测，cause 保持 unknown。[一次独立诊断](evidence/20261003-T02-leak-diagnostic.json)观察到 exit 后 stderr/stdout EOF 相差 0.040/0.056ms、最终进程组空；很短的一次 CLI 未被采样，不声称全程零遗漏，不溯及证明历史 run。可复现 [脚本](evidence/20261003-T02-leak-diagnose.py)和实际 Cargo/nextest [binary 元数据](evidence/20261003-T02-leak-binaries.json)保留；未改 source/config，未确认责任修复。728/739 等原执行数不因诊断改变。
 
 首轮 schema 独立失败原文由当时工具输出补保存，不重新执行或重命名旧 run：[合法控制](evidence/20261003-M1-schema-original-control-fail.txt)、[形状与初始化](evidence/20261003-M1-schema-original-shape-and-init-fail.txt)。此处只归档迟到原文，历史结论仍在 T01/M1。
+
+## C004-T03 实际方法消费者
+
+最新测试基准 `2914e8564047809659c4610d151f9ea6ceef7476`。图、声明/上限、任何 oracle 未改，只有2方法ignore删除。采用 writing-for-agents 与中文技术文档规则完善首次使用/复用、接续与最终引用说明；技能只教公开 CLI，不存状态、不推断推进。
+
+[方法场景](evidence/20261003-T03-method.txt) run `a7c04f29-471d-403c-a855-aefded5becef` 为 2/2 PASS、退出0；[技能/样例消费者](evidence/20261003-T03-consumers.txt) run `b76ee226-c05a-442b-ab62-d02ceb40b2c7` 为23/23 PASS、退出0。实际 nextest0.9.140 override，原0.9.145环境门禁仍not_run。fmt/docs/specs/tests/skill/corevocab/diff通过；无新Rust生产代码或格式，不重跑未受影响工程链。M2稳定完整候选按其要求验证。
+
+[受控CLI trace](evidence/20261003-T03-cli-trace.json)从Cargo compiler-artifact.executable定位实际binary，18次实际CLI完成implement→review→back→implement→review→deliver，三项selected文件由stdlib独立重读hash/bytes与引用一致。初次工具println写19，实际记录数组及cli_call_count均为18；按真实数组纠正，未产生第19次调用。home及输入都是自有临时夹具，报告明确机制演练；human_first_use和quality_and_cost_benefit均not_run，不能换算用户净收益。

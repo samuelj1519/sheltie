@@ -57,6 +57,8 @@ mkdir -p ~/.claude/skills
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-skill.tar.gz | tar xz -C ~/.claude/skills/
 ```
 
+开发候选还提供 [最小代码变更方法](examples/code-change/README.md)：准备 task/project，按固定实现、独立审查、成果整理阶段运行，重开先读当前指针，终点选择明确报告。此方法与结果命令尚未纳入上面的 v0.2.0 远端安装产物。
+
 ## 开发
 
 ```bash

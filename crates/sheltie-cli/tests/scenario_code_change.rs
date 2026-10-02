@@ -8,7 +8,6 @@ use serde_json::json;
 
 // Task: C004-T03
 #[test]
-#[ignore = "C004-T03"]
 fn code_change_rework_selects_the_exact_reports_bound_by_the_terminal_attempt() {
     let env = Env::new();
     env.add_example("code-change");
@@ -79,7 +78,6 @@ fn code_change_rework_selects_the_exact_reports_bound_by_the_terminal_attempt() 
 
 // Task: C004-T03
 #[test]
-#[ignore = "C004-T03"]
 fn a_report_summary_cannot_bypass_the_code_change_review_edge() {
     let env = Env::new();
     env.add_example("code-change");
