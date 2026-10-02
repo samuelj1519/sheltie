@@ -25,7 +25,7 @@
 | --- | --- | --- | --- | --- |
 | C005-T00 | done | Codex /root；独立 Reviewer | 采用、前版归档和唯一实施入口 | 用户明确采用 |
 | C005-T01 | done | 复杂模型架构、原语与测试作者 | 全局合同、完整高风险原语、窄骨架和阶段测试 | 用户采用开发需求；真实撤销证据在 T03 单列 |
-| C005-M1 | todo | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
+| C005-M1 | done | 独立复杂模型 Reviewer | 阶段实现准备审查 | T01 |
 | C005-T02 | todo | 简单模型 / 初级开发者 | 固定接口内完成原子替换与正式接线 | M1 通过及完整骨架 SHA |
 | C005-T03 | todo | 手册执行者；复杂模型负责结论 | 使用说明、真实接续与最终证据 | T02 |
 | C005-M2 | todo | 独立复杂模型 Reviewer | 完整链、工程和真实结果审阅 | T03 |
@@ -141,3 +141,5 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 同一策略用于原 C002-T29 的 stats 单快照用例：旧 reader 仍手写 begin/cancel；新 running reader 的完整未来预期增加 replace。原场景和单快照断言不变，当前显式 red、T02 只删 ignore，暂跳事实单列。
 
 原 C002-T25 的 `post_commit_card_failure_returns_committed_response` 同样保留完整提交错误场景，未来 next 新增 replace 后转为 C005-T02 冻结用例。三个既有场景的阶段 skip 与实际 future-red 一并记录，不算已通过。
+
+完整 T01 骨架：`8d00a29e10810c79bb5b44bdc006dc021e26637b`。M1 通过后 T02 用此 SHA 核固定测试；M1 仅记录不改变源码或 oracle。

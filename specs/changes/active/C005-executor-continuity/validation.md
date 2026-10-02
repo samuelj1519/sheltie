@@ -1,6 +1,6 @@
 # C005 验证
 
-Candidate: `none`
+Candidate: `8d00a29e10810c79bb5b44bdc006dc021e26637b`
 
 状态：`active`。以下机制表为预定 oracle。T01 已有部分执行记录，正式骨架、M1、公开功能及真实使用尚未验收。
 
@@ -91,3 +91,7 @@ Rust/fixture/命令冻结运行的 whole consumer 为 `f43d18f21c87b6c539379af3c
 [cached deny](evidence/t01/deny-cached.txt) exit 0，复用未改 policy 的私有 db-path 配置，锁定 Cargo/全部 features；RustSec 缓存 `117edb3bed98e9be112f277b7615eea3252e7c43` / `2026-10-02T10:58:33+02:00`。在线 fresh 获取仍延期，不能称最新在线审查。
 
 独立审查的 core 14 项、runtime 恢复/历史/严格读取与顺序修复另有实际非零验证；维护性只读审认为无必要改变。正式 M1 仍待完整 T01 commit 与最终交接复核，不把短审记为全部产品完成。
+
+## C005-M1 采用阶段证据
+
+正式独立 Reviewer 审定 `8d00a29e10810c79bb5b44bdc006dc021e26637b`，阶段 PASS。复用同闭包的最终门禁与实际 red/green，未重复全工程运行。辅助原文 [core 11](evidence/m1/independent-core11.txt) run `f581a1f2-9e1c-46c6-8f6f-99b370a61c10`、[runtime 3](evidence/m1/independent-runtime3.txt) run `628ba848-1ff3-47de-afd0-1dc2d29487ac`；history run `7f28370d-f878-4f79-93a4-06cef4188d3c`、order run `2eafb8b2-0230-4f89-a797-cf6b3880c276`、core state run `92a210ee-d12f-483d-b549-9cd9af833447` 的原文已在 T01 evidence。阶段结论与原因见 review，不把 M1 记为最终产品完成。

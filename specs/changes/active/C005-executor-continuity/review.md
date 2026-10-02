@@ -27,3 +27,15 @@
 ## C005-T00 采用与C004归档
 
 通过。独立 Reviewer `/root/independent_review` 未参与采用记录编写；首轮清理C004 plan/新active README/spec/采用条件/根当前合同等残留文字，作者修后增量通过。明确开发需求直接采用与真实使用前提分开，不主张已发生事故、停止或隔离；撤销正式资格不代表停止进程。唯一active、scope完成边界和未发布准确。Reviewer独立逐字节核C004迁移132份evidence：无缺失、无变化，授权缺项保持。docs/specs/tests/diff通过；无Rust变化不重跑。
+
+## C005-M1 独立实现准备审查
+
+阶段结论：`PASS`。Reviewer 为 `/root/independent_review` 及其只读辅助，未参与该设计、实现、测试或 oracle 编写。完整骨架 `8d00a29e10810c79bb5b44bdc006dc021e26637b`。该结论只表示 T02 准备就绪，不表示公开能力、真实价值或发布完成。
+
+已审 core 编号、Superseded 组合与连续顺序、固定一次资格、失败前缀、完整输入观察、poststate stats；runtime 意图、完整有界 reason 审计与旧状态绑定、相邻身份/时刻/输入/来源/paths/requires、完整 payload 先解码再 I/O、同 FD 观察、事务、历史重放及精确字节恢复。零输入进入来源修复和旧 Store 诊断顺序修复均经独立增量复核。没有剩余生产必改。
+
+上游 pipe、next 需调用者补内容、编号语义、schema 目标、错误说明、nullable 字段范围均已收口。三个既有 next 场景保留真实场景，预制未来 oracle 并准确迁移归属；阶段 skip 不计 PASS。T02 交接已改为只开放三个生产文件的 CLI/next，不重写冻结基础。
+
+独立 core 3 项、辅助 core 11 项、runtime 3 项、history/strict 3 项和顺序修复 2 项均实际通过，原 run ID 与输出保留。最终门禁 764/764 PASS（2 slow、1 LEAK unknown、10 phase ignore），10 项有效 future-red，T01 提交前后 scope PASS。原 nextest 0.9.145 与在线 fresh advisory 仍 not_run；无零残留或真实收益声明。
+
+所有 source/test/fixture/合同与 T01 骨架一致；M1 工作区只有计划和记录变化。可进入已授权 T02。
