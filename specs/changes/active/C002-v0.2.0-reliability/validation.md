@@ -391,3 +391,11 @@ Release CI `37029608597`与build CI `37029608698`均pull_request事件，head SH
 先扩T17的fsx白名单再修三处目标推断转换，保留原Mode::from_raw_mode、S_IFMT/bitflag处理和所有API/权限值/句柄/同步次序。锁定rustix1.1.4 primary源码核Darwin u16、Linux u32；不改为另一constructor或新cfg兼容层。独立报告linux-mode-review.md与worker的Mac fmt/check/Clippy/MSRV原文保存，内容通过；新Linux入口及新完整候选结果须实际执行后才记录。外部发布授权仍未取得，T17 doing；首次失败和旧M1/SK/usage边界保持。
 
 三处修复后新完整Mac运行700/700，零skip，Nextest165.194秒；core doctest5/5，docs/specs exit0。worker的fmt/check/Clippy/MSRV原argv/env/hash亦被独立核实，Rust代码输入sha a2d1efce26f523cb1838327fb40ce48e4f2b81251a4114f13541b94d4e64f83a。原失败与修复闭包37文件另档案封存，入口和摘要见README；候选将更新同一获批验证分支，继续非发布CI，当前没有发布授权或tag。
+
+### 本版本 Linux 排除授权
+
+新候选33b08bc的Release CI37032589688已经实际构建四平台/global，MSRV与Mac build-rust成功；Linuxquality/build-rust在fsx.rs1307/1381/1447/2373因同类型st_dev as u64触发Clippy失败。两个失败log原样保存，不以实际四个包存在替代quality。用户随后明确「此版本可以忽略Linux平台」，本版收尾范围改为两macOS架构；Linux记excluded_by_user并保留原FAIL，不继续为本版改Linux lint，也不上传本版Linux包。
+
+Cargo dist当前目标和发布质量/工程矩阵按本版范围改为macOS，原全平台Rust源与三处已完成compile修复保留，不加按版本分支或永久兼容层。新候选必须取得同SHA的两个Mac包/manifest/checksum及原生Mac完整quality/MSRV，才能申请发布授权与完成T17。该例外仅来自本轮实际用户陈述，来源与文字保存于ci/linux-exclusion-authorization.json；不回写旧CI或M1结果。
+
+Mac限定输入的新完整运行700/700、零skip、165.985秒；doctest5/5、fmt/check/Clippy/MSRV/docs/specs全exit0，真实distplan只含aarch64/x86_64 Apple两目标。独立报告macos-scope-review.md核scope/新旧失败/接线及现README说明，限定通过。43文件新档案摘要见README，当前T17仍doing；用户的Linux排除不是外部发布批准。
