@@ -64,3 +64,5 @@ T16 部分回归与人工交接原文见 [`C002-T16-preparation.tar.gz`](evidenc
 最终封存和记录的独立收尾见 [`C002-T16-reopen-final.audit.json`](evidence/submissions/C002-T16-reopen-final.audit.json)：28 项检查均通过，包含两个新档案逐字恢复、真实批准/CLI、六 Work、277 项输入与门禁、白名单及限制。派生 audit 保存在 tar 外，避免自引用。
 
 T17 本地候选准备原文见 [`C002-T17-preparation.tar.gz`](evidence/submissions/C002-T17-preparation.tar.gz)，SHA256 `29ed28e382a81c1d6f88b841ca4d120607945a4a68052d3b30cdbb0669b892b3`。155 个文件逐字回读一致，包含新版本工程门禁、治理红绿与独立审查、本机 dist 和隔离安装/更新/rollback/schema 反例；排除二进制与可再生成 cache。四平台 CI、真实远端与发布尚未发生，此档案不是 T17 完成或正式发布资产。
+
+首次CI失败与三处Linux权限位宽修复原文见 [`C002-T17-linux-mode.tar.gz`](evidence/submissions/C002-T17-linux-mode.tar.gz)，SHA256 `3c431a61ba73a0bbd1690b65d4d1bccbe7db2dbe328b75f1902034e8758d5829`。37文件逐字回读一致，包含原失败、批准/推送/PR事实、源码patch、独立内容审查及修复后本机700/700与5/5；此时新Linux CI仍待执行，不宣称四平台完成。
