@@ -2,7 +2,7 @@
 
 Candidate: `fedec201e2f71df8042088fd3caeed50519a497b`
 
-状态：`active`；采用决定尚无真实对象，探针与独立里程碑均为 `not_run`。
+状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 ## 1. 开工条件与冻结
 
@@ -113,3 +113,7 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## C008-M2 本轮限定结论
 
 独立审定fedec201e2f71df8042088fd3caeed50519a497b，前检/8未执行记录/未知投入报告限定PASS，无必改。原声明29SHA和规则资产不变，不扩观察范围；真实目标/host/预算缺项不造ready/收益。原机制与真实义务仍not_run，原件完整保留，后续T04保真归档不增加执行/发行授权。
+
+## C008-T04 本轮关闭
+
+基准d7e2dfd25c15a1e9f42d3f4e0227e4552f89203d。本轮前检限定归档，当前active为空，开发目标0.3/源码未发布RC保持。全部原package/experiment evidence逐字节保真，见evidence/final-archive-preservation.json；29源文件未改。原probe/实际观察not_run、C007原六trial和其他各包缺项明确保留，未改源码/格式/宿主，未安装/发行/push/merge。

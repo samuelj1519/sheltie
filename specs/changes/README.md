@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[C008 真实条件前检与补验交接](active/C008-dependency-readiness/README.md)
+Active change：无
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -14,14 +14,13 @@ Active change：[C008 真实条件前检与补验交接](active/C008-dependency-
 
 ## Active
 
-| Change | 目标 | 入口 |
-| --- | --- | --- |
-| C008 | 真实条件盘点/规则边界/授权延期交接，probe未采用 | [README](active/C008-dependency-readiness/README.md)、[plan](active/C008-dependency-readiness/plan.md) |
+无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C008 | 真实条件前检/规则/延期交接限定完成；probe未采用，原机制/观察/value not_run | [README](completed/C008-dependency-readiness/README.md) |
 | C007 | 技术资产/同源方法与缺项交接通过；原正式准入、六trial与真实价值not_run | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 完整成果副本/raw与独立限定验收；真实价值/环境与未知LEAK保留 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 原子替换/失败前缀/输入及恢复限定验收通过；真实使用及环境缺项延期 | [README](completed/C005-executor-continuity/README.md) |

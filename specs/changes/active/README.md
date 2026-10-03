@@ -1,3 +1,3 @@
 # Active changes
 
-当前active：[C008 条件前检与补验交接](C008-dependency-readiness/README.md)。进度见[plan](C008-dependency-readiness/plan.md)，本轮scope见[adoption](C008-dependency-readiness/adoption.md)；probe未采用，原机制/真实价值not_run。
+无。本轮C004–C008可执行实现/准备/前检与授权延期交接均已归档。真实实验、条件probe及其他未执行义务见各completed package，不当全范围完成。没有active时不从proposed自行选择方案。

@@ -1,6 +1,6 @@
 # C008：按真实需要验证单宿主只读预检
 
-状态：`active`
+状态：`completed`
 目标版本：`不进入产品 release`（是否保留外部工具由真实证据决定）
 兼容性：不改 Workbook、Flow、Store 或公开操作；不建设兼容层
 基线：`75b81ebed655693844ae417bb7d501a1b12a4387`
@@ -49,3 +49,5 @@ Owner：`Codex /root；任务作者与独立Reviewer`
 ## 本轮采用边界
 
 只执行[adoption](adoption.md)的声明盘点、条件/预算缺项、原规则与补验、延期记录及独立保真审查。没有真实目标/host/version/规则/重复摩擦/预算就不制作probe、配置、fixtures或tests。原机制采用决定仍not_adopted；本轮任务done不表示探针或真实收益通过。
+
+本轮归档不表示条件probe已实现或原实验通过。补原真实目标/host规则/摩擦/预算后由人决定正式机制采用，按runbook追加，不清洗本轮缺项或历史证据。

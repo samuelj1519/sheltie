@@ -1,6 +1,6 @@
 # C008 设计：一个真实目标的最小只读探针
 
-状态：`active`；原probe机制资产尚未创建（本轮前检文档已准备）。本文字段是实验记录约定，不是 Sheltie 产品合同。
+状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 ## 1. 最小实现
 

@@ -1,6 +1,6 @@
 # C008 规格：观察声明，不建立准入
 
-状态：`active`（本轮条件前检已采用）；探针机制未采用，原机制与真实观察/价值not_run。
+状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 ## 1. 要解决的问题
 

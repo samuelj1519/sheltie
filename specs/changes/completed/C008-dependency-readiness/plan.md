@@ -1,6 +1,6 @@
 # C008 实施计划
 
-状态：`active`；T00已采用本轮条件前检/缺项交接，后续任务按下表。probe机制未采用，原机制与价值not_run。
+状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 每个任务和审查的范围基准都是本任务开工完整提交；提交前加 `--staged`，提交后用同一完整提交再核，不采用 README 总基线或随意 HEAD。准备/操作任务无 Rust 所属测试时不调用 task.sh。
 
@@ -27,7 +27,7 @@ T01 由复杂模型或有经验作者完整制作小 probe、必要 fixtures/tes
 | C008-M1 | done | 独立复杂模型 Reviewer | 前检/缺项保真独审；原机制准入not_run | T01 |
 | C008-T02 | done | 简单模型 / 初级开发者；真实观察者执行真实动作 | 原机制/真实对照的具体未执行记录 | M1 |
 | C008-T03 | done | 复杂模型产品分析者 | 未知成本/覆盖边界和原条件补验报告 | T02 |
-| C008-T04 | todo | root；独立Reviewer | 本轮限定归档、原件保真与无active索引 | M2限定PASS |
+| C008-T04 | done | root；独立Reviewer | 本轮限定归档、原件保真与无active索引 | M2限定PASS |
 | C008-M2 | done | 独立复杂模型 Reviewer | 本轮前检/延期交接独审；原真实价值not_run | T03 |
 
 M1/M2 Reviewer 均未参与被审脚本、fixtures、tests、oracle、实现或分析。任务短审和里程碑在同一闭包、义务下引用同一证据，不双跑；输入变化只核受影响义务。提交一个任务一个提交，按工程规范和 check-task 核范围。无 Rust 归属测试，不运行 scripts/task.sh；测试归 T01，发现数必须非零，import 错误不算机制拒绝通过。

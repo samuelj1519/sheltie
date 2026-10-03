@@ -1,7 +1,7 @@
 # C008 独立审查
 
 方案审查：`通过`（首次读者实施规划、产品边界与工具静态接线）。
-此段为采用前历史方案审查；本轮package active仅条件前检；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
+此段为采用前历史方案审查；本轮package completed仅条件前检；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
 
 ## 采用前历史完整计划
 
@@ -43,3 +43,7 @@ Candidate: `fedec201e2f71df8042088fd3caeed50519a497b`。
 结论：`PASS`，仅前检/真实条件缺项/授权延期补验交接。独立Reviewer未参与准备或分析，核77f09112至候选只有8not_run表/report与索引，inventory/rules/protocol/runbook无diff，声明/SHA不扩到host或全部未来任务，无实际run/ready/成本/value虚构。
 
 probe未采用；原配置/脚本/fixtures/no-write/机制M1/实际paired/覆盖/净收益和原M2真实结果全部not_run。无host/Store/env扫描、源码/安装/发布或新机制许可。当前taskdone或completed只表示本轮前检与补验交接完成，不把原条件实验变通过。
+
+## C008-T04 本轮关闭独审
+
+结论：`PASS`。独立Reviewer从M2 d7e2dfd不可变git复取9份原evidence，与归档路径逐字节9/9相等、0缺/0改。active/proposed无C包，当前入口一致无active、Root开发目标0.3/RC保持，六状态首部为completed限定前检；原probe未采用与所有原机制/真实价值not_run及各包不同完成范围分开。源码/29声明/Cargo/scripts/host无改，未tag/发行。没有剩余必改，无未变产品重跑。
