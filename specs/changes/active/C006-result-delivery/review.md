@@ -61,3 +61,7 @@ Candidate: `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`。结论：`PASS`，限定
 ## C006-T07 当前事前准备审
 
 独立Reviewer /root/c006_preflight_review原guide/dist表述finding修后PASS，无剩余必修；原实际消息/工具在本evidence，可核source_line。真实用途/原CLI-script对照非人类收益、46/192/134输入、native/MSRV951/dist6/exclude/fresh时点、原112字节保全及单一active、完整oracle/预算/ownedAPFS/失败停止边界通过。只授准备提交，不授尚未执行copy/consumer/crossdevice或M3。
+
+## C006-T08 当前真实执行与完整能力独审
+
+Reviewer /root/c006_preflight_review实际只读完整采用scope PASS，无剩余产品/oracle必修；[原实际最终报告](evidence/resume-20261004/t08-independent-review.md)及source_line/完整工具原件保全。11原命令0、7完整Home观察当前仍同、same3/消费者编辑停写/newcopy/tar16/APFS真实跨st_dev/owned eject已核；DL01–10/current source192/134/native与MSRV951/dist6/fresh原时点及真实正反crash闭包准确。Root后续治理/提交/归档与最终墙钟未预授PASS，原真人/费用/4LEAK unknown留原。

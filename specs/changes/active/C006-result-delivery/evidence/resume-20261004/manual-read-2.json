@@ -1,0 +1,1043 @@
+{
+  "name": "manual-read-2",
+  "argv": [
+    "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+    "--home",
+    "/private/tmp/sheltie-completion-20261003/c004-real-work-home",
+    "work",
+    "result",
+    "2026-10-03-001-c005-opening-package",
+    "--artifact=delivery",
+    "--revision",
+    "7"
+  ],
+  "start_utc": "2026-10-03T19:01:43.803999+00:00",
+  "end_utc": "2026-10-03T19:01:43.817587+00:00",
+  "elapsed_s": 0.013588,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "before": {
+    "rows": {
+      "workbooks": [
+        [
+          "code-change",
+          "1.0.0",
+          "6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6",
+          "workbooks/code-change/1.0.0",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "works": [
+        [
+          "2026-10-03-001-c005-opening-package",
+          7,
+          "succeeded",
+          "{\"work_id\":\"2026-10-03-001-c005-opening-package\",\"name\":\"c005-opening-package\",\"workbook\":{\"id\":\"code-change\",\"version\":\"1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"inputs\":{\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"status\":{\"kind\":\"succeeded\"},\"current\":{\"node\":\"deliver\",\"n\":1},\"visits\":{\"deliver\":1,\"implement\":1,\"review\":1},\"attempts\":[{\"id\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":null,\"inputs\":{\"previous-review\":null,\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}},\"summary\":\"C005真实文档开工包由A草稿经B同Attempt冷上下文补齐，等待独立内容审查\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:41:37Z\",\"ended_at\":\"2026-10-03T17:51:03Z\"},{\"id\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":[{\"node\":\"implement\",\"n\":1},\"main\"],\"inputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476},\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}},\"summary\":\"独立内容审阅逐质量条件通过，无必改项，原缺项与边界保留\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:51:03Z\",\"ended_at\":\"2026-10-03T17:56:10Z\"},{\"id\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":[{\"node\":\"review\",\"n\":1},\"main\"],\"inputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476},\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"delivery\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}},\"summary\":\"交付文档与独立审查绑定同一候选，下一消费者只读使用和成果核验随后记录\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:56:14Z\",\"ended_at\":\"2026-10-03T17:58:58Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-03T17:41:37Z\",\"updated_at\":\"2026-10-03T17:58:58Z\"}",
+          "2026-10-03T17:41:37Z",
+          "2026-10-03T17:58:58Z"
+        ]
+      ],
+      "work_sequence": [
+        [
+          "2026-10-03",
+          1
+        ]
+      ],
+      "requests": [
+        [
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709",
+          null,
+          "{\"request_id\":\"97ab40b4-2b5f-4abd-99fa-1a3b787932cd\",\"replayed\":false,\"data\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"flows\":[\"default\"],\"id\":\"code-change\",\"requires\":[],\"version\":\"1.0.0\"}}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6dbd77ad875dd92cd1842d54/payload\",\"final\":\"workbooks/code-change/1.0.0\",\"owner\":\"workbook:code-change@1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "6e67aca427cdb69fd7cacb1c80bba92a20fe6c1d1e1800dbbc6f4131e80055d4",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"5d497865-dc6b-459e-a139-76cf08b77144\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"c005-opening-package\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6e21767c9553af0900affeeb/payload\",\"final\":\"works/2026-10-03-001-c005-opening-package\",\"owner\":\"work:2026-10-03-001-c005-opening-package\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "e6b64907caa2f4035e16391a89c83e281dd468d1867b596c18232013f96099d9",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"6bfb5a60-c93a-44c8-919e-d45cfbfacf1f\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"data\":{\"attempt\":\"implement#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"implement\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"implement#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/implement\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"sha256\":\"9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a\",\"content\":\"# 任务书：实现代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: implement#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| previous-review | 尚无（上游 review 还没有产出） | |\\n\\n## 说明\\n\\n# 实现代码变更\\n\\n读取 task 的目标与验收标准、project 的仓库位置和检查前提。先检查工作区及仓库规则，保留无关修改。在本阶段内自主调查、规划和拆分子任务，完成授权范围的代码变更与必要检查。\\n\\nprevious-review 有绑定时读取具体意见；它可能来自之前的审查，以任务书“来自”和文件内容核对。普通内容返工不新增审批；部署、合并、发布等操作仍按任务授权执行。\\n\\n在 change.md 第一行说明实际完成程度。写清候选标识、变更范围、验收依据、实际检查命令和原文位置、退出状态、未执行项目、剩余问题。报告中的工具结果是执行者报告，不能说引擎已核验检查或仓库快照。未完成义务准确保留，不改验收标准迁就代码。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "0415c1cb-9528-4c41-b7ff-5d8c46d57c36",
+          "32c465e52829477f9ca2b5d709966221b1b2a95a0abc7a481c730c302649c801",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"0415c1cb-9528-4c41-b7ff-5d8c46d57c36\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"outputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}}},\"data\":{\"attempt\":\"implement#1.0\",\"outputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"}},\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"review\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          "b81fc244-4882-4592-bd4c-94cab09505de",
+          "b3608f3949e50112ad2413eaa1bbe513a42411e8e7ff743b4d6e04b11310b581",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"b81fc244-4882-4592-bd4c-94cab09505de\",\"revision\":4,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\"},\"requires\":[]},\"data\":{\"attempt\":\"review#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"review\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\",\"outputs\":{\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"review#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/review\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"sha256\":\"ac53cb4d5df29b26aa1e5fc057f60c23c0cbda58c883c6fad8df65964594e182\",\"content\":\"# 任务书：独立审查代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: review#1，第 0 次尝试\\n来自: implement#1（main 边）\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332 |\\n\\n## 说明\\n\\n# 独立审查代码变更\\n\\n审查者不得参与被审代码的编写。读取 task、project 与 change，核实际候选、代码、调用者、适用规格和原始检查输出。必要时独立执行有界反例验证，并保留原文。\\n\\n在 review.md 第一行写通过、需修改或阻断，后续写每个具体问题的依据、位置、影响与可复核证据。代码提交或检查成功不能代替全部验收义务。未知、未执行和环境缺项分别标明。不得修改被审实现或降低标准。\\n\\n协调者读取审查报告后按已声明的边选择下一阶段；本报告的结论不自动推进引擎状态。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| review | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          "a2da8000-9fa5-48f3-9558-603a470f6f61",
+          "ef7fb2baf2587906ec67aa8cf107022fe8177ee772e767b4eee9bef3772bb2ab",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"a2da8000-9fa5-48f3-9558-603a470f6f61\",\"revision\":5,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"outputs\":{\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}}},\"data\":{\"attempt\":\"review#1.0\",\"outputs\":{\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"}},\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":\"back\",\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"attempt begin\",\"node\":\"deliver\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:56:10Z"
+        ],
+        [
+          "4d4b33f4-565a-47c4-8784-2830a37db77b",
+          "5d490533a79059f01d062f541137659e88ee42846d00abd07983e83a3e3a8eb1",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"4d4b33f4-565a-47c4-8784-2830a37db77b\",\"revision\":6,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"delivery\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\"},\"requires\":[]},\"data\":{\"attempt\":\"deliver#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"deliver\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\",\"outputs\":{\"delivery\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"deliver#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"sha256\":\"25be93bc34754d3e3ba56e9967367a15cfac2f5afd47b01ad638ce1318550199\",\"content\":\"# 任务书：整理最终成果\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: deliver#1，第 0 次尝试\\n来自: review#1（main 边）\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332 |\\n| review | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md | 3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93 |\\n\\n## 说明\\n\\n# 整理最终成果\\n\\n读取 task、change 和 review。核这两份报告指向同一个实际候选并覆盖任务标准；缺少依据时准确说明，不编造通过或外部操作。\\n\\n在 delivery.md 第一行说明成果与未完成义务。提供实际代码候选或 patch 位置、检查原文、使用说明、审查结论及接受前需要核对的条件。普通 commit/patch/检查引用仍是报告内容，文件封存不证明引用的外部仓库或工具过程。\\n\\n终点明确选择 change、review 和 delivery 的本次冻结引用。流程成功只说明执行和输出合同成立，内容是否可接受由使用者核对。默认不设人工 gate；具体任务有真实授权边界时，由方法作者采用新版本声明。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| delivery | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:56:14Z"
+        ],
+        [
+          "a3fe19ba-1edc-4411-b5cb-5ace6877da4f",
+          "0fc293df38fcac2268a64bac27f32f90efcfd8b970cd4992ec1629f1ea5cd582",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"a3fe19ba-1edc-4411-b5cb-5ace6877da4f\",\"revision\":7,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"outputs\":{\"delivery\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}}},\"data\":{\"attempt\":\"deliver#1.0\",\"outputs\":{\"delivery\":{\"bytes\":11870,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\"}},\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:58:58Z"
+        ]
+      ],
+      "audit": [
+        [
+          1,
+          "",
+          0,
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "shushu",
+          "{\"intent\":\"add_workbook\",\"source\":\"64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709\"}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          2,
+          "2026-10-03-001-c005-opening-package",
+          1,
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "shushu",
+          "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}},\"name\":\"c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          3,
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<839 字节>\",\"node\":\"implement\",\"observed_inputs\":{\"previous-review\":null,\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          4,
+          "2026-10-03-001-c005-opening-package",
+          3,
+          "0415c1cb-9528-4c41-b7ff-5d8c46d57c36",
+          "shushu",
+          "{\"attempt\":{\"node\":\"implement\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"}},\"summary\":\"<94 字节>\"}",
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          5,
+          "2026-10-03-001-c005-opening-package",
+          4,
+          "b81fc244-4882-4592-bd4c-94cab09505de",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<646 字节>\",\"node\":\"review\",\"observed_inputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"},\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          6,
+          "2026-10-03-001-c005-opening-package",
+          5,
+          "a2da8000-9fa5-48f3-9558-603a470f6f61",
+          "shushu",
+          "{\"attempt\":{\"node\":\"review\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"}},\"summary\":\"<81 字节>\"}",
+          "2026-10-03T17:56:10Z"
+        ],
+        [
+          7,
+          "2026-10-03-001-c005-opening-package",
+          6,
+          "4d4b33f4-565a-47c4-8784-2830a37db77b",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<754 字节>\",\"node\":\"deliver\",\"observed_inputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"},\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:56:14Z"
+        ],
+        [
+          8,
+          "2026-10-03-001-c005-opening-package",
+          7,
+          "a3fe19ba-1edc-4411-b5cb-5ace6877da4f",
+          "shushu",
+          "{\"attempt\":{\"node\":\"deliver\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"delivery\":{\"bytes\":11870,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\"}},\"summary\":\"<102 字节>\"}",
+          "2026-10-03T17:58:58Z"
+        ]
+      ]
+    },
+    "objects": {
+      "works": {
+        "dev": 16777234,
+        "ino": 689678544,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package": {
+        "dev": 16777234,
+        "ino": 689678547,
+        "mode": 16832,
+        "nlink": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts": {
+        "dev": 16777234,
+        "ino": 689678627,
+        "mode": 16832,
+        "nlink": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver": {
+        "dev": 16777234,
+        "ino": 689679666,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689679667,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689679668,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689679670,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "25be93bc34754d3e3ba56e9967367a15cfac2f5afd47b01ad638ce1318550199"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689679669,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md": {
+        "dev": 16777234,
+        "ino": 689679883,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement": {
+        "dev": 16777234,
+        "ino": 689678628,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689678629,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689678630,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689678632,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689678631,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md": {
+        "dev": 16777234,
+        "ino": 689678877,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review": {
+        "dev": 16777234,
+        "ino": 689679250,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689679251,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689679252,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689679254,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "ac53cb4d5df29b26aa1e5fc057f60c23c0cbda58c883c6fad8df65964594e182"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689679253,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md": {
+        "dev": 16777234,
+        "ino": 689679562,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs": {
+        "dev": 16777234,
+        "ino": 689678559,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/project": {
+        "dev": 16777234,
+        "ino": 689678560,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/task": {
+        "dev": 16777234,
+        "ino": 689678561,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e"
+      },
+      "works/2026-10-03-001-c005-opening-package/status-card.md": {
+        "dev": 16777234,
+        "ino": 689679953,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "eb6e1c794bed7afca1abc10a70070cee3f7d4d460a99a70129f23e0bc4b5a925"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook": {
+        "dev": 16777234,
+        "ino": 689678550,
+        "mode": 16749,
+        "nlink": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/README.md": {
+        "dev": 16777234,
+        "ino": 689678553,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows": {
+        "dev": 16777234,
+        "ino": 689678551,
+        "mode": 16749,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows/default.toml": {
+        "dev": 16777234,
+        "ino": 689678554,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions": {
+        "dev": 16777234,
+        "ino": 689678552,
+        "mode": 16749,
+        "nlink": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/deliver.md": {
+        "dev": 16777234,
+        "ino": 689678555,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/implement.md": {
+        "dev": 16777234,
+        "ino": 689678556,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/review.md": {
+        "dev": 16777234,
+        "ino": 689678557,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/workbook.toml": {
+        "dev": 16777234,
+        "ino": 689678558,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "workbooks": {
+        "dev": 16777234,
+        "ino": 689678508,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change": {
+        "dev": 16777234,
+        "ino": 689678509,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0": {
+        "dev": 16777234,
+        "ino": 689678487,
+        "mode": 16749,
+        "nlink": 6,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/README.md": {
+        "dev": 16777234,
+        "ino": 689678490,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "workbooks/code-change/1.0.0/flows": {
+        "dev": 16777234,
+        "ino": 689678488,
+        "mode": 16749,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/flows/default.toml": {
+        "dev": 16777234,
+        "ino": 689678491,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "workbooks/code-change/1.0.0/instructions": {
+        "dev": 16777234,
+        "ino": 689678489,
+        "mode": 16749,
+        "nlink": 5,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions/deliver.md": {
+        "dev": 16777234,
+        "ino": 689678492,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "workbooks/code-change/1.0.0/instructions/implement.md": {
+        "dev": 16777234,
+        "ino": 689678493,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "workbooks/code-change/1.0.0/instructions/review.md": {
+        "dev": 16777234,
+        "ino": 689678494,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "workbooks/code-change/1.0.0/workbook.toml": {
+        "dev": 16777234,
+        "ino": 689678495,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "pending": {
+        "dev": 16777234,
+        "ino": 689678484,
+        "mode": 16832,
+        "nlink": 2,
+        "sha256": null
+      },
+      "tmp": {
+        "dev": 16777234,
+        "ino": 689678472,
+        "mode": 16832,
+        "nlink": 2,
+        "sha256": null
+      }
+    }
+  },
+  "after": {
+    "rows": {
+      "workbooks": [
+        [
+          "code-change",
+          "1.0.0",
+          "6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6",
+          "workbooks/code-change/1.0.0",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "works": [
+        [
+          "2026-10-03-001-c005-opening-package",
+          7,
+          "succeeded",
+          "{\"work_id\":\"2026-10-03-001-c005-opening-package\",\"name\":\"c005-opening-package\",\"workbook\":{\"id\":\"code-change\",\"version\":\"1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"inputs\":{\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"status\":{\"kind\":\"succeeded\"},\"current\":{\"node\":\"deliver\",\"n\":1},\"visits\":{\"deliver\":1,\"implement\":1,\"review\":1},\"attempts\":[{\"id\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":null,\"inputs\":{\"previous-review\":null,\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}},\"summary\":\"C005真实文档开工包由A草稿经B同Attempt冷上下文补齐，等待独立内容审查\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:41:37Z\",\"ended_at\":\"2026-10-03T17:51:03Z\"},{\"id\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":[{\"node\":\"implement\",\"n\":1},\"main\"],\"inputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476},\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}},\"summary\":\"独立内容审阅逐质量条件通过，无必改项，原缺项与边界保留\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:51:03Z\",\"ended_at\":\"2026-10-03T17:56:10Z\"},{\"id\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":[{\"node\":\"review\",\"n\":1},\"main\"],\"inputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476},\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{\"delivery\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}},\"summary\":\"交付文档与独立审查绑定同一候选，下一消费者只读使用和成果核验随后记录\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:56:14Z\",\"ended_at\":\"2026-10-03T17:58:58Z\"}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-03T17:41:37Z\",\"updated_at\":\"2026-10-03T17:58:58Z\"}",
+          "2026-10-03T17:41:37Z",
+          "2026-10-03T17:58:58Z"
+        ]
+      ],
+      "work_sequence": [
+        [
+          "2026-10-03",
+          1
+        ]
+      ],
+      "requests": [
+        [
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709",
+          null,
+          "{\"request_id\":\"97ab40b4-2b5f-4abd-99fa-1a3b787932cd\",\"replayed\":false,\"data\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"flows\":[\"default\"],\"id\":\"code-change\",\"requires\":[],\"version\":\"1.0.0\"}}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6dbd77ad875dd92cd1842d54/payload\",\"final\":\"workbooks/code-change/1.0.0\",\"owner\":\"workbook:code-change@1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "6e67aca427cdb69fd7cacb1c80bba92a20fe6c1d1e1800dbbc6f4131e80055d4",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"5d497865-dc6b-459e-a139-76cf08b77144\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"c005-opening-package\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6e21767c9553af0900affeeb/payload\",\"final\":\"works/2026-10-03-001-c005-opening-package\",\"owner\":\"work:2026-10-03-001-c005-opening-package\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "e6b64907caa2f4035e16391a89c83e281dd468d1867b596c18232013f96099d9",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"6bfb5a60-c93a-44c8-919e-d45cfbfacf1f\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"data\":{\"attempt\":\"implement#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"implement\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"implement#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/implement\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"sha256\":\"9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a\",\"content\":\"# 任务书：实现代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: implement#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| previous-review | 尚无（上游 review 还没有产出） | |\\n\\n## 说明\\n\\n# 实现代码变更\\n\\n读取 task 的目标与验收标准、project 的仓库位置和检查前提。先检查工作区及仓库规则，保留无关修改。在本阶段内自主调查、规划和拆分子任务，完成授权范围的代码变更与必要检查。\\n\\nprevious-review 有绑定时读取具体意见；它可能来自之前的审查，以任务书“来自”和文件内容核对。普通内容返工不新增审批；部署、合并、发布等操作仍按任务授权执行。\\n\\n在 change.md 第一行说明实际完成程度。写清候选标识、变更范围、验收依据、实际检查命令和原文位置、退出状态、未执行项目、剩余问题。报告中的工具结果是执行者报告，不能说引擎已核验检查或仓库快照。未完成义务准确保留，不改验收标准迁就代码。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "0415c1cb-9528-4c41-b7ff-5d8c46d57c36",
+          "32c465e52829477f9ca2b5d709966221b1b2a95a0abc7a481c730c302649c801",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"0415c1cb-9528-4c41-b7ff-5d8c46d57c36\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"outputs\":{\"change\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}}},\"data\":{\"attempt\":\"implement#1.0\",\"outputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"}},\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"review\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\",\"bytes\":27476}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          "b81fc244-4882-4592-bd4c-94cab09505de",
+          "b3608f3949e50112ad2413eaa1bbe513a42411e8e7ff743b4d6e04b11310b581",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"b81fc244-4882-4592-bd4c-94cab09505de\",\"revision\":4,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\"},\"requires\":[]},\"data\":{\"attempt\":\"review#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"review\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\",\"outputs\":{\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"review#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/review\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md\",\"sha256\":\"ac53cb4d5df29b26aa1e5fc057f60c23c0cbda58c883c6fad8df65964594e182\",\"content\":\"# 任务书：独立审查代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: review#1，第 0 次尝试\\n来自: implement#1（main 边）\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332 |\\n\\n## 说明\\n\\n# 独立审查代码变更\\n\\n审查者不得参与被审代码的编写。读取 task、project 与 change，核实际候选、代码、调用者、适用规格和原始检查输出。必要时独立执行有界反例验证，并保留原文。\\n\\n在 review.md 第一行写通过、需修改或阻断，后续写每个具体问题的依据、位置、影响与可复核证据。代码提交或检查成功不能代替全部验收义务。未知、未执行和环境缺项分别标明。不得修改被审实现或降低标准。\\n\\n协调者读取审查报告后按已声明的边选择下一阶段；本报告的结论不自动推进引擎状态。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| review | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          "a2da8000-9fa5-48f3-9558-603a470f6f61",
+          "ef7fb2baf2587906ec67aa8cf107022fe8177ee772e767b4eee9bef3772bb2ab",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"a2da8000-9fa5-48f3-9558-603a470f6f61\",\"revision\":5,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"review\",\"occurrence\":1,\"number\":0},\"outputs\":{\"review\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}}},\"data\":{\"attempt\":\"review#1.0\",\"outputs\":{\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"}},\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":\"back\",\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"attempt begin\",\"node\":\"deliver\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\",\"bytes\":9259}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:56:10Z"
+        ],
+        [
+          "4d4b33f4-565a-47c4-8784-2830a37db77b",
+          "5d490533a79059f01d062f541137659e88ee42846d00abd07983e83a3e3a8eb1",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"4d4b33f4-565a-47c4-8784-2830a37db77b\",\"revision\":6,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"delivery\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\"},\"requires\":[]},\"data\":{\"attempt\":\"deliver#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"review\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"deliver\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\",\"outputs\":{\"delivery\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"deliver#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md\",\"sha256\":\"25be93bc34754d3e3ba56e9967367a15cfac2f5afd47b01ad638ce1318550199\",\"content\":\"# 任务书：整理最终成果\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: deliver#1，第 0 次尝试\\n来自: review#1（main 边）\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332 |\\n| review | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md | 3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93 |\\n\\n## 说明\\n\\n# 整理最终成果\\n\\n读取 task、change 和 review。核这两份报告指向同一个实际候选并覆盖任务标准；缺少依据时准确说明，不编造通过或外部操作。\\n\\n在 delivery.md 第一行说明成果与未完成义务。提供实际代码候选或 patch 位置、检查原文、使用说明、审查结论及接受前需要核对的条件。普通 commit/patch/检查引用仍是报告内容，文件封存不证明引用的外部仓库或工具过程。\\n\\n终点明确选择 change、review 和 delivery 的本次冻结引用。流程成功只说明执行和输出合同成立，内容是否可接受由使用者核对。默认不设人工 gate；具体任务有真实授权边界时，由方法作者采用新版本声明。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| delivery | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:56:14Z"
+        ],
+        [
+          "a3fe19ba-1edc-4411-b5cb-5ace6877da4f",
+          "0fc293df38fcac2268a64bac27f32f90efcfd8b970cd4992ec1629f1ea5cd582",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"a3fe19ba-1edc-4411-b5cb-5ace6877da4f\",\"revision\":7,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"deliver\",\"occurrence\":1,\"number\":0},\"outputs\":{\"delivery\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}}},\"data\":{\"attempt\":\"deliver#1.0\",\"outputs\":{\"delivery\":{\"bytes\":11870,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\"}},\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[]}",
+          "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\",\"bytes\":11870}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:58:58Z"
+        ]
+      ],
+      "audit": [
+        [
+          1,
+          "",
+          0,
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "shushu",
+          "{\"intent\":\"add_workbook\",\"source\":\"64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709\"}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          2,
+          "2026-10-03-001-c005-opening-package",
+          1,
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "shushu",
+          "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}},\"name\":\"c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          3,
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<839 字节>\",\"node\":\"implement\",\"observed_inputs\":{\"previous-review\":null,\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          4,
+          "2026-10-03-001-c005-opening-package",
+          3,
+          "0415c1cb-9528-4c41-b7ff-5d8c46d57c36",
+          "shushu",
+          "{\"attempt\":{\"node\":\"implement\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"}},\"summary\":\"<94 字节>\"}",
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          5,
+          "2026-10-03-001-c005-opening-package",
+          4,
+          "b81fc244-4882-4592-bd4c-94cab09505de",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<646 字节>\",\"node\":\"review\",\"observed_inputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"},\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:51:03Z"
+        ],
+        [
+          6,
+          "2026-10-03-001-c005-opening-package",
+          5,
+          "a2da8000-9fa5-48f3-9558-603a470f6f61",
+          "shushu",
+          "{\"attempt\":{\"node\":\"review\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"}},\"summary\":\"<81 字节>\"}",
+          "2026-10-03T17:56:10Z"
+        ],
+        [
+          7,
+          "2026-10-03-001-c005-opening-package",
+          6,
+          "4d4b33f4-565a-47c4-8784-2830a37db77b",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<754 字节>\",\"node\":\"deliver\",\"observed_inputs\":{\"change\":{\"bytes\":27476,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\",\"sha256\":\"e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332\"},\"review\":{\"bytes\":9259,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md\",\"sha256\":\"3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:56:14Z"
+        ],
+        [
+          8,
+          "2026-10-03-001-c005-opening-package",
+          7,
+          "a3fe19ba-1edc-4411-b5cb-5ace6877da4f",
+          "shushu",
+          "{\"attempt\":{\"node\":\"deliver\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"delivery\":{\"bytes\":11870,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\"}},\"summary\":\"<102 字节>\"}",
+          "2026-10-03T17:58:58Z"
+        ]
+      ]
+    },
+    "objects": {
+      "works": {
+        "dev": 16777234,
+        "ino": 689678544,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package": {
+        "dev": 16777234,
+        "ino": 689678547,
+        "mode": 16832,
+        "nlink": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts": {
+        "dev": 16777234,
+        "ino": 689678627,
+        "mode": 16832,
+        "nlink": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver": {
+        "dev": 16777234,
+        "ino": 689679666,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689679667,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689679668,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689679670,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "25be93bc34754d3e3ba56e9967367a15cfac2f5afd47b01ad638ce1318550199"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689679669,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md": {
+        "dev": 16777234,
+        "ino": 689679883,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement": {
+        "dev": 16777234,
+        "ino": 689678628,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689678629,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689678630,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689678632,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689678631,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md": {
+        "dev": 16777234,
+        "ino": 689678877,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review": {
+        "dev": 16777234,
+        "ino": 689679250,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001": {
+        "dev": 16777234,
+        "ino": 689679251,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000": {
+        "dev": 16777234,
+        "ino": 689679252,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/brief.md": {
+        "dev": 16777234,
+        "ino": 689679254,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "ac53cb4d5df29b26aa1e5fc057f60c23c0cbda58c883c6fad8df65964594e182"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs": {
+        "dev": 16777234,
+        "ino": 689679253,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/review/occurrence-001/attempt-000/outputs/review.md": {
+        "dev": 16777234,
+        "ino": 689679562,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs": {
+        "dev": 16777234,
+        "ino": 689678559,
+        "mode": 16832,
+        "nlink": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/project": {
+        "dev": 16777234,
+        "ino": 689678560,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/task": {
+        "dev": 16777234,
+        "ino": 689678561,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e"
+      },
+      "works/2026-10-03-001-c005-opening-package/status-card.md": {
+        "dev": 16777234,
+        "ino": 689679953,
+        "mode": 33152,
+        "nlink": 1,
+        "sha256": "eb6e1c794bed7afca1abc10a70070cee3f7d4d460a99a70129f23e0bc4b5a925"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook": {
+        "dev": 16777234,
+        "ino": 689678550,
+        "mode": 16749,
+        "nlink": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/README.md": {
+        "dev": 16777234,
+        "ino": 689678553,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows": {
+        "dev": 16777234,
+        "ino": 689678551,
+        "mode": 16749,
+        "nlink": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows/default.toml": {
+        "dev": 16777234,
+        "ino": 689678554,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions": {
+        "dev": 16777234,
+        "ino": 689678552,
+        "mode": 16749,
+        "nlink": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/deliver.md": {
+        "dev": 16777234,
+        "ino": 689678555,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/implement.md": {
+        "dev": 16777234,
+        "ino": 689678556,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/review.md": {
+        "dev": 16777234,
+        "ino": 689678557,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/workbook.toml": {
+        "dev": 16777234,
+        "ino": 689678558,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "workbooks": {
+        "dev": 16777234,
+        "ino": 689678508,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change": {
+        "dev": 16777234,
+        "ino": 689678509,
+        "mode": 16832,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0": {
+        "dev": 16777234,
+        "ino": 689678487,
+        "mode": 16749,
+        "nlink": 6,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/README.md": {
+        "dev": 16777234,
+        "ino": 689678490,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "workbooks/code-change/1.0.0/flows": {
+        "dev": 16777234,
+        "ino": 689678488,
+        "mode": 16749,
+        "nlink": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/flows/default.toml": {
+        "dev": 16777234,
+        "ino": 689678491,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "workbooks/code-change/1.0.0/instructions": {
+        "dev": 16777234,
+        "ino": 689678489,
+        "mode": 16749,
+        "nlink": 5,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions/deliver.md": {
+        "dev": 16777234,
+        "ino": 689678492,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "workbooks/code-change/1.0.0/instructions/implement.md": {
+        "dev": 16777234,
+        "ino": 689678493,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "workbooks/code-change/1.0.0/instructions/review.md": {
+        "dev": 16777234,
+        "ino": 689678494,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "workbooks/code-change/1.0.0/workbook.toml": {
+        "dev": 16777234,
+        "ino": 689678495,
+        "mode": 33060,
+        "nlink": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "pending": {
+        "dev": 16777234,
+        "ino": 689678484,
+        "mode": 16832,
+        "nlink": 2,
+        "sha256": null
+      },
+      "tmp": {
+        "dev": 16777234,
+        "ino": 689678472,
+        "mode": 16832,
+        "nlink": 2,
+        "sha256": null
+      }
+    }
+  },
+  "home_unchanged": true,
+  "within_deadline": true,
+  "stdout_base64": "QzAwNSDmlofmoaPlvIDlt6XljIXlj4rni6znq4vlhoXlrrnlrqHmn6Xlt7LmlbTnkIbvvJvmnKwgZGVsaXZlcnkg5LuN5b6F5Y2P6LCD6ICF5o+Q5Lqk77yM5pyA57uI5oiQ5p6c5bCB5a2Y44CB5LiL5LiA5raI6LS56ICF5a6e6ZmF5L2/55So44CBQzAwNSDnnJ/lrp7mkqTplIDjgIHnnJ/kurrmjqXlj5fkuI7lrozmlbTmiJDmnKzlsJrmnKrlnKjmnKzkuqTku5jor7TmmI7kuK3pqozmlLbjgIIKCiMgQzAwNSDlvIDlt6XljIXkuqTku5jor7TmmI4KCuWunumZhea2iOi0ueiAheaYr+e7p+e7rSBDMDAx4oCTQzAwOCDor7fmsYLnmoTkuIvkuIDljY/osIPogIXjgILmnKzmrKHkuqTku5jmlofmoaPlvIDlt6XljIXvvIzlrp7pmYXku5PlupPku6PnoIHmnKrlnKjmnKzku7vliqHkuK3kv67mlLnvvIzkuI3lrqPnp7AgY29kZWZpeOOAguW9k+WJjSBDMDA0IGFjdGl2Ze+8jEMwMDUg5LuN5ZyoIGNvbXBsZXRlZCDkv53lrZjljoblj7LpmZDlrprpqozmlLbvvJvkuIvkuIDmtojotLnogIXlhYjlj6ror7vljp/ku7bjgIHlrprkvY3pppbliqjkvZzlubbmlbTnkIbmnKzova7lh4blpIfliKTmlq3vvIxDMDA0IOacgOe7iOW9kuaho+S7peWQjuaJjeWPpuS7u+WKoeaBouWkjSBDMDA144CCCgojIyAxLiDlj5blvpfmnKzmrKHkuInku73miJDmnpwKCuacrCBXb3JrIOS4uiBgMjAyNi0xMC0wMy0wMDEtYzAwNS1vcGVuaW5nLXBhY2thZ2Vg44CC5Lul5LiLIGBXb3JrUm9vdC9gIOWdh+aMh+e7neWvueebruW9lSBgL3ByaXZhdGUvdG1wL3NoZWx0aWUtY29tcGxldGlvbi0yMDI2MTAwMy9jMDA0LXJlYWwtd29yay1ob21lL3dvcmtzLzIwMjYtMTAtMDMtMDAxLWMwMDUtb3BlbmluZy1wYWNrYWdlL2DjgILmnKwgZGVsaXZlcnkg55qE5Lu75Yqh6Lqr5Lu95Li6IGBkZWxpdmVyIzEuMGDvvIzovpPlhaXmnaXoh6rmnKzmrKEgYHJldmlldyMxYCDnmoQgbWFpbiDovrnjgIIKCnwg5oiQ5p6cIHwg5pys5qyh5YW35L2T5L2N572uIHwg55So5rOV5LiO5bey5qC457uR5a6aIHwKfCAtLS0gfCAtLS0gfCAtLS0gfAp8IGNoYW5nZSB8IGBXb3JrUm9vdC9hdHRlbXB0cy9pbXBsZW1lbnQvb2NjdXJyZW5jZS0wMDEvYXR0ZW1wdC0wMDAvb3V0cHV0cy9jaGFuZ2UubWRgIHwgQzAwNSDlvIDlt6XljIXmraPmlofjgIIyNzQ3NiBC77yMU0hBLTI1NiBgZTQ2NWI2Y2QxZjQ1Y2QzMGZjMmI4OGU3OThhNThkMGUwYmU5YzYyZWZmNmU1MTdjMDNiMWViNzI1YmU5MzMzMmDvvIzkuI7mnKwgZGVsaXZlciBicmllZiDnmoTlhrvnu5PlvJXnlKjkuIDoh7TjgIIgfAp8IHJldmlldyB8IGBXb3JrUm9vdC9hdHRlbXB0cy9yZXZpZXcvb2NjdXJyZW5jZS0wMDEvYXR0ZW1wdC0wMDAvb3V0cHV0cy9yZXZpZXcubWRgIHwg54us56uL5YaF5a655a6h5p+l5Y6f5paH44CCOTI1OSBC77yMU0hBLTI1NiBgM2VkZDMyMDlmMjc5ZGM1Y2Q3MjgwNmRkODUwMTcxODY3Njg0NmJiZDFiYmVlMDJjMDE1NzA2M2EyNmIyMmI5M2DvvIzkuI7mnKwgZGVsaXZlciBicmllZiDnmoTlhrvnu5PlvJXnlKjkuIDoh7TjgIIgfAp8IGRlbGl2ZXJ5IHwgYFdvcmtSb290L2F0dGVtcHRzL2RlbGl2ZXIvb2NjdXJyZW5jZS0wMDEvYXR0ZW1wdC0wMDAvb3V0cHV0cy9kZWxpdmVyeS5tZGAgfCDmnKzor7TmmI7vvIzlvZPliY3mmK8gcnVubmluZyBBdHRlbXB0IOeahOWjsOaYjui+k+WHuu+8m+S4jeiDveaPkOWJjeensOS4uuW3suWwgeWtmOaIluWPr+S6pOS7mOacgOe7iOmbhuWQiOOAguacgOe7iCBieXRlcy9TSEEg5LiO5YW35L2T57uI54K55byV55So55Sx5o+Q5Lqk5ZCO55qE57uT5p6cIG9yYWNsZSDmoLjlr7njgIIgfAoK57uR5a6aIHRhc2sg5Li6IGBXb3JrUm9vdC9zdGFydC1pbnB1dHMvdGFza2DvvIwxNjcwIELvvIxTSEEtMjU2IGA2NmZlYWUyZGRhNGI2NmE5NGFhYWQ1NmVkOWYzNGU2N2ZmOTA5MDNmYjY2ZjBhN2Q2NzE3NGRiZjUwM2E3NjBlYOOAguW3suWGu+e7kyBwcm9qZWN0IOS4uiBgV29ya1Jvb3Qvc3RhcnQtaW5wdXRzL3Byb2plY3Rg77yMMTU3OCBC77yMU0hBLTI1NiBgODcyMGMwOTQwOTUzOTM1OTY4ZDhiNmE1YzM5MjU2OTBmNzA3MTgxMTIyODJmY2Q5ZjZkMTMyNzY4NGNiMmU3YmDjgILmnKzmiafooYzogIXpgJDpobnph43nrpfkuIrov7DovpPlhaXvvIzlnYfkuI7mnKzmrKHlt7Lnu5HlrprlvJXnlKjmiJbkuovliY3lhrvnu5PorrDlvZXnm7jnrKbjgIIKCmNoYW5nZSDkuI4gcmV2aWV3IOaMh+WQkeWQjOS4gOS7veaWh+aho+WAmemAie+8mnJldmlldyDCpzEg5piO56Gu5qC45a+55LiK6L+wIGNoYW5nZSDot6/lvoTjgIEyNzQ3NiBCIOS4jiBTSEEtMjU277ybcmV2aWV3IMKnMiDmjInlhrvnu5MgdGFzayDnmoTlhajpg6jotKjph4/mnaHku7bmn6XmupDjgILkuqTku5jogIXmnKrlsIblj6bkuIAgQXR0ZW1wdOOAgei+g+aWsOaWh+S7tuaIluS7k+W6k+acgOaWsOiNieeov+abv+aNouS4uuacrOasoei+k+WFpeOAggoK5Ya757uTIEZsb3cg55qEIGRlbGl2ZXIgTm9kZSDmmI7noa7pgInmi6nmnKzmrKHnu5HlrprnmoQgYGNoYW5nZWDjgIFgcmV2aWV3YCDovpPlhaXlkozmnKzmrKEgYGRlbGl2ZXJ5YCDovpPlh7rkuLogcmVzdWx044CC5Y2P6LCD6ICF5o+Q5Lqk5ZCO5bqU6YCa6L+H5b2T5YmN5Ya757uTIENMSSDnmoTlj6ror7sgYHdvcmsgcmVzdWx0YCDmoLjlr7kgYGZpbmFsL3N1Y2NlZWRlZGDjgIHkuInmnaHlvJXnlKjlj4rlhbYgc291cmNl44CBYnl0ZXPjgIFTSEHvvJvmn6Xor6LkuI3mjqjov5vnirbmgIHjgILmtYHnqIvmiJDlip/lj6ror7TmmI7miafooYzlkozovpPlh7rlkIjlkIzmiJDnq4vvvIzmiqXlkYrlhoXlrrnmmK/lkKblj6/mjqXlj5fnlLHkvb/nlKjogIXmoLjlr7njgIIKCiMjIDIuIOaWh+aho+WAmemAieOAgeWOn+S7tuS4juajgOafpeWOn+aWhwoK5LuT5bqT5Y6f5Lu25qC55Li6IGAvVXNlcnMvc2h1c2h1L29yY2Evd29ya3NwYWNlcy9zaGVsdGllL2NvZGV4YOOAguS7peS4iyBgQzAwNS9gIOaMh+ivpeagueS4iyBgc3BlY3MvY2hhbmdlcy9jb21wbGV0ZWQvQzAwNS1leGVjdXRvci1jb250aW51aXR5L2DjgILmnKzmrKHmsqHmnInmlrDku6PnoIEgY29tbWl0IOaIliBwYXRjaO+8m+WunumZheaWh+aho+WAmemAieWwseaYryDCpzEg55qEIGNoYW5nZeOAguebuOWFs+a6kOeggeWAmemAieS4juaXp+ajgOafpeW8leeUqOS7jeaYr+aKpeWRiuWGheWuue+8jOS6p+eJqeWwgeWtmOS4jeivgeaYjuWklumDqCBHaXTjgIHlt6Xlhbfov4fnqIvmiJblrr/kuLvkuovlrp7jgIIKCnwg5a+56LGhIHwg5a6e6ZmF5L2N572u5oiW6Lqr5Lu9IHwg6IyD5Zu0IHwKfCAtLS0gfCAtLS0gfCAtLS0gfAp8IOW9k+WJjeWGu+e7k+a6kOeggeWAmemAiSB8IGBjY2Y3YTBjYzRkNGM0YTNhMWIzYzA0MDQ3M2FiMmNiYzA2OWExOTgyYCB8IOacrOasoSBDMDA0IOS6i+WJjeWbuuWumuWAmemAie+8jOmdnuacrOS7u+WKoeaWsOWunueOsOOAgiB8Cnwg5Ya757uTIGJpbmFyeSB8IGAvcHJpdmF0ZS90bXAvc2hlbHRpZS1jb21wbGV0aW9uLTIwMjYxMDAzL3Q1OC1maW5hbC1mcm96ZW4tYmluYXJpZXMvc2hlbHRpZWDvvIxTSEEtMjU2IGA3Yzk2MTgzNDg4OGIwODVjMWJkNTRhMDMwMmI4MzM1NGMxMWVlZDQ4MGVlMDk0MWU1ODY2YjY2NWYyNzNlODhjYCB8IOS6pOS7mOiAheWPquivu+mHjeeul+aRmOimgeebuOespu+8jOacquiwg+eUqOeKtuaAgeWGmeWRveS7pOOAgiB8CnwgQzAwNSDljoblj7LpmZDlrprpqozmlLblgJnpgIkgfCBgZDhkOGMyMGZjNzFlM2JkOGJiODEzYWZlY2M2YTRhYTFhZjRhNjNmNGAgfCDljp/pqozmlLbojIPlm7Top4EgYEMwMDUvdmFsaWRhdGlvbi5tZGAgwqdDMDA1LU0yIOS4jiBgQzAwNS9yZXZpZXcubWRg77yb5penIFBBU1Mg5LiN6Ieq5Yqo6YCC55So5LqO5b2T5YmN5rqQ56CB5oiW55yf5a6e5L2/55So44CCIHwKfCDmnKzmrKHlhrvnu5PmnaXmupAgfCBgc3BlY3MvY2hhbmdlcy9hY3RpdmUvQzAwNC12ZXJpZmlhYmxlLWRlbGVnYXRpb24vZXZpZGVuY2UvcmVzdW1lLTIwMjYxMDA0L2ZyZWV6ZS5qc29uYCB8IG1ldGhvZF9maWxlcyA244CBc291cmNlX2ZpbGVzIDE444CBdGFza19wcm9qZWN0X3Byb3RvY29sX3NoYTI1NiAz44CB5a6M5pW0IEMwMDUg5Y6f5Lu2IDYyIOmhueWIhuWIq+mHjeeul++8jOWdhyBgZHJpZnQ9W11g77yb5riF5Y2V5pyJ6YeN5Y+g77yM5LiN57Sv6K6h5Li654us56uL5paH5Lu25pWw44CCIHwKfCDmnKzmrKHmiafooYzovrnnlYwgfCDlkIznm67lvZUgYHByb3RvY29sLm1kYO+8m+WGu+e7kyB0YXNrL3Byb2plY3QgfCDlj6rkuqTmlofmoaPvvJvlvZPliY3mtojotLnogIXlj6ror7vvvJvpnIDopoHmlrDmnaXmupDmiJblj5HnjrDmupDmvILnp7vljbPlgZzmraLmnKwgcnVu77yM5YWI54us56uL6YeN5a6h5LiO6YeN5pawIGZyZWV6ZeOAgiB8CgrmraPmlofmn6XpmIXpobrluo/vvJpjaGFuZ2UgwqcyIOS6huino+WFremhueWOn+S5ieWKoe+8jMKnMyDmib7ljp/ku7bkuI7pppbliqjkvZzvvIzCpzQvNC4xIOaJvui0o+S7u+OAgeWJjeaPkOOAgeecn+WunuWRveS7pOWSjOWBnOatouadoeS7tu+8jMKnNSDmib7mraPlj43liKTmja7vvIzCpzYg5om+5ZCO57ut5py65Yi2L+eOr+Wig+WFpeWPo++8jMKnNyDljLrliIblrp7pmYXmo4Dmn6XkuI7mnKrmiafooYzjgIJyZXZpZXcgwqcyIOaYr+mAkOi0qOmHj+adoeS7tuWuoemYhe+8jMKnMyDmmK/ljp/ml6Xlv5flpI3moLjvvIzCpzQg5piv57uT6K666IyD5Zu044CCCgrljp/mo4Dmn6XlkoznvLrpobnpobvmn6Xljp/lrZfoioLvvIzkuI3og73lj6rnnIvmkZjopoHvvJoKCnwg5LmJ5Yqh5oiW5L+h5Y+3IHwg5L+d55WZ57uT6K66IHwg57K+56Gu5Y6f5Lu25YWl5Y+jIHwKfCAtLS0gfCAtLS0gfCAtLS0gfAp8IOecn+WunuaSpOmUgOOAgeaOpeaJi+OAgeWOn+e6puadn+OAgeWujOaVtOaKleWFpeWPiueUqOaIt+aOpeWPlyB8IGBub3RfcnVuIC8gYXV0aG9yaXplZF9kZWZlcmAgfCBgQzAwNS92YWxpZGF0aW9uLm1kYCDCp0MwMDUtVDAz44CBwqfljp/kuYnliqHvvIjooYwxNDPigJMxNTTvvInvvJtgQzAwNS9wbGFuLm1kYCBUMDPvvIjooYwxMTbigJMxMjbjgIExNjDigJMxNjLvvInvvJtgQzAwNS9ldmlkZW5jZS90MDMvcHJlZmxpZ2h0Lmpzb25gIOeahCBhY3R1YWxfdHJpYWwg5LiD5a2X5q615Z2HIG51bGzjgIIgfAp8IOWOnyBuZXh0ZXN0IDAuOS4xNDUg6Zeo56aBIHwgYG5vdF9ydW5g77yM5Y6f5ZG95LukIGV4aXQgOTLvvJvljoblj7Llrp7pmYUgMC45LjE0MCBvdmVycmlkZSDljZXliJcgfCBgQzAwNS9ldmlkZW5jZS90MDEvcmVxdWlyZWQtdGFzay50eHRgIOihjDHigJMy77ybYEMwMDUvdmFsaWRhdGlvbi5tZGAg6KGMODPjgIExNDjjgIIgfAp8IOWcqOe6vyBmcmVzaCBhZHZpc29yeSB8IGBub3RfcnVuYO+8jOWbuuWumue8k+WtmOe7k+aenOacieeVjCB8IGBDMDA1L2V2aWRlbmNlL3QwMS9kZW55LWNhY2hlZC50eHRg44CBYEMwMDUvZXZpZGVuY2UvdDAyL2dhdGVzLXJldmlzZWQudHh0YO+8m2BDMDA1L3ZhbGlkYXRpb24ubWRgIOihjDkx44CBMTM544CBMTQ544CCIHwKfCDlhbbku5blubPlj7DkuI4gUnVzdCAxLjg1IOa1i+ivlSB8IGBub3RfcnVuYO+8mzEuODUg5LuF5pys5py6IG1hY09TIGFybTY0IOe8luivkSB8IGBDMDA1L2V2aWRlbmNlL20yL21zcnYtY2hlY2sudHh0YO+8m2BDMDA1L3ZhbGlkYXRpb24ubWRgIOihjDE0MeOAgTE1MOOAgTE2MOOAgiB8Cnwg5Zub5p2h5Y6fIHJ1bi9jYXNlIOeahCBMRUFLIHwgYHVua25vd25g77yM5Y6f5Zug5pyq5a6a5L2NIHwgYEMwMDUvZXZpZGVuY2UvdDAxL3J1bnRpbWUtY29uc3VtZXJzLnR4dGAg6KGMNeOAgTE377ybYHQwMS9nYXRlcy1yZXBhaXJlZC50eHRgIOihjDEz44CBMTjvvJtgdDAxL2Z1dHVyZS1yZWQudHh0YCDooYw144CBNjfvvIjooYwyNjnph43lpI3vvInvvJtgdDAzL3NraWxsLWNvbnN1bWVycy1yZXZpc2VkLnR4dGAg6KGMNOOAgTbjgILlhbfkvZMgcnVuIElEL2Nhc2Ug6KeBIGNoYW5nZSDCpzLjgIFyZXZpZXcgwqcz44CCIHwKfCDkuKTmrKHlhaggY2FjaGVkIHdoaXRlc3BhY2UgfCBgcmF3X2RpYWdub3N0aWNfZXhjZXB0aW9uYO+8jGZ1bGwgZXhpdCAyIOS4jiBhdXRob3JpbmcgZXhpdCAwIOWIhuWIlyB8IGBDMDA1L2V2aWRlbmNlL3QwNC93aGl0ZXNwYWNlLWNoZWNrLmpzb25g44CBYEMwMDUvZXZpZGVuY2UvdDAyL3doaXRlc3BhY2UtY2hlY2suanNvbmDvvJtgQzAwNS92YWxpZGF0aW9uLm1kYCDooYwxMDfjgIExMTnjgIExNTLjgIIgfAoK5pep5pyfIHZhbGlkYXRpb24gwqczIOWSjCByZXZpZXcg55qE6Zi25q61IGBub3RfcnVuYCDkuI7lkI7nu60gTTEvTTIg6ZmQ5a6a6K+B5o2u5YiG5YiX44CC5LiN5b6X5bCG6Zi25q616KGo5pS55YaZ77yM5oiW5oqK5L2c6ICF6IyD5Zu0IFBBU1Mg56ew5Li65YWoIGNhY2hlZCBQQVNT44CB5ZCO57ut5bmy5YeA6L+Q6KGM56ew5Li65penIExFQUsg5bey6Kej6YeK44CBMS44NSDnvJbor5Hnp7DkuLrmtYvor5XjgIFtYWNPUyDnu5Pmnpznp7DkuLrot6jlubPlj7DlrozmiJDjgILml6fnnJ/kurrphY3lr7njgIHnnJ/kurrlrr/kuLvph43lvIDlkozkurrnsbvlh4DmlLbnm4rkuYnliqHkuZ/mnKrlm6DmnKzmrKHoh6rliqggYWdlbnQg5paH5qGj5a6h6ZiF5a6M5oiQ44CCCgrlvZPliY3lvIDlj5HmoLzlvI/kuLogYDAuMy4wLXJjLjFg44CBU3RvcmUgc2NoZW1hIGA0YOOAgWBjbGktcmVzdWx0L3Y0YO+8jOS/neaMgSBgd29yay1yZXN1bHQvdjFg44CBYHdvcmtib29rLWRpZ2VzdC92MmDvvJvlt7Llj5HluIMgYHYwLjIuMGAg5Y+m5oyJIHJlbGVhc2Ug5Y6f5Lu25qC45a+544CC5rKh5pyJIHB1c2jjgIFtZXJnZeOAgXJlbGVhc2XjgIHpg6jnvbLmiJblrr/kuLvlronoo4XmjojmnYPjgIIKCiMjIDMuIOS4i+S4gOa2iOi0ueiAheeahOmmluWKqOS9nOS4juS9v+eUqOaWueazlQoK5LiL5LiA5Y2P6LCD6ICF546w5Zyo5YWI5Y+q6K+75Lul5LiL5Y6f5Lu244CC6L+Z5bCx5piv5byA5bel5YyF55qE56ys5LiA6aG55ZCI5rOV5YeG5aSH5Yqo5L2c77yM5LiN5ZCv5Yqo5pawIFdvcmvvvIzkuI3osIPnlKggcmVwbGFjZe+8jOS4jeaPkOWJjSBhY3RpdmF0ZSDmiJblhpkgQzAwNeOAggoKYGBgYmFzaApzZWQgLW4gJzE0MywxNjBwJyAvVXNlcnMvc2h1c2h1L29yY2Evd29ya3NwYWNlcy9zaGVsdGllL2NvZGV4L3NwZWNzL2NoYW5nZXMvY29tcGxldGVkL0MwMDUtZXhlY3V0b3ItY29udGludWl0eS92YWxpZGF0aW9uLm1kCmNhdCAvVXNlcnMvc2h1c2h1L29yY2Evd29ya3NwYWNlcy9zaGVsdGllL2NvZGV4L3NwZWNzL2NoYW5nZXMvY29tcGxldGVkL0MwMDUtZXhlY3V0b3ItY29udGludWl0eS9ldmlkZW5jZS90MDMvcHJlZmxpZ2h0Lmpzb24KYGBgCgror7vlj5blkI7nlLHkuIvkuIDljY/osIPogIXmlbTnkIboh6rlt7HnmoTmnKzova7lh4blpIfliKTmlq3vvJrlrp7pmYXog73mj5Dkvpvlk6rkupvnnJ/lrp4gV29ya+OAgeaXpyBBdHRlbXB044CB5pKk6ZSA5LqL5Lu244CB5pen5paw5omn6KGM6ICF44CB5a6/5Li75aSE572u44CB5Y6f55uu5qCHL+mqjOaUtuWPiuaIkOacrOivgeaNru+8m+W9k+WJjemcgOimgeaYr+WQpuWPquaYr+aZrumAmuS4iuS4i+aWh+aBouWkjeOAguiDvemAkOmhueaMh+WQkeWOn+S7tuaJjeensOW3suWPluW+l++8m+e8uumhueS/neaMgSBudWxsL25vdF9ydW7jgILku4XmnInmvJTnpLrjgIHlpLnlhbfmiJYgQzAwNCDlkIwgQXR0ZW1wdCDlhrfmjqXnu63ml7bvvIzkuI3og73orqTlrprnnJ/lrp7mkqTplIDpnIDmsYLmiJDnq4vjgIIKCumaj+WQjuaMiSBjaGFuZ2UgwqczIOeahOadpea6kOe0ouW8leivuyBhZG9wdGlvbuOAgVJFQURNReOAgXBsYW7jgIFydW5ib29r44CB546w6KGMIHByb3RvY29sL3N0b3JhZ2XvvIzlho3mjIkgwqc0IFAx4oCTUDgg5YeG5aSH44CC5b2T5YmNIEMwMDQg5bCaIGFjdGl2Ze+8jOWQiOazleWHhuWkh+atouS6juWPquivu+WIpOaWreOAgkMwMDQg5pyA57uI5b2S5qGj5Lul5ZCO77yM55Sx5LiL5LiA5Lu75Yqh5Zu65a6aIEMwMDUg5pys6L2u6YeH55So6IyD5Zu044CB6LSj5Lu75Lq644CB54us56uLIFJldmlld2Vy44CB55yf5a6e6L6T5YWl5LiO6aqM6K+B6Zet5YyF77yM5YaN5oyJ5ZSv5LiAIGFjdGl2ZSDnmoTop4TliJnmgaLlpI3vvJvmnKzor7TmmI7kuI3ku6Pmm7/ph4fnlKjmiJbmv4DmtLvmk43kvZzjgIIKCuaZrumAmiByZXN1bWUg5L2/55So5ZCM5LiAIHJ1bm5pbmcgQXR0ZW1wdOOAgmBhdHRlbXB0IHJlcGxhY2VgIOeUqOS6juehrumcgOaSpOmUgOaXp+ato+W8j+aPkOS6pOi1hOagvO+8jOWOn+WtkOW9ouaIkOaXpyBzdXBlcnNlZGVkIOS4juWQjCBPY2N1cnJlbmNlIOaWsCBydW5uaW5n77yM5q+PIE9jY3VycmVuY2Ug5pyA5aSa5LiA5qyh77ybbnVtYmVyIOaYr+mhuuW6j+WPt++8jHN1cGVyc2VkZWQg5LiN5raI6ICX5Lia5Yqh5aSx6LSl6aKd5bqm44CC5byV5pOO5LiN5YGc5q2i5pen6L+b56iL44CB5LiN6K6k6K+B5o6l5omL6ICF44CB5LiN6ZqU56a75a6/5Li744CC5paw5omn6KGM6ICF5byA5aeL5YmN6aG755Sx5pON5L2c6ICF56Gu6K6k5pen5omn6KGM6ICF5YGc5q2i77yM5oiW5pyJ6ZqU56a755qE5paw5a6/5Li75bel5L2c5Yy677yb5YGc5q2iL+malOemu+ivgeaNruS4jei2s+aXtuS4jea0vuaWsOaJp+ihjOiAheOAggoK5pyq5p2l55yf5a6e5pON5L2c5b+F6aG75L2/55SoIGNoYW5nZSDCpzQuMSDnmoTlrp7pmYXlj5jph4/mqKHmnb/vvJrlm7rlrprnu53lr7kgSG9tZeOAgeWujOaVtCBXb3JrSWTjgIHlgJnpgIkgYmluYXJ5L2hhc2jjgIHlvZPliY0gQXR0ZW1wdOOAgeWUr+S4gOWGmeivt+axgiBVVUlE44CB5Y6f6LSo6YeP5qCH5YeG77yb5YWIIHN0YXR1cyDlubbmoLggbmV4dO+8jOWGjeWGs+WumuaZrumAmiByZXN1bWUg5oiW5pyJ55CG55Sx55qEIHJlcGxhY2XjgILlj5HnlJ8gRUZGRUNUX1BFTkRJTkcg5pe25oyJIGNvbW1pdHRlZC9wZW5kaW5nX3JlcXVlc3RfaWQg5aSE55CG77yM5bm25Lul5ZCM5LiAIHJlcXVlc3QtaWTjgIHlkIzkuIDlj4LmlbDmgaLlpI3ljp/lt7Lmj5DkuqTor7fmsYLjgILnu6fnu63liY3lho3mn6Ugc3RhdHVz77yM5LiN6IO955So5Y6G5Y+y5ZON5bqUIG5leHQg54yc5b2T5YmN5p2D6ZmQ44CC5Y6f6L6T5YWl44CB6K+05piO44CB5qCH5YeG44CBZ2F0ZSDmiJYgcmVxdWlyZXMg5Lii5aSxL+a8guenu+aXtuWBnOatou+8jOWFiOS6pOS9nOiAheWSjOeLrOeriyBSZXZpZXdlciDliKTmlq3jgIIKCuacquadpeacuuWItuajgOafpeWFpeWPo+S9jeS6jiBgQzAwNS92ZXJpZmljYXRpb24vY29tbWFuZHMuc2hgIOeahCBwcmltaXRpdmVz44CBZmVhdHVyZeOAgXJlZ3Jlc3Npb27jgIFnYXRlc++8m+ayu+eQhuWPiuW5s+WPsC/lt6Xlhbfmo4Dmn6XmjInmgaLlpI3lkI7nmoTmnKzova4gcGxhbiDlm7rlrprojIPlm7TjgILku6XkuIrlnYfmmK/lkI7nu63lhaXlj6PvvIzmnKwgZGVsaXZlcnkg5rKh5pyJ5omn6KGMIEMwMDUg6K+V55So44CBUnVzdCDmtYvor5XjgIFuZXh0ZXN044CBY2FyZ28gZGVueSDmiJblhajku5PlupPpl6jnpoHvvIzkuZ/kuI3ku6Xml6DlhbPpl6jnpoHmm7/ku6PmnKzlpJbpg6jkuqTku5jmlofmoaPnmoTlhoXlrrnmoLjlr7njgIIKCiMjIDQuIOWuoeafpee7k+iuuuS4juaOpeWPl+WJjeaguOWvuQoK57uR5a6aIHJldmlldyDnrKzkuIDooYzljp/mlofkuLrjgIzpgJrov4fjgI3jgILlhbbnu5Porrrlj6ropobnm5blhrvnu5MgdGFzayDnmoQgQzAwNSDmlofmoaPlvIDlt6XljIXvvJvmsqHmnInlv4Xpobvkv67mlLnpobnmiJbpmLvmlq3pobnvvIzkuI3opoHmsYLkurrkuLrliLbpgKDov5Tlt6XjgIJSZXZpZXdlciBgL3Jvb3QvYzAwNF9jb250ZW50X3Jldmlld2Ag5pyq5Y+C5LiOIGNoYW5nZSDnvJblhpnvvIzmoLjlr7nljp/ku7bjgIHlkb3ku6Tlj4rlha3pobnnvLrpobnjgILov5nmmK/oh6rliqggYWdlbnQg54us56uL5YaF5a655a6h6ZiF77yM5LiN5piv5Y6f55yf5Lq655uy5a6h44CB55yf5Lq65o6l5Y+X44CB5a6/5Li76K6k6K+B5oiWIEMwMDUg55yf5a6e5pKk6ZSA6aqM5pS244CCCgrmjqXlj5fliY3nlLHljY/osIPogIUv5L2/55So6ICF5qC45a+577yaCgoxLiDmnKzmrKHkuInku73miJDmnpzmnaXoh6rmnKzmrKHlhbfkvZPnu4jngrkgQXR0ZW1wdO+8jOe7keWumui3r+W+hOOAgeWtl+iKguOAgeWkp+Wwj+WSjCBTSEEg5LiOIHJlc3VsdCDlvJXnlKjkuIDoh7TvvJvpnZ7mnIDnu4jml7YgYXJ0aWZhY3RzIOW6lOS4uuepuuOAguWNj+iwg+iAhei0n+i0o+aPkOS6pOW5tuajgOafpSBvcmFjbGXvvIzmnKzmiafooYzogIXkuI3mj5DliY3mlq3oqIDor6Xmo4Dmn6Xlt7LpgJrov4fjgIIKMi4g5b2T5YmNIGNvbnN1bWVyIOeahOmmluWKqOS9nOS7jeS4uiDCpzMg55qE5Y+q6K+75Y6f5Lu25qOA5p+l77yb6K6w5b2V5raI6LS56ICF5a6e6ZmF5aaC5L2V5a6a5L2N5YWl5Y+j44CB5YeG5aSH5Yik5pat5Y+K5LuN57y66L6T5YWl44CC5a6e6ZmF5L2/55So5bCa5pyq5Zyo5pysIGRlbGl2ZXJ5IOS4reinguWvn++8jOS4jeiDveeUseWbviBkb25lIOaIluaKpeWRiuiHquensOaOqOaWreS7t+WAvOOAggozLiDlkI7nu63mgaLlpI0gQzAwNSDliY3moLjmnIDmlrDllK/kuIAgYWN0aXZl44CB5b2T5YmN5YCZ6YCJ5ZKMIGRpcnR5IOWGheWuue+8m+acrOasoSBmcm96ZW4g5p2l5rqQ6Iul5ryC56e75oiW6ZyA6KaB5paw5p2l5rqQ77yM5YGc5q2i5bm25YWI54us56uL6YeN5a6hL+mHjeaWsCBmcmVlemXvvIzkuI3og73nu5PmnpzlkI7mjaLmnZDmlpnjgIIKNC4g55yf5a6e5pKk6ZSA5a+56LGh44CB5YGc5q2iL+malOemu+WSjOWOn+ebruaghy/moIflh4bmnInkuovlrp7mlK/mkpHvvJvotKjph4/jgIHmjqXlj5fjgIHlrozmlbTmipXlhaXlkITmnInni6znq4vljp/ku7bjgILnvLrlrp7pmYXlr7nosaHml7bkuI3liLbpgKDkuovmlYXmiJbmm7/mjaLmoLfmnKzjgIIKNS4gYHVzYWdlPW51bGxg44CBYHBhaWRfY29zdD1udWxsYOOAgWBodW1hbl9hY3Rpdml0eT1udWxsYOOAgWB1c2VyX2FjY2VwdGFuY2U9bnVsbGDjgILlopnpkp/kuI3mipjnrpfkurrlt6XmtLvliqjmiJbotLnnlKjvvIzkuI3lsIbnrYnlvoXmjpLpmaTlkI7np7DmgLvmiJDmnKzvvIzkuZ/kuI3lsIbmnKrnn6Xku5jotLnlhpnkuLogMOOAggoK5pys5Lqk5LuY6ICF55qE5a6e6ZmF5qOA5p+l5Li677ya6K+75Y+W5Ya757uTIHRhc2vjgIFwcm9qZWN044CBY2hhbmdl44CBcmV2aWV344CB5Ya757uTIEZsb3fjgIHop4TnqIvlj4ogQzAwNSDmnIDnu4jkuYnliqHljp/ku7bvvJvnlKggUHl0aG9uIGhhc2hsaWIuc2hhMjU2IOWvuSDCpzEg6L6T5YWl5ZKMIGZyZWV6ZSDlm5vnu4TmnaXmupDpgJDpobnph43nrpfvvIzml6DmvILnp7vvvJvmoLjlhrvnu5MgYmluYXJ5IOaRmOimgeebuOespuOAguWvueW6lCBzdGRvdXQvc3RkZXJyL2V4aXQg6KeB5pys5omn6KGM6ICF5ZCM5q2l5bel5YW36LCD55So5Y6f6K6w5b2V77yM5ZG95LukIGV4aXQgMO+8m+acquaNruatpOiupOivgeWklumDqOS7k+W6k+i/h+eoi+aIluWFqOWuv+S4u+eKtuaAgeOAggoK5pys5omn6KGM6ICF5Y+q5YaZ5pys5Lu75Yqh5Lmm5aOw5piO55qEIGBvdXRwdXRzL2RlbGl2ZXJ5Lm1kYO+8jOacquaUuSBicmllZuOAgee7keWumi/lsIHlrZjovpPlhaXjgIHku5PlupPjgIFDMDA1IOaIlueuoeeQhuWFg+aVsOaNru+8jOacquiwg+eUqCBiZWdpbi9zdWJtaXQvZmFpbC9yZXBsYWNlIOaIluWFtuS7lueKtuaAgeWGmeWRveS7pOOAguaJgOacieiHquW3seWQr+WKqOeahOWRveS7pOWdh+WQjOatpee7k+adn++8jOacquWIm+W7uuWQjuWPsOaIlumVv+mpu+i/m+eoi++8m+atpOWBnOatouivtOaYjuWPquimhuebluacrOaJp+ihjOiAheiHquW3seWQr+WKqOeahOWRveS7pO+8jOS4jeaYr+WFqOWuv+S4u+i/m+eoi+agkeWFs+mXree7k+iuuuOAguWujOaIkOWbnuWkjeWQjuWBnOatouWGmeWFpe+8jOeUsSBSb290IOaMieW9k+WJjSBuZXh0IOaPkOS6pOOAggo=",
+  "stderr_base64": "",
+  "stdout_sha256": "7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sqlite_carrier_exception": "Database/WAL/SHM/lock bytes excluded; all5table rows/business originals included"
+}

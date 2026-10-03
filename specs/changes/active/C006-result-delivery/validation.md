@@ -194,3 +194,15 @@ helper经code-simplifier只格式整理AST同值，Root在执行前把cleanup8s�
 跨设备计划用本机APFS ASIF自有镜像，不冒称外置物理盘。先读本机create/attach/eject help，sandbox DiskManagement不可读原输出与native只读help分列；准备独审正在进行，尚未create/attach/export或派实际消费者。必须实际source/target st_dev不同、明确owneddevice且完成完整复制/原件保全/只eject本载体，才记录该范围通过。无安装/发布、无空task.sh。
 
 事前Reviewer /root/c006_preflight_review未写准备/工具/产物，最终PASS；原needs_changes/修后实际最终消息及全部工具source_line保留t07-preflight-reviews.json和records。唯一guide旧dist表述已修为同配置C002实际六资产计划、exporter排除、无新dist/构建发布，freeze同步；D043断链初docs失败与修后分别留原。完整5表/当前业务树覆盖经Reviewer现场核，无symlink，控制载体例外明确。故障控制环境实际null每次核同值。实际copy/image/consumer仍not_run，先T07提交才执行。
+
+## C006-T08 当前实际副本与跨APFS
+
+T07提交f74881a及freeze blob已实际核；prepare实际从C005完成18:45:12连续计，在30min内。run从19:01:43.597055Z连续到19:46:43.597055Z限，包括所有接收/消费者/设备/纠错/审阅/收尾。原CLI metadata+三raw与tool首次export均实际0，全部三字节/size/SHA/manifest/0700/0600/单link匹配同一真实C004结果。原CLI/script0.315966s、tool含内部取数/验证/发布0.116367s均包括observer快照，只有单pair观察，不当人类收益；外层4 vs1不混内部engine metadata1+raw3，后者仅源码推导不冒称进程数实测。
+
+新fork-none /root/c006_actual_consumer实际核两组同质量并读/编辑第一tool三文件，完整原prefix+精确注释行保留、原manifest/manual/source不改，实际只读C007准入材料给准备判断；原九项正式准入仍null，本次不顶替C007六run。9/9工具/响应与完成turn原件在consumer-actual-records-manifest/records，未知人类/model历史/usage/费用null。Root起初错误要求整个suffix等于裸annotation，实际只增加Markdown标题/空行/精确行；原AssertionError保留且未发下一export，独审按冻结内容条件确认观察oracle纠正合法，未改产物/样本或造返工。第二export实际新target仍全部原bytes，旧编辑/manifest全不变。
+
+消费者另读两份C005来源不在原46直接SHA，已独立确认qualification是事前T07 blob、preflight在其完整113SHA表且与a394009 blob同值；consumer-transitive-source-check明示传递来源，不结果后追改原46名单。源192/134不变，真实用途代理接受仅自动agent资料准备，不授原真人/净收益。
+
+实际diskutil ASIF/APFS create/attach/info/cross-export/eject全部exit0，源st_dev16777234、target16777243，真实独立挂载虚拟volume disk7s1由ownedimage返回，不是外置物理盘或别的OS。跨设备all3/manifest/权限与原五表对象核相同，证据bytes转存未挂载root后只eject本ownedmount，无force；后mountpoint不存在/非mount，device路径不存在，原9MiB镜像保留。原plist/argv/raw/identity及cross-device-verification留原，complete只规定OSsync不当断电保证。
+
+所有7外层engine/export查询逐次5表/47业务对象before=after，exit0/无timeout/源original不变；SQLite控制载体例外明确。16份实际manual/tool-edited/tool-new/cross-persisted文件归档actual-copies.tar.gz逐SHA读回，.md原文不因typos改字节。没有新Rust或人为kill/竞争，旧crash/边界/来源能力用同当前输入的真实native951/MSRV951精确引用，旧4LEAK未知/原缓存版本/其他OS/真人限制不注销。独立完整当前scope审PASS，无剩余产品/oracle必修；实际actor停写/来源链/DL01–10/工程原件与当前Home最终快照已核。五治理均0；提交、归档和最终总墙钟仍待，不预授完成。
