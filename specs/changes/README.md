@@ -1,28 +1,28 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[C007 方法与完整任务实验准备](active/C007-pre-run-workbook-generation/README.md)
+Active change：[C008 真实条件前检与补验交接](active/C008-dependency-readiness/README.md)
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
 ## Proposed
 
-| Change | 目标 | 状态 | 入口 |
-| --- | --- | --- | --- |
-| C008 | 真实必需资源造成摩擦后的单宿主只读预检 | proposed，条件未满足不采用 | [README](proposed/C008-dependency-readiness/README.md) |
+无未采用候选。
 
 优先采用 C007 的共同试用，完整观察用户结果、质量和总成本；根据证据选择 C004 的最小增量。明确的同等近期需求也可直接支持采用，不要求先发生事故。C005/C006 依赖实际通用合同但不相互依赖；C008 只由真实宿主资源问题触发。本次用户已明确授权 C004–C008 按顺序实施；一次只执行一个 active package，实际证据与 `not_run` 分开记录。任务以完整行为和实际风险划分，流程见[共同指南](../guides/proposal-implementation.md)。
+
 
 ## Active
 
 | Change | 目标 | 入口 |
 | --- | --- | --- |
-| C007 | 方法/协议技术准备、真实准入缺项与补验交接；原六次实验未执行 | [README](active/C007-pre-run-workbook-generation/README.md)、[plan](active/C007-pre-run-workbook-generation/plan.md) |
+| C008 | 真实条件盘点/规则边界/授权延期交接，probe未采用 | [README](active/C008-dependency-readiness/README.md)、[plan](active/C008-dependency-readiness/plan.md) |
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C007 | 技术资产/同源方法与缺项交接通过；原正式准入、六trial与真实价值not_run | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 完整成果副本/raw与独立限定验收；真实价值/环境与未知LEAK保留 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 原子替换/失败前缀/输入及恢复限定验收通过；真实使用及环境缺项延期 | [README](completed/C005-executor-continuity/README.md) |
 | C004 | 明确成果与可靠接续实现闭包通过；实际试用和环境缺项按授权延期 | [README](completed/C004-verifiable-delegation/README.md) |

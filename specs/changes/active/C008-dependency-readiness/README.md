@@ -1,11 +1,11 @@
 # C008：按真实需要验证单宿主只读预检
 
-状态：`proposed`
+状态：`active`
 目标版本：`不进入产品 release`（是否保留外部工具由真实证据决定）
 兼容性：不改 Workbook、Flow、Store 或公开操作；不建设兼容层
-基线：`5256aa5e86614bd09eb9553076a04d2522ff38a4`
-Owner：`待采用时指定`
-权威性：条件实验；任务均为 `todo`，探针、真实观测与独立里程碑均为 `not_run`
+基线：`75b81ebed655693844ae417bb7d501a1b12a4387`
+Owner：`Codex /root；任务作者与独立Reviewer`
+权威性：本轮仅前提核对与授权延期交接；探针机制not_adopted，原观察/价值not_run
 
 ## 产品目标
 
@@ -45,3 +45,7 @@ Owner：`待采用时指定`
 3. [plan.md](plan.md)：三个任务与准备/实际结果两个独立复杂模型里程碑。
 4. [validation.md](validation.md)：机制 oracle、真实收益与 not_run 边界。
 5. [tasks.toml](tasks.toml)：采用后文件范围；[progress.md](progress.md) 保存交接；[review.md](review.md) 保存独立结论。
+
+## 本轮采用边界
+
+只执行[adoption](adoption.md)的声明盘点、条件/预算缺项、原规则与补验、延期记录及独立保真审查。没有真实目标/host/version/规则/重复摩擦/预算就不制作probe、配置、fixtures或tests。原机制采用决定仍not_adopted；本轮任务done不表示探针或真实收益通过。

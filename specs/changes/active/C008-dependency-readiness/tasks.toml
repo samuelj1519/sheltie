@@ -1,3 +1,8 @@
+[C008-T00]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C007-pre-run-workbook-generation", "specs/changes/completed/C007-pre-run-workbook-generation", "specs/changes/proposed/C008-dependency-readiness", "specs/changes/active/C008-dependency-readiness", "specs/changes/completed/C004-verifiable-delegation", "specs/changes/completed/C005-executor-continuity", "specs/changes/completed/C006-result-delivery"]
+test_files = []
+allow_test_changes = false
+
 # 人采用并移入 active/ 后生效；proposed 不执行任务。
 # T01 复杂模型完整准备和测试；T02 冻结边界由确切 files 路径控制。
 # T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。

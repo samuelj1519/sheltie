@@ -2,7 +2,7 @@
 
 Candidate: `none`
 
-状态：`proposed`；采用决定尚无真实对象，探针与独立里程碑均为 `not_run`。
+状态：`active`；采用决定尚无真实对象，探针与独立里程碑均为 `not_run`。
 
 ## 1. 开工条件与冻结
 
@@ -64,3 +64,5 @@ T01 复杂模型完整制作 probe、手写 fixtures/tests、runbook 并完成�
 | C008-M2 真实价值 review | not_run | 待固定分析与真实原件闭包 | 未执行 | not_run | 无 |
 
 保存实际命令、raw run ID、stdout/stderr/退出码、配置/脚本/fixture 标识及宿主环境。未知、中断、未采用或无样本不能改写成 PASS；复用必须保留同输入闭包和原 run ID。静态文档检查不进入上表机制或价值结果。
+
+本轮采用前提盘点/授权延期交接，原probe未采用与全部机制/真实义务not_run。C007十二份preparation/evidence原文保真；不修改原正式数据门槛。

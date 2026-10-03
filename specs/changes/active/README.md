@@ -1,3 +1,3 @@
 # Active changes
 
-当前active：[C007 方法与完整任务实验准备](C007-pre-run-workbook-generation/README.md)。进度只看[plan](C007-pre-run-workbook-generation/plan.md)，本轮范围与延期见[adoption](C007-pre-run-workbook-generation/adoption.md)。
+当前active：[C008 条件前检与补验交接](C008-dependency-readiness/README.md)。进度见[plan](C008-dependency-readiness/plan.md)，本轮scope见[adoption](C008-dependency-readiness/adoption.md)；probe未采用，原机制/真实价值not_run。

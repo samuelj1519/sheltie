@@ -1,9 +1,9 @@
 # C007 独立审查
 
-采用前历史审查的候选与闭包保留原值；当前执行范围见adoption/plan。本轮active，仅准备资产和真实准入缺项交接。
+采用前历史审查的候选与闭包保留原值；当前执行范围见adoption/plan。本轮completed（仅技术准备，原正式实验not_run），仅准备资产和真实准入缺项交接。
 
 方案审查：`通过`（首次读者实施规划、产品边界与工具静态接线）。
-此段为采用前历史方案审查；本轮package为`active`；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
+此段为采用前历史方案审查；本轮package为`completed`（限定技术准备）；架构准备、产品代码、测试资产、真实试用、平台和实施里程碑均为 `not_run`。
 
 ## 采用前历史完整计划
 
@@ -38,6 +38,8 @@ Candidate: `53ceed8d060b5f7ebca12a716e55c689f895dfd4`。结论：`PASS`，仅技
 
 ## C007-M2 本轮最终限定审阅
 
-Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`。结论：`PASS`，仅技术资产/未执行规划槽位/边界报告与补验交接。独立Reviewer未参与准备/分析，核方法及13原件未变，六位无虚构ID/actor/history，P/S/M/R与整体E、真实质量/接受/重开/自然返工/usage/cost unknown/null，不推收益或无价值。
+Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`。
+
+结论：`PASS`，仅技术资产/未执行规划槽位/边界报告与补验交接。独立Reviewer未参与准备/分析，核方法及13原件未变，六位无虚构ID/actor/history，P/S/M/R与整体E、真实质量/接受/重开/自然返工/usage/cost unknown/null，不推收益或无价值。
 
 原正式M1准入、六trial和M2真实结果全部not_run。当前task done表示本轮可执行资产和授权延期交接完成，原正式实验未完成；将来补真实数据按原标准另行准入与补验，不把本轮PASS借给真实价值。
