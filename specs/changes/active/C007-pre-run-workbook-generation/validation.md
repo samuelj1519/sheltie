@@ -1,6 +1,6 @@
 # C007 验证：质量与完整成本
 
-Candidate: `none`
+Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`
 
 状态：`active`；真实任务、盲审与独立里程碑均为 `not_run`。文档静态检查不进入实验结果。
 
@@ -67,7 +67,7 @@ T_experiment = P
 
 ## 4. 执行记录
 
-| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| 原正式义务 | 原计划模式 | 待补输入 | 原计划命令 | 原状态 | 原计划证据 |
 | --- | --- | --- | --- | --- | --- |
 | 方法与协议准备 | not_run | 待 T01 固定 | 未执行 | not_run | 无 |
 | 三项任务六次配对 | not_run | 待真实样本与顺序 | 未执行 | not_run | 无 |
@@ -110,3 +110,33 @@ C007-M1本轮限定PASS，candidate53ceed8d完整SHA；原正式准入与六run�
 ## C007-T03 证据边界分析
 
 开工ed85bfaa167533ae898fa1e40aefc18c2d572227。[report](experiments/report.md)只描述11核心资产、13条技术CLI与六planning slots的实际范围。没有正式质量/人工P/S/M/R/E/累计/usage/费用/真实历史/重开/返工/接受原件，全部unknown/not_run，不估算差值或0收益，不认定产品无价值，也不提出无证据平台增量。保留原输入/标准/原件，逐项写正式补验门槛；方法生成与CLI成功不代实际使用。
+
+## 本轮技术准备与延期交接验收
+
+本表只核T00采用的可执行范围；原正式六run及准入/价值义务全部not_run。方法/协议/模板自T01未变，原13CLI与资产独审按同消费者输入引用，不称same whole package hash。没有产品源代码或宿主变化，不重跑未受影响842引擎测试。
+
+| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| 私有有界方法、五个结果与Native相同完整文字 | executed | T01完整SHA，11核心asset闭包25fef64b…、template同commit冻结 | 独立方法/CLI审查、真实add/show/verify | PASS | [method](experiments/shared-method.md)、[闭包](experiments/preparation/asset-closure.json) |
+| 现有CLI、合法/单条件拒绝及副作用范围 | executed | normalized真实Workbook、default/locked binary SHA及专用Home | cli-check-command.py，13外层caller；额外self version | PASS | [原件](experiments/preparation/cli-mechanism.json)、[binary](experiments/preparation/binary.json) |
+| 完整first-use、成本/质量模板及真实准入缺项 | executed | T01模板/protocol/oracle，M1完整53ceed8d冻结且未变 | 独立T01/M1技术资产审阅 | PASS | [操作](experiments/first-use.md)、[protocol](experiments/protocol.md)、[oracle](experiments/oracle/quality.md) |
+| 六个planning slot未执行记录，禁止虚构正式ID与结果 | executed | T02新增table，原样本/actor/真实事实缺失不补造 | 记录/字段/原条件复核 | PASS | [六位表](experiments/runs/README.md) |
+| 不估算未知成本/质量/真实使用或各增量收益 | executed | T03只分析准备原件与缺项，标准/原件/历史未改 | 独立M2限定分析复核 | PASS | [report](experiments/report.md) |
+| 当前文档/规格/范围与保真交接 | executed | 本轮author records与未改源码/原产品格式 | docs/spec/tests/diff/task scope | PASS | [plan](plan.md)、[review](review.md)、[archive保真](evidence/archive-c006-raw-preservation.json) |
+
+## 原正式实验延期
+
+| 原义务 | 结果 | 缺项与补验 |
+| --- | --- | --- |
+| 三真任务、两独立副本、六正式run | not_run | 提供未解决目标/验收/初始状态及真正配对输入，重新冻结正式协议 |
+| 连续actor每组三次、真实历史/首次读者 | not_run | 实际人/模型host/助手/练习失败历史，不能据slot推使用次数 |
+| 真实关闭重开、自然返工 | not_run | 实际会话关闭/新会话及自然发现原件，机制查询不代替 |
+| 用户接受/独立最终质量盲审 | not_run | 真候选/完整patch/检查/标准/主体，不能由Work终态或报告推断 |
+| P/S/M/R/E、usage/cost/改善阈值及真实价值 | not_run | 正式预算/阈值/实际活动原件缺失；未知null，不当0或无价值 |
+| 原M1正式试用准入、M2真实结果验收 | not_run | 补齐全部真实输入、独立批准原准入并执行/分析后核原M2 |
+
+本轮task done/限定review PASS仅表示技术资产与授权延期交接完成，原实验没有完成。后续补真实数据按原要求追加，不清洗本轮缺项。
+
+## C007-M2 本轮限定结论
+
+独立审定candidate `45bf9feaf56a38a15e551a4a884b8e8cb833375f`，技术准备/真实缺项/授权跳过交接PASS，无必改。53ceed8d到candidate的方法/模板/protocol/oracle/13原件完全无diff；六slot及分析没有造ID/使用次数/质量/成本，没有省时或无价值推断。仅收口E措辞为实验整体开销，未知值未变。原formalM1/six trial/formalM2真实结果不改not_run，不授权新机制或发布。

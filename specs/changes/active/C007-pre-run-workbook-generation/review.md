@@ -35,3 +35,9 @@
 ## C007-M1 本轮限定审阅
 
 Candidate: `53ceed8d060b5f7ebca12a716e55c689f895dfd4`。结论：`PASS`，仅技术资产/准入缺项/补验步骤。独立Reviewer复用T01方法/Native同源/protocol/oracle/templates、13实际CLI与11core闭包核查，短核完整commit及记录收口、资产无后续diff。原正式M1 trial admission仍not_run，不批准六正式run或虚构ID/actor/质量/成本。T02仅登记六未执行规划位，T03不能估算真实价值。
+
+## C007-M2 本轮最终限定审阅
+
+Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`。结论：`PASS`，仅技术资产/未执行规划槽位/边界报告与补验交接。独立Reviewer未参与准备/分析，核方法及13原件未变，六位无虚构ID/actor/history，P/S/M/R与整体E、真实质量/接受/重开/自然返工/usage/cost unknown/null，不推收益或无价值。
+
+原正式M1准入、六trial和M2真实结果全部not_run。当前task done表示本轮可执行资产和授权延期交接完成，原正式实验未完成；将来补真实数据按原标准另行准入与补验，不把本轮PASS借给真实价值。
