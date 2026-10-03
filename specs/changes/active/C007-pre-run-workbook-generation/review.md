@@ -25,3 +25,9 @@
 每任务短语义复核保留；阶段对同闭包已经核准的工作引用原候选与 run，不重复全套门禁。M1 是准备就绪，不是公开功能、用户价值或 M2 PASS。Reviewer 不编写被审修复，问题交复杂作者补接口/测试并重固定基准。
 
 文档、规格、测试声明/归属、五份任务 TOML/plan 对齐与 diff 静态检查通过；没有执行未来 Rust 用例或真实实验。实际命令与原文见 [validation](validation.md)，任务状态只见 [plan](plan.md)。全部实际采用义务完成后才能 completed；发布、推送、合并和外部安装不随方案通过发生。
+
+## C007-T01 技术资产短审
+
+独立Reviewer与只读method/CLI子审结论：`PASS`，仅资产/缺项；原正式M1试用准入not_run。已核同源Native完整方法、3/3/1/retries1/gatefalse/noRequires、五终点及完整patch前提；13规范后实际caller为12成功+1预期WORKBOOK_INVALID/1，原13/closure保留。独立复算11核心asset闭包25fef64b…一致；模板及其他记录由完整T01SHA冻结。protocol/sample/oracle/record字段与真实准入pending/null、全部成本计数及六run不造ID一致，无必改。
+
+子Reviewer只读复核曾因旧临时bad-home SQLite URI错误新建自有0B空文件，已仅删除该空文件，改mode=ro复核真实Store；未改产品Store/候选。不当产品异常或正式实验数据。

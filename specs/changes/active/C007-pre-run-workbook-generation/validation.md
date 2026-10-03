@@ -86,3 +86,17 @@ T_experiment = P
 ## C007-T00 采用事实
 
 基线6614e42；C006全部101raw字节保真，实验依赖数据缺失且保留not_run。本轮只准备资产、技术CLI和补验；无Rust/Cargo/fixture或既有产品合同修改。正式预算/角色/标准未填不开始正式runs。
+
+## C007-T01 技术资产与正式准入缺项
+
+基准 `33352619a919b7f6142debb14a9822a4464fe336`。确认私有code-task-study@1.0.0：implement/review/deliver、3/3/1visits、retries1、gatefalse、无requires、256KiB报告/8MiB完整patch、终点3input+2output精确5key。Native与Workbook直接读同三instruction及完整策略，不另做简化基线。
+
+[实际CLI原件](experiments/preparation/cli-mechanism.json)共13条外层调用，合法add/show/verify均0、起始键task/project；只追加unknown字段的临时invalid manifest实际WORKBOOK_INVALID/1，无最终Workbook目录，confirmed-source与根外哨兵字节不变。临时fixture三阶段begin/submit/status/result完整，resume保持原任务书，5结果有真实原件；没有求解真实任务、重开、自然返工或内容质量证据。
+
+[实际binary](experiments/preparation/binary.json)从Cargo JSON取路径，源码0.3.0-rc.1、default/locked、SHA与环境有原件；[准备资产闭包](experiments/preparation/asset-closure.json)固定路径/尺寸/每文件SHA/帧算法。技术fixture不分配正式run ID/actual actor/exposure；人工分钟/usage/cost null。无重复正式记录摩擦，不创建collector/脚本测试或第二parser，task_files为空且不跑零Rust测试task.sh。
+
+protocol/quality/templates记录实际任务、连续使用者/history、模型/host、真正会话、预算/阈值、质量/接受与顺序均pending。正式六run未开始；本轮M1只能独审资产与缺项，不批准原正式准入。后续供真实数据再冻结补验，保留原门槛。
+
+独立补核first-use实际字段：status.data含resume/revision/effects_pending/pending_publish，resume含attempt/brief_path/draft_outputs/inputs；额外self version退出0，schema_version4/version0.3.0-rc.1，原件preparation/self-version.json。前13条原件不修改，不把单次机制续接查询算真实关闭重开。
+
+T01作者文件的8处多余EOF空行在cached diff检查被发现，仅规范结尾单换行，未改方法词句。原CLI/闭包保真存preparation/prior-authoring，因Workbook字节摘要改变，另用新Home按规范后实际输入重跑13条CLI全部PASS，并登记新asset-closure；不把旧digest当新输入。

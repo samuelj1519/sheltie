@@ -1,0 +1,63 @@
+{
+  "domain": "sheltie-experiment-preparation/v1",
+  "algorithm": "SHA256 domain NUL then sorted UTF8 relative path/content u64BE length framing",
+  "sha256": "2538478e817266ed92359fdaa379187af1ffeddabfa6d09ca89087129e059d15",
+  "files": [
+    {
+      "path": "experiments/confirmed-input/README.md",
+      "bytes": 1782,
+      "sha256": "d47d76bd451bbdc9eca54a2423d87d20f49a8d8548e1dfec1685227417d968b3"
+    },
+    {
+      "path": "experiments/confirmed-input/flows/default.toml",
+      "bytes": 1752,
+      "sha256": "886b6eb33ecd44cc86b15956e16c6ff2dc500cd68117a955dc5418b03b8f6c44"
+    },
+    {
+      "path": "experiments/confirmed-input/instructions/deliver.md",
+      "bytes": 4322,
+      "sha256": "6e4b12046e6ecb01c3fd0af4f548b69b6ffacbaec072d51fb2add14318b585cd"
+    },
+    {
+      "path": "experiments/confirmed-input/instructions/implement.md",
+      "bytes": 4061,
+      "sha256": "9293ad61fa3cfd7f34e6dcaf996347350e6feb5a14b49fe134e8f35f35302648"
+    },
+    {
+      "path": "experiments/confirmed-input/instructions/review.md",
+      "bytes": 3793,
+      "sha256": "91c2f30319c79d306f38b319eabdf13a5c639cdda0b5fb59ba9741455d4f9011"
+    },
+    {
+      "path": "experiments/confirmed-input/workbook.toml",
+      "bytes": 299,
+      "sha256": "a23fbceb0e765aecb1802fe1dac986d7107491656b2e6c70e8af0a390a58b7f9"
+    },
+    {
+      "path": "experiments/first-use.md",
+      "bytes": 14748,
+      "sha256": "02986816bfa6fc9064e41b9f180f66dc5cd2412eff8a4cb3ab7318f3413ac64c"
+    },
+    {
+      "path": "experiments/oracle/quality.md",
+      "bytes": 991,
+      "sha256": "8ec2676019d4aadc96587b6b000050456e50b35a2ac9661831537f9c95ee0e33"
+    },
+    {
+      "path": "experiments/protocol.md",
+      "bytes": 3807,
+      "sha256": "0ad83ea40f5603818c57c79e414abd5157eb1697895e0197b770ec571d190fe9"
+    },
+    {
+      "path": "experiments/samples/README.md",
+      "bytes": 455,
+      "sha256": "095ec4c871d912c83a55ae788b80ebb4ad94573ebd2eb0d998b5f1ce8604cddc"
+    },
+    {
+      "path": "experiments/shared-method.md",
+      "bytes": 5674,
+      "sha256": "a74b290b81becdf29b4045f424cfa823db16f2daca1962460905807b0f7eb4e1"
+    }
+  ],
+  "excluded": "preparation raw/records, no formal runs"
+}

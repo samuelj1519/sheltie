@@ -9,7 +9,7 @@ allow_test_changes = false
 
 [C007-T01]
 files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/protocol.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/confirmed-input", "specs/changes/active/C007-pre-run-workbook-generation/experiments/shared-method.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/first-use.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/samples", "specs/changes/active/C007-pre-run-workbook-generation/experiments/oracle", "specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts", "specs/changes/active/C007-pre-run-workbook-generation/experiments/preparation", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
-test_files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts/test_collect_run.py"]
+test_files = []
 allow_test_changes = true
 
 [C007-M1]
