@@ -35,3 +35,18 @@ allow_test_changes = false
 files = ["specs/changes/active/C005-executor-continuity/experiments/runbook.md", "specs/changes/active/C005-executor-continuity/progress.md", "specs/changes/active/C005-executor-continuity/validation.md", "specs/changes/active/C005-executor-continuity/review.md", "specs/changes/active/C005-executor-continuity/evidence/t04"]
 test_files = ["crates/sheltie-runtime/tests/crash.rs"]
 allow_test_changes = true
+
+[C005-T05]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/decisions/D-041-attempt-number-and-replacement.md", "specs/changes/completed/C005-executor-continuity", "specs/changes/active/C005-executor-continuity"]
+test_files = []
+allow_test_changes = false
+
+[C005-T06]
+files = ["specs/changes/active/C005-executor-continuity"]
+test_files = []
+allow_test_changes = false
+
+[C005-M3]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/decisions/D-041-attempt-number-and-replacement.md", "specs/changes/completed/C005-executor-continuity", "specs/changes/active/C005-executor-continuity"]
+test_files = []
+allow_test_changes = false

@@ -1,6 +1,6 @@
 # C005 实施计划
 
-状态：`completed`。用户已明确采用，按本计划实施；环境无法执行的义务记录后延期。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
+状态：`active`（2026-10-04恢复当前验收，旧限定结论不改）。用户已明确采用，按本计划实施；环境无法执行的义务记录后延期。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
@@ -160,3 +160,25 @@ T04 最新独立测试基准：`c9492f80969d59897480f138b780dc8c1d83ec62`。T02 
 ## T03 本轮采用范围与未执行义务
 
 用户已授权无法执行的操作记录后延期。本轮没有提供真实需撤销资格的 Work/旧执行者、停止或隔离原件、实际接手人和原目标接受证据；不能制造事故或把fixture当真实需求。T03当前可完成技能说明、runbook入口、前提盘点和延期交接；原真实接续、约束保持、总投入及用户接受仍not_run，触发条件和下一命令不删除。T03无Rust场景，不运行零测试task.sh。该范围完成不宣称真实净收益或宿主隔离。
+
+## 2026-10-04 恢复当前验收
+
+| ID | 状态 | Owner | 依赖 | 实际交付 |
+| --- | --- | --- | --- | --- |
+| C005-T05 | done | Codex；独立Reviewer | C004-M3 9862083 | 原件/缺项、真实需求判断与事前native技术闭包冻结 |
+| C005-T06 | not_run | Codex；独立Reviewer | T05提交 | 当前nextest/freshdeny同源资格与macARM Rust1.85实际测试，旧unknown分列 |
+| C005-M3 | not_run | 未参与修订/执行的Reviewer | T06 | 当前技术完整闭环与真实需求负前检，原真实试用不冒PASS |
+
+### C005-T05 恢复真实前提与技术补验准备
+
+只恢复一个active。旧62原件全SHA物理移动同值，完整跟踪全paths；C004实际交接三refs/消费者判断和最终275blob资格为当前输入，旧资料绝不回写。核真实对象七字段，实际没有撤销事件就负前检，不运行replace造样本。当前引擎/方法/fixture/Cargo/config同C002修后资格输入，引用原951 run424c、5doc、正确0.9.145与freshdeny ef6173精确闭包；不称旧C005门禁已发生。事前固定msrv1.85 actualtest工具、命令、预算12min/源漂移与失败即停、actualbinary由Cargo JSON取得（不使用1.98 frozenbinary冒称1.85执行）。独立准备审与docs/specs/skill/scope通过，基线9862083，一任务一提交后才实际T06。
+
+### C005-T06 当前原生技术补验与限定事实
+
+先核T05 freeze与工作树。使用真实0.9.145、RUSTC_WRAPPER空、隔离msrv target，先cargo +1.85.0 build -p sheltie-cli -p sheltie-export --all-features --message-format=json，从真实Cargo响应取得两个executable，复制到本任务独立MSRV frozen目录并核SHA；exporter测试环境显式绑定这两个实际1.85产物，避免既有helper重建共享target。再cargo +1.85.0 nextest run --all-features --no-tests=fail --no-fail-fast；普通CLI使用本次nextest/Cargo同toolchain产物，不能把1.98 frozenbinary当1.85执行。固定Rust1.85 rustc -vV/host及工具版本、完整原输出/runid/counts/skip/LEAK/actualexecutables，预算12min超时停止自有session并留原；不改测试或依赖求绿。若全部MSRV编译不了、入口不匹配或失败，先最小诊断而非重复跑。需要生产修复则新任务/独立oracle，不能用旧951代替本次失败。
+
+当前源资格与原C005全部注册行为与受影响caller核对，正常native951/freshdeny只在源/config/fixture闭包逐SHA同值时引用原run。新1.85全部测试包含C005消费者，原1.85仅编译不追改成测试。四旧LEAK保留cause unknown，raw空白例外、其他平台excluded_by_user和原真实试用缺项分列。无空task.sh、新Rust或外部安装。
+
+## C005-M3 当前恢复限定验收
+
+未参与准备/执行的Reviewer核完整EX01–08/current CLI-runtime-core真实链、计数/历史/恢复、qualified工程输入与正确native/MSRV新原件、真实对象负前检及所有旧not_run/unknown。不把没有真实撤销样本改成实际接受/净收益；如果无需求，停止实际替换试用并交准确限制。根入口/归档/全部commit blob与原件逐SHA保全；基线T06实际提交，docs/specs/skill/tests/scope。最终技术验收可收尾，原真人/真实撤销与历史因果不称产品全部价值PASS；随后顺序C006，发布独立决定。

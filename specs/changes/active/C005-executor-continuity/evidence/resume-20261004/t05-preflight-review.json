@@ -1,0 +1,174 @@
+{
+  "reviewer": "/root/c005_preflight_review",
+  "independence": "未参与准备、oracle、代码或工具编写；只读仓库，仅写指定/tmp报告",
+  "reviewed_utc": "2026-10-03T18:32:37.061052+00:00",
+  "baseline": "98620834109bcfae18461b742d8a621692a8a8d0",
+  "verdict": "PASS",
+  "scope": "C005-T05 preparation only; commit preparation before T06 execution",
+  "not_authorized_by_this_verdict": [
+    "T06 execution PASS",
+    "C005-M3 PASS",
+    "real withdrawal trial PASS",
+    "human acceptance",
+    "cost or benefit PASS",
+    "security identity host isolation release expansion"
+  ],
+  "checks": {
+    "input134_from_C002": {
+      "count": 134,
+      "drift": []
+    },
+    "complete192_inputs_sha256": {
+      "count": 192,
+      "drift": []
+    },
+    "C004_final_275": {
+      "count": 275,
+      "drift": []
+    },
+    "original62": {
+      "exact_baseline_path_set": true,
+      "baseline_sha_mismatch": [],
+      "current_equal_count": 56,
+      "restoration_documents_edited": [
+        "specs/changes/active/C005-executor-continuity/adoption.md",
+        "specs/changes/active/C005-executor-continuity/validation.md",
+        "specs/changes/active/C005-executor-continuity/tasks.toml",
+        "specs/changes/active/C005-executor-continuity/progress.md",
+        "specs/changes/active/C005-executor-continuity/README.md",
+        "specs/changes/active/C005-executor-continuity/plan.md"
+      ],
+      "recorded_physical_move_identical": true,
+      "path_normalization": "Manifest relative paths resolved below completed/C005-executor-continuity"
+    },
+    "C002_exact_134": true,
+    "C005_37_in_original_951": {
+      "count": 37,
+      "missing_pass_lines": []
+    },
+    "file_types_192": {
+      "mismatch": []
+    },
+    "runner": {
+      "syntax": "PASS",
+      "sha256": "6d71d61c572ba1b931deecbed1f3c0287186899bfb364cb3381417e685bcdfa4",
+      "freeze_hash_matches": true,
+      "eight_second_reserve": true,
+      "actual_returncode_recorded": true,
+      "budget_final_check": true
+    },
+    "new_msrv_not_run": {
+      "execution_record_exists": false,
+      "nextest_stdout_exists": false
+    }
+  },
+  "input_sha256": {
+    "CONTEXT.md": "c6068da78decd2a22b45df71fb02a633a6f8aef7f48c6935caa581489559132d",
+    "specs/README.md": "6c8060dfb695380169265bda397423879a63e65bf1e3dc5fc519b21b680e3b4b",
+    "specs/changes/README.md": "b75a6e73600828f4306817aca58c4bf6921bfffba81a2985e9a923a40950b908",
+    "specs/engineering.md": "553d92eb20e4fdcef340cf3fbd2342d2dde321af37d22d57feb0fd8282e41e5e",
+    "specs/changes/active/C005-executor-continuity/README.md": "c815e090acb8612d44eb0a3dab5b2a6272187377e4d25cd2e8a29988ff2ce74e",
+    "specs/changes/active/C005-executor-continuity/adoption.md": "9dbfd5c5b3d302623ec8a2705bf2942668e305d7ff2d15ea362e11408fd433a5",
+    "specs/changes/active/C005-executor-continuity/plan.md": "25bcb7ee62a768528a4988d6cf5e13d3994a67c7514ea4610e28258d8597d216",
+    "specs/changes/active/C005-executor-continuity/validation.md": "df000e62e1daea73d08306059d174769a3251cf4e11638d74c1c9f04189dfd44",
+    "specs/changes/active/C005-executor-continuity/tasks.toml": "5a46d10d45b4b2f07dd41e081d97c20b2f2e72d64c2dc5038821250585a32a52",
+    "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/technical-freeze.json": "8818cf1af89a52c5c72e80766100ceb294d2ff4f10295007d535b6c891377aab",
+    "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/msrv-runner.py": "6d71d61c572ba1b931deecbed1f3c0287186899bfb364cb3381417e685bcdfa4",
+    "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/activation-original-package.json": "daed62a4061764685449a3f822f8d212447c8c449413cf767a13e397ce334a75",
+    "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/input-C004-final-qualification.json": "c18249ba959e9ddd4f1fb2fc30b19e5c80aec62f647e961316c2330fe2fbe4fc",
+    "crates/sheltie-export/tests/common/mod.rs": "23197ad78e1e1e38a0be4c525ad974d82148fff8caa235db44b64091cb0fb6a2"
+  },
+  "lightweight_commands": [
+    {
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "check-docs: OK (242 个文件)\n"
+    },
+    {
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "check-specs: OK (8 个 change，1 个 active)\n"
+    },
+    {
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "check-skill: OK\n"
+    },
+    {
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "check-tests: OK (951 个测试，任务卡 241 条)\n"
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "PF01",
+      "scope": "MSRV runner timeout cleanup, total budget, actual exit evidence",
+      "initial": "组长退出时可能不KILL同组残留；主步骤耗尽720秒后再清理可超预算；timeout字符串替代actualexit。",
+      "resolution": "remaining<=8不启动，每子命令remaining-8；owned new-session group TERM后3秒KILL且不依赖leader存活；reap leader；actualreturncode与timed_out分列；结束总时间达720秒不授completed。",
+      "validation": "静态核最新runner和freeze SHA；没有制造timeout或运行MSRV。"
+    }
+  ],
+  "historical_leaks": [
+    {
+      "run": "a1295822-a8e8-488a-b5cc-2debf16ec6e5",
+      "case": "result_selects_terminal_bound_input_and_sealed_output_in_key_order",
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t01/runtime-consumers.txt"
+    },
+    {
+      "run": "f4212b4e-a74c-4857-96e3-2ee4605f1094",
+      "case": "post_commit_card_failure_returns_committed_response",
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t01/future-red.txt"
+    },
+    {
+      "run": "c1f30428-2691-47cf-befc-3821fc4986e7",
+      "case": "install_modify_path_flag_is_rejected",
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t01/gates-repaired.txt"
+    },
+    {
+      "run": "e2e42412-cead-461e-a4fc-d11cbf0acf4c",
+      "case": "generated_reference_keeps_authority_prose_verbatim",
+      "path": "specs/changes/active/C005-executor-continuity/evidence/t03/skill-consumers-revised.txt"
+    }
+  ],
+  "baseline_evidence": {
+    "nextest_run": "424c53bc-4a8a-4bf1-8c26-f4b600335a83",
+    "count": 951,
+    "version": "0.9.145",
+    "scope": "C002 original same source/config/fixtures qualification; not a new C005 rerun",
+    "fresh_advisory_sha": "ef6173cbc5c50ec8166f9a5b28f07834144373ee",
+    "fresh_dataset_scope": "C002 actual fetch; no current fresh query claim",
+    "raw_sha256": {
+      "t58-final-gates.json": "80b1b4e3375096239bb9b8aeed834d2f895a45a124c3a79f91878891a9a14b2d",
+      "t58-final-nextest.txt": "b23730dfb4d0bdbcd36363e4e84ad6209089b90d12eb9a461a721367a6cd4c39",
+      "t58-final-doctest.txt": "f897e053ad4ba9c9626a1c62752fd11a4731bad2cb970cf4e71a0b0733753371",
+      "m2-deny-execution.json": "47e7f1c8fa83727c53a1156cbb37aa4adf350995dc8292177be904d3629cbb78",
+      "m2-deny-fresh.txt": "ca5faaf0208b84b014fd6419f66cd9749d55ba3779621ffaec57b47125362ed2"
+    }
+  },
+  "real_need": {
+    "seven_prerequisites": {
+      "work_id": null,
+      "old_attempt": null,
+      "real_revocation_event": null,
+      "old_executor_stop_or_host_isolation_evidence": null,
+      "new_executor": null,
+      "original_goal_and_acceptance": null,
+      "quality_and_total_activity_cost": null
+    },
+    "sources": [
+      "specs/changes/completed/C004-verifiable-delegation/evidence/resume-20261004/actual-next-consumer.json",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/resume-20261004/consumer-report.md"
+    ],
+    "conclusion": "当前仅普通续接；真实撤销试用not_run，不构造事故或调用replace。"
+  },
+  "next_gate": "Root执行T05 staged scope/原件与knownraw例外核对，单任务提交并读回；之后按freeze执行T06，独立M3待新原件。"
+}

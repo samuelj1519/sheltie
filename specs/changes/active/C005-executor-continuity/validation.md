@@ -158,3 +158,13 @@ T02 全 cached whitespace 检查 exit2，仅 gates.txt:3 的原 fmt 空上下文
 Reviewer `/root/independent_review` 未参与实现/oracle，固定完整候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`：限定 `PASS`。EX01–08、完整caller、计数/历史、同FD输入、事务恢复、冻结oracle与准确说明已核。按消费者复用同源T02的774原run与T03新9技能run，不称同whole闭包重跑。真实撤销价值、原nextest版本、onlinefresh、其他平台与永久无leak不在PASS范围，全部原失败和raw空格例外保留。
 
 补充本机实际已安装Rust1.85.0，执行隔离target/wrapper的 [locked全targets/features编译](evidence/m2/msrv-check.txt) exit0、6.14s；不是1.85上的测试执行，也没有改源码或依赖。当前docs/specs/tests/skill及作者diff/scope另行检查，M2仅记录。
+
+## 2026-10-04 C005-T05 恢复当前验收准备
+
+C004当前agent质量/冷接续/三refs/逐查询新消费者使用已归档9862083，最终275blob含21日志读回同值、连续2655.603s；输入资格原件已存input-C004-final-qualification.json。C005旧62文件物理移动全SHA同值，旧限定候选、四LEAK、nextest92、1.85仅编译及raw空白例外留原，不从新目录推出PASS。
+
+C004两个真实消费者明确当前只是普通接续，无真实running撤销目标/事件/宿主处置原件；七前提继续null，负前检不造样本。当前technical-freeze.json固定134工程/192完整输入逐SHA同值和37 C005注册用例，原C002 run424c的951/951、0.9.145/无skip/LEAK及freshdeny ef6173仅同闭包资格引用，不称旧C005要求版本已发生；数据时点是原C002取数，并不伪称本时刻在线刷新。
+
+原1.85只有check，当前新增实际1.85全feature测试和5doc。执行前固定runner/12min连续上限、失败/漂移即停、所有原argv/stdoutstderr/exit、实际Cargo JSON的1.85两个产物及专用target/frozen路径。CLI测试使用本nextest原Cargo产物，export测试绑定实际1.85新副本，旧1.98冻结binary仅资格引用。准备独立审正在进行，未运行T06/引擎替换、未接受原真实价值或发布。
+
+T05事前审查单一timeout处置finding已在实际运行前修复：每次启动预留8s，owned process group TERM后KILL不依赖leader是否已退出、实际leader exit与timed_out分列、全部成功前核连续总耗时<720。初版finding留原；Reviewer已核原62路径集合、旧四LEAK真实case/run、134与原C002工程字典逐同及37全部原PASS用例，不授未运行MSRV/M3。

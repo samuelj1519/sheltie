@@ -59,3 +59,7 @@ Reviewer 确认 T04 可提交。全 cached whitespace 检查的两份原始输�
 结论：`PASS`（限定实现、说明、前提盘点与授权延期交接）。候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`，独立Reviewer没有编写该代码、设计或oracle。完整EX01–08和caller、number/failed/quota、历史/输入/并发/事务/恢复/严格载荷及首次读者说明已审，未发现剩余必改。
 
 同消费者闭包的T02代码774/774原run、当前T03技能9/9和治理证据分别引用，未声称whole input相同；M1未变基础不重复长跑。真实撤销与收益not_run，原工具版本/onlinefresh/其他平台及LEAK unknown保留；原语、静态PASS或gate不能代替价值，不推导发布或永久无泄漏。补充Rust1.85 locked全targets/features编译已执行通过，测试工具链边界保持。
+
+## C005-T05 当前补验事前审
+
+Reviewer /root/c005_preflight_review未参与准备/实现/runner，当前准备scoped PASS，原件见[evidence](evidence/resume-20261004/t05-preflight-review.md)与JSON。核134/192及C004275原件同SHA、37用例原951实际PASS行、旧四LEAK真实run/case、七前提null及不造撤销样本。单一timeout处置finding在MSRV实际执行前修复；只授T05收尾提交，不授T06/MSRV/M3/原真实价值或发布。
