@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[`C002 完整验收补验`](active/C002-v0.2.0-reliability/README.md)
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -14,7 +14,9 @@ Active change：无
 
 ## Active
 
-无。
+| Change | 范围 | 入口 |
+| --- | --- | --- |
+| C002 | 用户要求恢复跳过项：工具/环境、215 ID、最终 Spec 与平台补验；已发布历史保留 | [README](active/C002-v0.2.0-reliability/README.md) |
 
 ## Completed
 
@@ -25,7 +27,6 @@ Active change：无
 | C006 | 完整成果副本/raw与独立限定验收；真实价值/环境与未知LEAK保留 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 原子替换/失败前缀/输入及恢复限定验收通过；真实使用及环境缺项延期 | [README](completed/C005-executor-continuity/README.md) |
 | C004 | 明确成果与可靠接续实现闭包通过；实际试用和环境缺项按授权延期 | [README](completed/C004-verifiable-delegation/README.md) |
-| C002 | v0.2.0 可靠性修复，按授权范围完成并发布 macOS aarch64 版本 | [README](completed/C002-v0.2.0-reliability/README.md) |
 | C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
 | C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
 

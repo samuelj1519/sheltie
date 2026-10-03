@@ -2,7 +2,7 @@
 
 状态：`accepted`
 日期：2026-09-27
-关联 change：[C002](../changes/completed/C002-v0.2.0-reliability/README.md)
+关联 change：[C002](../changes/active/C002-v0.2.0-reliability/README.md)
 
 ## 背景
 

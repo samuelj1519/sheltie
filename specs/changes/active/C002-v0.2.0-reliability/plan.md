@@ -1,6 +1,6 @@
 # C002 实施计划
 
-状态：`completed`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
+状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
 
 阅读 [CONTEXT.md](../../../../CONTEXT.md)、[文档地图](../../../README.md) 与 [工程规范](../../../engineering.md)，再按本计划定位任务。问题索引见 [findings.md](findings.md)，已采用机制见 [design.md](design.md)，候选与运行见 [validation.md](validation.md)，最终审查见 [review.md](review.md)，文件范围见 [tasks.toml](tasks.toml)。
 
@@ -320,3 +320,28 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 ### C002-T40 提交授权与证据保存
 
 本任务的上述“未提交/不自动提交”是此前工作区交接事实。用户随后明确授权提交；本提交保留该任务实际源字节和对应原运行，原文已按README索引压缩归档，不以当前最终运行替代早期候选证据。
+
+## 恢复完整验收
+
+2026-10-03 用户明确要求逐一完成 C001–C008 所有跳过步骤。本轮依次补齐；原完成表保留各自授权范围，不反写旧结果。先执行 C002 的技术与审查闭环，再依次恢复 C004–C008 的真实使用义务。C001/C003 先核治理检查和原验收，当前未发现独立欠项。其他平台范围等待用户答复；发布保持独立权限。
+
+| ID | 状态 | Owner | 任务与验收 |
+| --- | --- | --- | --- |
+| C002-T41 | done | Codex；独立 Reviewer | 恢复唯一实施入口、核原件保真与欠项来源 |
+| C002-T42 | doing | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
+| C002-T43 | not_run | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
+| C002-T44 | doing | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
+| C002-T45 | not_run | Codex；平台执行者 | 恢复需补的平台及物理目录环境验证；范围待实际用户答复与载体 |
+| C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
+
+### 执行与停止
+
+T41 只移动本 package 并修正文档链接，新增任务与范围，逐字节核历史 evidence；运行 docs/specs/tests、TOML、作者 diff 和任务范围。审查通过后一个任务一个提交。
+
+T42 的源码候选先固定为 `9ee0f0114a8e407257864175eb354037e38a8451`。工具仅从官方 release 下载到 `/private/tmp/sheltie-completion-20261003/tools`，用 release asset SHA256 校验；不改宿主安装。空 `RUSTC_WRAPPER`、独立可写 target；默认 nextest 配置不 override。完整运行预算 12 分钟，非零测试、零 skip；LEAK、失败、超时分别保留，不重复到绿。fresh advisory 使用独立可写公告目录和原政策，真实获取 SHA/时点单列。dist 0.32.0 的实际 plan 核没有 exporter 发布资产；不执行发布。doctest、fmt/check/clippy、MSRV、deny 和治理按实际输入分组，原文集中保存。
+
+T43 先核 `e54dcd41d8f1e186007b62b47583063cb19a4b66` 的 215 精确 ID 与原 diff/源 hash，旧候选检测和当前候选闭环分开。已删除/改变的分支须有真实 consumer 与理由，不能只按行号认等价。按共享 oracle 能力组先非零基线和少量代表样本再扩大；连续同类 timeout 或输入漂移停止派发并诊断，不能记 caught。当前代码若需补测试或修实现，先更新准确文件范围并交独立复核，不接历史流水线、不覆盖原 MissedMutant。
+
+T44 按工程规范独立审查，以报告的具体候选和路径为准；缺最终意见仍保留未完成。T45 只运行当前得到授权和具备载体的范围，不拿交叉编译代替原生测试。usage 只接实际可取得记录，未知保留 null；不能凭状态耗时计算费用。
+
+C004 后续欠项见其 validation 和 experiments/readiness；C005 需真实撤销对象及宿主停止/隔离事实；C006 需真实副本用途与同质量人工对照、跨设备载体；C007 需三个真实新任务、连续参与者、事前质量/投入阈值及六次配对 trial；C008 需真实必需 kind:name、重复核对摩擦、固定 host 规则/获准读取范围与预算。用户已收到缺项问题；等待时继续不依赖这些输入的技术验证，不制造样本或资源。

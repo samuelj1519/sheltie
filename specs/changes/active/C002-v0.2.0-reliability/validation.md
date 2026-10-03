@@ -287,7 +287,7 @@ Host 为当前 Codex 会话，coordinator `Codex /root`；worker 使用真实 `c
 
 ```bash
 t16_restore_dir="$(mktemp -d /private/tmp/sheltie-t16-restore.XXXXXX)"
-tar -xzf specs/changes/completed/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz -C "$t16_restore_dir"
+tar -xzf specs/changes/active/C002-v0.2.0-reliability/evidence/submissions/C002-T16-preparation.tar.gz -C "$t16_restore_dir"
 ```
 
 ### 准备阶段交接与发布边界（初次归档）
@@ -428,3 +428,9 @@ Mac限定输入的新完整运行700/700、零skip、165.985秒；doctest5/5、f
 | 授权范围与缺失披露保真 | evidence_review | 本版ARM许可 / M1 SK例外 | 实际用户原话与各阶段独立审查 | PASS | excluded_by_user与原FAIL/not_run保留，不当执行通过 |
 
 最终目录与记录由未参与编写的Reviewer独立复核，26项检查通过。当前41个T/M均done，0active；12个旧tar与3个旧audit只改目录、SHA保持，最终335文件archive逐字一致。实际docs/specs/tests/check-task C002-T17 785552b --staged/git cached diff check全exit0，原argv/raw/hash在lifecycle-gates与派生audit。没有产品/测试/依赖/配置输入改动，复用同source8455正式tag质量700/700与同Rust闭包5/5；不新增staged之外或未知运行的PASS。审计入口见README，源码tag与后续验收提交分离。
+
+## 2026-10-03 恢复完整验收入口
+
+T41 基线 `9ee0f0114a8e407257864175eb354037e38a8451`。按用户恢复所有跳过步骤的授权，移动本 package 为唯一 active；旧 task/M1/release 的限定结论与原结果保持原记录。独立 Reviewer `/root/completion_spec_review` 核 17 份证据、4,383,945 字节与基线逐字一致，见 [保真原文](evidence/completion-20261003/independent-t41-integrity.json)。docs/specs/tests/diff/TOML 独立复核通过；源码与测试未变。C001/C003 的治理入口由当前 docs/specs/tests 复核，未发现另外欠项，不将它们历史注释中的后续 not_run 当自身未实现任务。
+
+T42 的当前完整工程与在线公告仍是独立补验任务；T44 已发现 command/data 的纯严格解码顺序缺口，未获最终 Spec 批准。此恢复动作不解除 SK02 的 215 个执行缺失、不关闭真实用户/平台义务、不发起发布。

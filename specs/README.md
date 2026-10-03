@@ -4,11 +4,11 @@
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 开发目标：`v0.3.0`
-Active change：无。本轮可执行范围已归档，真实实验和环境补验未执行项继续明确保留。
-Completed：[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）、[`C006 成果原字节与完整副本`](changes/completed/C006-result-delivery/README.md)（限定实现/指南，真实价值与环境缺项延期）、[`C005 原子撤销与重新领取`](changes/completed/C005-executor-continuity/README.md)（限定实现与说明，真实使用/环境缺项延期）、[`C004 明确成果与可靠接续`](changes/completed/C004-verifiable-delegation/README.md)（实现闭包；真实试用和环境缺项授权延期）、[`C002 v0.2.0 可靠性修复`](changes/completed/C002-v0.2.0-reliability/README.md)，任务历史见其 [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
+Active change：[`C002 完整验收补验`](changes/active/C002-v0.2.0-reliability/README.md)。用户已要求恢复所有跳过义务；先补 C002，再依次恢复 C004–C008。
+Completed：[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）、[`C006 成果原字节与完整副本`](changes/completed/C006-result-delivery/README.md)（限定实现/指南，真实价值与环境缺项延期）、[`C005 原子撤销与重新领取`](changes/completed/C005-executor-continuity/README.md)（限定实现与说明，真实使用/环境缺项延期）、[`C004 明确成果与可靠接续`](changes/completed/C004-verifiable-delegation/README.md)（实现闭包；真实试用和环境缺项授权延期）。C002 的已发布历史和本轮补验见 active package [plan.md](changes/active/C002-v0.2.0-reliability/plan.md)
 Proposed：无。本轮C008只盘点实际条件，不虚构依赖或创建无目标探针。
 
-本次用户明确要求依次实施 C004–C008；一次只激活一个 package。真实用户、宿主与平台无法执行的义务记录为 `not_run` 并保留补验入口。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
+此前 C004–C008 的限定实施已归档。2026-10-03 用户恢复全部跳过义务；一次只激活一个 package，缺真实输入时继续可独立执行的工作，未执行项保持 `not_run`。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
 
 首屏开发目标指定当前源码候选的基础版本，尚未发布。数值产品 active 目标必须与它一致；非产品实验或暂无 active 时，该权威仍有效。已发布版本继续按 release record、tag 和验收证据核对，不由开发目标推断发布完成。
 

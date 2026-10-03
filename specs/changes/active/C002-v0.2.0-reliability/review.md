@@ -307,3 +307,7 @@ docs/specs/diff-check 均 exit 0，正式 task gate exit 1（T16 状态不是 do
 Reviewer仍为未参与T17修改的`Codex /root/t16_reopen_review`。相对T16提交`785552b`复核本轮候选：版本/lock、CI候选与发布边界、治理parser/fixture及历史例外。初次发现F17-01的空字段/列数绕过，保存可复演原反例；worker补红绿后独立重核exact合法例、原空行/多列/无尾pipe反例、green原argv/env/hash，最终22/22。Standards/Spec在候选范围通过，可进入获授权的非发布CI，不预判四平台、远端或T17 done。原文为T17临时目录candidate-review.md，后续同SHA质量与资产另行补核。
 
 最终lifecycle/staged独立audit26项通过：公开tag/source/record、同SHA原文、目录/普通链接、335文件封存、旧档案迁移、41任务和有限当前矩阵均一致，源/测试/依赖/.github/scripts无改动。五轻量门禁独立实际exit0。审计在tar外保存，原SK/215/平台FAIL与usage缺失不改；提交成功由后续Git结果确认，不在audit中预判。
+
+## 2026-10-03 T41 独立恢复审查
+
+Reviewer：`/root/completion_spec_review`，未参与本轮入口/文档编写。T41 通过：唯一 active、当前任务表和授权范围一致；17 份原件逐字一致、4,383,945 bytes；docs/specs/tests/diff 与 TOML 均通过。该结论只覆盖恢复入口，不批准当前产品 Spec；F-SPEC-01 的 command/data 顺序缺口须单独修复复核。

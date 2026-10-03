@@ -244,3 +244,33 @@ allow_test_changes = true
 files = ["crates/sheltie-core/src", "crates/sheltie-runtime/src", "crates/sheltie-cli/src", "specs/architecture.md", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/releases/v0.1.0/plan.md", "specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-core/tests", "crates/sheltie-runtime/tests", "crates/sheltie-cli/tests"]
 allow_test_changes = true
+
+[C002-T41]
+files = ["specs/README.md", "specs/changes/README.md", "specs/changes/active/C002-v0.2.0-reliability", "specs/changes/active/C002-v0.2.0-reliability/validation.md", "specs/changes/completed/C002-v0.2.0-reliability", "specs/decisions/D-033-store-schema-2.md", "specs/decisions/D-034-workbook-digest-v2.md", "specs/decisions/D-035-root-write-lock-fs4.md", "specs/decisions/D-036-os-principal-from-uid.md", "specs/decisions/D-037-managed-file-handles.md", "specs/decisions/D-038-purge-lock-lifecycle.md", "specs/decisions/D-039-sqlite-read-control-files.md", "specs/guides/task-execution-efficiency.md", "specs/releases/v0.1.0/README.md", "specs/releases/v0.1.0/plan.md", "specs/releases/v0.2.0/README.md", "specs/research/2026-09-27-document-governance-sources.md"]
+test_files = []
+allow_test_changes = false
+
+[C002-T42]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T43]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T44]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-T45]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
+
+[C002-M2]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = []
+allow_test_changes = false
