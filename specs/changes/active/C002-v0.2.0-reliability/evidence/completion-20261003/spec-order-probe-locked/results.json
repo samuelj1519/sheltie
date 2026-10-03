@@ -1,0 +1,189 @@
+{
+  "binary": "/private/tmp/sheltie-completion-20261003/sheltie-current",
+  "binary_sha256": "9f7133e66b45e8d667724aef34513dd36db8cd89a0eb2d282ca70d7c58a43c7f",
+  "results": [
+    {
+      "field": "command",
+      "read_control": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/command",
+          "--json",
+          "work",
+          "status",
+          "2026-10-03-001-default"
+        ],
+        "exit": 1,
+        "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"请求 spec-order-begin 的audit命令解不开：unknown field `unexpected_contract_field`, expected one of `node`, `observed_inputs`, `instruction_text`\"},\"message\":\"数据库内容损坏：请求 spec-order-begin 的audit命令解不开：unknown field `unexpected_contract_field`, expected one of `node`, `observed_inputs`, `instruction_text`\"},\"next\":[],\"ok\":false}\n",
+        "stderr": "",
+        "json": {
+          "error": {
+            "code": "STORE_CORRUPT",
+            "detail": {
+              "detail": "请求 spec-order-begin 的audit命令解不开：unknown field `unexpected_contract_field`, expected one of `node`, `observed_inputs`, `instruction_text`"
+            },
+            "message": "数据库内容损坏：请求 spec-order-begin 的audit命令解不开：unknown field `unexpected_contract_field`, expected one of `node`, `observed_inputs`, `instruction_text`"
+          },
+          "next": [],
+          "ok": false
+        }
+      },
+      "same_request_write_replay": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/command",
+          "--json",
+          "--request-id",
+          "spec-order-begin",
+          "attempt",
+          "begin",
+          "2026-10-03-001-default",
+          "--node",
+          "outline"
+        ],
+        "exit": 1,
+        "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/command/works/2026-10-03-001-default/workbook 缺失\"},\"next\":[],\"ok\":false,\"request_id\":\"spec-order-begin\"}\n",
+        "stderr": "",
+        "json": {
+          "committed": true,
+          "error": {
+            "code": "EFFECT_PENDING",
+            "detail": {
+              "cause": "STORE_CORRUPT"
+            },
+            "message": "效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/command/works/2026-10-03-001-default/workbook 缺失"
+          },
+          "next": [],
+          "ok": false,
+          "request_id": "spec-order-begin"
+        }
+      },
+      "store_rows_unchanged": true,
+      "frozen_absent": true
+    },
+    {
+      "field": "data",
+      "read_control": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/data",
+          "--json",
+          "work",
+          "status",
+          "2026-10-03-001-default"
+        ],
+        "exit": 1,
+        "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"响应快照data解不开：unknown field `unexpected_contract_field`, expected one of `attempt`, `node`, `occurrence`, `number`, `brief_path`, `output_dir`, `inputs`, `outputs`, `requires`\"},\"message\":\"数据库内容损坏：响应快照data解不开：unknown field `unexpected_contract_field`, expected one of `attempt`, `node`, `occurrence`, `number`, `brief_path`, `output_dir`, `inputs`, `outputs`, `requires`\"},\"next\":[],\"ok\":false}\n",
+        "stderr": "",
+        "json": {
+          "error": {
+            "code": "STORE_CORRUPT",
+            "detail": {
+              "detail": "响应快照data解不开：unknown field `unexpected_contract_field`, expected one of `attempt`, `node`, `occurrence`, `number`, `brief_path`, `output_dir`, `inputs`, `outputs`, `requires`"
+            },
+            "message": "数据库内容损坏：响应快照data解不开：unknown field `unexpected_contract_field`, expected one of `attempt`, `node`, `occurrence`, `number`, `brief_path`, `output_dir`, `inputs`, `outputs`, `requires`"
+          },
+          "next": [],
+          "ok": false
+        }
+      },
+      "same_request_write_replay": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/data",
+          "--json",
+          "--request-id",
+          "spec-order-begin",
+          "attempt",
+          "begin",
+          "2026-10-03-001-default",
+          "--node",
+          "outline"
+        ],
+        "exit": 1,
+        "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/data/works/2026-10-03-001-default/workbook 缺失\"},\"next\":[],\"ok\":false,\"request_id\":\"spec-order-begin\"}\n",
+        "stderr": "",
+        "json": {
+          "committed": true,
+          "error": {
+            "code": "EFFECT_PENDING",
+            "detail": {
+              "cause": "STORE_CORRUPT"
+            },
+            "message": "效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/data/works/2026-10-03-001-default/workbook 缺失"
+          },
+          "next": [],
+          "ok": false,
+          "request_id": "spec-order-begin"
+        }
+      },
+      "store_rows_unchanged": true,
+      "frozen_absent": true
+    },
+    {
+      "field": "effects",
+      "read_control": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/effects",
+          "--json",
+          "work",
+          "status",
+          "2026-10-03-001-default"
+        ],
+        "exit": 1,
+        "stdout": "{\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"effects_json 解不开：unknown field `unexpected_contract_field`, expected one of `work_id`, `attempt_id`, `dirs` at line 1 column 496\"},\"message\":\"数据库内容损坏：effects_json 解不开：unknown field `unexpected_contract_field`, expected one of `work_id`, `attempt_id`, `dirs` at line 1 column 496\"},\"next\":[],\"ok\":false}\n",
+        "stderr": "",
+        "json": {
+          "error": {
+            "code": "STORE_CORRUPT",
+            "detail": {
+              "detail": "effects_json 解不开：unknown field `unexpected_contract_field`, expected one of `work_id`, `attempt_id`, `dirs` at line 1 column 496"
+            },
+            "message": "数据库内容损坏：effects_json 解不开：unknown field `unexpected_contract_field`, expected one of `work_id`, `attempt_id`, `dirs` at line 1 column 496"
+          },
+          "next": [],
+          "ok": false
+        }
+      },
+      "same_request_write_replay": {
+        "argv": [
+          "/private/tmp/sheltie-completion-20261003/sheltie-current",
+          "--home",
+          "/private/tmp/sheltie-completion-20261003/spec-order-probe-locked/effects",
+          "--json",
+          "--request-id",
+          "spec-order-begin",
+          "attempt",
+          "begin",
+          "2026-10-03-001-default",
+          "--node",
+          "outline"
+        ],
+        "exit": 1,
+        "stdout": "{\"committed\":true,\"error\":{\"code\":\"EFFECT_PENDING\",\"detail\":{\"cause\":\"STORE_CORRUPT\"},\"message\":\"效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/effects/works/2026-10-03-001-default/workbook 缺失\"},\"next\":[],\"ok\":false,\"request_id\":\"spec-order-begin\"}\n",
+        "stderr": "",
+        "json": {
+          "committed": true,
+          "error": {
+            "code": "EFFECT_PENDING",
+            "detail": {
+              "cause": "STORE_CORRUPT"
+            },
+            "message": "效果未完成（committed=true，cause=STORE_CORRUPT）：数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本 /private/tmp/sheltie-completion-20261003/spec-order-probe-locked/effects/works/2026-10-03-001-default/workbook 缺失"
+          },
+          "next": [],
+          "ok": false,
+          "request_id": "spec-order-begin"
+        }
+      },
+      "store_rows_unchanged": true,
+      "frozen_absent": true
+    }
+  ]
+}

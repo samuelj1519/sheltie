@@ -1203,6 +1203,11 @@ impl WorkService {
             data: persisted.data,
             next: persisted.next,
         };
+        let command: Command =
+            serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
+                detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
+            })?;
+        let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, &work)?;
         let state = self.load(&work)?;
         if state.revision < audit_revision {
             return Err(Error::StoreCorrupt {
@@ -1210,17 +1215,14 @@ impl WorkService {
             }
             .into());
         }
-        let command: Command =
-            serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
-            })?;
-        validate_command_owner(
+        validate_command_owner_data(
             request_id,
             &work,
             &state.state,
             &state.graph,
             &command,
             &snapshot,
+            &data,
         )?;
         let original = crate::recovery::work_original_response(&work, &snapshot);
         let effects_result: Result<_> = (|| {
@@ -1499,18 +1501,6 @@ fn validate_read_audit(
         });
     }
     Ok(())
-}
-
-fn validate_command_owner(
-    request_id: &str,
-    work_id: &WorkId,
-    state: &WorkState,
-    graph: &Graph,
-    command: &Command,
-    snapshot: &Response,
-) -> Result<()> {
-    let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, work_id)?;
-    validate_command_owner_data(request_id, work_id, state, graph, command, snapshot, &data)
 }
 
 fn validate_command_owner_data(

@@ -1,0 +1,12 @@
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+────────────
+ Nextest run ID 07b34410-ac28-4da3-a7da-229ac382cef9 with nextest profile: default
+    Starting 5 tests across 1 binary
+        PASS [   1.354s] (1/5) sheltie-cli::strict_state unknown_work_state_and_nested_attempt_fields_are_rejected_without_rewriting_data
+        PASS [   1.794s] (2/5) sheltie-cli::strict_state audit_attempt_fields_reject_unknown_data_without_successful_original
+        PASS [   2.090s] (3/5) sheltie-cli::strict_state historical_reply_and_next_attempt_fields_reject_unknown_data_without_successful_original
+        PASS [   2.248s] (4/5) sheltie-cli::strict_state replay_decodes_command_and_data_before_reading_the_frozen_workbook
+        PASS [   2.422s] (5/5) sheltie-cli::strict_state every_work_status_shape_rejects_unknown_fields_without_rewriting_data
+────────────
+     Summary [   2.422s] 5 tests run: 5 passed, 0 skipped

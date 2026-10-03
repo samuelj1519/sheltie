@@ -273,3 +273,102 @@ fn audit_attempt_fields_reject_unknown_data_without_successful_original() {
         assert_corrupt_replay_is_unchanged(&env, &args, request_id);
     }
 }
+
+// Task: C002-T46
+#[test]
+fn replay_decodes_command_and_data_before_reading_the_frozen_workbook() {
+    for (field, blocks_new_request) in [
+        ("command", false),
+        ("data", false),
+        ("command", true),
+        ("data", true),
+    ] {
+        let env = Env::new();
+        env.add_example("two-step");
+        let work = env.start("two-step", &[("topic", "decode before frozen read")]);
+        let request_id = "decode-order-begin";
+        let args = [
+            "--request-id",
+            request_id,
+            "attempt",
+            "begin",
+            &work,
+            "--node",
+            "outline",
+        ];
+        let mut expected = env.ok(&args);
+        expected["data"]["replayed"] = json!(true);
+        let legal_before = persisted(&env);
+        assert_eq!(env.ok(&args), expected);
+        assert_eq!(persisted(&env), legal_before);
+        let connection = connection(&env);
+        let (table, column) = if field == "command" {
+            ("audit", "command_json")
+        } else {
+            ("requests", "reply_json")
+        };
+        let mut payload = read_json(
+            &connection,
+            &format!("SELECT {column} FROM {table} WHERE request_id=?1"),
+            request_id,
+        );
+        let target = if field == "command" {
+            &mut payload
+        } else {
+            &mut payload["data"]
+        };
+        target["unexpected_contract_field"] = json!(true);
+        connection
+            .execute(
+                &format!("UPDATE {table} SET {column}=?1 WHERE request_id=?2"),
+                rusqlite::params![payload.to_string(), request_id],
+            )
+            .unwrap();
+        if blocks_new_request {
+            connection
+                .execute(
+                    "UPDATE requests SET published=0 WHERE request_id=?1",
+                    [request_id],
+                )
+                .unwrap();
+        }
+        let frozen = env.dir.path().join("works").join(&work).join("workbook");
+        let retained = frozen.with_file_name("retained-workbook");
+        std::fs::rename(&frozen, &retained).unwrap();
+        let before = persisted(&env);
+        let new_args = [
+            "--request-id",
+            "after-invalid-history",
+            "work",
+            "cancel",
+            &work,
+        ];
+        let (error, exit) = env.fail(if blocks_new_request { &new_args } else { &args });
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING", "{field}: {error}");
+        assert_eq!(
+            error["error"]["detail"]["cause"], "STORE_CORRUPT",
+            "{field}: {error}"
+        );
+        assert!(
+            error.to_string().contains("unexpected_contract_field"),
+            "{field}: {error}"
+        );
+        assert_eq!(error["committed"], !blocks_new_request);
+        if blocks_new_request {
+            assert_eq!(error["request_id"], "after-invalid-history");
+            assert_eq!(error["error"]["detail"]["pending_request_id"], request_id);
+            assert!(
+                error["error"]["detail"].get("pending_original").is_none(),
+                "{error}"
+            );
+        } else {
+            assert_eq!(error["request_id"], request_id);
+        }
+        assert!(error.get("original").is_none(), "{error}");
+        assert!(error.get("revision").is_none(), "{error}");
+        assert_eq!(persisted(&env), before, "{field}");
+        assert!(!frozen.exists());
+        assert!(retained.is_dir());
+    }
+}

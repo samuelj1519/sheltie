@@ -332,6 +332,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T43 | not_run | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
 | C002-T44 | doing | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
 | C002-T45 | not_run | Codex；平台执行者 | 恢复需补的平台及物理目录环境验证；范围待实际用户答复与载体 |
+| C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -345,3 +346,7 @@ T43 先核 `e54dcd41d8f1e186007b62b47583063cb19a4b66` 的 215 精确 ID 与原 d
 T44 按工程规范独立审查，以报告的具体候选和路径为准；缺最终意见仍保留未完成。T45 只运行当前得到授权和具备载体的范围，不拿交叉编译代替原生测试。usage 只接实际可取得记录，未知保留 null；不能凭状态耗时计算费用。
 
 C004 后续欠项见其 validation 和 experiments/readiness；C005 需真实撤销对象及宿主停止/隔离事实；C006 需真实副本用途与同质量人工对照、跨设备载体；C007 需三个真实新任务、连续参与者、事前质量/投入阈值及六次配对 trial；C008 需真实必需 kind:name、重复核对摩擦、固定 host 规则/获准读取范围与预算。用户已收到缺项问题；等待时继续不依赖这些输入的技术验证，不制造样本或资源。
+
+### C002-T46 历史快照解码顺序
+
+依据 protocol §5、storage §3.2 与 engineering §2.2。先追加真实 CLI 用例：合法历史 begin 重放逐字段不变；只加 Command/data 未知字段并移走冻结副本时，cause 为 STORE_CORRUPT 且明确未知字段，已提交身份保留但无 original，Store 和保留目录逐字不变。必须先见真实红。实现复用 snapshot::check_data 和 validate_command_owner_data，移纯解码到 self.load 前，不新增 payload/状态/读取层。效果解码按独立原响应资格合同继续核，不把该异常改成无 original。工程规范准确区分快照读取与效果动作，不更改产品合同。补受影响原响应正反例、完整稳定候选工程及独立复核。单消费者 5 分钟、完整 12 分钟；运行期间不对共享 target 另做构建。

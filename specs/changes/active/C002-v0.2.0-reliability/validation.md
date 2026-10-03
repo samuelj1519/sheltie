@@ -434,3 +434,13 @@ Mac限定输入的新完整运行700/700、零skip、165.985秒；doctest5/5、f
 T41 基线 `9ee0f0114a8e407257864175eb354037e38a8451`。按用户恢复所有跳过步骤的授权，移动本 package 为唯一 active；旧 task/M1/release 的限定结论与原结果保持原记录。独立 Reviewer `/root/completion_spec_review` 核 17 份证据、4,383,945 字节与基线逐字一致，见 [保真原文](evidence/completion-20261003/independent-t41-integrity.json)。docs/specs/tests/diff/TOML 独立复核通过；源码与测试未变。C001/C003 的治理入口由当前 docs/specs/tests 复核，未发现另外欠项，不将它们历史注释中的后续 not_run 当自身未实现任务。
 
 T42 的当前完整工程与在线公告仍是独立补验任务；T44 已发现 command/data 的纯严格解码顺序缺口，未获最终 Spec 批准。此恢复动作不解除 SK02 的 215 个执行缺失、不关闭真实用户/平台义务、不发起发布。
+
+## C002-T46 历史 Command/data 解码顺序
+
+基线 `8167165a5a707bbb51a29fd1aa1047f387c9e9d3`，实际输入与所有命令/输出 SHA 见 [最终门禁](evidence/completion-20261003/t46-final-gates.json)。独立 Reviewer 在恢复 Spec 时确认 F-SPEC-01：同 request-id 写重放读取冻结 Workbook 后才完整解码 Command/data；真实 CLI 锁定二进制反例及完整行/字节保留见 [初审](evidence/completion-20261003/independent-spec-review.md)。
+
+新增回归真实红 `e423d628-cba5-40e8-9c7e-0cbe544c66f0`，先报缺冻结副本而未拒绝未知字段；修复后 Command/data 在冻结读前严格解码，复用 CheckedData 给业务资格检查，删无其余 caller 的包装。效果资格合同不变；工程规范只勘误快照读取和效果动作的分层。扩展同 rid 重放/旧 A 阻新 B 四情境后，5/5严格回归、独立5/5与4/4效果资格通过，见 [独立复核](evidence/completion-20261003/independent-t46-review.md)。
+
+完整稳定输入 Nextest `843/843`、零 skip、零 LEAK、2 slow，run `62efeb8a-8680-4a38-9958-8ac5376e800b`（完整 ID 以 [原文](evidence/completion-20261003/t46-final-nextest.txt)为准）；fmt/check/Clippy 和五项 compile-fail doctest 均 exit0，源码哈希前后相同。源码变化后的完整回归不复用修前输入。独立审查当前关键 Spec 合同通过，旧 e3eea89/SK01 的原暂停仍为历史事实；215项/平台/真实价值不随本任务关闭。
+
+首次环境运行是842项中841 PASS/1FAIL、零skip/零LEAK，原文 [nextest](evidence/completion-20261003/nextest.txt)。失败发生于 CLI `.output()` 的 ENOENT，执行者同时在共享 target 构建了另一个 feature 组合的 CLI；该调度冲突保留为验证失败，不改记产品 PASS。后续 stable 输入运行禁止并发改建同一 target。历史 C004–C006 LEAK 因果尚未逐次证明；官方 nextest0.9.145 修复的捕获管道继承问题和当前零LEAK只能作为限定证据，不反写旧run。

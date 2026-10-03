@@ -311,3 +311,7 @@ Reviewer仍为未参与T17修改的`Codex /root/t16_reopen_review`。相对T16�
 ## 2026-10-03 T41 独立恢复审查
 
 Reviewer：`/root/completion_spec_review`，未参与本轮入口/文档编写。T41 通过：唯一 active、当前任务表和授权范围一致；17 份原件逐字一致、4,383,945 bytes；docs/specs/tests/diff 与 TOML 均通过。该结论只覆盖恢复入口，不批准当前产品 Spec；F-SPEC-01 的 command/data 顺序缺口须单独修复复核。
+
+## C002-T46 独立修复复核
+
+`/root/completion_spec_review` 对当前 HEAD 加T46实际diff独立复核，限定 PASS，无剩余必改。Command/data 的纯解码先于冻结读；业务资格、效果载荷分层与 original/pending_original 合同保留。四反例比较完整五表/全树字节，独立 strict_state5/5及效果资格4/4通过；完整作者工程843/843、零skip/零LEAK。报告与输入见 [独立原文](evidence/completion-20261003/independent-t46-review.md)。当前受审关键Spec通过，不给旧e3eea89补造最终批准，也不扩为全部215变异、其他平台或真实价值。

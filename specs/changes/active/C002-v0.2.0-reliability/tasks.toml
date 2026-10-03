@@ -274,3 +274,8 @@ allow_test_changes = false
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
 test_files = []
 allow_test_changes = false
+
+[C002-T46]
+files = ["crates/sheltie-runtime/src/service.rs", "specs/engineering.md", "specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/strict_state.rs"]
+allow_test_changes = true

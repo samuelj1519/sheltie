@@ -1,0 +1,15 @@
+{
+  "scope": "Only exact immutable tool output whitespace; author files remain checked",
+  "raw_exceptions": [
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t46-order-red.txt",
+      "sha256": "1c10f674109162c410a8a5403e78c27e57b12faf8b0d5a0056cf87e9788e2e41",
+      "reason": "nextest emits trailing space on cancellation line"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t46-final-doctest.txt",
+      "sha256": "e0ff58c1088d2b50a0e424e08942dc5b1a6597438ce8df5d658b7b5c0bebdf4c",
+      "reason": "cargo emits final blank line"
+    }
+  ]
+}
