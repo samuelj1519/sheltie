@@ -1,0 +1,30 @@
+{
+  "records": [
+    {
+      "batch": "g01-a",
+      "actual_mutants_caught": 12,
+      "elapsed_seconds": 160.646,
+      "source_unchanged": true,
+      "formal_runtime_baseline_tests": 3,
+      "supplemental_cli_runtime_control_tests": 7,
+      "dispatch_six_env": "unknown/notrecorded"
+    },
+    {
+      "batch": "g01-b",
+      "actual_mutants_caught": 7,
+      "elapsed_seconds": 99.548,
+      "source_unchanged": true,
+      "formal_runtime_baseline_tests": 3,
+      "supplemental_cli_runtime_control_tests": 7,
+      "dispatch_six_env": {
+        "SHELTIE_TEST_ENGINE_BINARY": null,
+        "SHELTIE_TEST_EXPORT_BINARY": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    }
+  ],
+  "historical_results_not_rewritten": true
+}

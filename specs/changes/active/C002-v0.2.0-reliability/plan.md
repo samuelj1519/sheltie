@@ -329,7 +329,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | --- | --- | --- | --- |
 | C002-T41 | done | Codex；独立 Reviewer | 恢复唯一实施入口、核原件保真与欠项来源 |
 | C002-T42 | done | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
-| C002-T43 | doing | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
+| C002-T43 | done | Codex；独立 Reviewer | 215唯一：185动态/21限定静态/9结构；当前补验32及差异独审通过，旧native限制保留 |
 | C002-T44 | done | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
 | C002-T45 | not_run | Codex；平台执行者 | macOS aarch64原生验证及物理目录前检；其他平台按本次明确排除 |
 | C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
@@ -484,3 +484,5 @@ G13准确5旧ID，all-features必须实际验证。只增3能力测试、复用2
 使用已有共享serial lock、真实Home/锁/ManagedFs/CREATE/rename和Process RAII；正反例期望手写，完整实际carrier/root清单与原件字节核。不用已消费配置再disarm证明取消，不拿默认feature关闭当all-features验收。新写consumer用write_new_atomic才进入managed_file_parent_sync，旧env guard已移rendezvous_payload，按函数/列/genre/replacement/diff语义对应重扫5旧ID，不按旧行号选patch。
 
 先同CLI/runtime准确filter的非零5能力基线，随后最多5目标/600秒短反馈与最终冻结执行；工程/MSRV/默认特性/治理及未参与准备Reviewer逐旧ID审查通过后，一个任务一个提交。测试设施证明不扩大为产品持久性、真人接受、M2或所有215旧原生执行。
+
+T43最终文档收尾基线为`4487ac1eb20672b8136aba186e8392fafa38ebca`（T57已提交、源码冻结），用`scripts/check-task.sh C002-T43 4487ac1eb20672b8136aba186e8392fafa38ebca --staged`检查。默认package旧基线覆盖后续其他change的快照变更，不能作为本次只写证据的测试基线；本任务不改任何源码、测试或snapshot，历史默认检查失败保留。

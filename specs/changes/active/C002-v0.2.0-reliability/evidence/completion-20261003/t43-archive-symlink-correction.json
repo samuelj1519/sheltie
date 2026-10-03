@@ -1,0 +1,23 @@
+{
+  "first_archive_sha256": "aaf0f2087fc6fdab3dd580925c87a817eafdd4818d652527eda0b2c8059f71cf",
+  "readback_result": "failed content-member equality: three LICENSE-MIT paths preserved as symlink tar entries, not regular content members",
+  "candidate_symlinks": [
+    {
+      "path": "crates/sheltie-cli/LICENSE-MIT",
+      "target": "../../LICENSE-MIT",
+      "content_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04"
+    },
+    {
+      "path": "crates/sheltie-core/LICENSE-MIT",
+      "target": "../../LICENSE-MIT",
+      "content_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04"
+    },
+    {
+      "path": "crates/sheltie-runtime/LICENSE-MIT",
+      "target": "../../LICENSE-MIT",
+      "content_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04"
+    }
+  ],
+  "correction": "archive content snapshot dereferences these known license paths; original link names/targets/content hashes retained here",
+  "source_or_execution_changed": false
+}

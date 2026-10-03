@@ -640,3 +640,20 @@ CLI由真实completed B和真实COMMIT后exit70未完成A产生缓存分派场�
 补充[exact CLI/runtime对照](evidence/completion-20261003/t57-exact-cli-runtime-control.json)同190源码、正式filter/package/relative target环境，无binary/fault环境覆盖，5/5通过15.253秒；原formal baseline2保持。两env变体原红只示已结束且未达匹配point，没有该child stdout/exitstatus，不称子进程成功。
 
 当前185个旧目标有动态结果、21项限定静态与9项结构验证各有分组证据；215汇总仍需T43独审，不能将本任务通过作为整个215当前资格或M2完成。汇总发现的两早期schema闭包缺口由T43另列当前补验，原运行限制保留，不并入G13的五项计数。
+
+
+## C002-T43 全部215精确欠项汇总
+
+当前HEAD为T57提交4487ac1。215旧ID恰好无重漏，206表达式在当前库存唯一映射，9个旧连接符已由T55结构验证替换；[当前映射](evidence/completion-20261003/t43-latest215-binding.json)本身不授执行或复用批准。累计目标分类为185动态/21限定静态/9结构，最终汇总待独立审查，不把不同输入的旧结果写成当前执行。
+
+两早期schema样本缺候选闭包，已在当前190输入用两个真实Store消费者补验2/2、28.897秒，基线2/2，源码无漂移；[独审](evidence/completion-20261003/t43-schema-current-review.md)通过。原e54 schema版本2与当前4分开，表定义和normalization算法相同，实际红为坏BLOB在ReadOnly被接受/合法库被误拒，名称schema2的手写夹具实际设置当前4。执行base4bf9仅当时HEAD，实际输入含T57新测试并逐SHA匹配4487。
+
+[原缺口](evidence/completion-20261003/t43-findings.md)保留：另30早期运行仅126/127 crate输入，没有完整根Cargo、配置与外部fixture记录；不从base或运行时间补造。按12/7/11三批补当前190资格，旧run/标签保留。当前正反consumer控制7/7与43/43通过；A12/12已Caught160.646秒，B7/7实际Caught99.548秒，后11/11实际Caught169.107秒，三批190输入均无漂移。A及此前控制未记录dispatch六环境键，明确unknown，不用T57旧snapshot当当时null；其真实目的branch由独审逐raw核。后两批dispatch先记录六键实际值。
+
+[当前生产与caller差异复核](evidence/completion-20261003/t43-current-delta-qualification.md)核默认无新增观察I/O、T55两个纯模块同式接线、T56模型sync与T57生产0；21静态与9结构条件继续成立。保留UTF8诊断/资源、FD机制、模型同步和原9native未执行限制，不称185当前全重跑/215旧原生全执行。T43准确215独审通过后标记done；M2仍not_run。
+
+当前30完整结果已绑定[215账本](evidence/completion-20261003/t43-215-dispositions.json)。formal runtime基线分别3/3/31；补充CLI/runtime7与43控制分列，不称formal7/43。A/B若后层仍拒绝而错认original，只记不合格original被认领；snapshot两项虽拒且无original，实际错借冻结副本缺失诊断，记资格优先序/诊断而非最终接受。当前共37个动态ID有本最终候选的实际执行（30补验+schema2+T57五），148个动态ID沿各完整冻结闭包结果并由独立当前caller/生产差异复核，不称185全部最新重跑。21静态与9结构继续分别登记，原stage1全部Missed及9旧native未执行保留。[最终T43独审](evidence/completion-20261003/t43-final-review.md)通过，不授M2。
+
+最终215独审通过，无剩余必须补验项；[验收绑定](evidence/completion-20261003/t43-acceptance-binding.json)固定账本与review SHA，账本的pending字段只表示不可变的审查前装配阶段。原F-T43-01留原，以当前30实际补验和独审另列resolved，不倒填旧缺失输入。原始当前32补验/190源码/215账本与报告见[资格档案](evidence/completion-20261003/t43-current-qualification.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t43-oracle-archive.json)一致。首次回读因三LICENSE-MIT软链未成为regular成员失败，保留首次tar与路径/target/content SHA；改内容快照并保留链接出处后通过，无源码或执行变化。
+
+默认check-task首次因跨后续change历史快照差异exit1；T43收尾按明确冻结基线4487核零源码/测试/snapshot改动，记录独立原文，不修改检查器或放开快照规则。

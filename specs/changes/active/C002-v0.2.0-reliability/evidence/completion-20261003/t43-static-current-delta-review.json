@@ -1,0 +1,312 @@
+{
+  "current_HEAD": "4487ac1eb20672b8136aba186e8392fafa38ebca",
+  "static_count": 21,
+  "static_entries": [
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:508:57: replace || with && in check_workbook_effects",
+      "latest_id": "crates/sheltie-runtime/src/effects.rs:514:57: replace || with && in check_workbook_effects",
+      "source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "latest_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "latest_id": "crates/sheltie-runtime/src/service.rs:922:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "source_sha256": "958101a3e60c1f9c8204ef3ae1106b65f7df636c2b7538f038fbf32a3dac58ea",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "latest_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "latest_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "source_sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t49-final-qualification-review.md",
+      "proof_sha256": "cc63efed77b7df64671f8442ffa1ab53e9e13b244ef638c30795e4ba4f8ae6a1",
+      "current_qualification": "12 exact single-mutation closed producer/caller proofs; 8 current observations same, 4 retain changed diagnostic text; immutable owned rows and unchanged strict closure dominate before file reads",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root",
+      "latest_id": "crates/sheltie-runtime/src/fsx.rs:204:31: replace || with && in ManagedFs::traverse_root",
+      "source_sha256": "6e53619942e0f15327891a49e5ba678e85840af994979457bcae77473761b20a",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t50-final-review.md",
+      "proof_sha256": "198dcd1ef38f4481b01efd128d7915f5ede2b588bd9c8bd1148c7d9a409a8f2e",
+      "current_qualification": "root empty/dotdot connector not reached by normalized current Home-derived callers; not universal AbsPath/future caller",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+      "latest_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+      "source_sha256": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t53-utf8-static-review.md",
+      "proof_sha256": "e6488ce2d2e95ae4a1f9fe99cf03d380382b548a9dd9ae95ed59c8f5a9470a1e",
+      "current_qualification": "UTF8 classifier same bool on same completed Read trace only; invalid pending allocation/copy cost and possible resource failures differ",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/recovery.rs:230:27: replace match guard complete with true in finish_checked_request",
+      "latest_id": "crates/sheltie-runtime/src/recovery.rs:230:27: replace match guard complete with true in finish_checked_request",
+      "source_sha256": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t54-published-static-review.md",
+      "proof_sha256": "f10aec7186c2403deaabba55f79c822a4143a3b70d4c22217aca8d67a4e9d38c",
+      "current_qualification": "Some observed only via verify_published=false; same owned row early-return dominates published=true so reachable Some always complete=true",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1080:45: replace || with && in verify_start_input_references",
+      "latest_id": "crates/sheltie-runtime/src/effects.rs:1086:45: replace || with && in verify_start_input_references",
+      "source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t55-static-review.md",
+      "proof_sha256": "ede53949b0a823231322a345e306c649f3604ae94be9409e7a5eeb1582835dff",
+      "current_qualification": "4 exact shape/format/arm dispositions only; diagnostic and pure allocation/work differences retained; no global security equivalence",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1299:46: replace || with && in validate_deleted_marker_file",
+      "latest_id": "crates/sheltie-runtime/src/effects.rs:1305:46: replace || with && in validate_deleted_marker_file",
+      "source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t55-static-review.md",
+      "proof_sha256": "ede53949b0a823231322a345e306c649f3604ae94be9409e7a5eeb1582835dff",
+      "current_qualification": "4 exact shape/format/arm dispositions only; diagnostic and pure allocation/work differences retained; no global security equivalence",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1519:13: delete match arm FileType::Symlink in sync_dir_tree",
+      "latest_id": "crates/sheltie-runtime/src/fsx.rs:1686:13: delete match arm FileType::Symlink in sync_dir_tree",
+      "source_sha256": "6e53619942e0f15327891a49e5ba678e85840af994979457bcae77473761b20a",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t55-static-review.md",
+      "proof_sha256": "ede53949b0a823231322a345e306c649f3604ae94be9409e7a5eeb1582835dff",
+      "current_qualification": "4 exact shape/format/arm dispositions only; diagnostic and pure allocation/work differences retained; no global security equivalence",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2521:9: delete match arm FileType::RegularFile in preflight_remove_at",
+      "latest_id": "crates/sheltie-runtime/src/fsx.rs:2699:9: delete match arm FileType::RegularFile in preflight_remove_at",
+      "source_sha256": "6e53619942e0f15327891a49e5ba678e85840af994979457bcae77473761b20a",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t55-static-review.md",
+      "proof_sha256": "ede53949b0a823231322a345e306c649f3604ae94be9409e7a5eeb1582835dff",
+      "current_qualification": "4 exact shape/format/arm dispositions only; diagnostic and pure allocation/work differences retained; no global security equivalence",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "latest_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t56-static-review.md",
+      "proof_sha256": "3fe8c442fb84af22dc7ec19694b9891495231b779bde96a3b7e58c96b9a17356",
+      "current_qualification": "2 exact private from_rows/cleanup_selected predicates; local NoneNone false/continue and duplicate final len!=1 rejection dominate before cleanup business I/O; diagnostic/work differences retained",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+      "latest_id": "crates/sheltie-runtime/src/pending.rs:475:43: replace || with && in cleanup_selected",
+      "source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "status": "current_scoped_proof_still_valid",
+      "proof": "/private/tmp/sheltie-completion-20261003/t56-static-review.md",
+      "proof_sha256": "3fe8c442fb84af22dc7ec19694b9891495231b779bde96a3b7e58c96b9a17356",
+      "current_qualification": "2 exact private from_rows/cleanup_selected predicates; local NoneNone false/continue and duplicate final len!=1 rejection dominate before cleanup business I/O; diagnostic/work differences retained",
+      "dynamic_execution": "not_run",
+      "caught": false,
+      "whole_behavior_equivalent": false
+    }
+  ],
+  "structural_count": 9,
+  "structural_current_qualification": "T55 pure definitions and3+4 role-correct callsites plus preserved native fixtures/OwnedTempDir drop control; full same-frozen pure-only9 actual execution retained, not old native run",
+  "directory_source_t55_test_suffix_unchanged": true,
+  "pending_source_t55_prefix_unchanged": true,
+  "old_stage1_raw_all215_Missed_verified": true,
+  "old_stage_outcomes": [
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-0-of-8/raw/outcomes.json",
+      "sha256": "9cd32130d5d867c184fc400531c499d718167b0fbedfe511b9280dd223d8645b"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-1-of-8/raw/outcomes.json",
+      "sha256": "e83327836e41f7bd9acf6eb2a55eb4506293c6a59071377a20687079edaf7529"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-2-of-8/raw/outcomes.json",
+      "sha256": "df59a68e566828b4e8e7f6b3944ca824d1b471f7dbea993ac07ee909f329d0e7"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-3-of-8/raw/outcomes.json",
+      "sha256": "f032db3ad57a52cfd0b6abd772e9e1b8eb24e2db0c23270c0d81606c8a80b142"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-4-of-8/raw/outcomes.json",
+      "sha256": "c9a3d73b901317c06d95691c50fb47d418a06106ba6103303fe6c61583f5bd4f"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-5-of-8/raw/outcomes.json",
+      "sha256": "b998847aa3bda49a2e5e8db61f470b741eede654c3e0e3921f9a567570780435"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-6-of-8/raw/outcomes.json",
+      "sha256": "d9b1eb6ff46223c6e33a6e738f27c5b8cda164e908ee1c670a046a21f8d4d2fb"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/m1-2026-10-01/mutants/stage1-sheltie-runtime-7-of-8/raw/outcomes.json",
+      "sha256": "49ced123dd95e286f685e910956cc2d4fdf731ee6f63192369726aa33f66c80b"
+    }
+  ],
+  "unchanged_production_files": [
+    "service.rs",
+    "workbook_repo.rs",
+    "recovery.rs",
+    "snapshot.rs",
+    "store/commit.rs",
+    "store/read.rs",
+    "store/schema.rs"
+  ],
+  "append_only_files": [
+    "load.rs",
+    "effects.rs",
+    "workbook_digest.rs"
+  ],
+  "remaining": "early30 current execution closure qualification; final ledger/assembly binding"
+}
