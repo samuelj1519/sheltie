@@ -10,10 +10,12 @@ All notable changes to this project will be documented in this file. See [conven
 - 当前 Attempt 的任务书、冻结输入与声明草稿指针；实时 status 同次读取 revision 和未完成效果。
 - 终点 required 输入/输出可显式选择最终成果；只读 `work result` 返回该具体终点绑定或封存的完整引用。
 - 最小代码变更方法的固定实现、独立审查与交付阶段，保留显式返工边。
+- 同一Occurrence可显式替换当前执行者一次，保留superseded历史并继承冻结输入；真正失败的重试额度独立计算。
+- 以同一结果revision/key读取原字节；未发布外围sheltie-export核全体成果后生成可编辑新副本，不覆盖已有对象，准确保留暂存与发布后未确认状态。
 
 ### Breaking Changes
 
-- 开发候选为 `0.3.0-rc.1`，Store schema 3，公开合同 `cli-result/v3`。旧 schema 1/2 原件保留并整体拒绝，不自动迁移或清空。
+- 开发候选为 `0.3.0-rc.1`，Store schema 4，公开合同 `cli-result/v4`。Attempt创建序号为number，superseded记录替换理由。旧 schema 1/2/3 原件保留并整体拒绝，不自动迁移或清空。
 
 ## [0.2.0]
 

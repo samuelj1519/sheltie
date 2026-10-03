@@ -129,3 +129,11 @@ T02首次staged范围检查拒绝main：任务表files数组左侧多一个空�
 引擎/导出source、Cargo、fixtures、原冻结public tests未变；832原run的其他消费者按相同source/config/features引用，改变的governance helper/script与其30消费者已换新证据，不称same whole hash或840单run。D-043与工程规范先固定版本权威。开发目标不会发布或创建tag。
 
 T05全cached diff exit2仅两份工具原文EOF空行，见[evidence清单](evidence/t05/diff-check.json)；原字节保留。精确排除这两份raw后的作者检查exit0。
+
+## C006-T03 手册与用途边界
+
+开工候选 `b37938930487beb70ae1e0aacfbd18646e4baf88`。指南补真实Cargo JSON路径、构建失败立即停止/两binary齐全、新raw私有暂存文件与退出码、四状态和现场处置。字面默认features/locked构建片段实际exit0，[构建命令](evidence/t03/default-build-command.sh)、[Cargo JSON](evidence/t03/default-build.jsonl)、[编译/两SHA输出](evidence/t03/default-build.txt)保留。先前allfeatures capsule run单列，不冒充默认构建。
+
+[默认binary实际手册机制](evidence/t03/default-mechanism.json)14CLI均exit0：三选定报告的手工副本与工具副本bytes/size/SHA完全相同，manifest.result同一次结果，三次business status DTO相同；用户编辑旧副本后重跑生成新副本且原编辑保留。都是明确fixture文字/临时目录，不是真实代码质量、首次用户试用或净收益。独立Reviewer已核前一capsule机制同样14calls及实际文件，默认新原件交M2。
+
+[真实用途前检](evidence/t03/preflight.json)缺用户/目的/同质量对照及人工投入，原真实义务授权延期，minutes/usage为null而非0。未进行正式安装或发布。CHANGELOG仅未发布段改schema4/v4并补已实现替换/raw/export，历史release不改。无所属Rust用例，不运行零测试task.sh；源码、832/30消费者及MSRV输入按未变分组引用，指南/治理另验。
