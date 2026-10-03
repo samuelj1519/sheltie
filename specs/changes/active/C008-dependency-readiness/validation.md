@@ -80,3 +80,7 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## C008-T02 原义务的授权未执行记录
 
 开工49b48799c7180cbf1ececbd5aba588344d9ab351。[8项延期](experiment/evidence/real/README.md)逐项记target必要性/摩擦、host规则、probe/config/fixture、no-write测试、原机制M1、实际人工/script、全成本/复用及原M2 not_run。没有实际观测、matches/mismatch、ready、正式run ID或活动数据；人工/费用/净改善null。不以0decl证明host不存在，不制造host缺失、不以import失败当机制拒绝。声明与规则原件保持，无产品/host变化。
+
+## C008-T03 前检边界与未知成本报告
+
+开工2229b9ac9ad4ef9d85b08dec3c2a43c3d321bd63。[report](experiment/report.md)仅从6/6/24、0requires、15resource/13文件及29SHA和原条件缺项作结论；不扩为全host或所有任务资源不存在/无摩擦。没有probe/实际人观察和P/M/复核/误报/近期复用原件，成本/收益unknown/null，不估算避免损失或ready，不把C007机制当自然需求。当前保留条件和补验、不启动未采用机制，不修改原件/门槛或新增通用平台。
