@@ -1,0 +1,56 @@
+{
+  "result": "NEEDS_CHANGE_one_positive_control_before_final_qualification",
+  "reviewer": "/root/oracle_review; read-only; did not prepare G06 direction or implement oracles",
+  "base": "ed9b5da0",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "a0e1f747da6d1dc42acaa4fc0966c5eef5550f4d75cecf492265b496622d2842",
+    "crates/sheltie-runtime/src/workbook_digest.rs": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa"
+  },
+  "scope": "five current FS API tests and one observer; planned stream test not yet implemented/reviewed",
+  "baseline": {
+    "tests": 5,
+    "passed": 5,
+    "filtered": 391,
+    "raw_sha256": "e5a17aba7820a83f477b57ef557f53655b9abe507bfbac22e5db96c4cb1cdfef"
+  },
+  "findings": [
+    {
+      "id": "F-T53-01",
+      "severity": "required oracle positive control",
+      "location": "copy_detects_growth_past_the_actual_file_limit_before_creating_a_truncated_target",
+      "reason": "reaching the 32MiB opened checkpoint proves preflight/open acceptance, not completed exact-limit copy acceptance",
+      "basis": "engineering section3 exact limit positive/negative pair; adopted T53 plan / G06 T3",
+      "required_result": "real copy of same exact32MiB source to independent unique private destination succeeds and reports actual total with full output bytes/size or independent hash; separate destination then growth +1 refusal before file creation"
+    }
+  ],
+  "other_source_findings": [],
+  "observer": "actual final opened fstat/checks complete, before body Read; existing feature no-op disabled, no new public getter/framework/default IO",
+  "stream_proposal": {
+    "classification": "specific frame rejection/next external Read IO priority and stop mechanism, not final Workbook false acceptance",
+    "basis": "storage5.1 actual-length frame; GF32 same-object; documented stream_file_into consistency/growth rejection",
+    "restriction": "high-level contracts do not establish general priority for all IO errors or resource budget",
+    "needed_controls": [
+      "real original metadata declared length then append makes first true File Read contradict header",
+      "independent legal SHA and exact bytes/UTF8 control",
+      "same-length first real read valid, next injected external Read fails -> Io control; excludes arbitrary Io reclassified InvalidRequest"
+    ]
+  },
+  "utf8_static_candidate": {
+    "algebra": "true guard keeps invalid suffix; a prefix with definite UTF8 error cannot become valid by suffix; pending nonempty ensures is_valid false; incomplete-tail path unchanged",
+    "callers": [
+      "inspect_tree_v2 -> stream_file_into -> Utf8State::push/is_valid",
+      "WorkbookRepo::load_tree captured manifest/Flow/instruction uses std::str::from_utf8 separately",
+      "observe::build_resource_index_from_tree streams all files",
+      "digest_tree_v2/digest_dir_v2/digest_managed_dir_v2 return digest only on full success",
+      "core flow compile rule7 uses is_utf8 for instruction files; resources encoding unrestricted"
+    ],
+    "boundary": "classification/returned metadata only; pending storage/work differs up to file limit, repeated copies can cost near quadratic; no resource budget equivalence",
+    "status": "candidate argument reviewed; final exact ID/current mapping/source closure not approved yet"
+  },
+  "cleanup": "existing scoped observe_change release/join; marker error synchronous disarm before assertions, no waiting worker; own File/TempDir handles drop",
+  "not_run": [
+    "planned stream test",
+    "7dynamic+1static final exact G06 map/run/qualification",
+    "full current engineering/MSRV/default/governance"
+  ]
+}

@@ -339,7 +339,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T50 | done | Codex；独立 Reviewer | G03精确26：25动态/1限定静态，880全回归及独审通过 |
 | C002-T51 | done | Codex；独立 Reviewer | G04 精确27全部动态检测；894全回归与独审通过 |
 | C002-T52 | done | Codex；独立 Reviewer | G05 精确16全部动态检测；901全回归及独审通过 |
-| C002-T53 | not_run | Codex；独立 Reviewer | G06 外部树读取、有界摘要与 UTF8；T52 提交后实施 |
+| C002-T53 | done | Codex；独立 Reviewer | G06 精确8：7动态/1分类限定静态；908全回归及独审通过 |
+| C002-T54 | not_run | Codex；独立 Reviewer | G07 同步来源、封存和输出边界；T53 提交后实施 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -421,3 +422,15 @@ G06 准确 8 个旧 ID。最终 files/directories 单侧变化、opened 同 inod
 流式 frame guard 与 UTF8 状态的静态候选须由独立 Reviewer 核完整当前 caller 和准确成功结果/分类闭包；保留读取次数、诊断、pending 内存及累计复制差异，不称全观察/全资源等价。没有已采用预算时不发明资源阈值或镜像私有字段断言。任何真实有用差异按实际合同另列，不把数学分类相同扩大为全部行为相同。
 
 先合法基线、实际短样本，再冻结 8 ID、source/fixture/binary/config；每批最多12项/600秒。marker错误需无正文读取/无目标创建，线程与FD有界回收。工程/MSRV/治理和未参与准备的逐 ID 独立审查完成后，一个任务一个提交。
+
+
+T53 的 frame 停止判据用真实文件旧 metadata 声明、实际 append 后的首轮 File Read，随后只在 Read 外部边界注入 I/O 错误。核已经观察到的帧矛盾先拒，与同长度合法首读后真实 Read 错误保留 I/O 的对照；仅是该消费者的错误优先序/停止机制，不采用一般 I/O 优先序或新资源阈值，也不声称最终 Workbook 被错误接受。
+
+
+### C002-T54 同步来源、封存与输出边界
+
+G07 准确 6 个旧 ID。同步来源资格沿真实 SafeFile/新 root epoch，不手造 origin；输入及删除 marker 绑定用真正替换对象和准确读窗口，区分更早同步 guard 与目标 binding guard。封存长度使用 before fstat 后恢复原字节的窗口，不能由后来的 SHA/第二次事实支配旧观察。必要观察点只在已有 feature 下增加，错误保留已同步/已提交阶段与原件，不以 timeout 检测。
+
+完整发布 guard 静态候选由当前所有 caller、同一个不可变行、Some/None 路由与前层 early-return 证明，不套用相似名称。observe_output 的恰好 32MiB 接受/多一字节拒绝必须真实合法 Flow 的 max_bytes=32MiB，不能由较小 core 上限或其它 guard 提前挡住。
+
+先非零合法基线与代表样本，冻结精确6 ID、源/fixture/二进制闭包；每批最多12项/600秒。完整工程/MSRV/治理和未参与准备的独立逐 ID 审查后，一个任务一个提交，不关闭其它组或M2。

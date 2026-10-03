@@ -1,0 +1,74 @@
+{
+  "result": "PASS_source_oracle_preparation_only",
+  "reviewer": "/root/oracle_review; read-only; did not prepare G06 direction or implement oracles",
+  "base": "ed9b5da0",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "66ead1755a33fb14d8095ee463c89558022b829c5a5958345cf24fa2b6d5e191",
+    "crates/sheltie-runtime/src/workbook_digest.rs": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa"
+  },
+  "scope": "five FS tests + two implemented bounded-stream tests + one existing-feature observer; exact eight final G06 qualifications still pending",
+  "baseline": {
+    "tests": 7,
+    "passed": 7,
+    "filtered": 391,
+    "raw": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t53-copy-control-baseline.txt",
+    "raw_sha256": "694bf5d400bb7ef43300f0b9ccd234aaca47a095ce5d7fa3fc6a0e02a1d0be52"
+  },
+  "findings": [
+    {
+      "id": "F-T53-01",
+      "severity": "required oracle positive control",
+      "location": "copy_detects_growth_past_the_actual_file_limit_before_creating_a_truncated_target",
+      "reason": "reaching the 32MiB opened checkpoint proves preflight/open acceptance, not completed exact-limit copy acceptance",
+      "basis": "engineering section3 exact limit positive/negative pair; adopted T53 plan / G06 T3",
+      "required_result": "real copy of same exact32MiB source to independent unique private destination succeeds and reports actual total with full output bytes/size or independent hash; separate destination then growth +1 refusal before file creation",
+      "status": "resolved",
+      "resolution": "legal-copy returns33554432; complete len/dev/distinct ino/nlink1/0600 and full streaming SHA equals independently verified Python hashlib32MiB zeros constant; separate copy destination grows1 then refuses before data creation"
+    }
+  ],
+  "other_source_findings": [],
+  "observer": "actual final opened fstat/checks complete, before body Read; existing feature no-op disabled, no new public getter/framework/default IO",
+  "stream_proposal": {
+    "classification": "specific frame rejection/next external Read IO priority and stop mechanism, not final Workbook false acceptance",
+    "basis": "storage5.1 actual-length frame; GF32 same-object; documented stream_file_into consistency/growth rejection",
+    "restriction": "high-level contracts do not establish general priority for all IO errors or resource budget",
+    "needed_controls": [
+      "real original metadata declared length then append makes first true File Read contradict header",
+      "independent legal SHA and exact bytes/UTF8 control",
+      "same-length first real read valid, next injected external Read fails -> Io control; excludes arbitrary Io reclassified InvalidRequest"
+    ],
+    "status": "implemented and reviewed",
+    "implemented_controls": "real File with declared metadata4 and optional append+; first Read delegates actual File; second read returns external Io only; normal bytes -> Io, growth -> InvalidRequest; full legal stream standardSha/stdUTF8 and arbitrary preceding prefix hash control",
+    "sha_scope": "stream bytes and caller-supplied existing hasher prefix integrity, not independently proving full BE64 Workbook framing"
+  },
+  "utf8_static_candidate": {
+    "algebra": "true guard keeps invalid suffix; a prefix with definite UTF8 error cannot become valid by suffix; pending nonempty ensures is_valid false; incomplete-tail path unchanged",
+    "callers": [
+      "inspect_tree_v2 -> stream_file_into -> Utf8State::push/is_valid",
+      "WorkbookRepo::load_tree captured manifest/Flow/instruction uses std::str::from_utf8 separately",
+      "observe::build_resource_index_from_tree streams all files",
+      "digest_tree_v2/digest_dir_v2/digest_managed_dir_v2 return digest only on full success",
+      "core flow compile rule7 uses is_utf8 for instruction files; resources encoding unrestricted"
+    ],
+    "boundary": "classification/returned metadata only; pending storage/work differs up to file limit, repeated copies can cost near quadratic; no resource budget equivalence",
+    "status": "exact ID/current complete caller classification scoped proof approved in t53-utf8-static-review.md/json"
+  },
+  "cleanup": "existing scoped observe_change release/join; marker error synchronous disarm before assertions, no waiting worker; own File/TempDir handles drop",
+  "not_run": [
+    "7 dynamic +1 static final exact G06 map/run/qualification",
+    "full current engineering/MSRV/default/governance"
+  ],
+  "required_source_changes": [],
+  "simplification_review": {
+    "fsx_before_new_module_identical": true,
+    "whole_workbook_digest_identical": true,
+    "identity_sha_helpers": "direct std metadata/read and standardSHA; no oracle predicate change",
+    "File_lifetime": "reader stays in original test scope"
+  },
+  "post_simplification_baseline": {
+    "passed": 7,
+    "tests": 7,
+    "filtered": 391,
+    "sha256": "2985554cca9ed8518c735bf3bde0fe43fb6af87537f7ebb59c65f7c485cb9915"
+  }
+}

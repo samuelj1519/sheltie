@@ -1,0 +1,73 @@
+{
+  "result": "PASS_limited_static_utf8_classification",
+  "reviewer": "/root/oracle_review; independent of G06 preparation/implementation/oracle authorship; read-only",
+  "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+  "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+  "old_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+  "current_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+  "genre": "MatchArmGuard",
+  "replacement": "true",
+  "function": "Utf8State::push",
+  "span_start": {
+    "line": 163,
+    "column": 27
+  },
+  "source_sha256": {
+    "crates/sheltie-runtime/src/workbook_digest.rs": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa",
+    "crates/sheltie-runtime/src/workbook_repo.rs": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+    "crates/sheltie-runtime/src/observe.rs": "d0e6eff7de2fa5aa642e21989a7812833af3b7e0add818ddc69bd2586274f4c0",
+    "crates/sheltie-core/src/flow/compile.rs": "c1e008571ee87047c812fedb2e63f28583d61a361e97a7ba7b4cd778b9ab4e97",
+    "crates/sheltie-core/src/flow/graph.rs": "0ae0ef4accc37a1e9b4afc336260b5a187436e590ed4ea7b5c5994b980de826f",
+    "crates/sheltie-runtime/src/fsx.rs": "66ead1755a33fb14d8095ee463c89558022b829c5a5958345cf24fa2b6d5e191",
+    "Cargo.lock": "79905320141739d950105a36f7beda5872ff9fe2b95587b850afb9e823a653e8"
+  },
+  "original_production_prefix_unchanged": true,
+  "disposition": "static_scoped_classification_proved",
+  "dynamic_execution": "not_run",
+  "caught": false,
+  "full_behavior_or_resource_equivalence": false,
+  "proof": [
+    "before definite-invalid sequence the Ok/incomplete-tail branches execute identically",
+    "first definite UTF8 error Some(len) begins at valid_up_to and leaves a nonempty invalid suffix; no appended suffix can repair an already invalid byte sequence",
+    "original flips valid=false and skips all future parsing, so is_valid false thereafter",
+    "mutant keeps valid=true but pending always contains that invalid prefix; every future parse remains invalid and pending remains nonempty; is_valid false thereafter",
+    "on fixed read/chunk traces with normal completion both final UTF8 booleans match; stream hashes/length values are updated independently of classifier flag and have same values",
+    "only product observation of private classifier state is is_valid returned through stream_file_into to ResourceMeta; captured bytes use independent stdUTF8 path"
+  ],
+  "caller_closure": [
+    {
+      "source": "workbook_digest.rs",
+      "chain": "digest_dir_v2/digest_managed_dir_v2 -> digest_tree_v2 -> inspect_tree_v2 -> stream_file_into -> Utf8State push/is_valid",
+      "qualification": "validate_sizes before reading; actual growth bound before Utf8 push; Err short-circuits without completed digest/index"
+    },
+    {
+      "source": "workbook_repo.rs",
+      "chain": "load_dir/load_managed_dir -> load_tree -> inspect_tree_v2 -> compile",
+      "qualification": "manifest/Flow/instruction captured and stdUTF8 classified separately; uncaptured files stream; ResourceIndex field preserved"
+    },
+    {
+      "source": "observe.rs",
+      "chain": "public build_resource_index -> build_resource_index_from_tree -> inspect_tree_v2 with empty captured map",
+      "qualification": "all streamed files classifications preserved"
+    },
+    {
+      "source": "core flow compile.rs/graph.rs",
+      "chain": "ResourceMeta.is_utf8 -> rule7 instruction UTF8 check; resource bindings do not require encoding",
+      "qualification": "same boolean values; core has no access to classifier valid/pending"
+    }
+  ],
+  "resource_limits_and_differences": {
+    "original": "unfinished tail at most3 bytes; after definite invalid no more classifier parsing",
+    "mutant": "retains invalid suffix up to actual bounded file bytes, repeated pending copies can grow near quadratic work; peak allocation/time not measured or equated",
+    "read_trace": "Read control structure unchanged, but work/timing and concurrent interleavings not proven equal",
+    "assumptions": "same provided byte/chunk trace, normal completion; excludes allocator abort/OOM/timeout/cost effects",
+    "budget": "no adopted concrete resource budget -> no invented threshold or private-field mirror test"
+  },
+  "local_std_primary_semantics": "core/src/str/error.rs Utf8Error::error_len: None incomplete1..3 tail; Some invalid byte sequence at valid_up_to",
+  "limits": [
+    "only this exact guard ID and current complete classifier caller closure",
+    "no dynamic Caught; no rewriting original stage1 MissedMutant",
+    "not full all-product/platform/resource equivalence",
+    "other seven G06 dynamic IDs/final engineering not reviewed in this report"
+  ]
+}

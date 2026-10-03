@@ -1,0 +1,15 @@
+# C002-T53 源码与 oracle 准备审查
+
+结论：**需修改，1项正对照缺口；其余当前窗口/安全/方法未发现必须修改项。** Reviewer `/root/oracle_review` 未参与G06方向、源码或oracle编写，只读复核。范围为当前5个FS API tests与1个observer；实际5/5 baseline、391过滤，source SHA见JSON。计划中的stream测试尚未写入，不授其PASS或全部G06结论。
+
+F-T53-01：copy负例用真实32MiB sparse源，最终fstat通过后append1字节，明确核dest/data未创建。但源到达opened窗口仅证明preflight/open合法，缺少同API恰好32MiB完整复制成功的控制。engineering§3及T53 plan要求恰好cap接受/+1拒绝。应先将同一源真实复制到另一个唯一私有目标，核完整返回总量、目标size/完整bytes或独立SHA与对象事实；随后另一目标做增长拒绝。上层Add限额回归可以作为补充，不能把到达观察点称完整copy成功。
+
+新增observer位于ExternalReadTree.open_file最后opened fstat与check_regular/身份/长度guard之后，正文Read之前；原前stat不被冒充最终fstat。现有feature机制精确name/scope、默认关闭无新增FS/SQL/注入环境读取，不增加getter/通用框架。文件/目录单侧清单变化、同inode增长/同长度新inode，以及read_file精确4字节正与+1负例，都来自真实元数据/bytes；原件保留、copy私有dst/data创建之前拒绝有明确机制边界。copy变体可能最终rescan仍拒绝但已写prefix，该检测不能叙述为最终Workbook接受。
+
+现有scope/release helper在真实reached后修改并释放/join；早结束返回真实result，不以timeout代替目标失败。marker-error分支同步真实非目录carrier错误，先disarm再assert原件完整，无等待worker。copy源保持dev/ino/mode/nlink、变更仅尾部+1，未建Store；自己的destination目录可早已创建，不误称全部零写。
+
+拟议stream真实File增长→首个Read得到超声明长度→下一Read外部Io注入，可作为具体frame拒绝的错误优先序/停止机制检测。依据storage§5.1长度帧、GF-32同对象及stream_file_into既有文档的实际字节数/增长拒绝；高层合同没有一般性所有IO错误优先序或性能预算。declared应来自原真实metadata，实际内容/标准SHA独立；同长度合法首Read后下一Read注入Io必须确实为Io，排除任意IO都改InvalidRequest。它只检测已经看见frame矛盾后是否还读外部输入，不称最终成功摘要差异或镜像私有guard。最终实现和实际红仍待审。
+
+UTF8限定静态方向：明确invalid前缀不能通过追加suffix变合法；true guard保存该invalid suffix使pending恒非空，最终is_valid仍false；合法/未完成尾部路径原本相同。完整当前caller仅stream_file_into产生classifier结果，再由inspect_tree_v2返回ResourceMeta；load_tree已captured的manifest/Flow/instruction另以标准UTF8判定，observe资源index则全部走流式。digest仅全成功返回，core rule7要求说明文件UTF8而resource编码不限。分类证明不包括pending大小/反复复制/时延：原invalid后停止，变体最多file上限的suffix与累计工作不同。没有采用资源预算时不发明阈值或用.valid私有字段杀变体；最终原ID/映射/输入闭包须另审后才能限定静态处分。
+
+此报告不批准最终8项集合、stream oracle、完整工程或C002-M2；均保持未审/not_run。

@@ -2042,6 +2042,8 @@ impl ExternalReadTree {
                 reason: format!("{display} 在打开期间被替换或改变"),
             });
         }
+        crate::failpoint::rendezvous("external_tree_after_open_validation", &display)
+            .map_err(|error| Error::io(&display, error))?;
         Ok(ExternalTreeFileHandle(std::fs::File::from(fd)))
     }
 
@@ -5414,5 +5416,245 @@ mod exchange_ownership_contract_tests {
         reader.read_to_end(&mut bytes).unwrap();
         assert_eq!(bytes, b"legitimate original bytes");
         assert!(!home.store_path().as_path().exists());
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod external_read_contract_tests {
+    use super::controlled_object_tests::observe_change;
+    use super::*;
+
+    fn abs(path: &std::path::Path) -> AbsPath {
+        AbsPath::new(path.to_str().unwrap().to_owned()).unwrap()
+    }
+
+    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32, u64) {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.mode(),
+            metadata.nlink(),
+        )
+    }
+
+    fn independent_file_sha256(reader: &mut std::fs::File) -> String {
+        use sha2::Digest as _;
+        let mut hash = sha2::Sha256::new();
+        let mut buffer = [0u8; 65_536];
+        loop {
+            let read = reader.read(&mut buffer).unwrap();
+            if read == 0 {
+                break;
+            }
+            hash.update(&buffer[..read]);
+        }
+        format!("{:x}", hash.finalize())
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn final_tree_validation_rejects_changes_to_either_files_or_directories_alone() {
+        for addition in ["file", "directory"] {
+            let directory = tempfile::tempdir().unwrap();
+            let original = directory.path().join("data");
+            std::fs::write(&original, b"unchanged original bytes").unwrap();
+            let before = std::fs::metadata(&original).unwrap();
+            let tree = ExternalReadTree::open(&abs(directory.path())).unwrap();
+            tree.validate_unchanged().unwrap();
+            if addition == "file" {
+                std::fs::write(directory.path().join("late-file"), b"new late bytes").unwrap();
+            } else {
+                std::fs::create_dir(directory.path().join("late-directory")).unwrap();
+            }
+            let Error::InvalidRequest { reason } = tree.validate_unchanged().unwrap_err() else {
+                panic!("a single changed inventory must invalidate the original tree")
+            };
+            assert!(reason.contains("读取期间目录项或对象身份改变"), "{reason}");
+            assert_eq!(
+                std::fs::read(&original).unwrap(),
+                b"unchanged original bytes"
+            );
+            let after = std::fs::metadata(&original).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+        }
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn external_open_refuses_same_inode_growth_or_same_length_replacement_after_stat() {
+        for change in ["growth", "replacement"] {
+            let directory = tempfile::tempdir().unwrap();
+            let original = directory.path().join("data");
+            std::fs::write(&original, b"data").unwrap();
+            let before = std::fs::metadata(&original).unwrap();
+            let tree = ExternalReadTree::open(&abs(directory.path())).unwrap();
+            let entry = tree.files()[0].clone();
+            let scope = format!("{}/data", tree.root);
+            let retained = directory.path().join("retained-original");
+            let result = observe_change(
+                "external_tree_after_stat",
+                &scope,
+                move || tree.open_file(&entry),
+                || {
+                    if change == "growth" {
+                        let mut file = std::fs::OpenOptions::new()
+                            .append(true)
+                            .open(&original)
+                            .unwrap();
+                        file.write_all(b"+").unwrap();
+                        assert_eq!(std::fs::metadata(&original).unwrap().ino(), before.ino());
+                    } else {
+                        std::fs::rename(&original, &retained).unwrap();
+                        std::fs::write(&original, b"late").unwrap();
+                        let replacement = std::fs::metadata(&original).unwrap();
+                        assert_eq!(replacement.dev(), before.dev());
+                        assert_ne!(replacement.ino(), before.ino());
+                        assert_eq!(replacement.len(), before.len());
+                    }
+                },
+            );
+            let Error::InvalidRequest { reason } = result.unwrap_err() else {
+                panic!("opened facts must independently match the captured entry")
+            };
+            assert!(reason.contains("打开期间被替换或改变"), "{reason}");
+            if change == "growth" {
+                assert_eq!(std::fs::read(&original).unwrap(), b"data+");
+            } else {
+                assert_eq!(std::fs::read(&original).unwrap(), b"late");
+                assert_eq!(std::fs::read(&retained).unwrap(), b"data");
+                let preserved = std::fs::metadata(&retained).unwrap();
+                assert_eq!(object_identity(&preserved), object_identity(&before));
+            }
+        }
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn an_extra_byte_after_open_validation_cannot_be_silently_truncated_to_the_read_cap() {
+        let directory = tempfile::tempdir().unwrap();
+        let original = directory.path().join("data");
+        std::fs::write(&original, b"data").unwrap();
+        let tree = ExternalReadTree::open(&abs(directory.path())).unwrap();
+        assert_eq!(
+            tree.read_file(&RelPath::new("data").unwrap(), 4).unwrap(),
+            b"data"
+        );
+        let scope = format!("{}/data", tree.root);
+        let result = observe_change(
+            "external_tree_after_open_validation",
+            &scope,
+            move || tree.read_file(&RelPath::new("data").unwrap(), 4),
+            || {
+                std::fs::OpenOptions::new()
+                    .append(true)
+                    .open(&original)
+                    .unwrap()
+                    .write_all(b"+")
+                    .unwrap();
+            },
+        );
+        let Error::InvalidRequest { reason } = result.unwrap_err() else {
+            panic!("reading one byte beyond the cap must invalidate the captured file")
+        };
+        assert!(reason.contains("读取期间改变"), "{reason}");
+        assert_eq!(std::fs::read(&original).unwrap(), b"data+");
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn copy_detects_growth_past_the_actual_file_limit_before_creating_a_truncated_target() {
+        let directory = tempfile::tempdir().unwrap();
+        let source = directory.path().join("source");
+        std::fs::create_dir(&source).unwrap();
+        let original = source.join("data");
+        let file = std::fs::File::create(&original).unwrap();
+        file.set_len(MAX_FILE_BYTES).unwrap();
+        let before = file.metadata().unwrap();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let destination = home.rel("copy").unwrap();
+        let source_abs = abs(&source);
+        let legal_destination = home.rel("legal-copy").unwrap();
+        assert_eq!(
+            copy_tree_confined(&home, &lock, &source_abs, &legal_destination).unwrap(),
+            32 * 1024 * 1024
+        );
+        let legal_file = legal_destination.as_path().join("data");
+        let legal_metadata = std::fs::metadata(&legal_file).unwrap();
+        assert_eq!(legal_metadata.len(), 32 * 1024 * 1024);
+        assert_eq!(legal_metadata.dev(), before.dev());
+        assert_ne!(legal_metadata.ino(), before.ino());
+        assert_eq!(legal_metadata.nlink(), 1);
+        assert_eq!(legal_metadata.mode() & 0o777, 0o600);
+        let mut reader = std::fs::File::open(&legal_file).unwrap();
+        assert_eq!(
+            independent_file_sha256(&mut reader),
+            "83ee47245398adee79bd9c0a8bc57b821e92aba10f5f9ade8a5d1fae4d8c4302"
+        );
+        let tree = ExternalReadTree::open(&source_abs).unwrap();
+        let scope = format!("{}/data", tree.root);
+        drop(tree);
+        let worker_home = home.clone();
+        let worker_destination = destination.clone();
+        let result = observe_change(
+            "external_tree_after_open_validation",
+            &scope,
+            move || copy_tree_confined(&worker_home, &lock, &source_abs, &worker_destination),
+            || {
+                std::fs::OpenOptions::new()
+                    .append(true)
+                    .open(&original)
+                    .unwrap()
+                    .write_all(b"+")
+                    .unwrap();
+            },
+        );
+        assert!(
+            !destination.as_path().join("data").exists(),
+            "a growth refusal must precede writing a silently truncated target"
+        );
+        let Error::InvalidRequest { reason } = result.unwrap_err() else {
+            panic!("copy must reject growth at its bounded read")
+        };
+        assert!(reason.contains("复制期间改变"), "{reason}");
+        let after = std::fs::metadata(&original).unwrap();
+        assert_eq!(after.len(), MAX_FILE_BYTES + 1);
+        assert_eq!(object_identity(&after), object_identity(&before));
+        let mut reader = std::fs::File::open(&original).unwrap();
+        reader.seek(std::io::SeekFrom::End(-1)).unwrap();
+        let mut tail = [0u8; 1];
+        reader.read_exact(&mut tail).unwrap();
+        assert_eq!(tail, [b'+']);
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn an_open_observation_failure_returns_io_without_reading_or_creating_business_files() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        let source = directory.path().join("source");
+        std::fs::create_dir(&source).unwrap();
+        let original = source.join("data");
+        std::fs::write(&original, b"retain original bytes").unwrap();
+        let before = std::fs::metadata(&original).unwrap();
+        let tree = ExternalReadTree::open(&abs(&source)).unwrap();
+        let scope = format!("{}/data", tree.root);
+        let carrier = directory.path().join("invalid-sync-directory");
+        std::fs::write(&carrier, b"retain carrier").unwrap();
+        crate::failpoint::arm_rendezvous("external_tree_after_open_validation", &scope, &carrier)
+            .unwrap();
+        let result = tree.read_file(&RelPath::new("data").unwrap(), 32);
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::Io { path, .. } = result.unwrap_err() else {
+            panic!("the failed marker must not be a successful body read")
+        };
+        assert_eq!(path, scope);
+        assert_eq!(std::fs::read(&original).unwrap(), b"retain original bytes");
+        let after = std::fs::metadata(&original).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"retain carrier");
+        assert_eq!(std::fs::read_dir(&source).unwrap().count(), 1);
     }
 }

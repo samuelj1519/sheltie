@@ -314,3 +314,8 @@ allow_test_changes = true
 files = ["specs/changes/active/C002-v0.2.0-reliability", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/workbook_digest.rs"]
 test_files = ["crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/workbook_digest.rs", "crates/sheltie-runtime/tests/workbook_digest.rs", "crates/sheltie-runtime/tests/workbook_repo.rs"]
 allow_test_changes = true
+
+[C002-T54]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/recovery.rs"]
+test_files = ["crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/recovery.rs", "crates/sheltie-runtime/tests/effect_contracts.rs"]
+allow_test_changes = true

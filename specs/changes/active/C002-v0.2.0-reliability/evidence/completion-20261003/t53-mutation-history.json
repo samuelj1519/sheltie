@@ -1,0 +1,72 @@
+[
+  {
+    "path": "mutation-g06-sample/result.json",
+    "argv": [
+      "cargo",
+      "mutants",
+      "-p",
+      "sheltie-runtime",
+      "--test-package",
+      "sheltie-runtime",
+      "--test-tool",
+      "nextest",
+      "--all-features",
+      "--cargo-arg=--locked",
+      "--timeout",
+      "120",
+      "--build-timeout",
+      "240",
+      "--jobs",
+      "2",
+      "--output",
+      "/private/tmp/sheltie-completion-20261003/mutation-g06-sample",
+      "--re",
+      "^(?:crates/sheltie\\-runtime/src/fsx\\.rs:1939:9:\\ replace\\ ExternalReadTree::validate_unchanged\\ \\->\\ Result<\\(\\)>\\ with\\ Ok\\(\\(\\)\\)|crates/sheltie\\-runtime/src/fsx\\.rs:3195:34:\\ replace\\ \\+\\ with\\ \\*\\ in\\ copy_tree_confined|crates/sheltie\\-runtime/src/workbook_digest\\.rs:120:30:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ stream_file_into)$",
+      "--cargo-test-arg=-E",
+      "--cargo-test-arg=test(external_read_contract_tests) | test(bounded_stream_contract_tests)",
+      "--cargo-test-arg=--test-threads=4"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 27.841,
+    "counts": {
+      "Success": 1,
+      "CaughtMutant": 3
+    },
+    "source_unchanged": true
+  },
+  {
+    "path": "mutation-g06-final/result.json",
+    "argv": [
+      "cargo",
+      "mutants",
+      "-p",
+      "sheltie-runtime",
+      "--test-package",
+      "sheltie-runtime",
+      "--test-tool",
+      "nextest",
+      "--all-features",
+      "--cargo-arg=--locked",
+      "--timeout",
+      "120",
+      "--build-timeout",
+      "240",
+      "--jobs",
+      "2",
+      "--output",
+      "/private/tmp/sheltie-completion-20261003/mutation-g06-final",
+      "--re",
+      "^(?:crates/sheltie\\-runtime/src/fsx\\.rs:1939:9:\\ replace\\ ExternalReadTree::validate_unchanged\\ \\->\\ Result<\\(\\)>\\ with\\ Ok\\(\\(\\)\\)|crates/sheltie\\-runtime/src/fsx\\.rs:1967:52:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ ExternalReadTree::validate_unchanged|crates/sheltie\\-runtime/src/fsx\\.rs:2039:13:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ ExternalReadTree::open_file|crates/sheltie\\-runtime/src/fsx\\.rs:2038:13:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ ExternalReadTree::open_file|crates/sheltie\\-runtime/src/fsx\\.rs:2071:29:\\ replace\\ \\+\\ with\\ \\*\\ in\\ ExternalReadTree::read_file|crates/sheltie\\-runtime/src/fsx\\.rs:3195:34:\\ replace\\ \\+\\ with\\ \\*\\ in\\ copy_tree_confined|crates/sheltie\\-runtime/src/workbook_digest\\.rs:120:30:\\ replace\\ \\|\\|\\ with\\ \\&\\&\\ in\\ stream_file_into)$",
+      "--cargo-test-arg=-E",
+      "--cargo-test-arg=test(external_read_contract_tests) | test(bounded_stream_contract_tests)",
+      "--cargo-test-arg=--test-threads=4"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 112.551,
+    "counts": {
+      "Success": 1,
+      "CaughtMutant": 7
+    },
+    "source_unchanged": true
+  }
+]

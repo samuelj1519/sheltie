@@ -1,0 +1,235 @@
+{
+  "result": "PASS_scoped_T53_G06",
+  "reviewer": "/root/oracle_review; independent read-only; no G06 direction/implementation/oracle authorship",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "66ead1755a33fb14d8095ee463c89558022b829c5a5958345cf24fa2b6d5e191",
+    "crates/sheltie-runtime/src/workbook_digest.rs": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa"
+  },
+  "input_count": 190,
+  "gate_input_count": 134,
+  "source_drift": [],
+  "exact_original_G06_set": true,
+  "mapping_bijective": true,
+  "mapping_source_line_function_column_genre_replacement_verified": true,
+  "old_stage1_results_preserved": true,
+  "counts": {
+    "changed_inventory_accepted": 2,
+    "changed_opened_identity_or_length_accepted": 2,
+    "extra_byte_silently_truncated": 1,
+    "truncated_private_copy_created_before_late_refusal": 1,
+    "observed_invalid_frame_delayed_to_external_io_error": 1
+  },
+  "dynamic_caught": 7,
+  "static_scoped_classification": 1,
+  "static_execution": "not_run; not Caught/equivalent",
+  "missed": 0,
+  "timeout": 0,
+  "compile_only": 0,
+  "frozen_binaries": {
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t53-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967",
+      "cargo_reported_executable": true
+    },
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t53-frozen-binaries/sheltie",
+      "sha256": "b8b5c577fd12c821b4699b238bd19fcd0a9002be877f3a913cb7ee3e28a5d506",
+      "cargo_reported_executable": true
+    }
+  },
+  "entries": [
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1789:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1939:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())",
+      "classification": "changed_inventory_accepted",
+      "target_test": "fsx::external_read_contract_tests::final_tree_validation_rejects_changes_to_either_files_or_directories_alone",
+      "raw_panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "a684171a31f7222905578a5d821f7d2bf578fb7db80b7d96b04f86c6851cebc0",
+      "diff_sha256": "c89f4e119c78c5f62d2cb63e3d51bd3b97659a4270cb2166204cc3a5d4391e29",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw actual return value"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1889:13: replace || with && in ExternalReadTree::open_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2039:13: replace || with && in ExternalReadTree::open_file",
+      "classification": "changed_opened_identity_or_length_accepted",
+      "target_test": "fsx::external_read_contract_tests::external_open_refuses_same_inode_growth_or_same_length_replacement_after_stat",
+      "raw_panic": "called `Result::unwrap_err()` on an `Ok` value: ExternalTreeFileHandle(File { fd: 7, path: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpGyyOO5/data\", read: true, write: false })",
+      "log_sha256": "39bcdde7b7d30bfd63e5ad6b2e5f334f4eadd41bbcc8f7400648c8dd05a08a4d",
+      "diff_sha256": "c04edcdab8bdadb7faf75df3b74d18260a5be03d7b3cbcdf68289406c1b97051",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw actual return value"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1817:52: replace || with && in ExternalReadTree::validate_unchanged",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1967:52: replace || with && in ExternalReadTree::validate_unchanged",
+      "classification": "changed_inventory_accepted",
+      "target_test": "fsx::external_read_contract_tests::final_tree_validation_rejects_changes_to_either_files_or_directories_alone",
+      "raw_panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "334036f2bc023374fef97bdd54dd9d7f232fe41bb7d2bccf7dc2aba2a039874c",
+      "diff_sha256": "0ad05971a9ccd78e04a6b81752f7366c94fca3c62e44e75fd82ece6815506001",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw actual return value"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1919:29: replace + with * in ExternalReadTree::read_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2071:29: replace + with * in ExternalReadTree::read_file",
+      "classification": "extra_byte_silently_truncated",
+      "target_test": "fsx::external_read_contract_tests::an_extra_byte_after_open_validation_cannot_be_silently_truncated_to_the_read_cap",
+      "raw_panic": "called `Result::unwrap_err()` on an `Ok` value: [100, 97, 116, 97]",
+      "log_sha256": "c0e471b9c2574e61503977aece0ede20acd7c864aae78ca92fe236f23c24f86a",
+      "diff_sha256": "6e83e6196030aa84d515ad1082be10de500ce655f098b8632b773965e1a5a780",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw actual return value"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1888:13: replace || with && in ExternalReadTree::open_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2038:13: replace || with && in ExternalReadTree::open_file",
+      "classification": "changed_opened_identity_or_length_accepted",
+      "target_test": "fsx::external_read_contract_tests::external_open_refuses_same_inode_growth_or_same_length_replacement_after_stat",
+      "raw_panic": "called `Result::unwrap_err()` on an `Ok` value: ExternalTreeFileHandle(File { fd: 8, path: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNsQdHw/data\", read: true, write: false })",
+      "log_sha256": "6b37e314d7c7d4a6ab2116f89a08b79f8a0b8c88eb8b1b1ca32ab9dd01bc754e",
+      "diff_sha256": "c99e20c7850cee1b95f875eb9bdbb1d6a8c2d24e96daed032a707a603a6aee06",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw actual return value"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2950:34: replace + with * in copy_tree_confined",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:3195:34: replace + with * in copy_tree_confined",
+      "classification": "truncated_private_copy_created_before_late_refusal",
+      "target_test": "fsx::external_read_contract_tests::copy_detects_growth_past_the_actual_file_limit_before_creating_a_truncated_target",
+      "raw_panic": "a growth refusal must precede writing a silently truncated target",
+      "log_sha256": "4b9d37e626db7b033dc6a2fde41c6824bce534b9758fdb869be4f237733f80c2",
+      "diff_sha256": "735d050cd3dbbeb017479a29e5b3724f19f19f7e138a5b14d3373941a0b7c06b",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw target existence; exact cap/prefix/late refusal inferred from narrow source"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "classification": "observed_invalid_frame_delayed_to_external_io_error",
+      "target_test": "workbook_digest::bounded_stream_contract_tests::an_observed_frame_growth_is_refused_before_a_later_external_read_error",
+      "raw_panic": "the already observed invalid frame must be refused before another Read",
+      "log_sha256": "deb5324b53a02a28c7894802f2924b4a67dd943d234b54f4d73a85e08df300fa",
+      "diff_sha256": "b8e9dd59f72d9b2f74a85c176a7cffb99d3a43e0348b69955f137ad3dad9306b",
+      "build_success": true,
+      "test_failure": 100,
+      "evidence_scope": "raw InvalidRequest branch not matched; sole next Read IO source inferred from wrapper"
+    }
+  ],
+  "static_proof_sha256": {
+    "t53-utf8-static-review.md": "e6488ce2d2e95ae4a1f9fe99cf03d380382b548a9dd9ae95ed59c8f5a9470a1e",
+    "t53-utf8-static-review.json": "0cc46af7b65aabfbe7d159085fc468655fbac19b6b8cd42418c3718fdd5a07fe"
+  },
+  "limitations": [
+    "copy raw records target existence, not target complete size/hash or API late cause",
+    "frame raw branch mismatch plus exact wrapper source supports specific Read priority only",
+    "UTF8 same classification on fixed read traces normally completes, pending/cost/OOM/scheduling not equivalent",
+    "not full CLI/Workbook/SQLite proof or all-product/platform result"
+  ],
+  "full_engineering": {
+    "nextest": 908,
+    "passed": 908,
+    "skip": 0,
+    "leak": 0,
+    "run_id": "c74ca010-14aa-4a71-bd43-5cc7bef0d03a",
+    "compilefail": 5,
+    "fmt_check_clippy_msrv_default": 0
+  },
+  "governance": [
+    {
+      "name": "task",
+      "argv": [
+        "scripts/task.sh",
+        "C002-T53"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.794,
+      "sha256": "dbb3649e34047c2fae83bcc1e13dbcc89e0b273d455846dc98de06435d04efeb"
+    },
+    {
+      "name": "check-docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.119,
+      "sha256": "2ecef444adc9d8ec5e256587d2471184b4f57f97cd163ef11dee1808ed95aedf"
+    },
+    {
+      "name": "check-specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.561,
+      "sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "check-tests",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.201,
+      "sha256": "22ba53baa3dc7856deac8fb65037b2490d10a935051eb26ba9ffae75b88d39d6"
+    },
+    {
+      "name": "check-skill",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.592,
+      "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    {
+      "name": "check-core-vocab",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.202,
+      "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+    }
+  ],
+  "ledger_sha256": "519d5ee25294931b56e5a394baaa5283e3ca6b52b6c7588dcb0b260d8d4e4f8c",
+  "static_entry": {
+    "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+    "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+    "old_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+    "current_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+    "execution": "not_run",
+    "disposition": "static_scoped_classification_proved",
+    "previous_current_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+    "current_source_sha256": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa",
+    "group": "T5_utf8_classification",
+    "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+    "old_stage1_formal_summary": "MissedMutant",
+    "proof": "t53-utf8-static-review.md/json; complete current classifier observation/caller closure on fixed read traces with normal completion",
+    "scope": "final UTF8 classification/hash/length only; no pending allocation/CPU/OOM/scheduling/full behavior equivalence",
+    "caught": false
+  },
+  "raw_source_inference_boundaries": [
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:3195:34: replace + with * in copy_tree_confined",
+      "direct_raw_evidence": "destination data file existed when the API returned; original refuses before this private file creation",
+      "source_inference": "exact Take(cap) mutant and genuine cap+1 source imply prefix copy before final rescan refusal; raw panic did not print returned error, target length/hash or complete bytes"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "direct_raw_evidence": "actual target panic: returned error did not match InvalidRequest frame branch",
+      "source_inference": "fixed Read boundary has exactly one subsequent IO error source after the genuine first File read; limited to this consumer priority"
+    }
+  ],
+  "source_review": "t53-source-review.md/json post-simplification SHA identical; F-T53-01 resolved, first finding retained",
+  "task_completion_gate": "owner must mark done, rerun check-task, archive readback and commit; reviewer did not perform"
+}

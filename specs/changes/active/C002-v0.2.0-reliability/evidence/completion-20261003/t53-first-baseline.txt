@@ -1,0 +1,12 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.38s
+────────────
+ Nextest run ID 74e89468-70d0-428b-9c88-4a3abf6f5e79 with nextest profile: default
+    Starting 5 tests across 19 binaries (391 tests skipped)
+        PASS [   0.035s] (1/5) sheltie-runtime fsx::external_read_contract_tests::final_tree_validation_rejects_changes_to_either_files_or_directories_alone
+        PASS [   0.038s] (2/5) sheltie-runtime fsx::external_read_contract_tests::an_extra_byte_after_open_validation_cannot_be_silently_truncated_to_the_read_cap
+        PASS [   0.040s] (3/5) sheltie-runtime fsx::external_read_contract_tests::an_open_observation_failure_returns_io_without_reading_or_creating_business_files
+        PASS [   0.046s] (4/5) sheltie-runtime fsx::external_read_contract_tests::external_open_refuses_same_inode_growth_or_same_length_replacement_after_stat
+        PASS [   0.093s] (5/5) sheltie-runtime fsx::external_read_contract_tests::copy_detects_growth_past_the_actual_file_limit_before_creating_a_truncated_target
+────────────
+     Summary [   0.094s] 5 tests run: 5 passed, 391 skipped

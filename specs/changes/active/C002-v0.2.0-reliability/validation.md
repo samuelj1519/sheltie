@@ -552,3 +552,19 @@ set_mode 的拒绝对照明确旧 held A 已先被 chmod；只保证新名称 B 
 [最终工程](evidence/completion-20261003/t52-final-gates.json) 使用 Cargo 实际返回的 [冻结 binary/SHA/env](evidence/completion-20261003/t52-frozen-binaries.json)，134 工程输入与 190 变异输入无漂移。run `5d4f11cf-054a-40d3-95cf-31a802f6a8d5` 为 901/901、零 skip/零 LEAK；5 compile-fail、fmt/check/Clippy、Rust 1.85 和默认特性全通过，Task7/7与治理通过。[最终独立审查](evidence/completion-20261003/t52-final-review.md) 准确核 16 旧集合/映射、每条 log/diff SHA、产物来源和检测边界。
 
 原样本、整理前源码、夹具失败与全部最终原文见 [原文档案](evidence/completion-20261003/t52-g05-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t52-oracle-archive.json) 全部一致。当前累计 135/215 项动态检测、13/215 项限定静态处分，剩余 67 项继续 T43；不记旧 M1、M2 或全产品完成。
+
+
+## C002-T53 外部树读取与有界摘要
+
+依据 [G06 独立准备](evidence/completion-20261003/g06-oracle-directions.md)，新增 7 项 oracle：真实树捕获后仅 files/仅 directories 变化、stat/open 间同 inode 长度变化/同长度换对象、最后 fstat 资格通过后读 cap+1、真实 32MiB copy 前置拒绝，以及流式 frame 的具体拒绝优先序。仅加已有特性下的 opened 核验后/正文读取前观察点；不新增业务状态或默认 I/O。
+
+[首次独审](evidence/completion-20261003/t53-first-source-review.md) 指出缺同 API 的完整 copy 成功正例。补真实 33554432 字节复制到独立 legal-copy，完整 SHA 以 Python hashlib 对全零原字节独立生成固定常量，核目标 len/dev/new ino/nlink1/0600；另一个目标再测 +1 拒绝。[修后准备审查](evidence/completion-20261003/t53-source-review.md) 和整理后 7/7 基线通过，原 finding 不改写。SHA frame 的任意已写前缀只验证流式追加完整性，不称整个 BE64 Workbook framing。
+
+3 个代表变体 3/3 Caught、27.841 秒；最终 7 动态全部 Caught、112.551 秒、输入稳定。[逐 ID 账本](evidence/completion-20261003/t53-g06-dispositions.json) 分开树/打开资格误接受、read cap 静默截断、copy 的截断私有目标与晚拒绝、已经观察到的 frame 矛盾迟拒到下一外部 Read 的 I/O 错误。copy 的直接 raw 证据为 API 返回后私有 data 文件已存在；截断前缀与晚 rescan 拒绝由精确 Take(cap) 变体和真实 cap+1 源的顺序源码推导，不称 raw 已打印目标完整字节/长度/hash 或最终错误。copy 不称最终 Workbook 被接受，Read wrapper 只替换外部故障边界，合法首读后 I/O 对照保留 I/O，不采用一般错误优先序或新资源阈值。
+
+第8项由 [UTF8 分类限定静态复核](evidence/completion-20261003/t53-utf8-static-review.md) 核完整当前 caller、不可修复 invalid prefix 与 is_valid 结果：固定 Read/chunk 轨迹正常完成时分类/hash/length一致。动态 not_run，不记 Caught；保留 pending 可膨胀、累计复制、调度/OOM与成本差异，不称全行为或资源等价。最终工程与完整逐 ID 独审通过，T53 标记 done 后核任务范围；M2 仍 not_run。
+
+
+[最终工程](evidence/completion-20261003/t53-final-gates.json) 用真实 Cargo 返回路径与 [冻结 binary/SHA/env](evidence/completion-20261003/t53-frozen-binaries.json)：run `c74ca010-14aa-4a71-bd43-5cc7bef0d03a` 为 908/908、零 skip/零 LEAK；5 compile-fail、fmt/check/Clippy、Rust 1.85、默认特性、Task7/7和治理通过，134 工程输入/190 变异输入无漂移。[最终独立审查](evidence/completion-20261003/t53-final-review.md) 核准确8旧集合/映射、逐log/diff SHA、完整caller和静态限制，区分 raw 观察与顺序源码推导。
+
+原 finding、修前/修后源码与基线、独立零字节向量、实际样本及最终原文见 [原文档案](evidence/completion-20261003/t53-g06-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t53-oracle-archive.json) 全部一致。累计142/215项动态检测、14/215项限定静态处分，59项继续T43；不称旧M1、M2或全产品完成。

@@ -240,3 +240,103 @@ mod tree_snapshot_tests {
         assert!(!truncated.is_valid(), "EOF残尾应拒绝");
     }
 }
+
+#[cfg(test)]
+mod bounded_stream_contract_tests {
+    use super::*;
+
+    struct FailOnFurtherRead {
+        file: std::fs::File,
+        first_read: bool,
+    }
+
+    impl Read for FailOnFurtherRead {
+        fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+            if !self.first_read {
+                return Err(std::io::Error::other("later external Read failed"));
+            }
+            self.first_read = false;
+            self.file.read(buffer)
+        }
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn streamed_file_hashes_and_utf8_facts_match_independent_complete_bytes() {
+        let mut boundary = vec![b'a'; 65_535];
+        boundary.extend_from_slice(&[0xe4, 0xb8, 0xad]);
+        let mut invalid_prefix = vec![0xff];
+        invalid_prefix.extend_from_slice(&boundary);
+        for bytes in [
+            b"data".to_vec(),
+            vec![0xe4, 0xb8, 0xad],
+            vec![0xe4, 0xb8],
+            boundary,
+            invalid_prefix,
+        ] {
+            let directory = tempfile::tempdir().unwrap();
+            let path = directory.path().join("data");
+            std::fs::write(&path, &bytes).unwrap();
+            let mut file = std::fs::File::open(&path).unwrap();
+            let declared = file.metadata().unwrap().len();
+            let header = b"independent preceding frame bytes";
+            let mut hasher = sha2::Sha256::new();
+            hasher.update(header);
+            let (utf8, hash) = stream_file_into(&mut file, "data", declared, &mut hasher).unwrap();
+            assert_eq!(utf8, std::str::from_utf8(&bytes).is_ok());
+            assert_eq!(hash.as_str(), format!("{:x}", sha2::Sha256::digest(&bytes)));
+            let expected = [header.as_slice(), bytes.as_slice()].concat();
+            assert_eq!(
+                format!("{:x}", hasher.finalize()),
+                format!("{:x}", sha2::Sha256::digest(&expected))
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        }
+    }
+
+    // Task: C002-T53
+    #[test]
+    fn an_observed_frame_growth_is_refused_before_a_later_external_read_error() {
+        use std::io::Write as _;
+        for grows in [false, true] {
+            let directory = tempfile::tempdir().unwrap();
+            let path = directory.path().join("data");
+            std::fs::write(&path, b"data").unwrap();
+            let file = std::fs::File::open(&path).unwrap();
+            let declared = file.metadata().unwrap().len();
+            assert_eq!(declared, 4);
+            if grows {
+                std::fs::OpenOptions::new()
+                    .append(true)
+                    .open(&path)
+                    .unwrap()
+                    .write_all(b"+")
+                    .unwrap();
+            }
+            let mut source = FailOnFurtherRead {
+                file,
+                first_read: true,
+            };
+            let mut hasher = sha2::Sha256::new();
+            let error = stream_file_into(&mut source, "data", declared, &mut hasher).unwrap_err();
+            if grows {
+                let Error::InvalidRequest { reason } = error else {
+                    panic!("the already observed invalid frame must be refused before another Read")
+                };
+                assert_eq!(reason, "data 在读取间变大，与帧头不符");
+                assert_eq!(std::fs::read(&path).unwrap(), b"data+");
+            } else {
+                let Error::Io {
+                    path: reported_path,
+                    source,
+                } = error
+                else {
+                    panic!("a valid first frame followed by an external IO error must remain IO")
+                };
+                assert_eq!(reported_path, "data");
+                assert_eq!(source.to_string(), "later external Read failed");
+                assert_eq!(std::fs::read(&path).unwrap(), b"data");
+            }
+        }
+    }
+}

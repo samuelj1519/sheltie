@@ -1,0 +1,100 @@
+{
+  "scope": "G06 independent read-only consumer/oracle preparation; no source/tests written, no mutant execution",
+  "head": "b5226d07a8abca1c2a1b7eaee4de71eb19cf770d",
+  "platform": "aarch64-apple-darwin only",
+  "count": 8,
+  "groups": {
+    "T1_final_inventory": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1789:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1886:9: replace ExternalReadTree::validate_unchanged -> Result<()> with Ok(())",
+        "old_diff_sha256": "7672852bd1d881f20504508fc5524c30fec01e0446c9d5920dd3859c67ee61a6",
+        "current_diff_sha256": "3b147acdb29b5396ede87861258e2934bd6bd8d3770236662b1d3bc9effab16e",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1817:52: replace || with && in ExternalReadTree::validate_unchanged",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1914:52: replace || with && in ExternalReadTree::validate_unchanged",
+        "old_diff_sha256": "1ed7b23426a49323108e804515afe9c611ffd44b3b5b3c107bae60693d15f608",
+        "current_diff_sha256": "d415a32522f60eb8a7b3e03279be4d799778d989c9f57802aaae8be81e8bc6ba",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      }
+    ],
+    "T2_opened_identity_size": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1889:13: replace || with && in ExternalReadTree::open_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1986:13: replace || with && in ExternalReadTree::open_file",
+        "old_diff_sha256": "729f5ddf2fbe89d321e1ca4e5e5290476e179ffd757fc5759b98a08fa816fec0",
+        "current_diff_sha256": "ac33c0236a73b2b15571c8e666368ce7acb98c0df9a5b41692178ee5cf38eb37",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1888:13: replace || with && in ExternalReadTree::open_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1985:13: replace || with && in ExternalReadTree::open_file",
+        "old_diff_sha256": "8f22a9c956564b293931f4bba225b664130f520595e4fcbf6d81bae67bf44495",
+        "current_diff_sha256": "ad02c748b16a2293afe49716a8eb5f0a981c5f9b4fb0f2a674a67bac26a04765",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      }
+    ],
+    "T3_extra_byte_bound": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1919:29: replace + with * in ExternalReadTree::read_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:2016:29: replace + with * in ExternalReadTree::read_file",
+        "old_diff_sha256": "f85c1778c985285afdb6681e60ebfaca89aa25e5b9e2aeb3276d90049b24fdec",
+        "current_diff_sha256": "74d58d9749fafd5d91016fb8fc7780be372c883366af2b4a674b0597d14cea48",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:2950:34: replace + with * in copy_tree_confined",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:3136:34: replace + with * in copy_tree_confined",
+        "old_diff_sha256": "51f024ec3e0604509e7ea31b0f9df17cc0b6212000b892791ab1a910efc9d34b",
+        "current_diff_sha256": "1065164eb42fdff59f133ebe75240974c9988f6335e2482e4796dbd236798e14",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      }
+    ],
+    "T4_stream_frame_bound": [
+      {
+        "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+        "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+        "old_diff_sha256": "b8e9dd59f72d9b2f74a85c176a7cffb99d3a43e0348b69955f137ad3dad9306b",
+        "current_diff_sha256": "b8e9dd59f72d9b2f74a85c176a7cffb99d3a43e0348b69955f137ad3dad9306b",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      }
+    ],
+    "T5_utf8_classification": [
+      {
+        "old_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+        "current_id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+        "old_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+        "current_diff_sha256": "c81bed10917e6f73590d76df1877538ee3e37bc8835242bcf8de2c5d9a9d59d8",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_or_scoped_static_candidate_not_dynamic_PASS"
+      }
+    ]
+  },
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "241b16b73ec2f8288966b25cf9e2d236b99ee436b8914d2ee4bfb4242ae06989",
+    "crates/sheltie-runtime/src/workbook_digest.rs": "ef839379763a5fda80f9570259b482fd4d009ec75472ecad0fb84e1ab8c89560",
+    "crates/sheltie-runtime/src/workbook_repo.rs": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+    "specs/contracts/storage.md": "145bed3eacce1266f1477152abaf787eae38204d92820ac067fcd2120a3d7020"
+  },
+  "limited_static_candidates": [
+    {
+      "id": "crates/sheltie-runtime/src/workbook_digest.rs:120:30: replace || with && in stream_file_into",
+      "scope": "declared<=MAX from actual tree.validate_sizes; monotonic actual and final actual==declared guarantee same successful-return set and hard MAX rejection",
+      "not_proven_equal": "earlier stop/read count, diagnostic and later I/O errors can differ; borrowed hasher mutation is not consumed on error by current caller"
+    },
+    {
+      "id": "crates/sheltie-runtime/src/workbook_digest.rs:163:27: replace match guard error.error_len().is_none() with true in Utf8State::push",
+      "scope": "final is_valid/ResourceMeta UTF8 classification equal for all chunk strings, because definitive invalid prefixes cannot be repaired by suffix and mutated pending stays nonempty",
+      "not_proven_equal": "after invalid input, pending accumulation and allocation/copy work differ; no whole resource/latency equivalence"
+    }
+  ]
+}
