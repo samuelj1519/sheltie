@@ -1,0 +1,871 @@
+{
+  "candidate": "32c085f53955c5b63a2253eefa57e7504b2cec35",
+  "source_engine_sha256": "66aa6dc7eba731b6a8f00d54fba5d4fec8f13e58695a14c77f7f42d72230b154",
+  "fixture_home_retained_for_readonly_review": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+  "request_published_before": 1,
+  "only_audit_principal_changed": true,
+  "original_principal": "shushu",
+  "original_approval_reply": {
+    "data": {
+      "at": "2026-10-03T13:57:51Z",
+      "by": "shushu",
+      "node": "notes",
+      "occurrence": 1,
+      "replayed": false,
+      "work_status": {
+        "kind": "active"
+      }
+    },
+    "next": [
+      {
+        "args": {
+          "node": "archive",
+          "work": "2026-10-03-001-default"
+        },
+        "edge": "main",
+        "executor": "agent",
+        "op": "attempt begin",
+        "tier": "standard"
+      },
+      {
+        "args": {
+          "work": "2026-10-03-001-default"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "ok": true,
+    "request_id": "audit-approve",
+    "revision": 4
+  },
+  "replay_exit": 0,
+  "replay_reply": {
+    "data": {
+      "at": "2026-10-03T13:57:51Z",
+      "by": "shushu",
+      "node": "notes",
+      "occurrence": 1,
+      "replayed": true,
+      "work_status": {
+        "kind": "active"
+      }
+    },
+    "next": [
+      {
+        "args": {
+          "node": "archive",
+          "work": "2026-10-03-001-default"
+        },
+        "edge": "main",
+        "executor": "agent",
+        "op": "attempt begin",
+        "tier": "standard"
+      },
+      {
+        "args": {
+          "work": "2026-10-03-001-default"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "ok": true,
+    "request_id": "audit-approve",
+    "revision": 4
+  },
+  "status_exit": 1,
+  "status_reply": {
+    "error": {
+      "code": "STORE_CORRUPT",
+      "detail": {
+        "detail": "请求 audit-approve 的audit主体/时间与原执行事实不一致"
+      },
+      "message": "数据库内容损坏：请求 audit-approve 的audit主体/时间与原执行事实不一致"
+    },
+    "next": [],
+    "ok": false
+  },
+  "five_tables_preserved_after_replay": true,
+  "five_tables_preserved_after_status": true,
+  "business_tree_preserved_after_replay": true,
+  "business_tree_preserved_after_status": true,
+  "before_rows": {
+    "workbooks": [
+      [
+        "gated-release",
+        "1.0.0",
+        "14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c",
+        "workbooks/gated-release/1.0.0",
+        "2026-10-03T13:57:50Z"
+      ]
+    ],
+    "works": [
+      [
+        "2026-10-03-001-default",
+        4,
+        "active",
+        "{\"work_id\":\"2026-10-03-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"gated-release\",\"version\":\"1.0.0\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"inputs\":{\"version\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\",\"bytes\":10}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"notes\",\"n\":1},\"visits\":{\"notes\":1},\"attempts\":[{\"id\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":null,\"inputs\":{\"version\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\",\"bytes\":10}},\"outputs\":{\"notes\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}},\"summary\":\"native approved artifact\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T13:57:51Z\",\"ended_at\":\"2026-10-03T13:57:51Z\"}],\"approvals\":[{\"node\":\"notes\",\"occurrence\":1,\"by\":\"shushu\",\"at\":\"2026-10-03T13:57:51Z\"}],\"blocked_count\":1,\"created_at\":\"2026-10-03T13:57:50Z\",\"updated_at\":\"2026-10-03T13:57:51Z\"}",
+        "2026-10-03T13:57:50Z",
+        "2026-10-03T13:57:51Z"
+      ]
+    ],
+    "work_sequence": [
+      [
+        "2026-10-03",
+        1
+      ]
+    ],
+    "requests": [
+      [
+        "audit-book",
+        "93132f4abf733a3b954006d73f511b73fc783086f99ba8fafc98faf46515cb45",
+        null,
+        "{\"request_id\":\"audit-book\",\"replayed\":false,\"data\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"requires\":[],\"version\":\"1.0.0\"}}",
+        "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a1020e8ec172a7923a3aa2782e4400/payload\",\"final\":\"workbooks/gated-release/1.0.0\",\"owner\":\"workbook:gated-release@1.0.0\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"digest_root\":\"\"}]",
+        1,
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        "audit-start",
+        "b2774228cd373ef49aa429354bfe60570c8c113334ac1375629f7be2ce279851",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"work_id\":\"2026-10-03-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"notes\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a1020e8f107576915a27477f935906/payload\",\"final\":\"works/2026-10-03-001-default\",\"owner\":\"work:2026-10-03-001-default\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        "audit-begin",
+        "c4626eae4eda4384d4414425d61dc5f1145701a8bbaa98d796b2ad2437a35d9b",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"inputs\":{\"version\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\"},\"outputs\":{\"notes\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"requires\":[]},\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\"},\"node\":\"notes\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-default\",\"attempt_id\":\"notes#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-default\",\"works/2026-10-03-001-default/attempts\",\"works/2026-10-03-001-default/attempts/notes\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"sha256\":\"ae6ef98f3c52e1df429348682180463a1531fcb13efbb96a39725b952ed44b42\",\"content\":\"# 任务书：生成发布说明\\n\\nWork: 2026-10-03-001-default（default）\\n节点: notes#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| version | /private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version | 94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7 |\\n\\n## 说明\\n\\n读 `version`，为这个版本写一份发布说明。\\n\\n- 标题写版本号。\\n- 分「新增」「修复」「已知问题」三节，没有内容的一节写「无」。\\n- 每条一行，面向使用者，不写实现细节。\\n\\n写到 `notes` 对应的路径。这一步有门槛：你提交后，人会读这份说明并批准，之后流程才继续。回复协调者时说一句：三节各几条。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| notes | /private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        "audit-submit",
+        "3d78fb2a8cc5b8fac254b2ae0a7f395579630bc772b300527805ce1dd85f3a03",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-submit\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"outputs\":{\"notes\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}}},\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":39,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\"}},\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"op\":\"gate approve\",\"node\":\"notes\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        "audit-approve",
+        "186766a578708384e97f93c9f1ab806af0dc764ab2b1095ed8c7311cc28c00d2",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-approve\",\"revision\":4,\"replayed\":false,\"reply\":{\"reply\":\"gate_approved\",\"node\":\"notes\",\"occurrence\":1},\"data\":{\"at\":\"2026-10-03T13:57:51Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"archive\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ]
+    ],
+    "audit": [
+      [
+        1,
+        "",
+        0,
+        "audit-book",
+        "shushu",
+        "{\"intent\":\"add_workbook\",\"source\":\"93132f4abf733a3b954006d73f511b73fc783086f99ba8fafc98faf46515cb45\"}",
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        2,
+        "2026-10-03-001-default",
+        1,
+        "audit-start",
+        "shushu",
+        "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"version\":{\"bytes\":10,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"work_id\":\"2026-10-03-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}}",
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        3,
+        "2026-10-03-001-default",
+        2,
+        "audit-begin",
+        "shushu",
+        "{\"command\":\"begin_attempt\",\"instruction_text\":\"<407 字节>\",\"node\":\"notes\",\"observed_inputs\":{\"version\":{\"bytes\":10,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\"}}}",
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        4,
+        "2026-10-03-001-default",
+        3,
+        "audit-submit",
+        "shushu",
+        "{\"attempt\":{\"node\":\"notes\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"notes\":{\"bytes\":39,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\"}},\"summary\":\"<24 字节>\"}",
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        5,
+        "2026-10-03-001-default",
+        4,
+        "audit-approve",
+        "shushu",
+        "{\"command\":\"approve_gate\",\"node\":\"notes\"}",
+        "2026-10-03T13:57:51Z"
+      ]
+    ]
+  },
+  "changed_rows": {
+    "workbooks": [
+      [
+        "gated-release",
+        "1.0.0",
+        "14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c",
+        "workbooks/gated-release/1.0.0",
+        "2026-10-03T13:57:50Z"
+      ]
+    ],
+    "works": [
+      [
+        "2026-10-03-001-default",
+        4,
+        "active",
+        "{\"work_id\":\"2026-10-03-001-default\",\"name\":\"default\",\"workbook\":{\"id\":\"gated-release\",\"version\":\"1.0.0\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"inputs\":{\"version\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\",\"bytes\":10}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"notes\",\"n\":1},\"visits\":{\"notes\":1},\"attempts\":[{\"id\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"status\":\"succeeded\",\"entered_from\":null,\"inputs\":{\"version\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\",\"bytes\":10}},\"outputs\":{\"notes\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}},\"summary\":\"native approved artifact\",\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T13:57:51Z\",\"ended_at\":\"2026-10-03T13:57:51Z\"}],\"approvals\":[{\"node\":\"notes\",\"occurrence\":1,\"by\":\"shushu\",\"at\":\"2026-10-03T13:57:51Z\"}],\"blocked_count\":1,\"created_at\":\"2026-10-03T13:57:50Z\",\"updated_at\":\"2026-10-03T13:57:51Z\"}",
+        "2026-10-03T13:57:50Z",
+        "2026-10-03T13:57:51Z"
+      ]
+    ],
+    "work_sequence": [
+      [
+        "2026-10-03",
+        1
+      ]
+    ],
+    "requests": [
+      [
+        "audit-book",
+        "93132f4abf733a3b954006d73f511b73fc783086f99ba8fafc98faf46515cb45",
+        null,
+        "{\"request_id\":\"audit-book\",\"replayed\":false,\"data\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"flows\":[\"default\"],\"id\":\"gated-release\",\"requires\":[],\"version\":\"1.0.0\"}}",
+        "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a1020e8ec172a7923a3aa2782e4400/payload\",\"final\":\"workbooks/gated-release/1.0.0\",\"owner\":\"workbook:gated-release@1.0.0\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"digest_root\":\"\"}]",
+        1,
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        "audit-start",
+        "b2774228cd373ef49aa429354bfe60570c8c113334ac1375629f7be2ce279851",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-start\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"default\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"work_id\":\"2026-10-03-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"notes\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a1020e8f107576915a27477f935906/payload\",\"final\":\"works/2026-10-03-001-default\",\"owner\":\"work:2026-10-03-001-default\",\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        "audit-begin",
+        "c4626eae4eda4384d4414425d61dc5f1145701a8bbaa98d796b2ad2437a35d9b",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-begin\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"inputs\":{\"version\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\"},\"outputs\":{\"notes\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"requires\":[]},\"data\":{\"attempt\":\"notes#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"version\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\"},\"node\":\"notes\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\",\"outputs\":{\"notes\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-default\",\"attempt_id\":\"notes#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-default\",\"works/2026-10-03-001-default/attempts\",\"works/2026-10-03-001-default/attempts/notes\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000\",\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md\",\"sha256\":\"ae6ef98f3c52e1df429348682180463a1531fcb13efbb96a39725b952ed44b42\",\"content\":\"# 任务书：生成发布说明\\n\\nWork: 2026-10-03-001-default（default）\\n节点: notes#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（standard）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| version | /private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version | 94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7 |\\n\\n## 说明\\n\\n读 `version`，为这个版本写一份发布说明。\\n\\n- 标题写版本号。\\n- 分「新增」「修复」「已知问题」三节，没有内容的一节写「无」。\\n- 每条一行，面向使用者，不写实现细节。\\n\\n写到 `notes` 对应的路径。这一步有门槛：你提交后，人会读这份说明并批准，之后流程才继续。回复协调者时说一句：三节各几条。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| notes | /private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md | 是 | 64 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        "audit-submit",
+        "3d78fb2a8cc5b8fac254b2ae0a7f395579630bc772b300527805ce1dd85f3a03",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-submit\",\"revision\":3,\"replayed\":false,\"reply\":{\"reply\":\"attempt_submitted\",\"attempt\":{\"node\":\"notes\",\"occurrence\":1,\"number\":0},\"outputs\":{\"notes\":{\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}}},\"data\":{\"attempt\":\"notes#1.0\",\"outputs\":{\"notes\":{\"bytes\":39,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\"}},\"work_status\":{\"kind\":\"blocked\",\"reason\":\"gate\"}},\"next\":[{\"op\":\"gate approve\",\"node\":\"notes\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"seal_outputs\",\"refs\":[{\"path\":\"works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\",\"bytes\":39}]},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        "audit-approve",
+        "186766a578708384e97f93c9f1ab806af0dc764ab2b1095ed8c7311cc28c00d2",
+        "2026-10-03-001-default",
+        "{\"request_id\":\"audit-approve\",\"revision\":4,\"replayed\":false,\"reply\":{\"reply\":\"gate_approved\",\"node\":\"notes\",\"occurrence\":1},\"data\":{\"at\":\"2026-10-03T13:57:51Z\",\"by\":\"shushu\",\"node\":\"notes\",\"occurrence\":1,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"archive\",\"edge\":\"main\",\"executor\":\"agent\",\"tier\":\"standard\"},{\"op\":\"work cancel\"}]}",
+        "[{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-default\"}]",
+        1,
+        "2026-10-03T13:57:51Z"
+      ]
+    ],
+    "audit": [
+      [
+        1,
+        "",
+        0,
+        "audit-book",
+        "shushu",
+        "{\"intent\":\"add_workbook\",\"source\":\"93132f4abf733a3b954006d73f511b73fc783086f99ba8fafc98faf46515cb45\"}",
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        2,
+        "2026-10-03-001-default",
+        1,
+        "audit-start",
+        "shushu",
+        "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"version\":{\"bytes\":10,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\"}},\"name\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default\",\"work_id\":\"2026-10-03-001-default\",\"workbook\":{\"digest\":\"14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c\",\"id\":\"gated-release\",\"version\":\"1.0.0\"}}",
+        "2026-10-03T13:57:50Z"
+      ],
+      [
+        3,
+        "2026-10-03-001-default",
+        2,
+        "audit-begin",
+        "shushu",
+        "{\"command\":\"begin_attempt\",\"instruction_text\":\"<407 字节>\",\"node\":\"notes\",\"observed_inputs\":{\"version\":{\"bytes\":10,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version\",\"sha256\":\"94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7\"}}}",
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        4,
+        "2026-10-03-001-default",
+        3,
+        "audit-submit",
+        "shushu",
+        "{\"attempt\":{\"node\":\"notes\",\"number\":0,\"occurrence\":1},\"command\":\"submit_attempt\",\"observed_outputs\":{\"notes\":{\"bytes\":39,\"path\":\"/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md\",\"sha256\":\"171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49\"}},\"summary\":\"<24 字节>\"}",
+        "2026-10-03T13:57:51Z"
+      ],
+      [
+        5,
+        "2026-10-03-001-default",
+        4,
+        "audit-approve",
+        "different-account",
+        "{\"command\":\"approve_gate\",\"node\":\"notes\"}",
+        "2026-10-03T13:57:51Z"
+      ]
+    ]
+  },
+  "business_tree_after_single_change": {
+    "workbooks": {
+      "dev": 16777234,
+      "ino": 688998719,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "workbooks/gated-release": {
+      "dev": 16777234,
+      "ino": 688998720,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "workbooks/gated-release/1.0.0": {
+      "dev": 16777234,
+      "ino": 688998700,
+      "mode": 16749,
+      "links": 5,
+      "bytes_sha256": null
+    },
+    "workbooks/gated-release/1.0.0/instructions": {
+      "dev": 16777234,
+      "ino": 688998702,
+      "mode": 16749,
+      "links": 4,
+      "bytes_sha256": null
+    },
+    "workbooks/gated-release/1.0.0/workbook.toml": {
+      "dev": 16777234,
+      "ino": 688998706,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "workbooks/gated-release/1.0.0/flows": {
+      "dev": 16777234,
+      "ino": 688998701,
+      "mode": 16749,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "workbooks/gated-release/1.0.0/instructions/archive.md": {
+      "dev": 16777234,
+      "ino": 688998704,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b"
+    },
+    "workbooks/gated-release/1.0.0/instructions/notes.md": {
+      "dev": 16777234,
+      "ino": 688998705,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd"
+    },
+    "workbooks/gated-release/1.0.0/flows/default.toml": {
+      "dev": 16777234,
+      "ino": 688998703,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad"
+    },
+    "works": {
+      "dev": 16777234,
+      "ino": 688998753,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default": {
+      "dev": 16777234,
+      "ino": 688998756,
+      "mode": 16832,
+      "links": 6,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/start-inputs": {
+      "dev": 16777234,
+      "ino": 688998766,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/status-card.md": {
+      "dev": 16777234,
+      "ino": 688998941,
+      "mode": 33152,
+      "links": 1,
+      "bytes_sha256": "406b3c878f7cf14d999c9bad4dc99e2cd583ae1e248e7105b41affd54c9ebb81"
+    },
+    "works/2026-10-03-001-default/attempts": {
+      "dev": 16777234,
+      "ino": 688998832,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/workbook": {
+      "dev": 16777234,
+      "ino": 688998759,
+      "mode": 16749,
+      "links": 5,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/start-inputs/version": {
+      "dev": 16777234,
+      "ino": 688998767,
+      "mode": 33152,
+      "links": 1,
+      "bytes_sha256": "94eff7455ed62dcba6470516b2ee75d25375a1178594a0c32322995520add1d7"
+    },
+    "works/2026-10-03-001-default/attempts/notes": {
+      "dev": 16777234,
+      "ino": 688998833,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/workbook/instructions": {
+      "dev": 16777234,
+      "ino": 688998761,
+      "mode": 16749,
+      "links": 4,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/workbook/workbook.toml": {
+      "dev": 16777234,
+      "ino": 688998765,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "works/2026-10-03-001-default/workbook/flows": {
+      "dev": 16777234,
+      "ino": 688998760,
+      "mode": 16749,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/workbook/instructions/archive.md": {
+      "dev": 16777234,
+      "ino": 688998763,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b"
+    },
+    "works/2026-10-03-001-default/workbook/instructions/notes.md": {
+      "dev": 16777234,
+      "ino": 688998764,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd"
+    },
+    "works/2026-10-03-001-default/workbook/flows/default.toml": {
+      "dev": 16777234,
+      "ino": 688998762,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad"
+    },
+    "works/2026-10-03-001-default/attempts/notes/occurrence-001": {
+      "dev": 16777234,
+      "ino": 688998834,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000": {
+      "dev": 16777234,
+      "ino": 688998835,
+      "mode": 16832,
+      "links": 4,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md": {
+      "dev": 16777234,
+      "ino": 688998837,
+      "mode": 33152,
+      "links": 1,
+      "bytes_sha256": "ae6ef98f3c52e1df429348682180463a1531fcb13efbb96a39725b952ed44b42"
+    },
+    "works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs": {
+      "dev": 16777234,
+      "ino": 688998836,
+      "mode": 16832,
+      "links": 3,
+      "bytes_sha256": null
+    },
+    "works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md": {
+      "dev": 16777234,
+      "ino": 688998853,
+      "mode": 33060,
+      "links": 1,
+      "bytes_sha256": "171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49"
+    },
+    "pending": {
+      "dev": 16777234,
+      "ino": 688998697,
+      "mode": 16832,
+      "links": 2,
+      "bytes_sha256": null
+    }
+  },
+  "calls": [
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-book",
+        "workbook",
+        "add",
+        "/Users/shushu/orca/workspaces/sheltie/codex/examples/gated-release"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "digest": "14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c",
+          "flows": [
+            "default"
+          ],
+          "id": "gated-release",
+          "replayed": false,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "audit-book"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-start",
+        "work",
+        "start",
+        "--workbook",
+        "gated-release",
+        "--flow",
+        "default",
+        "--input",
+        "version=0.3.0-rc.1"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "flow": "default",
+          "name": "default",
+          "replayed": false,
+          "requires": [],
+          "work_dir": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default",
+          "work_id": "2026-10-03-001-default",
+          "workbook": {
+            "digest": "14ac863dd1efe0422b890deac849eb334aa32b322674cab46e6d37cde8e6397c",
+            "id": "gated-release",
+            "version": "1.0.0"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "notes",
+              "work": "2026-10-03-001-default"
+            },
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-03-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "audit-start",
+        "revision": 1
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-begin",
+        "attempt",
+        "begin",
+        "2026-10-03-001-default",
+        "--node",
+        "notes"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "attempt": "notes#1.0",
+          "brief_path": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/brief.md",
+          "inputs": {
+            "version": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/start-inputs/version"
+          },
+          "node": "notes",
+          "number": 0,
+          "occurrence": 1,
+          "output_dir": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs",
+          "outputs": {
+            "notes": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md"
+          },
+          "replayed": false,
+          "requires": []
+        },
+        "next": [
+          {
+            "args": {
+              "attempt": "notes#1.0",
+              "work": "2026-10-03-001-default"
+            },
+            "op": "attempt submit"
+          },
+          {
+            "args": {
+              "attempt": "notes#1.0",
+              "work": "2026-10-03-001-default"
+            },
+            "op": "attempt fail"
+          },
+          {
+            "args": {
+              "attempt": "notes#1.0",
+              "work": "2026-10-03-001-default"
+            },
+            "op": "attempt replace"
+          },
+          {
+            "args": {
+              "work": "2026-10-03-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "audit-begin",
+        "revision": 2
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-submit",
+        "attempt",
+        "submit",
+        "2026-10-03-001-default",
+        "--attempt",
+        "notes#1.0",
+        "--summary",
+        "native approved artifact"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "attempt": "notes#1.0",
+          "outputs": {
+            "notes": {
+              "bytes": 39,
+              "path": "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home/works/2026-10-03-001-default/attempts/notes/occurrence-001/attempt-000/outputs/notes.md",
+              "sha256": "171b4f1b8d15bb720649c6e243c18296e67c36cc8d6593b36bdc6d51e2112f49"
+            }
+          },
+          "replayed": false,
+          "work_status": {
+            "kind": "blocked",
+            "reason": "gate"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "notes",
+              "work": "2026-10-03-001-default"
+            },
+            "op": "gate approve"
+          },
+          {
+            "args": {
+              "work": "2026-10-03-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "audit-submit",
+        "revision": 3
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-approve",
+        "gate",
+        "approve",
+        "2026-10-03-001-default",
+        "--node",
+        "notes"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "at": "2026-10-03T13:57:51Z",
+          "by": "shushu",
+          "node": "notes",
+          "occurrence": 1,
+          "replayed": false,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "archive",
+              "work": "2026-10-03-001-default"
+            },
+            "edge": "main",
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-03-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "audit-approve",
+        "revision": 4
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "--request-id",
+        "audit-approve",
+        "gate",
+        "approve",
+        "2026-10-03-001-default",
+        "--node",
+        "notes"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "at": "2026-10-03T13:57:51Z",
+          "by": "shushu",
+          "node": "notes",
+          "occurrence": 1,
+          "replayed": true,
+          "work_status": {
+            "kind": "active"
+          }
+        },
+        "next": [
+          {
+            "args": {
+              "node": "archive",
+              "work": "2026-10-03-001-default"
+            },
+            "edge": "main",
+            "executor": "agent",
+            "op": "attempt begin",
+            "tier": "standard"
+          },
+          {
+            "args": {
+              "work": "2026-10-03-001-default"
+            },
+            "op": "work cancel"
+          }
+        ],
+        "ok": true,
+        "request_id": "audit-approve",
+        "revision": 4
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/m2-audit-principal-op0fb27y/home",
+        "--json",
+        "work",
+        "status",
+        "2026-10-03-001-default"
+      ],
+      "exit_code": 1,
+      "reply": {
+        "error": {
+          "code": "STORE_CORRUPT",
+          "detail": {
+            "detail": "请求 audit-approve 的audit主体/时间与原执行事实不一致"
+          },
+          "message": "数据库内容损坏：请求 audit-approve 的audit主体/时间与原执行事实不一致"
+        },
+        "next": [],
+        "ok": false
+      },
+      "stderr": ""
+    }
+  ],
+  "scope": "actual native CLI/SQL single column change, no source edits/neworacle yet; technical gate fixture not human approval claim"
+}

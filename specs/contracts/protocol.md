@@ -87,8 +87,8 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 1. 解析 `--input` 的键和字面值或 `@file` 词法路径，以用户提供的name原值及省略状态构造 `RequestIntent`；此时不规范化 `WorkName`、不读 `@file` 内容、不装入 Workbook。名字参数是意图的一部分，省略与显式flow名不同，见存储合同 §2.1。
 2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。
 3. 仅新请求规范化WorkName：名字省略时取`flow` id；去首尾空白，连续空白替换为一个`-`，转小写。规范化后必须只含小写字母、数字、汉字与单个`-`（不以`-`开头或结尾，无连续`-`）且≤48字节，否则`INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇`等`Han`脚本的其他码点不接受。
-4. 读取全部 `@file` 内容（失败退出码 2）；按 `--workbook` 找到已装版本并编译图。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
-5. 核对起始输入：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。
+4. 按 `--workbook` 找到已装版本、装入并编译图，确认指定 Flow。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
+5. 先核对起始输入键：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。键合法后才读取全部 `@file` 内容（读取失败退出码 2）。进入写路径后再次在锁内装入定义并核对键集合，复用预检已读取的同一份输入内容。
 
 预检通过后进入[存储合同 §2.3](storage.md) 的写路径：
 

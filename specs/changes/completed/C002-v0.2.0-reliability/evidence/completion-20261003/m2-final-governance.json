@@ -1,0 +1,56 @@
+{
+  "original_results": [
+    {
+      "name": "docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "a7b435f3a12180fab7d74b11071611f48163511da43f9d73a20cd16a593bc0bb"
+    },
+    {
+      "name": "specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 1,
+      "output_sha256": "99156482473600c5308aa51afe7d19de91556bf3e33d6c67fc71a8c09009c735"
+    },
+    {
+      "name": "tests",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "be673a92ed63d81e38257ddec80e8791f1cc008904f787fe67f48a9a13a3354b"
+    },
+    {
+      "name": "skill",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    {
+      "name": "core-vocab",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+    }
+  ],
+  "canonical_index_corrected": [
+    {
+      "name": "specs",
+      "exit_code": 0,
+      "sha256": "10c2134ccb96fc414821ebb9b1c5b8463da9bef4681eab063d4326e6537e6d5e"
+    },
+    {
+      "name": "docs",
+      "exit_code": 0,
+      "sha256": "a7b435f3a12180fab7d74b11071611f48163511da43f9d73a20cd16a593bc0bb"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/private/tmp/sheltie-completion-20261003/tools/dist/cargo-dist-aarch64-apple-darwin/dist",
+    "plan",
+    "--output-format=json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.841,
+  "candidate": "32c085f53955c5b63a2253eefa57e7504b2cec35",
+  "manifest_graph_policy_inputs_match_t42": {
+    "Cargo.toml": true,
+    "Cargo.lock": true,
+    "deny.toml": true,
+    "crates/sheltie-core/Cargo.toml": true,
+    "crates/sheltie-runtime/Cargo.toml": true,
+    "crates/sheltie-cli/Cargo.toml": true,
+    "crates/sheltie-export/Cargo.toml": true
+  },
+  "scope": "actual latest Git metadata dry plan, no build/publish/install, source only planning"
+}

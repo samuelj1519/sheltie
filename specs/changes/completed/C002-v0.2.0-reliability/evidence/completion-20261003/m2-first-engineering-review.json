@@ -1,0 +1,54 @@
+{
+  "result": "NEEDS_CHANGES_M2_candidate32c085_contract_oracle_gap_with_normal_engineering_gates_passed",
+  "candidate": "32c085f53955c5b63a2253eefa57e7504b2cec35",
+  "reviewer": "independent read-only, no Cargo/source/oracle changes",
+  "normal_gate_evidence": {
+    "current190_SHA_verified": true,
+    "engineering134_subset": true,
+    "source_unchanged": true,
+    "948_run": "fca0838a-afa4-436c-af23-0403e735b3b9",
+    "948_pass_zeroSkipLeak": true,
+    "compilefail5": true,
+    "fmt_check_clippy": 0,
+    "MSRV_default": 0,
+    "same_frozen_Cargo_artifacts_checked": true
+  },
+  "current_tool_dependency_release_evidence": {
+    "nextest_version": "0.9.145 official universal archive SHA52ecaedb4f5af9267ef7ed02bc937d2a15a94ff96cb663080e81311f798c9905 verified",
+    "dist_version": "0.32.0 official archive SHAaa343b2ff78ec2981f17a65140250c5ad6062c74072163f68c5c2686d94763a7 verified",
+    "current_advisory_commit": "ef6173cbc5c50ec8166f9a5b28f07834144373ee",
+    "old_advisory_kept": "f8dee89e1b2f2f1eaf548312df7655fe5202a302",
+    "new_offline_deny_after_real_official_fetch": "exit0 advisories/bans/licenses/sources ok, onlyowned dbpath change, policy same",
+    "dry_plan": "actual0 singleCLI0.3rc1 release/6assets/onlyaarch engine, exporter publishfalse/distfalse, no build/publish/install",
+    "MIT": "workspaceMIT/cratesCLI-core-runtime LICENSE-MIT bytes equalroot; thirdparty licenses retain own policy"
+  },
+  "M2_must_fix": [
+    "F-M2-01 genuine contradictory approval audit principal still trusted by replay; current948 misses this contract counterexample, so standard3.1 negative oracle required before acceptance"
+  ],
+  "documentation_accuracy": "protocol4/5 current preflight ordering updated as docs-only; no Rust input changes; Root contract SHA packet must be rebound",
+  "physical_platform": "T45 scope actualAPFS/constructibleinputs, physicalBadFF blocked/notrun and unknownhistoricalbytepreservation retained; otherplatformsexcluded",
+  "memory_use": "historical scoped-M1 reminder only; all current evidence independently read/SHA verified",
+  "evidence_sha256": {
+    "m2-current-candidate.json": "bb2ce9373a47511217b1f2d32a2e693434b4480716171d0df6ae8f80637195ed",
+    "m2-deny-execution.json": "47e7f1c8fa83727c53a1156cbb37aa4adf350995dc8292177be904d3629cbb78",
+    "m2-deny-fresh.txt": "ca5faaf0208b84b014fd6419f66cd9749d55ba3779621ffaec57b47125362ed2",
+    "m2-deny-policy.toml": "a4601bbf520c50e1d470da918e5c20de6598e29737d44c4d48f1ad61841333fb",
+    "m2-advisory-fetch.txt": "b87c25311c0d303d21a9a5e8a996f35e6d3162b455de0fc12df6dfaf0ff47f2b",
+    "m2-live-advisory-boundary.json": "fa28ef0701c9bceef994abc9fd25ba9e33b450b3bdaa97e7cd6963a0b3995e4e",
+    "m2-dist-plan.json": "2dd4d67cfd09674f53e49919b6f3333ee64ed9e8feed1755424a73125cf1b8c3",
+    "m2-dist-plan-execution.json": "6bf7c5bb5b563394ef00e3252b4507029172517303c40ae4512381aa8518e5f4",
+    "m2-dist-assets-verification.json": "82c771b9f720eb6aec5255e6a187451795cfba11c7f90cc246424623bacc2400",
+    "t57-final-gates.json": "35a892024dd4d3143689f238a4a7d70e95f41dab7b7499d62a544be3c5afcb47",
+    "t57-frozen-binaries.json": "794679d7d57680f687f3af0e81900e548b67c32720f4e25cefb10d87c3b1465f",
+    "t57-supplemental-checks.json": "bc93d1965b89d673c2dcf52247be13adc816461ab8f4405a1cad9ef166430142",
+    "t43-acceptance-binding.json": "229e7d04368820fb62b86d596f59387a19348721361725290deed974d2b8dbf0",
+    "t45-native-review.json": "582f35a36c423dad99011eb6f32d8b1d09e42303d5a5ed3446f96a7efc3a6f9f"
+  },
+  "not_approved": [
+    "M2 done",
+    "old candidate Spec/globalPASS",
+    "normal engineering success as replacement for F-M2-01 fix",
+    "C004-C008 realuse",
+    "release/push/install/deploy"
+  ]
+}

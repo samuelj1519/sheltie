@@ -1,7 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[`C002 完整验收补验`](active/C002-v0.2.0-reliability/README.md)
+Active change：无
+
+C002当前恢复验收已完成，下一步按用户授权恢复C004。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -16,12 +18,13 @@ Active change：[`C002 完整验收补验`](active/C002-v0.2.0-reliability/READM
 
 | Change | 范围 | 入口 |
 | --- | --- | --- |
-| C002 | 用户要求恢复跳过项：工具/环境、215 ID、最终 Spec 与平台补验；已发布历史保留 | [README](active/C002-v0.2.0-reliability/README.md) |
+暂无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C002 | 当前采用恢复义务完整Spec/工程scoped PASS；macOS aarch64/APFS可构造输入，215处分与旧未执行限制分列 | [README](completed/C002-v0.2.0-reliability/README.md) |
 | C008 | 真实条件前检/规则/延期交接限定完成；probe未采用，原机制/观察/value not_run | [README](completed/C008-dependency-readiness/README.md) |
 | C007 | 技术资产/同源方法与缺项交接通过；原正式准入、六trial与真实价值not_run | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 完整成果副本/raw与独立限定验收；真实价值/环境与未知LEAK保留 | [README](completed/C006-result-delivery/README.md) |

@@ -694,3 +694,9 @@ T58最小实现仅service.rs：纯层共享principal非空/Timestamp规范/批�
 两新helper最终2/2实际Caught49.557秒、source190无漂移、formal CLI3非零；purehelper移除仍后层拒且无original，实际红为frozenIO先于audit资格的阶段/诊断；execution移除则错误Cancel历史被成功认领。两者分别分类，不并入原215计数、不笼统称坏请求全部最终成功。
 
 最终T58 scoped独审通过，原19个Service目标所在5函数段及其余196目标源码未改，新增更早audit核验可先拒替代Submit/Fail时间错的原件，资格正确但旧冻结Caught不升级最新执行。21static/9struct合法producer子集与pure/wiring条件保持。源码实际修复先单独提交；M2需要新源码新完整审查，不把T58或951作为全产品完成。
+
+T58独立修复提交6e33c37成功后，恢复M2 protocol文档到已审57f1 SHA；旧pre-commit隐藏的原patch已验证且精确恢复。新M2候选190/134绑定新951 run424c...与新Cargo binary7c961...；当前原生unicode/rawargv/EILSE再执行绑定新binary，物理遍历not_run继续留原。原32c工程/Spec needs_changes原件不覆盖，修后完整M2终审另用m2-repaired-*文件。
+
+M2修后完整[Spec](evidence/completion-20261003/m2-repaired-spec-review.md)/[工程](evidence/completion-20261003/m2-repaired-engineering-review.md)独立scoped PASS，无当前C002必修缺口；原32c报告与旧标签原件留原。受审6e33与protocol57f1、190/134、新951/46/2检测/新native、ef6173freshdeny4及当前drydist6全部分别绑定。归档只移动目录、修权威入口/既有链接，记录中的原run paths保持历史，不重写JSON/tar。C004–C008仍待依次恢复，不能由本M2推出全产品价值或发布。
+
+归档前后705文件逐SHA完全相同；root索引初次在“无active”行追加说明导致specs格式guard失败，改为规范独立声明后docs/specs0，首次原文保留。原JSON/tar录制run paths不改。

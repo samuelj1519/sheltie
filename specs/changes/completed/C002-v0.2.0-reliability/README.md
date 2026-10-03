@@ -1,6 +1,6 @@
 # C002：v0.2.0 可靠性修复
 
-状态：`active`
+状态：`completed`（已发布历史与当前恢复义务分别验收）
 目标版本：`不进入产品 release`
 兼容性：`breaking`（schema 2 拒绝旧库；旧管理根和数据原样保留）
 基线：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`
@@ -21,7 +21,7 @@ Owner：Claude（原实施）、Codex（后续修复与收敛）；采用人：�
 | [plan.md](plan.md) | 任务状态、依赖、责任、验证要求与下一步 |
 | [progress.md](progress.md) | 当前跨会话交接 |
 | [tasks.toml](tasks.toml) | 文件范围和测试权限 |
-| [review.md](review.md) | M1 最终审查结论、范围和限制 |
+| [review.md](review.md) | M1历史与M2当前最终审查、范围和限制 |
 | [validation.md](validation.md) | 候选、运行、51 行验收索引及历史证据恢复 |
 
 T01–T15、T18–T34 和 M1 已按各自授权范围完成；T16 已按本机构建与实际场景完成，T17 已按用户许可的 macOS aarch64 单平台发布并完成远端验证。M1 包含实际 SK01/SK02 跳过：缺最终 Spec 批准及 215 项额外验证，不是完整变异或安全验证通过。
@@ -80,3 +80,8 @@ T17 本地候选准备原文见 [`C002-T17-preparation.tar.gz`](evidence/submiss
 最终执行原文见 [`C002-T17-final.tar.gz`](evidence/submissions/C002-T17-final.tar.gz)，SHA256 `e71a26b1bd703474373adb6800abafa3aff9bdd83ed29cd93dfb38ce21b9c4f2`，335文件逐字回读一致。包含各阶段批准与原FAIL、两条正式tag CI、公开metadata/checksum/manifest、quality原文、独立报告及远端CLI/oracles；不包含可再生成binary/cache或真实用户home。此最终执行档案不预判后续文档staged gate，门禁/audit另记。
 
 最终lifecycle与staged范围独立核验见 [`C002-T17-final.audit.json`](evidence/submissions/C002-T17-final.audit.json)：26项检查均通过，335文件最终档案与旧12个tar/3个audit迁移字节一致，41个T/M均done、0active、实际发布/远端/record及当前有限矩阵一致。独立重跑docs/specs/tests/staged task/diff五门禁全部exit0；audit在tar外保存，避免自引用，不预判提交成功。
+
+
+## 2026-10-04 当前恢复验收
+
+M2受审源码候选6e33c37、协议57f1工作树已独立完整Spec/工程scoped PASS；当前macOS aarch64/APFS可构造输入，无剩余当前C002必修项。185动态/21限定静态/9结构按各自真实闭包与当前差异复核，不是215旧native全执行。T58关闭原M2审计事实资格缺口，新951/46/2共享检测与native复验通过；原32cneeds_changes与全部旧结果留原。物理badFF引擎遍历environment_blocked/9旧native未执行/未知usage及资源诊断限制不变。此处关闭C002，不完成C004–C008真实使用，也不授权新发布。详见[最终审查](review.md#c002-m2-修后完整验收)。

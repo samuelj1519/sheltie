@@ -1,0 +1,11 @@
+# C002-M2 首次工程验收
+
+**正常工程证据通过，但当前32c085候选M2工程验收NEEDS_CHANGES。** 完整Spec独审发现F-M2-01真实前门反例；现有948没有覆盖同一批准audit主体矛盾在replay/current-read的差异。工程规范§3.1要求对应拒绝oracle，不能用普通回归或215计数补造其辨别力。
+
+当前190源码/fixture/Cargo/config逐SHA全部一致，134工程输入是同一closure子集；fmt/check/clippy/full948/5doc原文输出SHA与实际exit0记录一致，run fca0838a-afa4-436c-af23-0403e735b3b9零skip/LEAK。MSRV1.85/default原文同源通过，Cargo真实executable路径与固定engine/exporterSHA可追溯。Reviewer没有Cargo重跑或源改动。
+
+工具与依赖另按当前输入核：官方nextest0.9.145与dist0.32.0下载blob对release asset digest逐SHA相同；当前RustSec实际官方fetch到ef6173cbc5c50ec8166f9a5b28f07834144373ee，旧f8不变。owneddbpath之外deny政策完全相同，同锁offline-after-livefetch实际exit0、advisories/bans/licenses/sources四项ok，原允许license-not-encountered/winnow重复warnings保留。当前最新Git元数据drydistplan真实exit0，仅sheltie-cli0.3rc1六资产、一份aarch64 engine，无exporter发布/构建/安装。Root及三引擎crate的MIT元数据/许可证一致；不把第三方依赖许可证改成MIT。
+
+T43准确215处分、37当前执行/148分组冻源+currentdelta/21static9structure只承担其独审范围；T45实际APFS/可构造输入与physicalBadFF blocked、旧preflight历史保真未独立确认单列。原LEAK与五个旧exporter空失败、初次fixture错误、旧stage1Missed/9oldnative not_run及usage未知不改变。
+
+F-M2-01先按单独受控修复任务处理，必要真实健康/单字段坏audit/原响应与五表业务原件保全，修后source/fixture/binary closure、受影响真实consumer/完整工程/MSRV/治理与独审另立。协议4/5文档准确化已核、Root合同packet需更新SHA。当前32c正常门禁事实保留，不能沿用其full948作为未来改源后验收。本文件不授M2、全产品或对外发布。

@@ -331,3 +331,10 @@ Reviewer `/root/oracle_review`，未参与设计/编写。初审需修改仅指�
 ## C002-T48 独立增量
 
 Reviewer `/root/oracle_review` 未参与oracle设计/编写。初审要求完整文件byte/mode oracle；补齐后的最终19/19与853/853原文/134输入/hash全部核实，三个runtime生产前缀不变。纯检查与真实CLI消费者范围、旧17输入漂移和当前稳定19执行分别记录。限定PASS，无剩余T48finding；其他组、自动试用与M2仍各自验收。见 [正式增量](evidence/completion-20261003/independent-t48-review-after-files.md)。
+
+
+## C002-M2 修后完整验收
+
+未参与实现/oracle的Reviewer对6e33源码190、134工程子集及protocol57f1重新核全链，完整[Spec](evidence/completion-20261003/m2-repaired-spec-review.md)与[工程](evidence/completion-20261003/m2-repaired-engineering-review.md)scoped PASS。原32c独审needs_changes不覆盖，T58真实修复与新951/46/5doc/MSRV/default/2共享检测/native反例闭合；M2无剩余当前采用恢复义务必修项。
+
+根不变式、CLI→core→runtime→Store/FS/恢复、唯一audit/原响应资格、事务发布与同快照、真实字节/限额/同步/清理均按源码与真实caller核，不由task或计数推出。215处分及旧native/物理不可构造、UTF8诊断资源、模型sync/usage等限制保持。当前macOS aarch64/APFS可构造输入的限定验收，不是全文件系统/原生断电/任意同账户数据隔离证明，不关闭C004–C008真实使用，不发布。

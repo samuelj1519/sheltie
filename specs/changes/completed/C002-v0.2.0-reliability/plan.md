@@ -1,6 +1,6 @@
 # C002 实施计划
 
-状态：`active`。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
+状态：`completed`（当前采用恢复义务限定验收）。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
 
 阅读 [CONTEXT.md](../../../../CONTEXT.md)、[文档地图](../../../README.md) 与 [工程规范](../../../engineering.md)，再按本计划定位任务。问题索引见 [findings.md](findings.md)，已采用机制见 [design.md](design.md)，候选与运行见 [validation.md](validation.md)，最终审查见 [review.md](review.md)，文件范围见 [tasks.toml](tasks.toml)。
 
@@ -345,7 +345,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T56 | done | Codex；独立 Reviewer | G09准确15：13动态/2限定静态；945回归与独审通过 |
 | C002-T57 | done | Codex；独立 Reviewer | G13准确5全部动态；948回归与独审通过 |
 | C002-T58 | done | Codex；独立 Reviewer | F-M2-01修复；新951回归/46消费者/2共享校验检测/native复验及独审通过 |
-| C002-M2 | doing | 独立 Reviewer | 原32c候选needs_changes；修复T58后新闭包完整重验，物理不可构造限制留原 |
+| C002-M2 | done | 独立 Reviewer | 修后6e33完整Spec/工程scoped PASS；951/46及全部采用恢复义务核实，旧限制留原 |
 
 ### 执行与停止
 
@@ -516,3 +516,5 @@ M2完整Spec复核发现protocol work start编号中的读取顺序叙述不准�
 写/重放与只读装入共享同一私有审计执行事实规则，核完原响应资格再构造original；非空principal、批准data.by与audit.principal的一致性在可纯校验的位置先于冻结副本IO。保留合法历史状态与当前state不同的重放、效果载荷/路径/sync错误仍带已核original的边界。不要重复第二套状态、公开DTO getter/trait、读取自然语言判断，或加入新观察点。
 
 先真实CLI正反回归在原候选见红，再最小共享实现；单项改变principal/empty及合法后来状态、冻结副本缺失资格优先序、失败后5表/原件保全交独立设计/源码审查。冻结新source/binary/fixture/config，受影响consumer及完整工程/MSRV/default/治理重新运行，不复用旧190源码的948到新source。一个任务一个提交；M2仍doing直到修后完整Spec/工程另审。
+
+M2修后最终收尾基线为`6e33c3714c1c8d563e5559f9be9e6d66786be3e8`；原32c只作首次needs_changes候选。最终task gate显式使用6e33，正文contract57f1与current190输入另绑定；不将源码修复前的来源或任务基线混作新完整验收。

@@ -1,0 +1,161 @@
+{
+  "candidate": "6e33c3714c1c8d563e5559f9be9e6d66786be3e8",
+  "platform": "macOS aarch64 only",
+  "filesystem": {
+    "argv": [
+      "diskutil",
+      "info",
+      "-plist",
+      "/dev/disk3s5"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "filesystem": {
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "FilesystemPersonality": null,
+      "MountPoint": "/System/Volumes/Data",
+      "DeviceIdentifier": "disk3s5",
+      "DeviceNode": "/dev/disk3s5"
+    },
+    "native_dev_binding": {
+      "tmp": 16777234,
+      "mounted": 16777234
+    }
+  },
+  "binary": {
+    "path": "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+    "sha256": "7c961834888b085c1bd54a0302b83354c11eed480ee0941e5866b665f273e88c"
+  },
+  "native": {
+    "uname": {
+      "argv": [
+        "uname",
+        "-m"
+      ],
+      "exit_code": 0,
+      "stdout": "arm64\n",
+      "stderr": ""
+    },
+    "macos": {
+      "argv": [
+        "sw_vers"
+      ],
+      "exit_code": 0,
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+      "stderr": ""
+    },
+    "rust": {
+      "argv": [
+        "rustc",
+        "-Vv"
+      ],
+      "exit_code": 0,
+      "stdout": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+      "stderr": ""
+    },
+    "nextest": {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/tools/nextest/cargo-nextest",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "cargo-nextest 0.9.145 (00af4550e 2026-09-16)\nrelease: 0.9.145\ncommit-hash: 00af4550ec3b3b9f0e574b897b06acb95d325ba2\ncommit-date: 2026-09-16\nhost: aarch64-apple-darwin\n",
+      "stderr": ""
+    },
+    "binary_architecture": {
+      "argv": [
+        "file",
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie"
+      ],
+      "exit_code": 0,
+      "stdout": "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie: Mach-O 64-bit executable arm64\n",
+      "stderr": ""
+    },
+    "binary_version": {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "sheltie 0.3.0-rc.1\n",
+      "stderr": ""
+    },
+    "unicode_source": {
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/t45-native-f__o9om9/合法管理根-中文",
+        "--json",
+        "--request-id",
+        "t45-native-unicode",
+        "workbook",
+        "add",
+        "/private/tmp/sheltie-completion-20261003/t45-native-f__o9om9/合法源目录-中文"
+      ],
+      "exit_code": 0,
+      "reply": {
+        "data": {
+          "digest": "db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549",
+          "flows": [
+            "default"
+          ],
+          "id": "two-step",
+          "replayed": false,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "t45-native-unicode"
+      },
+      "source_files_sha256": {
+        "workbook.toml": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211",
+        "instructions/outline.md": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432",
+        "instructions/summary.md": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1",
+        "flows/default.toml": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002"
+      },
+      "source_bytes_unchanged": true,
+      "installed_bytes_match": true
+    },
+    "physical_nonutf8": [
+      {
+        "kind": "file",
+        "created": false,
+        "errno": 92,
+        "error": "[Errno 92] Illegal byte sequence: b'/private/tmp/sheltie-completion-20261003/t45-native-f__o9om9/bad-file-\\xff'",
+        "engine_physical_traversal_fixture": "not_run/environment_blocked_by_carrier"
+      },
+      {
+        "kind": "directory",
+        "created": false,
+        "errno": 92,
+        "error": "[Errno 92] Illegal byte sequence: b'/private/tmp/sheltie-completion-20261003/t45-native-f__o9om9/bad-directory-\\xff'",
+        "engine_physical_traversal_fixture": "not_run/environment_blocked_by_carrier"
+      }
+    ],
+    "invalid_utf8_argv": {
+      "argv_bytes_hex": [
+        "2f707269766174652f746d702f7368656c7469652d636f6d706c6574696f6e2d32303236313030332f7435382d66696e616c2d66726f7a656e2d62696e61726965732f7368656c746965",
+        "2d2d686f6d65",
+        "2f707269766174652f746d702f7368656c7469652d636f6d706c6574696f6e2d32303236313030332f7434352d6e61746976652d665f5f6f396f6d392f696e76616c69642d617267762d686f6d65",
+        "2d2d6a736f6e",
+        "776f726b626f6f6b",
+        "616464",
+        "2f707269766174652f746d702f7368656c7469652d636f6d706c6574696f6e2d32303236313030332f7434352d6e61746976652d665f5f6f396f6d392f696e76616c69642dff"
+      ],
+      "exit_code": 2,
+      "stdout_base64": "",
+      "stderr_base64": "ZXJyb3I6IGludmFsaWQgVVRGLTggd2FzIGRldGVjdGVkIGluIG9uZSBvciBtb3JlIGFyZ3VtZW50cwoKVXNhZ2U6IHNoZWx0aWUgd29ya2Jvb2sgYWRkIFtPUFRJT05TXSA8RElSPgoKRm9yIG1vcmUgaW5mb3JtYXRpb24sIHRyeSAnLS1oZWxwJy4K",
+      "stderr_text": "error: invalid UTF-8 was detected in one or more arguments\n\nUsage: sheltie workbook add [OPTIONS] <DIR>\n\nFor more information, try '--help'.\n",
+      "home_not_created": true,
+      "scope": "actual native execve argv frontend refusal; not physical invalid-name tree traversal"
+    },
+    "owned_fixture_reclaimed_after_scope": "/private/tmp/sheltie-completion-20261003/t45-native-f__o9om9"
+  },
+  "same_source_engineering_gate": "t58-final-gates.json run 424c53bc-4a8a-4bf1-8c26-f4b600335a83 951/951",
+  "same_engineering134_inputs_verified": true,
+  "other_platforms": "excluded_by_user",
+  "usage": null,
+  "scope": "actual verified APFS carrier and constructible native inputs; physical nonUTF8 engine traversal not_run retained"
+}

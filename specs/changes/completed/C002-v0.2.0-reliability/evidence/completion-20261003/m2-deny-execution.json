@@ -1,0 +1,22 @@
+{
+  "candidate": "32c085f53955c5b63a2253eefa57e7504b2cec35",
+  "argv": [
+    "cargo",
+    "deny",
+    "--all-features",
+    "--locked",
+    "--offline",
+    "--config",
+    "/private/tmp/sheltie-completion-20261003/m2-deny-policy.toml",
+    "check"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.557,
+  "advisory_commit": "ef6173cbc5c50ec8166f9a5b28f07834144373ee",
+  "official_fetch_record": "/private/tmp/sheltie-completion-20261003/m2-advisory-fetch.txt",
+  "previous_snapshot_preserved": "f8dee89e1b2f2f1eaf548312df7655fe5202a302",
+  "policy_equal_except_owned_db_path": true,
+  "offline_after_successful_live_snapshot_fetch": true,
+  "Cargo.lock_sha256": "79905320141739d950105a36f7beda5872ff9fe2b95587b850afb9e823a653e8",
+  "output_sha256": "ca5faaf0208b84b014fd6419f66cd9749d55ba3779621ffaec57b47125362ed2"
+}
