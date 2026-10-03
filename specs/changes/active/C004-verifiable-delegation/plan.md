@@ -134,7 +134,9 @@ T02/T03 最新冻结测试修订：`2914e8564047809659c4610d151f9ea6ceef7476`，
 | --- | --- | --- | --- | --- |
 | C004-T06 | done | Codex；独立Reviewer | C002-M2 ccf7a0c | 事前输入/角色/质量/完整原件/预算及独立scope复核通过 |
 | C004-T07 | done | 协调者；实际A/B执行者；独立内容Reviewer | T06 af830f5 | 真实C005开工包，通过同Attempt冷接续、独立质量和最终三refs，下一协调者实际使用 |
-| C004-T08 | todo | Codex；独立Reviewer | T07发现 | 恢复21原raw日志tracking，字节不改 |
+| C004-T08 | done | Codex；独立Reviewer | T07发现 | 恢复21原raw日志tracking，字节不改 |
+| C004-T09 | todo | Codex；独立Reviewer | T08 | 逐查询观察器与新消费者事前冻结 |
+| C004-T10 | todo | 新fork-none消费者；独立Reviewer | T09 | 实际每查询观察与三成果使用，不追补旧B历史 |
 | C004-M3 | not_run | 未参与产物编写的Reviewer | T07 | 当前采用agent范围及环境完整限定验收，不改写旧真人/净收益 |
 
 ### C004-T06 恢复范围与事前冻结
@@ -159,4 +161,12 @@ T06范围/快照门禁基线明确为ccf7a0cc4d4c4a3a1b3c040473ab2cbc069a1982；
 
 ### C004-T08 恢复目录移动遗漏的原始日志跟踪
 
-T06移动package时21个原tracked的M2 mutation .log在新路径受*.log忽略，磁盘字节完整但提交缺失；独立M3审发现。精确路径与旧/新SHA见evidence/resume-20261004/t06-move-ignored-raw-finding.json。只显式force-add该21文件并记录原因，不改原字节/全局ignore/旧提交/历史结论。复核原ccf7a0c旧路径blob字节、git index新路径blob与工作文件一致；docs/specs/任务scope、提交读回通过后独立增量核。基线使用T07实际提交完整SHA。
+T06移动package时21个原tracked的M2 mutation .log在新路径受*.log忽略，磁盘字节完整但提交缺失；独立M3审发现。精确路径与旧/新SHA见evidence/resume-20261004/t06-move-ignored-raw-finding.json。只显式force-add该21文件并记录原因，不改原字节/全局ignore/旧提交/历史结论。复核原ccf7a0c旧路径blob字节、git index新路径blob与工作文件一致；docs/specs/任务scope、提交读回通过后独立增量核。基线使用T07实际提交3c744e29235c78d21f8e6fc18bdae766eac9328b。
+
+### C004-T09 冻结逐查询观察与真实消费者补验
+
+F02是B旧两次查询取证偏差，旧事实不可追补；现有running窗口已有五表/业务对象前后。准备私有外部观察器，只包原CLI status/result，查询前后只读SQLite五表/业务对象，写本package补验证据而透传原stdout；不新增产品状态/接口或改引擎。冻结观察器SHA、原Work/binary/三文档SHA、全输入、actor最小prompt、标准/预算/停止条件，未参与编写Reviewer事前核。先提交T09再派实际消费者；原T07时间从17:41:37连续计，不消去取证/修复投入。
+
+### C004-T10 执行逐查询与新消费者实际使用
+
+新fork-none消费者仅取得观察器/Work/binary/规程路径，实际通过观察器读取status/result，再由refs读三文档并执行交付首动作，自己的准备判断写本task限定证据，不改三产物/业务状态/C005。每条查询确有完整before/after，原stdout/exit和实际调用session保全；只读判据与真消费分别核。结合原running窗口验当前能力，不伪称旧B取证已发生。源漂移、对象不变断言失败、超原run60min限即停止并留失败，不重跑凑绿。docs/specs/skill/scope、独立质量和M3增量核，无无关Rust/空task.sh。

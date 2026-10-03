@@ -174,3 +174,7 @@ Root作为真实下一C005消费者读取三文档并按交付首动作实际读
 独审补发现T06目录移动的21旧tracked mutation .log未在新active路径纳入Git（*.log忽略）。工作文件与ccf7a0c旧blob逐字节同值，但af830f5新checkout缺原件；不将“物理移动同值”冒称“提交全原件保全”。精确清单见[evidence finding](evidence/resume-20261004/t06-move-ignored-raw-finding.json)，新增T08恢复tracking后再M3归档。T07实际使用链通过与M3候选需修分列。
 
 查询观察粒度：Root的handoff、review-running、final三个窗口逐次取得五表和业务对象前后快照；B自行两次status只有真实stdout/revision2/同Attempt和冻结输入核对，未取得每个调用自己的嵌套五表/全对象before-after。这是相对原protocol“每条”的实际观察偏差，不补造历史快照、不称所有调用逐条完全观测。C002同binary只读消费者与当前最终业务写审计支持机制判断，但不替代缺少的本run逐调用观察；M3由独审明确判断限定范围。
+
+## C004-T08 原始日志跟踪修复
+
+基线为T07提交3c744e29235c78d21f8e6fc18bdae766eac9328b。按独审F01精确force-add清单21文件；index blob、实际工作文件与ccf7a0c旧completed blob逐字节同值，大小和双SHA见[t08原件核对](evidence/resume-20261004/t08-staged-raw-preservation.json)。没有改原日志、全局ignore或历史结论；恢复的是新checkout证据可得性。F02逐调用历史观察缺口单独留原，不因日志修复自动关闭。独立Reviewer已增量核21旧blob=index=physical通过；提交读回随后完成。原raw whitespace令full cached exit2，明确原21raw排除后authoring exit0，不称全cached PASS。
