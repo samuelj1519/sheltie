@@ -15,9 +15,8 @@ MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代
 | D-038 | accepted | [purge清除数据并保留根锁](D-038-purge-lock-lifecycle.md) |
 | D-039 | accepted | [只读SQLite允许共享内存控制文件](D-039-sqlite-read-control-files.md) |
 | D-040 | accepted | [成果与接续采用单一 Store 格式](D-040-result-resume-format.md) |
+| D-041 | accepted | [创建顺序号与行政替换](D-041-attempt-number-and-replacement.md) |
+| D-042 | accepted | [最终成果原字节与外围副本](D-042-final-artifact-copy.md) |
+| D-043 | accepted | [未发布候选的开发目标权威](D-043-development-target-authority.md) |
 
 模板字段：状态、日期、关联 change、背景、选择、否决方案、后果、确认方式。
-
-| D-041 | accepted | [创建顺序号与行政替换](D-041-attempt-number-and-replacement.md) |
-
-| D-042 | [最终成果原字节与外围副本](D-042-final-artifact-copy.md) | accepted |

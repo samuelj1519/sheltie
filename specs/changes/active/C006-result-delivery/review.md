@@ -43,3 +43,7 @@ Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以mani
 ## C006-T02 最终短审
 
 结论：`PASS`。独立Reviewer从T04基准逐字节核两公开source与四tests的19ignore删除；原语、所有期望/fixture/helper无漂移。独立复算295path闭包f01613c4…匹配gate输入，实际832完整回归与19固定binary消费者、全部工程门禁一致。私有binary当前SHA与记录before/after一致，live采样不当历史锁定保证。旧829/1、LEAK与所有环境/真实价值缺项保持分开；T03/M2仍待完成。
+
+## C006-T05 独立治理审查
+
+结论：`PASS`。独立Reviewer及其只读helper核唯一首屏规范authority、数值active冲突先于released分支、确切非产品/无active的匹配RC与全部拒绝分支；原tag/历史/CHANGELOG及旧22断言保持。8新真实red、修后30green与工程/治理原文一致，源/Cargo/releases/tag未变。D-043具体版本改链接唯一权威，避免复制可变事实。发现既有CHANGELOG未发布段仍写schema3/v3，明确交T03文案修正，不影响本逻辑结论，不添无关测试。

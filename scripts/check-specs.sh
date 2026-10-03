@@ -250,15 +250,42 @@ if [ -z "$version" ]; then
 	fail "Cargo.toml 取不到 workspace version"
 fi
 
-# 已发布 release 与开发中的 active target/RC 分开验证（C002-T15）：有 release record
-# 的版本按已发布核 tag 与 commit；开发中的版本等于 active 目标版本或其 RC 就行，
-# 不要求已有 tag（发布还没做，不能逼着造 tag），CHANGELOG 允许先写 [Unreleased]。
+# 开发目标来自文档地图首屏；active plan 管进度，非产品实验不替换版本权威。
 current_release="specs/releases/v${version}/README.md"
-base_version="${version%%-*}"
-active_target=""
-if [ "$active_count" -gt 0 ]; then
-	active_target="$(sed -n 's/^目标版本：`v\([^`]*\)`.*/\1/p' specs/changes/active/C*/README.md | head -1)"
+development_target=""
+authority_valid=""
+base_pattern='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+if [ ! -f specs/README.md ]; then
+	fail "缺开发目标权威 specs/README.md"
+else
+	field_count="$(grep -c '^开发目标：' specs/README.md || true)"
+	if [ "$field_count" -ne 1 ]; then
+		fail "specs/README.md 必须有唯一开发目标字段，实际 $field_count 个"
+	else
+		development_target="$(head -15 specs/README.md | sed -n 's/^开发目标：`v\([^`]*\)`$/\1/p')"
+		if [[ "$development_target" =~ ^${base_pattern}$ ]]; then
+			authority_valid=1
+		else
+			fail "specs/README.md 首屏开发目标必须是规范数值基础版本：开发目标：\`vX.Y.Z\`"
+		fi
+	fi
 fi
+active_target=""
+active_declaration_valid=1
+if [ "$active_count" -gt 0 ]; then
+	active_value="$(sed -n 's/^目标版本：`\([^`]*\)`.*/\1/p' specs/changes/active/C*/README.md)"
+	if [[ "$active_value" =~ ^v${base_pattern}$ ]]; then
+		active_target="${active_value#v}"
+		if [ -n "$authority_valid" ] && [ "$active_target" != "$development_target" ]; then
+			fail "active 目标版本 $active_target 与开发目标 $development_target 不一致"
+			active_declaration_valid=""
+		fi
+	elif [ "$active_value" != "不进入产品 release" ]; then
+		fail "active 目标版本不合法：仅接受数值版本或明确的不进入产品 release"
+		active_declaration_valid=""
+	fi
+fi
+# 已发布版本继续核原 release/tag/CHANGELOG；开发候选不要求创建发布记录或tag。
 if [ -f "$current_release" ]; then
 	if ! grep -q "^## \[$version\]" CHANGELOG.md; then
 		fail "CHANGELOG.md 没有版本 $version"
@@ -269,16 +296,16 @@ if [ -f "$current_release" ]; then
 		fail "$(missing_history_diag "tag v${version}")；$current_release 记着它"
 	fi
 else
-	dev_ok=""
-	if [ -n "$active_target" ] && [ "$base_version" = "$active_target" ]; then
+	if [ -n "$authority_valid" ] && [ -n "$active_declaration_valid" ]; then
+		dev_ok=""
 		case "$version" in
-		"$active_target" | "$active_target"-rc.*) dev_ok=1 ;;
+		"$development_target" | "$development_target"-rc.*) dev_ok=1 ;;
 		esac
-	fi
-	if [ -z "$dev_ok" ]; then
-		fail "当前 Cargo 版本 $version 既没有 release record，也不是 active 目标版本/RC（${active_target:-无 active}）"
-	elif ! grep -q "^## \[$version\]" CHANGELOG.md && ! grep -q '^## \[Unreleased\]' CHANGELOG.md; then
-		fail "CHANGELOG.md 既没有版本 $version 也没有 [Unreleased] 段"
+		if [ -z "$dev_ok" ]; then
+			fail "当前 Cargo 版本 $version 既没有 release record，也不匹配开发目标 $development_target 或 active 目标版本/RC（${active_target:-非产品或无 active}）"
+		elif ! grep -q "^## \[$version\]" CHANGELOG.md && ! grep -q '^## \[Unreleased\]' CHANGELOG.md; then
+			fail "CHANGELOG.md 既没有版本 $version 也没有 [Unreleased] 段"
+		fi
 	fi
 fi
 

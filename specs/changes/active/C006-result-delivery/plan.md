@@ -28,6 +28,7 @@
 | C006-T04 | done | 复杂作者/root；独立Reviewer | checkpoint完整字节握手修复及冻结基准更新 | T02实际回归失败 |
 | C006-M1 | done | 独立复杂模型 Reviewer | 安全及实现准备审查 | T01 |
 | C006-T02 | done | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
+| C006-T05 | done | 复杂作者/later_plans；独立Reviewer | 未发布RC开发目标权威与生命周期治理修复 | T02完成、实验采用前 |
 | C006-T03 | todo | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
 | C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
@@ -120,7 +121,7 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 
 **Owner / 输入。** 手册执行者；T02 候选、T01 runbook、已明确副本用途。复杂模型负责产品结论与不明失败分析，不把判断留给初级执行者。
 
-**范围 / 操作。** 按 `experiments/runbook.md` 的实际构建与二进制路径，用同一最终结果执行手工复制与工具复制，分开记录找结果、接收、核对和失败处置。补准确 `specs/guides/result-export.md`，核首次读者能取得正确可编辑副本。机制可在临时目录跑；真实用户位置须已有授权。
+**范围 / 操作。** 按 `experiments/runbook.md` 的实际构建与二进制路径，用同一最终结果执行手工复制与工具复制，分开记录找结果、接收、核对和失败处置。补准确 `specs/guides/result-export.md`，核首次读者能取得正确可编辑副本。同步CHANGELOG未发布段的schema4/cli-resultv4与已实现功能；不改发布历史。机制可在临时目录跑；真实用户位置须已有授权。
 
 **oracle / 停止。** 字节与清单一致、不会覆盖、残留/unconfirmed 能准确核查；用户只需指针或无收益也能如实结论。无真实用途保持价值 not_run；缺授权只停相关真实位置写入。缺陷交修复任务，不改合同、oracle 或成功标准。
 
@@ -143,3 +144,11 @@ T02完整回归4954967d为829PASS/1FAIL，reached文件已存在但尚为空；w
 **测试。** `boundary_waits_for_complete_marker_bytes_before_claiming_the_checkpoint`、`boundary_rejects_bytes_from_another_checkpoint`。
 
 先用真实文件与活子进程构造已存在空/部分通知取得有效red，再修等待取green；不调整业务政策、fault生产端或原成果断言。两项独立期望、fmt/check/clippy、独立review和治理/范围检查完成后提交T04；该完整SHA是T02新冻结基准。恢复自有草稿仅保留公共接线与19ignore删除，其他部分字节保真。RC生命周期治理另列后续任务。
+
+### C006-T05：保留未发布开发候选的明确版本权威
+
+产品package归档后，active实验没有数值产品目标；现checker会误拒绝同一未发布RC。修复前用隔离真实治理夹具取得非产品active/无active的实际red。开发目标只由specs/README首屏唯一字段给出；数值产品active必须相符，明确不进入产品release的实验及无active不替换该权威。未知实验目标、缺失/重复/非法开发目标、Cargo错误RC或数值active冲突均拒绝；原release/tag/缺历史/CHANGELOG检查和原断言保持。
+
+**测试。** `check_specs_accepts_authorized_rc_during_nonproduct_experiment`、`check_specs_accepts_authorized_rc_after_product_package_is_completed`、`check_specs_rejects_missing_duplicate_or_invalid_development_authority`、`check_specs_requires_development_authority_in_first_screen`、`check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released`、`check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released`、`check_specs_rejects_rc_outside_authority_during_nonproduct_experiment`、`check_specs_authorized_rc_without_active_still_requires_changelog`。
+
+Owner分开：later_plans负责check-specs、README字段与release_governance测试；root先写工程权威、D-043、任务范围和记录。验收用例先建立再登记实际名称。check/clippy/fmt、release_governance全部真实consumer、独立review、docs/spec/tests/范围通过再提交；引擎source/Cargo/格式及832运行输入未变部分按消费者引用，不重跑无关完整引擎链。未发布目标不是发布授权。

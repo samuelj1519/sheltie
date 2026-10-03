@@ -119,3 +119,13 @@ T04独审发现初次positive在wait返回后writer.join，会放过提前返回
 当前whole consumer `f01613c4a052d7b2cd89b9870674b979c69c576696970548e4a0ea2be1ad55d5`，295files，同域/算法/排除，见[input记录](evidence/t02/input-closure-gate.txt)。它是修订后的新输入；之后只改plan状态与验证记录，治理单独检查，不复用旧whole hash。业务状态、整份字节/manifest、不覆盖、残留/重跑、kill/sync/链接和opaque keys均已实际经过公开链。真实副本需求/人工成本、跨设备、其他OS与dist实际asset plan保持延期。
 
 T02首次staged范围检查拒绝main：任务表files数组左侧多一个空格，现check-task简单字段解析保留该前导空格，没识别main的files/test_files重叠。仅规范任务表空格以兑现原已审main实现范围，未改checker、保护范围、测试或代码；治理和同基准scope重验。全cached diff原文尾空格例外见[evidence清单](evidence/t02/diff-check.json)，精确排除单份immutable gates raw后的作者检查PASS。
+
+## C006-T05 RC生命周期治理
+
+开工 `5648958d4c6a8ed690a6ea074b59f9bc221ef972`。先建8个独立oracle，旧checker全30用例实际22旧PASS/8新FAIL、exit101；两个合法RC场景因没有数值active目标被拒，authority缺失/重复/非法/前导零被错误放行。所有早期red原件保存。修复后[同30真实governance消费者](evidence/t05/governance-final.txt)30/30PASS，旧22断言未变。
+
+唯一首屏开发目标来自specs/README；数值active必须一致（released分支前也核），明确非产品实验/无active仍核同一权威目标。未知active目标拒绝；原tag/历史/CHANGELOG检查保持。CLI全targets/features check/clippy、fmt、docs146/specs8/1active/tests840以及作者diff全部exit0。最终[Rust1.85 locked全workspace检查](evidence/t05/msrv-final.txt)exit0。
+
+引擎/导出source、Cargo、fixtures、原冻结public tests未变；832原run的其他消费者按相同source/config/features引用，改变的governance helper/script与其30消费者已换新证据，不称same whole hash或840单run。D-043与工程规范先固定版本权威。开发目标不会发布或创建tag。
+
+T05全cached diff exit2仅两份工具原文EOF空行，见[evidence清单](evidence/t05/diff-check.json)；原字节保留。精确排除这两份raw后的作者检查exit0。

@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/release_governance.rs (/private/tmp/sheltie-c006-target/debug/deps/release_governance-34ee2f0444e55431)
+
+running 1 test
+
+thread 'check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released' (59362532) panicked at crates/sheltie-cli/tests/release_governance.rs:477:5:
+已发布Cargo版本不能掩盖active目标冲突：check-specs: OK (1 个 change，1 个 active)
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released ... FAILED
+
+failures:
+
+failures:
+    check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 29 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p sheltie-cli --test release_governance`

@@ -37,6 +37,8 @@ fn write_fixture_file(root: &Path, name: &str, text: &str) {
 enum Lifecycle {
     ActiveC002,
     CompletedC002,
+    CompletedUnreleasedC002,
+    ActiveExperiment,
 }
 
 const FINAL_TABLE_HEADER: &str = "| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |\n\
@@ -55,7 +57,9 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
     }
     let state = match lifecycle {
         Lifecycle::ActiveC002 => "active",
-        Lifecycle::CompletedC002 => "completed",
+        Lifecycle::CompletedC002
+        | Lifecycle::CompletedUnreleasedC002
+        | Lifecycle::ActiveExperiment => "completed",
     };
     let package = format!("specs/changes/{state}/C002-v0.2.0-reliability");
     write_fixture_file(
@@ -85,7 +89,10 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
     );
     let active = match lifecycle {
         Lifecycle::ActiveC002 => "Active change：[C002](active/C002-v0.2.0-reliability/README.md)",
-        Lifecycle::CompletedC002 => "Active change：无",
+        Lifecycle::CompletedC002 | Lifecycle::CompletedUnreleasedC002 => "Active change：无",
+        Lifecycle::ActiveExperiment => {
+            "Active change：[C007](active/C007-test-experiment/README.md)"
+        }
     };
     write_fixture_file(
         root,
@@ -95,9 +102,34 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
         ),
     );
     write_fixture_file(root, "specs/decisions/README.md", "# ADR 索引\n");
+    write_fixture_file(
+        root,
+        "specs/README.md",
+        "# 文档地图\n\n开发目标：`v0.2.0`\n",
+    );
+    if matches!(lifecycle, Lifecycle::ActiveExperiment) {
+        let package = "specs/changes/active/C007-test-experiment";
+        write_fixture_file(
+            root,
+            &format!("{package}/README.md"),
+            "# C007 夹具\n\n状态：`active`\n目标版本：`不进入产品 release`\n兼容性：不改产品\n基线：`fixture`\nOwner：fixture\n\n## 成功判据\n\n实验记录。\n",
+        );
+        for file in ["plan.md", "progress.md", "validation.md", "tasks.toml"] {
+            write_fixture_file(root, &format!("{package}/{file}"), "");
+        }
+        let index = root.join("specs/changes/README.md");
+        let text = fs::read_to_string(&index).unwrap();
+        fs::write(
+            index,
+            format!("{text}\n[C007](active/C007-test-experiment/README.md)\n"),
+        )
+        .unwrap();
+    }
     let mut release_index = String::from("# Release 索引\n");
     let versions = match lifecycle {
-        Lifecycle::ActiveC002 => &["0.1.0"][..],
+        Lifecycle::ActiveC002
+        | Lifecycle::CompletedUnreleasedC002
+        | Lifecycle::ActiveExperiment => &["0.1.0"][..],
         Lifecycle::CompletedC002 => &["0.1.0", "0.2.0"][..],
     };
     for version in versions {
@@ -404,6 +436,131 @@ fn check_specs_accepts_rc_of_active_target() {
     assert_eq!(git_ok(&fx.root, &["tag", "-l", "v0.2.0-rc.1"]), "");
     let (ok, text) = run_check_specs(&fx.root);
     assert!(ok, "{text}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_accepts_authorized_rc_during_nonproduct_experiment() {
+    let fx = make_fixture(
+        "0.2.0-rc.1",
+        Some("## [Unreleased]"),
+        Lifecycle::ActiveExperiment,
+    );
+    assert_eq!(git_ok(&fx.root, &["tag", "-l", "v0.2.0-rc.1"]), "");
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(ok, "明确开发目标的RC不因非产品实验被拒绝：{text}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_accepts_authorized_rc_after_product_package_is_completed() {
+    let fx = make_fixture(
+        "0.2.0-rc.1",
+        Some("## [Unreleased]"),
+        Lifecycle::CompletedUnreleasedC002,
+    );
+    assert_eq!(git_ok(&fx.root, &["tag", "-l", "v0.2.0-rc.1"]), "");
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(ok, "明确开发目标的RC不因active为空被拒绝：{text}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_rejects_missing_duplicate_or_invalid_development_authority() {
+    let mut accepted = Vec::new();
+    for declaration in [
+        "# 文档地图\n",
+        "# 文档地图\n\n开发目标：`v0.2.0`\n开发目标：`v0.2.0`\n",
+        "# 文档地图\n\n开发目标：`v0.2`\n",
+        "# 文档地图\n\n开发目标：`v00.2.0`\n",
+    ] {
+        let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
+        write_fixture_file(&fx.root, "specs/README.md", declaration);
+        let (ok, text) = run_check_specs(&fx.root);
+        if ok {
+            accepted.push(declaration.to_string());
+            continue;
+        }
+        let failures = failure_lines(&text);
+        assert_eq!(failures.len(), 1, "{text}");
+        assert!(failures[0].contains("开发目标"), "{text}");
+    }
+    assert!(accepted.is_empty(), "非法开发目标权威被放行：{accepted:?}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_requires_development_authority_in_first_screen() {
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
+    write_fixture_file(
+        &fx.root,
+        "specs/README.md",
+        &format!("{}开发目标：`v0.2.0`\n", "\n".repeat(15)),
+    );
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "正文深处字段不能替代首屏权威：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("开发目标"), "{text}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released() {
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveC002);
+    write_fixture_file(
+        &fx.root,
+        "specs/README.md",
+        "# 文档地图\n\n开发目标：`v0.3.0`\n",
+    );
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "已发布Cargo版本不能掩盖active目标冲突：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(
+        text.contains("active 目标版本") && text.contains("开发目标"),
+        "{text}"
+    );
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released() {
+    let fx = make_fixture("0.1.0", None, Lifecycle::ActiveExperiment);
+    let path = fx
+        .root
+        .join("specs/changes/active/C007-test-experiment/README.md");
+    let text = fs::read_to_string(&path).unwrap();
+    fs::write(path, text.replace("`不进入产品 release`", "`实验待定`")).unwrap();
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "未知实验目标不能回退放行：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("active 目标版本"), "{text}");
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_rejects_rc_outside_authority_during_nonproduct_experiment() {
+    let fx = make_fixture(
+        "9.9.9-rc.1",
+        Some("## [Unreleased]"),
+        Lifecycle::ActiveExperiment,
+    );
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "非产品实验不能放行其他开发线：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(
+        text.contains("开发目标") && text.contains("active 目标版本"),
+        "{text}"
+    );
+}
+
+// Task: C006-T05
+#[test]
+fn check_specs_authorized_rc_without_active_still_requires_changelog() {
+    let fx = make_fixture("0.2.0-rc.1", None, Lifecycle::CompletedUnreleasedC002);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "无active仍不能省略开发候选CHANGELOG：{text}");
+    assert_eq!(failure_lines(&text).len(), 1, "{text}");
+    assert!(text.contains("CHANGELOG"), "{text}");
 }
 
 // Task: C002-T15

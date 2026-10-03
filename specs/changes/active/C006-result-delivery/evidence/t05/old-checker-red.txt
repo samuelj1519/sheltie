@@ -1,0 +1,27 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.93s
+     Running tests/release_governance.rs (/private/tmp/sheltie-c006-target/debug/deps/release_governance-34ee2f0444e55431)
+
+running 2 tests
+
+thread 'check_specs_accepts_authorized_rc_after_product_package_is_completed' (59359307) panicked at crates/sheltie-cli/tests/release_governance.rs:438:5:
+明确开发目标的RC不因active为空被拒绝：check-specs: 当前 Cargo 版本 0.2.0-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test check_specs_accepts_authorized_rc_after_product_package_is_completed ... FAILED
+
+thread 'check_specs_accepts_authorized_rc_during_nonproduct_experiment' (59359308) panicked at crates/sheltie-cli/tests/release_governance.rs:429:5:
+明确开发目标的RC不因非产品实验被拒绝：check-specs: 当前 Cargo 版本 0.2.0-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+test check_specs_accepts_authorized_rc_during_nonproduct_experiment ... FAILED
+
+failures:
+
+failures:
+    check_specs_accepts_authorized_rc_after_product_package_is_completed
+    check_specs_accepts_authorized_rc_during_nonproduct_experiment
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.28s
+
+error: test failed, to rerun pass `-p sheltie-cli --test release_governance`

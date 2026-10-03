@@ -9,6 +9,8 @@
 3. 文档描述目标，不描述进度。代码进度只看 active change plan 的任务状态与 git 历史。没有 active change 时不得从 proposed package 自行开工。不得把计划中的能力写成「已支持」。
 4. 一个事实只在一处定义，别处链接。`scripts/check-docs.sh` 检查断链与禁用词。
 
+未发布Cargo候选的基础版本以[specs入口](README.md)首屏唯一`开发目标`字段为准；数值产品active目标必须一致。已完成产品、非产品实验或暂无active都不把候选变成release。已发布版本继续核release/tag/历史和CHANGELOG，见[D-043](decisions/D-043-development-target-authority.md)。
+
 ## 2. Rust 约定
 
 ### 2.1 Workspace

@@ -1,0 +1,83 @@
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/release_governance.rs (/private/tmp/sheltie-c006-target/debug/deps/release_governance-34ee2f0444e55431)
+
+running 30 tests
+test build_workflow_fetches_history_and_runs_msrv_gate ... ok
+
+thread 'check_specs_authorized_rc_without_active_still_requires_changelog' (59364600) panicked at crates/sheltie-cli/tests/release_governance.rs:517:5:
+check-specs: 当前 Cargo 版本 0.2.0-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test check_specs_authorized_rc_without_active_still_requires_changelog ... FAILED
+
+thread 'check_specs_accepts_authorized_rc_after_product_package_is_completed' (59364597) panicked at crates/sheltie-cli/tests/release_governance.rs:438:5:
+明确开发目标的RC不因active为空被拒绝：check-specs: 当前 Cargo 版本 0.2.0-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+test check_specs_accepts_authorized_rc_after_product_package_is_completed ... FAILED
+test check_specs_accepts_active_target_without_tag ... ok
+test check_specs_accepts_rc_of_active_target ... ok
+
+thread 'check_specs_accepts_authorized_rc_during_nonproduct_experiment' (59364598) panicked at crates/sheltie-cli/tests/release_governance.rs:429:5:
+明确开发目标的RC不因非产品实验被拒绝：check-specs: 当前 Cargo 版本 0.2.0-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+test check_specs_accepts_authorized_rc_during_nonproduct_experiment ... FAILED
+test check_specs_completed_rejects_empty_final_table_beside_nonempty_table ... ok
+test check_specs_completed_rejects_validation_without_final_table ... ok
+test check_specs_completed_checks_every_final_table ... ok
+test check_specs_completed_accepts_final_pass_without_active_change ... ok
+test check_specs_completed_accepts_final_pass_and_preserves_historical_failures ... ok
+test check_specs_completed_rejects_fewer_than_six_columns_in_final_rows ... ok
+test check_specs_completed_rejects_current_fail_even_with_historical_pass ... ok
+test release_workflow_gates_announce_on_quality_job ... ok
+test release_workflow_quality_failure_blocks_announce ... ok
+test check_specs_completed_rejects_empty_final_table ... ok
+test check_specs_completed_rejects_more_than_six_columns_in_final_rows ... ok
+test check_specs_completed_rejects_extra_columns_in_final_separator ... ok
+test check_specs_dev_version_requires_changelog_section ... ok
+test check_specs_full_history_resolves_release_commits ... ok
+test check_specs_missing_tag_without_shallow_reports_not_created ... ok
+
+thread 'check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released' (59368438) panicked at crates/sheltie-cli/tests/release_governance.rs:482:5:
+已发布Cargo版本不能掩盖active目标冲突：check-specs: OK (1 个 change，1 个 active)
+
+test check_specs_rejects_version_outside_active_target ... ok
+
+thread 'check_specs_requires_development_authority_in_first_screen' (59368535) panicked at crates/sheltie-cli/tests/release_governance.rs:471:5:
+正文深处字段不能替代首屏权威：check-specs: OK (1 个 change，1 个 active)
+
+test check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released ... FAILED
+test check_specs_requires_development_authority_in_first_screen ... FAILED
+
+thread 'check_specs_rejects_rc_outside_authority_during_nonproduct_experiment' (59368513) panicked at crates/sheltie-cli/tests/release_governance.rs:507:5:
+check-specs: 当前 Cargo 版本 9.9.9-rc.1 既没有 release record，也不是 active 目标版本/RC（无 active）
+
+test check_specs_rejects_rc_outside_authority_during_nonproduct_experiment ... FAILED
+
+thread 'check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released' (59368517) panicked at crates/sheltie-cli/tests/release_governance.rs:495:5:
+未知实验目标不能回退放行：check-specs: OK (2 个 change，1 个 active)
+
+test check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released ... FAILED
+test check_specs_shallow_clone_reports_missing_history ... ok
+test check_specs_completed_requires_exact_final_table_header ... ok
+
+thread 'check_specs_rejects_missing_duplicate_or_invalid_development_authority' (59368348) panicked at crates/sheltie-cli/tests/release_governance.rs:462:5:
+非法开发目标权威被放行：["# 文档地图\n", "# 文档地图\n\n开发目标：`v0.2.0`\n开发目标：`v0.2.0`\n", "# 文档地图\n\n开发目标：`v0.2`\n", "# 文档地图\n\n开发目标：`v00.2.0`\n"]
+test check_specs_rejects_missing_duplicate_or_invalid_development_authority ... FAILED
+test check_specs_completed_rejects_empty_fields_in_final_rows ... ok
+
+failures:
+
+failures:
+    check_specs_accepts_authorized_rc_after_product_package_is_completed
+    check_specs_accepts_authorized_rc_during_nonproduct_experiment
+    check_specs_authorized_rc_without_active_still_requires_changelog
+    check_specs_rejects_missing_duplicate_or_invalid_development_authority
+    check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released
+    check_specs_rejects_rc_outside_authority_during_nonproduct_experiment
+    check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released
+    check_specs_requires_development_authority_in_first_screen
+
+test result: FAILED. 22 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.48s
+
+error: test failed, to rerun pass `-p sheltie-cli --test release_governance`
