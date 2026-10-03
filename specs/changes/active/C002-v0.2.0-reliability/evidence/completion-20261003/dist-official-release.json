@@ -1,0 +1,44 @@
+{
+  "tag_name": "v0.32.0",
+  "published_at": "2026-05-22T05:56:11Z",
+  "html_url": "https://github.com/axodotdev/cargo-dist/releases/tag/v0.32.0",
+  "body": "## Release Notes\n\nThis release contains several bugfixes and an update to the npm installer to reduce its dependencies. It also updates the default versions of all GitHub actions.\n\n## npm installer\n\nThe npm installer now relies on builtin node modules in place of the external axios and rimraf libraries. In order to support this, we've raised the minimum supported node version to [14.14](https://nodejs.org/en/blog/release/v14.14.0).\n\n- impl @rafaeelaudibert [chore(npm): replace axios with native node:http/node:https](https://github.com/axodotdev/cargo-dist/pull/2350)\n\n## cargo-zigbuild and cargo-auditable\n\nIt's now possible to use cargo-auditable together with cross-compilation via cargo-zigbuild. In previous versions of dist, these two features were mutually exclusive.\n\n- impl @mistydemeo [feat(auditable): remove zigbuild limitation](https://github.com/axodotdev/cargo-dist/pull/2318)\n\n## Fixes\n\n- impl @eegli [fix: double escape windows path in receipt](https://github.com/axodotdev/cargo-dist/pull/2313)\n- impl @woodruffw [ps1: peek the inner exception on download failure](https://github.com/axodotdev/cargo-dist/pull/2392)\n- impl @mistydemeo [feat(ci): migrate from attest-build-provenance@v3 to attest@v4](https://github.com/axodotdev/cargo-dist/pull/2357)\n- impl @OpenSauce [chore(deps): bump github actions](https://github.com/axodotdev/cargo-dist/pull/2322)\n\n## Install cargo-dist 0.32.0\n\n### Install prebuilt binaries via shell script\n\n```sh\ncurl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-installer.sh | sh\n```\n\n### Install prebuilt binaries via powershell script\n\n```sh\npowershell -ExecutionPolicy Bypass -c \"irm https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-installer.ps1 | iex\"\n```\n\n### Install prebuilt binaries via Homebrew\n\n```sh\nbrew install axodotdev/tap/cargo-dist\n```\n\n### Install prebuilt binaries into your npm project\n\n```sh\nnpm install @axodotdev/dist@0.32.0\n```\n\n## Download cargo-dist 0.32.0\n\n|  File  | Platform | Checksum |\n|--------|----------|----------|\n| [cargo-dist-aarch64-apple-darwin.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-apple-darwin.tar.xz) | Apple Silicon macOS | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-apple-darwin.tar.xz.sha256) |\n| [cargo-dist-x86_64-apple-darwin.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-apple-darwin.tar.xz) | Intel macOS | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-apple-darwin.tar.xz.sha256) |\n| [cargo-dist-x86_64-pc-windows-msvc.zip](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-pc-windows-msvc.zip) | x64 Windows | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-pc-windows-msvc.zip.sha256) |\n| [cargo-dist-aarch64-unknown-linux-gnu.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-unknown-linux-gnu.tar.xz) | ARM64 Linux | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-unknown-linux-gnu.tar.xz.sha256) |\n| [cargo-dist-x86_64-unknown-linux-gnu.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-unknown-linux-gnu.tar.xz) | x64 Linux | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-unknown-linux-gnu.tar.xz.sha256) |\n| [cargo-dist-aarch64-unknown-linux-musl.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-unknown-linux-musl.tar.xz) | ARM64 MUSL Linux | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-unknown-linux-musl.tar.xz.sha256) |\n| [cargo-dist-x86_64-unknown-linux-musl.tar.xz](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-unknown-linux-musl.tar.xz) | x64 MUSL Linux | [checksum](https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-x86_64-unknown-linux-musl.tar.xz.sha256) |\n\n## Verifying GitHub Artifact Attestations\n\nThe artifacts in this release have attestations generated with GitHub Artifact Attestations. These can be verified by using the [GitHub CLI](https://cli.github.com/manual/gh_attestation_verify):\n```sh\ngh attestation verify <file-path of downloaded artifact> --repo axodotdev/cargo-dist\n```\n\nYou can also download the attestation from [GitHub](https://github.com/axodotdev/cargo-dist/attestations) and verify against that directly:\n```sh\ngh attestation verify <file-path of downloaded artifact> --bundle <file-path of downloaded attestation>\n```\n\n\n",
+  "assets": [
+    {
+      "url": "https://api.github.com/repos/axodotdev/cargo-dist/releases/assets/426804448",
+      "id": 426804448,
+      "node_id": "RA_kwDOINjxkc4ZcITg",
+      "name": "cargo-dist-aarch64-apple-darwin.tar.xz",
+      "label": "",
+      "uploader": {
+        "login": "github-actions[bot]",
+        "id": 41898282,
+        "node_id": "MDM6Qm90NDE4OTgyODI=",
+        "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+        "html_url": "https://github.com/apps/github-actions",
+        "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+        "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+        "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+        "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+        "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+        "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+        "type": "Bot",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "content_type": "application/x-xz",
+      "state": "uploaded",
+      "size": 5534744,
+      "digest": "sha256:aa343b2ff78ec2981f17a65140250c5ad6062c74072163f68c5c2686d94763a7",
+      "download_count": 28692,
+      "created_at": "2026-05-22T05:56:07Z",
+      "updated_at": "2026-05-22T05:56:08Z",
+      "browser_download_url": "https://github.com/axodotdev/cargo-dist/releases/download/v0.32.0/cargo-dist-aarch64-apple-darwin.tar.xz"
+    }
+  ]
+}

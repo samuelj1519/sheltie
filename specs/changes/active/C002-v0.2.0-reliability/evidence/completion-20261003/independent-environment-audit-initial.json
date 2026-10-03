@@ -1,0 +1,42 @@
+{
+  "head": "06e5a9108be9afdfb9b5b68fc112ad08a600af8d",
+  "evidence_sha256": {
+    "t46-final-gates.json": "0e51ab780575cbceddb1a7115ab6a099eb4eda8209d1637aea1b3e2b0c7e52db",
+    "t46-final-nextest.txt": "517ec0de1a80069bf5d3ec593789ced5c4c715daac39fe9e6106b09ea724b2f3",
+    "t46-final-doctest.txt": "e0ff58c1088d2b50a0e424e08942dc5b1a6597438ce8df5d658b7b5c0bebdf4c",
+    "msrv.txt": "542a41045cf9ea3c029867ba442e12bc0cc39253f3a545e9909cf4c0671920c4",
+    "deny-fresh.txt": "abba4aaf45e602a2449f405be0620b332a89848b23c9613904b558be19bb286d",
+    "dist-plan.json": "2dd4d67cfd09674f53e49919b6f3333ee64ed9e8feed1755424a73125cf1b8c3",
+    "dist-plan-stderr.txt": "6e214ee0a63a809d65d1cb72d7b3a6ba2209af02645f248e225563b8b0422c87",
+    "nextest-official-release.json": "65dea165f616f9468b13c6011d0ac2da830f732ad975d4b69a0ee0be9a8d1616",
+    "dist-official-release.json": "19aa413a28003f9d45f9f3b556584f3edc4a2b93c3523f0e7fa3801859e62a40"
+  },
+  "runner_evidence_sha256": {
+    "runner-pipe-comparison.json": "dd11e33bb733125c2cad7667b254e11a8f0384ea3a25ba8137e72f3d8ad2ed64",
+    "runner-pipe-0140.txt": "f214ee50de43f0a6f39774c3ab898dbd06ec7efabfc4077dedb86f75e9cd42ec",
+    "runner-pipe-0145.txt": "deaabd9b9fb5400a744a032720c81fbe020f897eaaabb5f3c13d02383034e802",
+    "runner-comparison.py": "21d3d02097843ae1dfed8a92b1b6dbe76102c636d9705bc18df0b24bf10030f7",
+    "runner-pipe-probe/src/lib.rs": "5c0d5083bc6a5d10f423dbdc19e3a2c06f32fcfbe9e9994f188b263791d81a92",
+    "runner-pipe-probe/Cargo.toml": "cd9b98443a5a9358de8f74feae2eccbe3a5dc027344b98730ec4a2f82baade5f",
+    "runner-pipe-probe/Cargo.lock": "e2cd870da579aeddc9974193f9275c2f8e9890263375d75cd54ac3c579dc292d"
+  },
+  "all199_t46_inputs_match_with_git_symlink_identity": true,
+  "all3_symlink_resolved_target_hashes_match": true,
+  "all5_final_gate_outputs_hashes_match": true,
+  "nextest_pass_lines": 843,
+  "nextest_skipped": 0,
+  "nextest_leak_reports": 0,
+  "doctest_compile_fail_passes": 5,
+  "dist_releases": [
+    "sheltie-cli"
+  ],
+  "dist_artifact_count": 6,
+  "export_publish_and_dist_false": true,
+  "deny_policy_equal_except_db_path": true,
+  "advisory_db_head": "f8dee89e1b2f2f1eaf548312df7655fe5202a302",
+  "probe_library_tests": 4096,
+  "probe_old_leak_reports": 3,
+  "probe_new_leak_reports": 0,
+  "probe_is_not_product_tests": true,
+  "pending_current_msrv_provenance": true
+}

@@ -328,7 +328,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | ID | 状态 | Owner | 任务与验收 |
 | --- | --- | --- | --- |
 | C002-T41 | done | Codex；独立 Reviewer | 恢复唯一实施入口、核原件保真与欠项来源 |
-| C002-T42 | doing | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
+| C002-T42 | done | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
 | C002-T43 | doing | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
 | C002-T44 | doing | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
 | C002-T45 | not_run | Codex；平台执行者 | 恢复需补的平台及物理目录环境验证；范围待实际用户答复与载体 |

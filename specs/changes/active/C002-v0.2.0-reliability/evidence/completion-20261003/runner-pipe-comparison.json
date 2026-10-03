@@ -1,0 +1,28 @@
+{
+  "fixture": "runner-pipe-probe",
+  "same_source_sha256": "5c0d5083bc6a5d10f423dbdc19e3a2c06f32fcfbe9e9994f188b263791d81a92",
+  "threads": 64,
+  "comparison": [
+    {
+      "version": "0.9.140",
+      "run_id": "03175ed4-72ee-4bd8-a540-75cc72bf01cb",
+      "tests": 4096,
+      "passed": 4096,
+      "skipped": 0,
+      "leaky": 3,
+      "raw_file": "/private/tmp/sheltie-completion-20261003/runner-pipe-0140.txt",
+      "raw_sha256": "f214ee50de43f0a6f39774c3ab898dbd06ec7efabfc4077dedb86f75e9cd42ec"
+    },
+    {
+      "version": "0.9.145",
+      "run_id": "ca6537e7-bd90-4b1f-a3c5-6cbdf777217f",
+      "tests": 4096,
+      "passed": 4096,
+      "skipped": 0,
+      "leaky": 0,
+      "raw_file": "/private/tmp/sheltie-completion-20261003/runner-pipe-0145.txt",
+      "raw_sha256": "deaabd9b9fb5400a744a032720c81fbe020f897eaaabb5f3c13d02383034e802"
+    }
+  ],
+  "conclusion": "The installed older runner reproduces capture-handle leak reports with ordinary completed test processes; required version has zero reports for same fixture. Official release fixes this class. Historical individual Sheltie LEAK causality is not retrospectively proven."
+}

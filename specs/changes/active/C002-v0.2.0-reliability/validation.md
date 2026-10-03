@@ -454,3 +454,13 @@ T42 的当前完整工程与在线公告仍是独立补验任务；T44 已发现
 首次新WAL用例假设手写fixture五表为空而失败；该fixture本来含控制行，已改为构造前后的独立完整行比较。旧失败原文保留，不算产品red。初审与修后报告分别 [初审](evidence/completion-20261003/independent-t47-review.md)、[增量](evidence/completion-20261003/independent-t47-review-after-cleanup.md)；独立Reviewer `/root/oracle_review` 未参与用例设计/编写。修后限定PASS，无剩余T47finding。producer轮询有限但不是严格3秒墙钟保证。
 
 稳定完整工程848/848、零skip/零LEAK，run `fbb2e15c-7dd1-4910-8ab4-93147c66057a`；fmt/check/Clippy及5compile-fail均exit0，见 [完整输入/结果](evidence/completion-20261003/t47-final-gates.json)。此前误指T46输出的验证已停止，四份旧原文按Git对象逐字恢复，校验 [恢复记录](evidence/completion-20261003/t47-misdirected-run-restoration.json)；其partial没有计PASS。当前差异不含任何旧T46原文变更。T47关闭这10项的判定缺口；T43此前另有schema两项与readonly初检一项实际捕获，合计13项，另外202项仍在T43，不扩大到完整变异或全产品验收。
+
+## C002-T42 工具与环境补验
+
+独立 Reviewer `/root/completion_spec_review` 审查通过，见 [原文](evidence/completion-20261003/independent-environment-review.md) 与 [逐项核验](evidence/completion-20261003/independent-environment-audit.json)。原MSRV缺来源的初审保留；已补06e5a91当前MSRV source/argv/env/exit0/hash，再补1218361新测试闭包的实际1.85全targets/features编译，[当前MSRV](evidence/completion-20261003/msrv-121.json)。所有实际命令/输出与影响闭包见 [运行清单](evidence/completion-20261003/environment-results.json)，不是首次nextest失败后的旧流水线PASS。
+
+要求 nextest0.9.145 与 cargo-dist0.32.0 的官方asset digest逐字节校验，仅临时目录使用，没有宿主安装。默认nextest配置无override，现行产品848/848、零skip、零LEAK及5compile-fail保持T47具体run。实际dist plan为6项sheltie-cli资产、没有exporter发布资产；它不执行构建/发布。fresh deny原政策仅db-path变为独立目录，Cargo图/lock/许可输入在T46/T47不变；advisories/bans/licenses/sources全部ok，获取数据库HEAD `f8dee89e1b2f2f1eaf548312df7655fe5202a302`，取证输出结束时点在运行清单，不声称永远最新。
+
+[执行器对照](evidence/completion-20261003/runner-pipe-comparison.json)与 [可恢复原文](evidence/completion-20261003/runner-pipe-probe.tar.gz)：同一4096个纯测试、同target/source、64线程，旧0.9.140出现3leaky，新0.9.145为0leaky，均4096PASS/0skip。该结果复现官方修复的Apple并发捕获管道继承问题，只用于执行器诊断，不加入产品测试数。历史Sheltie每次LEAK因果仍不追溯造证，原unknown/FAIL保持。
+
+T42结束要求版本、编译、在线公告与实际计划的补验；其他平台/跨设备/真实actor/215项属于各自任务，不随本结论关闭。

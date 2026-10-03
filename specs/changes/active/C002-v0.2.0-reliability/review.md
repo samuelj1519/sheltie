@@ -319,3 +319,7 @@ Reviewer：`/root/completion_spec_review`，未参与本轮入口/文档编写�
 ## C002-T47 oracle 独立审查
 
 Reviewer `/root/oracle_review`，未参与设计/编写。初审需修改仅指出子进程夹具的失败释放/join缺口；局部修复后的独立增量通过，五例合法控制、指定10项捕获与修后4项重验范围准确，生产源码前缀不变。完整作者848/848和五项compile-fail通过。见 [原文](evidence/completion-20261003/independent-t47-review-after-cleanup.md)，不把此范围扩大到剩余T43或平台。
+
+## C002-T42 环境独立验收
+
+限定PASS：官方tool/asset digest、实际dist六资产无exporter、fresh政策/DB/current图、现行默认版本完整工程与已复现执行器问题的边界准确。原MSRV来源缺项已补，原缺项意见保留。见 [环境原文](evidence/completion-20261003/independent-environment-review.md)。不把4096诊断fixture算产品测试，不追溯关闭旧每次LEAK，不推断平台或真实价值。
