@@ -121,3 +121,7 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## 2026-10-04 当前条件复核
 
 当前 [声明盘点](evidence/resume-20261004/inventory.json)、[自然事件](evidence/resume-20261004/natural-events.json)、[条件结论](evidence/resume-20261004/conclusion.md) 和 [原件保真](evidence/resume-20261004/preservation.json) 分列。无真实目标，机制与价值不授 PASS。独立复核及实际治理检查另记；本次未改编译输入，不重跑无关 Rust。
+
+## M3 当前归档
+
+开工基线 `1e78a7406befc0bae4c8bc3ec82fc4b2e17ecd68`。总交接明确 C001–C008 真实通过、失败、未知和未执行项；旧实验原件不改。当前 192 源输入资格沿用 T05，最终独审与治理输出单列。

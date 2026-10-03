@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-03T22:17:57.915029+00:00",
+  "commands": [
+    {
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-docs.sh.stdout.txt",
+      "stderr": "m3-check-docs.sh.stderr.txt"
+    },
+    {
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-specs.sh.stdout.txt",
+      "stderr": "m3-check-specs.sh.stderr.txt"
+    },
+    {
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-tests.sh.stdout.txt",
+      "stderr": "m3-check-tests.sh.stderr.txt"
+    },
+    {
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-skill.sh.stdout.txt",
+      "stderr": "m3-check-skill.sh.stderr.txt"
+    },
+    {
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-core-vocab.sh.stdout.txt",
+      "stderr": "m3-check-core-vocab.sh.stderr.txt"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "stdout": "m3-git.stdout.txt",
+      "stderr": "m3-git.stderr.txt"
+    },
+    {
+      "argv": [
+        "scripts/check-task.sh",
+        "C008-M3",
+        "1e78a7406befc0bae4c8bc3ec82fc4b2e17ecd68",
+        "--staged"
+      ],
+      "returncode": 0,
+      "stdout": "m3-check-task.sh.stdout.txt",
+      "stderr": "m3-check-task.sh.stderr.txt"
+    }
+  ]
+}

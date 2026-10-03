@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-03T22:17:53.621063+00:00",
+  "observed_error": "Traceback (most recent call last):\n  File \"<stdin>\", line 12, in <module>\nAssertionError\n",
+  "cause": "Closing author loop refreshed T05 preservation.json, then 46-file gate correctly rejected changed non-author evidence before any final checks or commit.",
+  "correction": "Restored exact T05 Git blob; saved current original-file observation as new m3-original-preservation.json. Prior independent review and original records unchanged.",
+  "new_product_or_original_result_changes": false
+}

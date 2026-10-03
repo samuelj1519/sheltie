@@ -1,6 +1,6 @@
 # C008：按真实需要验证单宿主只读预检
 
-状态：`active`
+状态：`completed`
 目标版本：`不进入产品 release`（是否保留外部工具由真实证据决定）
 兼容性：不改 Workbook、Flow、Store 或公开操作；不建设兼容层
 基线：`75b81ebed655693844ae417bb7d501a1b12a4387`
@@ -55,3 +55,5 @@ Owner：`Codex /root；任务作者与独立Reviewer`
 ## 2026-10-04 恢复
 
 用户授权自动推进且仅 macOS aarch64。本次核当前声明和 C007 六次实际 agent 运行，缺采用条件时保留 `not_adopted`，不制造声明。历史记录与当前结论分别保存，见 [plan](plan.md)。
+
+当前条件负前检与总交接完成，见 [当前结论](evidence/resume-20261004/conclusion.md) 和 [C001–C008 总交接](evidence/resume-20261004/completion-report.md)。原条件实验未采用/未执行保持。

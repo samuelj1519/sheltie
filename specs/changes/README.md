@@ -1,9 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[`C008 当前条件复核`](active/C008-dependency-readiness/README.md)
+Active change：无
 
-C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，当前C008复核实际采用条件。
+C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -16,12 +16,13 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-- [C008 当前条件复核](active/C008-dependency-readiness/README.md)：只核真实声明和自然事件。
+无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C008 | 当前七副本/27 Node/0 requires 与实际自然事件负前检完成；probe未采用，原机制/host/value not_run | [README](completed/C008-dependency-readiness/README.md) |
 | C007 | 六实际agentrun/负结果/4质量通过2交付阻断与三真实文档交付限定完成，严格公平/15%/原codehuman不授PASS | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 真实agent副本/两组同质量/编辑与newcopy/跨APFS导出卸载和完整限定链通过；原真人/费用/物理盘/旧unknown留原 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 当前macARM真实1.85新951/5doc及EX01–08同源工程和需求负前检通过；原真实撤销/真人/费用/旧LEAK因果留原 | [README](completed/C005-executor-continuity/README.md) |

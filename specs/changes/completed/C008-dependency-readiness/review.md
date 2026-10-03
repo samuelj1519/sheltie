@@ -51,3 +51,7 @@ probe未采用；原配置/脚本/fixtures/no-write/机制M1/实际paired/覆盖
 ## C008-T05 独立当前复核
 
 [独立审查](evidence/resume-20261004/independent-t05-review.md)：通过。七份副本/七 Flow/27 Node/0 requires/15 resource 绑定、60 输入与17不可变原件核实。四采用条件未满足，探针/host/value 不授 PASS。刷新作者索引保真截点后复核一致，无必改项。
+
+## C008-M3 当前归档独审
+
+[最终独审](evidence/resume-20261004/independent-m3-review.md)：通过，无必改项。46 上一任务原件、17旧不可变原件、60/192源输入及总交接13链接核实；源码与发布范围零 diff。中间 specs 非 done 错误保留，最终状态门禁待作者关闭后执行。原真人/公平/15%/真实撤销/host价值不授 PASS。
