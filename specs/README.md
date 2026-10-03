@@ -4,17 +4,17 @@
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 开发目标：`v0.3.0`
-Active change：无
+Active change：[`C006 实际可编辑副本与跨文件系统补验`](changes/active/C006-result-delivery/README.md)
 
-C002与C004当前采用恢复义务已按限定范围独审完成；C005当前技术与需求负前检也已完成，后续C006–C008依次恢复。
-Completed：[`C005 当前原生/MSRV技术与负前检`](changes/completed/C005-executor-continuity/README.md)（原真实撤销、真人/费用及旧LEAK因果未执行/未知留原）、[`C004 当前自动agent交付与冷接续验收`](changes/completed/C004-verifiable-delegation/README.md)（原真人/净收益/费用/旧取证偏差留原）、[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）、[`C006 成果原字节与完整副本`](changes/completed/C006-result-delivery/README.md)（限定实现/指南，真实价值与环境缺项延期）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
+C002与C004当前采用恢复义务已按限定范围独审完成；C005当前技术与需求负前检也已完成，当前只恢复C006，后续C007–C008依次恢复。
+Completed：[`C005 当前原生/MSRV技术与负前检`](changes/completed/C005-executor-continuity/README.md)（原真实撤销、真人/费用及旧LEAK因果未执行/未知留原）、[`C004 当前自动agent交付与冷接续验收`](changes/completed/C004-verifiable-delegation/README.md)（原真人/净收益/费用/旧取证偏差留原）、[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
 Proposed：无。本轮C008只盘点实际条件，不虚构依赖或创建无目标探针。
 
 此前 C004–C008 的限定实施已归档。2026-10-03 用户恢复全部跳过义务；一次只激活一个 package，缺真实输入时继续可独立执行的工作，未执行项保持 `not_run`。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
 
 首屏开发目标指定当前源码候选的基础版本，尚未发布。数值产品 active 目标必须与它一致；非产品实验或暂无 active 时，该权威仍有效。已发布版本继续按 release record、tag 和验收证据核对，不由开发目标推断发布完成。
 
-C005 已采用的 schema 4、`cli-result/v4`、number/superseded、`work-result/v1` 和 `workbook-digest/v2` 保持。C006的raw与完整副本实现已限定验收，实际范围见[completed plan](changes/completed/C006-result-delivery/plan.md)，旧 schema 原件保留。C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
+C005 已采用的 schema 4、`cli-result/v4`、number/superseded、`work-result/v1` 和 `workbook-digest/v2` 保持。C006的raw与完整副本实现已限定验收，实际范围见[当前 plan](changes/active/C006-result-delivery/plan.md)，旧 schema 原件保留。C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
 
 ## 权威文档
 

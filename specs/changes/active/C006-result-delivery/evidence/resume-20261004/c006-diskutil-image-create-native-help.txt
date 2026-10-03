@@ -1,0 +1,24 @@
+OVERVIEW: Create a disk image. Either blank or from an existing source (disk,
+disk image or folder).
+
+The newly created disk image can be encrypted.
+Attach / Mount operations will take place during the creation process but will
+not remain attached at the end.
+
+
+USAGE: diskutil image create [--encrypt] [--verbose] [--stdinpassphrase] [--plist] <subcommand>
+
+OPTIONS:
+  -e, --encrypt           Encrypt the disk image using AES-256.
+  -v, --verbose           Verbose output
+  --stdinpassphrase, --stdinpass
+                          Provide the passphrase for the disk image via stdin
+  --plist                 Produce output in a plist format
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  blank                   Create a blank disk image.
+  from                    Create a disk image from an existing source (disk,
+                          disk image or folder).
+
+  See 'diskutil help image create <subcommand>' for detailed help.

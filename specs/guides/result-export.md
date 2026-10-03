@@ -1,6 +1,6 @@
 # 取得可编辑的最终成果副本
 
-当前源码提供只读 raw 成果入口和外围 `sheltie-export` 工具。工具未发布或安装；从仓库临时构建。完整语义见[协议§8](../contracts/protocol.md#8-最终-artifact-原字节与外围导出)，实施证据见[C006](../changes/completed/C006-result-delivery/validation.md)。
+当前源码提供只读 raw 成果入口和外围 `sheltie-export` 工具。工具未发布或安装；从仓库临时构建。完整语义见[协议§8](../contracts/protocol.md#8-最终-artifact-原字节与外围导出)，实施证据见[C006](../changes/active/C006-result-delivery/validation.md)。
 
 ## 构建与输入
 
@@ -63,6 +63,6 @@ raw模式不能带`--json`或`--request-id`，stdout不补换行。必须核最�
 - `failed_before_publish` / 1：源、完整性或IO失败。`staging_path`只指能证明所属的本次私有暂存，不能当完成目录。
 - `publication_unconfirmed` / 3：整目录移动已经发生，但最终身份或父同步未确认。保留现场，核实际对象、manifest和字节；不删除或回滚补偿。
 
-进程被kill可能没有响应。按[C006现场手册](../changes/completed/C006-result-delivery/experiments/runbook.md)核对象，不据名字认领目录，不复用旧暂存。保留stdout/stderr/退出码、真实路径、权限和业务状态证据后重跑。该工具不保证停止整个宿主进程树、断电物理持久或用户编辑后的持续一致。
+进程被kill可能没有响应。按[C006现场手册](../changes/active/C006-result-delivery/experiments/runbook.md)核对象，不据名字认领目录，不复用旧暂存。保留stdout/stderr/退出码、真实路径、权限和业务状态证据后重跑。该工具不保证停止整个宿主进程树、断电物理持久或用户编辑后的持续一致。
 
-当前实测平台是macOS arm64；其他OS、跨设备载体和实际dist asset plan未运行。临时目录机制验证不能证明用户需要副本或节省成本；真实用途、同质量手工对照及人工时间仍待补验。
+当前实测平台是macOS arm64；其他OS与跨设备载体的本轮实际使用仍待补验。当前相同Cargo/config可复用[C002实际dist计划](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/m2-dist-assets-verification.json)：六项引擎资产、唯一原生target为aarch64-apple-darwin、exporter排除；不是本轮新dist执行、构建或发布。临时机制不证明净收益；本轮真实agent副本用途与同质量原CLI/script对照按C006事前规程执行，原真人手工/接受/人工费用未执行或未知。

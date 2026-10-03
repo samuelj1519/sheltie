@@ -57,3 +57,7 @@ Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以mani
 Candidate: `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`。结论：`PASS`，限定实现、指南、前提与用户授权延期交接。独立Reviewer `/root/independent_review` 未参与生产/oracle/分析编写；复用M1/T04/T02/T05/T06逐项独审，独立复算296文件闭包并核最新842/21/default14/MSRV/工程/cachedDeny真实原件。无剩余必改。
 
 真实人/用途/质量/成本/首次真实使用、dist实际plan、要求nextest0.9.145、fresh advisory、其他OS/跨设备均not_run。4LEAK仍cause unknown，不能宣称零残留；缓存不是fresh。Scope PASS不表示原全部平台/真实价值义务完成，不授权发行、安装、push或merge。当前plan done表示本轮可执行实现与显式延期交接完成。
+
+## C006-T07 当前事前准备审
+
+独立Reviewer /root/c006_preflight_review原guide/dist表述finding修后PASS，无剩余必修；原实际消息/工具在本evidence，可核source_line。真实用途/原CLI-script对照非人类收益、46/192/134输入、native/MSRV951/dist6/exclude/fresh时点、原112字节保全及单一active、完整oracle/预算/ownedAPFS/失败停止边界通过。只授准备提交，不授尚未执行copy/consumer/crossdevice或M3。

@@ -1,0 +1,31 @@
+OVERVIEW: Create a blank disk image.
+
+The disk image will be created with specified size and format.
+After image creation an APFS volume with specified volume name (default:
+untitled) will be created on the disk image.
+
+The newly created disk image is not mounted / attached.
+
+USAGE: diskutil image create blank [--encrypt] [--verbose] [--stdinpassphrase] [--plist] [--format <format>] --size <size> [--volumeName <volumeName>] [--fs <fs>] <image-path>
+
+ARGUMENTS:
+  <image-path>            A path to create the disk image at
+
+OPTIONS:
+  -e, --encrypt           Encrypt the disk image using AES-256.
+  -v, --verbose           Verbose output
+  --stdinpassphrase, --stdinpass
+                          Provide the passphrase for the disk image via stdin
+  --plist                 Produce output in a plist format
+  -f, --format <format>   Format for the disk image, one of ["RAW", "ASIF",
+                          "UDSB"]. (default is RAW unless the image path has
+                          .asif or .sparsebundle extension)
+  -s, --size <size>       Size of the disk image. Bytes units by default. Will
+                          be rounded to a multiple of sector size.
+  --volumeName, --volname <volumeName>
+                          APFS volume name to create the disk image with.
+                          (default: untitled)
+  --fs <fs>               A filesystem to create the disk with, one of APFS /
+                          ExFAT / MS-DOS / None
+  -h, --help              Show help information.
+

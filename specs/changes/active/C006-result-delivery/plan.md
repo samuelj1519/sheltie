@@ -1,6 +1,6 @@
 # C006 实施计划
 
-状态：`completed`。用户已采用开发全范围，按计划执行，无法执行的义务记录后延期。本方案涉及安全文件原语和原字节接口，采用两阶段交付；小型说明与真实使用按固定手册完成。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)。
+状态：`active`（2026-10-04恢复当前验收，旧事实留原）。用户已采用开发全范围，按计划执行，无法执行的义务记录后延期。本方案涉及安全文件原语和原字节接口，采用两阶段交付；小型说明与真实使用按固定手册完成。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)。
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
@@ -161,3 +161,33 @@ M2逐项对照发现原19caller只在AfterReadback/AfterManifestWrite暂停，�
 **测试。** `kill_before_independent_readback_preserves_artifacts_without_publication`、`kill_during_manifest_write_preserves_partial_manifest_without_publication`。
 
 Root新建两个真实CLI消费者先取缺checkpoint的red；later_plans只改Target/failpoint、保留旧points。新oracle核3文件实字节、partial JSON不完整/读回前无manifest、实际SIGKILL/无响应/无final、business status/result不变、重跑只新建完整副本并保留旧场景。原10crash断言不改。2新green、原Target/crash/publicconsumer、真实固定binary、完整工程门禁与MSRV按实际变更执行；独立审查后提交T06再M2。不能据静态分支或相邻点宣称原窗口通过。
+
+## 2026-10-04 当前验收恢复
+
+| ID | 状态 | Owner | 依赖 | 实际结果 |
+| --- | --- | --- | --- | --- |
+| C006-T07 | done | Codex；独立Reviewer | C005-M3 a394009 | 真实用途/对照/新消费者/跨APFS/质量预算事前冻结 |
+| C006-T08 | not_run | 协调者；新消费者；独立Reviewer | T07提交 | 完整副本、编辑/使用/重跑与跨设备挂载，工程资格分列 |
+| C006-M3 | not_run | 未写准备/产物/工具的Reviewer | T08 | 完整当前采用链限定验收，原真人/unknown留原 |
+
+### C006-T07 恢复真实用途与事前冻结
+
+基线a394009，旧112原件逐SHA移动同值及全tracking。输入C004真实Work final/revision7三refs与C005当前资格；固定Home、双binary/hash、现行合同/guide、父目录、独立原CLI对照、消费者注释标准与原件/五表不变判据。binary取T58实际Cargo冻结，不猜易变target。134/192同值才引用原1.98正确0.9.145的951和C005新1.85的951/5doc；原dist已由C002真实六资产plan核引擎macARM且exporter排除，精确config同值才引用；freshdeny仅原ef6173数据时点，不伪称本刻在线最新。
+
+新副本用途为下一C007准备资料，实际新消费者编辑三报告注释C005当前事实，读取C007首入口；不回写原件/manifest/Store，不提前激活/写C007。原CLI metadata+三raw与sheltie-export各核相同全bytes/size/SHA/source，是agent/script对照而非真人手工。成本分找结果/接收/核对和总投入；外层及内部CLI调用不混算，不由单样本wallclock推人类净收益。
+
+准备30min、实际run45min（创建/挂载/复制/消费者/复核/卸载/记录合计），每子命令上限120s；失败/漂移/超限即停留原，不重跑凑绿。跨设备使用本机diskutil image create blank --format ASIF --size 268435456 --fs APFS --volumeName SheltieC006到专用镜像；attach --plist --nobrowse --mountPoint专用tmp位置。已先核本机help，sandbox DiskManagement拒绝原文保留，本机只读help另取得；实际创建在T08。真实attach/卷信息确认mountPoint和source/target不同st_dev才export，只ejectowned镜像/设备，不force其他卷。失败保准确未执行，不降级假跨设备。
+
+独立事前审不参与编写，docs/specs/skill/tests/scope通过后T07单提交才T08实际操作。无新Rust/突变，不跑空task.sh。完整命令、产物、oracle与消息在本evidence/resume-20261004 protocol/freeze固定。
+
+### C006-T08 实际对照、副本使用与跨设备
+
+按已提交freeze核所有source/binary。每外层查询/export前后五表及业务对象快照（SQLite控制载体例外）。原CLI对照用literal key/revision逐raw、实际exit与独立size/SHA，用独占新文件，不借exporter生成期望；工具complete/0才读target，manifest.result与result逐同，全三artifact/0700目录/0600文件/单link核。原CLI与工具成本分别记录，未知usage/人类费用null。
+
+新fork-none消费者只写声明copy三文件和report，追加明确历史原报告与当前C005/下一C007边界，实际读首入口；不改原Work/manifest/Store/仓库。Root核内容和source不变，再export必须新target，旧编辑/manifest保留，新copy仍全原bytes。没有制造故障或真人gate。
+
+实际目标APFS镜像与Home必须不同st_dev；完整CLI导出及manifest/全部bytes/权限/五表/原件核。真实镜像/设备/卷/挂载原件留证，证据复制到未挂载repo/tmp根后只ejectowned设备；残留/卸载失败单列，不伪称cleanup。当前工程/dist/native/MSRV按精确闭包引用，不注销旧四LEAK，当前value仅自动agent可编辑资料用途。独立增量、治理/范围和单提交后才M3。
+
+## C006-M3 当前采用完整限定验收
+
+核DL01–10公开CLI/raw/source/target/NOREPLACE整目录publish、既有crash正反caller、同源native/MSRV与正确nextest/fresh数据/dist排除、真实对照/消费者/重跑及跨APFS原件。只macARM可构造APFS载体范围；外置物理盘/其他OS/真人/人类成本/旧LEAK因果仍未执行或未知。原raw/index/归档/commit blob全SHA保全后收尾，发布独立决定。

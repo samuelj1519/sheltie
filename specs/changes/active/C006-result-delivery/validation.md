@@ -182,3 +182,15 @@ T06全cached diff exit2仅两份immutable工具原文尾空格/EOF空行，见[e
 ## C006-M2 正式限定验收
 
 独立Reviewer审定 `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`，实现/指南/前提及授权延期交接范围PASS，无剩余生产或oracle必改。从git candidate独立复算296file gate闭包bf8ed08b…精确一致，只在内存还原T06 done→doing；独立核当前默认14现场的三source/manual/newcopy bytes/size/SHA/manifest、模拟编辑保留与binarySHA。复用原独审及全部实际原run，不重复长验证。4旧CLI LEAK cause unknown和全部not_run保持，未部署/安装/发布。
+
+## 2026-10-04 C006-T07 真实副本事前准备
+
+C005当前技术/负前检已归档a394009，113全blob读回原件作为本次输入；原C006112文件物理移动全SHA同值，旧842+4LEAK/nextest92/dist101/缓存/真实用途缺项留原。本次三源为C004实际交付的change/review/delivery，下一真实C007准备者需要在可编辑副本注释C005已归档与七null事实，不回写原件，副本用途在运行前成立。原真人手工/接受/费用/净收益仍not_run或null，不由本agent/script对照推断。
+
+规程、Home/双冻结binary/原三refs/当前C007原件/质量/消息/父目录及设备/预算见evidence/resume-20261004 freeze。准备起点是实际C005完成18:45:12.070704Z，deadline19:15:12.070704Z，已发生阅读/help/激活/工具整理/审阅都计入；实际run另45min包括复制/消费者/挂载/卸载/记录。observer每条原CLI/export前后五表/业务对象，percommand120s预留8s清理，总deadline失败不求绿；原CLI对照不借exporter算期望，两个副本同独立bytes/SHA/manifest/权限。
+
+helper经code-simplifier只格式整理AST同值，Root在执行前把cleanup8s也纳入单命令上限，语法编译核；不改产品源码。正确0.9.145/native951与MSRV951/5doc、freshdeny ef6173及真实dist六引擎资产排除exporter按192/134/config精确同值和原时点引用，不说旧命令已发生或此刻刷新。
+
+跨设备计划用本机APFS ASIF自有镜像，不冒称外置物理盘。先读本机create/attach/eject help，sandbox DiskManagement不可读原输出与native只读help分列；准备独审正在进行，尚未create/attach/export或派实际消费者。必须实际source/target st_dev不同、明确owneddevice且完成完整复制/原件保全/只eject本载体，才记录该范围通过。无安装/发布、无空task.sh。
+
+事前Reviewer /root/c006_preflight_review未写准备/工具/产物，最终PASS；原needs_changes/修后实际最终消息及全部工具source_line保留t07-preflight-reviews.json和records。唯一guide旧dist表述已修为同配置C002实际六资产计划、exporter排除、无新dist/构建发布，freeze同步；D043断链初docs失败与修后分别留原。完整5表/当前业务树覆盖经Reviewer现场核，无symlink，控制载体例外明确。故障控制环境实际null每次核同值。实际copy/image/consumer仍not_run，先T07提交才执行。

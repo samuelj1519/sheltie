@@ -1,6 +1,6 @@
 # C006：取得可编辑的最终成果副本
 
-状态：`completed`
+状态：`active`（2026-10-04恢复当前agent副本与原生载体验收）
 目标版本：`v0.3.0`（尚未发布，外围工具不进入dist）
 兼容性：`只采用 work-result/v1 与本方案的源读取合同；release 版本仅标识来源`
 基线：`8d27348d995a434ae3dbf8255e1110973dec1381`
@@ -49,6 +49,6 @@ Owner：`Codex /root`
 | [validation.md](validation.md) | 源、目标、崩溃、竞态和真实使用 oracle |
 | [review.md](review.md)、[progress.md](progress.md) | 审查与跨会话交接 |
 
-## 本轮完成范围
+## 历史限定完成范围
 
 实现/raw/export/精确崩溃窗口/指南与M2限定验收完成。842语义PASS、21公开链、默认14机制与MSRV有原件；4旧CLI LEAK unknown保留。真实使用价值、其他OS/跨设备、工具要求版本/dist实际计划与fresh审查延期。完整边界见validation/review，不当发行或原全范围验收。
