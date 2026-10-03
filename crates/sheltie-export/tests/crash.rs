@@ -217,63 +217,54 @@ fn killed_at(point: &str, published: bool) {
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_staging_creation_preserves_owned_scene_without_a_published_copy() {
     killed_at("staging_created", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_during_actual_receive_preserves_partial_scene_without_a_published_copy() {
     killed_at("during_receive", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_file_sync_preserves_owned_scene_without_a_published_copy() {
     killed_at("after_file_sync", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_independent_readback_preserves_owned_scene_without_a_published_copy() {
     killed_at("after_readback", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_manifest_write_preserves_owned_scene_without_a_published_copy() {
     killed_at("after_manifest_write", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy() {
     killed_at("before_rename", false);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response() {
     killed_at("after_rename_before_parent_sync", true);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another() {
     killed_at("after_parent_sync", true);
 }
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene() {
     let fixture = Fixture::complete();
     let before = ok(&fixture.home, &["work", "status", &fixture.work]);
@@ -311,7 +302,6 @@ fn sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_origina
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy() {
     for point in ["after_rename_before_parent_sync", "after_parent_sync"] {
         let fixture = Fixture::complete();

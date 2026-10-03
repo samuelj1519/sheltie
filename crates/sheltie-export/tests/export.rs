@@ -6,7 +6,6 @@ use std::path::Path;
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work() {
     let fixture = Fixture::complete();
     let before = ok(&fixture.home, &["work", "status", &fixture.work]);
@@ -54,7 +53,6 @@ fn export_publishes_all_final_bytes_and_deterministic_provenance_without_changin
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy() {
     let fixture = Fixture::complete();
     let first = fixture.export();
@@ -89,7 +87,6 @@ fn export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy() {
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory() {
     use std::os::unix::fs::PermissionsExt;
     let fixture = Fixture::complete();

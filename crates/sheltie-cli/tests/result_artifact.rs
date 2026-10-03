@@ -23,7 +23,6 @@ fn raw(fixture: &Fixture, key: &str, revision: &str) -> std::process::Output {
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline() {
     let fixture = Fixture::complete();
     for (key, bytes) in [
@@ -43,7 +42,6 @@ fn result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn result_artifact_rejects_json_request_ids_and_unpaired_parameters_before_creating_a_home() {
     let dir = tempfile::tempdir().unwrap();
     let home = dir.path().join("absent");
@@ -80,7 +78,6 @@ fn result_artifact_rejects_json_request_ids_and_unpaired_parameters_before_creat
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn result_artifact_rejects_revision_key_and_source_modification_without_business_writes() {
     use std::os::unix::fs::PermissionsExt;
     let fixture = Fixture::complete();
@@ -111,7 +108,6 @@ fn result_artifact_rejects_revision_key_and_source_modification_without_business
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys() {
     let dir = tempfile::tempdir().unwrap();
     let base = dir.path().canonicalize().unwrap();

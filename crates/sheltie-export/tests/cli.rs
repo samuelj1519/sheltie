@@ -6,7 +6,6 @@ use std::process::Command;
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target() {
     let fixture = Fixture::complete();
     let sentinel = fixture.parent.join("sentinel");
@@ -42,7 +41,6 @@ fn exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_tar
 
 // Task: C006-T02
 #[test]
-#[ignore = "C006-T02"]
 fn exporter_rejects_a_nonfinal_work_before_creating_staging() {
     let fixture = Fixture::complete();
     let active = ok(

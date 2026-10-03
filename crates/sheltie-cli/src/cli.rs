@@ -97,9 +97,9 @@ pub enum WorkCmd {
     /// 查看明确选择的最终成果引用。
     Result {
         work: String,
-        #[arg(skip)]
+        #[arg(long, allow_hyphen_values = true)]
         artifact: Option<String>,
-        #[arg(skip)]
+        #[arg(long)]
         revision: Option<u64>,
     },
     /// 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来。

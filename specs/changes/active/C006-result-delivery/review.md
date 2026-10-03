@@ -39,3 +39,7 @@ Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以mani
 ## C006-T04 独立握手修订审查
 
 结论：`PASS`，仅checkpoint握手与oracle修复。独立Reviewer未编写修复。已核完整字节才放行、前缀等待/错误点拒绝、原期限/child退出/RAII，以及确定性真实read序列对具体提前返回变体的实际red。原10场景全部业务断言与生产fault/source/target代码字节未变；新增2green、clippy/check通过。此提交完整SHA替代原M1SHA成为T02冻结基准。原弱oracle与whole829/1原件保留；恢复公共链后仍须19与最终832门禁。
+
+## C006-T02 最终短审
+
+结论：`PASS`。独立Reviewer从T04基准逐字节核两公开source与四tests的19ignore删除；原语、所有期望/fixture/helper无漂移。独立复算295path闭包f01613c4…匹配gate输入，实际832完整回归与19固定binary消费者、全部工程门禁一致。私有binary当前SHA与记录before/after一致，live采样不当历史锁定保证。旧829/1、LEAK与所有环境/真实价值缺项保持分开；T03/M2仍待完成。

@@ -107,3 +107,15 @@ T02 first feature run `48ed88a3-1e54-48c7-bc8d-9634a43b8c65` 19/19PASS，但whol
 Cargo nextest会在开始执行前重建同executable路径，pre-build SHA不能证明之后执行的字节；helper仅核路径存在。[post采样](evidence/t04/post-failed-gates-binaries.json)只证明采样时身份。T02恢复后另以Cargo JSON真实build复制到独占私有binary路径，前后SHA相同的19真实公共consumer验证解决该证据缺口；不改冻结命令或helper，不以旧prehash代新实际身份。
 
 T04独审发现初次positive在wait返回后writer.join，会放过提前返回变体；原初次2green保留但不是最终oracle充分性证据。修订改为真实fs::read后的观察回调：first read是固定空/部分字节，再写完整真实文件；返回时必须观察[initial,full]，没有调度/等待时长假设。正常10caller同一body的noop callback，生产代码未改。具体prefixassert后return变体run `d9683d94-91e6-4f03-b68f-3f623a88a06c` 实际1FAIL；最终 `6a65908d-fe53-46ed-a53d-a9465fd1dc49` 2/2PASS、clippy0。错误点必须特定通知拒绝，timeout或无关panic不能通过。独立Reviewer逐字节核原command/helper外的10场景和全部业务断言未变，T04短审PASS；仅握手/冻结修订，不当832全回归PASS。
+
+## C006-T02 完整公开链
+
+新冻结基准 `3a718cd9cec09404cec1a9e026edb9cc42cd449f`。恢复自有草稿后五文件与原稿SHA相同，crash.rs相对新基准仅删10ignore；全部四tests仅删19ignore，原expect/helper/fixture不变，[恢复证明](evidence/t02/draft-restore.json)。两份保留stash分别为 `ef7d9bdfe49697a1aa858935c4ac0040ab28b117`、`e7e9f4d18a8744f962d3a1eef9a6a6c5e2d4d423`。T04首次post范围检查误在T02已恢复上下文运行而拒绝T02越界；隔离同一草稿后同基准实际PASS，再恢复，未豁免scope。
+
+[修后完整门禁](evidence/t02/gates-repaired.txt)实际exit0，run `4776c786-9f94-452d-8ae5-8ca380f50038`：832/832 PASS、0skip、0LEAK、2slow。fmt/check/clippy、缓存deny四类policy、docs145/specs8/1active/tests832/262cards全部通过；原失败whole仍保留。nextest实际0.9.140显式override，要求0.9.145继续not_run；缓存不是fresh审查。
+
+为解决nextest重建同路径executable的身份记录缺口，[真实Cargo JSON构建](evidence/t02/capsule-build.jsonl)的两binary逐字节复制到独占私有路径、前后SHA完全相同；[19真实公开consumer](evidence/t02/feature-frozen-binaries.txt) run `4febada7-365c-4cf2-8014-78905900ccfa` 19/19 PASS，exit0。[capsule记录](evidence/t02/binary-capsule.json)证明该组执行身份，live pre-build/post SHA只表示各采样，不当历史执行锁定。未改commands/helper、政策或oracle。
+
+当前whole consumer `f01613c4a052d7b2cd89b9870674b979c69c576696970548e4a0ea2be1ad55d5`，295files，同域/算法/排除，见[input记录](evidence/t02/input-closure-gate.txt)。它是修订后的新输入；之后只改plan状态与验证记录，治理单独检查，不复用旧whole hash。业务状态、整份字节/manifest、不覆盖、残留/重跑、kill/sync/链接和opaque keys均已实际经过公开链。真实副本需求/人工成本、跨设备、其他OS与dist实际asset plan保持延期。
+
+T02首次staged范围检查拒绝main：任务表files数组左侧多一个空格，现check-task简单字段解析保留该前导空格，没识别main的files/test_files重叠。仅规范任务表空格以兑现原已审main实现范围，未改checker、保护范围、测试或代码；治理和同基准scope重验。全cached diff原文尾空格例外见[evidence清单](evidence/t02/diff-check.json)，精确排除单份immutable gates raw后的作者检查PASS。
