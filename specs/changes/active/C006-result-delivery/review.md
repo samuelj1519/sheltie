@@ -18,7 +18,7 @@
 | 范围 | 独立复杂模型的判据 | 状态 |
 | --- | --- | --- |
 | C006-M1 | 可信源流、受限目录/NOREPLACE/sync/raw 原语、阶段测试与操作手册 | PASS（限定准备） |
-| C006-M2 | 源到整份新副本公开链、竞态/故障、Rust 工程与真实复制 | not_run |
+| C006-M2 | 源到整份新副本公开链、竞态/故障、Rust 工程与真实复制 | PASS（限定实现/指南，真实价值延期） |
 
 每任务短语义复核保留；阶段对同闭包已经核准的工作引用原候选与 run，不重复全套门禁。M1 是准备就绪，不是公开功能、用户价值或 M2 PASS。Reviewer 不编写被审修复，问题交复杂作者补接口/测试并重固定基准。
 
@@ -51,3 +51,9 @@ Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以mani
 ## C006-T06 精确窗口短审
 
 独立Reviewer及只读oracle助手结论：`PASS`。真实边界位置、partial bytes/继续前身份权限复核、同FD余半及全部后续发布保证正确；原crash.rs字节为当前前缀，旧10场景/T04helper/common未变。2旧binary真实red、新21green与默认14/MSRV已核，正式T06和M2仍以当前842实际全gate及固定commit收口。相邻after点不当原定before/mid点等价，旧证据保持原范围。
+
+## C006-M2 正式结论
+
+Candidate: `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`。结论：`PASS`，限定实现、指南、前提与用户授权延期交接。独立Reviewer `/root/independent_review` 未参与生产/oracle/分析编写；复用M1/T04/T02/T05/T06逐项独审，独立复算296文件闭包并核最新842/21/default14/MSRV/工程/cachedDeny真实原件。无剩余必改。
+
+真实人/用途/质量/成本/首次真实使用、dist实际plan、要求nextest0.9.145、fresh advisory、其他OS/跨设备均not_run。4LEAK仍cause unknown，不能宣称零残留；缓存不是fresh。Scope PASS不表示原全部平台/真实价值义务完成，不授权发行、安装、push或merge。当前plan done表示本轮可执行实现与显式延期交接完成。

@@ -1,8 +1,8 @@
 # C006 验证
 
-Candidate: `3572741f21a01a29d2e7e03dcf2d88c1476147eb`
+Candidate: `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`
 
-状态：`active`。实现与指南已完成；M2待T06补齐两个原定窗口后独立收口。真实收益未执行。下表前半是计划oracle，执行事实见阶段记录。
+状态：`active`。实现、两个精确窗口、指南与M2限定审阅完成。真实收益未执行。下表前半是计划oracle，执行事实见阶段记录。
 
 ## 1. 源与目标验收矩阵
 
@@ -150,7 +150,7 @@ T05全cached diff exit2仅两份工具原文EOF空行，见[evidence清单](evid
 | 实际kill/sync窗口与发布后未确认、残留保真 | executed | 同21新binary/fixture；T04完整通知、T06前读回/partialmanifest独立预期 | 同21与842；6a65908d-fe53-46ed-a53d-a9465fd1dc49 | PASS | [完整链](evidence/t06/feature-frozen-binaries.txt)、[握手](evidence/t04/marker-ready-final-green.txt) |
 | 引擎/导出Rust工程与普通消费者 | reused | 最终source/Cargo/全部features/840原tests+2新tests与相同环境 | 36297026-2963-426c-8a6b-d6ebde77078e，842/842 | PASS | [fmt/check/clippy/842](evidence/t06/gates-final.txt) |
 | RC开发权威、release/tag/历史/CHANGELOG门禁 | executed | T05新script/fixture+原22断言不变，8新oracle | cargo test release_governance，30/30 | PASS | [30原文](evidence/t05/governance-final.txt)、[旧8red](evidence/t05/old-governance-red.txt) |
-| Rust1.85最终候选编译 | executed | T05冻结全部source/tests/Cargo/config/features；locked | cargo +1.85.0 check --locked --all-targets --all-features | PASS | [MSRV](evidence/t06/msrv-final.txt) |
+| Rust1.85最终候选编译 | executed | 最终T06 source/tests/Cargo/config/features；locked | cargo +1.85.0 check --locked --all-targets --all-features | PASS | [MSRV](evidence/t06/msrv-final.txt) |
 | 缓存依赖风险/许可/来源 | reused | Cargo graph/policy/features/缓存117edb3未变；不是在线fresh | 同T06cached deny | PASS | [deny](evidence/t06/gates-final.txt) |
 | 默认构建与准确首次读者指南、临时复制机制 | executed | 字面default/locked Cargo JSON；真实双binary SHA；14CLI/实际3文件 | default build及mechanism命令exit0 | PASS | [构建](evidence/t06/default-build.txt)、[实际机制](evidence/t06/default-mechanism.json)、[指南](../../../guides/result-export.md) |
 | 原始失败、环境/真实价值延期与可执行补验入口 | executed | 原文保真及当前preflight，无伪造用户/成本事实 | 独立M2+当前docs/spec/tests/scope | PASS | [前提](evidence/t03/preflight.json)、[runbook](experiments/runbook.md) |
@@ -178,3 +178,7 @@ T06精确补验：原19点包括AfterReadback/AfterManifestWrite，未直接覆�
 最终[Rust1.85](evidence/t06/msrv-final.txt)全targets/features locked check0；新source的[默认构建](evidence/t06/default-build.txt)与[14条外层CLI机制](evidence/t06/default-mechanism.json)均exit0，三实际报告的手工/tool副本字节/size/SHA/manifest/业务status和模拟编辑后重跑保留一致。Input closure见[evidence](evidence/t06/input-closure-gate.txt)，状态记录在run后另改，源码/所有oracle保持冻结。实际价值和环境延期不变；T06是覆盖修复，不是新收益或发布。
 
 T06全cached diff exit2仅两份immutable工具原文尾空格/EOF空行，见[evidence清单](evidence/t06/diff-check.json)；精确排除后作者检查exit0，原字节保留。
+
+## C006-M2 正式限定验收
+
+独立Reviewer审定 `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`，实现/指南/前提及授权延期交接范围PASS，无剩余生产或oracle必改。从git candidate独立复算296file gate闭包bf8ed08b…精确一致，只在内存还原T06 done→doing；独立核当前默认14现场的三source/manual/newcopy bytes/size/SHA/manifest、模拟编辑保留与binarySHA。复用原独审及全部实际原run，不重复长验证。4旧CLI LEAK cause unknown和全部not_run保持，未部署/安装/发布。

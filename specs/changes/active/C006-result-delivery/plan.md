@@ -31,7 +31,7 @@
 | C006-T05 | done | 复杂作者/later_plans；独立Reviewer | 未发布RC开发目标权威与生命周期治理修复 | T02完成、实验采用前 |
 | C006-T03 | done | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
 | C006-T06 | done | 复杂作者/root与later_plans；独立Reviewer | 补前读回与部分清单写入的真实kill窗口 | M2逐项核覆盖 |
-| C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
+| C006-M2 | done | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
 阶段 1 入口为 C004 结果候选和副本需求；出口为 primitive green、普通行为回归通过、真实 feature caller 可编译且有意义 red、工具及引擎未激活未完成复制/raw 入口。阶段 2 入口为 M1 骨架完整 SHA、冻结 source/target 接口与命令；出口为全链行为、实际使用及 M2 采用义务完成。本轮复杂作者在 T01 完成安全原语及必要耦合的 library 编排/状态政策，T02 仅公开 raw/export 参数与入口；不为模型分工拆空任务。
 
