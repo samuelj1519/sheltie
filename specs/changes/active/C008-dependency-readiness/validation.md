@@ -76,3 +76,7 @@ T01 复杂模型完整制作 probe、手写 fixtures/tests、runbook 并完成�
 [protocol](experiment/protocol.md)/[host-rule](experiment/host-rule.md)/[runbook](experiment/runbook.md)保原完整采用/机制/三态/身份/no-write/真实对照条件；真实目标缺失不创建probe/config/fixture/test或运行占位命令。技术盘点时间不当人工实验投入；原准备/维护/观察成本unknown，费用/usage不估算。无Rust/机制测试实体，test_files为空，不跑零task.sh或以import错误当拒绝。
 
 C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用与机制准入not_run，不将未来三态规则当实际观察。无输入变化，无scanner/引擎重跑。
+
+## C008-T02 原义务的授权未执行记录
+
+开工49b48799c7180cbf1ececbd5aba588344d9ab351。[8项延期](experiment/evidence/real/README.md)逐项记target必要性/摩擦、host规则、probe/config/fixture、no-write测试、原机制M1、实际人工/script、全成本/复用及原M2 not_run。没有实际观测、matches/mismatch、ready、正式run ID或活动数据；人工/费用/净改善null。不以0decl证明host不存在，不制造host缺失、不以import失败当机制拒绝。声明与规则原件保持，无产品/host变化。
