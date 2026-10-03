@@ -1,0 +1,8 @@
+{
+  "reviewer": "/root/c005_preflight_review",
+  "source_session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T02-29-31-01a10307-4744-7941-a7cd-d7cbfc2c933b.jsonl",
+  "source_line": 280,
+  "actual_message_utc": "2026-10-03T18:44:00.824Z",
+  "exact_report": "staged 归档候选审阅 `PASS`，无必修项。\n\n- 112 个 package 文件（111 项 manifest＋manifest 自身）与 physical/index 路径、blob 全部一致；104 项移动记录同值，原技术输出未改。\n- 当前入口均为 no active，T05/T06/M3 为 done；历史真实撤销、费用与四条 LEAK 限制保留。\n- 五项治理原文 SHA/exit 0、`C005-M3 73520b2 --staged` 和 cached whitespace exit 0 已核。\n\n仅授当前 staged 候选；提交与提交后全 blob 读回仍待 Root，不预授完成。\n\n<oai-mem-citation>\n<citation_entries>\nMEMORY.md:297-304|note=[scoped review and evidence boundaries]\n</citation_entries>\n<rollout_ids>\n01a0fe34-0522-7923-a66f-887ddd931514\n</rollout_ids>\n</oai-mem-citation>",
+  "scope": "PASS_staged_only; commit/readback not yet executed"
+}

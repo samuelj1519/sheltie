@@ -1,3 +1,3 @@
 # Active change
 
-当前仅 [C005 恢复当前验收](C005-executor-continuity/README.md) active，进度只看其plan。C004当前范围已归档，C006–C008保持原限定完成并后续逐一恢复。原真人/费用/撤销对象/unknown不从目录位置推断PASS。
+无。C002/C004/C005当前恢复采用范围已归档，C006–C008后续逐一恢复；目录不证明原真实撤销/真人/费用/旧unknown已通过。进度只看唯一active package plan；无active时不自行实施未采用方案。

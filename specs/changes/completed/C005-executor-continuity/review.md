@@ -67,3 +67,7 @@ Reviewer /root/c005_preflight_review未参与准备/实现/runner，当前准备
 ## C005-T06 当前Rust1.85及行为独审
 
 Reviewer /root/c005_preflight_review实际只读审通过，无必修项；[报告](evidence/resume-20261004/t06-independent-review.md)是原session最终消息精确内容，工具原件与source_line可核。六实际步骤、951/951、37用例、5doc、160.473s、134/192资格与EX01–08完整CLI-runtime-core/原子/计数/历史/恢复/门槛已核。M3技术/负前检范围通过，最终治理、任务提交和全blob读回仍待Root，不提前授完成。独立frozen1.85产物同SHA，target/debug重建后的变化另记录，不冒称原路径仍冻结。
+
+## C005-M3 当前限定范围结论
+
+Reviewer /root/c005_preflight_review未参与源码/当前准备或runner，T06实际结果和EX01–08完整链/工程输入/负前检通过，见原最终消息及工具原件。正确版本native/msrv新资格与原未知边界分列；当前没有真实撤销样本，真实价值未验收。Root最终入口、治理、单任务归档提交与完整blob读回实际结果留本package，不把技术PASS泛化。

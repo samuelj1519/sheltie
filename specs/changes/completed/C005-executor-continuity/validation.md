@@ -176,3 +176,11 @@ T05提交5ccf9d4后启动真实runner，初实际rustc1.85.0/Cargo/nextest0.9.14
 实际nextest run `8d822614-fca3-453f-b28e-2d8345e810e4` 为951/951 PASS、2slow、0skip/LEAK，测试139.594s；5个compile-fail doc全PASS，两个无doc crate的0样本不计额外用例。全部6步骤exit0/无timeout，总构建/版本/测试160.4732879s，原12min内。37 C005用例逐PASS原行核，全192源前后SHA无漂移；argv/env/真实Cargo JSON/各stdoutstderr摘要与binary SHA全存msrv-execution.json和t06-result/source核对。初runid解析器期待冒号但真实header无冒号，从原UUID匹配修正，仅记录解析不变原raw。
 
 新MSRV测试填当前1.85实际执行缺口；原历史1.85只有check事实留原，原0.9.140/exit92/缓存/fresh时点/四LEAK cause unknown不追改。当前1.98 run424c与四类freshdeny按134/192同源输入精确引用，不说本轮重跑全部1.98或本刻刷新数据库；其他平台按用户范围排除。七真实撤销前提仍null、真实试用not_run，负前检不造样本。独立T06/M3审核正在进行，不以本actualtest推真实价值/接受或发布。
+
+## C005-M3 当前技术完整限定验收
+
+T06提交73520b2全原件及hooks已实际读回；独立Reviewer完整EX01–08及当前技术/负前检范围PASS，无必修。新实际Rust1.85/0.9.145六步/951/37/5doc/160.473s与134/192同源资格闭合。原native1.98全部四工程门禁和freshdeny按原run/数据时点精确引用，不把源未变当新命令执行。没有产品新源码或状态/持久格式，未额外突变或故障演示。
+
+真实C005撤销七前提仍null，两真实C004消费者证明当前只普通续接，负前检有效；没有资格撤销需求就不执行替换样本。原真实试用/真人接受/成本/净收益not_run，四旧LEAK因果unknown、原次工具92与历史MSRV编译/原缓存/作者空白例外留原；新技术成功不注销过去。其他平台按用户范围排除。当前技术能力可收尾，原用户价值未执行不得写成全产品PASS；后续C006按顺序另任务。
+
+归档只移动当前package并同步入口；所有实际文件精确stage、核index=physical，并保留原字节。最终治理/范围/提交与全commit blob集合逐SHA读回另实际核，不由review预授PASS。没有push/merge/release或宿主安装。
