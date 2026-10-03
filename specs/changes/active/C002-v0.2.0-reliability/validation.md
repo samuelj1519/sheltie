@@ -657,3 +657,12 @@ CLI由真实completed B和真实COMMIT后exit70未完成A产生缓存分派场�
 最终215独审通过，无剩余必须补验项；[验收绑定](evidence/completion-20261003/t43-acceptance-binding.json)固定账本与review SHA，账本的pending字段只表示不可变的审查前装配阶段。原F-T43-01留原，以当前30实际补验和独审另列resolved，不倒填旧缺失输入。原始当前32补验/190源码/215账本与报告见[资格档案](evidence/completion-20261003/t43-current-qualification.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t43-oracle-archive.json)一致。首次回读因三LICENSE-MIT软链未成为regular成员失败，保留首次tar与路径/target/content SHA；改内容快照并保留链接出处后通过，无源码或执行变化。
 
 默认check-task首次因跨后续change历史快照差异exit1；T43收尾按明确冻结基线4487核零源码/测试/snapshot改动，记录独立原文，不修改检查器或放开快照规则。
+
+
+## C002-T45 当前macOS aarch64原生适用性
+
+T43提交b2dea33后源码/fixture/config未变，134工程输入逐SHA匹配同原生948/948与5doc。当前[实测](evidence/completion-20261003/t45-native-current-probe.json)记录arm64与Mach-O、Cargo实际engine SHA66aa、Rust/nextest/系统版本。df的/private/tmp设备为/dev/disk3s5，diskutil实际Data挂载点APFS，两个st_dev同为16777234；不是根只读snapshot设备的猜测。沙箱DiskManagement不可用与无效/private/tmp disk标识exit1留原，只读宿主设备查询另成功，不安装VM/修改磁盘。
+
+临时自有合法中文源目录与中文Home实际add成功，四个源file SHA与安装副本全部一致，源未改，Readonly fixture安全回收后原路径不存在。非法UTF8实际execve argv被CLI以exit2拒绝、Home未创建；同948原生os_process还有非法SHELTIE_HOME/HOME及显式override控制。物理badFF普通file和directory均在本APFS载体以errno92/EILSEQ拒绝创建；engine物理遍历fixture明确not_run/environment_blocked，纯bytes名称用例不充当其执行，不泛化全macOS文件系统。
+
+[既有预检边界](evidence/completion-20261003/t45-original-preflight-boundary.json)记录当前文件声明的d27816旧candidate与当前SHA；未定位独立不可变历史副本，不称历史原件逐字保真已独审。当前实测独立，不能迁移旧probe到新候选。仅本次授权的macOS aarch64实际载体/可构造输入，Linux/Intel excluded_by_user，usage未知null，无发布。[独立原生适用性审查](evidence/completion-20261003/t45-native-review.md)通过，仅限当前载体/可构造输入。无其他必须可构造T45补验项，T45标记done，物理badFF遍历未运行保留；M2仍not_run。

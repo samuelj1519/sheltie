@@ -331,7 +331,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T42 | done | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
 | C002-T43 | done | Codex；独立 Reviewer | 215唯一：185动态/21限定静态/9结构；当前补验32及差异独审通过，旧native限制保留 |
 | C002-T44 | done | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
-| C002-T45 | not_run | Codex；平台执行者 | macOS aarch64原生验证及物理目录前检；其他平台按本次明确排除 |
+| C002-T45 | done | Codex；独立 Reviewer | 当前macOS aarch64/APFS/可构造输入原生核验通过；物理badFF遍历仍not_run，其他平台excluded_by_user |
 | C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
 | C002-T47 | done | Codex；独立 Reviewer | 补 G10/G11/G12 存活体的合同 oracle，保持生产行为 |
 | C002-T48 | done | Codex；独立 Reviewer | G01共享闭包oracle：同步合法形状的坏业务绑定与读顺序 |
@@ -486,3 +486,12 @@ G13准确5旧ID，all-features必须实际验证。只增3能力测试、复用2
 先同CLI/runtime准确filter的非零5能力基线，随后最多5目标/600秒短反馈与最终冻结执行；工程/MSRV/默认特性/治理及未参与准备Reviewer逐旧ID审查通过后，一个任务一个提交。测试设施证明不扩大为产品持久性、真人接受、M2或所有215旧原生执行。
 
 T43最终文档收尾基线为`4487ac1eb20672b8136aba186e8392fafa38ebca`（T57已提交、源码冻结），用`scripts/check-task.sh C002-T43 4487ac1eb20672b8136aba186e8392fafa38ebca --staged`检查。默认package旧基线覆盖后续其他change的快照变更，不能作为本次只写证据的测试基线；本任务不改任何源码、测试或snapshot，历史默认检查失败保留。
+
+
+### C002-T45 当前 macOS aarch64 原生核验
+
+当前收尾基线为T43提交b2dea33；源码/fixture/config未改，绑定T57完整190输入、原生948回归/5doc/工程/MSRV及Cargo实际产物SHA，不用跨编译或旧源码结果替代。重新记录uname/macOS/Rust/nextest与实际binary架构、当前管理根载体的文件系统信息。临时自有根上验证合法Unicode源目录实际add及原件副本；非法UTF8分别尝试真实文件和目录创建并保留原OS返回，再用真实子进程原始argv验证CLI拒绝与不建Home。
+
+物理非法名若载体拒绝创建，原生engine目录遍历fixture保持not_run/environment_blocked；不手造Metadata/假目录，不改成Caught或泛化全macOS文件系统。不阻断与其无关的完整Spec/合同复核。所有结果按当前实际载体/可构造输入与接口域限定，交独立Reviewer决定原生适用性与未覆盖边界；若有真实必须补验义务未完成则本任务不done。Linux/Intel仍excluded_by_user，usage未知null，未授权发布/安装Host虚拟机不执行。
+
+任务范围与快照门禁显式使用b2dea33冻结基线，保留历史默认package基线，不修改检查器或快照规则。

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "diskutil",
+    "info",
+    "-plist",
+    "/"
+  ],
+  "exit_code": 0,
+  "stderr": "",
+  "filesystem": {
+    "FilesystemName": "APFS",
+    "FilesystemType": "apfs",
+    "FilesystemPersonality": null,
+    "MountPoint": "/",
+    "DeviceIdentifier": "disk3s1s1",
+    "DeviceNode": "/dev/disk3s1s1"
+  }
+}

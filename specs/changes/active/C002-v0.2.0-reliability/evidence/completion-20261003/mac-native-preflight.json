@@ -1,0 +1,39 @@
+{
+  "candidate": "d27816be3e919b8183abe04b7f7ca4f457046231",
+  "scope": "macOS aarch64 only, explicitly selected by user",
+  "native": {
+    "uname": {
+      "argv": [
+        "uname",
+        "-m"
+      ],
+      "exit": 0,
+      "stdout": "arm64\n",
+      "stderr": ""
+    },
+    "macos": {
+      "argv": [
+        "sw_vers"
+      ],
+      "exit": 0,
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+      "stderr": ""
+    },
+    "rust": {
+      "argv": [
+        "rustc",
+        "-Vv"
+      ],
+      "exit": 0,
+      "stdout": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+      "stderr": ""
+    }
+  },
+  "other_platforms": "excluded_by_user",
+  "physical_nonutf8": {
+    "physical_directory_created": false,
+    "errno": 92,
+    "error": "[Errno 92] Illegal byte sequence: b'/private/tmp/sheltie-completion-20261003/nonutf8-am_1naen/invalid-\\xff'",
+    "execution": "environment_blocked"
+  }
+}
