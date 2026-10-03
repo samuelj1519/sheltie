@@ -1,0 +1,65 @@
+{
+  "result": "PASS_scoped_T58_source_and_oracle_preparation_final",
+  "reviewer": "independent read-only, did not write oracle/source or run Cargo",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/service.rs": "80dbff708cccad82c33cde06d2e879af463d8f6e7604c5474a3a4ad3c8d76670",
+    "crates/sheltie-cli/tests/snapshot_qualification.rs": "f7db0618747bf8894d07fac233a8b72482aa104d25b31539e33e8694ae1210ee"
+  },
+  "baseline": {
+    "run_id": "abee94f7-bf0c-4f2c-8f9f-e41fecd5d1a9",
+    "actual_new_capabilities": 3,
+    "pass": 3,
+    "elapsed_test_seconds": 6.79,
+    "raw_sha256": "5fd25f7812f02e5e07997459b7adebd276e1537db9718a5c5c96f1118c18d576",
+    "scope": "latest extraSubmitWait test candidate; not full engineering/M2"
+  },
+  "source": {
+    "private_helpers2_callers2": true,
+    "default_extra_IO_or_observer": false,
+    "T46_strict_command_data_before_frozen_IO_preserved": true,
+    "pure_audit_snapshot_timestamp_principal_approved_by_at_before_frozen_IO": true,
+    "old7_execution_fact_predicates_not_changed": true,
+    "original_after_all_qualification": true,
+    "late_effect_with_original_exception_not_changed": true,
+    "no_current_OS_account_or_current_updatedAt_for_nonCancel_events": true,
+    "B_A_beforewrite_routing_no_changes": true
+  },
+  "oracles": {
+    "genuine_all7Reply_legal_recorded_wire_controls": true,
+    "only_replayed_field_adjustment_contractual": true,
+    "gate6_single_actor_or_coupled_at_beforefreeze_cases": true,
+    "ordinary3_emptyStart_or_validFormat_wrongStartCancel_eventtime": true,
+    "five_raw_SQL_tables_and_business_tree_dev_ino_mode_nlink_bytes": true,
+    "source_fixture_owned_cleanup": true,
+    "F_T58_01": "old temporal-control finding preserved in t58-first-source-review; no pending issue",
+    "F_T58_01_status": "resolved by latest extraWait fixture and actual3/3 raw"
+  },
+  "required_existing_exception_consumers": [
+    "committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot",
+    "begin_replay_checks_content_and_hash_even_when_the_existing_brief_matches",
+    "submit_replay_requires_exactly_the_committed_output_references_and_seal",
+    "replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache",
+    "corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original",
+    "T46 strict Command/data-before-frozen read capability"
+  ],
+  "new_principalPendingA_test_required": false,
+  "limits": [
+    "T58 source/oracle preparation only; final affected/full gates pending separate executionaudit",
+    "old32c NEEDS_CHANGES and oldred/fixturefailures retained",
+    "no new authentication/account-operation/host-permission guarantee",
+    "no M2/product/release approval"
+  ],
+  "old7_execution_fact_predicates_byte_exact": true,
+  "source_previous_public_Interface_core_store_fs_recovery_unchanged": true,
+  "existing_snapshot_test_prefix_byte_exact": true,
+  "simplification": "lexical execute closure scope instead of drop closure; SQL multiline formatting; source diagnostic interpolation, facts unchanged",
+  "must_fix": [],
+  "extra_new_auth_or_window_oracle_required": false,
+  "F_T58_01_resolved": "genuine nextUTC wait after history-submit before later summary/cancel; priorfinding and prior951/42 remain separate",
+  "oracle_reachability_boundary": {
+    "start_time": "valid-format coupled row.at/audit.at mismatch can be refused by existing workbook_publication request.at==state.created_at before new execution guard; preservation regression, not isolated new-guard detection",
+    "cancel_time": "valid-format coupled metadata matches; typedCancel/cancelledState match; new execution comparison against terminal updated_at supplies refusal",
+    "gate_time": "valid row/audit-at together so prior row equality survives; ApprovedData.at vs audit mismatch pure before frozenIO",
+    "unknown_resources": "No allocation/physical SQLite/checkpoint equivalence claimed, business5 rows and tree only"
+  }
+}

@@ -795,7 +795,12 @@ impl WorkService {
                     &snapshot,
                     &data,
                 )?;
-                validate_read_audit(request, &loaded.state, &snapshot.reply)?;
+                validate_audit_execution(
+                    &request.request_id,
+                    &request.audit,
+                    &loaded.state,
+                    &snapshot.reply,
+                )?;
                 check_work_effects(
                     &self.home,
                     &request.request_id,
@@ -1208,6 +1213,7 @@ impl WorkService {
                 detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
             })?;
         let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, &work)?;
+        validate_audit_snapshot(request_id, audit, &data)?;
         let state = self.load(&work)?;
         if state.revision < audit_revision {
             return Err(Error::StoreCorrupt {
@@ -1224,6 +1230,7 @@ impl WorkService {
             &snapshot,
             &data,
         )?;
+        validate_audit_execution(request_id, audit, &state.state, &snapshot.reply)?;
         let original = crate::recovery::work_original_response(&work, &snapshot);
         let effects_result: Result<_> = (|| {
             let row =
@@ -1448,6 +1455,7 @@ fn decode_read_request(
         next: persisted.next,
     };
     let data = crate::snapshot::check_data(&response.reply, &response.data, work)?;
+    validate_audit_snapshot(&request.request_id, &request.audit, &data)?;
     Ok(ReadRequestPayload {
         command,
         snapshot: response,
@@ -1456,12 +1464,30 @@ fn decode_read_request(
     })
 }
 
-fn validate_read_audit(
-    request: &crate::store::read::WorkReadRequest,
+fn validate_audit_snapshot(
+    request_id: &str,
+    audit: &crate::store::read::AuditRow,
+    data: &crate::snapshot::CheckedData,
+) -> Result<()> {
+    sheltie_core::work::Timestamp::parse(&audit.at).map_err(|error| Error::StoreCorrupt {
+        detail: format!("请求 {request_id} 的audit时间格式无效：{error}"),
+    })?;
+    let approval_mismatch = matches!(data, crate::snapshot::CheckedData::Approved(approval)
+        if approval.by.0 != audit.principal || approval.at.as_str() != audit.at);
+    if audit.principal.is_empty() || approval_mismatch {
+        return Err(Error::StoreCorrupt {
+            detail: format!("请求 {request_id} 的audit主体/时间与响应快照不一致"),
+        });
+    }
+    Ok(())
+}
+
+fn validate_audit_execution(
+    request_id: &str,
+    audit: &crate::store::read::AuditRow,
     state: &WorkState,
     reply: &Reply,
 ) -> Result<()> {
-    let audit = &request.audit;
     let time_matches = match reply {
         Reply::Started { .. } => state.created_at.as_str() == audit.at,
         Reply::AttemptBegun { attempt, .. } => state
@@ -1494,10 +1520,7 @@ fn validate_read_audit(
     };
     if audit.principal.is_empty() || !time_matches {
         return Err(Error::StoreCorrupt {
-            detail: format!(
-                "请求 {} 的audit主体/时间与原执行事实不一致",
-                request.request_id
-            ),
+            detail: format!("请求 {request_id} 的audit主体/时间与原执行事实不一致"),
         });
     }
     Ok(())

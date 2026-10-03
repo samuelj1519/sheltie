@@ -666,3 +666,31 @@ T43提交b2dea33后源码/fixture/config未变，134工程输入逐SHA匹配同�
 临时自有合法中文源目录与中文Home实际add成功，四个源file SHA与安装副本全部一致，源未改，Readonly fixture安全回收后原路径不存在。非法UTF8实际execve argv被CLI以exit2拒绝、Home未创建；同948原生os_process还有非法SHELTIE_HOME/HOME及显式override控制。物理badFF普通file和directory均在本APFS载体以errno92/EILSEQ拒绝创建；engine物理遍历fixture明确not_run/environment_blocked，纯bytes名称用例不充当其执行，不泛化全macOS文件系统。
 
 [既有预检边界](evidence/completion-20261003/t45-original-preflight-boundary.json)记录当前文件声明的d27816旧candidate与当前SHA；未定位独立不可变历史副本，不称历史原件逐字保真已独审。当前实测独立，不能迁移旧probe到新候选。仅本次授权的macOS aarch64实际载体/可构造输入，Linux/Intel excluded_by_user，usage未知null，无发布。[独立原生适用性审查](evidence/completion-20261003/t45-native-review.md)通过，仅限当前载体/可构造输入。无其他必须可构造T45补验项，T45标记done，物理badFF遍历未运行保留；M2仍not_run。
+
+
+## C002-M2 完整Spec与工程收尾
+
+当前候选32c085f源码190/工程134子集逐SHA相同，完整工程引用同输入run fca0838a-afa4-436c-af23-0403e735b3b9的948/948与5doc，不将纯文档提交称最新重跑。215资格及当前APFS可构造native适用性分开；37当前/148分组冻结加当前差异、21静态、9结构及所有原native/物理/资源/模型/usage限制留原。
+
+M2 live查询发现官方RustSec HEAD从f8更新为ef6173cbc5c50ec8166f9a5b28f07834144373ee，旧db原样保留；新owned临时db禁用git hooks独立取数后离线跑相同政策（只dbpath），四类check全部通过。[当前deny执行](evidence/completion-20261003/m2-deny-execution.json)记录实际新SHA与lockedgraph，旧PASS不充新dataset；原政策不含dbpath，初次copy准备断言失败未运行deny，改在advisories段增加临时路径并解析比较除该值外完全一致，不改项目政策。
+
+按当前Git状态实际[dist plan](evidence/completion-20261003/m2-dist-plan-execution.json)exit0，仅sheltie-cli0.3rc1六资产，其中binary仅aarch64，无exporter发布资产；Cargo/lock/policy/cratemanifest输入SHA与T42相同，计划只读取，不构建/发布/安装。
+
+完整Spec复核指出protocol编号先读@file与当前先载入Workbook/Flow/核keys不符，白名单先纳入protocol后只准确化4/5顺序，replayfirst/GF30/不建Home/锁内重核保持。source190没有变化。最终Spec/工程独审仍doing，M2不提前done；通过后才归档目录、同步路由并依次恢复用户已授权C004–C008。
+
+
+## C002-T58 M2审计事实资格修复
+
+完整Spec原候选32c独审NEEDS_CHANGES，原normal工程通过不抵消真实反例。自有临时gated-release经过合法start/begin/submit/approve全部请求published，仅改approve的audit.principal为测试字符串；同request-id重放exit0/oktrue/by保留原账户，status则StoreCorrupt。只变1个审计字段，其他四表与audit其余字段及后续五表/业务树都保全。原实测与首次Spec/工程报告按原字节留存，新修复与新验收分开。用户要求继续本地仓库维护，测试数据仅自有临时根，不创建真实账户或变更权限。T58已采用，未修源码前先设计与真实回归红；M2不能done。
+
+T58最小实现仅service.rs：纯层共享principal非空/Timestamp规范/批准by-at与audit一致，在冻结IO前；原read的7Reply执行事实谓词逐分支保持，显式借request_id/audit/state/reply，读与写在业务绑定后/original生成前共同调用。合法effect错误仍进入with_original闭包；没有新状态/公开接口/账户权限/观察点，不按当前OS用户或当前Work状态替代历史事实。
+
+三新增CLI能力：真实批准后来WorkSucceeded仍仅replayed字段变；完整Start/Begin/Replace/Fail/Submit/Approve/Cancel历史控制，后续真实UTC秒不同；Gate主体空/不同或req-audit时刻耦合改变，冻结在/移同Work保留目录六case；普通Start空及Start/Cancel错时刻三case。仅指定列变化，失败后五表原值与全业务对象dev/ino/mode/nlink/bytes保全。Start错时刻可被既有Start publication更早拒，只作回归，不声称隔离新增execution；Cancel错时刻才隔离新执行事实核验。原actor仅测试记录串，不称真实新账户或真人批准。
+
+原32c代码真实回归1PASS/1FAIL，扩事件能力为1PASS/2FAIL；最小源码修后2PASS/1fixtureFAIL来自readonly完成目录跨parent move。第一次放开并恢复父目录仍被APFS跨parent readonly移入失败；改同Work兄弟目录保留后3/3通过，原失败留原。独审F-T58-01发现Submit与最终updatedAt可能同秒，补Submit后真实等待下一秒；首次同源951/42绿存独立before-final-time-control，不充最新新testSHA。
+
+最终[工程](evidence/completion-20261003/t58-final-gates.json)新source/实际Cargo产物、独立冻结binary：run `424c53bc-4a8a-4bf1-8c26-f4b600335a83` 951/951、零skip/LEAK、5compile-fail与fmt/check/Clippy全部0，MSRV/default0，Task3/3。[源码/oracle准备](evidence/completion-20261003/t58-source-review.md)最终PASS；最终受影响46/46包含有效effect原响应与B/A阻断、T46严格解码。两新共享函数变异第一次formalbaseline被裁剪成0tests，工具exit4停止、没有执行mutants；不覆盖此停止记录，显式加入实际CLI后baseline3有界通过再执行两目标，终态待独审。T58最终独审通过后标记done；原M2 needschanges不升级。
+
+两新helper最终2/2实际Caught49.557秒、source190无漂移、formal CLI3非零；purehelper移除仍后层拒且无original，实际红为frozenIO先于audit资格的阶段/诊断；execution移除则错误Cancel历史被成功认领。两者分别分类，不并入原215计数、不笼统称坏请求全部最终成功。
+
+最终T58 scoped独审通过，原19个Service目标所在5函数段及其余196目标源码未改，新增更早audit核验可先拒替代Submit/Fail时间错的原件，资格正确但旧冻结Caught不升级最新执行。21static/9struct合法producer子集与pure/wiring条件保持。源码实际修复先单独提交；M2需要新源码新完整审查，不把T58或951作为全产品完成。

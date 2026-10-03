@@ -344,7 +344,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T55 | done | Codex；独立 Reviewer | G08准确33：20动态/4限定静态/9结构验证；935回归与独审通过 |
 | C002-T56 | done | Codex；独立 Reviewer | G09准确15：13动态/2限定静态；945回归与独审通过 |
 | C002-T57 | done | Codex；独立 Reviewer | G13准确5全部动态；948回归与独审通过 |
-| C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
+| C002-T58 | done | Codex；独立 Reviewer | F-M2-01修复；新951回归/46消费者/2共享校验检测/native复验及独审通过 |
+| C002-M2 | doing | 独立 Reviewer | 原32c候选needs_changes；修复T58后新闭包完整重验，物理不可构造限制留原 |
 
 ### 执行与停止
 
@@ -495,3 +496,23 @@ T43最终文档收尾基线为`4487ac1eb20672b8136aba186e8392fafa38ebca`（T57�
 物理非法名若载体拒绝创建，原生engine目录遍历fixture保持not_run/environment_blocked；不手造Metadata/假目录，不改成Caught或泛化全macOS文件系统。不阻断与其无关的完整Spec/合同复核。所有结果按当前实际载体/可构造输入与接口域限定，交独立Reviewer决定原生适用性与未覆盖边界；若有真实必须补验义务未完成则本任务不done。Linux/Intel仍excluded_by_user，usage未知null，未授权发布/安装Host虚拟机不执行。
 
 任务范围与快照门禁显式使用b2dea33冻结基线，保留历史默认package基线，不修改检查器或快照规则。
+
+
+### C002-M2 恢复义务最终验收
+
+候选为32c085f，当前源码/190输入逐SHA核，工程仍引用同输入T57 fca完整948/5doc，不把文档提交当重跑。完整Spec与工程审查重新核根spec/constitution/contracts及当前CLI→core→runtime→Store/FS/恢复调用链；T46实际严格解码修复、215账本/37当前与148分组差异、21限定静态/9结构、原生适用性、当前工具/许可证/公告/资产plan分别按其具体输入闭包验收，不从任务done推产品完成。
+
+旧e3批准仍false、M1旧SK01/SK02跳过与全部原Missed保持；物理badFF遍历当前载体不可构造not_run/environment_blocked、9旧native未执行、模型sync不代表断电/真实磁盘故障、UTF8诊断/资源等价限制及未知usage保留。此M2只关闭当前已采用C002恢复义务，不关闭C004–C008真实使用/新试验或发布。发现当前合同矛盾/真实必须可构造补验缺口则不done。治理与task gate基线显式32c085f；一个里程碑一个提交。
+
+M2独审通过后将本package归档completed，并同步根地图/索引与既有ADR/release/指南/研究中的目录链接；仅修路由，不追加执行流水到根规格/决定。白名单先纳入这些路径，证据字节与旧运行路径留原。此处完成目录关闭后再激活用户已授权的C004，不同时保留两个active。
+
+M2完整Spec复核发现protocol work start编号中的读取顺序叙述不准确；先将protocol纳入白名单，再只修为当前Workbook/Flow→输入键→新请求@file读取及锁内重核顺序。GF30/replay优先/不建Home边界与源码保持，不新增行为或读取优先序。
+
+
+### C002-T58 历史响应的审计事实一致性
+
+独立完整M2审查与自有临时根实测确认F-M2-01：真实已发布GateApproved请求仅audit.principal单列不同，status拒StoreCorrupt而同request-id重放仍成功。原32c的needs_changes/实测/五表与业务原件保全证据留原；这不是新批准动作或修改真实账户。仅修已有protocol§5/storage§3.2要求的唯一audit/原执行事实绑定。
+
+写/重放与只读装入共享同一私有审计执行事实规则，核完原响应资格再构造original；非空principal、批准data.by与audit.principal的一致性在可纯校验的位置先于冻结副本IO。保留合法历史状态与当前state不同的重放、效果载荷/路径/sync错误仍带已核original的边界。不要重复第二套状态、公开DTO getter/trait、读取自然语言判断，或加入新观察点。
+
+先真实CLI正反回归在原候选见红，再最小共享实现；单项改变principal/empty及合法后来状态、冻结副本缺失资格优先序、失败后5表/原件保全交独立设计/源码审查。冻结新source/binary/fixture/config，受影响consumer及完整工程/MSRV/default/治理重新运行，不复用旧190源码的948到新source。一个任务一个提交；M2仍doing直到修后完整Spec/工程另审。

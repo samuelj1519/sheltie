@@ -1,0 +1,2 @@
+./specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t58-implementation-directions.md:49:生产仅service.rs（纯字段helper、共享旧执行helper、两caller接线）。新测试优先snapshot_qualification.rs，回归沿replay/scenario_gated_release/effect_contracts/implementation_repairs。当前tasks列出的gate.rs尚不存在；它可以是作者后续新建目标，但不是可复用现有入口，最小方案无需新建该文件。snapshot.rs字段已足够；不改core/store schema、principal来源、状态机、账号权限、公开字段或新增observer。package finding/计划/验证/审查/raw及必要protocol§5澄清在T58范围。新oracle/源码完成后的最终独审由oracle_review，不由本准备作者自批。
+禁用措辞命中（见上）

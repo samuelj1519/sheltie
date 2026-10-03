@@ -1,0 +1,52 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+────────────
+ Nextest run ID d826a4d3-9666-4005-beb5-2c7b14cda43b with nextest profile: default
+    Starting 46 tests across 48 binaries (616 tests skipped)
+        PASS [   1.291s] ( 1/46) sheltie-cli::implementation_repairs killed_first_store_initializer_allows_the_same_add_request_to_retry
+        PASS [   2.923s] ( 2/46) sheltie-cli::replay omitted_name_and_explicit_flow_name_are_distinct_start_intents
+        PASS [   2.996s] ( 3/46) sheltie-cli::replay start_replay_conflicts_before_normalizing_a_changed_name
+        PASS [   3.341s] ( 4/46) sheltie-cli::reliability_crash corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original
+        PASS [   3.789s] ( 5/46) sheltie-cli::attempt effect_pending_cli_json_contains_full_original_work_success_envelope
+        PASS [   3.970s] ( 6/46) sheltie-cli::replay same_request_id_different_payload_is_request_conflict
+        PASS [   4.429s] ( 7/46) sheltie-cli::replay start_request_replay_does_not_require_the_original_input_file
+        PASS [   4.571s] ( 8/46) sheltie-cli::replay same_request_id_same_payload_returns_replayed_true
+        PASS [   4.645s] ( 9/46) sheltie-cli::replay work_prefix_matching_is_case_sensitive_and_replays_with_the_same_selector
+        PASS [   5.417s] (10/46) sheltie-cli::reliability_crash replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache
+        PASS [   5.456s] (11/46) sheltie-cli::replay fail_request_replay_does_not_reread_a_deleted_reason_file
+        PASS [   5.772s] (12/46) sheltie-cli::replay submit_request_replay_does_not_reread_a_deleted_summary_file
+        PASS [   6.257s] (13/46) sheltie-cli::replay historical_work_id_resolves_before_a_now_ambiguous_prefix
+        PASS [   5.496s] (14/46) sheltie-cli::scenario_gated_release approve_on_terminal_gate_node_succeeds_work
+        PASS [   4.673s] (15/46) sheltie-cli::scenario_gated_release begin_next_node_before_approve_is_illegal_next
+        PASS [   4.484s] (16/46) sheltie-cli::scenario_gated_release gate_node_success_blocks_work_and_next_has_only_approve_and_cancel
+        PASS [   0.777s] (17/46) sheltie-runtime::effect_contracts cleanup_preserves_unreferenced_objects_claiming_a_committed_request
+        PASS [   5.533s] (18/46) sheltie-cli::scenario_gated_release approve_records_os_user_and_unblocks
+        PASS [   3.863s] (19/46) sheltie-runtime::effect_contracts a_repaired_history_collision_reports_corruption_and_preserves_the_competing_original
+        PASS [   3.320s] (20/46) sheltie-runtime::effect_contracts begin_recovery_checks_required_prepare_and_history_effects_before_io
+        PASS [   0.799s] (21/46) sheltie-runtime::effect_contracts cleanup_warns_about_unpublished_reference_even_when_all_metadata_is_missing
+        PASS [   9.366s] (22/46) sheltie-cli::implementation_repairs approval_of_another_gate_at_the_same_occurrence_does_not_allow_progress
+        PASS [   1.555s] (23/46) sheltie-runtime::effect_contracts cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan
+        PASS [   4.125s] (24/46) sheltie-runtime::effect_contracts begin_replay_rejects_audit_and_snapshot_metadata_drift_without_business_changes
+        PASS [   5.233s] (25/46) sheltie-runtime::effect_contracts approval_snapshot_data_must_match_the_approved_node_and_occurrence
+        PASS [   2.101s] (26/46) sheltie-runtime::effect_contracts persisted_start_command_cannot_claim_a_different_flow_than_the_frozen_work
+        PASS [   4.288s] (27/46) sheltie-runtime::effect_contracts cleanup_checks_the_entire_request_index_before_removing_a_legitimate_orphan
+        PASS [   1.963s] (28/46) sheltie-runtime::effect_contracts readonly_work_loading_checks_the_start_effect_shape_and_digest
+        PASS [   0.911s] (29/46) sheltie-runtime::effect_contracts unpublished_workbook_publish_checks_registered_digest_and_audit_time
+        PASS [   3.375s] (30/46) sheltie-runtime::effect_contracts completed_workbook_replay_checks_effect_shape_identity_and_pending_path
+        PASS [   2.068s] (31/46) sheltie-runtime::effect_contracts unpublished_work_cannot_use_the_completed_owner_cleanup_fallback
+        PASS [  12.615s] (32/46) sheltie-cli::implementation_repairs missing_current_or_historical_gate_approval_is_rejected_without_a_new_request
+        PASS [   2.083s] (33/46) sheltie-runtime::effect_contracts workbook_listing_rejects_a_global_work_publication_bound_to_another_legal_final_path
+        PASS [   7.475s] (34/46) sheltie-runtime::effect_contracts begin_replay_checks_content_and_hash_even_when_the_existing_brief_matches
+        PASS [   2.287s] (35/46) sheltie-runtime::effect_contracts workbook_replay_rejects_audit_and_snapshot_single_field_drift
+        PASS [   5.454s] (36/46) sheltie-runtime::effect_contracts cleanup_validates_completed_remove_metadata_before_any_deletion_and_is_repeatable
+        PASS [   4.546s] (37/46) sheltie-runtime::effect_contracts submit_snapshot_data_must_match_the_committed_reply_output_references
+        PASS [   3.171s] (38/46) sheltie-runtime::implementation_repairs completed_history_repair_retries_a_failed_parent_sync_without_changing_the_snapshot
+        PASS [   2.848s] (39/46) sheltie-runtime::implementation_repairs existing_output_directory_after_failed_parent_sync_stays_pending_until_sync_succeeds
+        PASS [   2.724s] (40/46) sheltie-runtime::implementation_repairs matching_history_after_failed_parent_sync_stays_pending_until_sync_succeeds
+        PASS [  11.838s] (41/46) sheltie-cli::snapshot_qualification historical_work_replay_refuses_empty_audit_subjects_and_self_consistent_wrong_event_times
+        PASS [  18.206s] (42/46) sheltie-cli::reliability_crash committed_history_and_attempt_directory_type_changes_are_integrity_errors_with_original_snapshot
+        PASS [  14.825s] (43/46) sheltie-cli::strict_state replay_decodes_command_and_data_before_reading_the_frozen_workbook
+        PASS [  10.052s] (44/46) sheltie-runtime::effect_contracts submit_replay_requires_exactly_the_committed_output_references_and_seal
+        PASS [  19.102s] (45/46) sheltie-cli::snapshot_qualification historical_replays_keep_recorded_responses_after_later_attempt_and_work_changes
+        PASS [  31.762s] (46/46) sheltie-cli::snapshot_qualification historical_gate_replay_refuses_an_inconsistent_audit_subject_before_reading_frozen_files
+────────────
+     Summary [  35.555s] 46 tests run: 46 passed, 616 skipped

@@ -1,0 +1,13 @@
+# T58 源码/oracle准备首次复核
+
+**源码边界通过；最终oracle准备待一个小控制补齐。** 未写source/oracle或跑Cargo。当前service SHA及snapshot新测试SHA、原baseline3/3 run5fdc65e1-ff49-45eb-94c8-361e7119512e见JSON，不把基线当工程或M2 PASS。
+
+两私有共享层、两真实caller正确：strictCommand/check_data后、frozenIO前pure核非空principal、既有Timestamp格式和ApprovedData.by/at与audit相同；业务绑定后的旧七Reply executionfacts在original生成前共享。旧read七个时间/approval谓词逐逻辑未变；除Cancel的终态updatedAt外均核对应历史event，不比较当前OS账户、当前WorkStatus或当前updatedAt。未新增IO/SQL/state/getter/trait/observer，T46顺序保持。effects_result的RequestLoadError::with_original后段及before_write/blocked_by_pending未改，非法audit早无original、合法snapshot遇效果错误仍保留。
+
+三个新能力用真实producer与公开wire历史响应，不用投影helper生成答案：七合法Reply在后来状态回放逐字段相同，仅replayed合同字段变true；Gate六个单principal/empty或request-audit耦合时间，在freeze存在/同Work保留备份两域拒并先audit诊断；普通StartEmpty/Start-Cancel错误eventTime拒。五表SQL原值、works/workbooks/pending完整业务树dev/inode/mode/nlink/bytes原件保全。移动fixture先恢复原parent权限再unwrap移动结果，快照在恢复后取；无新外部对象、线程或清理握手。
+
+**F-T58-01：Submit历史时间控制不够。** two-step只wait在fail→retry前，history-submit后紧接summary begin/cancel，submit.at可能等于最终updatedAt同秒，不能保证“七种Reply都排除current.updatedAt误比”的控制。Root已接受在history-submit后真实再等一UTC秒/独立核差异；当前先前full/affected只保其各自source，不能套新testSHA。此为oracle准备控制缺口，不是未变异产品red。修后绑定source/raw再给最终准备结论。
+
+不需要新增principalPendingA镜像用例。最终affected实际应保已有合法effect-original、completedB/真实COMMIT未完成A、非法A/未提交B的original例外控制及T46前置strictdecode。它们已有故障窗口；本次新guard只改变原响应资格，genericError路由已有同类控制，不凭手改published=0造原生commit。
+
+原32c needs_changes保留；本报告不授T58工程/final/M2、真人认证或产品完成。

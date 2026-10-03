@@ -519,3 +519,381 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
         assert_eq!(std::fs::metadata(&installed).unwrap().ino(), inode);
     }
 }
+
+fn wait_for_a_later_utc_second() {
+    let second = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
+    while std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        <= second
+    {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "UTC clock did not reach next second"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+}
+
+fn completed_approval_fixture() -> (Env, String, Vec<String>, Value) {
+    let env = Env::new();
+    env.add_example("gated-release");
+    let work = env.start("gated-release", &[("version", "record-consistency")]);
+    let begun = env.begin(&work, "notes");
+    env.submit_all(&work, &begun, "actual notes for record consistency");
+    let args = [
+        "--request-id",
+        "recorded-approval",
+        "gate",
+        "approve",
+        &work,
+        "--node",
+        "notes",
+    ]
+    .into_iter()
+    .map(str::to_owned)
+    .collect::<Vec<_>>();
+    let original = env.ok(&args.iter().map(String::as_str).collect::<Vec<_>>());
+    wait_for_a_later_utc_second();
+    let archive = env.begin(&work, "archive");
+    env.submit_all(&work, &archive, "later legitimate completion");
+    assert_eq!(
+        env.ok(&["work", "status", &work])["data"]["status"]["kind"],
+        "succeeded"
+    );
+    (env, work, args, original)
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct AuditFixtureObject {
+    device: u64,
+    inode: u64,
+    mode: u32,
+    links: u64,
+    bytes: Option<Vec<u8>>,
+}
+
+fn audit_fixture_objects(
+    env: &Env,
+) -> std::collections::BTreeMap<std::path::PathBuf, AuditFixtureObject> {
+    use std::os::unix::fs::MetadataExt;
+    fn visit(
+        root: &std::path::Path,
+        path: &std::path::Path,
+        out: &mut std::collections::BTreeMap<std::path::PathBuf, AuditFixtureObject>,
+    ) {
+        let meta = std::fs::symlink_metadata(path).unwrap();
+        assert!(meta.is_file() || meta.is_dir());
+        out.insert(
+            path.strip_prefix(root).unwrap().to_owned(),
+            AuditFixtureObject {
+                device: meta.dev(),
+                inode: meta.ino(),
+                mode: meta.mode(),
+                links: meta.nlink(),
+                bytes: meta.is_file().then(|| std::fs::read(path).unwrap()),
+            },
+        );
+        if meta.is_dir() {
+            for child in std::fs::read_dir(path).unwrap() {
+                visit(root, &child.unwrap().path(), out);
+            }
+        }
+    }
+    let mut out = std::collections::BTreeMap::new();
+    for name in ["works", "workbooks", "pending"] {
+        let path = env.dir.path().join(name);
+        if path.exists() {
+            visit(env.dir.path(), &path, &mut out);
+        }
+    }
+    out
+}
+
+// Task: C002-T58
+#[test]
+fn historical_replays_keep_recorded_responses_after_later_attempt_and_work_changes() {
+    let (env, _work, args, mut expected) = completed_approval_fixture();
+    assert_eq!(expected["data"]["work_status"]["kind"], "active");
+    expected["data"]["replayed"] = json!(true);
+    let before = store_rows(&env);
+    let objects = audit_fixture_objects(&env);
+    assert_eq!(
+        env.ok(&args.iter().map(String::as_str).collect::<Vec<_>>()),
+        expected
+    );
+    assert_eq!(store_rows(&env), before);
+    assert_eq!(audit_fixture_objects(&env), objects);
+
+    let env = Env::new();
+    env.add_example("two-step");
+    let mut recorded = Vec::<(Vec<String>, Value)>::new();
+    {
+        let mut execute = |args: Vec<String>| {
+            let reply = env.ok(&args.iter().map(String::as_str).collect::<Vec<_>>());
+            recorded.push((args, reply.clone()));
+            reply
+        };
+        let strings = |args: &[&str]| args.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
+        let start = execute(strings(&[
+            "--request-id",
+            "history-start",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=historical facts",
+        ]));
+        let work = start["data"]["work_id"].as_str().unwrap();
+        let first = execute(strings(&[
+            "--request-id",
+            "history-begin",
+            "attempt",
+            "begin",
+            work,
+            "--node",
+            "outline",
+        ]));
+        let replaced = execute(strings(&[
+            "--request-id",
+            "history-replace",
+            "attempt",
+            "replace",
+            work,
+            "--attempt",
+            first["data"]["attempt"].as_str().unwrap(),
+            "--reason",
+            "new real attempt",
+        ]));
+        execute(strings(&[
+            "--request-id",
+            "history-fail",
+            "attempt",
+            "fail",
+            work,
+            "--attempt",
+            replaced["data"]["attempt"].as_str().unwrap(),
+            "--reason",
+            "actual failed attempt",
+        ]));
+        wait_for_a_later_utc_second();
+        let retry = env.begin(work, "outline");
+        for output in retry["data"]["outputs"].as_object().unwrap().values() {
+            std::fs::write(output.as_str().unwrap(), b"actual completed outline\n").unwrap();
+        }
+        execute(strings(&[
+            "--request-id",
+            "history-submit",
+            "attempt",
+            "submit",
+            work,
+            "--attempt",
+            retry["data"]["attempt"].as_str().unwrap(),
+            "--summary",
+            "real later success",
+        ]));
+        wait_for_a_later_utc_second();
+        env.begin(work, "summary");
+        execute(strings(&[
+            "--request-id",
+            "history-cancel",
+            "work",
+            "cancel",
+            work,
+        ]));
+    }
+    let before = store_rows(&env);
+    let objects = audit_fixture_objects(&env);
+    for (args, mut expected) in recorded {
+        expected["data"]["replayed"] = json!(true);
+        assert_eq!(
+            env.ok(&args.iter().map(String::as_str).collect::<Vec<_>>()),
+            expected
+        );
+    }
+    assert_eq!(store_rows(&env), before);
+    assert_eq!(audit_fixture_objects(&env), objects);
+}
+
+// Task: C002-T58
+#[test]
+fn historical_gate_replay_refuses_an_inconsistent_audit_subject_before_reading_frozen_files() {
+    for field in ["other-principal", "empty-principal", "approval-time"] {
+        for missing_frozen in [false, true] {
+            let (env, work, args, original) = completed_approval_fixture();
+            let before = store_rows(&env);
+            let connection = Connection::open(env.dir.path().join("store.db")).unwrap();
+            let principal = if field == "empty-principal" {
+                ""
+            } else {
+                "record-check-other"
+            };
+            if field == "approval-time" {
+                assert_eq!(
+                    connection
+                        .execute(
+                            "UPDATE audit SET at='2000-01-01T00:00:00Z' WHERE request_id='recorded-approval'",
+                            [],
+                        )
+                        .unwrap(),
+                    1
+                );
+                assert_eq!(
+                    connection
+                        .execute(
+                            "UPDATE requests SET at='2000-01-01T00:00:00Z' WHERE request_id='recorded-approval'",
+                            [],
+                        )
+                        .unwrap(),
+                    1
+                );
+            } else {
+                assert_ne!(original["data"]["by"], principal);
+                assert_eq!(
+                    connection
+                        .execute(
+                            "UPDATE audit SET principal=?1 WHERE request_id='recorded-approval'",
+                            [principal]
+                        )
+                        .unwrap(),
+                    1
+                );
+            }
+            let changed = store_rows(&env);
+            let mut expected = before;
+            let row = expected
+                .get_mut("audit")
+                .unwrap()
+                .iter_mut()
+                .find(|row| row[3] == rusqlite::types::Value::Text("recorded-approval".into()))
+                .unwrap();
+            if field == "approval-time" {
+                row[6] = rusqlite::types::Value::Text("2000-01-01T00:00:00Z".into());
+                let request = expected
+                    .get_mut("requests")
+                    .unwrap()
+                    .iter_mut()
+                    .find(|row| row[0] == rusqlite::types::Value::Text("recorded-approval".into()))
+                    .unwrap();
+                request[6] = rusqlite::types::Value::Text("2000-01-01T00:00:00Z".into());
+            } else {
+                row[4] = rusqlite::types::Value::Text(principal.into());
+            }
+            assert_eq!(changed, expected, "only the selected record columns change");
+            if missing_frozen {
+                use std::os::unix::fs::PermissionsExt;
+                let parent = env.dir.path().join("works").join(&work);
+                let permissions = std::fs::metadata(&parent).unwrap().permissions();
+                std::fs::set_permissions(
+                    &parent,
+                    std::fs::Permissions::from_mode(permissions.mode() | 0o700),
+                )
+                .unwrap();
+                let moved =
+                    std::fs::rename(parent.join("workbook"), parent.join("retained-workbook"));
+                std::fs::set_permissions(&parent, permissions).unwrap();
+                moved.unwrap();
+            }
+            let objects = audit_fixture_objects(&env);
+            let (error, exit) = env.fail(&args.iter().map(String::as_str).collect::<Vec<_>>());
+            assert_eq!(exit, 1);
+            assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+            assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+            assert_eq!(error["committed"], true);
+            assert_eq!(error["request_id"], "recorded-approval");
+            assert!(error.get("original").is_none(), "{error}");
+            assert!(error.get("revision").is_none(), "{error}");
+            assert!(
+                error.to_string().contains("audit"),
+                "pure record eligibility must precede frozen IO: {error}"
+            );
+            assert_eq!(store_rows(&env), changed);
+            assert_eq!(audit_fixture_objects(&env), objects);
+            let (status, exit) = env.fail(&["work", "status", &work]);
+            assert_eq!(exit, 1);
+            assert_eq!(status["error"]["code"], "STORE_CORRUPT");
+            assert_eq!(store_rows(&env), changed);
+            assert_eq!(audit_fixture_objects(&env), objects);
+        }
+    }
+}
+
+// Task: C002-T58
+#[test]
+fn historical_work_replay_refuses_empty_audit_subjects_and_self_consistent_wrong_event_times() {
+    for field in ["start-principal", "start-time", "cancel-time"] {
+        let env = Env::new();
+        env.add_example("gated-release");
+        let start_args = [
+            "--request-id",
+            "record-start",
+            "work",
+            "start",
+            "--workbook",
+            "gated-release",
+            "--flow",
+            "default",
+            "--input",
+            "version=event-time",
+        ];
+        let start = env.ok(&start_args);
+        let work = start["data"]["work_id"].as_str().unwrap();
+        let cancel_args = ["--request-id", "record-cancel", "work", "cancel", work];
+        env.ok(&cancel_args);
+        let (rid, args) = if field == "cancel-time" {
+            ("record-cancel", cancel_args.as_slice())
+        } else {
+            ("record-start", start_args.as_slice())
+        };
+        assert_eq!(env.ok(args)["data"]["replayed"], true);
+        let connection = Connection::open(env.dir.path().join("store.db")).unwrap();
+        if field == "start-principal" {
+            assert_eq!(
+                connection
+                    .execute("UPDATE audit SET principal='' WHERE request_id=?1", [rid])
+                    .unwrap(),
+                1
+            );
+        } else {
+            let unrelated_time = "2000-01-01T00:00:00Z";
+            assert_eq!(
+                connection
+                    .execute(
+                        "UPDATE audit SET at=?1 WHERE request_id=?2",
+                        rusqlite::params![unrelated_time, rid]
+                    )
+                    .unwrap(),
+                1
+            );
+            assert_eq!(
+                connection
+                    .execute(
+                        "UPDATE requests SET at=?1 WHERE request_id=?2",
+                        rusqlite::params![unrelated_time, rid]
+                    )
+                    .unwrap(),
+                1
+            );
+        }
+        let before = store_rows(&env);
+        let objects = audit_fixture_objects(&env);
+        let (error, exit) = env.fail(args);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING");
+        assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
+        assert_eq!(error["committed"], true);
+        assert_eq!(error["request_id"], rid);
+        assert!(error.get("original").is_none(), "{field}: {error}");
+        assert!(error.get("revision").is_none(), "{field}: {error}");
+        assert_eq!(store_rows(&env), before);
+        assert_eq!(audit_fixture_objects(&env), objects);
+    }
+}
