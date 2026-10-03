@@ -6493,3 +6493,123 @@ mod failed_creation_contract_tests {
         }
     }
 }
+
+#[cfg(all(test, feature = "failpoint"))]
+mod failpoint_lifecycle_contract_tests {
+    use super::owned_test_directory::OwnedTempDir;
+    use super::*;
+
+    struct Disarm;
+    impl Drop for Disarm {
+        fn drop(&mut self) {
+            let _ = crate::failpoint::disarm_rendezvous();
+            let _ = crate::failpoint::disarm_sync_error();
+        }
+    }
+
+    fn fixture() -> (OwnedTempDir, crate::Home) {
+        let directory = OwnedTempDir::new();
+        let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    // Task: C002-T57
+    #[test]
+    fn disarmed_rendezvous_does_not_reactivate_a_real_atomic_write_callback() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let _disarm = Disarm;
+        let (directory, home) = fixture();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let carrier = directory.path().join("carrier");
+        std::fs::write(&carrier, b"carrier sentinel").unwrap();
+        let rel = ManagedRelPath::new("data").unwrap();
+        let path = home.rel("data").unwrap();
+        crate::failpoint::arm_rendezvous("atomic_write_before_open", path.as_str(), &carrier)
+            .unwrap();
+        let before: std::collections::BTreeSet<_> = std::fs::read_dir(directory.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        let result = fs.write_atomic(&lock, &rel, b"unpublished bytes");
+        assert!(matches!(result, Err(Error::Io { .. })));
+        assert!(!path.as_path().exists());
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"carrier sentinel");
+        let after: std::collections::BTreeSet<_> = std::fs::read_dir(directory.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        assert_eq!(after, before);
+        crate::failpoint::disarm_rendezvous().unwrap();
+        fs.write_atomic(&lock, &rel, b"after disarm").unwrap();
+        assert_eq!(std::fs::read(path.as_path()).unwrap(), b"after disarm");
+        crate::failpoint::disarm_rendezvous().unwrap();
+        fs.write_atomic(&lock, &rel, b"after repeated disarm")
+            .unwrap();
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"after repeated disarm"
+        );
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"carrier sentinel");
+    }
+
+    // Task: C002-T57
+    #[test]
+    fn disarmed_sync_failure_does_not_reject_a_real_new_atomic_write() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let _disarm = Disarm;
+        let (_a_directory, a) = fixture();
+        let (_b_directory, b) = fixture();
+        let a_lock = a.acquire_lock().unwrap();
+        let b_lock = b.acquire_lock().unwrap();
+        let a_fs = ManagedFs::open_existing(&a).unwrap();
+        let b_fs = ManagedFs::open_existing(&b).unwrap();
+        crate::failpoint::arm_sync_error(a.root().as_str(), "managed_file_parent_sync").unwrap();
+        b_fs.write_new_atomic(
+            &b_lock,
+            &ManagedRelPath::new("other").unwrap(),
+            b"other root",
+        )
+        .unwrap();
+        assert_eq!(
+            std::fs::read(b.rel("other").unwrap().as_path()).unwrap(),
+            b"other root"
+        );
+        crate::failpoint::disarm_sync_error().unwrap();
+        a_fs.write_new_atomic(
+            &a_lock,
+            &ManagedRelPath::new("cancelled").unwrap(),
+            b"cancelled fault",
+        )
+        .unwrap();
+        assert_eq!(
+            std::fs::read(a.rel("cancelled").unwrap().as_path()).unwrap(),
+            b"cancelled fault"
+        );
+        crate::failpoint::arm_sync_error(a.root().as_str(), "managed_file_parent_sync").unwrap();
+        let failed = a_fs.write_new_atomic(
+            &a_lock,
+            &ManagedRelPath::new("once").unwrap(),
+            b"published before failed sync",
+        );
+        let Error::Io { path, source } = failed.unwrap_err() else {
+            panic!("matching sync model must fail once")
+        };
+        assert_eq!(path, a.rel("once").unwrap().as_str());
+        assert!(source.to_string().contains("managed_file_parent_sync"));
+        assert_eq!(
+            std::fs::read(a.rel("once").unwrap().as_path()).unwrap(),
+            b"published before failed sync"
+        );
+        a_fs.write_new_atomic(
+            &a_lock,
+            &ManagedRelPath::new("retry").unwrap(),
+            b"one shot consumed",
+        )
+        .unwrap();
+        assert_eq!(
+            std::fs::read(a.rel("retry").unwrap().as_path()).unwrap(),
+            b"one shot consumed"
+        );
+    }
+}

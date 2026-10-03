@@ -1924,3 +1924,68 @@ fn replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning() {
     );
     assert_eq!(store_rows(&env), before);
 }
+
+// Task: C002-T57
+#[test]
+fn subprocess_rendezvous_reaches_only_the_configured_name_and_scope() {
+    for (name, scope, matched) in [
+        ("before_commit", "before_commit", true),
+        ("different-name", "before_commit", false),
+        ("before_commit", "different-scope", false),
+    ] {
+        let env = Env::new();
+        let carrier = tempfile::tempdir().unwrap();
+        let source = example_dir("two-step");
+        let expected = tree(&source);
+        let rid = format!("scope-{name}-{scope}");
+        let args = [
+            "--request-id",
+            &rid,
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        if !matched {
+            std::fs::write(carrier.path().join("release"), b"release").unwrap();
+        }
+        let mut process = Process::spawn(&env, &args, Some((name, scope, carrier.path())));
+        if matched {
+            process.reached(carrier.path(), "before_commit");
+            let db = connection(&env);
+            for table in ["workbooks", "requests", "audit"] {
+                let count: i64 = db
+                    .query_row(&format!("SELECT count(*) FROM {table}"), [], |row| {
+                        row.get(0)
+                    })
+                    .unwrap();
+                assert_eq!(count, 0, "{table} must precede BEGIN/registration");
+            }
+            drop(db);
+            process.release();
+        }
+        let output = process.finish();
+        assert!(output.status.success(), "{output:?}");
+        let reply: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(reply["ok"], true);
+        assert_eq!(reply["request_id"], rid);
+        assert_eq!(reply["data"]["id"], "two-step");
+        assert_eq!(reply["data"]["version"], "1.0.0");
+        assert_eq!(reply["data"]["replayed"], false);
+        assert_eq!(carrier.path().join("reached").exists(), matched);
+        let db = connection(&env);
+        for table in ["workbooks", "requests", "audit"] {
+            let count: i64 = db
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |row| {
+                    row.get(0)
+                })
+                .unwrap();
+            assert_eq!(count, 1, "exactly one {table} registration");
+        }
+        let audit: String = db
+            .query_row("SELECT request_id FROM audit", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(audit, rid);
+        assert!(record(&env, &rid).unwrap().published);
+        same_files(&env.dir.path().join("workbooks/two-step/1.0.0"), &expected);
+    }
+}

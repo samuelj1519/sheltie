@@ -343,6 +343,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T54 | done | Codex；独立 Reviewer | G07 精确6：5动态/1当前caller静态；913全回归及独审通过 |
 | C002-T55 | done | Codex；独立 Reviewer | G08准确33：20动态/4限定静态/9结构验证；935回归与独审通过 |
 | C002-T56 | done | Codex；独立 Reviewer | G09准确15：13动态/2限定静态；945回归与独审通过 |
+| C002-T57 | done | Codex；独立 Reviewer | G13准确5全部动态；948回归与独审通过 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -474,3 +475,12 @@ G09准确15旧ID。全局索引pending形状用真实登记的单项改变/合�
 
 
 T56失败补偿采用已有feature sync_error模型化真实write后的file.sync边界（managed_new_file_sync），created metadata仍来自实际CREATE|EXCL FD；失败分支清理前新增new_file_failure_before_cleanup精确观察。目录fsync边界managed_directory_sync在open/lock资格之后、实际fsync前，仅既有测试特性控制；标明模型化外部I/O失败，不称真实磁盘/断电证明。marker I/O失败保留本次创建对象RecoveryRequired，合法补偿/同inode竞争者保留/owner-before-container顺序各有独立正反例。
+
+
+### C002-T57 故障注入生命周期与实际消费
+
+G13准确5旧ID，all-features必须实际验证。只增3能力测试、复用2真实CLI清理能力：尚未消费的rendezvous解除后同原子写callback不再激活；A root配置经B root成功写保持后，解除应允许A的NOREPLACE原子写，另核匹配一次性消费。专属新CLI子进程env三组匹配/只改name/只改scope，正确配置必须实际before_commit暂停、登记前三张相关表为空，解除后成功且只有一份请求/审计；不匹配预建release、有界完成且无reached。复用维护告警与同rid未提交准备停止/解除后一次提交测试。不读私有配置、造第二harness、公开getter或新增observer。
+
+使用已有共享serial lock、真实Home/锁/ManagedFs/CREATE/rename和Process RAII；正反例期望手写，完整实际carrier/root清单与原件字节核。不用已消费配置再disarm证明取消，不拿默认feature关闭当all-features验收。新写consumer用write_new_atomic才进入managed_file_parent_sync，旧env guard已移rendezvous_payload，按函数/列/genre/replacement/diff语义对应重扫5旧ID，不按旧行号选patch。
+
+先同CLI/runtime准确filter的非零5能力基线，随后最多5目标/600秒短反馈与最终冻结执行；工程/MSRV/默认特性/治理及未参与准备Reviewer逐旧ID审查通过后，一个任务一个提交。测试设施证明不扩大为产品持久性、真人接受、M2或所有215旧原生执行。

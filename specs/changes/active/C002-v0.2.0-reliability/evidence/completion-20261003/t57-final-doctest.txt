@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+   Doc-tests sheltie_core
+
+running 5 tests
+test crates/sheltie-core/src/workbook/manifest.rs - workbook::manifest::Manifest (line 103) - compile fail ... ok
+test crates/sheltie-core/src/flow/def.rs - flow::def::NodeDef (line 162) - compile fail ... ok
+test crates/sheltie-core/src/flow/def.rs - flow::def::FlowDef (line 236) - compile fail ... ok
+test crates/sheltie-core/src/workbook/manifest.rs - workbook::manifest::Manifest (line 109) - compile fail ... ok
+test crates/sheltie-core/src/flow/def.rs - flow::def::FlowDef (line 242) - compile fail ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.20s
+
+   Doc-tests sheltie_export
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sheltie_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

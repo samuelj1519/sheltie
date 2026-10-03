@@ -1,0 +1,270 @@
+{
+  "scope": "T57 implementation preparation only; author must implement/run, oracle_review independently accepts; no tracked edits or oracle execution",
+  "head": "0c50d42d64ea3c292d086cec83d60de5c9da7bf2",
+  "platform": "aarch64-apple-darwin only",
+  "target_count": 5,
+  "targets": [
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "current_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "old_diff_sha256": "4ab04a5582af0abe10b608e578ed13df5c810982d8683f199363d40dfd26da56",
+      "current_diff_sha256": "4ab04a5582af0abe10b608e578ed13df5c810982d8683f199363d40dfd26da56",
+      "current_semantic": "Cancel still-armed in-process rendezvous; next real matching consumer must not reactivate callback.",
+      "body_location": "disarm_rendezvous",
+      "preparation_status": "not_run",
+      "implementation_case": "T57-A",
+      "previous_preparation_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "previous_preparation_diff_sha256": "4ab04a5582af0abe10b608e578ed13df5c810982d8683f199363d40dfd26da56",
+      "current_inventory_source": "t56-current-mutants.json",
+      "function_rename": null,
+      "mapping_validation": "exact patch payload (context/removal/replacement) identical after stripping file/description/hunk coordinates"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "current_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "old_diff_sha256": "61dfefedb48cb91132d9e9ef053ba90347a15c3d42f69b46230a6210b63f75d7",
+      "current_diff_sha256": "61dfefedb48cb91132d9e9ef053ba90347a15c3d42f69b46230a6210b63f75d7",
+      "current_semantic": "Cancel unconsumed named/root-scoped sync failure; unrelated root does not consume it.",
+      "body_location": "disarm_sync_error",
+      "preparation_status": "not_run",
+      "implementation_case": "T57-B",
+      "previous_preparation_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "previous_preparation_diff_sha256": "61dfefedb48cb91132d9e9ef053ba90347a15c3d42f69b46230a6210b63f75d7",
+      "current_inventory_source": "t56-current-mutants.json",
+      "function_rename": null,
+      "mapping_validation": "exact patch payload (context/removal/replacement) identical after stripping file/description/hunk coordinates"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous",
+      "current_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:182:34: replace == with != in rendezvous_payload",
+      "old_diff_sha256": "071978f3ebbd27cca44c010b8bddc4660523b4482f6f4d37157bb1d3687b5ff0",
+      "current_diff_sha256": "fa5cc7e6352c6d17c6770cdaf94a64a05cdaac28bb77bb85ede373283e16b4e9",
+      "current_semantic": "Fresh CLI env fallback activates only exact callback name and exact scope.",
+      "body_location": "failpoint::rendezvous_payload env fallback",
+      "preparation_status": "not_run",
+      "implementation_case": "T57-C",
+      "previous_preparation_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous",
+      "previous_preparation_diff_sha256": "071978f3ebbd27cca44c010b8bddc4660523b4482f6f4d37157bb1d3687b5ff0",
+      "current_inventory_source": "t56-current-mutants.json",
+      "function_rename": "rendezvous -> rendezvous_payload; same env fallback name/id comparison, not in-process .filter guards",
+      "mapping_validation": "exact patch payload (context/removal/replacement) identical after stripping file/description/hunk coordinates"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous",
+      "current_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:182:59: replace == with != in rendezvous_payload",
+      "old_diff_sha256": "171be0071856d25a0ea93fcf9bb95f4d3bb53f021f44275ba301839413b1e2de",
+      "current_diff_sha256": "6b16275ec36ddbe4a7ccdc9fdea9fcd74652b16789d41156852f48573dbd0e5d",
+      "current_semantic": "Fresh CLI env fallback activates only exact callback name and exact scope.",
+      "body_location": "failpoint::rendezvous_payload env fallback",
+      "preparation_status": "not_run",
+      "implementation_case": "T57-C",
+      "previous_preparation_inventory_id": "crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous",
+      "previous_preparation_diff_sha256": "171be0071856d25a0ea93fcf9bb95f4d3bb53f021f44275ba301839413b1e2de",
+      "current_inventory_source": "t56-current-mutants.json",
+      "function_rename": "rendezvous -> rendezvous_payload; same env fallback name/id comparison, not in-process .filter guards",
+      "mapping_validation": "exact patch payload (context/removal/replacement) identical after stripping file/description/hunk coordinates"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "current_inventory_id": "crates/sheltie-runtime/src/pending.rs:730:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "old_diff_sha256": "3a845d549c5bd8b2ec012e86f365dc527706d278450705b6ff22b5e2620fca26",
+      "current_diff_sha256": "c5f4c2aa11b810fd1d7492920670c2eb3ef854dc22042aad9c51e3c58e0e8d6c",
+      "current_semantic": "Configured cleanup error must reach warning/prepare-stop business consumers.",
+      "body_location": "maybe_fail_cleanup",
+      "preparation_status": "not_run",
+      "implementation_case": "T57-D_reuse",
+      "previous_preparation_inventory_id": "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "previous_preparation_diff_sha256": "3a845d549c5bd8b2ec012e86f365dc527706d278450705b6ff22b5e2620fca26",
+      "current_inventory_source": "t56-current-mutants.json",
+      "function_rename": null,
+      "mapping_validation": "exact patch payload (context/removal/replacement) identical after stripping file/description/hunk coordinates"
+    }
+  ],
+  "source_sha256": {
+    "crates/sheltie-runtime/src/failpoint.rs": "5a9268044be37aa05441aa81b66bc2ce6d4b1c708b19dd48b954615922e6889d",
+    "crates/sheltie-runtime/src/fsx.rs": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+    "crates/sheltie-runtime/src/pending.rs": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+    "crates/sheltie-runtime/tests/common/mod.rs": "2e6c25b82a8d2dd46359d826a45ea8f8264bdb87bdf5857d2d138d8ff31710ba",
+    "crates/sheltie-runtime/tests/implementation_repairs.rs": "ca154f412d0c93957d30268513212043f8f59ed80167079cb90a7f09ccff747f",
+    "crates/sheltie-cli/tests/reliability_crash.rs": "7fd31e421110787db4c09d6cd18788fd0a99d92bec2f4945081a5e56703e816f",
+    "crates/sheltie-cli/tests/workbook.rs": "a4f564c1680adbbe384f2a76ab181892a9459e1666fcd1bb9786f712afb606b2",
+    "crates/sheltie-cli/tests/common/mod.rs": "16120fb1700bbf801d9225afa8d46c5e787bcd45830fce3fb5d9b47aec9a66c1",
+    "crates/sheltie-cli/tests/common/process.rs": "6aa0d39ba3572d148f49996eef9192ea2a2ab915a71328b1daef97a40ad2f5d7",
+    "crates/sheltie-cli/tests/common/store.rs": "ed519f75d75dced1344ed5967cf290bde158d0a44fc3c78449fc24a8b979054c",
+    ".config/nextest.toml": "a589f0617678bfa1828d2fa93424e68f724e09b3017088e0a4c9c67b939d0c7f"
+  },
+  "input_sha256": {
+    "g13-oracle-directions.json": "b1f84e8561dd6eb0cc9ae8c0bb82e3de22caad2a79bc9f501d10530035bdb3c0",
+    "independent-sk02-mapping.json": "2af2e37b4bd35f4de6b1a48b7306d9c6752c79bb72202faa4b0fd9450f4e7794",
+    "remaining-mutation-plan.json": "bda556745e41dc73f33932a52852a01a0be8019aa4e13769ff715e1d2c6a10b0",
+    "t56-current-mutants.json": "5484076f973c79c327c43ee86ca38d4ce4242616c1399493c783bf1e443fab9a"
+  },
+  "recommended_tracked_scope": [
+    "crates/sheltie-runtime/src/fsx.rs (test-only additions in existing controlled_object_tests)",
+    "crates/sheltie-cli/tests/reliability_crash.rs (one test using existing common/Process)"
+  ],
+  "new_capability_test_count": 3,
+  "reused_test_count": 2,
+  "production_changes_needed": false,
+  "private_state_getters_needed": false,
+  "new_observer_needed": false,
+  "oracle_author": "parent implementation agent",
+  "independent_final_reviewer": "oracle_review",
+  "cards": {
+    "T57-A": {
+      "proposed_test_name": "disarmed_rendezvous_does_not_reactivate_a_real_atomic_write_callback",
+      "file": "crates/sheltie-runtime/src/fsx.rs",
+      "consumer": "ManagedFs::write_atomic→write_atomic_unlocked→rendezvous_observed_path(atomic_write_before_open)",
+      "guard": "crate::failpoint::RENDEZVOUS_TEST_LOCK",
+      "reuse_test": "write_observation_failures_preserve_exact_committed_bytes_or_refuse_before_creation",
+      "steps": [
+        "Real Home/lock/fs and root-leaf target; outside carrier path is a regular file with independent sentinel bytes.",
+        "Arm atomic_write_before_open with scope exact absolute target and carrier regular file. Real write_atomic errors IO before candidate creation, config remains armed.",
+        "Call disarm_rendezvous, then same consumer/target with exact handwritten bytes; succeeds and reads back same bytes; no earlier temp/target created, carrier sentinel unchanged.",
+        "Repeated disarm then another legal write remains healthy."
+      ],
+      "counterexample": "Replacement disarm=Ok leaves bad callback; second write fails IO instead of writing. No private Option assertion or timing race.",
+      "bounded": "No thread wait needed; invalid carrier existing OS IO boundary is already used by T51."
+    },
+    "T57-B": {
+      "proposed_test_name": "disarmed_sync_failure_does_not_reject_a_real_new_atomic_write",
+      "file": "crates/sheltie-runtime/src/fsx.rs",
+      "consumer": "ManagedFs::write_new_atomic(NOREPLACE)→write_atomic_unlocked→sync_error(managed_file_parent_sync)",
+      "guard": "crate::failpoint::RENDEZVOUS_TEST_LOCK, shared with current unit arm_sync_error callers",
+      "reuse_tests": [
+        "new_atomic_history_publish_never_replaces_an_existing_regular_or_dangling_leaf",
+        "matching_history_after_failed_parent_sync_stays_pending_until_sync_succeeds"
+      ],
+      "steps": [
+        "Two actual Home/root/lock/fs objects A and B, distinct fresh target leaf names.",
+        "Arm root A managed_file_parent_sync; write_new_atomic in B succeeds and does not consume failure.",
+        "Disarm sync error; write_new_atomic in A now succeeds with exact bytes.",
+        "Separate armed positive on A/new target produces IO after rename and retains exact created bytes; next fresh-target write succeeds proving one-shot."
+      ],
+      "counterexample": "No-op disarm leaves unconsumed A failure; A write rejects IO after actual rename despite expected normal success.",
+      "warning": "Public write_atomic uses RenameFlags::empty and does not reach managed_file_parent_sync guard; use crate-visible write_new_atomic in unit tests."
+    },
+    "T57-C": {
+      "proposed_test_name": "subprocess_rendezvous_reaches_only_the_configured_name_and_scope",
+      "file": "crates/sheltie-cli/tests/reliability_crash.rs",
+      "consumer": "common::process::Process::spawn→actual CLI workbook add→Store::commit→maybe_exit(before_commit)",
+      "reuse_api": [
+        "Process::spawn",
+        "Process::reached",
+        "Process::release",
+        "Process::finish",
+        "common::Env",
+        "common::store::store_rows"
+      ],
+      "reuse_test": "stop helper Termination::Kill and existing before_commit crash scenarios",
+      "steps": [
+        "Three separate fresh Env/carrier cases and distinct rid: name+id exact; only name mismatch; only id mismatch.",
+        "Exact config pauses, reached bytes equal literal before_commit, requested request/audit/workbook rows absent before BEGIN, then release and complete once.",
+        "Mismatch cases precreate release before spawn, finish child bounded, assert success and no reached; exact requested business artifacts only once."
+      ],
+      "counterexample": "Each ==→!= loses matching positive and wrongly activates its one-field mismatch case. Fresh child memory ensures env fallback used.",
+      "bounded": "Reuse Process Drop release/kill/wait. No shared-process set_var or arm_rendezvous override."
+    },
+    "T57-D_reuse": {
+      "new_tests_needed": false,
+      "file": "crates/sheltie-cli/tests/{workbook,reliability_crash}.rs",
+      "existing_tests": [
+        "cleanup_warning_goes_to_stderr_without_changing_success_json_or_replaying_business_effects",
+        "same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned"
+      ],
+      "consumer": "cleanup_selected→maybe_fail_cleanup→cleanup_error; committed success maintenance and uncommitted same-rid prepare",
+      "oracle": "Successful JSON/exit unchanged plus exact maintenance warning/id/object/reason; old original bytes remain and no new audit/request/container on blocked prepare; healthy replay commits once.",
+      "counterexample": "maybe_fail_cleanup=Ok removes warning/protective preparation failure and permits otherwise blocked cleanup/registration."
+    }
+  },
+  "existing_helpers": {
+    "unit_serial": {
+      "file": "crates/sheltie-runtime/src/failpoint.rs",
+      "symbol": "RENDEZVOUS_TEST_LOCK",
+      "line": 50,
+      "feature": "cfg(all(test,feature=\"failpoint\"))"
+    },
+    "unit_observe": {
+      "file": "crates/sheltie-runtime/src/fsx.rs",
+      "symbol": "controlled_object_tests::{observe_change,observe_recorded_change}",
+      "line": 3509,
+      "note": "Locks shared serial mutex itself; scoped worker and release/disarm on Drop. Do not nest it under same mutex. Its carrier is private and disappears after return, so cannot directly inspect stale reached afterward."
+    },
+    "integration_worker": {
+      "file": "crates/sheltie-runtime/tests/common/mod.rs",
+      "symbol": "RendezvousWorker<T>",
+      "line": 220,
+      "api": [
+        "single",
+        "new",
+        "wait",
+        "finish"
+      ],
+      "note": "wait bounded10s; finish releases then joins/disarms; Drop releases/joins/disarms. Integration binaries are separate processes; do not import all common fixtures into production/unit module merely for T57-A."
+    },
+    "integration_sync_guard": {
+      "file": "crates/sheltie-runtime/tests/implementation_repairs.rs",
+      "symbol": "SYNC_TEST_LOCK / SyncGuard / sync_guard",
+      "line": 12,
+      "note": "Only that integration binary shares this static; consumption-before-disarm tests do not cover cancellation of unconsumed config."
+    },
+    "child_process": {
+      "file": "crates/sheltie-cli/tests/common/process.rs",
+      "symbol": "Process",
+      "line": 6,
+      "note": "spawn clears failpoint env; reached/finish deadlines10s; release explicit; Drop release/kill/wait."
+    }
+  },
+  "validation_stop": [
+    "Before actual mutation queue, nextest list JSON must include all 3 new tests plus 2 reused tests in chosen filter; no run claim in this preparation.",
+    "Original G13 filter need not select reused workbook/reliability_crash test names; extend exact filter by capability/test name, do not assume binary(crash) includes reliability_crash.",
+    "Freeze current candidate and build Cargo-injected CLI binary/closure; do not use target leftovers or stale e3eea89.",
+    "Run focused positive baselines first, then 5 exact semantic patches; each ID requires original raw outcome and source/diff hashes.",
+    "Default-feature no-effect proof is separate from all-features execution; missed/timeouts/zero tests remain open.",
+    "Stop on callback not reached, wrong scope, source drift, missing consumer or unbounded wait.",
+    "oracle_review final validation; preparation author does not approve own test implementation."
+  ],
+  "current_inventory_remap": {
+    "scope": "Correspondence correction only; no mutation execution, equivalence or PASS; implementation agent must fresh-map later source",
+    "inventory": "t56-current-mutants.json",
+    "inventory_sha256": "5484076f973c79c327c43ee86ca38d4ce4242616c1399493c783bf1e443fab9a",
+    "head_at_remap": "0c50d42d64ea3c292d086cec83d60de5c9da7bf2",
+    "original_preparation_backup": "/private/tmp/sheltie-completion-20261003/t57-implementation-directions-before-t56-remap.json",
+    "original_preparation_json_sha256": "15acb90882adb70dbaa92b11f2d95af9d9241d85b5ad2fa68e56b4761fdb9ae2",
+    "original_preparation_md_backup": "/private/tmp/sheltie-completion-20261003/t57-implementation-directions-before-t56-remap.md",
+    "original_preparation_md_sha256": "071f2104707cd29fefca04e7ff1f16b9dfaad705215083249c03b4ca33077ddc",
+    "old_identity_preserved": true,
+    "proofs": [
+      {
+        "old_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+        "patch_payload_identical": true,
+        "current_diff_sha256": "4ab04a5582af0abe10b608e578ed13df5c810982d8683f199363d40dfd26da56"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+        "patch_payload_identical": true,
+        "current_diff_sha256": "61dfefedb48cb91132d9e9ef053ba90347a15c3d42f69b46230a6210b63f75d7"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous",
+        "current_id": "crates/sheltie-runtime/src/failpoint.rs:182:34: replace == with != in rendezvous_payload",
+        "patch_payload_identical": true,
+        "current_diff_sha256": "fa5cc7e6352c6d17c6770cdaf94a64a05cdaac28bb77bb85ede373283e16b4e9"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous",
+        "current_id": "crates/sheltie-runtime/src/failpoint.rs:182:59: replace == with != in rendezvous_payload",
+        "patch_payload_identical": true,
+        "current_diff_sha256": "6b16275ec36ddbe4a7ccdc9fdea9fcd74652b16789d41156852f48573dbd0e5d"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:730:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+        "patch_payload_identical": true,
+        "current_diff_sha256": "c5f4c2aa11b810fd1d7492920670c2eb3ef854dc22042aad9c51e3c58e0e8d6c"
+      }
+    ]
+  }
+}

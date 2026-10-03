@@ -1,0 +1,158 @@
+{
+  "result": "PASS_scoped_T57_G13",
+  "reviewer": "independent read-only; no implementation/oracle author/cargo execution",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "6e53619942e0f15327891a49e5ba678e85840af994979457bcae77473761b20a",
+    "crates/sheltie-cli/tests/reliability_crash.rs": "3bf12d0e1ba33ebd1ce9004f3906710f4f5668eea78047f0060f0f7457bb2f8d",
+    "crates/sheltie-runtime/src/failpoint.rs": "5a9268044be37aa05441aa81b66bc2ce6d4b1c708b19dd48b954615922e6889d",
+    "crates/sheltie-runtime/src/pending.rs": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c"
+  },
+  "production_changes": 0,
+  "new_observers": 0,
+  "original5_unique_exact": true,
+  "current_mapping_and_extracted_env_branch_verified": true,
+  "dynamic_caught": 5,
+  "static": 0,
+  "timeout": 0,
+  "compile_caught": 0,
+  "formal_baseline_runtime_only": 2,
+  "exact_cli_runtime_control": {
+    "tests": 5,
+    "passed": 5,
+    "seconds": 15.253,
+    "source190_match": true,
+    "six_env_overrides_all_null": true
+  },
+  "input_count": 190,
+  "gate_input_count": 134,
+  "source_unchanged_verified": true,
+  "old_formal_history_preserved": true,
+  "reused_execution": {
+    "directory": "mutation-g13-sample",
+    "seconds": 205.856,
+    "actual5_Caught": true,
+    "same_source_input_and_run_only": "no fresh duplicate5 execution and no renaming formal outcomes"
+  },
+  "entries": [
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/failpoint.rs:77:5: replace disarm_rendezvous -> std::io::Result<()> with Ok(())",
+      "classification": "disarmed_unconsumed_callback_remained_active_real_Io",
+      "raw_panics": [
+        {
+          "test": "fsx::failpoint_lifecycle_contract_tests::disarmed_rendezvous_does_not_reactivate_a_real_atomic_write_callback",
+          "panic": "called `Result::unwrap()` on an `Err` value: Io { path: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp9bCG0E/data\", source: Os { code: 20, kind: NotADirectory, message: \"Not a directory\" } }"
+        }
+      ],
+      "log_sha256": "8ba90da5865e0da9240f73f9cad12749c12c368994d3d4a2b3732e6ddeaf94b4",
+      "diff_sha256": "4ab04a5582af0abe10b608e578ed13df5c810982d8683f199363d40dfd26da56",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/failpoint.rs:108:5: replace disarm_sync_error -> std::io::Result<()> with Ok(())",
+      "classification": "disarmed_unconsumed_root_sync_remained_active_real_Io",
+      "raw_panics": [
+        {
+          "test": "fsx::failpoint_lifecycle_contract_tests::disarmed_sync_failure_does_not_reject_a_real_new_atomic_write",
+          "panic": "called `Result::unwrap()` on an `Err` value: Io { path: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpS6Rtvp/cancelled\", source: Custom { kind: Other, error: \"injected sync failure: managed_file_parent_sync\" } }"
+        }
+      ],
+      "log_sha256": "19c30c955788357e90e387ce68b425d3c1ffe2110541445818db9a15abef2d60",
+      "diff_sha256": "61dfefedb48cb91132d9e9ef053ba90347a15c3d42f69b46230a6210b63f75d7",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:34: replace == with != in rendezvous",
+      "current_id": "crates/sheltie-runtime/src/failpoint.rs:182:34: replace == with != in rendezvous_payload",
+      "classification": "exact_match_child_finished_before_required_checkpoint",
+      "raw_panics": [
+        {
+          "test": "subprocess_rendezvous_reaches_only_the_configured_name_and_scope",
+          "panic": "子进程在before_commit之前结束"
+        }
+      ],
+      "log_sha256": "b240c8467477754577577c8462b0c986c3cb2f397fc25324f8755e3e47619ff8",
+      "diff_sha256": "fa5cc7e6352c6d17c6770cdaf94a64a05cdaac28bb77bb85ede373283e16b4e9",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/failpoint.rs:170:59: replace == with != in rendezvous",
+      "current_id": "crates/sheltie-runtime/src/failpoint.rs:182:59: replace == with != in rendezvous_payload",
+      "classification": "exact_match_child_finished_before_required_checkpoint",
+      "raw_panics": [
+        {
+          "test": "subprocess_rendezvous_reaches_only_the_configured_name_and_scope",
+          "panic": "子进程在before_commit之前结束"
+        }
+      ],
+      "log_sha256": "0497970b99ad93fe3cded3ba0c83d68bab841c481272f77d2ff76459f69648ed",
+      "diff_sha256": "6b16275ec36ddbe4a7ccdc9fdea9fcd74652b16789d41156852f48573dbd0e5d",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:724:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:730:5: replace maybe_fail_cleanup -> Result<()> with Ok(())",
+      "classification": "cleanup_warning_suppressed_and_uncommitted_gate_bypassed",
+      "raw_panics": [
+        {
+          "test": "cleanup_warning_goes_to_stderr_without_changing_success_json_or_replaying_business_effects",
+          "panic": "assertion failed: warning.contains(\"warning: pending维护\")"
+        },
+        {
+          "test": "same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned",
+          "panic": "assertion `left == right` failed: Output { status: ExitStatus(unix_wait_status(0)), stdout: \"{\\\"data\\\":{\\\"flow\\\":\\\"default\\\",\\\"name\\\":\\\"default\\\",\\\"replayed\\\":false,\\\"requires\\\":[],\\\"work_dir\\\":\\\"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpLwA0nH/works/2026-10-03-001-default\\\",\\\"work_id\\\":\\\"2026-10-03-001-default\\\",\\\"workbook\\\":{\\\"digest\\\":\\\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\\\",\\\"id\\\":\\\"two-step\\\",\\\"version\\\":\\\"1.0.0\\\"}},\\\"next\\\":[{\\\"args\\\":{\\\"node\\\":\\\"outline\\\",\\\"work\\\":\\\"2026-10-03-001-default\\\"},\\\"executor\\\":\\\"agent\\\",\\\"op\\\":\\\"attempt begin\\\",\\\"tier\\\":\\\"standard\\\"},{\\\"args\\\":{\\\"work\\\":\\\"2026-10-03-001-default\\\"},\\\"op\\\":\\\"work cancel\\\"}],\\\"ok\\\":true,\\\"request_id\\\":\\\"t31-clean-fail-start-pending_owner_synced_before_payload\\\",\\\"revision\\\":1}\\n\", stderr: \"\" }\n      left: Some(0)\n     right: Some(1)"
+        }
+      ],
+      "log_sha256": "c9948fb2b2bbb528b411227f27467f3ca141a58fc663e1e8d7fdb8280478e768",
+      "diff_sha256": "c5f4c2aa11b810fd1d7492920670c2eb3ef854dc22042aad9c51e3c58e0e8d6c",
+      "build_success": true,
+      "test_failure": 100
+    }
+  ],
+  "full_engineering": {
+    "tests": 948,
+    "passed": 948,
+    "skip": 0,
+    "leak": 0,
+    "run": "fca0838a-afa4-436c-af23-0403e735b3b9",
+    "compilefail": 5,
+    "fmt_check_clippy_msrv_default": 0,
+    "task": 3,
+    "focused": 5,
+    "governance5": 0
+  },
+  "frozen_binaries": {
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967",
+      "cargo_reported_executable": true
+    },
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t57-frozen-binaries/sheltie",
+      "sha256": "66aa6dc7eba731b6a8f00d54fba5d4fec8f13e58695a14c77f7f42d72230b154",
+      "cargo_reported_executable": true
+    }
+  },
+  "archive_at_review": {
+    "sha256": "bd07db3226e1a7a343aefb6d7e0a41006c87b185ee95dc2fd71a49744c8d1709",
+    "members": 77,
+    "all_member_sha_verified": true,
+    "scope": "final engineering+supplementalcontrol assembly before independent finalreview inclusion"
+  },
+  "ledger_sha256_at_review": "98eaee95cd11ca66554d8c8216eb5f8246ff93c8328337bf7554d9699fc3dc48",
+  "limits": [
+    "env==->!= raw only shows required checkpoint not reached and childfinished; actualchild exitcode/stdout unknown not reported success",
+    "fault cancellation/matching/cleanup facilities allfeatures contract only; not native disk persistence/fullproduct/realhuman claims",
+    "SQLthree relevanttables0->1; notfullHomeabsence/all5orphysicalSQLiteproof",
+    "Broot unmatchedsuccess doesnot independently prove genericnonconsumption; targetdisarm andseparatematchedone-shot witnessed",
+    "formal runtime2 and supplementalCLI-runtime5 separate; no formal5 rewriting",
+    "currentT57/G13 only, noT43/M2/all215native acceptance"
+  ]
+}

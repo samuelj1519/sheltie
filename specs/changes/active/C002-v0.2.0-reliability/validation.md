@@ -625,3 +625,18 @@ CLI由真实completed B和真实COMMIT后exit70未完成A产生缓存分派场�
 三个治理门禁tests/skill/core-vocab当前候选实际全0；[补充CLI/runtime对照](evidence/completion-20261003/t56-exact-cli-runtime-control.json)同190源/正式package/filter/relative target、无binary覆盖，11/11通过48.640秒。原工具8项基线不改写。原始源码/失败探索/样本/正式变异与对照见[原文档案](evidence/completion-20261003/t56-g09-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t56-oracle-archive.json)全部一致。当前累计180/215动态、21/215限定静态、9/215结构验证，剩余G13五项继续T43；不称旧215原生全部执行、M2或产品完成。
 
 最终装配首次docs门禁因G09准备文档禁用措辞exit1；原准备字节及失败输出保留在档案，改为“使用root-scoped”后重核治理，不修改源码或已有运行。
+
+
+## C002-T57 故障注入生命周期与子进程作用域
+
+按[最小实施卡](evidence/completion-20261003/t57-implementation-directions.md)新增3能力、复用2真实CLI清理能力。源码生产prefix逐字保持、没有新observer。真实原子写在普通file carrier导致before-open观察I/O失败，配置尚未消费；解除后同callback落位成功，完整根清单与carrier字节保持。实际NOREPLACE写用两个Home，A配置经B成功写仍未消费，解除后A正常写；另匹配一次父同步模型失败，rename后的原件仍在，下个新目标成功，核一次消费。默认feature关闭不能代替这5项all-features验证。
+
+三组专属CLI子进程env：精确name/scope实际before_commit暂停，三张相关逻辑表尚未登记；release后stdoutJSON/请求/审计/原Workbook副本字节成立。只改name或scope时预建release，有界正常完成且无reached。相等变不等的实际红若为进程在point前结束，仅证明匹配暂停违约，不把未打印的child状态称成功或把timeout当捕获。维护告警和同rid未提交清理停止使用两条既有完整关系。
+
+[独立源码准备审查](evidence/completion-20261003/t57-source-review.md)通过，simplifier检查两文件逐字不变。5/5非变异基线与正式工具runtime2基线分别保留；尽管命令指定两package，工具自动裁剪正式baseline，只在变异Test加入CLI，不能称formal5；全部5精确变异在同冻结190输入实际Caught，205.856秒、没有compile caught或timeout。原目录名mutation-g13-sample保留，同源/fixture/config/env及actual run完全相同，按完整5执行申请最终验收，未重复该批或改写旧stage1 Missed。[逐ID账本](evidence/completion-20261003/t57-g13-dispositions.json)只记录故障设施生命周期/匹配/清理模型的实际消费，不扩为磁盘持久性或产品完整接受。
+
+[最终工程](evidence/completion-20261003/t57-final-gates.json)由[Cargo实际产物/冻结SHA/env](evidence/completion-20261003/t57-frozen-binaries.json)运行：948/948、零skip/LEAK，run `fca0838a-afa4-436c-af23-0403e735b3b9`，5compile-fail、fmt/check/Clippy、Rust1.85/默认特性、Task3/3及治理通过；134工程输入稳定。原始准备/映射/整理前文件、完整变异与工程见[原文档案](evidence/completion-20261003/t57-g13-oracles.tar.gz)，[成员SHA回读](evidence/completion-20261003/t57-oracle-archive.json)全部一致。[最终独审](evidence/completion-20261003/t57-final-review.md)通过；T57标记done后核任务范围，T43未关闭、M2仍not_run。
+
+补充[exact CLI/runtime对照](evidence/completion-20261003/t57-exact-cli-runtime-control.json)同190源码、正式filter/package/relative target环境，无binary/fault环境覆盖，5/5通过15.253秒；原formal baseline2保持。两env变体原红只示已结束且未达匹配point，没有该child stdout/exitstatus，不称子进程成功。
+
+当前185个旧目标有动态结果、21项限定静态与9项结构验证各有分组证据；215汇总仍需T43独审，不能将本任务通过作为整个215当前资格或M2完成。汇总发现的两早期schema闭包缺口由T43另列当前补验，原运行限制保留，不并入G13的五项计数。
