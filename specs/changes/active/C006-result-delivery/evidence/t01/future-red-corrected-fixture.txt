@@ -1,0 +1,438 @@
+Supplemental execution: --override-version-check; the configured-version gate remains not_run.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+{"sheltie": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie", "sha256": "dcd7f67702bc5a656ab5fa584e2b7f4879c7d96179e8efcd0741f9b69398c33e"}, "sheltie-export": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie-export", "sha256": "5d2412716cf27bf028edb26691e8a6887814a82a8c1b3a2853b17d4aa976c2f6"}}
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+────────────
+ Nextest run ID 5e293231-4664-4685-9b42-4803ceb3f7f6 with nextest profile: default
+    Starting 19 tests across 59 binaries (811 tests skipped)
+        PASS [   0.554s] ( 1/19) sheltie-cli::result_artifact result_artifact_rejects_json_request_ids_and_unpaired_parameters_before_creating_a_home
+        FAIL [   1.364s] ( 2/19) sheltie-cli::result_artifact result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline
+  stdout ───
+
+    running 1 test
+    test result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline ... FAILED
+
+    failures:
+
+    failures:
+        result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 1.35s
+
+  stderr ───
+
+    thread 'result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline' (59164790) panicked at crates/sheltie-cli/tests/result_artifact.rs:35:9:
+    error: unexpected argument '--artifact' found
+
+      tip: to pass '--artifact' as a value, use '-- --artifact'
+
+    Usage: sheltie work result <WORK>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.373s] ( 3/19) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+  stdout ───
+
+    running 1 test
+    test result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys ... FAILED
+
+    failures:
+
+    failures:
+        result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 1.36s
+
+  stderr ───
+
+    thread 'result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys' (59164789) panicked at crates/sheltie-cli/tests/result_artifact.rs:175:9:
+    key="": error: unexpected argument '--artifact' found
+
+      tip: to pass '--artifact' as a value, use '-- --artifact'
+
+    Usage: sheltie work result <WORK>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   1.392s] ( 4/19) sheltie-cli::result_artifact result_artifact_rejects_revision_key_and_source_modification_without_business_writes
+        FAIL [   1.695s] ( 5/19) sheltie-export::cli exporter_rejects_a_nonfinal_work_before_creating_staging
+  stdout ───
+
+    running 1 test
+    test exporter_rejects_a_nonfinal_work_before_creating_staging ... FAILED
+
+    failures:
+
+    failures:
+        exporter_rejects_a_nonfinal_work_before_creating_staging
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.67s
+
+  stderr ───
+
+    thread 'exporter_rejects_a_nonfinal_work_before_creating_staging' (59164810) panicked at crates/sheltie-export/tests/cli.rs:80:63:
+    called `Result::unwrap()` on an `Err` value: Error("EOF while parsing a value", line: 1, column: 0)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.696s] ( 6/19) sheltie-export::export export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory
+  stdout ───
+
+    running 1 test
+    test export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory ... FAILED
+
+    failures:
+
+    failures:
+        export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.67s
+
+  stderr ───
+
+    thread 'export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory' (59164807) panicked at crates/sheltie-export/tests/export.rs:101:5:
+    assertion `left == right` failed
+      left: Some(2)
+     right: Some(1)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.697s] ( 7/19) sheltie-export::cli exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target
+  stdout ───
+
+    running 1 test
+    test exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target ... FAILED
+
+    failures:
+
+    failures:
+        exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.68s
+
+  stderr ───
+
+    thread 'exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target' (59164801) panicked at crates/sheltie-export/tests/cli.rs:32:67:
+    called `Result::unwrap()` on an `Err` value: Error("EOF while parsing a value", line: 1, column: 0)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.700s] ( 8/19) sheltie-export::crash kill_after_file_sync_preserves_owned_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_file_sync_preserves_owned_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_file_sync_preserves_owned_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.68s
+
+  stderr ───
+
+    thread 'kill_after_file_sync_preserves_owned_scene_without_a_published_copy' (59164805) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 after_file_sync：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.700s] ( 9/19) sheltie-export::export export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy
+  stdout ───
+
+    running 1 test
+    test export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy ... FAILED
+
+    failures:
+
+    failures:
+        export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.68s
+
+  stderr ───
+
+    thread 'export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy' (59164795) panicked at crates/sheltie-export/tests/export.rs:61:5:
+    assertion failed: first.status.success()
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.701s] (10/19) sheltie-export::export export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work
+  stdout ───
+
+    running 1 test
+    test export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work ... FAILED
+
+    failures:
+
+    failures:
+        export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.68s
+
+  stderr ───
+
+    thread 'export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work' (59164791) panicked at crates/sheltie-export/tests/export.rs:14:5:
+    error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.303s] (11/19) sheltie-export::crash kill_after_independent_readback_preserves_owned_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_independent_readback_preserves_owned_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_independent_readback_preserves_owned_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.29s
+
+  stderr ───
+
+    thread 'kill_after_independent_readback_preserves_owned_scene_without_a_published_copy' (59164970) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 after_readback：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.255s] (12/19) sheltie-export::crash kill_after_manifest_write_preserves_owned_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_manifest_write_preserves_owned_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_manifest_write_preserves_owned_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.25s
+
+  stderr ───
+
+    thread 'kill_after_manifest_write_preserves_owned_scene_without_a_published_copy' (59164983) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 after_manifest_write：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.256s] (13/19) sheltie-export::crash kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another
+  stdout ───
+
+    running 1 test
+    test kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.25s
+
+  stderr ───
+
+    thread 'kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another' (59164997) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 after_parent_sync：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.250s] (14/19) sheltie-export::crash kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response
+  stdout ───
+
+    running 1 test
+    test kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.24s
+
+  stderr ───
+
+    thread 'kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response' (59165016) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 after_rename_before_parent_sync：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.251s] (15/19) sheltie-export::crash kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_staging_creation_preserves_owned_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.24s
+
+  stderr ───
+
+    thread 'kill_after_staging_creation_preserves_owned_scene_without_a_published_copy' (59165026) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 staging_created：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.253s] (16/19) sheltie-export::crash kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.25s
+
+  stderr ───
+
+    thread 'kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy' (59165036) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 before_rename：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.260s] (17/19) sheltie-export::crash kill_during_actual_receive_preserves_partial_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_during_actual_receive_preserves_partial_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_during_actual_receive_preserves_partial_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.25s
+
+  stderr ───
+
+    thread 'kill_during_actual_receive_preserves_partial_scene_without_a_published_copy' (59165050) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 during_receive：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.261s] (18/19) sheltie-export::crash sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy
+  stdout ───
+
+    running 1 test
+    test sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy ... FAILED
+
+    failures:
+
+    failures:
+        sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.25s
+
+  stderr ───
+
+    thread 'sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy' (59165100) panicked at crates/sheltie-export/tests/crash.rs:315:9:
+    assertion `left == right` failed
+      left: Some(2)
+     right: Some(3)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.248s] (19/19) sheltie-export::crash sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene
+  stdout ───
+
+    running 1 test
+    test sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene ... FAILED
+
+    failures:
+
+    failures:
+        sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.24s
+
+  stderr ───
+
+    thread 'sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene' (59165110) panicked at crates/sheltie-export/tests/crash.rs:276:5:
+    assertion `left == right` failed
+      left: Some(2)
+     right: Some(1)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   4.041s] 19 tests run: 2 passed, 17 failed, 811 skipped
+        FAIL [   1.364s] ( 2/19) sheltie-cli::result_artifact result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline
+        FAIL [   1.373s] ( 3/19) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+        FAIL [   1.695s] ( 5/19) sheltie-export::cli exporter_rejects_a_nonfinal_work_before_creating_staging
+        FAIL [   1.696s] ( 6/19) sheltie-export::export export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory
+        FAIL [   1.697s] ( 7/19) sheltie-export::cli exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target
+        FAIL [   1.700s] ( 8/19) sheltie-export::crash kill_after_file_sync_preserves_owned_scene_without_a_published_copy
+        FAIL [   1.700s] ( 9/19) sheltie-export::export export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy
+        FAIL [   1.701s] (10/19) sheltie-export::export export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work
+        FAIL [   0.303s] (11/19) sheltie-export::crash kill_after_independent_readback_preserves_owned_scene_without_a_published_copy
+        FAIL [   0.255s] (12/19) sheltie-export::crash kill_after_manifest_write_preserves_owned_scene_without_a_published_copy
+        FAIL [   0.256s] (13/19) sheltie-export::crash kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another
+        FAIL [   0.250s] (14/19) sheltie-export::crash kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response
+        FAIL [   0.251s] (15/19) sheltie-export::crash kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+        FAIL [   0.253s] (16/19) sheltie-export::crash kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy
+        FAIL [   0.260s] (17/19) sheltie-export::crash kill_during_actual_receive_preserves_partial_scene_without_a_published_copy
+        FAIL [   0.261s] (18/19) sheltie-export::crash sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy
+        FAIL [   0.248s] (19/19) sheltie-export::crash sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene
+error: test run failed

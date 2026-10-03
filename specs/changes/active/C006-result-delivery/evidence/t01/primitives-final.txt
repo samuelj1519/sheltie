@@ -1,0 +1,80 @@
+Supplemental execution: --override-version-check; the configured-version gate remains not_run.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+{"sheltie": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie", "sha256": "dcd7f67702bc5a656ab5fa584e2b7f4879c7d96179e8efcd0741f9b69398c33e"}, "sheltie-export": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie-export", "sha256": "5d2412716cf27bf028edb26691e8a6887814a82a8c1b3a2853b17d4aa976c2f6"}}
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling once_cell v1.21.4
+   Compiling regex-syntax v0.8.11
+   Compiling aho-corasick v1.1.5
+   Compiling normalize-line-endings v0.3.0
+   Compiling num-traits v0.2.19
+   Compiling quick-error v1.2.3
+   Compiling fnv v1.0.7
+   Compiling bit-vec v0.8.0
+   Compiling console v0.16.6
+   Compiling getrandom v0.3.4
+   Compiling zerocopy v0.8.58
+   Compiling unarray v0.1.4
+   Compiling similar v2.7.0
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+   Compiling rand_core v0.9.5
+   Compiling tempfile v3.27.0
+   Compiling bit-set v0.8.0
+   Compiling rand_xorshift v0.4.0
+   Compiling rand v0.9.5
+   Compiling rusty-fork v0.3.1
+   Compiling insta v1.48.0
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling float-cmp v0.10.0
+   Compiling regex-automata v0.4.18
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.9.0
+   Compiling proptest v1.11.0
+   Compiling regex v1.13.1
+   Compiling bstr v1.13.1
+   Compiling predicates v3.1.4
+   Compiling assert_cmd v2.2.2
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.27s
+────────────
+ Nextest run ID ca409eaa-f821-474e-a5a4-5f00f07c9fca with nextest profile: default
+    Starting 37 tests across 59 binaries (793 tests skipped)
+        PASS [   0.025s] ( 1/37) sheltie-export output::tests::unconfirmed_report_only_names_a_target_whose_identity_was_confirmed
+        PASS [   0.028s] ( 2/37) sheltie-export::target artifact_requires_safe_leaf_contiguous_index_and_exclusive_single_file
+        PASS [   0.029s] ( 3/37) sheltie-export output::tests::report_error_variants_preserve_stable_status_exit_and_source_diagnostic
+        PASS [   0.029s] ( 4/37) sheltie-export output::tests::complete_report_is_one_json_line_with_exact_identity_and_no_residual_or_error
+        PASS [   0.037s] ( 5/37) sheltie-export::target atomic_noreplace_refuses_existing_directory_without_changing_competitor
+        PASS [   0.018s] ( 6/37) sheltie-export::target final_readback_detects_same_size_rewrite_and_preserves_failed_staging
+        PASS [   0.025s] ( 7/37) sheltie-export::target empty_artifact_and_binary_bytes_are_read_back_without_text_conversion
+        PASS [   0.029s] ( 8/37) sheltie-export::target foreign_staging_writer_is_rejected_and_two_independent_exports_can_finish_concurrently
+        PASS [   0.029s] ( 9/37) sheltie-export::target moved_final_identity_is_unconfirmed_without_reporting_a_competitor_as_owned
+        PASS [   0.026s] (10/37) sheltie-export::target native_directory_publication_preserves_bytes_manifest_and_private_modes
+        PASS [   0.014s] (11/37) sheltie-export::target private_permission_drift_is_rejected_without_chmod_repair_or_publication
+        PASS [   0.020s] (12/37) sheltie-export::target parent_or_staging_path_replacement_stops_writes_to_moved_object
+        PASS [   0.014s] (13/37) sheltie-export::target publish_requires_all_finished_files_exact_source_mapping_and_no_extra_objects
+        PASS [   0.017s] (14/37) sheltie-export::target repeated_exports_make_independent_new_directories_without_reusing_old_staging
+        PASS [   0.023s] (15/37) sheltie-export::target racing_target_directory_wins_without_any_overwrite
+        PASS [   0.018s] (16/37) sheltie-export::target target_declared_total_accepts_256_mib_and_rejects_the_next_file_before_creation
+        PASS [   0.024s] (17/37) sheltie-export::target sync_failure_before_and_after_atomic_move_reports_distinct_real_visibility
+        PASS [   0.020s] (18/37) sheltie-export::target target_refuses_injected_leaf_symlink_and_hardlink_without_touching_sentinel
+        PASS [   0.012s] (19/37) sheltie-export::target target_rejects_links_nonexistent_relative_and_management_overlap_without_writes
+        PASS [   0.109s] (20/37) sheltie-export::source receive_stops_a_direct_source_child_instead_of_waiting_for_a_blocked_producer
+        PASS [   0.356s] (21/37) sheltie-export export::tests::directory_authority_is_validated_before_the_source_binary_can_execute
+        PASS [   0.363s] (22/37) sheltie-export::cli exporter_version_is_available_without_an_engine_or_management_root
+        PASS [   0.420s] (23/37) sheltie-export::source source_strictly_reads_metadata_and_preserves_binary_bytes_with_direct_arguments
+        PASS [   0.647s] (24/37) sheltie-export::source metadata_accepts_exact_one_mib_and_rejects_one_more_byte
+        PASS [   0.580s] (25/37) sheltie-runtime::result_artifact raw_reader_preserves_binary_bytes_and_store_rows_without_taking_a_lock
+        PASS [   0.577s] (26/37) sheltie-runtime::result_artifact raw_reader_rejects_corrupt_persisted_reference_before_reading_external_bytes
+        PASS [   0.832s] (27/37) sheltie-export::source receive_rejects_nonzero_exit_digest_size_and_target_writer_errors
+        PASS [   0.495s] (28/37) sheltie-runtime::result_artifact raw_reader_rejects_revision_key_and_pending_effects_before_output
+        PASS [   0.914s] (29/37) sheltie-runtime::result_artifact raw_reader_rechecks_identity_after_the_final_byte_was_proved
+        PASS [   1.358s] (30/37) sheltie-export::source source_passes_empty_unicode_and_shell_metacharacter_keys_as_literal_argv
+        PASS [   1.503s] (31/37) sheltie-export::source metadata_versions_terminal_binders_and_status_shapes_follow_the_full_contract
+        PASS [   1.423s] (32/37) sheltie-runtime::result_artifact raw_reader_rejects_modified_truncated_and_unsafe_originals
+        PASS [   1.491s] (33/37) sheltie-runtime::result_artifact raw_reader_rejects_growth_truncation_and_parent_or_leaf_swaps_during_streaming
+        PASS [   3.205s] (34/37) sheltie-export::source metadata_unknown_fields_identity_order_and_bounds_are_rejected
+        PASS [   3.734s] (35/37) sheltie-export::source receive_accepts_exact_32_mib_and_stops_growth_beyond_the_limit
+        PASS [   3.890s] (36/37) sheltie-runtime::result_artifact raw_reader_accepts_exact_32_mib_and_rejects_writer_failure
+        PASS [   4.875s] (37/37) sheltie-export::target artifact_byte_boundary_accepts_32_mib_and_rejects_one_more_declared_or_written_byte
+────────────
+     Summary [   4.876s] 37 tests run: 37 passed, 793 skipped

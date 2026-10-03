@@ -18,7 +18,7 @@
   ~/.sheltie/   store.db（唯一状态权威）  workbooks/  works/
 ```
 
-三个 crate，依赖单向向下：`sheltie-cli → sheltie-runtime → sheltie-core`。
+引擎三个 crate，依赖单向向下：`sheltie-cli → sheltie-runtime → sheltie-core`。
 
 | crate | 职责 | 禁止 |
 | --- | --- | --- |
@@ -271,3 +271,11 @@ MSRV 1.85，edition 2024，由根 `Cargo.toml` 与 `rust-toolchain.toml` 固定�
 ## 9. 术语
 
 见根目录 [CONTEXT.md](../CONTEXT.md)。
+
+## 外围最终成果副本
+
+`sheltie-export` 是第四个 workspace Cargo 包、独立未发布二进制：publish=false/dist=false，仅依赖纯类型与锁定安全 API，不依赖runtime，不开Store。它用绝对可信sheltie路径、argv、关闭stdin读取work-result/v1及固定revision/key原字节。source负责strict DTO/有界子进程，target负责真实目录对象/受限创建/读回/sync/NOREPLACE，export编排全体副本。引擎仍只写管理根，工具仅写一次显式授权父目录。
+
+`WorkService::write_result_artifact(work, key, revision, writer)` 只取一次可信结果投影，核资格与key后，把已验证Ref交result内部helper；helper不读Store、不接受任意源路径，ManagedFs同FD流式核bytes/sha和读取后根/父/叶身份。CLI在普通Outcome打印前直接raw分派，stderr诊断、stdout原bytes，不补newline、不转String，不清理pending/tmp。
+
+导出器home/to均为用户明确提供的真实无链接绝对路径，句柄和祖先对象核不重叠。key沿C004字符串（可空/非ASCII），不当NodeId；argv不可表达NUL则创建前拒绝。metadata1MiB、每file32MiB、total256MiB，实际增长即停/回收直接child；stderr直接诊断流或有界drain，不能积压死锁。所有目录0700/files0600，随机独占私有暂存，读回+清单+文件/子目录/树sync后同父NOREPLACE；最终对象与父sync确认才complete，rename后不确认报publication_unconfirmed，不回滚删除。规定OS同步不承诺断电物理持久，不提供同权限隔离。

@@ -1,0 +1,20 @@
+baseline: ACCEPT 
+version32: ACCEPT 
+version33: REJECT Workbook版本不是合同规定的安全目录段
+reserved: REJECT Workbook版本不是合同规定的安全目录段
+non_ascii_version: REJECT Workbook版本不是合同规定的安全目录段
+finish#0.0: REJECT 来源槽或AttemptId非规范
+finish#01.0: REJECT 来源AttemptId非法
+finish#1.00: REJECT 来源AttemptId非法
+reason_null: REJECT 结果完整载荷解码失败：status字段与variant不相符 at line 1 column 361
+extra: REJECT 结果完整载荷解码失败：unknown field `extra`, expected `kind` or `reason` at line 1 column 335
+reason_integer: REJECT 结果完整载荷解码失败：expected value at line 1 column 355
+duplicate_status_kind: REJECT 结果完整载荷解码失败：duplicate field `kind` at line 1 column 353
+same_binder: ACCEPT 
+mixed_binder: REJECT 来源槽或AttemptId非规范
+opaque_: ACCEPT 
+opaque_中文: ACCEPT 
+bounds_1_33554432: ACCEPT 
+bounds_1_33554433: REJECT 选定单文件超过32MiB
+bounds_8_33554432: ACCEPT 
+bounds_9_1: REJECT 选定成果总量超过256MiB

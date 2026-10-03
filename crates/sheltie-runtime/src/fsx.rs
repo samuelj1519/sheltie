@@ -447,6 +447,11 @@ impl ManagedFs {
         file.managed = Some(ManagedOrigin {
             root: self.root.clone(),
             root_ident: self.root_ident,
+            parent_ident: file_identity(
+                &parent
+                    .metadata()
+                    .map_err(|error| Error::io(self.display_path(path), error))?,
+            ),
             rel: path.clone(),
         });
         Ok(file)
@@ -986,6 +991,11 @@ impl ManagedFs {
             managed: Some(ManagedOrigin {
                 root: self.root.clone(),
                 root_ident: self.root_ident,
+                parent_ident: file_identity(
+                    &parent
+                        .metadata()
+                        .map_err(|error| Error::io(&display, error))?,
+                ),
                 rel: path.clone(),
             }),
         })
@@ -2679,10 +2689,99 @@ pub struct SafeFile {
 struct ManagedOrigin {
     root: AbsPath,
     root_ident: (u64, u64),
+    parent_ident: (u64, u64),
     rel: ManagedRelPath,
 }
 
+fn file_identity(metadata: &std::fs::Metadata) -> (u64, u64) {
+    (metadata.dev(), metadata.ino())
+}
+
 impl SafeFile {
+    pub(crate) fn stream_verified(
+        &self,
+        home: &crate::home::Home,
+        expected: &sheltie_core::work::ArtifactRef,
+        writer: &mut impl std::io::Write,
+    ) -> Result<()> {
+        use sha2::{Digest, Sha256};
+        let corrupt = |detail: &str| Error::StoreCorrupt {
+            detail: format!("原件 {}：{detail}", self.path),
+        };
+        if self.path != expected.path || expected.bytes > MAX_FILE_BYTES {
+            return Err(corrupt("引用路径或单文件限额不符"));
+        }
+        let check_binding = || -> Result<()> {
+            let origin = self
+                .managed
+                .as_ref()
+                .ok_or_else(|| corrupt("没有受管来源身份"))?;
+            let fs = ManagedFs::open_existing(home)?;
+            if fs.root != origin.root || fs.root_ident != origin.root_ident {
+                return Err(corrupt("管理根对象已被替换"));
+            }
+            let (parent, leaf) = fs.open_parent(&origin.rel)?;
+            let parent_stat =
+                fstat(&parent).map_err(|error| map_fs_error(self.path.as_str(), error))?;
+            if (parent_stat.st_dev as u64, parent_stat.st_ino as u64) != origin.parent_ident {
+                return Err(corrupt("父目录对象已被替换"));
+            }
+            verify_path_matches_handle(&parent, &leaf, self)?;
+            let stat =
+                fstat(&self.file).map_err(|error| map_fs_error(self.path.as_str(), error))?;
+            check_regular_stat(self.path.as_str(), &stat)?;
+            if stat.st_dev as u64 != self.meta.dev()
+                || stat.st_ino as u64 != self.meta.ino()
+                || stat.st_size as u64 != expected.bytes
+                || stat.st_mtime as i64 != self.meta.mtime()
+                || stat.st_mtime_nsec as i64 != self.meta.mtime_nsec()
+                || stat.st_ctime as i64 != self.meta.ctime()
+                || stat.st_ctime_nsec as i64 != self.meta.ctime_nsec()
+            {
+                return Err(corrupt("普通单链接对象的身份或大小不符"));
+            }
+            Ok(())
+        };
+        check_binding()?;
+        crate::failpoint::rendezvous("result_artifact_after_open", self.path.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
+        let mut handle = &self.file;
+        handle
+            .rewind()
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
+        let mut digest = Sha256::new();
+        let mut bytes = 0_u64;
+        let mut buffer = [0_u8; 65_536];
+        loop {
+            let read = handle
+                .read(&mut buffer)
+                .map_err(|error| Error::io(self.path.as_str(), error))?;
+            if read == 0 {
+                break;
+            }
+            bytes = bytes
+                .checked_add(read as u64)
+                .ok_or_else(|| corrupt("字节数溢出"))?;
+            if bytes > expected.bytes || bytes > MAX_FILE_BYTES {
+                return Err(corrupt("读取中增长或超过限额"));
+            }
+            digest.update(&buffer[..read]);
+            writer
+                .write_all(&buffer[..read])
+                .map_err(|error| Error::io("artifact stdout", error))?;
+        }
+        if bytes != expected.bytes || format!("{:x}", digest.finalize()) != expected.sha256.as_str()
+        {
+            return Err(corrupt("实际字节数或sha256与冻结引用不符"));
+        }
+        crate::failpoint::rendezvous("result_artifact_after_read", self.path.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
+        check_binding()?;
+        writer
+            .flush()
+            .map_err(|error| Error::io("artifact stdout", error))
+    }
+
     /// 句柄元数据（句柄上的事实，不是路径上的）。
     pub fn metadata(&self) -> &std::fs::Metadata {
         &self.meta

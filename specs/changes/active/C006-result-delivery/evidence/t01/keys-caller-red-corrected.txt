@@ -1,0 +1,35 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling num-traits v0.2.19
+   Compiling float-cmp v0.10.0
+   Compiling predicates v3.1.4
+   Compiling assert_cmd v2.2.2
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+────────────
+ Nextest run ID 7c4100df-9a08-45b7-997b-663150c498f1 with nextest profile: default
+    Starting 1 test across 1 binary (3 tests skipped)
+        FAIL [   8.244s] (1/1) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+  stdout ───
+
+    running 1 test
+    test result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys ... FAILED
+
+    failures:
+
+    failures:
+        result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 8.23s
+
+  stderr ───
+
+    thread 'result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys' (59149069) panicked at crates/sheltie-cli/tests/../../sheltie-export/tests/common/mod.rs:81:5:
+    ["workbook", "add", "/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpVUC7i5/keys"]: stdout={"error":{"code":"FLOW_INVALID","detail":{"path":"nodes[0].inputs[0].from","reason":"文件 file0.bin 不存在","rule":"7"},"message":"Flow 不合规（规则 7，nodes[0].inputs[0].from）：文件 file0.bin 不存在"},"next":[],"ok":false}
+     stderr=
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 
+────────────
+     Summary [   8.245s] 1 test run: 0 passed, 1 failed, 3 skipped
+        FAIL [   8.244s] (1/1) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+error: test run failed

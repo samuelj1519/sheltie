@@ -143,6 +143,17 @@ pub fn print(outcome: &Outcome, json_mode: bool) {
     }
 }
 
+pub(crate) fn raw_error(error: &sheltie_runtime::Error) -> i32 {
+    let outcome = crate::error_map::to_outcome(error);
+    eprint!("{}", outcome.text);
+    outcome.exit_code
+}
+
+pub(crate) fn raw_param_error(message: &str) -> i32 {
+    eprintln!("{message}");
+    2
+}
+
 /// 这些响应类型全是普通数据，序列化实际不会失败；真失败了给 `null` 也不比 panic 差。
 fn to_value_lossy<T: Serialize>(value: T) -> serde_json::Value {
     serde_json::to_value(value).unwrap_or(serde_json::Value::Null)

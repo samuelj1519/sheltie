@@ -11,6 +11,20 @@ use crate::cli::{WorkCmd, parse_input_arg, parse_workbook_spec};
 use crate::commands::Ctx;
 use crate::output::{self, Outcome};
 
+pub(crate) fn result_artifact(ctx: &Ctx, work: &str, key: &str, revision: u64) -> i32 {
+    let work = match sheltie_core::ids::WorkId::parse(work) {
+        Ok(work) => work,
+        Err(error) => return output::raw_error(&sheltie_runtime::Error::Core(error)),
+    };
+    let svc = service(ctx);
+    let stdout = std::io::stdout();
+    let mut writer = stdout.lock();
+    match svc.write_result_artifact(&work, key, revision, &mut writer) {
+        Ok(()) => 0,
+        Err(error) => output::raw_error(&error),
+    }
+}
+
 /// `start` 先用 `cli::parse_input_arg` 解析全部 `--input`，再调 `WorkService::start`。
 /// `status`、`result`、`stats` 与 `list` 只读打开。`<work>` 先经 `WorkService::resolve_work`。
 pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
@@ -18,7 +32,7 @@ pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
         WorkCmd::Start(args) => start(ctx, args),
         WorkCmd::List => list(ctx),
         WorkCmd::Status { work } => status(ctx, &work),
-        WorkCmd::Result { work } => result(ctx, &work),
+        WorkCmd::Result { work, .. } => result(ctx, &work),
         WorkCmd::Stats { work } => stats(ctx, &work),
         WorkCmd::Cancel { work } => cancel(ctx, &work),
     }

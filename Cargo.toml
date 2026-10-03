@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/sheltie-core", "crates/sheltie-runtime", "crates/sheltie-cli"]
+members = ["crates/sheltie-core", "crates/sheltie-runtime", "crates/sheltie-cli", "crates/sheltie-export"]
 
 [workspace.package]
 version = "0.3.0-rc.1"

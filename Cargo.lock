@@ -831,6 +831,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "sheltie-export"
+version = "0.3.0-rc.1"
+dependencies = [
+ "assert_cmd",
+ "clap",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sheltie-core",
+ "tempfile",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "sheltie-runtime"
 version = "0.3.0-rc.1"
 dependencies = [

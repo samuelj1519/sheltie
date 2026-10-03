@@ -1,0 +1,37 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+────────────
+ Nextest run ID faa9cd2b-8355-4004-b101-fd82b74fa488 with nextest profile: default
+    Starting 1 test across 1 binary (3 tests skipped)
+        FAIL [   0.839s] (1/1) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+  stdout ───
+
+    running 1 test
+    test result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys ... FAILED
+
+    failures:
+
+    failures:
+        result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.82s
+
+  stderr ───
+
+    thread 'result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys' (59153789) panicked at crates/sheltie-cli/tests/result_artifact.rs:175:9:
+    key="": error: unexpected argument '--artifact' found
+
+      tip: to pass '--artifact' as a value, use '-- --artifact'
+
+    Usage: sheltie work result <WORK>
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 
+────────────
+     Summary [   0.839s] 1 test run: 0 passed, 1 failed, 3 skipped
+        FAIL [   0.839s] (1/1) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+error: test run failed

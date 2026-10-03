@@ -7,7 +7,7 @@
 | 名称 | 含义 |
 | --- | --- |
 | Sheltie / `sheltie` | 产品名、仓库名、二进制名 |
-| `sheltie-*` | 只用于 Cargo crate 名（`sheltie-core`、`sheltie-runtime`、`sheltie-cli`） |
+| `sheltie-*` | 只用于 Cargo crate 名（`sheltie-core`、`sheltie-runtime`、`sheltie-cli`、外围 `sheltie-export`） |
 | `workbook/v1`、`flow/v1`、`cli-result/v4`、`work-result/v1` | 当前目标格式版本串，不加产品前缀；`cli-result/v1` / `cli-result/v2` 分别属于 v0.1.0 / v0.2.0 历史格式 |
 | `workbook.toml` | Workbook manifest 文件名 |
 | `SHELTIE_HOME` | 管理根环境变量，默认 `~/.sheltie` |
@@ -37,6 +37,7 @@
 | 协调者（coordinator） | 读 Workbook、派活、理解回复、在 `next` 里选路的 agent 或人 |
 | 工作 agent（worker） | 按一份任务书把输入变成输出的 agent 或人 |
 | 引擎 | `sheltie` 二进制。记状态、发任务书、算 `next`、守门槛。不判断内容。`self` 命令组管它自己，`workbook` 命令组管方法，都只写 `~/.sheltie` |
+| 可编辑副本（export） | 外围工具核验明确最终成果后，在授权父目录发布的一份新目录；不写回引擎或成为第二结果来源 |
 | Package | 只指 Cargo 包或外部依赖。不是业务实体 |
 
 ## 仓库现状

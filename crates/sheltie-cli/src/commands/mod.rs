@@ -20,9 +20,28 @@ pub struct Ctx {
 
 /// 解析管理根、分派到命令组、打印、返回退出码。
 pub fn dispatch(cli: Cli) -> i32 {
+    let raw = matches!(
+        &cli.group,
+        Group::Work(WorkCmd::Result { artifact, revision, .. })
+            if artifact.is_some() || revision.is_some()
+    );
+    if raw && (cli.json || cli.request_id.is_some()) {
+        return output::raw_param_error("原字节模式不支持 --json 或 --request-id");
+    }
+    if raw
+        && !matches!(
+            &cli.group,
+            Group::Work(WorkCmd::Result { artifact: Some(_), revision: Some(revision), .. }) if *revision > 0
+        )
+    {
+        return output::raw_param_error("--artifact 与正整数 --revision 必须同时出现");
+    }
     let home = match Home::resolve(cli.home.as_deref()) {
         Ok(h) => h,
         Err(e) => {
+            if raw {
+                return output::raw_error(&e);
+            }
             let out = crate::error_map::to_outcome(&e);
             output::print(&out, cli.json);
             return out.exit_code;
@@ -65,6 +84,14 @@ pub fn dispatch(cli: Cli) -> i32 {
         json: cli.json,
         request_id: cli.request_id,
     };
+    if let Group::Work(WorkCmd::Result {
+        work,
+        artifact: Some(key),
+        revision: Some(revision),
+    }) = &cli.group
+    {
+        return work::result_artifact(&ctx, work, key, *revision);
+    }
     let outcome: Outcome = match cli.group {
         Group::SelfCmd(cmd) => self_cmd::run(&ctx, cmd),
         Group::Workbook(cmd) => workbook::run(&ctx, cmd),

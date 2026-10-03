@@ -7,12 +7,12 @@
 | 入口 / 位置 | 职责 |
 | --- | --- |
 | `core/work/result.rs::{ResultView,result_view}`、`runtime/service.rs::WorkService::result` | 同一次读状态提供资格、revision 与精确 ArtifactRef |
-| `crates/sheltie-runtime/src/result.rs`、`service.rs::load_row`、`load.rs`、`fsx.rs::ManagedFs::open_regular` | 按结果 key 可信读源；同句柄核摘要/大小，不直接信路径 |
+| `crates/sheltie-runtime/src/result.rs`、`service.rs::load_read_context`、`load.rs`、`fsx.rs::ManagedFs::open_regular` | 按结果 key 可信读源；同句柄核摘要/大小，不直接信路径 |
 | `crates/sheltie-cli/src/cli.rs::WorkCmd`、`commands/work.rs`、`commands/mod.rs::dispatch` | `--artifact/--revision` 严格参数、只读分派、原字节 stdout |
 | `crates/sheltie-cli/src/output.rs::Outcome`、`print` | 现有文本/JSON 路径；原字节模式直接写 stdout，错误只写 stderr；不经过 String 打印、不转码或补换行 |
 | 拟新增 `crates/sheltie-export/src/{main,source,target,export,error,output}.rs` | 参数、可信子进程、受限目标、整份复制、明确错误与输出 |
 
-导出器不依赖 sheltie-runtime，不直接开 Store；只调用公开 CLI。可以复用稳定纯类型，但不为一个消费者抽通用文件系统 crate。管理根 `ManagedFs` 依赖 HomeLock，不能为了导出让它写任意宿主位置。
+导出器不依赖 sheltie-runtime，不直接开 Store；只调用公开 CLI。可以复用稳定纯类型，但不为一个消费者抽通用文件系统 crate。ManagedFs维持管理根只读能力；只读identity复核不借HomeLock，不为了导出扩展任意宿主写能力。
 
 表中的 core/runtime 路径分别指 `crates/sheltie-core/src/` 和 `crates/sheltie-runtime/src/`。采用时核对 C004 完成候选的实际结果入口，同步精确符号与任务白名单。可信源读取与 raw 路由原语在 C006-T01 完整实现并测试；C006-T02 接正式参数与编排，之后才激活正常 raw/export 入口。不要求 C004 预先建立未使用的接口。
 
@@ -76,7 +76,7 @@ T03 提供开发构建、临时目录使用和首次读者指南。工具 releas
 
 ## 7. 阶段接口与实现责任
 
-复杂模型在 T01 完整实现 source 的 strict DTO、字节/退出码/上限和可信读原语，以及 target 的目录句柄、身份、链接、独占写、读回、NOREPLACE、sync 与未确认错误。raw stdout/stderr 原语也由 T01 实测。export/main 只保留可编译的编排骨架，正常复制和 raw 参数不启用；骨架不能提供假成功。安全工作量主要在 T01 是有意安排，不把它化为空壳。
+复杂模型在 T01 完整实现 source 的 strict DTO、字节/退出码/上限和可信读原语，以及 target 的目录句柄、身份、链接、独占写、读回、NOREPLACE、sync 与未确认错误。raw stdout/stderr 原语也由 T01 实测。本轮T01完整实现library编排与状态/residual政策，main正常复制与raw参数仍不启用；无参数不得假成功。T02仅打开公开参数与入口。安全工作量主要在 T01 是有意安排，不把它化为空壳。
 
 T01 创建所有 source/target/CLI/crash tests 和 fixtures：原语测试归 T01 且 green，新完整行为归 T02 先 ignore，并从真实未来 caller 跑有意义 red。M1 核平台、原语、接口、测试和实现准备。T02 只用固定 source/target 接口编排、接用户入口并删本任务 ignore，不改协议、OS、资源、恢复政策或 oracle。缺口交复杂作者的明确修复任务处理。
 

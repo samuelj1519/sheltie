@@ -17,7 +17,8 @@
 Cargo.toml            虚拟 workspace；[workspace.dependencies] 统一版本
 crates/sheltie-core
 crates/sheltie-runtime
-crates/sheltie-cli    二进制名 sheltie
+crates/sheltie-cli    引擎二进制名 sheltie
+crates/sheltie-export 未发布外围工具；publish=false、dist=false，仅公开CLI读源
 examples/             样例 Workbook（同时是测试 fixture）
 workbooks/            可分发的业务 Workbook（spec-dev）
 skills/sheltie/       SKILL.md
@@ -29,7 +30,7 @@ dist 配置            根 Cargo.toml 的 [workspace.metadata.dist]（T25 起；
 AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
 ```
 
-依赖方向只能向下：`cli → runtime → core`。`sheltie-core` 的 `Cargo.toml` 不得出现 `rusqlite`、`tokio`、`rand`、任何文件系统或时钟库。
+引擎依赖方向只能向下：`cli → runtime → core`；exporter只可依赖纯core与公共安全库，不依赖runtime。`sheltie-core` 的 `Cargo.toml` 不得出现 `rusqlite`、`tokio`、`rand`、任何文件系统或时钟库。
 
 ### 2.2 代码风格
 

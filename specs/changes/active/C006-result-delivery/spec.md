@@ -15,13 +15,13 @@ sheltie-export --sheltie <absolute-binary> --home <absolute-management-root> \
 sheltie-export --version
 ```
 
-`--sheltie` 固定可信的引擎绝对路径，不依赖 PATH，不经 shell。`--work` 必须完整；父目录必须存在。`--json` 使用导出器自己的有版本响应，stdout 一行；人读模式给完成位置和失败处置。输入不含 request-id，也不含任意源文件路径。
+`--sheltie` 固定可信的引擎绝对路径，不依赖 PATH，不经 shell。`--work` 必须完整；父目录必须存在；home和to均明确提供真实、无链接绝对路径。`--json` 使用导出器自己的有版本响应，stdout 一行；人读模式给完成位置和失败处置。输入不含 request-id，也不含任意源文件路径。
 
 父目录逐段安全打开，拒绝软链；系统别名可由用户显式提供真实路径。目标父目录与管理根重叠时拒绝，避免导出器把副本写回管理根。授权绑定本次打开的真实父目录对象，不扩展到宿主配置或其他位置。
 
 ## 2. 结果与源读取
 
-导出器严格解码 C004 的 `work-result/v1`，要求 `status.kind=succeeded`、`final=true`、`effects_pending=false`、非空 `artifacts`。保留 `work_id`、`revision`、`workbook`、`flow`、每项来源和期望摘要/大小。字段、key 顺序与唯一性沿 C004；未知格式或非法载荷在创建暂存目录前拒绝。
+导出器严格解码 C004 的 `work-result/v1`，要求 `status.kind=succeeded`、`final=true`、`effects_pending=false`、非空 `artifacts`。保留 `work_id`、`revision`、`workbook`、`flow`、每项来源和期望摘要/大小。字段、key 顺序与唯一性沿 C004，key允许空字符串与非ASCII，不当NodeId；NUL不能通过argv表达时明确拒绝；未知格式或非法载荷在创建暂存目录前拒绝。
 
 C006 同时提供引擎只读入口：
 

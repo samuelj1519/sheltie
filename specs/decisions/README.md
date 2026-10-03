@@ -19,3 +19,5 @@ MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代
 模板字段：状态、日期、关联 change、背景、选择、否决方案、后果、确认方式。
 
 | D-041 | accepted | [创建顺序号与行政替换](D-041-attempt-number-and-replacement.md) |
+
+| D-042 | [最终成果原字节与外围副本](D-042-final-artifact-copy.md) | accepted |

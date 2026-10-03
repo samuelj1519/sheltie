@@ -1,3 +1,3 @@
 # C006 交接
 
-用户已采用开发全范围，当前任务只看plan。T00归档C005并激活C006；下一动作T01先同步上游source/raw/target/限额/权限/发布输出合同，再冻结共享类型并并行实现安全原语。真实复制用途尚未提供，not_run；不自动发布或安装。
+T00、T01完成；下一动作独立M1审阅正式骨架后开放T02公共参数。T01基础37green、当前811green、有效future19为2PASS/17FAIL；实际总数830。测试/fixture/政策已冻结，T02只删除19所属ignore并接main/CLI。完整run和闭包见validation。真实复制用途未提供，价值not_run；其他OS/跨设备/dist实际计划/工具要求版本/fresh advisory延期，不安装或发布。

@@ -1,6 +1,15 @@
 use serde::Serialize;
 use sheltie_core::work::StatusCardJson;
 
+pub(crate) fn write_artifact(
+    home: &crate::Home,
+    reference: &sheltie_core::work::ArtifactRef,
+    writer: &mut impl std::io::Write,
+) -> crate::Result<()> {
+    let file = crate::fsx::open_managed_regular(home, &reference.path)?;
+    file.stream_verified(home, reference, writer)
+}
+
 /// Live Store metadata and the shared state projection come from one read snapshot.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StatusReadView {

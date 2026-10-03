@@ -24,13 +24,13 @@
 | ID | 状态 | Owner | 交付 | 依赖 |
 | --- | --- | --- | --- | --- |
 | C006-T00 | done | Codex /root；独立 Reviewer | 采用、前版归档与唯一实施入口 | 用户明确采用 |
-| C006-T01 | todo | 复杂模型架构、原语与测试作者 | 源合同、实际安全原语、窄骨架与阶段测试 | 人采用、C004 结果已验收 |
+| C006-T01 | done | 复杂模型架构、原语与测试作者 | 源合同、实际安全原语、窄骨架与阶段测试 | 人采用、C004 结果已验收 |
 | C006-M1 | todo | 独立复杂模型 Reviewer | 安全及实现准备审查 | T01 |
 | C006-T02 | todo | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
 | C006-T03 | todo | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
 | C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
-阶段 1 入口为 C004 结果候选和副本需求；出口为 primitive green、普通行为回归通过、真实 feature caller 可编译且有意义 red、工具及引擎未激活未完成复制/raw 入口。阶段 2 入口为 M1 骨架完整 SHA、冻结 source/target 接口与命令；出口为全链行为、实际使用及 M2 采用义务完成。工具的安全实现可以主要由 T01 完成，不为模型分工拆空任务。
+阶段 1 入口为 C004 结果候选和副本需求；出口为 primitive green、普通行为回归通过、真实 feature caller 可编译且有意义 red、工具及引擎未激活未完成复制/raw 入口。阶段 2 入口为 M1 骨架完整 SHA、冻结 source/target 接口与命令；出口为全链行为、实际使用及 M2 采用义务完成。本轮复杂作者在 T01 完成安全原语及必要耦合的 library 编排/状态政策，T02 仅公开 raw/export 参数与入口；不为模型分工拆空任务。
 
 T01 原语测试归 T01，交接时实际 green；T01 创建的新完整行为测试归 T02，初始带 `#[ignore = "C006-T02"]`，显式运行得到有意义 red。已有正确 metadata/读路径无需全红。T03 只执行实际手册；确有必要的新 Rust 行为用例时由复杂作者在 T01 提前冻结、归属 T03 并同步其 test_files 和命令；没有则 T03 测试表为空。
 
@@ -39,6 +39,8 @@ T01 原语测试归 T01，交接时实际 green；T01 创建的新完整行为�
 **Owner / 输入。** 复杂模型；C004 DTO、实际副本需求、当前完整提交、平台与锁定库 API。读取已有体验记录，不另建设平行价值实验。
 
 **范围。** design 真实路径、全部正常/raw caller、拟 `crates/sheltie-export` 的 manifest/source/target/error/output 与阶段骨架、所有阶段测试、Cargo workspace/lock 和 dist 排除；上游 architecture/protocol、指南与工程清单。阶段资产为 `verification/commands.sh`、`experiments/runbook.md`。测试覆盖 runtime 的拟 `tests/result_artifact.rs`、已有 `tests/fs_boundary.rs`，CLI 的拟 `tests/result_artifact.rs`，exporter 的拟 `tests/{source,target,export,cli,crash}.rs` 和混合源码内私有原语测试；fixtures 与新 helpers 也由本阶段创建。
+
+**测试。** `directory_authority_is_validated_before_the_source_binary_can_execute`、`report_error_variants_preserve_stable_status_exit_and_source_diagnostic`、`unconfirmed_report_only_names_a_target_whose_identity_was_confirmed`、`complete_report_is_one_json_line_with_exact_identity_and_no_residual_or_error`、`exporter_version_is_available_without_an_engine_or_management_root`、`source_strictly_reads_metadata_and_preserves_binary_bytes_with_direct_arguments`、`metadata_unknown_fields_identity_order_and_bounds_are_rejected`、`metadata_versions_terminal_binders_and_status_shapes_follow_the_full_contract`、`metadata_accepts_exact_one_mib_and_rejects_one_more_byte`、`receive_rejects_nonzero_exit_digest_size_and_target_writer_errors`、`receive_accepts_exact_32_mib_and_stops_growth_beyond_the_limit`、`source_passes_empty_unicode_and_shell_metacharacter_keys_as_literal_argv`、`receive_stops_a_direct_source_child_instead_of_waiting_for_a_blocked_producer`、`native_directory_publication_preserves_bytes_manifest_and_private_modes`、`atomic_noreplace_refuses_existing_directory_without_changing_competitor`、`target_rejects_links_nonexistent_relative_and_management_overlap_without_writes`、`artifact_requires_safe_leaf_contiguous_index_and_exclusive_single_file`、`target_refuses_injected_leaf_symlink_and_hardlink_without_touching_sentinel`、`parent_or_staging_path_replacement_stops_writes_to_moved_object`、`final_readback_detects_same_size_rewrite_and_preserves_failed_staging`、`publish_requires_all_finished_files_exact_source_mapping_and_no_extra_objects`、`repeated_exports_make_independent_new_directories_without_reusing_old_staging`、`artifact_byte_boundary_accepts_32_mib_and_rejects_one_more_declared_or_written_byte`、`empty_artifact_and_binary_bytes_are_read_back_without_text_conversion`、`target_declared_total_accepts_256_mib_and_rejects_the_next_file_before_creation`、`private_permission_drift_is_rejected_without_chmod_repair_or_publication`、`foreign_staging_writer_is_rejected_and_two_independent_exports_can_finish_concurrently`、`sync_failure_before_and_after_atomic_move_reports_distinct_real_visibility`、`racing_target_directory_wins_without_any_overwrite`、`moved_final_identity_is_unconfirmed_without_reporting_a_competitor_as_owned`、`raw_reader_preserves_binary_bytes_and_store_rows_without_taking_a_lock`、`raw_reader_rejects_revision_key_and_pending_effects_before_output`、`raw_reader_rejects_modified_truncated_and_unsafe_originals`、`raw_reader_rejects_corrupt_persisted_reference_before_reading_external_bytes`、`raw_reader_rejects_growth_truncation_and_parent_or_leaf_swaps_during_streaming`、`raw_reader_accepts_exact_32_mib_and_rejects_writer_failure`、`raw_reader_rechecks_identity_after_the_final_byte_was_proved`。
 
 **执行步骤。**
 
@@ -81,7 +83,9 @@ primitives 含 `scripts/task.sh C006-T01`，实际非零数量且通过；future
 
 **Owner / 输入。** 简单模型或初级开发者；M1 骨架或最新独立测试修订完整 SHA、冻结 source/target 接口、测试和命令文件。
 
-**范围。** exporter `export.rs/main.rs` 的编排与分发、引擎 `cli.rs`、`commands/work.rs/mod.rs` 的正式接线。source/target/strict DTO/error、大小、OS、资源回收和发布政策已由 T01 实现，不修改；测试只删本任务 ignore。正常入口在全链满足后激活，不能阶段中暴露半成品。
+**范围。** exporter `main.rs` 的参数与分发（复用冻结library编排）、引擎 `cli.rs`、`commands/work.rs/mod.rs` 的正式接线。source/target/strict DTO/error、大小、OS、资源回收和发布政策已由 T01 实现，不修改；测试只删本任务 ignore。正常入口在全链满足后激活，不能阶段中暴露半成品。
+
+**测试。** `result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline`、`result_artifact_rejects_json_request_ids_and_unpaired_parameters_before_creating_a_home`、`result_artifact_rejects_revision_key_and_source_modification_without_business_writes`、`result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys`、`exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target`、`exporter_rejects_a_nonfinal_work_before_creating_staging`、`kill_after_staging_creation_preserves_owned_scene_without_a_published_copy`、`kill_during_actual_receive_preserves_partial_scene_without_a_published_copy`、`kill_after_file_sync_preserves_owned_scene_without_a_published_copy`、`kill_after_independent_readback_preserves_owned_scene_without_a_published_copy`、`kill_after_manifest_write_preserves_owned_scene_without_a_published_copy`、`kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy`、`kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response`、`kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another`、`sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene`、`sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy`、`export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work`、`export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy`、`export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory`。
 
 **执行步骤。**
 

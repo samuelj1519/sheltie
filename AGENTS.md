@@ -4,7 +4,7 @@
 
 ## 项目一句话
 
-Sheltie 是给协调者 agent 用的本地工作流引擎。人把做事方法写成 Workbook，引擎记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。Rust，三个 crate，单二进制 `sheltie`。
+Sheltie 是给协调者 agent 用的本地工作流引擎。人把做事方法写成 Workbook，引擎记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。Rust，引擎三个 crate，单二进制 `sheltie`；外围未发布工具 `sheltie-export` 只通过 CLI 取得成果，在显式授权父目录建立新副本。
 
 ## 开工入口
 

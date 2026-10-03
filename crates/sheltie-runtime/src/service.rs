@@ -567,6 +567,43 @@ impl WorkService {
         Ok((view, legal_next(&loaded.state, &loaded.graph)))
     }
 
+    pub fn write_result_artifact(
+        &self,
+        work: &WorkId,
+        key: &str,
+        revision: u64,
+        writer: &mut impl std::io::Write,
+    ) -> Result<()> {
+        let (view, _) = self.result(work)?;
+        if view.revision != revision {
+            return Err(Error::RevisionConflict {
+                expected: revision,
+                actual: view.revision,
+            });
+        }
+        if !view.r#final || view.effects_pending {
+            return Err(Error::InvalidRequest {
+                reason: "该Work的最终成果尚不可读取".into(),
+            });
+        }
+        let artifact = view
+            .artifacts
+            .iter()
+            .find(|artifact| artifact.key == key)
+            .ok_or_else(|| Error::NotFound {
+                what: format!("最终成果槽 {key:?}"),
+            })?;
+        crate::result::write_artifact(
+            &self.home,
+            &sheltie_core::work::ArtifactRef {
+                path: artifact.path.clone(),
+                sha256: artifact.sha256.clone(),
+                bytes: artifact.bytes,
+            },
+            writer,
+        )
+    }
+
     /// 只读：事实视图与next均来自同一次装入的state/revision。
     pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson, Vec<serde_json::Value>)> {
         let loaded = self.load(work)?;

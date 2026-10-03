@@ -1,0 +1,37 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+────────────
+ Nextest run ID 7332d0f8-2bed-4459-bc81-042e99c3374d with nextest profile: default
+    Starting 1 test across 7 binaries (42 tests skipped)
+        FAIL [   1.121s] (1/1) sheltie-export::crash kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+  stdout ───
+
+    running 1 test
+    test kill_after_staging_creation_preserves_owned_scene_without_a_published_copy ... FAILED
+
+    failures:
+
+    failures:
+        kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.10s
+
+  stderr ───
+
+    thread 'kill_after_staging_creation_preserves_owned_scene_without_a_published_copy' (59039956) panicked at crates/sheltie-export/tests/crash.rs:35:17:
+    未到达真实边界 staging_created：status=exit status: 2 stdout= stderr=error: unexpected argument '--sheltie' found
+
+      tip: a similar argument exists: '--help'
+
+    Usage: sheltie-export --help
+
+    For more information, try '--help'.
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 
+────────────
+     Summary [   1.122s] 1 test run: 0 passed, 1 failed, 42 skipped
+        FAIL [   1.121s] (1/1) sheltie-export::crash kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+error: test run failed

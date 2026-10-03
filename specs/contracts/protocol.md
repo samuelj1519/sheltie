@@ -370,3 +370,18 @@ outputs:
 **重放不是错误。** 同 `request_id` 同意图（目标与用户参数相同）返回原响应，`ok = true`，`data.replayed = true`；观察到的文件变化不影响意图指纹。
 
 替换请求意图保存理由字面参数或文件源路径；替换审计保存物化后的完整有界理由，与被替换 Attempt 的理由逐字核对。已提交重放不重新读取理由文件。
+
+## 8. 最终 Artifact 原字节与外围导出
+
+```text
+sheltie --home <management-root> work result <full-work-id> --artifact <key> --revision <positive-integer>
+sheltie-export --sheltie <absolute-trusted-binary> --home <real-absolute-management-root> --work <full-work-id> --to <existing-real-absolute-parent> [--json]
+```
+
+原字节模式artifact/revision同时出现，拒绝json/request-id，参数拒绝stdout为空、stderr诊断/exit2。以单一已验证读取的结果核revision精确相同、final=true、effects_pending=false及key；普通模式仍只列Refs。用已核Ref的受限普通单链接同FD读取，限额、实际size/sha/身份全部成功才exit0，原件缺失/修改/不安全及业务资格按既有错误code/exit规则拒绝，诊断只在stderr。可能已有部分stdoutbytes，消费者先暂存并核最终exit；不把部分输出当完成，不清理或恢复。
+
+外围工具严格接C004 payload，final/succeeded/无effects/nonempty选集，不重算选择。metadata至多1MiB、单file32MiB、全部256MiB，checked加法；未知字段/格式、乱序/重复key或不可表达的NUL key在暂存前拒绝。空key与Unicode有效，不当ID；leaf仅用于索引私有目录中的安全文件段。stdin关闭、直接argv不经shell、不依PATH。stdout/sha/bytes与child exit独立核，失败终止并wait直接child，stderr不按自然语言判断成功。
+
+`work-export-manifest/v1` 保存完整result与按key排序的files数组 `{key,path,sha256,bytes}`，path为副本相对路径，不含时间或暂存名。父目录真实对象/祖先与Home核不重叠，拒绝链接/身份替换，目录0700文件0600独占普通单链接创建；全体接收、独立读回与规定OS sync后整目录原子NOREPLACE到 `<work-id>-<random>`。不覆盖、合并、接管旧暂存、自动删除竞争者或写回Store。
+
+工具JSON为一行 `work-export/v1`：status/work_id/revision/target_path/staging_path/error（稳定code/message及source退出状态）；未知或不能确认的值为null。complete=0，参数/确定性资格rejected=2，source/target/完整性/IO的failed_before_publish=1，rename已发生后父sync/最终身份不确认的publication_unconfirmed=3。未确认时不回滚删除，路径只报告能核所属的对象。kill无响应时使用者核现场，重跑另建新副本；不保证进程树停止/断电物理持久/宿主隔离/用户修改后的持续一致。

@@ -1,0 +1,10 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.83s
+────────────
+ Nextest run ID 914228fe-ec91-475d-8bd8-5c741061cd37 with nextest profile: default
+    Starting 2 tests across 1 binary (5 tests and 18 binaries skipped)
+        PASS [   0.309s] (1/2) sheltie-runtime::result_artifact raw_reader_preserves_binary_bytes_and_store_rows_without_taking_a_lock
+        PASS [   0.496s] (2/2) sheltie-runtime::result_artifact raw_reader_rechecks_identity_after_the_final_byte_was_proved
+────────────
+     Summary [   0.496s] 2 tests run: 2 passed, 5 skipped
