@@ -93,3 +93,7 @@ M2 核完整用户链与实际使用。对 M1 已审且闭包未变化的内容�
 macOS arm64原生API/37原语通过；跨设备载体、其他OS、真实用途/用户/成本、cargo-dist实际asset plan、nextest要求版本0.9.145及在线fresh advisory仍授权延期。cached deny使用未改policy的独立db-path配置和RustSec `117edb3bed98e9be112f277b7615eea3252e7c43` 缓存，不能称最新在线审查。此前LEAK、FAIL及中间闭包保留各自因果边界。
 
 T01全cached diff检查exit2，仅[清单](evidence/t01/diff-check.json)内不可变工具原文尾空格/空行；保留原字节。精确排除这11份已知raw后的作者文件检查exit0，未扩大忽略范围。
+
+## C006-M1 冻结交接
+
+独立阶段PASS，candidate `6e60faacbe039cd21c04e5aa4d514ea5765e2ba3`。精确[输入manifest](evidence/m1/t01-input-manifest.json)已由Reviewer从git candidate独立复算，代码与oracle没有修改。M1新增的是记录/白名单与状态，单独治理检查；T02冻结代码/测试完整基准为该T01SHA，允许范围仍仅main/CLI和删除19ignore。
