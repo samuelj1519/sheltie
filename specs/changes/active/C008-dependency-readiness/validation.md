@@ -74,3 +74,5 @@ T01 复杂模型完整制作 probe、手写 fixtures/tests、runbook 并完成�
 [preflight](experiment/evidence/target/preflight.json)实际kind:name/作者必需确认、host/version/规则/roots、重复摩擦、预算/benefit/cost均null；probe not_adopted，原8机制/实际观察/value义务not_run。不把0声明解释成host资源不存在或mismatch，也不以resource.*推requires。
 
 [protocol](experiment/protocol.md)/[host-rule](experiment/host-rule.md)/[runbook](experiment/runbook.md)保原完整采用/机制/三态/身份/no-write/真实对照条件；真实目标缺失不创建probe/config/fixture/test或运行占位命令。技术盘点时间不当人工实验投入；原准备/维护/观察成本unknown，费用/usage不估算。无Rust/机制测试实体，test_files为空，不跑零task.sh或以import错误当拒绝。
+
+C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用与机制准入not_run，不将未来三态规则当实际观察。无输入变化，无scanner/引擎重跑。

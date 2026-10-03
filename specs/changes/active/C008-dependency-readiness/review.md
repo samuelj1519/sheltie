@@ -29,3 +29,9 @@
 结论：`PASS`，仅technical preflight，原mechanismM1仍not_run。独立Reviewer限定6Workbook复算6/6/24、0requires、15resource绑定/13文件；29源size/SHA、6target证据size/SHA与两个历史tmp原文一致。preflight全实际前提null、probe未采用、8原义务not_run，不推host不存在/mismatch；原三态/来源/identity/no-write/真实对照及成本条件保留未来语义，不当已实现能力。
 
 本轮只读，没有host/Store/env/资源执行或probe/config/fixture半脚本；两处措辞明确原probe资产尚未创建、29文件字节读取scope，包括resource与C007instruction/README。没有input/规则改变，不复跑scanner/CLI/engine。
+
+## C008-M1 本轮限定审阅
+
+Candidate: `77f09112f1d868a79368037b3c650480bb85c442`。
+
+结论：`PASS`，仅前检/真实条件缺项/未来规则/补验入口。独立Reviewer核完整commit与experiment无后续diff，复用6声明/24Node/29SHA及两历史原件和规则/runbook独审，无必改。probe仍not_adopted、原机制M1 not_run，无host readiness观测。T02只记录8未执行义务及null成本，不能扫host/造requires/创建probe/config/fixtures。
