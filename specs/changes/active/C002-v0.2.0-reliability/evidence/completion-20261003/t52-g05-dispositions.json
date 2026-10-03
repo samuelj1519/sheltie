@@ -1,0 +1,930 @@
+{
+  "counts": {
+    "dynamic_caught": 16,
+    "static_scoped": 0,
+    "remaining_g05": 0,
+    "old_results_rewritten": false
+  },
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1204:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "old_diff_sha256": "22e5f17547b82cbdca148488e5500fc0d2ba947d4d7e33c9cb74c4a68fbe9f69",
+      "current_diff_sha256": "cecb86a06fbb0c7df771c77e64a5ca4d0963fa120ca26a8e0077d02574259a34",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1163:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R1_verified_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1204_col_13.log",
+      "log_sha256": "149a127c265267758d58086a1a61ea9dae4706149aacaabb365079606d32b956",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.357275958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.760334458,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1275:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "fc484960290c32316204005f29697df65c00520a9f6868d61ac5c0762adb1448",
+      "current_diff_sha256": "72c0d7c74252b1c18454e2a0763a28c0085d717da42304d3f504a9c701fa99c0",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1232:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1275_col_13.log",
+      "log_sha256": "80c4ddaf0bd79e4417c4864a63b0661b50a48daea2a126388e2595052ac38ff9",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.168627834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.609392083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1274:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "6f0e3c47ac53d92574a949fa44a299e780781b8456742b02df631dc54ba921c6",
+      "current_diff_sha256": "0f5beb10dc456ef4a4d1ad47ef444839a875d304162419078f3cc86ff2dd43b9",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1231:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1274_col_13.log",
+      "log_sha256": "438df695724a1ae8b15190176141f8bf4ac5fe820cbd35f5db21317b44ce1400",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 25.470463875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.576811334,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1203:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "old_diff_sha256": "6e747b5b61d9565b6c60a3579f862bfb735c7157cc5f96d248101a8385dd84e6",
+      "current_diff_sha256": "d31e776bb57a3ad7b6965b9b3b33fc5e7a19da7c8a2685784e4c49ab5c16a7ce",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1162:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R1_verified_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1203_col_13.log",
+      "log_sha256": "b373fc7d282a0146ab9bbf1abdb08b1dbe3126765a2d91e83b6b3c3d7629b00e",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 39.972977167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.198959084,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1273:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "a32926e17f89b7f7b8fba1b8301752ed60dcea71bfcb6b80612bc6e956d31c3b",
+      "current_diff_sha256": "a2e50b0f4da6527a522f2e5c24cb71f600f5667ec2378ca2a353ceeddcad94b0",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1230:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1273_col_13.log",
+      "log_sha256": "28efaf49ed01c6a62a38720e81a06bb973945f033b80dc62d19dd9c6c39e4442",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.185315791,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.990758542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1272:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "b9ef9cd0ad21590dc8c524ac0d349e2ea483881654fcfeafe53d505244f15579",
+      "current_diff_sha256": "16745842ce7568d8b44cb4c9dc5c0905736d3c1085f9667e42b99a32d4a4043e",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1229:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1272_col_13.log",
+      "log_sha256": "e5220a6f58a9f347ae0e9ec5426c709a4c138bc6a8e7a9b1a02792bef44e139c",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.912005625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.911612542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1271:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "b9dd34ed703557f1b38a589b85785ad25b986292784c2584909ef95c3b2f9618",
+      "current_diff_sha256": "90894eff8d6e837c24fb339ec8330c8cb679350f9d58d8b8162fe062f916859d",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1228:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1271_col_13.log",
+      "log_sha256": "266efba62008c48421eb5935c38bc4f43b29b666227063ee9a09699e1615ed66",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.064018208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.866149666,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1270:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "947f32c9bb92d4ff60370de0ac3efc6de6799046752e6420039bacbf3cb6f464",
+      "current_diff_sha256": "5b2d7b5d16cf9a453c9c5366ec6ee35ac643563f5c5ec8e80bb029da7164b457",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1227:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1270_col_13.log",
+      "log_sha256": "27401af53aaa9c32c6e658967d38e9a6f2c151d4d4d1ed2e89afffbb49156bd6",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.504567667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.988101291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1269:13: replace || with && in ManagedFs::replace_regular_file",
+      "old_diff_sha256": "217729b4f4a7dbda6033f05869439d93d8fef8d952b6673cd736e0307cce929e",
+      "current_diff_sha256": "6aa1247019a4ed30263ecac645256ed12113d1bd52550353892ece24f8aefc2a",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1226:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R2_path_exchange",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1269_col_13.log",
+      "log_sha256": "123c44e2ef50f086a4a0b9d300a7ee7fc4a7cb9bb895a029fa8208e9cf6fce01",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.795145209,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.842973708,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects"
+      ],
+      "detection_class": "uncertain_exchanged_endpoints_reported_success",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1339:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "old_diff_sha256": "5b1656d138799908f9d8233629b579f94db6f8af7925f64092678c7fabc08f4c",
+      "current_diff_sha256": "9ad8563aae3486d62bf38c9bf49a44023e8a87bc3c29e52a15f3ab27d8972f64",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1296:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R3_origin_removal",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1339_col_77.log",
+      "log_sha256": "495cc746832618a3d42e39e53315aeb5aec52cf4e9d12e945dfa18add8138fc8",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.385959125,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.225282834,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod"
+      ],
+      "detection_class": "wrong_root_epoch_deletion_authorized",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1339:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "old_diff_sha256": "823bb84a018980973d1646fd21cc410771057a9bbdaa17fee2a344a308a9006b",
+      "current_diff_sha256": "3c598bef35cdcbe2c659097f2699ff5c27e2ce82874b5d4be86f51422e25c1f1",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1296:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R3_origin_removal",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1339_col_37.log",
+      "log_sha256": "5a52dc9e35de26cdaf9c781dd76a711116fb6efa7f23aa6124c19fa9052261f0",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.918686916,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.150356709,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod"
+      ],
+      "detection_class": "wrong_root_epoch_deletion_authorized",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1431:37: replace || with && in ManagedFs::set_mode",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1572:37: replace || with && in ManagedFs::set_mode",
+      "old_diff_sha256": "378fa6459b85ba91f0b1aa094615c6002a92360278a5905fd0a005fb74e803ca",
+      "current_diff_sha256": "c2727e4941843a59869bba70c5355dc8f1f885dd297a4bc5decf78fb47487776",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1519:37: replace || with && in ManagedFs::set_mode",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R4_mode_origin_and_current_name",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "A",
+      "log": "mutation-g05-final/A/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1572_col_37.log",
+      "log_sha256": "45223151cd4cc3cceab6885dcd08e7ec1b483baf9f5cf07ba935b8a9bd0a7a8c",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.467861667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.105136625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod"
+      ],
+      "detection_class": "wrong_root_epoch_chmod_authorized",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1586:50: replace || with && in ManagedFs::set_mode",
+      "old_diff_sha256": "27cfcf09bc3c90977f733b5b3472f2a156f909c3fafa6eef1cd81e6207325e5f",
+      "current_diff_sha256": "5865345ed8686c98686771fa14b06313475c7d52ab10ddd76f4d208e43665906",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1533:50: replace || with && in ManagedFs::set_mode",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R4_mode_origin_and_current_name",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "B",
+      "log": "mutation-g05-final/B/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1586_col_50.log",
+      "log_sha256": "9a547495e982c0da44e38b3445ef4e7fda3252b0757c1ab918b8171a999f5dc3",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.604050458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.569798625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::mode_changes_detect_a_replacement_name_and_leave_the_new_object_untouched"
+      ],
+      "detection_class": "replacement_name_reported_success_after_original_chmod",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1695:9: replace || with && in check_rename_source",
+      "old_diff_sha256": "6a2854fb9e5745d87479f67ce3872db1905216adc8a2b39e2fdf77bf4fbd4502",
+      "current_diff_sha256": "c76b16a9fbb264562cc032076cc28e8c08e2b15bdc56fcd25cb0d1ef5a7827a5",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1642:9: replace || with && in check_rename_source",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R5_rename_source_eligibility",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "B",
+      "log": "mutation-g05-final/B/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1695_col_9.log",
+      "log_sha256": "0e58da0859ba291c9ea8ab744788ce64e22cb24bf43ed3dd6ed64da8707e6882",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.740159625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.854154458,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory"
+      ],
+      "detection_class": "hardlinked_regular_rename_authorized",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1696:9: replace || with && in check_rename_source",
+      "old_diff_sha256": "c74194baaf13479c42f0767ee9552e382c41d13c5e7cd6322a32fb8a07bb6218",
+      "current_diff_sha256": "5c50aa8007f3a35bbb34ad7984a1a84e671fac6cd02bfd5faae5b9dacd6c98b2",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1643:9: replace || with && in check_rename_source",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R5_rename_source_eligibility",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "B",
+      "log": "mutation-g05-final/B/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1696_col_9.log",
+      "log_sha256": "444fbab4bd7044d83c53dac68a5dcb90dfc926e09d6b6971980359b9d3c3e518",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 16.978002208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.963821792,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory"
+      ],
+      "detection_class": "hardlinked_regular_rename_authorized",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:18: replace == with != in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1695:18: replace == with != in check_rename_source",
+      "old_diff_sha256": "81a26fc3a0eb10253a20da77a6dbb8ea383039a6a3f132bad6e301f0de35b332",
+      "current_diff_sha256": "395832bcbef509f877e520787259031a2a4148013bcd9857748c130685042041",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1642:18: replace == with != in check_rename_source",
+      "current_source_sha256": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7",
+      "group": "R5_rename_source_eligibility",
+      "mapping": "equal source-line matching block from 63b05ca, same column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "batch": "B",
+      "log": "mutation-g05-final/B/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1695_col_18.log",
+      "log_sha256": "36fb61c59dca71036be84634a5e258fb518b8871bac143800fea50319b5111c4",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.264494708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.571836292,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(exchange_ownership_contract_tests)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory"
+      ],
+      "detection_class": "valid_directory_rename_refused",
+      "scope": "macOS aarch64 bounded real ManagedFs API; not all CLI/pending/host sequences"
+    }
+  ],
+  "detection_counts": {
+    "uncertain_exchanged_endpoints_reported_success": 9,
+    "wrong_root_epoch_deletion_authorized": 2,
+    "wrong_root_epoch_chmod_authorized": 1,
+    "replacement_name_reported_success_after_original_chmod": 1,
+    "hardlinked_regular_rename_authorized": 2,
+    "valid_directory_rename_refused": 1
+  }
+}

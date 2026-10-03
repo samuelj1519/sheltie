@@ -1,0 +1,158 @@
+{
+  "scope": "G05 independent read-only preparation; no oracle authorship or dynamic PASS",
+  "head": "b5226d07a8abca1c2a1b7eaee4de71eb19cf770d",
+  "platform": "aarch64-apple-darwin only",
+  "count": 16,
+  "groups": {
+    "R1_verified_exchange": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1163:13: replace || with && in ManagedFs::replace_verified_regular_file",
+        "old_diff_sha256": "22e5f17547b82cbdca148488e5500fc0d2ba947d4d7e33c9cb74c4a68fbe9f69",
+        "current_diff_sha256": "902c70eb79a2953f1de92305e082563a6cef685f8cb69cc10c43d3031756a8a8",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1162:13: replace || with && in ManagedFs::replace_verified_regular_file",
+        "old_diff_sha256": "6e747b5b61d9565b6c60a3579f862bfb735c7157cc5f96d248101a8385dd84e6",
+        "current_diff_sha256": "9f57fcadaa9201b601e353152b72ceea68caebcf0e6e9cafa435ddd1cef5f983",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      }
+    ],
+    "R2_path_exchange": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1232:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "fc484960290c32316204005f29697df65c00520a9f6868d61ac5c0762adb1448",
+        "current_diff_sha256": "5b4f2dbf1a0ca88132f26eb12db4b6de91110aff028a7806ec18a6eac28599de",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1231:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "6f0e3c47ac53d92574a949fa44a299e780781b8456742b02df631dc54ba921c6",
+        "current_diff_sha256": "b6c89a6f3cb0a24b7d9d56472e2796cbb3a9697870abaa14c5e9042d88498429",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1230:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "a32926e17f89b7f7b8fba1b8301752ed60dcea71bfcb6b80612bc6e956d31c3b",
+        "current_diff_sha256": "c5179493488ef6c0e05310f00576e0b1e75b8d6401a524a0d56596227999f418",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1229:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "b9ef9cd0ad21590dc8c524ac0d349e2ea483881654fcfeafe53d505244f15579",
+        "current_diff_sha256": "504ea4631bd7fe53762a4ac451726627575fddd81f4b6a298f71993b95fc356e",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1228:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "b9dd34ed703557f1b38a589b85785ad25b986292784c2584909ef95c3b2f9618",
+        "current_diff_sha256": "1030d91f6538bdb443da538c8ce15bb2207e3df94b8b05cce020f675200b02b5",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1227:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "947f32c9bb92d4ff60370de0ac3efc6de6799046752e6420039bacbf3cb6f464",
+        "current_diff_sha256": "2cfa50bee2a8f9ef9ba4e4abbe4db96f125fe63c1e36a33f840d846f8832640c",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1226:13: replace || with && in ManagedFs::replace_regular_file",
+        "old_diff_sha256": "217729b4f4a7dbda6033f05869439d93d8fef8d952b6673cd736e0307cce929e",
+        "current_diff_sha256": "e6042d711f6c0276bc23fc278b748566e607656b0b8e1df4ef9bdf8596637c59",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      }
+    ],
+    "R3_origin_removal": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1296:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+        "old_diff_sha256": "5b1656d138799908f9d8233629b579f94db6f8af7925f64092678c7fabc08f4c",
+        "current_diff_sha256": "dd29e8baed8fa25ee7758f9ff0996bc4d9b0cce193d54409a490699900f4551a",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1296:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+        "old_diff_sha256": "823bb84a018980973d1646fd21cc410771057a9bbdaa17fee2a344a308a9006b",
+        "current_diff_sha256": "85188f289cb7dd11f93d807801bae1197bb4b06d380d3a0635fe9200e958d4aa",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      }
+    ],
+    "R4_mode_origin_and_current_name": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1431:37: replace || with && in ManagedFs::set_mode",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1519:37: replace || with && in ManagedFs::set_mode",
+        "old_diff_sha256": "378fa6459b85ba91f0b1aa094615c6002a92360278a5905fd0a005fb74e803ca",
+        "current_diff_sha256": "adad3b0099b8a69fd924a15c2deda5152ca6f0bc6da55db61cac71de7e664912",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1533:50: replace || with && in ManagedFs::set_mode",
+        "old_diff_sha256": "27cfcf09bc3c90977f733b5b3472f2a156f909c3fafa6eef1cd81e6207325e5f",
+        "current_diff_sha256": "f1375f3e0d56a37e22a86ad90a2edd2abe3cd8676b1fbfbe80e2d610d159cba3",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      }
+    ],
+    "R5_rename_source_eligibility": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1643:9: replace || with && in check_rename_source",
+        "old_diff_sha256": "c74194baaf13479c42f0767ee9552e382c41d13c5e7cd6322a32fb8a07bb6218",
+        "current_diff_sha256": "4b5f8114724aa1e4ff4f36b1021b7c21d198ab0009172c200c5257fe5403f21b",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1642:9: replace || with && in check_rename_source",
+        "old_diff_sha256": "6a2854fb9e5745d87479f67ce3872db1905216adc8a2b39e2fdf77bf4fbd4502",
+        "current_diff_sha256": "02f533782cff04d104fd8a464a37244d4760f03f1fa813b13fbfc072d637bdba",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:18: replace == with != in check_rename_source",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1642:18: replace == with != in check_rename_source",
+        "old_diff_sha256": "81a26fc3a0eb10253a20da77a6dbb8ea383039a6a3f132bad6e301f0de35b332",
+        "current_diff_sha256": "8ae60589258867c868a436ffbe7037c487b4e47b678803a663a22a4c77de5711",
+        "execution": "not_run_by_this_review",
+        "disposition": "open_until_exact_consumer_or_whole_closure_proof"
+      }
+    ]
+  },
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "c593cf52197d043966d6475612177ed1680774ee5005d3d283467f687c65b08c",
+    "crates/sheltie-runtime/src/selfmgmt.rs": "b79de47dd76d1e40e54cbb489942e46ff3da0702b47cc40096c8f2a0e292b08a",
+    "crates/sheltie-runtime/src/pending.rs": "6d70b9b4488b8fe85ff1d11869a6d01473dc181a2876fb185cefad20213c7fc9",
+    "crates/sheltie-runtime/src/effects.rs": "7c8fad349738bdf64e883162ace75e753cc4489f6c01f16647920402a768ab9f",
+    "crates/sheltie-runtime/src/home.rs": "cf6cb4470000003c412f5b8523853ba4b3840e9d828a1f5831182900ed90529b"
+  },
+  "bounded_static_fact": {
+    "tmp_cleanup_origin": "same ManagedFs::self produces the SafeFile and reuses exact same ManagedRelPath in cleanup_expired_tmp; origin root/ident/rel all equal for that one consumer",
+    "limit": "pending cleanup wrappers instantiate a new ManagedFs after earlier SafeFile capture, so root epoch ABA is not dominated by that same-instance proof; no whole-ID equivalence"
+  },
+  "observer_gap": "no current exchange pre/post observer; use exact pre-stats→EXCHANGE boundary if necessary, not update_after_candidate_verify"
+}

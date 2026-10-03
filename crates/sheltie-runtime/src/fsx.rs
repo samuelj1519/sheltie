@@ -1179,6 +1179,8 @@ impl ManagedFs {
         let old_target = statat(&target_parent, &target_leaf, AtFlags::SYMLINK_NOFOLLOW)
             .map_err(|e| map_fs_error(&self.display_path(to), e))?;
         check_regular_stat(&self.display_path(to), &old_target)?;
+        crate::failpoint::rendezvous("verified_exchange_before_rename", &self.display_path(to))
+            .map_err(|error| Error::io(self.display_path(to), error))?;
         renameat_with(
             &source_parent,
             &source_leaf,
@@ -1239,6 +1241,8 @@ impl ManagedFs {
         let dst_before = statat(&dst_parent, &dst_leaf, AtFlags::SYMLINK_NOFOLLOW)
             .map_err(|e| map_fs_error(&dst_path, e))?;
         check_regular_stat(&dst_path, &dst_before)?;
+        crate::failpoint::rendezvous("regular_exchange_before_rename", &dst_path)
+            .map_err(|error| Error::io(&dst_path, error))?;
         renameat_with(
             &src_parent,
             &src_leaf,
@@ -4981,5 +4985,434 @@ mod open_flag_contract_tests {
             assert_eq!(std::fs::read(&bad).unwrap(), b"retain carrier");
             assert!(!home.store_path().as_path().exists());
         }
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod exchange_ownership_contract_tests {
+    use super::controlled_object_tests::observe_change;
+    use super::*;
+
+    fn temporary_home() -> (tempfile::TempDir, crate::Home) {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq)]
+    struct FileSnapshot {
+        bytes: Vec<u8>,
+        device: u64,
+        inode: u64,
+        mode: u32,
+        links: u64,
+    }
+
+    fn snapshot(path: &std::path::Path) -> FileSnapshot {
+        let metadata = std::fs::metadata(path).unwrap();
+        FileSnapshot {
+            bytes: std::fs::read(path).unwrap(),
+            device: metadata.dev(),
+            inode: metadata.ino(),
+            mode: metadata.mode(),
+            links: metadata.nlink(),
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn both_exchange_consumers_preserve_exact_objects_in_the_opposite_endpoints() {
+        for verified in [false, true] {
+            let (_directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let from = ManagedRelPath::new("source").unwrap();
+            let to = ManagedRelPath::new("target").unwrap();
+            fs.write_new(&lock, &from, b"candidate A").unwrap();
+            fs.write_new(&lock, &to, b"original B").unwrap();
+            let source = home.rel("source").unwrap();
+            let target = home.rel("target").unwrap();
+            let a = snapshot(source.as_path().as_std_path());
+            let b = snapshot(target.as_path().as_std_path());
+            let file = fs.open_regular(&from).unwrap();
+            if verified {
+                fs.replace_verified_regular_file(&lock, &file, &to, b"candidate A")
+                    .unwrap();
+            } else {
+                fs.replace_regular_file(&lock, &from, &to).unwrap();
+            }
+            assert_eq!(snapshot(source.as_path().as_std_path()), b);
+            assert_eq!(snapshot(target.as_path().as_std_path()), a);
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects() {
+        for verified in [false, true] {
+            let scenarios: &[&str] = if verified {
+                &["replace-source", "replace-target"]
+            } else {
+                &[
+                    "replace-source",
+                    "replace-target",
+                    "link-source",
+                    "link-target",
+                ]
+            };
+            for scenario in scenarios {
+                let (directory, home) = temporary_home();
+                let lock = home.acquire_lock().unwrap();
+                let fs = ManagedFs::open_existing(&home).unwrap();
+                let from = ManagedRelPath::new("source").unwrap();
+                let to = ManagedRelPath::new("target").unwrap();
+                fs.write_new(&lock, &from, b"candidate A").unwrap();
+                fs.write_new(&lock, &to, b"original B").unwrap();
+                let source = home.rel("source").unwrap();
+                let target = home.rel("target").unwrap();
+                let a = snapshot(source.as_path().as_std_path());
+                let b = snapshot(target.as_path().as_std_path());
+                let file = fs.open_regular(&from).unwrap();
+                let retained = directory.path().join("retained-object");
+                let mut actual_source = a.clone();
+                let mut actual_target = b.clone();
+                let marker = if verified {
+                    "verified_exchange_before_rename"
+                } else {
+                    "regular_exchange_before_rename"
+                };
+                let result = observe_change(
+                    marker,
+                    target.as_str(),
+                    move || {
+                        if verified {
+                            fs.replace_verified_regular_file(&lock, &file, &to, b"candidate A")
+                        } else {
+                            fs.replace_regular_file(&lock, &from, &to)
+                        }
+                    },
+                    || match *scenario {
+                        "replace-source" => {
+                            std::fs::rename(source.as_path(), &retained).unwrap();
+                            std::fs::write(source.as_path(), b"late replacement C").unwrap();
+                            actual_source = snapshot(source.as_path().as_std_path());
+                        }
+                        "replace-target" => {
+                            std::fs::rename(target.as_path(), &retained).unwrap();
+                            std::fs::write(target.as_path(), b"late replacement C").unwrap();
+                            actual_target = snapshot(target.as_path().as_std_path());
+                        }
+                        "link-source" => {
+                            std::fs::hard_link(source.as_path(), &retained).unwrap();
+                            actual_source = snapshot(source.as_path().as_std_path());
+                            assert_eq!(actual_source.links, 2);
+                        }
+                        "link-target" => {
+                            std::fs::hard_link(target.as_path(), &retained).unwrap();
+                            actual_target = snapshot(target.as_path().as_std_path());
+                            assert_eq!(actual_target.links, 2);
+                        }
+                        _ => unreachable!(),
+                    },
+                );
+                let Error::RecoveryRequired { path, detail } = result.unwrap_err() else {
+                    panic!("already exchanged uncertain objects must be retained for recovery")
+                };
+                assert_eq!(path, target.as_str());
+                assert!(detail.contains("交换后端点"), "{detail}");
+                assert_eq!(snapshot(source.as_path().as_std_path()), actual_target);
+                assert_eq!(snapshot(target.as_path().as_std_path()), actual_source);
+                let expected_retained = match *scenario {
+                    "replace-source" => &a,
+                    "replace-target" => &b,
+                    "link-source" => &actual_source,
+                    "link-target" => &actual_target,
+                    _ => unreachable!(),
+                };
+                assert_eq!(&snapshot(&retained), expected_retained);
+                assert!(!home.store_path().as_path().exists());
+            }
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod() {
+        for operation in ["delete", "readonly", "executable"] {
+            let (directory, home) = temporary_home();
+            let old_lock = home.acquire_lock().unwrap();
+            let old_fs = ManagedFs::open_existing(&home).unwrap();
+            let rel = ManagedRelPath::new("owned").unwrap();
+            old_fs
+                .write_new(&old_lock, &rel, b"original held object")
+                .unwrap();
+            let observed = old_fs.open_regular(&rel).unwrap();
+            let path = home.rel("owned").unwrap();
+            let before = snapshot(path.as_path().as_std_path());
+            let old_root = directory.path().join("original-home");
+            let old_root_metadata = std::fs::metadata(home.root().as_path()).unwrap();
+            std::fs::rename(home.root().as_path(), &old_root).unwrap();
+            let new_lock = home.acquire_lock().unwrap();
+            let new_fs = ManagedFs::open_existing(&home).unwrap();
+            let new_root_metadata = std::fs::metadata(home.root().as_path()).unwrap();
+            assert_eq!(old_root_metadata.dev(), new_root_metadata.dev());
+            assert_ne!(old_root_metadata.ino(), new_root_metadata.ino());
+            std::fs::rename(old_root.join("owned"), path.as_path()).unwrap();
+            assert_eq!(snapshot(path.as_path().as_std_path()), before);
+            let result = match operation {
+                "delete" => new_fs.remove_regular_file_if_same(&new_lock, &rel, &observed),
+                "readonly" => new_fs.set_readonly(&new_lock, &observed),
+                "executable" => new_fs.set_executable(&new_lock, &observed),
+                _ => unreachable!(),
+            };
+            let Error::InvalidRequest { reason } = result.unwrap_err() else {
+                panic!("old root epoch must not authorize a new root")
+            };
+            if operation == "delete" {
+                assert!(reason.contains("文件句柄身份不匹配"), "{reason}");
+            } else {
+                assert_eq!(reason, "文件句柄不属于此管理根");
+            }
+            assert_eq!(snapshot(path.as_path().as_std_path()), before);
+            assert_eq!(
+                snapshot(path.as_path().as_std_path()).inode,
+                observed.metadata().ino()
+            );
+            assert!(old_root.join(".lock").is_file());
+            assert!(!home.store_path().as_path().exists());
+            assert!(!old_root.join("store.db").exists());
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn mode_changes_detect_a_replacement_name_and_leave_the_new_object_untouched() {
+        for executable in [false, true] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let rel = ManagedRelPath::new("owned").unwrap();
+            fs.write_new(&lock, &rel, b"held original A").unwrap();
+            let observed = fs.open_regular(&rel).unwrap();
+            let path = home.rel("owned").unwrap();
+            let before = snapshot(path.as_path().as_std_path());
+            let retained = directory.path().join("retained-original");
+            std::fs::rename(path.as_path(), &retained).unwrap();
+            std::fs::write(path.as_path(), b"replacement B").unwrap();
+            let replacement = snapshot(path.as_path().as_std_path());
+            assert_eq!(replacement.device, before.device);
+            assert_ne!(replacement.inode, before.inode);
+            let result = if executable {
+                fs.set_executable(&lock, &observed)
+            } else {
+                fs.set_readonly(&lock, &observed)
+            };
+            let Error::InvalidRequest { reason } = result.unwrap_err() else {
+                panic!("the current name must still match the held original")
+            };
+            assert!(reason.contains("期间被替换"), "{reason}");
+            assert_eq!(snapshot(path.as_path().as_std_path()), replacement);
+            let after = snapshot(&retained);
+            assert_eq!(
+                (&after.bytes, after.device, after.inode, after.links),
+                (&before.bytes, before.device, before.inode, before.links)
+            );
+            assert_eq!(after.mode & 0o777, if executable { 0o755 } else { 0o444 });
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn rename_moves_only_a_single_link_regular_file_or_a_directory() {
+        for kind in ["regular", "directory", "hardlink", "symlink", "fifo"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let from = ManagedRelPath::new("source").unwrap();
+            let to = ManagedRelPath::new("target").unwrap();
+            let source = home.rel("source").unwrap();
+            let target = home.rel("target").unwrap();
+            let sentinel = directory.path().join("sentinel");
+            std::fs::write(&sentinel, b"external original sentinel").unwrap();
+            let external_before = snapshot(&sentinel);
+            match kind {
+                "regular" => fs
+                    .write_new(&lock, &from, b"single linked original")
+                    .unwrap(),
+                "directory" => {
+                    fs.ensure_dir(&lock, &from).unwrap();
+                    std::fs::write(source.as_path().join("child"), b"directory child").unwrap();
+                }
+                "hardlink" => std::fs::hard_link(&sentinel, source.as_path()).unwrap(),
+                "symlink" => std::os::unix::fs::symlink(&sentinel, source.as_path()).unwrap(),
+                "fifo" => assert!(
+                    std::process::Command::new("mkfifo")
+                        .arg(source.as_path())
+                        .status()
+                        .unwrap()
+                        .success()
+                ),
+                _ => unreachable!(),
+            }
+            let source_before = std::fs::symlink_metadata(source.as_path()).unwrap();
+            let result = fs.rename_new(&lock, &from, &to);
+            if matches!(kind, "regular" | "directory") {
+                result.unwrap();
+                assert!(!source.as_path().exists());
+                let moved = std::fs::symlink_metadata(target.as_path()).unwrap();
+                assert_eq!(
+                    (moved.dev(), moved.ino(), moved.mode()),
+                    (
+                        source_before.dev(),
+                        source_before.ino(),
+                        source_before.mode()
+                    )
+                );
+                if kind == "regular" {
+                    assert_eq!(
+                        std::fs::read(target.as_path()).unwrap(),
+                        b"single linked original"
+                    );
+                } else {
+                    assert_eq!(
+                        std::fs::read(target.as_path().join("child")).unwrap(),
+                        b"directory child"
+                    );
+                }
+            } else {
+                let Error::InvalidRequest { reason } = result.unwrap_err() else {
+                    panic!("unsafe rename source must be refused")
+                };
+                assert!(reason.contains("不是可受管移动对象"), "{reason}");
+                assert!(std::fs::symlink_metadata(target.as_path()).is_err());
+                let after = std::fs::symlink_metadata(source.as_path()).unwrap();
+                assert_eq!(
+                    (after.dev(), after.ino(), after.mode(), after.nlink()),
+                    (
+                        source_before.dev(),
+                        source_before.ino(),
+                        source_before.mode(),
+                        source_before.nlink()
+                    )
+                );
+                if kind == "symlink" {
+                    assert_eq!(std::fs::read_link(source.as_path()).unwrap(), sentinel);
+                }
+                if kind == "hardlink" {
+                    assert_eq!(
+                        std::fs::read(source.as_path()).unwrap(),
+                        b"external original sentinel"
+                    );
+                }
+            }
+            let external_after = snapshot(&sentinel);
+            assert_eq!(
+                (
+                    &external_after.bytes,
+                    external_after.device,
+                    external_after.inode,
+                    external_after.mode
+                ),
+                (
+                    &external_before.bytes,
+                    external_before.device,
+                    external_before.inode,
+                    external_before.mode
+                )
+            );
+            assert_eq!(
+                external_after.links,
+                if kind == "hardlink" {
+                    2
+                } else {
+                    external_before.links
+                }
+            );
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn exchange_observation_failures_preserve_both_unswapped_originals() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        for verified in [false, true] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let from = ManagedRelPath::new("source").unwrap();
+            let to = ManagedRelPath::new("target").unwrap();
+            fs.write_new(&lock, &from, b"candidate A").unwrap();
+            fs.write_new(&lock, &to, b"original B").unwrap();
+            let source = home.rel("source").unwrap();
+            let target = home.rel("target").unwrap();
+            let a = snapshot(source.as_path().as_std_path());
+            let b = snapshot(target.as_path().as_std_path());
+            let file = fs.open_regular(&from).unwrap();
+            let marker = if verified {
+                "verified_exchange_before_rename"
+            } else {
+                "regular_exchange_before_rename"
+            };
+            let carrier = directory.path().join("not-a-sync-directory");
+            std::fs::write(&carrier, b"retain carrier bytes").unwrap();
+            crate::failpoint::arm_rendezvous(marker, target.as_str(), &carrier).unwrap();
+            let result = if verified {
+                fs.replace_verified_regular_file(&lock, &file, &to, b"candidate A")
+            } else {
+                fs.replace_regular_file(&lock, &from, &to)
+            };
+            crate::failpoint::disarm_rendezvous().unwrap();
+            let Error::Io { path, .. } = result.unwrap_err() else {
+                panic!("failed pre-exchange observer must not change endpoints")
+            };
+            assert_eq!(path, target.as_str());
+            assert_eq!(snapshot(source.as_path().as_std_path()), a);
+            assert_eq!(snapshot(target.as_path().as_std_path()), b);
+            assert_eq!(std::fs::read(&carrier).unwrap(), b"retain carrier bytes");
+        }
+    }
+
+    // Task: C002-T52
+    #[test]
+    fn current_root_handles_authorize_mode_changes_and_removal_of_the_same_original() {
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("owned").unwrap();
+        fs.write_new(&lock, &rel, b"legitimate original bytes")
+            .unwrap();
+        let observed = fs.open_regular(&rel).unwrap();
+        let path = home.rel("owned").unwrap();
+        let before = snapshot(path.as_path().as_std_path());
+        for executable in [false, true] {
+            if executable {
+                fs.set_executable(&lock, &observed).unwrap();
+            } else {
+                fs.set_readonly(&lock, &observed).unwrap();
+            }
+            let after = snapshot(path.as_path().as_std_path());
+            assert_eq!(
+                (&after.bytes, after.device, after.inode, after.links),
+                (&before.bytes, before.device, before.inode, before.links)
+            );
+            assert_eq!(after.mode & 0o777, if executable { 0o755 } else { 0o444 });
+        }
+        fs.remove_regular_file_if_same(&lock, &rel, &observed)
+            .unwrap();
+        assert!(!path.as_path().exists());
+        let held = observed.file.metadata().unwrap();
+        assert_eq!(
+            (held.dev(), held.ino(), held.nlink()),
+            (before.device, before.inode, 0)
+        );
+        let mut reader = observed.file.try_clone().unwrap();
+        reader.rewind().unwrap();
+        let mut bytes = Vec::new();
+        reader.read_to_end(&mut bytes).unwrap();
+        assert_eq!(bytes, b"legitimate original bytes");
+        assert!(!home.store_path().as_path().exists());
     }
 }

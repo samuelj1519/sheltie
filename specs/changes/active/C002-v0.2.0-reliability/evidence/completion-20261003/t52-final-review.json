@@ -1,0 +1,297 @@
+{
+  "result": "PASS_scoped_T52_G05",
+  "reviewer": "/root/oracle_review; no direction/implementation/oracle authorship; read-only",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "f45e10c32796297c1b6260d9d58a9b8970936cde637a1e54d09b114ca7bbd9f7"
+  },
+  "input_count": 190,
+  "gate_input_count": 134,
+  "source_drift": [],
+  "exact_original_G05_set": true,
+  "mapping_bijective": true,
+  "mapping_source_line_function_column_genre_replacement_verified": true,
+  "old_stage1_results_preserved": true,
+  "counts": {
+    "uncertain_exchanged_endpoints_reported_success": 9,
+    "wrong_root_epoch_deletion_authorized": 2,
+    "wrong_root_epoch_chmod_authorized": 1,
+    "replacement_name_reported_success_after_original_chmod": 1,
+    "hardlinked_regular_rename_authorized": 2,
+    "valid_directory_rename_refused": 1
+  },
+  "dynamic_caught": 16,
+  "static": 0,
+  "missed": 0,
+  "timeout": 0,
+  "compile_only": 0,
+  "frozen_binaries": {
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t52-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967",
+      "cargo_reported_executable": true
+    },
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t52-frozen-binaries/sheltie",
+      "sha256": "0a4bc942310381c304842cae1da92edf3dd5389c9cf489e9f818d8c7e5e41493",
+      "cargo_reported_executable": true
+    }
+  },
+  "full_engineering": {
+    "nextest": 901,
+    "passed": 901,
+    "skip": 0,
+    "leak": 0,
+    "run_id": "5d4f11cf-054a-40d3-95cf-31a802f6a8d5",
+    "compilefail": 5,
+    "fmt_check_clippy_msrv_default": 0
+  },
+  "entries": [
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1075:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1204:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "149a127c265267758d58086a1a61ea9dae4706149aacaabb365079606d32b956",
+      "diff_sha256": "cecb86a06fbb0c7df771c77e64a5ca4d0963fa120ca26a8e0077d02574259a34",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1144:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1275:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "80c4ddaf0bd79e4417c4864a63b0661b50a48daea2a126388e2595052ac38ff9",
+      "diff_sha256": "72c0d7c74252b1c18454e2a0763a28c0085d717da42304d3f504a9c701fa99c0",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1143:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1274:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "438df695724a1ae8b15190176141f8bf4ac5fe820cbd35f5db21317b44ce1400",
+      "diff_sha256": "0f5beb10dc456ef4a4d1ad47ef444839a875d304162419078f3cc86ff2dd43b9",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1074:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1203:13: replace || with && in ManagedFs::replace_verified_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "b373fc7d282a0146ab9bbf1abdb08b1dbe3126765a2d91e83b6b3c3d7629b00e",
+      "diff_sha256": "d31e776bb57a3ad7b6965b9b3b33fc5e7a19da7c8a2685784e4c49ab5c16a7ce",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1142:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1273:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "28efaf49ed01c6a62a38720e81a06bb973945f033b80dc62d19dd9c6c39e4442",
+      "diff_sha256": "a2e50b0f4da6527a522f2e5c24cb71f600f5667ec2378ca2a353ceeddcad94b0",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1141:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1272:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "e5220a6f58a9f347ae0e9ec5426c709a4c138bc6a8e7a9b1a02792bef44e139c",
+      "diff_sha256": "16745842ce7568d8b44cb4c9dc5c0905736d3c1085f9667e42b99a32d4a4043e",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1140:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1271:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "266efba62008c48421eb5935c38bc4f43b29b666227063ee9a09699e1615ed66",
+      "diff_sha256": "90894eff8d6e837c24fb339ec8330c8cb679350f9d58d8b8162fe062f916859d",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1139:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1270:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "27401af53aaa9c32c6e658967d38e9a6f2c151d4d4d1ed2e89afffbb49156bd6",
+      "diff_sha256": "5b2d7b5d16cf9a453c9c5366ec6ee35ac643563f5c5ec8e80bb029da7164b457",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1138:13: replace || with && in ManagedFs::replace_regular_file",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1269:13: replace || with && in ManagedFs::replace_regular_file",
+      "classification": "uncertain_exchanged_endpoints_reported_success",
+      "target_test": "fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "123c44e2ef50f086a4a0b9d300a7ee7fc4a7cb9bb895a029fa8208e9cf6fce01",
+      "diff_sha256": "6aa1247019a4ed30263ecac645256ed12113d1bd52550353892ece24f8aefc2a",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1339:77: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "classification": "wrong_root_epoch_deletion_authorized",
+      "target_test": "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "495cc746832618a3d42e39e53315aeb5aec52cf4e9d12e945dfa18add8138fc8",
+      "diff_sha256": "9ad8563aae3486d62bf38c9bf49a44023e8a87bc3c29e52a15f3ab27d8972f64",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1208:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1339:37: replace || with && in ManagedFs::remove_regular_file_if_same",
+      "classification": "wrong_root_epoch_deletion_authorized",
+      "target_test": "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "5a52dc9e35de26cdaf9c781dd76a711116fb6efa7f23aa6124c19fa9052261f0",
+      "diff_sha256": "3c598bef35cdcbe2c659097f2699ff5c27e2ce82874b5d4be86f51422e25c1f1",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1431:37: replace || with && in ManagedFs::set_mode",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1572:37: replace || with && in ManagedFs::set_mode",
+      "classification": "wrong_root_epoch_chmod_authorized",
+      "target_test": "fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "45223151cd4cc3cceab6885dcd08e7ec1b483baf9f5cf07ba935b8a9bd0a7a8c",
+      "diff_sha256": "c2727e4941843a59869bba70c5355dc8f1f885dd297a4bc5decf78fb47487776",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1445:50: replace || with && in ManagedFs::set_mode",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1586:50: replace || with && in ManagedFs::set_mode",
+      "classification": "replacement_name_reported_success_after_original_chmod",
+      "target_test": "fsx::exchange_ownership_contract_tests::mode_changes_detect_a_replacement_name_and_leave_the_new_object_untouched",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "9a547495e982c0da44e38b3445ef4e7fda3252b0757c1ab918b8171a999f5dc3",
+      "diff_sha256": "5865345ed8686c98686771fa14b06313475c7d52ab10ddd76f4d208e43665906",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:9: replace || with && in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1695:9: replace || with && in check_rename_source",
+      "classification": "hardlinked_regular_rename_authorized",
+      "target_test": "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "0e58da0859ba291c9ea8ab744788ce64e22cb24bf43ed3dd6ed64da8707e6882",
+      "diff_sha256": "c76b16a9fbb264562cc032076cc28e8c08e2b15bdc56fcd25cb0d1ef5a7827a5",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1546:9: replace || with && in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1696:9: replace || with && in check_rename_source",
+      "classification": "hardlinked_regular_rename_authorized",
+      "target_test": "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory",
+      "panic": "called `Result::unwrap_err()` on an `Ok` value: ()",
+      "log_sha256": "444fbab4bd7044d83c53dac68a5dcb90dfc926e09d6b6971980359b9d3c3e518",
+      "diff_sha256": "5c50aa8007f3a35bbb34ad7984a1a84e671fac6cd02bfd5faae5b9dacd6c98b2",
+      "build_success": true,
+      "test_failure": 100
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1545:18: replace == with != in check_rename_source",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1695:18: replace == with != in check_rename_source",
+      "classification": "valid_directory_rename_refused",
+      "target_test": "fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory",
+      "panic": "called `Result::unwrap()` on an `Err` value: InvalidRequest { reason: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpOPhv5J/home/source 不是可受管移动对象\" }",
+      "log_sha256": "36fb61c59dca71036be84634a5e258fb518b8871bac143800fea50319b5111c4",
+      "diff_sha256": "395832bcbef509f877e520787259031a2a4148013bcd9857748c130685042041",
+      "build_success": true,
+      "test_failure": 100
+    }
+  ],
+  "governance": [
+    {
+      "name": "task",
+      "argv": [
+        "scripts/task.sh",
+        "C002-T52"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.729,
+      "sha256": "2d5be28b8ce9605e9d089d2ff410ddd41e1aeee327136aabbe70a652acae9a29"
+    },
+    {
+      "name": "check-docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.055,
+      "sha256": "6ee002e548dac4714bcd7cfa15a4f84d46f189a354bd074bda1c51413c9000cf"
+    },
+    {
+      "name": "check-specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5,
+      "sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "check-tests",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.191,
+      "sha256": "538ed199055dbca3b4c4374ca2f41e47e5c23b895438b5ea3f2b02d18f4da80a"
+    },
+    {
+      "name": "check-skill",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.616,
+      "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    {
+      "name": "check-core-vocab",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.211,
+      "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+    }
+  ],
+  "dispositions_sha256": "bd8ff098af6a964c3767dbf34ac8b07089463ba8b56ed4207f0059c944201a60",
+  "source_review": "t52-source-review.md/json identical post-simplification source SHA",
+  "task_completion_gate": "Owner must mark done and rerun check-task, archive readback, commit; not performed by reviewer",
+  "limitations": [
+    "current macOS aarch64 bounded ManagedFs API consumers only",
+    "set_mode name refusal occurs after original A chmod; replacement B unchanged",
+    "positive directory rename top-level identity and child bytes only, not recursive whole-tree identity proof",
+    "file/parent sync and recovery checks do not prove power-loss behavior",
+    "previous compile101/baselines and original stage1 MissedMutant retained",
+    "T53 not_run planning is outside execution inputs and not implementation",
+    "does not close other SK02 groups/C002-M2/C001-C008"
+  ]
+}

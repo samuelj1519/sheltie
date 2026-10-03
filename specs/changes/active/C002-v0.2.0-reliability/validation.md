@@ -536,3 +536,19 @@ Rust 1.85、默认特性编译及治理各自原文保留。原 from_mode 非八
 
 
 原样本、控制器错误、整理前源码、基线与最终日志见 [原文档案](evidence/completion-20261003/t51-g04-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t51-oracle-archive.json) 保真。累计 119/215 项动态检测、13/215 项限定静态处分，剩余 83 项继续 T43；不记为旧 M1、C002-M2 或全产品完成。
+
+
+## C002-T52 文件交换、按原件删除与权限资格
+
+依据 [G05 独立准备](evidence/completion-20261003/g05-oracle-directions.md)，新增 7 项真实消费者 oracle 与两个既有特性同步点。观察点在两端 pre-stat/候选资格完成后、EXCHANGE 前；正常交换按原 A/B 的 bytes/dev/ino/mode/nlink 核双方，不明端点或链接数保留已交换端点与全部原件、报 RecoveryRequired。错误 epoch 用同词法新管理根、新锁及实际移入的原 A 保证后层对象身份相同，不伪造 ManagedOrigin，不借旧锁绕过检查。
+
+set_mode 的拒绝对照明确旧 held A 已先被 chmod；只保证新名称 B 的完整字节/权限不变，不称失败无副作用。rename 覆盖合法单链接普通文件和目录，以及硬链接、链接、FIFO 拒绝；目录正例仅核顶层身份与 child 字节，不扩大为全树 inode 证明。两个 marker 错误先 disarm，再核双方仍未交换。
+
+首轮夹具使用了错误的 Home/store 与 disarm API，编译101原文保留，不算产品红。修正后的 6/6、补合法 mode/delete 后 7/7、整理后 7/7 基线实际通过。整理仅把独立五字段 snapshot 改为具名 FileSnapshot，模块前字节与所有断言/字面量保持。[源码与 oracle 独立准备审查](evidence/completion-20261003/t52-source-review.md) 通过；8 个代表变体 8/8 Caught、43.097 秒、输入稳定。最终冻结 16 项全部动态检测和工程/逐 ID 独审已通过；M2 仍 not_run。
+
+
+[逐 ID 账本](evidence/completion-20261003/t52-g05-dispositions.json) 覆盖 A12/12、B4/4 Caught、exit0、source_unchanged=true，139.990/46.039 秒。独立逐日志分类为 9 项不明交换端点误报成功、2 项错误 root epoch 删除放行、1 项错误 epoch chmod、1 项当前 B 绑定误报成功、2 项硬链接 rename 放行、1 项合法目录被拒；不把最后一项称非法接受。
+
+[最终工程](evidence/completion-20261003/t52-final-gates.json) 使用 Cargo 实际返回的 [冻结 binary/SHA/env](evidence/completion-20261003/t52-frozen-binaries.json)，134 工程输入与 190 变异输入无漂移。run `5d4f11cf-054a-40d3-95cf-31a802f6a8d5` 为 901/901、零 skip/零 LEAK；5 compile-fail、fmt/check/Clippy、Rust 1.85 和默认特性全通过，Task7/7与治理通过。[最终独立审查](evidence/completion-20261003/t52-final-review.md) 准确核 16 旧集合/映射、每条 log/diff SHA、产物来源和检测边界。
+
+原样本、整理前源码、夹具失败与全部最终原文见 [原文档案](evidence/completion-20261003/t52-g05-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t52-oracle-archive.json) 全部一致。当前累计 135/215 项动态检测、13/215 项限定静态处分，剩余 67 项继续 T43；不记旧 M1、M2 或全产品完成。

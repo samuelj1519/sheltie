@@ -338,7 +338,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T49 | done | Codex；独立 Reviewer | G02精确47闭环：35动态捕获/12限定静态；863全回归、独审通过 |
 | C002-T50 | done | Codex；独立 Reviewer | G03精确26：25动态/1限定静态，880全回归及独审通过 |
 | C002-T51 | done | Codex；独立 Reviewer | G04 精确27全部动态检测；894全回归与独审通过 |
-| C002-T52 | not_run | Codex；独立 Reviewer | G05 文件交换、按原件删除与权限资格；T51 提交后实施 |
+| C002-T52 | done | Codex；独立 Reviewer | G05 精确16全部动态检测；901全回归及独审通过 |
+| C002-T53 | not_run | Codex；独立 Reviewer | G06 外部树读取、有界摘要与 UTF8；T52 提交后实施 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -411,3 +412,12 @@ G05 准确 16 旧 ID，以独立准备的实际消费者和完整原件关系为
 根 epoch 资格采用真实 SafeFile：旧根改名，同一路径创建新根、新锁和 ManagedFs，将原文件实际移入新根保持同 inode；旧 handle origin 不变。以错误 epoch 拒绝和原件 bytes/mode/路径完整性区分 origin guard，不被后层身份拒绝掩盖。该有界 API 反例单列，不扩为真实 CLI/所有 cleanup caller。set_mode 的原 held FD 与之后 current name 比较用真实 A→保留、B→原位置；应拒绝且 B 不被 chmod。rename_new 的合法普通/目录、硬链接/符号链接/FIFO拒绝核全原件，不读 FIFO 或用 timeout 检测。
 
 先非零合法基线及代表样本，再最多12项/600秒冻结批次；观察点 marker 错误需写前不交换，RAII释放/join与根外保留对象先复核。最终精确映射、原日志、全工程/MSRV/治理和未参与准备的独立 Reviewer 完成后提交，不反写旧 Missed。
+
+
+### C002-T53 外部树读取、完整清单与有界摘要
+
+G06 准确 8 个旧 ID。最终 files/directories 单侧变化、opened 同 inode 长度变化/同长度换 inode、最终 fstat 后 extra-byte 使用真实树 API 和字节，不由其它时间的事实支配。必要观察点只在 existing feature 下加到完整 opened 核验后、正文读取前；read_file 的 cap 接受/多一字节拒绝与真实 copy 的 32MiB 硬上限分别核，后层清单拒绝、错误原因和暂存写入不能当首次读取合格。
+
+流式 frame guard 与 UTF8 状态的静态候选须由独立 Reviewer 核完整当前 caller 和准确成功结果/分类闭包；保留读取次数、诊断、pending 内存及累计复制差异，不称全观察/全资源等价。没有已采用预算时不发明资源阈值或镜像私有字段断言。任何真实有用差异按实际合同另列，不把数学分类相同扩大为全部行为相同。
+
+先合法基线、实际短样本，再冻结 8 ID、source/fixture/binary/config；每批最多12项/600秒。marker错误需无正文读取/无目标创建，线程与FD有界回收。工程/MSRV/治理和未参与准备的逐 ID 独立审查完成后，一个任务一个提交。

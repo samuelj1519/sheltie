@@ -1,0 +1,30 @@
+[
+  {
+    "name": "msrv",
+    "argv": [
+      "cargo",
+      "+1.85.0",
+      "check",
+      "--all-targets",
+      "--all-features",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.094,
+    "sha256": "37ad679e8893368393800d2ff7006cb61c7971eb1a05c6072edc025df1ff9d22"
+  },
+  {
+    "name": "default-check",
+    "argv": [
+      "cargo",
+      "check",
+      "-p",
+      "sheltie-runtime",
+      "--no-default-features",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.715,
+    "sha256": "fc0d7fb12d3bcdac846d0ae3e7abab76f5b7697d26efd3b5c8c88b07c2527e98"
+  }
+]

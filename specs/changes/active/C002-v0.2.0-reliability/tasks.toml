@@ -309,3 +309,8 @@ allow_test_changes = true
 files = ["specs/changes/active/C002-v0.2.0-reliability", "crates/sheltie-runtime/src/fsx.rs"]
 test_files = ["crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/tests/fs_boundary.rs"]
 allow_test_changes = true
+
+[C002-T53]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/workbook_digest.rs"]
+test_files = ["crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/workbook_digest.rs", "crates/sheltie-runtime/tests/workbook_digest.rs", "crates/sheltie-runtime/tests/workbook_repo.rs"]
+allow_test_changes = true

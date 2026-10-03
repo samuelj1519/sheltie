@@ -1,0 +1,69 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+error[E0599]: no method named `store_db` found for struct `home::Home` in the current scope
+    --> crates/sheltie-runtime/src/fsx.rs:5038:27
+     |
+5038 |             assert!(!home.store_db().as_path().exists());
+     |                           ^^^^^^^^ method not found in `home::Home`
+     |
+    ::: crates/sheltie-runtime/src/home.rs:43:1
+     |
+  43 | pub struct Home {
+     | --------------- method `store_db` not found for this struct
+
+error[E0599]: no method named `store_db` found for struct `home::Home` in the current scope
+    --> crates/sheltie-runtime/src/fsx.rs:5126:31
+     |
+5126 |                 assert!(!home.store_db().as_path().exists());
+     |                               ^^^^^^^^ method not found in `home::Home`
+     |
+    ::: crates/sheltie-runtime/src/home.rs:43:1
+     |
+  43 | pub struct Home {
+     | --------------- method `store_db` not found for this struct
+
+error[E0599]: no method named `store_db` found for struct `home::Home` in the current scope
+    --> crates/sheltie-runtime/src/fsx.rs:5175:27
+     |
+5175 |             assert!(!home.store_db().as_path().exists());
+     |                           ^^^^^^^^ method not found in `home::Home`
+     |
+    ::: crates/sheltie-runtime/src/home.rs:43:1
+     |
+  43 | pub struct Home {
+     | --------------- method `store_db` not found for this struct
+
+error[E0599]: no method named `store_db` found for struct `home::Home` in the current scope
+    --> crates/sheltie-runtime/src/fsx.rs:5324:27
+     |
+5324 |             assert!(!home.store_db().as_path().exists());
+     |                           ^^^^^^^^ method not found in `home::Home`
+     |
+    ::: crates/sheltie-runtime/src/home.rs:43:1
+     |
+  43 | pub struct Home {
+     | --------------- method `store_db` not found for this struct
+
+error[E0061]: this function takes 0 arguments but 2 arguments were supplied
+    --> crates/sheltie-runtime/src/fsx.rs:5358:13
+     |
+5358 |             crate::failpoint::disarm_rendezvous(marker, target.as_str());
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ------  --------------- unexpected argument #2 of type `&str`
+     |                                                 |
+     |                                                 unexpected argument #1 of type `&str`
+     |
+note: function defined here
+    --> crates/sheltie-runtime/src/failpoint.rs:76:8
+     |
+  76 | pub fn disarm_rendezvous() -> std::io::Result<()> {
+     |        ^^^^^^^^^^^^^^^^^
+help: remove the extra arguments
+     |
+5358 -             crate::failpoint::disarm_rendezvous(marker, target.as_str());
+5358 +             crate::failpoint::disarm_rendezvous();
+     |
+
+Some errors have detailed explanations: E0061, E0599.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `sheltie-runtime` (lib test) due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package sheltie-runtime --all-features --locked` exited with code 101

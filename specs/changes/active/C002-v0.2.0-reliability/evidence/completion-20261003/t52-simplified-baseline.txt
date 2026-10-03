@@ -1,0 +1,14 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.87s
+────────────
+ Nextest run ID 5278e797-8614-4099-b9d1-ad3672e3d6dc with nextest profile: default
+    Starting 7 tests across 19 binaries (384 tests skipped)
+        PASS [   0.042s] (1/7) sheltie-runtime fsx::exchange_ownership_contract_tests::current_root_handles_authorize_mode_changes_and_removal_of_the_same_original
+        PASS [   0.103s] (2/7) sheltie-runtime fsx::exchange_ownership_contract_tests::mode_changes_detect_a_replacement_name_and_leave_the_new_object_untouched
+        PASS [   0.104s] (3/7) sheltie-runtime fsx::exchange_ownership_contract_tests::both_exchange_consumers_preserve_exact_objects_in_the_opposite_endpoints
+        PASS [   0.105s] (4/7) sheltie-runtime fsx::exchange_ownership_contract_tests::exchange_observation_failures_preserve_both_unswapped_originals
+        PASS [   0.122s] (5/7) sheltie-runtime fsx::exchange_ownership_contract_tests::a_safe_file_from_a_replaced_root_epoch_cannot_authorize_delete_or_chmod
+        PASS [   0.136s] (6/7) sheltie-runtime fsx::exchange_ownership_contract_tests::rename_moves_only_a_single_link_regular_file_or_a_directory
+        PASS [   0.201s] (7/7) sheltie-runtime fsx::exchange_ownership_contract_tests::exchange_detects_late_endpoint_replacements_and_link_changes_without_discarding_objects
+────────────
+     Summary [   0.202s] 7 tests run: 7 passed, 384 skipped
