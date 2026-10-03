@@ -1,8 +1,8 @@
 # C006 验证
 
-Candidate: `none`
+Candidate: `3572741f21a01a29d2e7e03dcf2d88c1476147eb`
 
-状态：`active`。T01安全原语与阶段准备已验证；正常raw/export入口、真实收益及最终验收尚未完成。下表前半是计划oracle，执行事实见阶段记录。
+状态：`active`。实现与指南已完成；M2待T06补齐两个原定窗口后独立收口。真实收益未执行。下表前半是计划oracle，执行事实见阶段记录。
 
 ## 1. 源与目标验收矩阵
 
@@ -44,7 +44,7 @@ Candidate: `none`
 
 采用后固定候选、工具链、features、平台、C004 DTO、fixtures、环境、两个 binary 摘要、过滤器与实际命令。复用须有相同闭包与原 run ID；执行模式不是 PASS。
 
-| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| 原定验证义务 | 原计划模式 | 待固定输入 | 原计划命令 | 原状态 | 原计划证据 |
 | --- | --- | --- | --- | --- | --- |
 | C004 结果与可信源读取 | not_run | 待 T01 固定 | 未执行 | not_run | 无 |
 | 目录句柄与 NOREPLACE | not_run | 待支持平台固定 | 未执行 | not_run | 无 |
@@ -134,6 +134,47 @@ T05全cached diff exit2仅两份工具原文EOF空行，见[evidence清单](evid
 
 开工候选 `b37938930487beb70ae1e0aacfbd18646e4baf88`。指南补真实Cargo JSON路径、构建失败立即停止/两binary齐全、新raw私有暂存文件与退出码、四状态和现场处置。字面默认features/locked构建片段实际exit0，[构建命令](evidence/t03/default-build-command.sh)、[Cargo JSON](evidence/t03/default-build.jsonl)、[编译/两SHA输出](evidence/t03/default-build.txt)保留。先前allfeatures capsule run单列，不冒充默认构建。
 
-[默认binary实际手册机制](evidence/t03/default-mechanism.json)14CLI均exit0：三选定报告的手工副本与工具副本bytes/size/SHA完全相同，manifest.result同一次结果，三次business status DTO相同；用户编辑旧副本后重跑生成新副本且原编辑保留。都是明确fixture文字/临时目录，不是真实代码质量、首次用户试用或净收益。独立Reviewer已核前一capsule机制同样14calls及实际文件，默认新原件交M2。
+[默认binary实际手册机制](evidence/t03/default-mechanism.json)14条外层CLI均exit0：三选定报告的手工副本与工具副本bytes/size/SHA完全相同，manifest.result同一次结果，三次business status DTO相同；模拟编辑旧副本后重跑生成新副本且原编辑保留。都是明确fixture文字/临时目录，不是真实代码质量、首次用户试用或净收益。独立Reviewer已核前一capsule机制同样14calls及实际文件，默认新原件交M2。
 
 [真实用途前检](evidence/t03/preflight.json)缺用户/目的/同质量对照及人工投入，原真实义务授权延期，minutes/usage为null而非0。未进行正式安装或发布。CHANGELOG仅未发布段改schema4/v4并补已实现替换/raw/export，历史release不改。无所属Rust用例，不运行零测试task.sh；源码、832/30消费者及MSRV输入按未变分组引用，指南/治理另验。
+
+## 最终限定实现验收表
+
+最终T06修订后以新的完整842单run、固定新双binary的21公共consumer、默认构建/14条外层CLI及Rust1.85检查替换改变组证据；原832/19/30记录保留历史范围。只改记录的后续M2单独治理，不宣称相同whole hash；所有原失败/未执行项保留。
+
+| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| 同快照资格/revision/key及受限FD原字节读取 | reused | 最终source/全部原语/fixture/features，37原语含842回归 | 36297026-2963-426c-8a6b-d6ebde77078e | PASS | [完整工程](evidence/t06/gates-final.txt) |
+| macOS目录句柄、私有对象、NOREPLACE/权限/链接/限额/读回 | reused | Target17原语及原native probe，T06两个精确窗口含最终842 | 同842；ca409eaa-f821-474e-a5a4-5f00f07c9fca | PASS | [native](evidence/t01/target-platform.txt)、[原语](evidence/t01/primitives-final.txt) |
+| raw/整份成果/manifest/Store业务不变/重跑保留编辑 | executed | 实际Cargo JSON构建的私有双binary，SHA前后相同，原19冻结oracle+2新增真实窗口 | bddfa327-3e62-4c1d-afa7-c599c94e7515 | PASS | [21consumer](evidence/t06/feature-frozen-binaries.txt)、[binary身份](evidence/t06/binary-capsule.json) |
+| 实际kill/sync窗口与发布后未确认、残留保真 | executed | 同21新binary/fixture；T04完整通知、T06前读回/partialmanifest独立预期 | 同21与842；6a65908d-fe53-46ed-a53d-a9465fd1dc49 | PASS | [完整链](evidence/t06/feature-frozen-binaries.txt)、[握手](evidence/t04/marker-ready-final-green.txt) |
+| 引擎/导出Rust工程与普通消费者 | reused | 最终source/Cargo/全部features/840原tests+2新tests与相同环境 | 36297026-2963-426c-8a6b-d6ebde77078e，842/842 | PASS | [fmt/check/clippy/842](evidence/t06/gates-final.txt) |
+| RC开发权威、release/tag/历史/CHANGELOG门禁 | executed | T05新script/fixture+原22断言不变，8新oracle | cargo test release_governance，30/30 | PASS | [30原文](evidence/t05/governance-final.txt)、[旧8red](evidence/t05/old-governance-red.txt) |
+| Rust1.85最终候选编译 | executed | T05冻结全部source/tests/Cargo/config/features；locked | cargo +1.85.0 check --locked --all-targets --all-features | PASS | [MSRV](evidence/t06/msrv-final.txt) |
+| 缓存依赖风险/许可/来源 | reused | Cargo graph/policy/features/缓存117edb3未变；不是在线fresh | 同T06cached deny | PASS | [deny](evidence/t06/gates-final.txt) |
+| 默认构建与准确首次读者指南、临时复制机制 | executed | 字面default/locked Cargo JSON；真实双binary SHA；14CLI/实际3文件 | default build及mechanism命令exit0 | PASS | [构建](evidence/t06/default-build.txt)、[实际机制](evidence/t06/default-mechanism.json)、[指南](../../../guides/result-export.md) |
+| 原始失败、环境/真实价值延期与可执行补验入口 | executed | 原文保真及当前preflight，无伪造用户/成本事实 | 独立M2+当前docs/spec/tests/scope | PASS | [前提](evidence/t03/preflight.json)、[runbook](experiments/runbook.md) |
+
+## 原义务的授权延期
+
+| 义务 | 结果 | 具体缺项与补验 |
+| --- | --- | --- |
+| 真正用户、可编辑副本用途、首次使用及同质量人工对照收益 | not_run | 目的/使用者/质量标准/成本缺失；按runbook补，usage与分钟null |
+| 其他OS及跨设备实机载体 | not_run | 当前只实测macOS arm64同设备；提供目标载体再核 |
+| 实际cargo-dist asset plan | not_run | 本机无dist命令exit101；静态publish=false/dist=false不当实际计划 |
+| 配置要求nextest0.9.145 | not_run | 已装0.9.140；override实际run单列，原exit92零执行 |
+| 在线fresh advisory | not_run | 使用117edb3缓存；fresh获取需后续环境补全 |
+
+历史LEAK unknown分别保留；历史832/19无LEAK与当前842的4LEAK各自保留，不证明旧run已定位或全宿主零残留。complete只承诺规定OS同步，不是物理断电保证或恶意同权限隔离。未执行安装/发布/push/merge。
+
+T06精确补验：原19点包括AfterReadback/AfterManifestWrite，未直接覆盖全体发布前复核开始前/部分manifest写入；不当相邻等价。旧binary真实2caller red留在evidence/t06，T06补齐后另用新binary闭包验，不复用旧19作为新Target source的同闭包。
+
+## C006-T06 精确窗口收口
+
+两个实际旧binary caller red `55172769-3110-4529-9406-44987e4d4e32` 2FAIL、exit100：合法Work已完成但没有新checkpoint。新Target在publish全体最终readback开始前暂停；manifest真实前半bytes写后暂停，复核父/stage/held leaf身份/0600再写余半。旧point/原10场景/T04helper/common完全未改，新的2oracle核partial/no-manifest、真实SIGKILL、3实际Artifact/业务不变及重跑场景保真，独立短审PASS。
+
+新固定Cargo JSON binary [21公共consumer](evidence/t06/feature-frozen-binaries.txt) run `bddfa327-3e62-4c1d-afa7-c599c94e7515` 21/21 PASS，前后SHA相同；[完整门禁](evidence/t06/gates-final.txt) run `36297026-2963-426c-8a6b-d6ebde77078e` 842/842 PASS、0skip、2slow、4LEAK、exit0，fmt/check/clippy/缓存deny/docs146/specs8/1active/tests842/272cards全部通过。4LEAK分别为delete_refuses_root_replaced_before_unlink、两duplicate_flow_id场景、replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt；cause unknown。它们是旧CLI消费者，未定位原因，不能以新21无LEAK洗掉，也不调容忍或重复到绿。
+
+最终[Rust1.85](evidence/t06/msrv-final.txt)全targets/features locked check0；新source的[默认构建](evidence/t06/default-build.txt)与[14条外层CLI机制](evidence/t06/default-mechanism.json)均exit0，三实际报告的手工/tool副本字节/size/SHA/manifest/业务status和模拟编辑后重跑保留一致。Input closure见[evidence](evidence/t06/input-closure-gate.txt)，状态记录在run后另改，源码/所有oracle保持冻结。实际价值和环境延期不变；T06是覆盖修复，不是新收益或发布。
+
+T06全cached diff exit2仅两份immutable工具原文尾空格/EOF空行，见[evidence清单](evidence/t06/diff-check.json)；精确排除后作者检查exit0，原字节保留。

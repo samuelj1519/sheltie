@@ -27,7 +27,7 @@ test_files = []
 allow_test_changes = false
 
 [C006-M2]
-files = ["specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/review.md"]
+files = ["specs/changes/active/C006-result-delivery/evidence/m2", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/review.md"]
 test_files = []
 allow_test_changes = false
 
@@ -39,4 +39,9 @@ allow_test_changes = true
 [C006-T05]
 files = ["scripts/check-specs.sh", "specs/README.md", "specs/engineering.md", "specs/decisions/README.md", "specs/decisions/D-043-development-target-authority.md", "crates/sheltie-cli/tests/release_governance.rs", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/review.md", "specs/changes/active/C006-result-delivery/evidence/t05"]
 test_files = ["crates/sheltie-cli/tests/release_governance.rs"]
+allow_test_changes = true
+
+[C006-T06]
+files = ["crates/sheltie-export/src/target.rs", "crates/sheltie-export/src/failpoint.rs", "crates/sheltie-export/tests/crash.rs", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/review.md", "specs/changes/active/C006-result-delivery/evidence/t06"]
+test_files = ["crates/sheltie-export/src/target.rs", "crates/sheltie-export/tests/crash.rs"]
 allow_test_changes = true

@@ -29,7 +29,9 @@ fn target_point(name: &str) -> Option<crate::target::TargetPoint> {
     use crate::target::TargetPoint;
     match name {
         "after_file_sync" => Some(TargetPoint::AfterFileSync),
+        "before_readback" => Some(TargetPoint::BeforeReadback),
         "after_readback" => Some(TargetPoint::AfterReadback),
+        "during_manifest_write" => Some(TargetPoint::DuringManifestWrite),
         "after_manifest_write" => Some(TargetPoint::AfterManifestWrite),
         "before_tree_sync" => Some(TargetPoint::BeforeTreeSync),
         "before_rename" => Some(TargetPoint::BeforeRename),
@@ -44,7 +46,9 @@ fn target_boundary(point: crate::target::TargetPoint) {
     use crate::target::TargetPoint;
     let name = match point {
         TargetPoint::AfterFileSync => "after_file_sync",
+        TargetPoint::BeforeReadback => "before_readback",
         TargetPoint::AfterReadback => "after_readback",
+        TargetPoint::DuringManifestWrite => "during_manifest_write",
         TargetPoint::AfterManifestWrite => "after_manifest_write",
         TargetPoint::BeforeTreeSync => "before_tree_sync",
         TargetPoint::BeforeRename => "before_rename",

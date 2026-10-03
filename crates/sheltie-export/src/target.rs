@@ -583,6 +583,7 @@ impl Staging {
     }
 
     pub fn publish(&mut self, result: &SelectedResult, files: &[CopiedFile]) -> Result<PathBuf> {
+        checkpoint(TargetPoint::BeforeReadback, &self.path())?;
         self.verify_contents()?;
         checkpoint(TargetPoint::AfterReadback, &self.path())?;
         result.validate(&self.work)?;
@@ -613,7 +614,14 @@ impl Staging {
         verify_entry(&self.root, "manifest.json", &file, &manifest_path, false)?;
         fchmod(&file, Mode::from_raw_mode(0o600))
             .map_err(|error| io_error(&manifest_path, "chmod_manifest", error.into()))?;
-        file.write_all(&bytes)
+        let split = bytes.len() / 2;
+        file.write_all(&bytes[..split])
+            .map_err(|error| io_error(&manifest_path, "write_manifest", error))?;
+        checkpoint(TargetPoint::DuringManifestWrite, &manifest_path)?;
+        self.verify()?;
+        verify_entry(&self.root, "manifest.json", &file, &manifest_path, false)?;
+        verify_private_mode(&file, &manifest_path, 0o600)?;
+        file.write_all(&bytes[split..])
             .map_err(|error| io_error(&manifest_path, "write_manifest", error))?;
         self.manifest = Some((file, bytes));
         checkpoint(TargetPoint::AfterManifestWrite, &manifest_path)?;
@@ -734,7 +742,9 @@ fn sync(file: &File, path: &Path) -> Result<()> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetPoint {
     AfterFileSync,
+    BeforeReadback,
     AfterReadback,
+    DuringManifestWrite,
     AfterManifestWrite,
     BeforeTreeSync,
     BeforeRename,

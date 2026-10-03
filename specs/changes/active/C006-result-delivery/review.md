@@ -47,3 +47,7 @@ Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以mani
 ## C006-T05 独立治理审查
 
 结论：`PASS`。独立Reviewer及其只读helper核唯一首屏规范authority、数值active冲突先于released分支、确切非产品/无active的匹配RC与全部拒绝分支；原tag/历史/CHANGELOG及旧22断言保持。8新真实red、修后30green与工程/治理原文一致，源/Cargo/releases/tag未变。D-043具体版本改链接唯一权威，避免复制可变事实。发现既有CHANGELOG未发布段仍写schema3/v3，明确交T03文案修正，不影响本逻辑结论，不添无关测试。
+
+## C006-T06 精确窗口短审
+
+独立Reviewer及只读oracle助手结论：`PASS`。真实边界位置、partial bytes/继续前身份权限复核、同FD余半及全部后续发布保证正确；原crash.rs字节为当前前缀，旧10场景/T04helper/common未变。2旧binary真实red、新21green与默认14/MSRV已核，正式T06和M2仍以当前842实际全gate及固定commit收口。相邻after点不当原定before/mid点等价，旧证据保持原范围。

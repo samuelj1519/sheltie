@@ -30,6 +30,7 @@
 | C006-T02 | done | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
 | C006-T05 | done | 复杂作者/later_plans；独立Reviewer | 未发布RC开发目标权威与生命周期治理修复 | T02完成、实验采用前 |
 | C006-T03 | done | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
+| C006-T06 | done | 复杂作者/root与later_plans；独立Reviewer | 补前读回与部分清单写入的真实kill窗口 | M2逐项核覆盖 |
 | C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
 阶段 1 入口为 C004 结果候选和副本需求；出口为 primitive green、普通行为回归通过、真实 feature caller 可编译且有意义 red、工具及引擎未激活未完成复制/raw 入口。阶段 2 入口为 M1 骨架完整 SHA、冻结 source/target 接口与命令；出口为全链行为、实际使用及 M2 采用义务完成。本轮复杂作者在 T01 完成安全原语及必要耦合的 library 编排/状态政策，T02 仅公开 raw/export 参数与入口；不为模型分工拆空任务。
@@ -152,3 +153,11 @@ T02完整回归4954967d为829PASS/1FAIL，reached文件已存在但尚为空；w
 **测试。** `check_specs_accepts_authorized_rc_during_nonproduct_experiment`、`check_specs_accepts_authorized_rc_after_product_package_is_completed`、`check_specs_rejects_missing_duplicate_or_invalid_development_authority`、`check_specs_requires_development_authority_in_first_screen`、`check_specs_rejects_numeric_active_conflict_even_when_cargo_version_is_released`、`check_specs_rejects_unknown_nonproduct_target_even_when_cargo_version_is_released`、`check_specs_rejects_rc_outside_authority_during_nonproduct_experiment`、`check_specs_authorized_rc_without_active_still_requires_changelog`。
 
 Owner分开：later_plans负责check-specs、README字段与release_governance测试；root先写工程权威、D-043、任务范围和记录。验收用例先建立再登记实际名称。check/clippy/fmt、release_governance全部真实consumer、独立review、docs/spec/tests/范围通过再提交；引擎source/Cargo/格式及832运行输入未变部分按消费者引用，不重跑无关完整引擎链。未发布目标不是发布授权。
+
+### C006-T06：补齐两个原定真实崩溃窗口
+
+M2逐项对照发现原19caller只在AfterReadback/AfterManifestWrite暂停，不能等同原要求的全部成果读回前/清单写入中。已有8checkpoint证据保持原范围；复杂作者新增BeforeReadback和DuringManifestWrite外部边界，后者在真实manifest部分字节写入后、其余写入前暂停。正常路径仍写同一完整清单并读回/同步后整目录发布；移动/权限/OS/大小政策不改。
+
+**测试。** `kill_before_independent_readback_preserves_artifacts_without_publication`、`kill_during_manifest_write_preserves_partial_manifest_without_publication`。
+
+Root新建两个真实CLI消费者先取缺checkpoint的red；later_plans只改Target/failpoint、保留旧points。新oracle核3文件实字节、partial JSON不完整/读回前无manifest、实际SIGKILL/无响应/无final、business status/result不变、重跑只新建完整副本并保留旧场景。原10crash断言不改。2新green、原Target/crash/publicconsumer、真实固定binary、完整工程门禁与MSRV按实际变更执行；独立审查后提交T06再M2。不能据静态分支或相邻点宣称原窗口通过。

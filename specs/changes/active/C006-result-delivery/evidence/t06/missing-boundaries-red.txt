@@ -1,0 +1,51 @@
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+────────────
+ Nextest run ID 55172769-3110-4529-9406-44987e4d4e32 with nextest profile: default
+    Starting 2 tests across 7 binaries (47 tests skipped)
+        FAIL [   0.340s] (1/2) sheltie-export::crash kill_before_independent_readback_preserves_artifacts_without_publication
+  stdout ───
+
+    running 1 test
+    test kill_before_independent_readback_preserves_artifacts_without_publication ... FAILED
+
+    failures:
+
+    failures:
+        kill_before_independent_readback_preserves_artifacts_without_publication
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.33s
+
+  stderr ───
+
+    thread 'kill_before_independent_readback_preserves_artifacts_without_publication' (59433600) panicked at crates/sheltie-export/tests/crash.rs:43:17:
+    未到达真实边界 before_readback：status=exit status: 0 stdout={"format":"work-export/v1","status":"complete","work_id":"2026-10-03-001-default","revision":3,"target_path":"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpj0heoT/copies/2026-10-03-001-default-01a0ff5f-0190-71cd-950c-2096c3bdd29d","staging_path":null,"error":null}
+     stderr=
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.285s] (2/2) sheltie-export::crash kill_during_manifest_write_preserves_partial_manifest_without_publication
+  stdout ───
+
+    running 1 test
+    test kill_during_manifest_write_preserves_partial_manifest_without_publication ... FAILED
+
+    failures:
+
+    failures:
+        kill_during_manifest_write_preserves_partial_manifest_without_publication
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.28s
+
+  stderr ───
+
+    thread 'kill_during_manifest_write_preserves_partial_manifest_without_publication' (59433622) panicked at crates/sheltie-export/tests/crash.rs:43:17:
+    未到达真实边界 during_manifest_write：status=exit status: 0 stdout={"format":"work-export/v1","status":"complete","work_id":"2026-10-03-001-default","revision":3,"target_path":"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpvSHMKd/copies/2026-10-03-001-default-01a0ff5f-02a8-70bc-8c54-24bc781696b6","staging_path":null,"error":null}
+     stderr=
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   0.626s] 2 tests run: 0 passed, 2 failed, 47 skipped
+        FAIL [   0.340s] (1/2) sheltie-export::crash kill_before_independent_readback_preserves_artifacts_without_publication
+        FAIL [   0.285s] (2/2) sheltie-export::crash kill_during_manifest_write_preserves_partial_manifest_without_publication
+error: test run failed
