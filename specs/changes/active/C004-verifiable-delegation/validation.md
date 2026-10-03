@@ -178,3 +178,9 @@ Root作为真实下一C005消费者读取三文档并按交付首动作实际读
 ## C004-T08 原始日志跟踪修复
 
 基线为T07提交3c744e29235c78d21f8e6fc18bdae766eac9328b。按独审F01精确force-add清单21文件；index blob、实际工作文件与ccf7a0c旧completed blob逐字节同值，大小和双SHA见[t08原件核对](evidence/resume-20261004/t08-staged-raw-preservation.json)。没有改原日志、全局ignore或历史结论；恢复的是新checkout证据可得性。F02逐调用历史观察缺口单独留原，不因日志修复自动关闭。独立Reviewer已增量核21旧blob=index=physical通过；提交读回随后完成。原raw whitespace令full cached exit2，明确原21raw排除后authoring exit0，不称全cached PASS。
+
+## C004-T09 逐查询补验事前准备
+
+F02旧B快照不可追补。独立Reviewer确认原running窗口+新fork-none完成Work真实消费的每查询观察足够，无需重复文档生产或造新撤销样本。新规程、84实际冻结路径（含Work task/project原件）、observer、prompt均在consumer-*文件；observer只读五表/业务对象，Home外新证据不覆盖，透传原CLI stdout与exit，CLI/observer资格失败exit分别记，正常/timeout部分字节以base64留原。原run17:41:37连续60min计；CLI前剩余时间重核、timeout受remaining限制、结束后超限不得成功。
+
+独审初版发现入口deadline不足与实际start-inputs未冻结，尚未派consumer时修正，原finding保存。语法AST和84SHA检查通过；独立事前窄审PASS，freeze/observer/84原件及原finding逐核；先提交T09再派T10，不提前授实际消费或M3 PASS。无新产品行为或管理状态；原21日志提交d8e0349已逐blob读回同值。

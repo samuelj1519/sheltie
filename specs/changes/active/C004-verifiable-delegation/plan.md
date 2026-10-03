@@ -135,7 +135,7 @@ T02/T03 最新冻结测试修订：`2914e8564047809659c4610d151f9ea6ceef7476`，
 | C004-T06 | done | Codex；独立Reviewer | C002-M2 ccf7a0c | 事前输入/角色/质量/完整原件/预算及独立scope复核通过 |
 | C004-T07 | done | 协调者；实际A/B执行者；独立内容Reviewer | T06 af830f5 | 真实C005开工包，通过同Attempt冷接续、独立质量和最终三refs，下一协调者实际使用 |
 | C004-T08 | done | Codex；独立Reviewer | T07发现 | 恢复21原raw日志tracking，字节不改 |
-| C004-T09 | todo | Codex；独立Reviewer | T08 | 逐查询观察器与新消费者事前冻结 |
+| C004-T09 | done | Codex；独立Reviewer | T08 | 逐查询观察器与新消费者事前冻结 |
 | C004-T10 | todo | 新fork-none消费者；独立Reviewer | T09 | 实际每查询观察与三成果使用，不追补旧B历史 |
 | C004-M3 | not_run | 未参与产物编写的Reviewer | T07 | 当前采用agent范围及环境完整限定验收，不改写旧真人/净收益 |
 

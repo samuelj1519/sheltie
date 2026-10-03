@@ -100,3 +100,7 @@ Reviewer独立核完整741/741无skip及check/clippy/fmt/governance；13selected
 Reviewer /root/c004_execution_review未参与规程/输入/节点产物，当前实际链scoped通过，原件见[evidence报告](evidence/resume-20261004/t07-execution-review.md)与同名JSON。独立现场查询及逐原session核A/B停写和冷续、内容质量、终态、3refs、5表/47业务对象、下一消费者实际使用；不冒称真人或净收益。
 
 M3需修改：21原tracked日志移动后新路径被忽略，T08恢复tracking；B两次直接status未逐调用采集全对象快照，原标准有实际偏差，保留未观测，后续事前冻结观察器补新实际执行者查询，不能补造历史。early deliver部分shell exit字段未打印、写操作时间粒度与最终消息/task_complete区别均如实限定。T07文档治理/任务范围及提交读回单列，不以内容PASS代替门禁。
+
+## C004-T08/T09 独立增量
+
+Reviewer /root/c004_execution_review已逐d8e0349 commit blob核21原日志=ccf7旧blob，F01关闭。T09初版needs_changes在无consumer执行时修复四项：deadline前后/timeout、实际start-inputs冻结、CLI与observer退出码分列、原字节base64。最终窄审PASS，84原件无漂移，原件[报告](evidence/resume-20261004/t09-preflight-review.md)与JSON；只授准备，不授实际consumer/F02/M3。

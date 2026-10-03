@@ -1,5 +1,5 @@
 # C004 恢复交接
 
-T06已提交af830f5。T07真实Work已Succeeded revision7，独立内容审查通过，三refs/只读五表与业务对象/实际下一消费者使用已实际核验。执行独审正在查四actor原始工具记录、成本与限定范围，尚未标T07 done；plan是唯一状态权威。
+T07提交3c744e2已观察范围PASS；T08提交d8e0349恢复21旧原raw tracking，提交读回逐byte同值。M3仍待F02当前补验。T09已准备observer/protocol/prompt/freeze，尚未派consumer，独立事前核正在执行；先提交再T10派新fork-none实际消费者。
 
-原件集中evidence/resume-20261004，run harddeadline18:41:37Z，包括记录与消费者。原真人/paired/宿主重开/费用/旧LEAK等留原；C005尚未激活，首动作只读已执行，未发现真实撤销事件。执行审通过、治理/范围/提交后再M3归档，只按已授权顺序继续下一package。
+原run从17:41:37Z连续计，到18:41:37Z硬限包括记录/治理/补修/消费者，不能另开60min。旧B两查询逐调用快照仍缺，永不追补；原running窗口已核。新消费者每次status/result用外部observer实采5表/objects，读三成果并准备C005首动作；C005仍不可提前激活。原真人/费用/LEAK等保留，plan唯一状态权威。
