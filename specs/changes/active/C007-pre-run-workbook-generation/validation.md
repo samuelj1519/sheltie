@@ -106,3 +106,7 @@ C007-M1本轮限定PASS，candidate53ceed8d完整SHA；原正式准入与六run�
 ## C007-T02 授权未执行记录
 
 开工bf6b26e1cabe61b6e621a91b5455b3f036f43075。按本轮范围登记[runs规划表](experiments/runs/README.md)六位：真实sample/run/actor ID均null、outcome not_run、原因逐项列明。没有正式Work、candidate/patch/checks/接受/盲审、真实重开或naturalrework，也没有人工P/S/M/R/E和usage数据。不用机制fixture代正式run，not_run不增使用历史。无准入不能开始计时/分配ID，按原标准补真实输入后独立正式M1再追加原件。
+
+## C007-T03 证据边界分析
+
+开工ed85bfaa167533ae898fa1e40aefc18c2d572227。[report](experiments/report.md)只描述11核心资产、13条技术CLI与六planning slots的实际范围。没有正式质量/人工P/S/M/R/E/累计/usage/费用/真实历史/重开/返工/接受原件，全部unknown/not_run，不估算差值或0收益，不认定产品无价值，也不提出无证据平台增量。保留原输入/标准/原件，逐项写正式补验门槛；方法生成与CLI成功不代实际使用。
