@@ -102,3 +102,7 @@ protocol/quality/templates记录实际任务、连续使用者/history、模型/
 T01作者文件的8处多余EOF空行在cached diff检查被发现，仅规范结尾单换行，未改方法词句。原CLI/闭包保真存preparation/prior-authoring，因Workbook字节摘要改变，另用新Home按规范后实际输入重跑13条CLI全部PASS，并登记新asset-closure；不把旧digest当新输入。
 
 C007-M1本轮限定PASS，candidate53ceed8d完整SHA；原正式准入与六run不变，未重跑同输入CLI/引擎。docs/spec/tests及scope另验。
+
+## C007-T02 授权未执行记录
+
+开工bf6b26e1cabe61b6e621a91b5455b3f036f43075。按本轮范围登记[runs规划表](experiments/runs/README.md)六位：真实sample/run/actor ID均null、outcome not_run、原因逐项列明。没有正式Work、candidate/patch/checks/接受/盲审、真实重开或naturalrework，也没有人工P/S/M/R/E和usage数据。不用机制fixture代正式run，not_run不增使用历史。无准入不能开始计时/分配ID，按原标准补真实输入后独立正式M1再追加原件。
