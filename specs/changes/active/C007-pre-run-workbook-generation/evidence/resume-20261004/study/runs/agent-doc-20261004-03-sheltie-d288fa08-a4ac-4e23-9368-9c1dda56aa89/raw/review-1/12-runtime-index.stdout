@@ -1,0 +1,56 @@
+crates/sheltie-cli/src/output.rs:65:        replayed_data(response.data, response.replayed),
+crates/sheltie-cli/src/output.rs:70:pub(crate) fn replayed_data(mut data: serde_json::Value, replayed: bool) -> serde_json::Value {
+crates/sheltie-cli/src/output.rs:72:        map.insert("replayed".to_string(), serde_json::Value::Bool(replayed));
+crates/sheltie-runtime/src/recovery.rs:118:    let committed = current.is_some();
+crates/sheltie-runtime/src/recovery.rs:142:                    committed,
+crates/sheltie-runtime/src/recovery.rs:170:                committed,
+crates/sheltie-runtime/src/recovery.rs:177:    if !committed {
+crates/sheltie-runtime/src/recovery.rs:254:    committed: bool,
+crates/sheltie-runtime/src/recovery.rs:255:    pending_request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:259:    let (cause, cause_detail, pending_original) = match blocker {
+crates/sheltie-runtime/src/recovery.rs:264:            pending_original,
+crates/sheltie-runtime/src/recovery.rs:266:        } => (cause, cause_detail, pending_original.or(original)),
+crates/sheltie-runtime/src/recovery.rs:270:        committed,
+crates/sheltie-runtime/src/recovery.rs:272:        pending_request_id: Some(pending_request_id.to_string()),
+crates/sheltie-runtime/src/recovery.rs:276:        pending_original,
+crates/sheltie-runtime/src/recovery.rs:287:        object.insert("replayed".to_string(), serde_json::Value::Bool(false));
+crates/sheltie-runtime/src/recovery.rs:302:        object.insert("replayed".to_string(), serde_json::Value::Bool(false));
+crates/sheltie-runtime/src/service.rs:46:    pub replayed: bool,
+crates/sheltie-runtime/src/service.rs:179:        let mut replay_hit = false;
+crates/sheltie-runtime/src/service.rs:190:                        replay_hit = true;
+crates/sheltie-runtime/src/service.rs:202:        if !replay_hit {
+crates/sheltie-runtime/src/service.rs:230:            return svc.replay(request_id, row.reply_json, &session.lock);
+crates/sheltie-runtime/src/service.rs:444:    pub fn replace(
+crates/sheltie-runtime/src/service.rs:452:        let intent = RequestIntent::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:489:            Ok(PreparedCommand::plain(Command::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:536:    pub fn status_read(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
+crates/sheltie-runtime/src/service.rs:998:            && !response.replayed
+crates/sheltie-runtime/src/service.rs:1037:    fn run_command(
+crates/sheltie-runtime/src/service.rs:1068:            return svc.replay(request_id, row.reply_json, &session.lock);
+crates/sheltie-runtime/src/service.rs:1100:    /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
+crates/sheltie-runtime/src/service.rs:1118:        crate::recovery::before_write(&self.home, &self.store, lock, request_id, intent_hash, self)
+crates/sheltie-runtime/src/service.rs:1128:        crate::recovery::finish_request(
+crates/sheltie-runtime/src/service.rs:1152:    ) -> crate::recovery::RequestLoadResult<(crate::recovery::CheckedRequest, Response)> {
+crates/sheltie-runtime/src/service.rs:1196:            || persisted.replayed
+crates/sheltie-runtime/src/service.rs:1206:            replayed: persisted.replayed,
+crates/sheltie-runtime/src/service.rs:1234:        let original = crate::recovery::work_original_response(&work, &snapshot);
+crates/sheltie-runtime/src/service.rs:1270:            crate::recovery::RequestLoadError::with_original(cause, original.clone())
+crates/sheltie-runtime/src/service.rs:1273:            crate::recovery::CheckedRequest {
+crates/sheltie-runtime/src/service.rs:1302:            replayed: false,
+crates/sheltie-runtime/src/service.rs:1332:                    replayed: false,
+crates/sheltie-runtime/src/service.rs:1339:                self.replay(request_id.to_string(), reply_json, lock)
+crates/sheltie-runtime/src/service.rs:1344:    /// 重放：返回原快照（`replayed = true`），先完成未发布效果；历史 `next` 是历史
+crates/sheltie-runtime/src/service.rs:1346:    fn replay(
+crates/sheltie-runtime/src/service.rs:1355:            .map_err(|cause| crate::recovery::own_pending(&request_id, None, cause))?
+crates/sheltie-runtime/src/service.rs:1357:                crate::recovery::own_pending(
+crates/sheltie-runtime/src/service.rs:1373:            return Err(crate::recovery::own_pending(
+crates/sheltie-runtime/src/service.rs:1379:        crate::recovery::finish_checked_request(
+crates/sheltie-runtime/src/service.rs:1383:            crate::recovery::CheckedRequestEffects {
+crates/sheltie-runtime/src/service.rs:1391:        resp.replayed = true;
+crates/sheltie-runtime/src/service.rs:1396:impl crate::recovery::RecoveryAccess for WorkService {
+crates/sheltie-runtime/src/service.rs:1401:    ) -> crate::recovery::RequestLoadResult<crate::recovery::CheckedRequest> {
+crates/sheltie-runtime/src/service.rs:1431:        || persisted.replayed
+crates/sheltie-runtime/src/service.rs:1442:    if let Command::ReplaceAttempt { reason, .. } = &command {
+crates/sheltie-runtime/src/service.rs:1452:        replayed: persisted.replayed,
+crates/sheltie-runtime/src/service.rs:1597:            Command::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:2071:            if field == "reason" && matches!(cmd, Command::ReplaceAttempt { .. }) {

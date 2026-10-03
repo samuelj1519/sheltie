@@ -1,0 +1,294 @@
+FILE specs/changes/completed/C002-v0.2.0-reliability/validation.md
+645: ## C002-T43 全部215精确欠项汇总
+646: 
+647: 当前HEAD为T57提交4487ac1。215旧ID恰好无重漏，206表达式在当前库存唯一映射，9个旧连接符已由T55结构验证替换；[当前映射](evidence/completion-20261003/t43-latest215-binding.json)本身不授执行或复用批准。累计目标分类为185动态/21限定静态/9结构，最终汇总待独立审查，不把不同输入的旧结果写成当前执行。
+648: 
+649: 两早期schema样本缺候选闭包，已在当前190输入用两个真实Store消费者补验2/2、28.897秒，基线2/2，源码无漂移；[独审](evidence/completion-20261003/t43-schema-current-review.md)通过。原e54 schema版本2与当前4分开，表定义和normalization算法相同，实际红为坏BLOB在ReadOnly被接受/合法库被误拒，名称schema2的手写夹具实际设置当前4。执行base4bf9仅当时HEAD，实际输入含T57新测试并逐SHA匹配4487。
+650: 
+651: [原缺口](evidence/completion-20261003/t43-findings.md)保留：另30早期运行仅126/127 crate输入，没有完整根Cargo、配置与外部fixture记录；不从base或运行时间补造。按12/7/11三批补当前190资格，旧run/标签保留。当前正反consumer控制7/7与43/43通过；A12/12已Caught160.646秒，B7/7实际Caught99.548秒，后11/11实际Caught169.107秒，三批190输入均无漂移。A及此前控制未记录dispatch六环境键，明确unknown，不用T57旧snapshot当当时null；其真实目的branch由独审逐raw核。后两批dispatch先记录六键实际值。
+652: 
+653: [当前生产与caller差异复核](evidence/completion-20261003/t43-current-delta-qualification.md)核默认无新增观察I/O、T55两个纯模块同式接线、T56模型sync与T57生产0；21静态与9结构条件继续成立。保留UTF8诊断/资源、FD机制、模型同步和原9native未执行限制，不称185当前全重跑/215旧原生全执行。T43准确215独审通过后标记done；M2仍not_run。
+654: 
+655: 当前30完整结果已绑定[215账本](evidence/completion-20261003/t43-215-dispositions.json)。formal runtime基线分别3/3/31；补充CLI/runtime7与43控制分列，不称formal7/43。A/B若后层仍拒绝而错认original，只记不合格original被认领；snapshot两项虽拒且无original，实际错借冻结副本缺失诊断，记资格优先序/诊断而非最终接受。当前共37个动态ID有本最终候选的实际执行（30补验+schema2+T57五），148个动态ID沿各完整冻结闭包结果并由独立当前caller/生产差异复核，不称185全部最新重跑。21静态与9结构继续分别登记，原stage1全部Missed及9旧native未执行保留。[最终T43独审](evidence/completion-20261003/t43-final-review.md)通过，不授M2。
+656: 
+657: 最终215独审通过，无剩余必须补验项；[验收绑定](evidence/completion-20261003/t43-acceptance-binding.json)固定账本与review SHA，账本的pending字段只表示不可变的审查前装配阶段。原F-T43-01留原，以当前30实际补验和独审另列resolved，不倒填旧缺失输入。原始当前32补验/190源码/215账本与报告见[资格档案](evidence/completion-20261003/t43-current-qualification.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t43-oracle-archive.json)一致。首次回读因三LICENSE-MIT软链未成为regular成员失败，保留首次tar与路径/target/content SHA；改内容快照并保留链接出处后通过，无源码或执行变化。
+658: 
+659: 默认check-task首次因跨后续change历史快照差异exit1；T43收尾按明确冻结基线4487核零源码/测试/snapshot改动，记录独立原文，不修改检查器或放开快照规则。
+660: 
+661: 
+662: ## C002-T45 当前macOS aarch64原生适用性
+663: 
+664: T43提交b2dea33后源码/fixture/config未变，134工程输入逐SHA匹配同原生948/948与5doc。当前[实测](evidence/completion-20261003/t45-native-current-probe.json)记录arm64与Mach-O、Cargo实际engine SHA66aa、Rust/nextest/系统版本。df的/private/tmp设备为/dev/disk3s5，diskutil实际Data挂载点APFS，两个st_dev同为16777234；不是根只读snapshot设备的猜测。沙箱DiskManagement不可用与无效/private/tmp disk标识exit1留原，只读宿主设备查询另成功，不安装VM/修改磁盘。
+665: 
+666: 临时自有合法中文源目录与中文Home实际add成功，四个源file SHA与安装副本全部一致，源未改，Readonly fixture安全回收后原路径不存在。非法UTF8实际execve argv被CLI以exit2拒绝、Home未创建；同948原生os_process还有非法SHELTIE_HOME/HOME及显式override控制。物理badFF普通file和directory均在本APFS载体以errno92/EILSEQ拒绝创建；engine物理遍历fixture明确not_run/environment_blocked，纯bytes名称用例不充当其执行，不泛化全macOS文件系统。
+667: 
+668: [既有预检边界](evidence/completion-20261003/t45-original-preflight-boundary.json)记录当前文件声明的d27816旧candidate与当前SHA；未定位独立不可变历史副本，不称历史原件逐字保真已独审。当前实测独立，不能迁移旧probe到新候选。仅本次授权的macOS aarch64实际载体/可构造输入，Linux/Intel excluded_by_user，usage未知null，无发布。[独立原生适用性审查](evidence/completion-20261003/t45-native-review.md)通过，仅限当前载体/可构造输入。无其他必须可构造T45补验项，T45标记done，物理badFF遍历未运行保留；M2仍not_run。
+669: 
+670: 
+671: ## C002-M2 完整Spec与工程收尾
+672: 
+673: 当前候选32c085f源码190/工程134子集逐SHA相同，完整工程引用同输入run fca0838a-afa4-436c-af23-0403e735b3b9的948/948与5doc，不将纯文档提交称最新重跑。215资格及当前APFS可构造native适用性分开；37当前/148分组冻结加当前差异、21静态、9结构及所有原native/物理/资源/模型/usage限制留原。
+674: 
+675: M2 live查询发现官方RustSec HEAD从f8更新为ef6173cbc5c50ec8166f9a5b28f07834144373ee，旧db原样保留；新owned临时db禁用git hooks独立取数后离线跑相同政策（只dbpath），四类check全部通过。[当前deny执行](evidence/completion-20261003/m2-deny-execution.json)记录实际新SHA与lockedgraph，旧PASS不充新dataset；原政策不含dbpath，初次copy准备断言失败未运行deny，改在advisories段增加临时路径并解析比较除该值外完全一致，不改项目政策。
+676: 
+677: 按当前Git状态实际[dist plan](evidence/completion-20261003/m2-dist-plan-execution.json)exit0，仅sheltie-cli0.3rc1六资产，其中binary仅aarch64，无exporter发布资产；Cargo/lock/policy/cratemanifest输入SHA与T42相同，计划只读取，不构建/发布/安装。
+678: 
+679: 完整Spec复核指出protocol编号先读@file与当前先载入Workbook/Flow/核keys不符，白名单先纳入protocol后只准确化4/5顺序，replayfirst/GF30/不建Home/锁内重核保持。source190没有变化。最终Spec/工程独审仍doing，M2不提前done；通过后才归档目录、同步路由并依次恢复用户已授权C004–C008。
+680: 
+681: 
+682: ## C002-T58 M2审计事实资格修复
+683: 
+684: 完整Spec原候选32c独审NEEDS_CHANGES，原normal工程通过不抵消真实反例。自有临时gated-release经过合法start/begin/submit/approve全部请求published，仅改approve的audit.principal为测试字符串；同request-id重放exit0/oktrue/by保留原账户，status则StoreCorrupt。只变1个审计字段，其他四表与audit其余字段及后续五表/业务树都保全。原实测与首次Spec/工程报告按原字节留存，新修复与新验收分开。用户要求继续本地仓库维护，测试数据仅自有临时根，不创建真实账户或变更权限。T58已采用，未修源码前先设计与真实回归红；M2不能done。
+685: 
+686: T58最小实现仅service.rs：纯层共享principal非空/Timestamp规范/批准by-at与audit一致，在冻结IO前；原read的7Reply执行事实谓词逐分支保持，显式借request_id/audit/state/reply，读与写在业务绑定后/original生成前共同调用。合法effect错误仍进入with_original闭包；没有新状态/公开接口/账户权限/观察点，不按当前OS用户或当前Work状态替代历史事实。
+687: 
+688: 三新增CLI能力：真实批准后来WorkSucceeded仍仅replayed字段变；完整Start/Begin/Replace/Fail/Submit/Approve/Cancel历史控制，后续真实UTC秒不同；Gate主体空/不同或req-audit时刻耦合改变，冻结在/移同Work保留目录六case；普通Start空及Start/Cancel错时刻三case。仅指定列变化，失败后五表原值与全业务对象dev/ino/mode/nlink/bytes保全。Start错时刻可被既有Start publication更早拒，只作回归，不声称隔离新增execution；Cancel错时刻才隔离新执行事实核验。原actor仅测试记录串，不称真实新账户或真人批准。
+689: 
+690: 原32c代码真实回归1PASS/1FAIL，扩事件能力为1PASS/2FAIL；最小源码修后2PASS/1fixtureFAIL来自readonly完成目录跨parent move。第一次放开并恢复父目录仍被APFS跨parent readonly移入失败；改同Work兄弟目录保留后3/3通过，原失败留原。独审F-T58-01发现Submit与最终updatedAt可能同秒，补Submit后真实等待下一秒；首次同源951/42绿存独立before-final-time-control，不充最新新testSHA。
+691: 
+692: 最终[工程](evidence/completion-20261003/t58-final-gates.json)新source/实际Cargo产物、独立冻结binary：run `424c53bc-4a8a-4bf1-8c26-f4b600335a83` 951/951、零skip/LEAK、5compile-fail与fmt/check/Clippy全部0，MSRV/default0，Task3/3。[源码/oracle准备](evidence/completion-20261003/t58-source-review.md)最终PASS；最终受影响46/46包含有效effect原响应与B/A阻断、T46严格解码。两新共享函数变异第一次formalbaseline被裁剪成0tests，工具exit4停止、没有执行mutants；不覆盖此停止记录，显式加入实际CLI后baseline3有界通过再执行两目标，终态待独审。T58最终独审通过后标记done；原M2 needschanges不升级。
+693: 
+694: 两新helper最终2/2实际Caught49.557秒、source190无漂移、formal CLI3非零；purehelper移除仍后层拒且无original，实际红为frozenIO先于audit资格的阶段/诊断；execution移除则错误Cancel历史被成功认领。两者分别分类，不并入原215计数、不笼统称坏请求全部最终成功。
+695: 
+696: 最终T58 scoped独审通过，原19个Service目标所在5函数段及其余196目标源码未改，新增更早audit核验可先拒替代Submit/Fail时间错的原件，资格正确但旧冻结Caught不升级最新执行。21static/9struct合法producer子集与pure/wiring条件保持。源码实际修复先单独提交；M2需要新源码新完整审查，不把T58或951作为全产品完成。
+697: 
+698: T58独立修复提交6e33c37成功后，恢复M2 protocol文档到已审57f1 SHA；旧pre-commit隐藏的原patch已验证且精确恢复。新M2候选190/134绑定新951 run424c...与新Cargo binary7c961...；当前原生unicode/rawargv/EILSE再执行绑定新binary，物理遍历not_run继续留原。原32c工程/Spec needs_changes原件不覆盖，修后完整M2终审另用m2-repaired-*文件。
+699: 
+700: M2修后完整[Spec](evidence/completion-20261003/m2-repaired-spec-review.md)/[工程](evidence/completion-20261003/m2-repaired-engineering-review.md)独立scoped PASS，无当前C002必修缺口；原32c报告与旧标签原件留原。受审6e33与protocol57f1、190/134、新951/46/2检测/新native、ef6173freshdeny4及当前drydist6全部分别绑定。归档只移动目录、修权威入口/既有链接，记录中的原run paths保持历史，不重写JSON/tar。C004–C008仍待依次恢复，不能由本M2推出全产品价值或发布。
+701: 
+702: 归档前后705文件逐SHA完全相同；root索引初次在“无active”行追加说明导致specs格式guard失败，改为规范独立声明后docs/specs0，首次原文保留。原JSON/tar录制run paths不改。
+
+FILE specs/changes/completed/C004-verifiable-delegation/validation.md
+129: ## C004-T04 本轮真实试用边界
+130: 
+131: [前提盘点](experiments/readiness.md)按授权记录已确认缺项与补验入口；没有正式用户run。任务输入/使用历史/两组配置及活动/独立盲审/实际接受/原宿主会话动作的可核规程与原文均未建立；usage null。用户已批准执行，不等于这些行为已发生。独立事实复核通过，仅覆盖记录。docs/specs/tests/diff退出0；纯记录不重跑Rust，不虚构task.sh零测试PASS。当前真实trial/result-quality/cost-benefit/真正重开为not_run，后续按stage-1与C007指标补验。
+132: 
+133: ## C004-M2 稳定完整实现候选
+134: 
+135: 源码候选：`aa26d2c4f4396302b4b4f00394ada57a7b0e84b8`；生产/消费者闭包 `82f2f9f27cef1a03bb644270de4ae4870436393107170168274262147fcea410`（265文件，排evidence/progress/review/validation）。M2仅追加plan/tasks与记录，编译/测试/fixture/协议/技能输入已冻结，记录/governance变化另核。
+136: 
+137: [check](evidence/20261003-M2-check.txt)、[clippy](evidence/20261003-M2-clippy.txt) exit0；fmt/docs/specs/tests/skill/corevocab/diff通过。[完整nextest](evidence/20261003-M2-nextest.txt) run `3e66086a-21f6-450e-ade2-6a4b567c07e3` 为741/741 PASS、2slow、0skip、exit0。实际0.9.140 override；0.9.145原环境门禁未运行。T02旧1LEAK不会因本run未再报告而改成误报或证明历史无残留。
+138: 
+139: ### 依赖检查与环境边界
+140: 
+141: 初始default [wrapper拒绝](evidence/20261003-M2-deny-wrapper-error.txt)为sccache sandbox错误；隔离RUSTC_WRAPPER后 [advisory lock拒绝](evidence/20261003-M2-deny-readonly-db.txt)来自只读全局缓存，均非代码fail。policy保持deny.toml全部条款，复制现有advisory缓存到自有/private/tmp，临时config只改db-path。在线检查4分51秒无输出，按预算只终止唯一使用本任务临时配置的cargo-deny PID86315，exit143；[原文](evidence/20261003-M2-deny-online-stopped.txt)保留，在线更新未完成，不当漏洞/许可PASS。
+142: 
+143: 再从未被该fetch修改的原缓存独立复制，执行 `CARGO_TARGET_DIR=/private/tmp/sheltie-c004-target RUSTC_WRAPPER= cargo deny --offline --config /private/tmp/sheltie-c004-deny-offline.toml --all-features --locked check`，exit0：[advisories/bans/licenses/sources均ok](evidence/20261003-M2-deny-offline.txt)。[cache身份](evidence/20261003-M2-advisory-cache.json)中RustSec数据库为 `117edb3bed98e9be112f277b7615eea3252e7c43`、`2026-10-02T10:58:33+02:00`；其他历史缓存不冒充本次最新数据库。此结果只对应该缓存快照；在线fresh更新仍待后续环境补验，没有修改第三方license policy。
+144: 
+145: ### 有预算的定向突变
+146: 
+147: 固定cargo-mutants27.1.0、候选aa26、临时复制source、jobs1、no-config/no-shuffle/baseline run、test-tool cargo、隔离/private/tmp/sheltie-c004-mutant-target。3files候选inventory为118，只按 [选定清单](evidence/20261003-M2-selected-mutants.json)运行13：compile规则10五项（32-test baseline）、result选择/终点/效果资格五项（8真实CLI baseline）、resource完整引用三项（11真实runtime baseline）。总实际174秒，整体预算12分钟；测试60秒/构建120秒timeout，零测试、漂移或连续两timeout就停止，没有触发。
+148: 
+149: [完整命令与时序](evidence/20261003-M2-mutation/execution.json)、[逐变体核验](evidence/20261003-M2-mutation/verified-summary.json)以及各组mutants.out原始diff/log/outcomes完整保存。初始result baseline工具27.1错误选择core并传work_result目标，exit4，0变体执行；原result目录保留，不算caught。修正加显式CLI cargo package参数仍baseline run，实际8-test baseline及5个变体执行成功。
+150: 
+151: 最终13/13 caught，0 survivor/timeout/unviable；每个Build=Success、Test=Failure101且存在真实非零失败断言，不把编译失败当caught。Worker记录21:37:40Z→21:40:34Z，输入closure `872acb864a3579b4930b3424bdfaa96f27f652bda433048cedf3b455eb694c5c` 前后相同；该工具closure域/范围与上述consumer总闭包不同，不混算。只证明选定13项，不证明剩余105候选或全代码/全安全覆盖。cargo test是这次mutation的实际执行器，不覆盖未执行nextest原版本环境门禁。
+152: 
+153: 
+154: ## 2026-10-04 恢复当前自动agent验收：T06事前准备
+155: 
+156: C002-M2已归档ccf7a0c，当前只激活C004，原package移动前后文件SHA全部同值。原T00–T05/M1/M2、真人/paired/宿主重开/费用/739+LEAK未知/nextest92/fetchTERM/105未采用记录均不改。本次adoption明示自动agent真实交付/冷上下文范围，不冒称原真人条件已执行。
+157: 
+158: 真实任务为尚未形成、下一实际C005协调者需要的开工包；方法code-change1.0.0没有gate。运行前[规程](evidence/resume-20261004/protocol.md)、task/project、C005原件、当前合同/方法bytes、质量、prepare30/run60限额、Actor消息模板及实际新实例历史口径已[冻结](evidence/resume-20261004/freeze.json)。Future请求UUID已先生成，尚未Work/派发writer。A停写后B不继承会话，只从Home/workid/binary/protocol自行status/resume同Attempt；Root协调但不代产物内容，独立review和deliver遵守声明槽。
+159: 
+160: 源码190/方法/fixture/Cargo/config逐SHA等于C002修后候选：可同闭包引用新951 run424c.../5doc/46、新binary7c961与当前freshdeny ef6173政策；只作当前工程资格，不追溯旧C004原工具/LEAK原因。T06治理docs/specs/tests/skill/core-vocab全部0、唯一active1、原件/模板及复核仍在进行；T06保持doing，尚无真实value或内容质量结果。
+161: 
+162: T06两个事前小缺口（完整C005 evidence SHA/硬时点）在Work前补齐，62原件稳定；文档任务不宣称codefix、下一C005首动作只读。独立preflight PASS仅当前T06，不授T07实物/质量或价值；原frozenJSON/protocol/消息模板是运行前输入，后续真实角色/CLI输出另记。
+163: 
+164: ## C004-T07 实际文档交付与同Attempt冷接续
+165: 
+166: T06提交af830f5后使用冻结binary7c961、code-change1.0.0、独立Home实际启动Work `2026-10-03-001-c005-opening-package`。A产生12631-byte有用草稿后结束；B新fork-none仅拿Home/WorkId/binary/protocol，自status/resume取得同implement#1.0/revision2/冻结task与project，补齐27476-byte开工包。原A对话未提供B；Root未写节点内容。实际工具输入/响应、session/task_complete原事件及来源行见[evidence manifest](evidence/resume-20261004/actor-tool-records-manifest.json)，停写限定于这些自启动命令与completed turn，不称全宿主关闭。
+167: 
+168: 未参与change编写的content-review独立查原件并逐质量条件通过，9259-byte review；新deliver整理11870-byte说明。没有自然内容返工；deliver因可写路径措辞歧义暂停，Root明确只能写任务书声明delivery输出，额外往返计入成本。Root按next分别submit/begin，最终Succeeded revision7；[三引用核对](evidence/resume-20261004/final-three-reference-check.json)手写终点/keys/kinds期望并独立核实际字节、size、SHA，恰好change/delivery/review，input分别对应生产者封存输出，source都为具体deliver#1.0的槽。非最终result为空，终态status/result前后五表和业务对象不变；[只读原文](evidence/resume-20261004/final-readonly-oracle.json)保留SQLite载体例外。
+169: 
+170: Root作为真实下一C005消费者读取三文档并按交付首动作实际读取原validation143–160与preflight，两个命令exit0；[使用与判断](evidence/resume-20261004/actual-next-consumer.json)记录代理接受仅本文档包。原真实撤销七前提仍null；C004普通resume不是C005撤销事件，当前不提前激活/写C005，不制造替换样本。真人接受、原宿主关闭重开、人类paired净收益仍not_run，usage/付费/人工活动仍null。
+171: 
+172: [时间成本](evidence/resume-20261004/actual-timing-cost.json)保留整个run墙钟，等待、路径澄清、oracle修正和补原工具记录都计入，不折算人工或费用。submit-implement/begin-review只有Root at_utc粒度，不补造起止。两次观察oracle错误（artifacts空值类型与Git符号链接解引用）保留原失败，修正观察后重核；未改被测文件、合同或期望迎合实现。当前源/config/方法输入相对ccf7a0c的192tracked文件按Git symlink literal与regular bytes分别核同值，不能把数量混称C002原190域。独立执行审阅现场重核终态/三refs与5表、47业务对象查询保全；核四actor原session全部工具调用/响应和停写先后通过。early deliver工具仅打印r.output未展示shell exit字段，保持“同步tool响应完成”粒度，不补称每条独立exit0。最后治理/范围/提交读回单列。
+173: 
+174: 独审补发现T06目录移动的21旧tracked mutation .log未在新active路径纳入Git（*.log忽略）。工作文件与ccf7a0c旧blob逐字节同值，但af830f5新checkout缺原件；不将“物理移动同值”冒称“提交全原件保全”。精确清单见[evidence finding](evidence/resume-20261004/t06-move-ignored-raw-finding.json)，新增T08恢复tracking后再M3归档。T07实际使用链通过与M3候选需修分列。
+175: 
+176: 查询观察粒度：Root的handoff、review-running、final三个窗口逐次取得五表和业务对象前后快照；B自行两次status只有真实stdout/revision2/同Attempt和冻结输入核对，未取得每个调用自己的嵌套五表/全对象before-after。这是相对原protocol“每条”的实际观察偏差，不补造历史快照、不称所有调用逐条完全观测。C002同binary只读消费者与当前最终业务写审计支持机制判断，但不替代缺少的本run逐调用观察；M3由独审明确判断限定范围。
+177: 
+178: ## C004-T08 原始日志跟踪修复
+179: 
+180: 基线为T07提交3c744e29235c78d21f8e6fc18bdae766eac9328b。按独审F01精确force-add清单21文件；index blob、实际工作文件与ccf7a0c旧completed blob逐字节同值，大小和双SHA见[t08原件核对](evidence/resume-20261004/t08-staged-raw-preservation.json)。没有改原日志、全局ignore或历史结论；恢复的是新checkout证据可得性。F02逐调用历史观察缺口单独留原，不因日志修复自动关闭。独立Reviewer已增量核21旧blob=index=physical通过；提交读回随后完成。原raw whitespace令full cached exit2，明确原21raw排除后authoring exit0，不称全cached PASS。
+181: 
+182: ## C004-T09 逐查询补验事前准备
+183: 
+184: F02旧B快照不可追补。独立Reviewer确认原running窗口+新fork-none完成Work真实消费的每查询观察足够，无需重复文档生产或造新撤销样本。新规程、84实际冻结路径（含Work task/project原件）、observer、prompt均在consumer-*文件；observer只读五表/业务对象，Home外新证据不覆盖，透传原CLI stdout与exit，CLI/observer资格失败exit分别记，正常/timeout部分字节以base64留原。原run17:41:37连续60min计；CLI前剩余时间重核、timeout受remaining限制、结束后超限不得成功。
+185: 
+186: 独审初版发现入口deadline不足与实际start-inputs未冻结，尚未派consumer时修正，原finding保存。语法AST和84SHA检查通过；独立事前窄审PASS，freeze/observer/84原件及原finding逐核；先提交T09再派T10，不提前授实际消费或M3 PASS。无新产品行为或管理状态；原21日志提交d8e0349已逐blob读回同值。
+187: 
+188: ## C004-T10 新消费者实际逐查询与使用
+189: 
+190: T09提交62f0d49后派新fork-none /root/c004_actual_consumer。实际status/result各一次，CLI与observer exit均0、期限内，每条5表全部行和47业务对象before=after；base64原字节与stdout/stderr一致，两个窗口四快照也相同。当前revision7/succeeded、三source均具体deliver#1.0，非第二结果源。原件为consumer-status/result-observation.json；Root独立字节/行/对象核对见t10-coordinator-observation-check.json。
+191: 
+192: 消费者由refs实际读三成果算bytes/SHA，读开工包/审查/交付并按首动作实际读原validation/preflight，自写[准备判断](evidence/resume-20261004/consumer-report.md)。不是引擎新Node，不写Home/C005；七真实撤销前提仍null，当前只有普通文档接续，拒绝造replace样本。84SHA无漂移，11tool输入/响应均有对应完成记录，18:15:59Z task_complete、原始source_line/session见consumer-actual-records-manifest.json，停写仅自己命令和completed turn，不扩为全宿主。
+193: 
+194: 该新实际观察结合原running窗口补当前只读能力与真消费，原B两次逐查询快照仍未发生，不把原run改成每条已观测。原真人/费用/净收益、C005撤销/旧LEAK等不变。所有补取证/门禁/审核投入从17:41:37连续计，T10报告18:15:45时为2048.650s，不作为最终总成本。独立Reviewer已逐原session的11/11工具和消费者内容/实际查询增量核通过，F02当前能力闭合，旧B偏差永久留原；docs/specs/tests/skill/core-vocab治理均exit0，任务范围/提交读回随后完成。
+195: 
+196: ## C004-M3 当前采用范围收尾
+197: 
+198: 独立Reviewer最终[执行范围报告](evidence/resume-20261004/m3-final-execution-review.md)及JSON固定ddf4837a：自动agent/macOS aarch64执行闭包PASS。实际开工包质量、A/B同Attempt冷接续、具体终点三refs、running/terminal每窗口保全、新真实消费者每查询完整观察及实际准备判断已核。F01恢复21原raw tracking，F02新能力补验闭合；旧B取证偏差永久留原，不称原run每条观测。无新Rust输入，当前192实际域与consumer84同SHA，C002同源951原run424c/0.9.145与freshdeny范围仅当前工程资格，不追溯旧日志原因。
+199: 
+200: 根active/README旧“无active”遗漏已更正，最终归档入口同步；所有现存原件按tracked与物理完整清单移动，尤其21日志精确force-add。归档只表示当前已采用agent验收，不授原真人/paired收益、C005撤销、费用、宿主重开/永久无LEAK或发布PASS。原实体路径/请求/时间/产物bytes保持原样，冻结JSON中的旧active绝对位置是当时运行地址，不结果后重写成新来源；历史重跑应从规程另作新的冻结，不直接运行旧self路径脚本。
+201: 
+202: 当前纯文档收尾按docs/specs/tests/skill/core-vocab/任务范围与原字节index核，最终提交后再逐package blob读回核完整集合，原日志空白例外单列。原run连续60min包括等待/审阅/补修/治理/归档，最终实际总值在收尾原件记录，不折算人工/付费。没有push/merge/release，C005须本收尾提交完成以后另任务恢复。
+203: 
+204: M3首次提交e7998e8实际全部hooks通过，274文件（含21日志）全commit blob/physical集合与272基准manifest逐SHA读回同值；连续投入到该读回为2622.074秒（43.701分钟），在原60min内。原件m3-postcommit-first-audit.json保留此真实时点；追加原件采用同M3 amend，不追改首次提交时点。最终amend后的完整集合另实际读回，后续投入继续计入，不把43.701分钟冒充追加后最终值。
+
+FILE specs/changes/completed/C005-executor-continuity/validation.md
+121: ## C005-T03 说明与授权延期交接
+122: 
+123: 开工候选 `668f2220ac19cc29548d1c19feac4849b6128114`。只改技能与 package 状态元文案/记录，生产代码和 oracle 未变。[前提盘点](evidence/t03/preflight.json) 的真实 Work、撤销事件、执行者、宿主处置与接受/成本全为 null；没有制造事故或替代样本。原真实使用仍 not_run，按已授权无法执行项延期；runbook保留具体触发条件与步骤。
+124: 
+125: 技能区分普通继续与撤销资格，规定新执行者开始前由操作者确认旧已停止或新环境已隔离；可以先撤销正式资格，不升级为引擎停止/隔离保证。独立 Reviewer 限定范围 PASS；不覆盖真实产品净收益。
+126: 
+127: [首次技能消费者](evidence/t03/skill-consumers.txt) run `d54560df-a0a3-4f1d-8009-714fe09e4f27` 为 9/9 PASS；文案两处修正后 [最终消费者](evidence/t03/skill-consumers-revised.txt) run `e2e42412-cead-461e-a4fc-d11cbf0acf4c` 为 9/9 PASS、1 LEAK unknown（generated_reference_keeps_authority_prose_verbatim）。原文分别保留，不重复计成不同用例或洗掉信号。check-skill/docs/specs/diff通过；无所属Rust测试，不运行零测试task.sh，也不重跑未受影响134秒引擎全门禁。原工具版本与fresh缓存边界保持。
+128: 
+129: ## 最终限定实现验收表
+130: 
+131: 候选 d8d8c20。与 T02 提交668f222相比，Rust code/tests、Cargo/lock、fixtures、配置、编译时include与工具环境均未变；only skills文案和package记录变化。按实际消费者分组：引擎/CLI/恢复/格式原run完全引用；被改变的技能另跑9项当前消费者；当前治理文件另检查。不是同一whole consumer hash，不能把T02全体输入宣称与T03完全相同。此前272file hash包含plan/skill等，域和分组区别保持。
+132: 
+133: | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+134: | --- | --- | --- | --- | --- | --- |
+135: | 原子替换、一次额度、真实失败及历史前缀 | executed | T02代码/测试/fixtures/config/Cargo未变，26基础与11feature均含最终回归 | 4b8d6190-d811-4235-9faf-c5ff24f4b84f；94fb155a-080a-44a5-b6ef-1fe3632ab473 | PASS | [774原文](evidence/t02/gates-revised.txt)、[11feature](evidence/t02/feature-revised.txt) |
+136: | 冻结输入/FD/严格归属/重放/并发/原字节恢复 | executed | 同一Runtime/core code、fixture、features和环境；无后续source变化 | 同774原run；独立M1及T02定向原run | PASS | [验证原文](evidence/t02/gates-revised.txt)、[独立历史](evidence/t01/independent-runtime-history.txt) |
+137: | CLI/next/错误优先级及所有冻结oracle | executed | c949新基准，仅删11ignore，六份tests/assert/fixtures/snapshots未变 | 4b8d6190-d811-4235-9faf-c5ff24f4b84f；scope前后 | PASS | [新冻结修订](evidence/t04/status-card-red.txt)、[恢复证明](evidence/t02/draft-restore.json)、[完整门禁](evidence/t02/gates-revised.txt) |
+138: | 工程fmt/check/clippy与普通功能 | reused | Rust/Cargo/lock/config/features/toolchain/include输入未变；技能消费单独替换新证据 | T02同原run/fullgates，不重复134秒 | PASS | [工程原文](evidence/t02/gates-revised.txt) |
+139: | 缓存依赖风险/许可/来源 | reused | deny policy/Cargo graph/全部features/缓存快照与db-path无变更 | 同T02 cached deny，RustSec117edb3缓存 | PASS | [缓存结果](evidence/t02/gates-revised.txt) |
+140: | 技能、首次读者说明及前提/延期交接 | executed | T03新skill、preflight、同CLI和工具环境 | e2e42412-cead-461e-a4fc-d11cbf0acf4c，9/9；check-skill/docs/spec | PASS | [新消费者](evidence/t03/skill-consumers-revised.txt)、[前提](evidence/t03/preflight.json)、[runbook](experiments/runbook.md) |
+141: | 声明MSRV编译兼容 | executed | 本机1.85.0/macOS arm64、同lockedCargo全部targets/features；隔离target与wrapper | cargo +1.85.0 check --locked --all-targets --all-features，exit0 | PASS | [MSRV原文](evidence/m2/msrv-check.txt) |
+142: 
+143: ## 原义务、未执行与未知（不进入PASS表）
+144: 
+145: | 义务 / 信号 | 当前结果 | 原因与补全条件 | 保证边界 |
+146: | --- | --- | --- | --- |
+147: | 真实撤销/接手/约束/完整投入与用户接受 | not_run / authorized_defer | 未提供真实Work、撤销事件、旧新actor/宿主处置/接受原件；补后按runbook执行 | 夹具、说明和机制不等于价值 |
+148: | nextest0.9.145要求的原版本门禁 | not_run | 原命令exit92；实际0.9.140override已执行 | 不称正确版本已跑 |
+149: | online fresh advisory | not_run | 复用已有缓存快照，不伪称在线最新 | 当前cached结果仅对应固定HEAD |
+150: | 其他平台及Rust1.85测试执行 | not_run | 已补macOS arm64/Rust1.85编译；测试实际由1.98.1执行，其他平台延期 | 不称跨平台或1.85测试已跑 |
+151: | 局部与T01/T03的LEAK | unknown | 4条不同原run/case记录保留，未定位；最终T02干净不能证明过去无残留 | 测试断言PASS不等于永久无泄漏 |
+152: | 两次cached原文whitespace检查 | raw_diagnostic_exception | 原工具上下文/尾空格保留，明确knownraw例外后的作者范围PASS | 不把作者范围称全cached通过 |
+153: 
+154: 真实使用延期仅来自本轮用户授权，不删原产品实验义务。M2独立限定结论已追加；完成记录不授权发布、安装或宿主变更。
+155: 
+156: ## C005-M2 最终独立限定验收
+157: 
+158: Reviewer `/root/independent_review` 未参与实现/oracle，固定完整候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`：限定 `PASS`。EX01–08、完整caller、计数/历史、同FD输入、事务恢复、冻结oracle与准确说明已核。按消费者复用同源T02的774原run与T03新9技能run，不称同whole闭包重跑。真实撤销价值、原nextest版本、onlinefresh、其他平台与永久无leak不在PASS范围，全部原失败和raw空格例外保留。
+159: 
+160: 补充本机实际已安装Rust1.85.0，执行隔离target/wrapper的 [locked全targets/features编译](evidence/m2/msrv-check.txt) exit0、6.14s；不是1.85上的测试执行，也没有改源码或依赖。当前docs/specs/tests/skill及作者diff/scope另行检查，M2仅记录。
+161: 
+162: ## 2026-10-04 C005-T05 恢复当前验收准备
+163: 
+164: C004当前agent质量/冷接续/三refs/逐查询新消费者使用已归档9862083，最终275blob含21日志读回同值、连续2655.603s；输入资格原件已存input-C004-final-qualification.json。C005旧62文件物理移动全SHA同值，旧限定候选、四LEAK、nextest92、1.85仅编译及raw空白例外留原，不从新目录推出PASS。
+165: 
+166: C004两个真实消费者明确当前只是普通接续，无真实running撤销目标/事件/宿主处置原件；七前提继续null，负前检不造样本。当前technical-freeze.json固定134工程/192完整输入逐SHA同值和37 C005注册用例，原C002 run424c的951/951、0.9.145/无skip/LEAK及freshdeny ef6173仅同闭包资格引用，不称旧C005要求版本已发生；数据时点是原C002取数，并不伪称本时刻在线刷新。
+167: 
+168: 原1.85只有check，当前新增实际1.85全feature测试和5doc。执行前固定runner/12min连续上限、失败/漂移即停、所有原argv/stdoutstderr/exit、实际Cargo JSON的1.85两个产物及专用target/frozen路径。CLI测试使用本nextest原Cargo产物，export测试绑定实际1.85新副本，旧1.98冻结binary仅资格引用。准备独立审正在进行，未运行T06/引擎替换、未接受原真实价值或发布。
+169: 
+170: T05事前审查单一timeout处置finding已在实际运行前修复：每次启动预留8s，owned process group TERM后KILL不依赖leader是否已退出、实际leader exit与timed_out分列、全部成功前核连续总耗时<720。初版finding留原；Reviewer已核原62路径集合、旧四LEAK真实case/run、134与原C002工程字典逐同及37全部原PASS用例，不授未运行MSRV/M3。
+171: 
+172: ## C005-T06 当前原生Rust1.85实际测试
+173: 
+174: T05提交5ccf9d4后启动真实runner，初实际rustc1.85.0/Cargo/nextest0.9.145输出与host aarch64-apple-darwin保存。MSRV Cargo build7.50s取得两个真实executable后复制到独立frozen目录，engine SHA-256 `5f5194f1bf345b4028b89e1670e98cee5b2ab929a9a205c460e1322dc64edce4`，export SHA-256 `17876365dbab3031e942cc151c3ac4512bdd4778aa31daa99facbe44c3c08832`；不是旧1.98二进制。
+175: 
+176: 实际nextest run `8d822614-fca3-453f-b28e-2d8345e810e4` 为951/951 PASS、2slow、0skip/LEAK，测试139.594s；5个compile-fail doc全PASS，两个无doc crate的0样本不计额外用例。全部6步骤exit0/无timeout，总构建/版本/测试160.4732879s，原12min内。37 C005用例逐PASS原行核，全192源前后SHA无漂移；argv/env/真实Cargo JSON/各stdoutstderr摘要与binary SHA全存msrv-execution.json和t06-result/source核对。初runid解析器期待冒号但真实header无冒号，从原UUID匹配修正，仅记录解析不变原raw。
+177: 
+178: 新MSRV测试填当前1.85实际执行缺口；原历史1.85只有check事实留原，原0.9.140/exit92/缓存/fresh时点/四LEAK cause unknown不追改。当前1.98 run424c与四类freshdeny按134/192同源输入精确引用，不说本轮重跑全部1.98或本刻刷新数据库；其他平台按用户范围排除。七真实撤销前提仍null、真实试用not_run，负前检不造样本。独立T06/M3审核正在进行，不以本actualtest推真实价值/接受或发布。
+179: 
+180: ## C005-M3 当前技术完整限定验收
+181: 
+182: T06提交73520b2全原件及hooks已实际读回；独立Reviewer完整EX01–08及当前技术/负前检范围PASS，无必修。新实际Rust1.85/0.9.145六步/951/37/5doc/160.473s与134/192同源资格闭合。原native1.98全部四工程门禁和freshdeny按原run/数据时点精确引用，不把源未变当新命令执行。没有产品新源码或状态/持久格式，未额外突变或故障演示。
+183: 
+184: 真实C005撤销七前提仍null，两真实C004消费者证明当前只普通续接，负前检有效；没有资格撤销需求就不执行替换样本。原真实试用/真人接受/成本/净收益not_run，四旧LEAK因果unknown、原次工具92与历史MSRV编译/原缓存/作者空白例外留原；新技术成功不注销过去。其他平台按用户范围排除。当前技术能力可收尾，原用户价值未执行不得写成全产品PASS；后续C006按顺序另任务。
+185: 
+186: 归档只移动当前package并同步入口；所有实际文件精确stage、核index=physical，并保留原字节。最终治理/范围/提交与全commit blob集合逐SHA读回另实际核，不由review预授PASS。没有push/merge/release或宿主安装。
+
+FILE specs/changes/completed/C006-result-delivery/validation.md
+133: ## C006-T03 手册与用途边界
+134: 
+135: 开工候选 `b37938930487beb70ae1e0aacfbd18646e4baf88`。指南补真实Cargo JSON路径、构建失败立即停止/两binary齐全、新raw私有暂存文件与退出码、四状态和现场处置。字面默认features/locked构建片段实际exit0，[构建命令](evidence/t03/default-build-command.sh)、[Cargo JSON](evidence/t03/default-build.jsonl)、[编译/两SHA输出](evidence/t03/default-build.txt)保留。先前allfeatures capsule run单列，不冒充默认构建。
+136: 
+137: [默认binary实际手册机制](evidence/t03/default-mechanism.json)14条外层CLI均exit0：三选定报告的手工副本与工具副本bytes/size/SHA完全相同，manifest.result同一次结果，三次business status DTO相同；模拟编辑旧副本后重跑生成新副本且原编辑保留。都是明确fixture文字/临时目录，不是真实代码质量、首次用户试用或净收益。独立Reviewer已核前一capsule机制同样14calls及实际文件，默认新原件交M2。
+138: 
+139: [真实用途前检](evidence/t03/preflight.json)缺用户/目的/同质量对照及人工投入，原真实义务授权延期，minutes/usage为null而非0。未进行正式安装或发布。CHANGELOG仅未发布段改schema4/v4并补已实现替换/raw/export，历史release不改。无所属Rust用例，不运行零测试task.sh；源码、832/30消费者及MSRV输入按未变分组引用，指南/治理另验。
+140: 
+141: ## 最终限定实现验收表
+142: 
+143: 最终T06修订后以新的完整842单run、固定新双binary的21公共consumer、默认构建/14条外层CLI及Rust1.85检查替换改变组证据；原832/19/30记录保留历史范围。只改记录的后续M2单独治理，不宣称相同whole hash；所有原失败/未执行项保留。
+144: 
+145: | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+146: | --- | --- | --- | --- | --- | --- |
+147: | 同快照资格/revision/key及受限FD原字节读取 | reused | 最终source/全部原语/fixture/features，37原语含842回归 | 36297026-2963-426c-8a6b-d6ebde77078e | PASS | [完整工程](evidence/t06/gates-final.txt) |
+148: | macOS目录句柄、私有对象、NOREPLACE/权限/链接/限额/读回 | reused | Target17原语及原native probe，T06两个精确窗口含最终842 | 同842；ca409eaa-f821-474e-a5a4-5f00f07c9fca | PASS | [native](evidence/t01/target-platform.txt)、[原语](evidence/t01/primitives-final.txt) |
+149: | raw/整份成果/manifest/Store业务不变/重跑保留编辑 | executed | 实际Cargo JSON构建的私有双binary，SHA前后相同，原19冻结oracle+2新增真实窗口 | bddfa327-3e62-4c1d-afa7-c599c94e7515 | PASS | [21consumer](evidence/t06/feature-frozen-binaries.txt)、[binary身份](evidence/t06/binary-capsule.json) |
+150: | 实际kill/sync窗口与发布后未确认、残留保真 | executed | 同21新binary/fixture；T04完整通知、T06前读回/partialmanifest独立预期 | 同21与842；6a65908d-fe53-46ed-a53d-a9465fd1dc49 | PASS | [完整链](evidence/t06/feature-frozen-binaries.txt)、[握手](evidence/t04/marker-ready-final-green.txt) |
+151: | 引擎/导出Rust工程与普通消费者 | reused | 最终source/Cargo/全部features/840原tests+2新tests与相同环境 | 36297026-2963-426c-8a6b-d6ebde77078e，842/842 | PASS | [fmt/check/clippy/842](evidence/t06/gates-final.txt) |
+152: | RC开发权威、release/tag/历史/CHANGELOG门禁 | executed | T05新script/fixture+原22断言不变，8新oracle | cargo test release_governance，30/30 | PASS | [30原文](evidence/t05/governance-final.txt)、[旧8red](evidence/t05/old-governance-red.txt) |
+153: | Rust1.85最终候选编译 | executed | 最终T06 source/tests/Cargo/config/features；locked | cargo +1.85.0 check --locked --all-targets --all-features | PASS | [MSRV](evidence/t06/msrv-final.txt) |
+154: | 缓存依赖风险/许可/来源 | reused | Cargo graph/policy/features/缓存117edb3未变；不是在线fresh | 同T06cached deny | PASS | [deny](evidence/t06/gates-final.txt) |
+155: | 默认构建与准确首次读者指南、临时复制机制 | executed | 字面default/locked Cargo JSON；真实双binary SHA；14CLI/实际3文件 | default build及mechanism命令exit0 | PASS | [构建](evidence/t06/default-build.txt)、[实际机制](evidence/t06/default-mechanism.json)、[指南](../../../guides/result-export.md) |
+156: | 原始失败、环境/真实价值延期与可执行补验入口 | executed | 原文保真及当前preflight，无伪造用户/成本事实 | 独立M2+当前docs/spec/tests/scope | PASS | [前提](evidence/t03/preflight.json)、[runbook](experiments/runbook.md) |
+157: 
+158: ## 原义务的授权延期
+159: 
+160: | 义务 | 结果 | 具体缺项与补验 |
+161: | --- | --- | --- |
+162: | 真正用户、可编辑副本用途、首次使用及同质量人工对照收益 | not_run | 目的/使用者/质量标准/成本缺失；按runbook补，usage与分钟null |
+163: | 其他OS及跨设备实机载体 | not_run | 当前只实测macOS arm64同设备；提供目标载体再核 |
+164: | 实际cargo-dist asset plan | not_run | 本机无dist命令exit101；静态publish=false/dist=false不当实际计划 |
+165: | 配置要求nextest0.9.145 | not_run | 已装0.9.140；override实际run单列，原exit92零执行 |
+166: | 在线fresh advisory | not_run | 使用117edb3缓存；fresh获取需后续环境补全 |
+167: 
+168: 历史LEAK unknown分别保留；历史832/19无LEAK与当前842的4LEAK各自保留，不证明旧run已定位或全宿主零残留。complete只承诺规定OS同步，不是物理断电保证或恶意同权限隔离。未执行安装/发布/push/merge。
+169: 
+170: T06精确补验：原19点包括AfterReadback/AfterManifestWrite，未直接覆盖全体发布前复核开始前/部分manifest写入；不当相邻等价。旧binary真实2caller red留在evidence/t06，T06补齐后另用新binary闭包验，不复用旧19作为新Target source的同闭包。
+171: 
+172: ## C006-T06 精确窗口收口
+173: 
+174: 两个实际旧binary caller red `55172769-3110-4529-9406-44987e4d4e32` 2FAIL、exit100：合法Work已完成但没有新checkpoint。新Target在publish全体最终readback开始前暂停；manifest真实前半bytes写后暂停，复核父/stage/held leaf身份/0600再写余半。旧point/原10场景/T04helper/common完全未改，新的2oracle核partial/no-manifest、真实SIGKILL、3实际Artifact/业务不变及重跑场景保真，独立短审PASS。
+175: 
+176: 新固定Cargo JSON binary [21公共consumer](evidence/t06/feature-frozen-binaries.txt) run `bddfa327-3e62-4c1d-afa7-c599c94e7515` 21/21 PASS，前后SHA相同；[完整门禁](evidence/t06/gates-final.txt) run `36297026-2963-426c-8a6b-d6ebde77078e` 842/842 PASS、0skip、2slow、4LEAK、exit0，fmt/check/clippy/缓存deny/docs146/specs8/1active/tests842/272cards全部通过。4LEAK分别为delete_refuses_root_replaced_before_unlink、两duplicate_flow_id场景、replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt；cause unknown。它们是旧CLI消费者，未定位原因，不能以新21无LEAK洗掉，也不调容忍或重复到绿。
+177: 
+178: 最终[Rust1.85](evidence/t06/msrv-final.txt)全targets/features locked check0；新source的[默认构建](evidence/t06/default-build.txt)与[14条外层CLI机制](evidence/t06/default-mechanism.json)均exit0，三实际报告的手工/tool副本字节/size/SHA/manifest/业务status和模拟编辑后重跑保留一致。Input closure见[evidence](evidence/t06/input-closure-gate.txt)，状态记录在run后另改，源码/所有oracle保持冻结。实际价值和环境延期不变；T06是覆盖修复，不是新收益或发布。
+179: 
+180: T06全cached diff exit2仅两份immutable工具原文尾空格/EOF空行，见[evidence清单](evidence/t06/diff-check.json)；精确排除后作者检查exit0，原字节保留。
+181: 
+182: ## C006-M2 正式限定验收
+183: 
+184: 独立Reviewer审定 `c62f14d7e28a2f63394a60d9b702cc03e85de6f1`，实现/指南/前提及授权延期交接范围PASS，无剩余生产或oracle必改。从git candidate独立复算296file gate闭包bf8ed08b…精确一致，只在内存还原T06 done→doing；独立核当前默认14现场的三source/manual/newcopy bytes/size/SHA/manifest、模拟编辑保留与binarySHA。复用原独审及全部实际原run，不重复长验证。4旧CLI LEAK cause unknown和全部not_run保持，未部署/安装/发布。
+185: 
+186: ## 2026-10-04 C006-T07 真实副本事前准备
+187: 
+188: C005当前技术/负前检已归档a394009，113全blob读回原件作为本次输入；原C006112文件物理移动全SHA同值，旧842+4LEAK/nextest92/dist101/缓存/真实用途缺项留原。本次三源为C004实际交付的change/review/delivery，下一真实C007准备者需要在可编辑副本注释C005已归档与七null事实，不回写原件，副本用途在运行前成立。原真人手工/接受/费用/净收益仍not_run或null，不由本agent/script对照推断。
+189: 
+190: 规程、Home/双冻结binary/原三refs/当前C007原件/质量/消息/父目录及设备/预算见evidence/resume-20261004 freeze。准备起点是实际C005完成18:45:12.070704Z，deadline19:15:12.070704Z，已发生阅读/help/激活/工具整理/审阅都计入；实际run另45min包括复制/消费者/挂载/卸载/记录。observer每条原CLI/export前后五表/业务对象，percommand120s预留8s清理，总deadline失败不求绿；原CLI对照不借exporter算期望，两个副本同独立bytes/SHA/manifest/权限。
+191: 
+192: helper经code-simplifier只格式整理AST同值，Root在执行前把cleanup8s也纳入单命令上限，语法编译核；不改产品源码。正确0.9.145/native951与MSRV951/5doc、freshdeny ef6173及真实dist六引擎资产排除exporter按192/134/config精确同值和原时点引用，不说旧命令已发生或此刻刷新。
+193: 
+194: 跨设备计划用本机APFS ASIF自有镜像，不冒称外置物理盘。先读本机create/attach/eject help，sandbox DiskManagement不可读原输出与native只读help分列；准备独审正在进行，尚未create/attach/export或派实际消费者。必须实际source/target st_dev不同、明确owneddevice且完成完整复制/原件保全/只eject本载体，才记录该范围通过。无安装/发布、无空task.sh。
+195: 
+196: 事前Reviewer /root/c006_preflight_review未写准备/工具/产物，最终PASS；原needs_changes/修后实际最终消息及全部工具source_line保留t07-preflight-reviews.json和records。唯一guide旧dist表述已修为同配置C002实际六资产计划、exporter排除、无新dist/构建发布，freeze同步；D043断链初docs失败与修后分别留原。完整5表/当前业务树覆盖经Reviewer现场核，无symlink，控制载体例外明确。故障控制环境实际null每次核同值。实际copy/image/consumer仍not_run，先T07提交才执行。
+197: 
+198: ## C006-T08 当前实际副本与跨APFS
+199: 
+200: T07提交f74881a及freeze blob已实际核；prepare实际从C005完成18:45:12连续计，在30min内。run从19:01:43.597055Z连续到19:46:43.597055Z限，包括所有接收/消费者/设备/纠错/审阅/收尾。原CLI metadata+三raw与tool首次export均实际0，全部三字节/size/SHA/manifest/0700/0600/单link匹配同一真实C004结果。原CLI/script0.315966s、tool含内部取数/验证/发布0.116367s均包括observer快照，只有单pair观察，不当人类收益；外层4 vs1不混内部engine metadata1+raw3，后者仅源码推导不冒称进程数实测。
+201: 
+202: 新fork-none /root/c006_actual_consumer实际核两组同质量并读/编辑第一tool三文件，完整原prefix+精确注释行保留、原manifest/manual/source不改，实际只读C007准入材料给准备判断；原九项正式准入仍null，本次不顶替C007六run。9/9工具/响应与完成turn原件在consumer-actual-records-manifest/records，未知人类/model历史/usage/费用null。Root起初错误要求整个suffix等于裸annotation，实际只增加Markdown标题/空行/精确行；原AssertionError保留且未发下一export，独审按冻结内容条件确认观察oracle纠正合法，未改产物/样本或造返工。第二export实际新target仍全部原bytes，旧编辑/manifest全不变。
+203: 
+204: 消费者另读两份C005来源不在原46直接SHA，已独立确认qualification是事前T07 blob、preflight在其完整113SHA表且与a394009 blob同值；consumer-transitive-source-check明示传递来源，不结果后追改原46名单。源192/134不变，真实用途代理接受仅自动agent资料准备，不授原真人/净收益。
+205: 
+206: 实际diskutil ASIF/APFS create/attach/info/cross-export/eject全部exit0，源st_dev16777234、target16777243，真实独立挂载虚拟volume disk7s1由ownedimage返回，不是外置物理盘或别的OS。跨设备all3/manifest/权限与原五表对象核相同，证据bytes转存未挂载root后只eject本ownedmount，无force；后mountpoint不存在/非mount，device路径不存在，原9MiB镜像保留。原plist/argv/raw/identity及cross-device-verification留原，complete只规定OSsync不当断电保证。
+207: 
+208: 所有7外层engine/export查询逐次5表/47业务对象before=after，exit0/无timeout/源original不变；SQLite控制载体例外明确。16份实际manual/tool-edited/tool-new/cross-persisted文件归档actual-copies.tar.gz逐SHA读回，.md原文不因typos改字节。没有新Rust或人为kill/竞争，旧crash/边界/来源能力用同当前输入的真实native951/MSRV951精确引用，旧4LEAK未知/原缓存版本/其他OS/真人限制不注销。独立完整当前scope审PASS，无剩余产品/oracle必修；实际actor停写/来源链/DL01–10/工程原件与当前Home最终快照已核。五治理均0；提交、归档和最终总墙钟仍待，不预授完成。
+209: 
+210: ## C006-M3 当前采用完整限定验收
+211: 
+212: 独立Reviewer完整当前scope PASS固定T08原件，T08提交82611f8全195文件blob实际同值，hooks通过。执行关闭时46直接源全SHA无漂移，后续仅guide/入口收尾文案更新，原freeze/运行记录不回写，不能用历史observe脚本直接重跑新事实。source192/134、native/MSRV951及dist/fresh精确闭包未变，无新增产品机制；原actor真实编辑/消费者、两对照质量、newcopy保旧编辑、跨APFS全体字节/权限及owned卸载通过。
+213: 
+214: 所有11原子命令exit0，7外层Home观察完整前后当前仍同；旧root额外suffix序列化assertion错误和独审允许的内容oracle纠正留原，不隐藏投入。两个传递来源由事前commit链核，原46名单不结果后扩大。16实际copy文件归档全SHA读回。成本只有agent/script单pair，设备/APFS虚拟性质、未知usage/付费/真人/净收益和旧四LEAK原因准确分列。
+215: 
+216: guide更新为当前已实际完成副本/不同st_dev虚拟APFS与旧编辑保留，仍不说外置盘/其他OS、人类净收益、物理断电或同权限隔离。归档完整文件集合/index/原字节和根入口由独立增量再核，提交后全blob读回与连续最终墙钟实际记录；原45min上限不重置。无push/merge/release/宿主安装，随后C007依次恢复。
+217: 
+218: M3首次提交f266c59全部hooks通过、206完整package文件blob与磁盘逐字节读回、204 manifest基准逐SHA同值；实际run全收尾至首次读回1012.899224s，低于45min。原值m3-postcommit-first-audit.json保全；Root首次suffix错误原输入/exit1响应两条session记录已补。首次提取定位失败未写新原件，后续错误发起的无内容amend92d2034只改提交元数据，tree不变，不作新增门禁证据；完整错误/耗时保留。现在同M3并入真实原件，最终完整树和后续总时间另实际读回，不把首次值当最后值。
+

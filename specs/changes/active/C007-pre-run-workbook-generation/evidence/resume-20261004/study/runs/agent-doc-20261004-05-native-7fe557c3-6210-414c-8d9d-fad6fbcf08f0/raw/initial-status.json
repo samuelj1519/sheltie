@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "git",
+    "status",
+    "--porcelain=v1",
+    "--untracked-files=all"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+  "start_utc": "2026-10-03T21:08:07.642605+00:00",
+  "end_utc": "2026-10-03T21:08:07.666896+00:00",
+  "elapsed_s": 0.024291,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/initial-status.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/initial-status.stderr",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

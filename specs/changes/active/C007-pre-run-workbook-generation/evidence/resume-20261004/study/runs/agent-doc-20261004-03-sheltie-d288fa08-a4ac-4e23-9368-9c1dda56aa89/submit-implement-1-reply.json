@@ -1,0 +1,42 @@
+{
+  "data": {
+    "attempt": "implement#1.0",
+    "outputs": {
+      "change": {
+        "bytes": 6556,
+        "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+        "sha256": "664b3ed17f4effbc1d5d5425aeb8485335bccf9c7103f1858b4755ed98ce065c"
+      },
+      "checks": {
+        "bytes": 6512,
+        "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+        "sha256": "f30f51bb8353d8b886bf5bfcf61be69ef22827f6dbbcbcdf85edf7859b58a9cd"
+      }
+    },
+    "replayed": false,
+    "work_status": {
+      "kind": "active"
+    }
+  },
+  "next": [
+    {
+      "args": {
+        "node": "review",
+        "work": "2026-10-03-002-continuity"
+      },
+      "edge": "main",
+      "executor": "agent",
+      "op": "attempt begin",
+      "tier": "strong"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true,
+  "request_id": "9128f705-2e99-4ba6-9ad9-76b1f2ce22ed",
+  "revision": 3
+}

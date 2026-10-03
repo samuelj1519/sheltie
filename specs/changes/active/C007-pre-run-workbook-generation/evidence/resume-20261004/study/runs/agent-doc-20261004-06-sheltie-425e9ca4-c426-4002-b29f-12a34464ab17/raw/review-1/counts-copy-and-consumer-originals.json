@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import pathlib,json,re,hashlib,collections\nbase=pathlib.Path('specs/changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003')\nfor name in ['t58-final-nextest.txt','t43-215-dispositions.json','m2-deny-execution.json']:\n p=base/name; text=p.read_text(); print('FILE',p,'bytes',p.stat().st_size,'SHA',hashlib.sha256(p.read_bytes()).hexdigest())\n if name.endswith('nextest.txt'):\n  print('PASS_LINE_COUNT',sum(bool(re.search(r'^\\s*PASS\\s+\\[',line)) for line in text.splitlines()));print('\\n'.join(line for line in text.splitlines() if 'Nextest run ID' in line or 'Summary' in line or 'LEAK' in line or 'skipped' in line))\n else:\n  data=json.loads(text);print('ROOT_KEYS',list(data))\n  for k,v in data.items():\n   if isinstance(v,list):\n    print(k,'list_count',len(v));print('FIRST_ITEMS',json.dumps(v[:2],ensure_ascii=False))\n    if v and isinstance(v[0],dict):\n     for field in v[0]:\n      if all(not isinstance(item.get(field), (dict,list)) for item in v):\n       counts=collections.Counter(str(item.get(field)) for item in v)\n       if len(counts)<=12:print(field,dict(counts))\n   else:print(k,json.dumps(v,ensure_ascii=False)[:3500])\nmsrv=pathlib.Path('specs/changes/completed/C005-executor-continuity/evidence/resume-20261004')\nprint('MSRV_FILES',[p.name for p in msrv.iterdir() if 'msrv' in p.name])\nfor name in ['technical-freeze.json']:\n data=json.loads((msrv/name).read_text());print('FREEZE_KEYS',list(data));print(json.dumps({k:v for k,v in data.items() if not isinstance(v,(list,dict))},ensure_ascii=False));print('FREEZE_COLLECTION_SIZES',{k:len(v) for k,v in data.items() if isinstance(v,(list,dict))})\nfor name in ['specs/changes/completed/C006-result-delivery/evidence/resume-20261004/edit-and-new-copy-verification.json','specs/changes/completed/C006-result-delivery/evidence/resume-20261004/cross-device-verification.json']:\n print('FILE',name);print(pathlib.Path(name).read_text())\np=pathlib.Path('specs/changes/completed/C004-verifiable-delegation/validation.md');print('C004 tail');print(''.join(f'{i}: {line}\\n' for i,line in enumerate(p.read_text().splitlines(),1) if i>=188))\n"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/sheltie",
+  "start_utc": "2026-10-03T21:32:24.873473+00:00",
+  "end_utc": "2026-10-03T21:32:24.914583+00:00",
+  "elapsed_s": 0.04111,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/review-1/counts-copy-and-consumer-originals.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/review-1/counts-copy-and-consumer-originals.stderr",
+  "stdout_sha256": "3799cba8dc48032e1bf1561c1195f6930aadc811ee4ee08227b3a71ce621aa6b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

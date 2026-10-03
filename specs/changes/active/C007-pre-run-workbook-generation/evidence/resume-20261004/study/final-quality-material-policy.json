@@ -1,0 +1,17 @@
+{
+  "predeclared_mapping_already_in_freeze": true,
+  "reviewer_inputs": "one task/oracle per sample and bothneutral candidate/patch/docs required raw; map arm IDs not passed",
+  "neutral_labels_in_order": [
+    "K41",
+    "K72",
+    "K18",
+    "K95",
+    "K33",
+    "K64"
+  ],
+  "raw_redaction_policy": "Only copy candidate to neutral directory/change outer filenames, keep actual patch/code/check-content bytes; original full raw retained. Paths orcheck transcripts may implyarm: disclosepartialblind rather than rewrite bytes",
+  "no_posthoc_new_quality_criteria": true,
+  "quality_scorer_not_task_method_author": true,
+  "separate_dailyreview_and_proxyacceptance": true,
+  "only_after_all_candidate_deliveries_or_stops": true
+}

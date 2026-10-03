@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import json,subprocess,hashlib;from pathlib import Path; raw=Path(\"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw\");status=json.loads((raw/\"cold-implement-1/resume-status.stdout\").read_text())[\"data\"];g=lambda *a:subprocess.check_output([\"git\",*a],text=True).strip();paths=g(\"diff\",\"--name-only\",\"351feb7ac22c21317a686693b732d5ae0c4b4bcc\",\"HEAD\").splitlines();assert paths==[\"specs/guides/continuity-choices.md\"];inputs={k:None if v is None else {\"sha256\":hashlib.sha256(Path(v[\"path\"]).read_bytes()).hexdigest(),\"bytes\":len(Path(v[\"path\"]).read_bytes())} for k,v in status[\"resume\"][\"inputs\"].items()};[(_ for _ in ()).throw(RuntimeError(\"input mismatch\")) if v is not None and inputs[k]!={\"sha256\":v[\"sha256\"],\"bytes\":v[\"bytes\"]} else None for k,v in status[\"resume\"][\"inputs\"].items()];r={\"candidate\":g(\"rev-parse\",\"HEAD\"),\"tree\":g(\"rev-parse\",\"HEAD^{tree}\"),\"full_diff_paths\":paths,\"status\":g(\"status\",\"--porcelain=v1\"),\"guide_sha256\":hashlib.sha256(Path(\"specs/guides/continuity-choices.md\").read_bytes()).hexdigest(),\"guide_bytes\":len(Path(\"specs/guides/continuity-choices.md\").read_bytes()),\"inputs\":inputs,\"patch_bytes\":len((raw/\"implement-1/06-full-patch.stdout\").read_bytes()),\"patch_sha256\":hashlib.sha256((raw/\"implement-1/06-full-patch.stdout\").read_bytes()).hexdigest()};assert r[\"tree\"]==json.loads((raw/\"implement-1/02-staged-identity.stdout\").read_text())[\"staged_tree\"];assert r[\"status\"]==\"\";print(json.dumps(r,ensure_ascii=False,indent=2))"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "start_utc": "2026-10-03T20:36:43.524690+00:00",
+  "end_utc": "2026-10-03T20:36:43.614854+00:00",
+  "elapsed_s": 0.090164,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/07-candidate-closure.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/07-candidate-closure.stderr",
+  "stdout_sha256": "ac9a03deef2c0178348b62b99e72a23a4c0620fa11d735b37acfa807c0a99e60",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

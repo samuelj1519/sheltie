@@ -1,0 +1,200 @@
+     1	# 当前源码快速开始
+     2	
+     3	本指南面向首次使用当前源码的协调者，使用未发布候选 `0.3.0-rc.1`、Store schema 4 和 `cli-result/v4`，走完一次 `code-change`。已发布的 v0.2.0 安装入口仍在[仓库首页](../../README.md)；它不提供本指南的开发功能。版本权威见[文档地图](../README.md)。
+     4	
+     5	需要 Git、仓库工具链对应的 Rust/Cargo、Python 3，以及可执行任务的工作 agent 和未参与实现的审查 agent。引擎记状态和冻结报告，不执行代码任务、不选择模型、不判断质量。本方法没有 gate；协调者读报告选边，用户接受、合并和发布仍按各自授权办理。
+     6	
+     7	## 1. 构建并固定二进制与管理根
+     8	
+     9	在 Sheltie 源码仓库根目录打开一个 Bash 会话，按顺序逐段执行。不要一次执行整篇：领取任务书后必须等待工作 agent 完成。所有命令非零时先停止，保留 stdout、stderr 和退出码；错误处理见末节。
+    10	
+    11	```bash
+    12	set -e
+    13	repo_root=$(pwd -P)
+    14	session_dir=$(mktemp -d /private/tmp/sheltie-source.XXXXXX)
+    15	engine_home="$session_dir/home"
+    16	build_target="$session_dir/target"
+    17	
+    18	RUSTC_WRAPPER= CARGO_TARGET_DIR="$build_target" \
+    19	  cargo build -p sheltie-cli --locked --message-format=json \
+    20	  > "$session_dir/build.json" 2> "$session_dir/build.stderr"
+    21	
+    22	engine_binary=$(python3 - "$session_dir/build.json" <<'PY'
+    23	import json, sys
+    24	from pathlib import Path
+    25	paths = set()
+    26	for line in Path(sys.argv[1]).read_text().splitlines():
+    27	    item = json.loads(line)
+    28	    if (item.get('reason') == 'compiler-artifact'
+    29	            and item.get('target', {}).get('name') == 'sheltie'
+    30	            and item.get('executable')):
+    31	        paths.add(str(Path(item['executable']).resolve(strict=True)))
+    32	assert len(paths) == 1, paths
+    33	binary = Path(paths.pop())
+    34	assert binary.is_file(), binary
+    35	print(binary)
+    36	PY
+    37	)
+    38	test -x "$engine_binary"
+    39	test ! -e "$engine_home"
+    40	
+    41	engine() { "$engine_binary" --home "$engine_home" --json "$@"; }
+    42	engine self version > "$session_dir/version.json"
+    43	cat "$session_dir/version.json"
+    44	```
+    45	
+    46	只有构建和解析均成功才继续。`data.version` 应为 `0.3.0-rc.1`，`data.schema_version` 应为 `4`，`data.home` 应为本次 `engine_home`；不符就停止核对源码和二进制。从 Cargo JSON 的 `compiler-artifact.executable` 取得路径，不猜 `target/debug/sheltie`。
+    47	
+    48	`session_dir` 是新私有目录，`engine_home` 是其中尚不存在的新管理根。所有引擎调用都通过 `engine` 显式带同一个 `--home`，不会使用旧 Store 或默认 `~/.sheltie`。不运行 `self install/update/rollback`，不改 PATH 或宿主配置，不安装 skill。本次临时构建不是发布或跨平台验收。
+    49	
+    50	将 `session_dir`、`engine_binary`、`engine_home` 的实际绝对路径记入会话交接；重开时恢复这三项和 `engine` 函数，不能重新执行 `mktemp` 换根，也不能回落默认管理根。
+    51	
+    52	## 2. 准备实际 task 与 project
+    53	
+    54	以下练习只修改本次新建的练习仓库，不修改 Sheltie 源码。目标是把 `greet()` 的拼写改为 `hello`，用固定断言检查结果。真实任务应换成已授权仓库和实际验收条件；输入不足时不要开 Work。
+    55	
+    56	```bash
+    57	task_repo="$session_dir/practice"
+    58	mkdir "$task_repo"
+    59	git -C "$task_repo" init
+    60	cat > "$task_repo/greeting.py" <<'PY'
+    61	def greet():
+    62	    return "helllo"
+    63	PY
+    64	git -C "$task_repo" add greeting.py
+    65	git -C "$task_repo" -c user.name='Sheltie demo' \
+    66	  -c user.email='demo@example.invalid' -c commit.gpgsign=false \
+    67	  -c core.hooksPath=/dev/null commit -m 'chore: create greeting exercise'
+    68	initial_head=$(git -C "$task_repo" rev-parse HEAD)
+    69	
+    70	cat > "$session_dir/task.md" <<'MD'
+    71	# 修复问候拼写
+    72	目标：让 greeting.py 中的 greet() 返回字符串 hello。
+    73	只允许修改 greeting.py；保留函数名、参数和其他行为。
+    74	验收：project 中两条检查均退出 0，独立审查核对范围和结果。
+    75	报告保留真实失败、未执行项和实际候选；不 push、合并、部署或发布。
+    76	MD
+    77	
+    78	cat > "$session_dir/project.md" <<MD
+    79	# 练习项目
+    80	仓库绝对位置：$task_repo
+    81	初始 HEAD：$initial_head
+    82	初始工作区：clean；先实际核对，不清理他人修改。
+    83	允许修改：greeting.py；本练习不要求新增提交。
+    84	在仓库根执行以下检查，保留命令、stdout、stderr 和退出码：
+    85	- python3 -B -c 'import greeting; assert greeting.greet() == "hello"'
+    86	- git diff --check
+    87	change 报告写实际 HEAD、完整工作区 diff、greeting.py 的 SHA256 和检查原文位置。
+    88	review 核同一候选；deliver 核 change/review 候选一致，不代替使用者接受。
+    89	MD
+    90	```
+    91	
+    92	两份输入应为普通 UTF-8 文件。`task` 给目标、约束和验收，`project` 给位置、授权范围、工作区前提和检查命令。它们在 `work start` 时按字节冻结；目标改变应另开 Work，不能编辑冻结输入迁就实现。
+    93	
+    94	## 3. 装入、核验并开始 Work
+    95	
+    96	```bash
+    97	engine workbook add "$repo_root/examples/code-change"
+    98	engine workbook verify code-change@1.0.0
+    99	engine workbook show code-change@1.0.0
+   100	```
+   101	
+   102	核验结果应为 `ok`；show 中 `default` 的 `start_inputs` 应为 `task`、`project`，方法为 implement → review → deliver，review 有返回 implement 的 `back` 边。先核响应的 `requires`，缺声明的宿主资源就停止，不让引擎安装。相同根已装同版本时不用重复 add，但仍先 verify/show。
+   103	
+   104	```bash
+   105	engine work start --workbook code-change@1.0.0 --flow default \
+   106	  --name greeting-fix \
+   107	  --input "task=@$session_dir/task.md" \
+   108	  --input "project=@$session_dir/project.md" \
+   109	  > "$session_dir/start.json"
+   110	cat "$session_dir/start.json"
+   111	work_id=$(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["ok"]; print(r["data"]["work_id"])' "$session_dir/start.json")
+   112	engine work status "$work_id"
+   113	```
+   114	
+   115	保留完整 `work_id`。每次推进都先读当前响应和 `next`：`op` 是合法操作，`args` 是目标身份，`edge` 标识选路。下面命令只在当前 `next` 确实包含对应动作时执行；不要按历史响应或目录里的「最新文件」猜下一步。
+   116	
+   117	## 4. 委派实现、审查与交付
+   118	
+   119	先确认当前 `next` 有 `attempt begin`、节点 `implement`：
+   120	
+   121	```bash
+   122	engine attempt begin "$work_id" --node implement > "$session_dir/implement.json"
+   123	cat "$session_dir/implement.json"
+   124	```
+   125	
+   126	协调者把响应的 `data.brief_path` 交给工作 agent。工作 agent 必须完整读取任务书和绑定的 `data.inputs`，只在 project 范围内修复、执行检查，并按 `data.outputs.change` 的实际绝对路径写报告。首次 `previous-review` 为 `null`；报告第一行写实际完成程度，后面给候选、检查原文、退出码、未执行项和剩余问题。不要改输入、任务书或提交后的报告。
+   127	
+   128	工作 agent 完成后，协调者核输出齐全，再使用本次 begin 返回的实际 `data.attempt` 提交。下面变量从原响应取得，不假定后缀永远是 `#1.0`：
+   129	
+   130	```bash
+   131	attempt_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["data"]["attempt"])' "$session_dir/implement.json")
+   132	engine attempt submit "$work_id" --attempt "$attempt_id" --summary '已完成实现与检查，等待独立审查'
+   133	engine work status "$work_id"
+   134	```
+   135	
+   136	`submit` 校验声明输出并封存，不读取自然语言判定通过。确认当前 `next` 允许 review 后领取审查任务：
+   137	
+   138	```bash
+   139	engine attempt begin "$work_id" --node review > "$session_dir/review.json"
+   140	cat "$session_dir/review.json"
+   141	```
+   142	
+   143	将 `data.brief_path` 交给未参与实现的审查 agent。审查者读取冻结 task/project/change，核实际代码、候选和检查原件，按 `data.outputs.review` 写独立审查报告。报告第一行写通过、需修改或阻断及依据。审查完成后，无论内容结论是否通过，都提交本次 review Attempt：
+   144	
+   145	```bash
+   146	attempt_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["data"]["attempt"])' "$session_dir/review.json")
+   147	engine attempt submit "$work_id" --attempt "$attempt_id" --summary '已完成独立审查，结论见 review 报告'
+   148	engine work status "$work_id"
+   149	```
+   150	
+   151	协调者读审查报告和当前 `next` 决定下一步。需修改且 `back` 可用时，重新 `attempt begin --node implement`，使用新的响应文件名保存原件；把绑定的 `previous-review` 交给工作 agent，按新 Attempt 和输出路径返工，再独立 review。不要覆盖首次 `implement.json/review.json`。审查阻断时保留原因，输入或授权缺口交使用者处理；不自动继续 deliver。
+   152	
+   153	审查通过且当前 `next` 允许 deliver 时：
+   154	
+   155	```bash
+   156	engine attempt begin "$work_id" --node deliver > "$session_dir/deliver.json"
+   157	cat "$session_dir/deliver.json"
+   158	```
+   159	
+   160	交付工作 agent 读取任务书和绑定的 change/review，核两份报告指向同一实际候选，按 `data.outputs.delivery` 写成果、检查原文、使用说明和未完成义务。协调者核齐后提交：
+   161	
+   162	```bash
+   163	attempt_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["data"]["attempt"])' "$session_dir/deliver.json")
+   164	engine attempt submit "$work_id" --attempt "$attempt_id" --summary '已整理本次成果与未完成义务'
+   165	engine work status "$work_id"
+   166	engine work result "$work_id"
+   167	```
+   168	
+   169	只有 `data.final=true` 才消费 `data.artifacts`。本方法选择 `change`、`review`、`delivery`：前两项是该具体 deliver Attempt 绑定的冻结输入，后一项是其封存输出；核每项 `path`、`sha256`、`bytes` 和 `source`。查询列举冻结引用，不重新证明报告内容、代码或源字节。`final=false` 时集合为空；未声明选择的方法也可能 `final=true` 且为空，不能猜最近文件。
+   170	
+   171	Work succeeded 只表示流程和输出合同完成。实际代码仍在练习仓库，独立质量和使用者接受分别核对。需要可编辑成果副本时，再按[成果导出指南](result-export.md)的读取合同和明确目标目录授权操作。
+   172	
+   173	## 5. 中断、错误与停止条件
+   174	
+   175	已有 Work 重开会话时，先恢复同一绝对二进制、Home 和完整 WorkId，再只读查询：
+   176	
+   177	```bash
+   178	engine work status "$work_id"
+   179	engine work stats "$work_id"
+   180	```
+   181	
+   182	先核当前 `data.revision`、`data.effects_pending`、`data.next` 和 `data.resume`。`resume` 给当前 Attempt 的任务书、冻结 inputs 和 running Attempt 的 `draft_outputs`；草稿路径不证明文件存在或封存。确认旧执行者和共享工作区已妥善处理后继续原 running Attempt。会话重开本身不调用 fail/begin，不新开 Work。
+   183	
+   184	写操作需要安全重放时，在调用前生成、持久保存 UUID 并加 `--request-id`；不把它给只读或 self 命令。重放返回提交时的历史 `next`，之后必须重新 status 查当前。对于 `EFFECT_PENDING`，先读 `committed`、`request_id` 和 `error.detail.pending_request_id`：当前请求已提交则同 id、同意图重放恢复；旧请求阻断新请求则先恢复旧请求，再以原 id 重试本请求。`effects_pending=true` 时只读不会恢复，不能把 `original` 当当前推进依据。身份、原请求参数或恢复原因不明时停止，保留原响应，不改 Store/pending。
+   185	
+   186	| 现象 | 处理边界 |
+   187	| --- | --- |
+   188	| 构建、解析、命令非零；未知错误或响应字段不符 | 停止，保留实际命令、环境、stdout/stderr、退出码和候选；核原因后再决定恢复，不反复运行凑成功 |
+   189	| `STORE_SCHEMA_MISMATCH`（含 schema 1/2/3） | 旧 Store 整体拒绝；保留旧根的数据库、WAL 和原件，旧记录只用旧二进制配旧根查；不迁移、清空或 rollback 降库，换新的显式 Home |
+   190	| `WORKBOOK_TAMPERED`、`ARTIFACT_MODIFIED`、`STORE_CORRUPT` | 停止并核原字节和身份，不直接修写受管文件或同版本 add 覆盖 |
+   191	| `OUTPUT_MISSING`、`OUTPUT_TOO_LARGE` | Attempt 仍 running；工作 agent 补齐符合声明的输出后再提交，保持原标准 |
+   192	| 工作 agent 崩溃、超时或交不出文件 | 真实执行失败才按当前 next 调用 `attempt fail` 并保留原因；有 begin 才重试。内容不通过仍 submit 后选 back |
+   193	| `blocked(retries_exhausted)` / `blocked(no_legal_edge)` | 停止推进、报告使用者；仅按当前 next 和实际授权决定取消，不另开 Work 绕过额度 |
+   194	| `blocked(gate)` | 本方法默认无 gate；其他方法必须取得用户明确批准才 approve，不推断批准 |
+   195	| `succeeded` / `cancelled` 或 `WORK_TERMINAL` | 不再推进该 Work；只读查状态、统计与结果，核终态未完成义务 |
+   196	| 输入、权限、资源、时间或费用预算不足，事实未知 | 停止并标明具体缺项或 unknown / `not_run`；不放宽验收、修改冻结方法或推算费用 |
+   197	
+   198	本方法 implement/review 各最多到达 3 次，每次到达最多 1 次业务失败重试；deliver 最多到达 1 次、允许 1 次失败重试。Attempt 后缀是从 0 起的创建序号，不等于失败数。引擎不管理模型时间和费用，协调者应在开工前约定实际预算并自行记录。
+   199	
+   200	只有确需撤销旧 Attempt 的正式提交资格时才按当前 next 选择 `attempt replace`；每个 Occurrence 固定最多一次，不停止旧进程或隔离宿主。新执行者写共享工作区前必须确认旧执行者停止或环境隔离。普通会话恢复不需要替换。精确参数、状态和错误见[协议合同](../contracts/protocol.md)，方法说明见[code-change](../../examples/code-change/README.md)。

@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "rg",
+    "-n",
+    "-A",
+    "14",
+    "-B",
+    "4",
+    "enum AttemptCmd|Replace|WorkTerminal|ReplacementsExhausted|AttemptNotRunning|Superseded|replacement_reason",
+    "crates/sheltie-cli/src/cli.rs",
+    "crates/sheltie-core/src/work/decide.rs"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "start_utc": "2026-10-03T20:34:55.919827+00:00",
+  "end_utc": "2026-10-03T20:34:55.932096+00:00",
+  "elapsed_s": 0.012269,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/06-cli-and-decision.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/06-cli-and-decision.stderr",
+  "stdout_sha256": "1fa5503bb20587fc7ffa53c4041528019fa75f9344cf5a3674c80adc58d62e90",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

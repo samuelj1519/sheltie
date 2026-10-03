@@ -1,0 +1,1210 @@
+//! 命令树。这是 `specs/contracts/protocol.md` §2 的机器形式，由骨架定死，填空任务不改。
+
+use clap::{Args, Parser, Subcommand};
+
+#[derive(Debug, Parser)]
+#[command(name = "sheltie", version, about = "给协调者 agent 用的本地工作流引擎", long_about = None)]
+pub struct Cli {
+    /// 输出一行 JSON 响应封装，而不是给人读的文本。
+    #[arg(long, global = true)]
+    pub json: bool,
+
+    /// 管理根。默认取 SHELTIE_HOME，再默认 ~/.sheltie。
+    #[arg(long, global = true, value_name = "DIR")]
+    pub home: Option<String>,
+
+    /// 写操作的幂等 id。不给时引擎生成。
+    #[arg(long, global = true, value_name = "UUID")]
+    pub request_id: Option<String>,
+
+    #[command(subcommand)]
+    pub group: Group,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Group {
+    /// 管理 sheltie 自身。
+    #[command(name = "self", subcommand)]
+    SelfCmd(SelfCmd),
+    /// 管理已装的 Workbook。
+    #[command(subcommand)]
+    Workbook(WorkbookCmd),
+    /// 创建与查看 Work。
+    #[command(subcommand)]
+    Work(WorkCmd),
+    /// 开始、提交、标记失败一次尝试。
+    #[command(subcommand)]
+    Attempt(AttemptCmd),
+    /// 门槛批准。
+    #[command(subcommand)]
+    Gate(GateCmd),
+}
+
+#[derive(Debug, Subcommand)]
+pub enum SelfCmd {
+    /// 把当前二进制装到 ~/.sheltie/bin，建管理根。不写 shell 配置，只打印 PATH 提示。
+    Install,
+    /// 下载新版本，校验，原子替换。
+    Update {
+        #[arg(long, value_name = "VERSION")]
+        version: Option<String>,
+    },
+    /// 换回上一版本。
+    Rollback,
+    /// 删 bin/；--purge 才删整个管理根。
+    Uninstall {
+        #[arg(long)]
+        purge: bool,
+        /// --purge 时跳过确认。
+        #[arg(long)]
+        yes: bool,
+    },
+    /// 版本、平台、管理根、SCHEMA_VERSION。
+    Version,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum WorkbookCmd {
+    /// 校验并复制一个 Workbook 目录到管理根。
+    Add { dir: String },
+    /// 列出已装 Workbook。
+    List,
+    /// 打印 manifest、宿主资源声明与每个 Flow 的节点、边。
+    Show {
+        /// `<id>` 或 `<id>@<version>`。
+        spec: String,
+    },
+    /// 删除一个已装版本。有未结束的 Work 引用时拒绝。
+    Remove {
+        /// 必须是 `<id>@<version>`。
+        spec: String,
+    },
+    /// 重算目录摘要与记录对比。
+    Verify {
+        /// 省略时核对全部。
+        spec: Option<String>,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum WorkCmd {
+    /// 创建 Work。
+    Start(StartArgs),
+    /// 列出 Work。
+    List,
+    /// 打印状态卡。
+    Status { work: String },
+    /// 查看明确选择的最终成果引用。
+    Result {
+        work: String,
+        #[arg(long, allow_hyphen_values = true)]
+        artifact: Option<String>,
+        #[arg(long)]
+        revision: Option<u64>,
+    },
+    /// 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来。
+    Stats { work: String },
+    /// 取消。
+    Cancel { work: String },
+}
+
+#[derive(Debug, Args)]
+pub struct StartArgs {
+    /// `<id>` 或 `<id>@<version>`。
+    #[arg(long)]
+    pub workbook: String,
+    #[arg(long)]
+    pub flow: String,
+    /// 省略时取 flow id。
+    #[arg(long)]
+    pub name: Option<String>,
+    /// `k=v`；`v` 以 `@` 开头时读文件内容。可重复。
+    #[arg(long = "input", value_name = "K=V")]
+    pub inputs: Vec<String>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum AttemptCmd {
+    /// 进入节点并开始一次尝试，返回任务书。
+    Begin {
+        work: String,
+        #[arg(long)]
+        node: String,
+    },
+    /// 提交尝试。
+    Submit {
+        work: String,
+        #[arg(long)]
+        attempt: String,
+        /// 摘要文本，或 `@file`。
+        #[arg(long)]
+        summary: String,
+    },
+    /// 标记尝试失败。
+    Fail {
+        work: String,
+        #[arg(long)]
+        attempt: String,
+        #[arg(long)]
+        reason: String,
+    },
+    /// 撤销当前尝试的正式提交资格并领取新任务书。
+    Replace {
+        work: String,
+        #[arg(long)]
+        attempt: String,
+        /// 替换理由，或 `@file`。
+        #[arg(long)]
+        reason: String,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum GateCmd {
+    /// 真人批准门槛。
+    Approve {
+        work: String,
+        #[arg(long)]
+        node: String,
+    },
+}
+
+/// `k=v` 解析；`v` 以 `@` 开头是文件路径（**不读内容**，重放查重之后由 runtime 读）。
+/// 返回 `(key, 值来源)`。
+pub fn parse_input_arg(
+    arg: &str,
+) -> Result<(String, sheltie_runtime::request::InputValue), String> {
+    let (key, value) = arg
+        .split_once('=')
+        .ok_or_else(|| format!("--input 的值 {arg:?} 要是 k=v"))?;
+    if key.is_empty() {
+        return Err(format!("--input 的值 {arg:?} 缺键"));
+    }
+    let source = if let Some(path) = value.strip_prefix('@') {
+        if path.is_empty() {
+            return Err(format!("--input 的值 {arg:?} 的 @ 后要有路径"));
+        }
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+        sheltie_runtime::request::InputValue::AtFile { path: abs }
+    } else {
+        sheltie_runtime::request::InputValue::Literal {
+            text: value.to_string(),
+        }
+    };
+    Ok((key.to_string(), source))
+}
+
+/// `<id>@<version>` 解析。没有 `@` 时版本为 `None`。
+pub fn parse_workbook_spec(spec: &str) -> Result<(String, Option<String>), String> {
+    if spec.is_empty() {
+        return Err("Workbook 引用不能为空，写 <id> 或 <id>@<version>".to_string());
+    }
+    match spec.split_once('@') {
+        None => Ok((spec.to_string(), None)),
+        Some((id, version)) => {
+            if id.is_empty() || version.is_empty() {
+                return Err(format!("Workbook 引用 {spec:?} 不合规，@ 两侧都要有内容"));
+            }
+            Ok((id.to_string(), Some(version.to_string())))
+        }
+    }
+}
+
+/// `--summary` 与 `--reason` 的值来源：以 `@` 开头是文件路径（内容由 runtime 在
+/// 重放查重之后读取），否则字面值。
+pub fn parse_text_arg(value: &str) -> Result<sheltie_runtime::request::InputValue, String> {
+    if let Some(path) = value.strip_prefix('@') {
+        if path.is_empty() {
+            return Err("@ 后要有路径".to_string());
+        }
+        let abs = sheltie_runtime::request::lexical_abs(path).map_err(|error| error.to_string())?;
+        Ok(sheltie_runtime::request::InputValue::AtFile { path: abs })
+    } else {
+        Ok(sheltie_runtime::request::InputValue::Literal {
+            text: value.to_string(),
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Task: C002-T24
+    #[test]
+    fn input_file_arguments_are_lexical_and_do_not_probe_the_filesystem() {
+        let missing = "/this/path/does/not/exist/sheltie-input";
+        let (key, input) = parse_input_arg(&format!("topic=@{missing}")).unwrap();
+        assert_eq!(key, "topic");
+        assert_eq!(
+            input,
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
+        assert_eq!(
+            parse_text_arg(&format!("@{missing}")).unwrap(),
+            sheltie_runtime::request::InputValue::AtFile {
+                path: missing.to_string()
+            }
+        );
+    }
+}
+//! `self install | update | rollback | uninstall | version`。除 `install` 建库外不打开 `store.db`。
+//!
+//! 不写任何宿主配置（`INV-3`）：`install` 的 PATH 只是提示文本。安装与更新的提示都要
+//! 说清 当前 Store schema 与旧数据保留——rollback 只换回旧二进制，不降级 Store。
+
+use serde_json::json;
+use sheltie_runtime::selfmgmt;
+
+use crate::cli::SelfCmd;
+use crate::commands::Ctx;
+use crate::output::{self, Outcome};
+
+fn schema_note(ctx: &Ctx) -> String {
+    format!(
+        "Store schema 是 {}：旧数据保留在旧管理根，旧二进制拒绝当前格式的库。\
+rollback 只换回旧二进制，不降级 Store；查旧记录要旧二进制配旧管理根。",
+        selfmgmt::version_info(&ctx.home).schema_version
+    )
+}
+
+/// `uninstall --purge` 在文本模式下没有 `--yes` 时读一行 stdin，必须是 `yes`；JSON 模式下必须给 `--yes`。
+pub fn run(ctx: &Ctx, cmd: SelfCmd) -> Outcome {
+    match cmd {
+        SelfCmd::Install => install(ctx),
+        SelfCmd::Update { version } => update(ctx, version.as_deref()),
+        SelfCmd::Rollback => rollback(ctx),
+        SelfCmd::Uninstall { purge, yes } => uninstall(ctx, purge, yes),
+        SelfCmd::Version => version(ctx),
+    }
+}
+
+/// `self install`。
+fn install(ctx: &Ctx) -> Outcome {
+    match selfmgmt::install(&ctx.home) {
+        Ok(out) => {
+            let data = json!({
+                "installed_to": out.installed_to.as_str(),
+                "already_installed": out.already_installed,
+                "path_hint": out.path_hint,
+            });
+            let verb = if out.already_installed {
+                "已装在"
+            } else {
+                "已装到"
+            };
+            let text = format!(
+                "{verb} {}\n{}\n{}\n",
+                out.installed_to,
+                out.path_hint,
+                schema_note(ctx)
+            );
+            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+        }
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `self update`。
+fn update(ctx: &Ctx, version: Option<&str>) -> Outcome {
+    let source = selfmgmt::ReleaseSource::from_env();
+    match selfmgmt::update(&ctx.home, &source, version) {
+        Ok(out) => {
+            let data = json!({
+                "from": out.from,
+                "to": out.to,
+                "up_to_date": out.up_to_date,
+            });
+            let head = if out.up_to_date {
+                format!("已是最新（{}）\n", out.to)
+            } else {
+                format!("已从 {} 升到 {}\n", out.from, out.to)
+            };
+            let text = format!("{head}{}\n", schema_note(ctx));
+            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+        }
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `self rollback`。
+fn rollback(ctx: &Ctx) -> Outcome {
+    match selfmgmt::rollback(&ctx.home) {
+        Ok(()) => output::ok(
+            "已换回上一版本\n".to_string(),
+            ctx.request_id.clone(),
+            None,
+            json!({ "rolled_back": true }),
+            Vec::new(),
+        ),
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `self uninstall [--purge]`。
+fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
+    // 只有 purge 要确认；文本模式读一行 stdin，JSON 模式必须给 --yes（协议 §3 self uninstall）。
+    let confirmed = if !purge || yes {
+        true
+    } else if ctx.json {
+        false
+    } else {
+        println!(
+            "将清理管理根中的 Workbook、Work、pending、临时文件、binary 与数据库；保留根目录和锁文件：{}",
+            ctx.home.root().as_str()
+        );
+        let mut line = String::new();
+        match std::io::stdin().read_line(&mut line) {
+            Ok(_) => line.trim() == "yes",
+            Err(_) => false,
+        }
+    };
+    match selfmgmt::uninstall(&ctx.home, purge, confirmed) {
+        Ok(kept) => {
+            if purge {
+                return output::ok(
+                    format!(
+                        "已清理管理数据与 binary。保留：\n  {}\n  {}\n",
+                        ctx.home.root(),
+                        ctx.home.lock_path()
+                    ),
+                    ctx.request_id.clone(),
+                    None,
+                    json!({ "kept": kept.iter().map(|path| path.as_str()).collect::<Vec<_>>() }),
+                    Vec::new(),
+                );
+            }
+            let mut text = String::from("已删 bin/。保留：\n");
+            let mut paths = Vec::with_capacity(kept.len());
+            for p in &kept {
+                text.push_str(&format!("  {}\n", p.as_str()));
+                paths.push(p.as_str());
+            }
+            output::ok(
+                text,
+                ctx.request_id.clone(),
+                None,
+                json!({ "kept": paths }),
+                Vec::new(),
+            )
+        }
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `self version`。只读，不建管理根。
+fn version(ctx: &Ctx) -> Outcome {
+    let info = selfmgmt::version_info(&ctx.home);
+    let data = json!({
+        "version": info.version,
+        "platform": info.platform,
+        "home": info.home.as_str(),
+        "schema_version": info.schema_version,
+    });
+    let text = format!(
+        "sheltie {}\nplatform: {}\nhome: {}\nSCHEMA_VERSION: {}\n",
+        info.version,
+        info.platform,
+        info.home.as_str(),
+        info.schema_version
+    );
+    output::ok(text, None, None, data, Vec::new())
+}
+//! `work start | list | status | result | stats | cancel`。
+
+use std::collections::BTreeMap;
+
+use serde_json::json;
+use sheltie_core::ids::WorkId;
+use sheltie_core::work::Reply;
+use sheltie_runtime::{Response, WorkService};
+
+use crate::cli::{WorkCmd, parse_input_arg, parse_workbook_spec};
+use crate::commands::Ctx;
+use crate::output::{self, Outcome};
+
+pub(crate) fn result_artifact(ctx: &Ctx, work: &str, key: &str, revision: u64) -> i32 {
+    let work = match sheltie_core::ids::WorkId::parse(work) {
+        Ok(work) => work,
+        Err(error) => return output::raw_error(&sheltie_runtime::Error::Core(error)),
+    };
+    let svc = service(ctx);
+    let stdout = std::io::stdout();
+    let mut writer = stdout.lock();
+    match svc.write_result_artifact(&work, key, revision, &mut writer) {
+        Ok(()) => 0,
+        Err(error) => output::raw_error(&error),
+    }
+}
+
+/// `start` 先用 `cli::parse_input_arg` 解析全部 `--input`，再调 `WorkService::start`。
+/// `status`、`result`、`stats` 与 `list` 只读打开。`<work>` 先经 `WorkService::resolve_work`。
+pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
+    match cmd {
+        WorkCmd::Start(args) => start(ctx, args),
+        WorkCmd::List => list(ctx),
+        WorkCmd::Status { work } => status(ctx, &work),
+        WorkCmd::Result { work, .. } => result(ctx, &work),
+        WorkCmd::Stats { work } => stats(ctx, &work),
+        WorkCmd::Cancel { work } => cancel(ctx, &work),
+    }
+}
+
+/// 打开存储并建服务。只读或读写由调用方定。
+pub(crate) fn service(ctx: &Ctx) -> WorkService {
+    WorkService::new(ctx.home.clone())
+}
+
+/// `<work>` 前缀解析；零个或多个匹配都是错误Outcome。
+pub(crate) fn resolve(
+    svc: &WorkService,
+    work: &str,
+    request_id: Option<&str>,
+) -> Result<WorkId, Outcome> {
+    svc.resolve_work_for_request(work, request_id)
+        .map_err(|e| crate::error_map::to_outcome(&e))
+}
+
+/// `work start`（协议 §3 第 8 步的返回）。
+fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
+    // 参数解析错误先于任何存储访问，退出码 2。
+    let mut inputs = BTreeMap::new();
+    for raw in &args.inputs {
+        match parse_input_arg(raw) {
+            Ok((k, v)) => {
+                inputs.insert(k, v);
+            }
+            Err(m) => return output::param_error(m),
+        }
+    }
+    let (workbook_id, version) = match parse_workbook_spec(&args.workbook) {
+        Ok(v) => v,
+        Err(m) => return output::param_error(m),
+    };
+    // 只读打开做预检（GF-30）：新管理根连 store.db 都没有，说明没有任何已装
+    // Workbook，按 NOT_FOUND 拒绝，不为失败的 start 建库；写路径由 runtime 重开读写库。
+    let svc = WorkService::new(ctx.home.clone());
+    let rt_args = sheltie_runtime::StartArgs {
+        workbook_id,
+        version,
+        flow: args.flow,
+        name: args.name,
+        inputs,
+    };
+    let resp = match svc.start(rt_args, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    // 响应字段全部来自提交时快照（cli-result/v4）：CLI 不再回读 Store 拼数据（O04）。
+    let work_id = match &resp.reply {
+        Reply::Started { work_id, .. } => work_id.clone(),
+        other => return reply_mismatch("Started", other),
+    };
+    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, &work_id);
+    output::ok_response(text, resp, &work_id)
+}
+
+/// `work list`。
+fn list(ctx: &Ctx) -> Outcome {
+    let svc = service(ctx);
+    let rows = match svc.list() {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let mut text = String::new();
+    let mut data = Vec::with_capacity(rows.len());
+    for row in &rows {
+        text.push_str(&format!(
+            "{}  {}  {}  {}\n",
+            row.work_id, row.name, row.status, row.current
+        ));
+        data.push(json!({
+            "work_id": row.work_id.as_str(),
+            "name": row.name,
+            "status": row.status,
+            "current": row.current,
+            "updated_at": row.updated_at,
+        }));
+    }
+    output::ok(text, None, None, data, Vec::new())
+}
+
+/// `work status`：文本模式直接打状态卡。
+fn status(ctx: &Ctx, work: &str) -> Outcome {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let (text, view) = match svc.status_read(&wid) {
+        Ok(t) => t,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
+    output::ok_work_next(text, None, None, json!(view), view.card.next.clone())
+}
+
+fn result(ctx: &Ctx, work: &str) -> Outcome {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
+        Ok(work) => work,
+        Err(out) => return out,
+    };
+    let (view, operations) = match svc.result(&wid) {
+        Ok(result) => result,
+        Err(error) => return crate::error_map::to_outcome(&error),
+    };
+    let next = operations
+        .iter()
+        .map(|operation| sheltie_core::work::render::next_item_json(&view.work_id, operation))
+        .collect();
+    let text = sheltie_core::work::result::render_result(&view);
+    output::ok_work_next(text, None, None, json!(view), next)
+}
+
+/// `work stats`：runtime返回同一次装入的事实视图与next。
+fn stats(ctx: &Ctx, work: &str) -> Outcome {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, None) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    // stats 与 next 用同一次加载的事实视图（GF-29）；next 与状态卡同源同形。
+    let (text, stats, ops) = match svc.stats(&wid) {
+        Ok(t) => t,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    output::ok_work_next(text, None, None, json!(stats), ops)
+}
+
+/// `work cancel`。
+fn cancel(ctx: &Ctx, work: &str) -> Outcome {
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.cancel(&wid, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let mut text = format!("已取消 {wid}\n");
+    if resp.next.is_empty() {
+        text.push_str("Work 已结束，没有下一步。\n");
+    }
+    output::ok_response(text, resp, &wid)
+}
+
+// ── attempt 与 gate 组共用的渲染 ───────────────────────────────
+
+/// 文本模式的「下一步」段。写操作的文本都以它收尾。
+pub(crate) fn next_lines(head: String, resp: &Response, work: &WorkId) -> String {
+    let mut text = head;
+    if resp.next.is_empty() {
+        text.push_str("没有下一步（Work 已结束）。\n");
+        return text;
+    }
+    text.push_str("下一步：\n");
+    for op in &resp.next {
+        text.push_str(&format!("- {}\n", op.to_command_line(work)));
+    }
+    text
+}
+
+/// runtime 保证 reply 与命令对应；对不上说明两端不一致。
+pub(crate) fn reply_mismatch(expected: &str, got: &Reply) -> Outcome {
+    crate::output::err(
+        sheltie_core::ErrorCode::StoreCorrupt,
+        format!("响应与命令不匹配（期望 {expected}，实际 {got:?}）"),
+        None,
+        Vec::new(),
+    )
+}
+//! `attempt begin | submit | fail | replace`。
+
+use sheltie_core::ids::{AttemptId, NodeId};
+use sheltie_core::work::Reply;
+
+use crate::cli::AttemptCmd;
+use crate::commands::Ctx;
+use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
+use crate::output::{self, Outcome};
+
+/// `--summary` 与 `--reason` 经 `cli::parse_text_arg`；`--attempt` 经 `AttemptId::parse`。
+/// `begin` 已随 T18 一并实现（`work cancel` 的测试要走它验证 `WORK_TERMINAL`，见 plan.md T18 任务卡）；
+/// `submit` 与 `fail` 归 T19。
+pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
+    match cmd {
+        AttemptCmd::Begin { work, node } => begin(ctx, &work, &node),
+        AttemptCmd::Submit {
+            work,
+            attempt,
+            summary,
+        } => submit(ctx, &work, &attempt, &summary),
+        AttemptCmd::Fail {
+            work,
+            attempt,
+            reason,
+        } => fail(ctx, &work, &attempt, &reason),
+        AttemptCmd::Replace {
+            work,
+            attempt,
+            reason,
+        } => replace(ctx, &work, &attempt, &reason),
+    }
+}
+
+/// `attempt begin`（协议 §3 第 5 步的返回）。
+fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
+    let node = match NodeId::new(node) {
+        Ok(n) => n,
+        Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
+    };
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.begin(&wid, &node, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    // 数据来自提交时快照（cli-result/v4），不回读 Store（O04）。
+    let (attempt, brief_path, output_dir) = match &resp.reply {
+        Reply::AttemptBegun {
+            attempt,
+            brief_path,
+            output_dir,
+            ..
+        } => (attempt.clone(), brief_path.clone(), output_dir.clone()),
+        other => return reply_mismatch("AttemptBegun", other),
+    };
+    let text = next_lines(
+        format!("已开始 {attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"),
+        &resp,
+        &wid,
+    );
+    output::ok_response(text, resp, &wid)
+}
+
+/// `attempt submit`（协议 §3 第 6 步的返回）。
+fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
+    let summary = match crate::cli::parse_text_arg(summary) {
+        Ok(s) => s,
+        Err(m) => return output::param_error(m),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(a) => a,
+        Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
+    };
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.submit(&wid, &attempt, &summary, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let (attempt, outputs) = match &resp.reply {
+        Reply::AttemptSubmitted { attempt, outputs } => (attempt.clone(), outputs.clone()),
+        other => return reply_mismatch("AttemptSubmitted", other),
+    };
+    let mut text = format!("已提交 {attempt}\n");
+    for (name, r) in &outputs {
+        text.push_str(&format!(
+            "  {name} → {} (sha256 {})\n",
+            r.path,
+            r.sha256.as_str()
+        ));
+    }
+    let text = next_lines(text, &resp, &wid);
+    output::ok_response(text, resp, &wid)
+}
+
+/// `attempt fail`。
+fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
+    let reason = match crate::cli::parse_text_arg(reason) {
+        Ok(s) => s,
+        Err(m) => return output::param_error(m),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(a) => a,
+        Err(e) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(e)),
+    };
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(w) => w,
+        Err(out) => return out,
+    };
+    let resp = match svc.fail(&wid, &attempt, &reason, ctx.request_id.clone()) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let attempt = match &resp.reply {
+        Reply::AttemptFailed { attempt } => attempt.clone(),
+        other => return reply_mismatch("AttemptFailed", other),
+    };
+    let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
+    output::ok_response(text, resp, &wid)
+}
+
+fn replace(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
+    let reason = match crate::cli::parse_text_arg(reason) {
+        Ok(value) => value,
+        Err(message) => return output::param_error(message),
+    };
+    let attempt = match AttemptId::parse(attempt) {
+        Ok(value) => value,
+        Err(error) => return crate::error_map::to_outcome(&sheltie_runtime::Error::Core(error)),
+    };
+    let svc = service(ctx);
+    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+        Ok(value) => value,
+        Err(outcome) => return outcome,
+    };
+    let resp = match svc.replace(&wid, &attempt, &reason, ctx.request_id.clone()) {
+        Ok(value) => value,
+        Err(error) => return crate::error_map::to_outcome(&error),
+    };
+    let Reply::AttemptReplaced {
+        replaced_attempt,
+        attempt,
+        brief_path,
+        output_dir,
+        ..
+    } = &resp.reply
+    else {
+        return reply_mismatch("AttemptReplaced", &resp.reply);
+    };
+    let text = next_lines(
+        format!(
+            "已替换 {replaced_attempt}，新尝试：{attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"
+        ),
+        &resp,
+        &wid,
+    );
+    output::ok_response(text, resp, &wid)
+}
+//! `workbook add | list | show | remove | verify`。
+
+use serde_json::json;
+use sheltie_core::path::AbsPath;
+use sheltie_runtime::Error;
+use sheltie_runtime::WorkbookRepo;
+
+use crate::cli::{WorkbookCmd, parse_workbook_spec};
+use crate::commands::Ctx;
+use crate::output::{self, Outcome};
+
+/// 分派到五个子命令。每个子命令：打开存储、建 `WorkbookRepo`、调用、渲染文本、包成 `Outcome`。
+/// 错误经 `error_map::to_outcome`。
+pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
+    match cmd {
+        WorkbookCmd::Add { dir } => add(ctx, &dir),
+        WorkbookCmd::List => list(ctx),
+        WorkbookCmd::Show { spec } => show(ctx, &spec),
+        WorkbookCmd::Remove { spec } => remove(ctx, &spec),
+        WorkbookCmd::Verify { spec } => verify(ctx, spec.as_deref()),
+    }
+}
+
+/// 相对目录按当前工作目录转成绝对路径；`AbsPath` 只收绝对的。
+fn abs_arg(value: &str) -> Result<AbsPath, Error> {
+    AbsPath::new(sheltie_runtime::request::lexical_abs(value)?).map_err(Error::from)
+}
+
+/// `workbook add <dir>`（协议 §3：成功返回 `{ id, version, digest, flows, requires }`）。
+fn add(ctx: &Ctx, dir: &str) -> Outcome {
+    let dir = match abs_arg(dir) {
+        Ok(p) => p,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    match repo.add(&dir, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
+            let id = data["id"].as_str().unwrap_or_default().to_string();
+            let version = data["version"].as_str().unwrap_or_default().to_string();
+            let digest = data["digest"].as_str().unwrap_or_default().to_string();
+            let flows = data["flows"]
+                .as_array()
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|v| v.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                })
+                .unwrap_or_default();
+            let text = format!("已装 {id}@{version}\ndigest: {digest}\nflows: {flows}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
+        }
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `workbook list`：每个 id 的最高版本（字面排序）标 `latest`。
+fn list(ctx: &Ctx) -> Outcome {
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    let rows = match repo.list() {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let mut data = Vec::with_capacity(rows.len());
+    let mut text = String::new();
+    for (i, row) in rows.iter().enumerate() {
+        // rows 按 (id, version) 升序，同 id 的最后一行就是最高版本。
+        let latest = rows.get(i + 1).is_none_or(|next| next.id != row.id);
+        data.push(json!({
+            "id": row.id,
+            "version": row.version,
+            "digest": row.digest,
+            "latest": latest,
+            "pending_publish": row.pending_publish,
+        }));
+        text.push_str(&format!(
+            "{}  {}  {}{}\n",
+            row.id,
+            row.version,
+            if latest { "latest" } else { "" },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
+        ));
+    }
+    output::ok(text, None, None, data, Vec::new())
+}
+
+/// `workbook show <id>[@<version>]`：manifest、宿主资源声明与每个 Flow 的节点、边。
+fn show(ctx: &Ctx, spec: &str) -> Outcome {
+    let (id, version) = match parse_workbook_spec(spec) {
+        Ok(v) => v,
+        Err(m) => return output::param_error(m),
+    };
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    let loaded = match repo.load(&id, version.as_deref()) {
+        Ok(l) => l,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let mut flows = Vec::with_capacity(loaded.flows.len());
+    let mut text = format!(
+        "workbook: {}@{}（{}）\ndigest: {}\nrequires: {}\n",
+        loaded.manifest.id(),
+        loaded.manifest.version(),
+        loaded.manifest.name(),
+        loaded.digest.as_str(),
+        if loaded.manifest.requires().is_empty() {
+            "无".to_string()
+        } else {
+            loaded
+                .manifest
+                .requires()
+                .iter()
+                .map(|r| format!("{}:{}", r.kind().as_str(), r.name()))
+                .collect::<Vec<_>>()
+                .join(", ")
+        },
+    );
+    if loaded.pending_publish {
+        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
+    }
+    for (def, graph) in &loaded.flows {
+        // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
+        // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
+        let start_inputs = sheltie_core::work::start_requirements(graph);
+        flows.push(json!({
+            "id": def.id().as_str(),
+            "entry": def.entry().as_str(),
+            "start_inputs": start_inputs,
+            "nodes": def.nodes().iter().map(|n| json!({
+                "id": n.id().as_str(),
+                "title": n.title(),
+                "executor": n.executor().as_str(),
+                "gate": n.gate(),
+            })).collect::<Vec<_>>(),
+            "edges": def.edges().iter().map(|e| json!({
+                "from": e.from().as_str(),
+                "to": e.to().as_str(),
+                "kind": e.kind().as_str(),
+            })).collect::<Vec<_>>(),
+        }));
+        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        text.push_str(&format!(
+            "  起始输入: {}\n",
+            if start_inputs.is_empty() {
+                "无".to_string()
+            } else {
+                start_inputs.join(", ")
+            }
+        ));
+        for n in def.nodes() {
+            text.push_str(&format!(
+                "  {}  {}  {}{}\n",
+                n.id(),
+                n.title(),
+                n.executor().as_str(),
+                if n.gate() { "  [gate]" } else { "" }
+            ));
+        }
+        for e in def.edges() {
+            text.push_str(&format!(
+                "  {} -> {}（{}）\n",
+                e.from(),
+                e.to(),
+                e.kind().as_str()
+            ));
+        }
+    }
+    let data = json!({
+        "id": loaded.manifest.id().as_str(),
+        "version": loaded.manifest.version(),
+        "name": loaded.manifest.name(),
+        "description": loaded.manifest.description(),
+        "digest": loaded.digest.as_str(),
+        "pending_publish": loaded.pending_publish,
+        "requires": loaded.manifest.requires(),
+        "flows": flows,
+    });
+    output::ok(text, None, None, data, Vec::new())
+}
+
+/// `workbook remove <id>@<version>`。版本必须给全，防误删。
+fn remove(ctx: &Ctx, spec: &str) -> Outcome {
+    let (id, version) = match parse_workbook_spec(spec) {
+        Ok(v) => v,
+        Err(m) => return output::param_error(m),
+    };
+    let Some(version) = version else {
+        return output::param_error(format!(
+            "remove 必须给全版本，写 {id}@<version>；不接受「最高版本」默认"
+        ));
+    };
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    match repo.remove(&id, &version, ctx.request_id.clone()) {
+        Ok(snapshot) => {
+            let data = output::replayed_data(snapshot.data, snapshot.replayed);
+            let text = format!("已删除 {id}@{version}\n");
+            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
+        }
+        Err(e) => crate::error_map::to_outcome(&e),
+    }
+}
+
+/// `workbook verify [<id>@<version>]`。省略参数核对全部。任一非 `ok` 则 `WORKBOOK_TAMPERED`。
+fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
+    let filter = match spec {
+        None => None,
+        Some(s) => match parse_workbook_spec(s) {
+            Ok((id, Some(version))) => Some((id, version)),
+            Ok((_, None)) => {
+                return output::param_error(format!(
+                    "verify 要么不带参数核对全部，要么写全 {s}@<version>"
+                ));
+            }
+            Err(m) => return output::param_error(m),
+        },
+    };
+    let repo = WorkbookRepo::new(ctx.home.clone());
+    let rows = match repo.verify(filter.as_ref().map(|(i, v)| (i.as_str(), v.as_str()))) {
+        Ok(r) => r,
+        Err(e) => return crate::error_map::to_outcome(&e),
+    };
+    let mut text = String::new();
+    for row in &rows {
+        text.push_str(&format!(
+            "{}@{}  {}{}\n",
+            row.id,
+            row.version,
+            match row.status {
+                sheltie_runtime::VerifyStatus::Ok => "ok",
+                sheltie_runtime::VerifyStatus::Tampered => "tampered",
+                sheltie_runtime::VerifyStatus::Missing => "missing",
+            },
+            if row.pending_publish {
+                "  待发布"
+            } else {
+                ""
+            },
+        ));
+    }
+    let all_ok = rows
+        .iter()
+        .all(|r| r.status == sheltie_runtime::VerifyStatus::Ok);
+    if all_ok {
+        output::ok(text, None, None, json!({ "results": rows }), Vec::new())
+    } else {
+        let mut out = crate::output::err(
+            sheltie_core::ErrorCode::WorkbookTampered,
+            "已装 Workbook 与记录不符".to_string(),
+            Some(json!({ "results": rows })),
+            Vec::new(),
+        );
+        out.text = text;
+        out
+    }
+}
+//! 输出：给人读的文本，或协议 §5 的 JSON 响应封装。
+
+use serde::Serialize;
+use sheltie_core::ErrorCode;
+use sheltie_core::ids::WorkId;
+use sheltie_core::work::NextOp;
+use sheltie_runtime::Response;
+
+/// 成功响应封装。
+#[derive(Debug, Serialize)]
+pub struct OkEnvelope<T: Serialize> {
+    pub ok: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revision: Option<u64>,
+    pub data: T,
+    pub next: Vec<NextOp>,
+}
+
+/// 一次命令的输出，由命令模块构造，`dispatch` 决定怎么打印。
+#[derive(Debug)]
+pub struct Outcome {
+    /// 文本模式下打印的内容。
+    pub text: String,
+    /// JSON 模式下的完整响应封装。
+    pub json: serde_json::Value,
+    pub exit_code: i32,
+}
+
+/// 把成功结果包成两种形式。`text` 由调用方渲染。`next` 为空的命令用一个；
+/// Work 写操作用 [`ok_response`]，只读操作用 [`ok_work_next`]。
+pub fn ok<T: Serialize>(
+    text: String,
+    request_id: Option<String>,
+    revision: Option<u64>,
+    data: T,
+    next: Vec<NextOp>,
+) -> Outcome {
+    let json = to_value_lossy(OkEnvelope {
+        ok: true,
+        request_id,
+        revision,
+        data,
+        next,
+    });
+    Outcome {
+        text,
+        json,
+        exit_code: 0,
+    }
+}
+
+/// Work 写操作只渲染提交时快照；`next` 与只读状态卡使用同一协议形状。
+pub(crate) fn ok_response(text: String, response: Response, work: &WorkId) -> Outcome {
+    let next = response
+        .next
+        .iter()
+        .map(|op| sheltie_core::work::render::next_item_json(work, op))
+        .collect();
+    ok_work_next(
+        text,
+        Some(response.request_id),
+        Some(response.revision),
+        replayed_data(response.data, response.replayed),
+        next,
+    )
+}
+
+pub(crate) fn replayed_data(mut data: serde_json::Value, replayed: bool) -> serde_json::Value {
+    if let Some(map) = data.as_object_mut() {
+        map.insert("replayed".to_string(), serde_json::Value::Bool(replayed));
+    }
+    data
+}
+
+/// `next` 已是协议 §5 形状（core `next_item_json` 生成），
+/// 与状态卡 `data.next` 完全同形（O13），不再重复组装。
+pub(crate) fn ok_work_next(
+    text: String,
+    request_id: Option<String>,
+    revision: Option<u64>,
+    data: serde_json::Value,
+    next: Vec<serde_json::Value>,
+) -> Outcome {
+    let mut root = serde_json::Map::new();
+    root.insert("ok".to_string(), serde_json::Value::Bool(true));
+    if let Some(id) = request_id {
+        root.insert("request_id".to_string(), serde_json::json!(id));
+    }
+    if let Some(rev) = revision {
+        root.insert("revision".to_string(), serde_json::json!(rev));
+    }
+    root.insert("data".to_string(), data);
+    root.insert("next".to_string(), serde_json::Value::Array(next));
+    Outcome {
+        text,
+        json: serde_json::Value::Object(root),
+        exit_code: 0,
+    }
+}
+
+/// 把错误包成两种形式。退出码 1。
+pub fn err(
+    code: ErrorCode,
+    message: String,
+    detail: Option<serde_json::Value>,
+    next: Vec<NextOp>,
+) -> Outcome {
+    let mut error = serde_json::Map::new();
+    error.insert("code".to_string(), to_value_lossy(code));
+    error.insert("message".to_string(), serde_json::json!(message));
+    if let Some(d) = detail {
+        error.insert("detail".to_string(), d);
+    }
+    let json = serde_json::json!({
+        "ok": false,
+        "error": serde_json::Value::Object(error),
+        "next": to_value_lossy(next),
+    });
+    Outcome {
+        text: format!("{message}\n"),
+        json,
+        exit_code: 1,
+    }
+}
+
+/// 参数格式错误的统一出口：`INVALID_REQUEST` 封装、退出码 2（协议 §5「参数解析错误 2」）。
+pub(crate) fn param_error(message: String) -> Outcome {
+    let mut out = err(ErrorCode::InvalidRequest, message, None, Vec::new());
+    out.exit_code = 2;
+    out
+}
+
+/// 打印。JSON 模式打一行 `json`；文本模式打 `text`。错误走 stderr。
+pub fn print(outcome: &Outcome, json_mode: bool) {
+    if json_mode {
+        println!("{}", outcome.json);
+    } else if outcome.exit_code == 0 {
+        print!("{}", outcome.text);
+    } else {
+        eprint!("{}", outcome.text);
+    }
+}
+
+pub(crate) fn raw_error(error: &sheltie_runtime::Error) -> i32 {
+    let outcome = crate::error_map::to_outcome(error);
+    eprint!("{}", outcome.text);
+    outcome.exit_code
+}
+
+pub(crate) fn raw_param_error(message: &str) -> i32 {
+    eprintln!("{message}");
+    2
+}
+
+/// 这些响应类型全是普通数据，序列化实际不会失败；真失败了给 `null` 也不比 panic 差。
+fn to_value_lossy<T: Serialize>(value: T) -> serde_json::Value {
+    serde_json::to_value(value).unwrap_or(serde_json::Value::Null)
+}

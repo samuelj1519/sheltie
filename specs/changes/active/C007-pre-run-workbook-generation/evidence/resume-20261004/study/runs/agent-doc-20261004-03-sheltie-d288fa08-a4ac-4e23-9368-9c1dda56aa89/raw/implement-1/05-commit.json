@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import json,subprocess,hashlib;from pathlib import Path;raw=Path(\"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1\");ident=json.loads((raw/\"02-staged-identity.stdout\").read_text()); g=lambda *a:subprocess.check_output([\"git\",*a],text=True).strip();assert g(\"write-tree\")==ident[\"staged_tree\"];assert g(\"diff\",\"--cached\",\"--name-only\")==\"specs/guides/continuity-choices.md\";assert hashlib.sha256(Path(\"specs/guides/continuity-choices.md\").read_bytes()).hexdigest()==ident[\"guide_sha256\"];[(_ for _ in ()).throw(RuntimeError(\"check failed\")) if json.loads((raw/(name+\".json\")).read_text())[\"exit_code\"]!=0 else None for name in [\"03-check-docs\",\"04-check-diff\"]];subprocess.run([\"git\",\"-c\",\"core.hooksPath=/dev/null\",\"-c\",\"commit.gpgsign=false\",\"commit\",\"-F\",str(raw/\"commit-message.txt\")],check=True);assert g(\"rev-parse\",\"HEAD^{tree}\")==ident[\"staged_tree\"];print(\"candidate\",g(\"rev-parse\",\"HEAD\"));print(\"tree\",g(\"rev-parse\",\"HEAD^{tree}\"));print(\"status\",g(\"status\",\"--porcelain=v1\"));print(g(\"show\",\"--stat\",\"--oneline\",\"HEAD\"))"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "start_utc": "2026-10-03T20:36:26.095082+00:00",
+  "end_utc": "2026-10-03T20:36:26.226838+00:00",
+  "elapsed_s": 0.131756,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/05-commit.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/05-commit.stderr",
+  "stdout_sha256": "d7d62e89f0b4e709b1303e5ccd3b48857e771aa1e5ef77dc287022c13fc42ba2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

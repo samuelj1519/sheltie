@@ -1,0 +1,54 @@
+{
+  "data": {
+    "attempt": "deliver#1.0",
+    "brief_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/brief.md",
+    "inputs": {
+      "change": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "checks": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "review": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+      "task": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/start-inputs/task"
+    },
+    "node": "deliver",
+    "number": 0,
+    "occurrence": 1,
+    "output_dir": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs",
+    "outputs": {
+      "delivery": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+      "patch": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+    },
+    "replayed": false,
+    "requires": []
+  },
+  "next": [
+    {
+      "args": {
+        "attempt": "deliver#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt submit"
+    },
+    {
+      "args": {
+        "attempt": "deliver#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt fail"
+    },
+    {
+      "args": {
+        "attempt": "deliver#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt replace"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true,
+  "request_id": "e39293e3-ddd9-4a0f-8cbd-2059fea46ae6",
+  "revision": 6
+}

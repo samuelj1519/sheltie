@@ -1,0 +1,14 @@
+input task 1345a1ce70f26a1311de7d6b8a57b5786bd0ea154f4073a46eccd1fe461e4f64
+input project 188dac600eeccd1593012bbd6894dc966b8daee495ac1d33f0ce59ab5f7b87ec
+input change c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f
+input checks 70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785
+candidate-file README.md 27e090dc77a461ac9a026e03767622b46b2e95c76e2494c75991aa4f8e40be2b
+candidate-file specs/guides/source-quick-start.md d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850
+original required-docs exit 0 argv ['scripts/check-docs.sh', 'README.md', 'specs/guides/source-quick-start.md'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original required-staged-diff exit 0 argv ['git', 'diff', '--cached', '--check'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original staged-tree-before-checks exit 0 argv ['git', 'write-tree'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original staged-tree-after-checks exit 0 argv ['git', 'write-tree'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original candidate-identity exit 0 argv ['git', 'show', '-s', '--format=%H%n%T', 'HEAD'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original candidate-patch-paths exit 0 argv ['git', 'diff', '--name-only', '351feb7ac22c21317a686693b732d5ae0c4b4bcc', 'HEAD'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+original candidate-status exit 0 argv ['git', 'status', '--porcelain=v1', '--untracked-files=all'] cwd /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie
+all declared input, candidate byte, and original hashes match

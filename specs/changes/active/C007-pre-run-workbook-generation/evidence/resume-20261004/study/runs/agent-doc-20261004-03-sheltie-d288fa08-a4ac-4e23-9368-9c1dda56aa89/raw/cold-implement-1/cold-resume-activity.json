@@ -1,0 +1,78 @@
+{
+  "actor": "/root/c007_study_coordinator/run03_cold_implement",
+  "session_identity": "canonical agent task; runtime conversation id unknown",
+  "model": "gpt-6.1-sol/high per frozen project; actual API model metadata unknown",
+  "usage": "unknown",
+  "fee": "unknown",
+  "utc": "2026-10-03T20:35:44.200370+00:00",
+  "previous_helper_stop": {
+    "actor": "/root/c007_study_coordinator/run03_partial",
+    "normal_final_observed": true,
+    "reported_end_utc": "2026-10-03T20:32:57.454521+00:00",
+    "own_background_tasks": "none per actualworker report",
+    "scope": "selfstartedcommands and turn only, not wholehost proof"
+  },
+  "resume_status": {
+    "argv": [
+      "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+      "--home",
+      "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+      "--json",
+      "work",
+      "status",
+      "2026-10-03-002-continuity"
+    ],
+    "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+    "start_utc": "2026-10-03T20:34:07.063716+00:00",
+    "end_utc": "2026-10-03T20:34:07.075161+00:00",
+    "elapsed_s": 0.011445,
+    "exit_code": 0,
+    "timed_out": false,
+    "owned_group_termination_requested": false,
+    "within_deadline": true,
+    "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/resume-status.stdout",
+    "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/resume-status.stderr",
+    "stdout_sha256": "88f5d219b3400a44276dfa2ea97a6531661d4441e32fa8148eff9b23d8623f15",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "control_environment": {
+      "SHELTIE_HOME": null,
+      "SHELTIE_FAILPOINT": null,
+      "SHELTIE_EXPORT_TEST_POINT": null,
+      "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+      "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+      "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+      "SHELTIE_TEST_RENDEZVOUS_ID": null,
+      "SHELTIE_TEST_RENDEZVOUS_DIR": null
+    }
+  },
+  "same_attempt_verified": true,
+  "inputs_and_draft_output_paths_verified": true,
+  "initial_candidate": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "inherited_draft_sha256": "c193628dbfb5f9ad48fee68aa6b06783d608feb28d1752d3db6475f051518b16",
+  "inherited_draft_copy": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/inherited-draft.md",
+  "lookup_events": [
+    "Read only assigned binding and stage to discover actual work_id and resume entry",
+    "Captured read-only work status without request UUID",
+    "Compared actual running Attempt/brief/inputs/draft_outputs with stage",
+    "Read complete actual brief/task/project and stage partial state; entry broad tool result truncated; repeated entry docs in 01 raw",
+    "Read assigned repo natural draft and verified exact partial sha256 and same initial HEAD/tree",
+    "Read frozen protocol/C005/C004/skill plus relevant storage/CLI/core source; no previous worker conversation or other run accessed"
+  ],
+  "preserved": [
+    "Choice table and ordinary same Attempt continuation",
+    "True failure counting and explicit successful content review back path"
+  ],
+  "modified": [
+    "Title and introduction cover administrative revocation",
+    "Added previously unfinished replace, effect recovery, human/gate/terminal instructions"
+  ],
+  "redo": [
+    "No prior completed check or implementation section redone; rereading and fact verification are cold lookup work"
+  ],
+  "background_tasks": "none started by this helper",
+  "engine_mutations": [],
+  "method_use_recount": false,
+  "final_quality": "not_run",
+  "proxy_acceptance": "not_run"
+}

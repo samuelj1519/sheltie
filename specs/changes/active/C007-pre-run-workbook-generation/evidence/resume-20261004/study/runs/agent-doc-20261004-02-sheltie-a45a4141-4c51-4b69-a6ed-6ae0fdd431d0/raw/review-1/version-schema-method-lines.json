@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "rg",
+    "-n",
+    "version =|name =|SCHEMA_VERSION|fn resolve|fn version_info|resume|start_inputs|pending_publish",
+    "Cargo.toml",
+    "crates/sheltie-cli/Cargo.toml",
+    "crates/sheltie-runtime/src/home.rs",
+    "crates/sheltie-runtime/src/store.rs",
+    "crates/sheltie-runtime/src/selfmgmt",
+    "crates/sheltie-cli/src/commands/workbook.rs",
+    "examples/code-change/flows/default.toml"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+  "start_utc": "2026-10-03T20:21:09.228138+00:00",
+  "end_utc": "2026-10-03T20:21:09.240313+00:00",
+  "elapsed_s": 0.012175,
+  "exit_code": 2,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/version-schema-method-lines.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/version-schema-method-lines.stderr",
+  "stdout_sha256": "4afeec1ec83a6ab631ce31bad4337f1147ccbfb88eed36efd3938fe5bb117f33",
+  "stderr_sha256": "dd92b53cb0b5f91702251ce2b3f41bd9b83cb89051b7a795ef7e269b7af76f6b",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

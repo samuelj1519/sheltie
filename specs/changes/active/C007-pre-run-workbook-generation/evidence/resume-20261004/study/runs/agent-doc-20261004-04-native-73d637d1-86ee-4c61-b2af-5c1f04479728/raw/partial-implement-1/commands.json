@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+    "started_at_utc": "2026-10-03T20:51:47.469191+00:00",
+    "finished_at_utc": "2026-10-03T20:51:47.476974+00:00",
+    "exit_code": 0,
+    "stdout_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/head-tree.stdout",
+    "stderr_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/head-tree.stderr",
+    "environment": "inherited process environment, no explicit overrides; no background execution"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "-uall"
+    ],
+    "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+    "started_at_utc": "2026-10-03T20:51:47.476991+00:00",
+    "finished_at_utc": "2026-10-03T20:51:47.491045+00:00",
+    "exit_code": 0,
+    "stdout_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/status.stdout",
+    "stderr_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/status.stderr",
+    "environment": "inherited process environment, no explicit overrides; no background execution"
+  }
+]

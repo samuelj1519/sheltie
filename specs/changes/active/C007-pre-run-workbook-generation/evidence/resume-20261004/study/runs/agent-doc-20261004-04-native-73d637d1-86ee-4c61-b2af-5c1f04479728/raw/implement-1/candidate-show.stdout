@@ -1,0 +1,20 @@
+commit c9823575920795db14dfd378d77c8b311ce71d87
+Author:     Sheltie Study Snapshot <snapshot@sheltie.local>
+AuthorDate: Sun Oct 4 04:55:11 2026 +0800
+Commit:     Sheltie Study Snapshot <snapshot@sheltie.local>
+CommitDate: Sun Oct 4 04:55:11 2026 +0800
+
+    docs(study): 补齐接续与资格撤销选择指南
+    
+    保留冷接续草稿中已有的状态查询、真实失败和内容返工说明，按公开协议及 C005 补齐一次替换、冻结输入与统计、文件效果恢复和停止边界。
+    
+    已运行授权单文件 check-docs 与 git diff --cached --check；同一 staged tree 绑定原始 stdout、stderr 与退出码，未执行 Rust 或 Sheltie 场景。
+    
+    Change: C007
+    Task: C007-T05
+    Sample: continuity
+    Arm: native
+    Agent: /root/c007_study_coordinator/run04_cold_implement
+
+ specs/guides/continuity-choices.md | 110 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 110 insertions(+)

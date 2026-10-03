@@ -1,0 +1,22 @@
+{
+  "observed_utc": "2026-10-03T20:11:06.294424+00:00",
+  "tool_chunk": "e790ef",
+  "actual_shell_command": "PYTHONDONTWRITEBYTECODE=1 python3 specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/deliver-1/execute-delivery.py",
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit_code": 1,
+  "observed_exception": "RuntimeError: Insufficient time for owned command and cleanup",
+  "failure_location": "frozen capture.py.execute before subprocess.Popen; first attempted candidate-identity record",
+  "first_intended_argv": [
+    "git",
+    "rev-parse",
+    "HEAD",
+    "HEAD^{tree}",
+    "HEAD^",
+    "351feb7ac22c21317a686693b732d5ae0c4b4bcc^{tree}"
+  ],
+  "git_child_started": false,
+  "separate_stdout_stderr_files": "not available; traceback in original tool result, no fabricated split",
+  "patch_generated": false,
+  "patch_apply_run": false,
+  "retry": false
+}

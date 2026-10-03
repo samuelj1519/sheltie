@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path('/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0')\nimpl=root/'raw/implement-1'; checked=json.loads((impl/'checked-input.json').read_text()); reply=json.loads((root/'begin-review-1-reply.json').read_text())['data']\nexpected={'task':'1345a1ce70f26a1311de7d6b8a57b5786bd0ea154f4073a46eccd1fe461e4f64','project':'188dac600eeccd1593012bbd6894dc966b8daee495ac1d33f0ce59ab5f7b87ec','change':'c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f','checks':'70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785'}\nfor name,sha in expected.items():\n actual=hashlib.sha256(Path(reply['inputs'][name]).read_bytes()).hexdigest();assert actual==sha;print('input',name,actual)\nfor name,sha in checked['allow_files_sha256'].items():\n actual=hashlib.sha256(Path(name).read_bytes()).hexdigest();assert actual==sha;print('candidate-file',name,actual)\nfor label in ['required-docs','required-staged-diff','staged-tree-before-checks','staged-tree-after-checks','candidate-identity','candidate-patch-paths','candidate-status']:\n record=json.loads((impl/(label+'.json')).read_text())\n for kind in ['stdout','stderr']:\n  actual=hashlib.sha256(Path(record[kind+'_path']).read_bytes()).hexdigest();assert actual==record[kind+'_sha256']\n print('original',label,'exit',record['exit_code'],'argv',record['argv'],'cwd',record['cwd'])\nfor label in ['required-docs','required-staged-diff']:\n r=json.loads((impl/(label+'.json')).read_text());assert r['exit_code']==0 and not r['timed_out'] and r['within_deadline']\nprint('all declared input, candidate byte, and original hashes match')\n"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+  "start_utc": "2026-10-03T20:21:34.803169+00:00",
+  "end_utc": "2026-10-03T20:21:34.851773+00:00",
+  "elapsed_s": 0.048604,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/evidence-byte-audit.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/evidence-byte-audit.stderr",
+  "stdout_sha256": "ec0267eeb0838068dc679d99fe520c9e4b4241b7d0df0c179bbe3d3b9642e858",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

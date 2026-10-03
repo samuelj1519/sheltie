@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-03T20:54:46.654558+00:00",
+  "actor": "/root/c007_study_coordinator/run04_cold_implement",
+  "before_sha256": "fc5d2fc00371716402ec2d88b16679ab8a06c7043dfdff937f1cc68e748dc570",
+  "after_sha256": "d7f53c99fae26656972b941b604cb2547fe5461790a973a7cb3dffed8cbc91aa",
+  "edits": [
+    "Use full protocol link for response section, avoiding unverified generated heading fragment.",
+    "Clarify runtime input verification actor and timing before replace commit.",
+    "Clarify B has known uncommitted fact rather than unknown result."
+  ],
+  "acceptance_mapping": {
+    "1": "Introduction/choice table/status/fail/review back/replace distinguish real triggers.",
+    "2": "Explicit home/json and write-only IDs; response/next checks and stops in each choice. No fabricated failure or replacement.",
+    "3": "Replace section: once per Occurrence; entered_from/nonstats/null inputs; poststate stats; no old draft promotion; error priority/history next.",
+    "4": "Effects table: own committed true vs blocked B committed false; A/B IDs and same intention; unknown and missing original; no diagnostic state guessing.",
+    "5": "Query-only, human, gate, terminal boundaries; genuine protocol/C004/C005 links."
+  },
+  "fact_check_sources": [
+    "specs/contracts/protocol.md §§1,2,3,5,6,7",
+    "specs/contracts/storage.md §§2.1,3.1,3.2,3.3,5.5,6",
+    "specs/changes/completed/C005-executor-continuity/spec.md EX-01–EX-08",
+    "specs/changes/completed/C005-executor-continuity/design.md §§2,3,4",
+    "specs/changes/completed/C004-verifiable-delegation/README.md",
+    "crates/sheltie-cli/src/commands/attempt.rs",
+    "crates/sheltie-core/src/work/next.rs",
+    "skills/sheltie/SKILL.md"
+  ],
+  "links": [
+    {
+      "target": "../contracts/protocol.md",
+      "exists": true
+    },
+    {
+      "target": "../changes/completed/C004-verifiable-delegation/README.md",
+      "exists": true
+    },
+    {
+      "target": "../changes/completed/C005-executor-continuity/spec.md",
+      "exists": true
+    },
+    {
+      "target": "../contracts/protocol.md#3-各操作细则",
+      "exists": true
+    },
+    {
+      "target": "../contracts/protocol.md",
+      "exists": true
+    },
+    {
+      "target": "../contracts/storage.md#3-崩溃语义与恢复",
+      "exists": true
+    }
+  ],
+  "manual_check_scope": "Author factual/link/command verification; not independent quality review or CLI rehearsal.",
+  "not_run": [
+    "Rust/build/tests",
+    "Sheltie invocations",
+    "CLI scenarios",
+    "independent patch application",
+    "independent review",
+    "user acceptance",
+    "install/release"
+  ],
+  "failure": "No check execution failure so far; old partial not treated as completed/check PASS."
+}

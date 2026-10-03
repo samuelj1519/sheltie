@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import pathlib,sys\nfor p in sys.argv[1:]:\n print(\"\\nFILE: \"+p);print(pathlib.Path(p).read_text())",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/deliver/occurrence-001/attempt-000/brief.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/task",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/continuity/task.md",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/continuity/project.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie/CONTEXT.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie/specs/README.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie/specs/engineering.md",
+    "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "start_utc": "2026-10-03T20:43:54.577011+00:00",
+  "end_utc": "2026-10-03T20:43:54.601573+00:00",
+  "elapsed_s": 0.024562,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/read-owned-instructions.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/read-owned-instructions.stderr",
+  "stdout_sha256": "c25e1469984fe43eed0f9c7eed188b40b904bddb26ca70a6312bf97866d0d6a5",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

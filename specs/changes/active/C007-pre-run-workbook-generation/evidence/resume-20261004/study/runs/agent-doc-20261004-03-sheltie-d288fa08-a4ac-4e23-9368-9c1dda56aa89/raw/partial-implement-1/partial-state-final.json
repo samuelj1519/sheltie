@@ -1,0 +1,101 @@
+{
+  "conclusion": "useful_partial_completed; full implement node not completed",
+  "run_id": "agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89",
+  "work_id": "2026-10-03-002-continuity",
+  "same_attempt": "implement#1.0",
+  "node": "implement",
+  "attempt_state_from_actual_begin": "running",
+  "attempt_state_live_refresh": "not_run by this partial worker",
+  "written_at_utc": "2026-10-03T20:32:57.454521+00:00",
+  "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "head_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "initial_dirty": false,
+  "current_porcelain": [
+    "?? specs/guides/continuity-choices.md"
+  ],
+  "staged_paths": [],
+  "draft": {
+    "relative_path": "specs/guides/continuity-choices.md",
+    "absolute_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie/specs/guides/continuity-choices.md",
+    "sha256": "c193628dbfb5f9ad48fee68aa6b06783d608feb28d1752d3db6475f051518b16",
+    "bytes": 5874,
+    "tracked": false,
+    "staged": false,
+    "committed": false
+  },
+  "actual_completed": [
+    "Read actual binding, actual begin reply, implement brief and frozen project/task inputs",
+    "Read assigned repo CONTEXT, specs/README, engineering, AGENTS, C004 README, C005 spec/design, Sheltie skill, protocol and relevant storage portions",
+    "Applied shared Chinese writing skill plus controlled writing reference",
+    "Compared protocol and relevant CLI/core/runtime source for status/resume, running draft paths, legal_next, true failed counting and explicit back edges",
+    "Created useful guide content for status/resume and true fail versus successful content review back, plus choice table"
+  ],
+  "actual_unfinished": [
+    "Detailed replace command/preconditions, fixed once quota, inherited frozen inputs/stats, old submit/fail and terminal priority coverage",
+    "Structured EFFECT_PENDING committed/request/pending identity recovery instructions and unknown response handling",
+    "Full task acceptance review, remaining source/fact/link checks",
+    "Frozen required checks, candidate staging/commit, complete patch and independent apply/tree verification",
+    "Actual begin outputs change.md and checks.md; untouched and not claimed complete",
+    "Review and deliver stages"
+  ],
+  "required_checks": [
+    {
+      "argv": [
+        "scripts/check-docs.sh",
+        "specs/guides/continuity-choices.md"
+      ],
+      "status": "not_run"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "status": "not_run"
+    }
+  ],
+  "other_required_engineering_checks": "not_run; final worker to determine frozen applicable checks without changing acceptance",
+  "source_paths": [
+    "CONTEXT.md",
+    "AGENTS.md",
+    "specs/README.md",
+    "specs/engineering.md",
+    "specs/contracts/protocol.md",
+    "specs/contracts/storage.md",
+    "specs/changes/completed/C004-verifiable-delegation/README.md",
+    "specs/changes/completed/C005-executor-continuity/spec.md",
+    "specs/changes/completed/C005-executor-continuity/design.md",
+    "skills/sheltie/SKILL.md",
+    "crates/sheltie-cli/src/commands/attempt.rs",
+    "crates/sheltie-core/src/work/next.rs",
+    "crates/sheltie-core/src/work/decide.rs",
+    "crates/sheltie-core/src/work/render.rs",
+    "crates/sheltie-runtime/src/service.rs"
+  ],
+  "source_read_scope": "Exact read commands and full stdout/stderr in numbered raw files; some broad tool outputs truncated on display, no full-read claim for those omitted portions",
+  "raw_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/partial-implement-1",
+  "binding": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/run-binding.json",
+  "actual_begin_reply": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/begin-implement-1-reply.json",
+  "actual_brief": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/brief.md",
+  "raw_capture_boundary": {
+    "first_captured_command": "01-read.json",
+    "earlier_read_originals": "not copied; originals only in this worker tool session; no reconstructed stdout",
+    "earlier_session_tool_refs": [
+      "functions.exec -> exec_command chunk 7c3d63: cat binding and actual begin reply",
+      "functions.exec -> exec_command chunk db59de: cat actual brief, project/task, shared skill; clock 2026-10-03 20:30:32 UTC"
+    ]
+  },
+  "actor_record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/partial-implement-1/actor.json",
+  "own_started_background_commands": [],
+  "engine_mutations_performed": [],
+  "normal_turn_completion_intended": true,
+  "no_full_task_success_claim": true,
+  "previous_partial_state": "partial-state.json",
+  "final_draft_original": "draft-linkfix-written.md",
+  "no_further_writes_planned": true
+}

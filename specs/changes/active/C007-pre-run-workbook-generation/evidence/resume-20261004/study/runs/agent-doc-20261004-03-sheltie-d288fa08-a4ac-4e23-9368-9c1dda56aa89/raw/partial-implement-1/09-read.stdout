@@ -1,0 +1,17 @@
+crates/sheltie-core/src/work/next.rs:24:    FailAttempt { attempt: AttemptId },
+crates/sheltie-core/src/work/next.rs:26:    ReplaceAttempt { attempt: AttemptId },
+crates/sheltie-core/src/work/next.rs:46:            Self::FailAttempt { attempt } => {
+crates/sheltie-core/src/work/next.rs:49:            Self::ReplaceAttempt { attempt } => {
+crates/sheltie-core/src/work/next.rs:98:                        NextOp::FailAttempt {
+crates/sheltie-core/src/work/next.rs:103:                        ops.push(NextOp::ReplaceAttempt {
+crates/sheltie-core/src/work/next.rs:114:                        if state.failed_count_of(&state.current) <= def.max_retries as usize {
+crates/sheltie-core/src/work/decide.rs:52:                Command::FailAttempt { attempt, reason } => {
+crates/sheltie-core/src/work/decide.rs:55:                Command::ReplaceAttempt {
+crates/sheltie-core/src/work/decide.rs:76:/// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
+crates/sheltie-core/src/work/decide.rs:79:        return Err(Error::WorkTerminal {
+crates/sheltie-core/src/work/decide.rs:833:        status_after_failure(new_state.failed_count_of(&prev.occurrence()), max_retries);
+crates/sheltie-core/src/work/decide.rs:1269:    fn begin_after_failed_attempt_increments_retry_not_occurrence() {
+crates/sheltie-core/src/work/decide.rs:1577:    fn fail_marks_attempt_failed_and_allows_retry() {
+crates/sheltie-core/src/work/decide.rs:1716:        assert!(matches!(fx.begin("draft"), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs:1717:        assert!(matches!(fx.cancel(), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs:1720:            Err(Error::WorkTerminal { .. })

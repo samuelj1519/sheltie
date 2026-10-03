@@ -1,0 +1,28 @@
+    pub fn status(&self, work: &WorkId) -> Result<(String, StatusCardJson)> {
+        let (text, view) = self.status_projection(work)?;
+        Ok((text, view.card))
+    }
+
+    /// 返回状态卡和本次装入的发布状态事实。
+    pub fn status_with_publication(&self, work: &WorkId) -> Result<(String, StatusCardJson, bool)> {
+        let (text, view) = self.status_projection(work)?;
+        Ok((text, view.card, view.pending_publish))
+    }
+
+    pub fn status_read(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
+        let (text, view) = self.status_projection(work)?;
+        Ok((view.render(text), view))
+    }
+
+    fn status_projection(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
+        let (loaded, effects_pending) = self.load_read_context(work)?;
+        let view = crate::StatusReadView {
+            card: status_card_json(&loaded.state, &loaded.graph),
+            revision: loaded.revision,
+            effects_pending,
+            pending_publish: loaded.pending_publish,
+        };
+        let text = render_status_card(&loaded.state, &loaded.graph);
+        Ok((text, view))
+    }
+

@@ -1,0 +1,170 @@
+# C004：明确成果与可靠接续
+
+状态：`completed`（2026-10-04当前自动agent验收；历史未执行范围留原）
+目标版本：`v0.3.0`（开发目标，尚未发布）
+兼容性：不设计兼容层或数据迁移；仅实现采用后的单一合同
+基线：`18e043f2ff7680683ca2d9b7aca2b82fbf4cdbeb`
+Owner：`Codex /root`
+权威性：历史实现闭包已验收；T06–T10/M3已按当前自动agent范围验收，原真人/旧工具/LEAK未知事实保留。实施进度只看plan，完整边界见validation
+
+## 产品目标
+
+让反复使用同一工作方法的用户，在中断后容易继续，并清楚取得本次最终成果。首批用户是已有本地检查、反复执行代码变更方法的仓库维护者；方法作者负责一次准备，任务使用者负责本次目标和输入，两种角色可以由同一人承担。
+
+引擎继续记录执行事实、冻结引用、合法操作、门槛和上限。方法、检查标准、内容判断和返工策略属于 Workbook 与协调者。流程完成、文件封存、检查报告结论分别表达。
+
+## 范围
+
+- 在 `work status` 中提供当前 Attempt 的任务书、冻结输入、草稿位置和未完成文件效果提示，默认不展开尝试历史。
+- 终点显式选择成果，通过只读 `work result` 返回具体版本的 ArtifactRef。
+- 提供一份最小代码变更方法及使用说明；普通任务在固定阶段内部自主拆解，不把每个代码子任务建成图节点。
+- 使用真实任务确认所采用增量的作用，同时检查交付质量与总人工投入。
+
+本方案不执行 Git 或项目命令，不登记原生检查事实，不增加执行观察状态、独立 handoff 命令、结果规范摘要或导出生命周期。代码 commit 和检查结论保留在普通报告内，不因文件封存成为引擎核实事实。
+
+## 采用条件
+
+[C007 完整任务体验实验](../../completed/C007-pre-run-workbook-generation/README.md)提供主要摩擦证据。若实际材料已经足够，只改善说明或停止本方向。若用户明确需要稳定的最终选择或当前工作指针，也可用同等近期需求材料采用；采用记录必须说明每项能力的真实消费者和验收理由。C007 的实验结论不自动采用本 package。
+
+采用范围只包含明确的通用增量。不为可选的 C005/C006/C008 提前预留字段。原生候选检查由[路线图](../../../roadmap.md)中的独立触发条件决定，不构成本方案前提。
+
+## 成功判据
+
+1. 首次接触项目的使用者能从状态和说明继续当前任务，不依赖作者口头补充；草稿与已封存产物明确区分。
+2. 成功终点所选成果来自该终点 Attempt 的具体冻结输入和封存输出；没有选择时明确为空，不猜最近文件。
+3. 非成功状态、门槛未批准或文件效果未完成时不展示可交付的最终集合；查询不推进状态或自动恢复。
+4. 同源文本与 JSON、严格持久装入、真实 CLI 正反例和所影响调用链通过独立审查。
+5. 在新真实任务中报告首次与复用成本、续接解释和重做、最终质量及未完成项；没有净收益或质量下降时收窄，不用状态机通过代替价值结论。
+
+## 阅读与执行
+
+[spec](spec.md)规定用户行为；[design](design.md)定义字段与数据来源；[plan](plan.md)给出四个任务与两个阶段：复杂模型准备架构/原语/测试，简单模型按冻结接口执行，每阶段由独立复杂模型审阅；[tasks](tasks.toml)限制范围；[validation](validation.md)索引证据；[review](review.md)记录审查；[progress](progress.md)只作交接。执行方式见[实施指南](../../../guides/proposal-implementation.md)。
+
+当前自动agent真实交付、同Attempt冷接续、每查询观察和下一消费者实际使用已独立验收；原真人/净收益/费用/旧LEAK等未执行范围留原，采用范围见 [adoption](adoption.md) 和 [validation](validation.md)。真实试用与环境缺项后续在本 package 补验；发布另行决定。
+---
+name: sheltie
+description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或 Work、从当前指针继续任务、显式撤销旧 Attempt 资格、查询明确最终成果、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
+---
+
+# Sheltie 协调者
+
+Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。你是协调者：派活、读产出、在引擎给出的合法下一步（`next`）里选一条。
+
+## 铁律
+
+1. 只做 `next` 里的事——`next` 只限定**这个 Work 的推进**。每次写操作的响应都带
+   `next` 数组，给出合法操作和目标身份；摘要与失败、替换理由由调用者补充。`next` 之外的操作会被引擎拒绝，被拒绝了
+   就回到 `next` 里选，不要绕过。发现与管理工作另有入口：`workbook list/show/verify`、
+   `workbook add/remove`、`work start`、`work list`，它们不受某个 Work 的 `next` 限制；
+   `next` 为空只说明这个 Work 已终态，不是无事可做。
+2. 结论在输出文档里。执行成功只说明「这一步做完了」，通过与否写在输出文档里（通常第一行是结论）。你读文档后在多条边之间选，引擎不知道、也不替你知道哪个结论算通过。
+3. 只通过 CLI 读写状态。不直接改管理根（默认 `~/.sheltie`）下的任何文件。产出文件由执行者按任务书写到声明的位置，提交封存后任何人不得再改。
+4. 一律带 `--json` 调用，从响应的 `next` 取下一步。**要重试安全就先记下
+   `--request-id <uuid>` 再调用**（自己先生成并告知用户）；它只用于 Work 与 Workbook
+   的写操作，只读命令和整个 `self` 组给了会直接报参数错误。不确定上一次是否生效时，
+   用同一个 id 重发是安全的：同意图返回提交时的原响应（`replayed: true`），不会重复
+   执行。重放响应里的 `next` 是**历史**事实；续接一律先 `work status` 查当前状态。
+
+## 选择入口
+
+- 新任务需要选择方法和初始输入时，从下面第 1 步开始；用户已指定的方法与输入直接使用。
+- 已有 Work 要继续时，先按第 9 步查询当前 status，再从当前 next 选择操作；已有 running Attempt 按 resume 继续，不再创建 Work。
+- 用户只要查询状态、统计或最终成果时，只运行相应只读命令（第 9/10 步）；不把查询变为新建、提交或推进。Work ID 未明确时先用 work list 发现已有 Work，再取得目标，不为只读查询要求重新选择 Workbook/Flow。
+
+## 流程
+
+1. **选 Workbook。** 列出已装的方法，看清它的节点、边、宿主资源声明与**起始输入键**：
+
+   ```bash
+   sheltie workbook list --json
+   sheltie workbook show <id> --json
+   ```
+
+   `show` 的 `start_inputs` 列出该 Flow 要的全部起始输入键（有序）。用户没有指定
+   Workbook 或 Flow 时问用户；**用户指定了但未安装的，停下报告**（`NOT_FOUND`），
+   不要静默换成别的 Workbook。
+
+2. **开 Work。** 输入键从 `workbook show` 的 `start_inputs` 拿，不用失败的 start 去试：
+   **用户已给的信息直接用**（对话里说过、任务里写明、文件里有的都算），只对仍缺的键
+   问用户。给全再 start（多给少给都被拒绝）：
+
+   ```bash
+   sheltie work start --workbook <id> --flow <flow> --name <名字> --input <key>=<值> --json
+   ```
+
+   `--name` 省略时取 Flow id；`--input` 的值以 `@` 开头时读文件内容。响应给出
+   `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的
+   唯一前缀即可指代这个 Work。
+
+3. **核对宿主资源。** `work start`、`attempt begin` 与 `attempt replace` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
+
+4. **领任务书。** 从 `next` 选一条 `attempt begin` 执行：
+
+   ```bash
+   sheltie attempt begin <work> --node <node> --json
+   ```
+
+   响应的 `brief_path` 指向任务书：说明书原文加本次绑好的输入绝对路径与输出要求。`next` 项上的 `executor` 与 `tier` 说明这一步该谁做：`agent` 就派一个工作 agent（`tier` 是给你选模型的提示），`human` 就把任务书交给人。
+
+5. **派活。** 把 `brief_path` 交给执行者。执行者读输入、按说明干活、把结论写进声明的输出文件、用几句话回复你。不要替执行者写产出，也不要改任务书声明之外的文件。
+
+6. **提交或标失败。** 执行者回复后提交：
+
+   ```bash
+   sheltie attempt submit <work> --attempt <attempt_id> --summary "<几句话结论>" --json
+   ```
+
+   摘要有界（超 4096 字节被拒绝），细节放进输出文档。引擎只校验输出文件齐全合规，不判断内容。执行者崩溃、超时、交不出文件时标失败：
+
+   ```bash
+   sheltie attempt fail <work> --attempt <attempt_id> --reason "<原因>" --json
+   ```
+
+   `next` 里还有 `attempt begin` 就可以重试。注意：「审查结论是不通过」是一次成功的执行，走 submit，不走 fail。
+
+7. **选边。** submit 成功后的 `next` 可能有多条 `attempt begin`，各带 `edge`（`main` / `back` / `branch` / `re_review`）。读输出文档，按结论选一条进入；没有边声明的去处不能去。
+
+8. **门槛找人。** Work 因门槛受阻时 `next` 只剩 `gate approve` 与 `work cancel`。把状态卡与相关产出拿给用户看，用户明确批准后才执行：
+
+   ```bash
+   sheltie gate approve <work> --node <node> --json
+   ```
+
+   其他原因的受阻（重试耗尽、无合法边）只剩 `work cancel` 合法：报告用户，由用户决定。
+
+9. **随时看状态。** 不确定进行到哪，读状态卡与事实视图：
+
+   ```bash
+   sheltie work status <work> --json
+   sheltie work stats <work> --json
+   ```
+
+   重开会话先读当前 status，按 resume 读取当前 Attempt 的 brief 与冻结 inputs。draft_outputs 只给声明草稿位置，不证明文件已存在或封存；effects_pending=true 时只读查询不会恢复，按已登记写请求的恢复方式处理。确认旧执行者与共享工作区已妥善处置后继续原 running Attempt；会话重开不改状态，不为它调用 fail 或 begin。
+
+   只有确需撤销旧 Attempt 的正式提交资格时，才从当前 next 选择 replace：
+
+   ```bash
+   sheltie attempt replace <work> --attempt <old_attempt_id> --reason "<替换理由>" --json
+   ```
+
+   安排新执行者继续前，操作者确认旧执行者已停止，或新执行环境已隔离。可以先撤销正式资格；处置未确认时不派新执行者写共享工作区。这属于操作者事实，引擎不停止进程、不隔离宿主、不认证接手者。替换会原子结束旧 Attempt 并创建新 running Attempt，保持原冻结非统计输入、进入来源、说明和 gate；旧草稿不转成新成果。按新响应的任务书和路径继续。
+
+   每个 Occurrence 最多替换一次；额度耗尽返回 `REPLACEMENTS_EXHAUSTED`，当前仍可 submit/fail。行政替换不消耗业务失败重试；Attempt 后缀 number 是从 0 起的创建顺序号，不能当失败数。理由最多 4096 字节，也可用 @file；重放同 request-id 不重新读取理由文件。旧 Attempt 在非终态 Work 中新 submit/fail 返回 `ATTEMPT_NOT_RUNNING`，Work 已终态时返回 `WORK_TERMINAL`；旧成功请求仍按历史重放，继续前重查当前 status。
+
+10. **取得明确成果。** 流程结束后查询：
+
+   ```bash
+   sheltie work result <work> --json
+   ```
+
+   只有 final=true 时才给终点选择的 artifacts；路径、摘要、大小与 source 指向该具体终点绑定或封存的槽。终点绑定输入可以由其他步骤生产；没有选择明确为空，不猜最近文件。Work succeeded 和文件引用不代替内容质量、代码候选或检查过程的核验。结果查询列举冻结引用，消费原件时仍按实际读取合同核字节；接受、复制、合并、发布各按已有授权办理。
+
+## 最小代码方法
+
+`code-change` 固定 implement → review → deliver，review 可以沿 back 返工。方法作者准备步骤与稳定规则，任务使用者提供 task（目标和验收）与 project（位置、范围、检查前提）；阶段内由 agent 自主调查和拆分，不为每个代码子任务增加节点。默认没有 gate，实际授权边界由作者在新版本声明。
+
+每次使用自始至终保持相同管理根；专用 --home 的值不能在重开后回落默认。开发候选与已发布版本按各自格式使用独立管理根。图、输入与封存报告保持原版本，目标变化时另开 Work。自然审查的内容返工用 submit 与显式边，执行失败才用 fail。
+
+## 细节
+
+每条命令的参数、任务书格式、错误码见 [协议合同](../../specs/contracts/protocol.md)；Workbook 怎么写见 [Workbook 合同](../../specs/contracts/workbook.md)。

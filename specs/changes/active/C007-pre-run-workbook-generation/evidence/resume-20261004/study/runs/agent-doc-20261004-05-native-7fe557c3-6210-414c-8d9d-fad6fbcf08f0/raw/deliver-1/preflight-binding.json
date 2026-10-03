@@ -1,0 +1,59 @@
+{
+  "recorded_utc": "2026-10-03T21:19:28.542133+00:00",
+  "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+  "verify_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/native",
+  "verify_repo_preexisted": true,
+  "created_or_rebuilt_this_stage": false,
+  "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "candidate": "567b6d3acb6bba50781927ee8cf8de9ed0397347",
+  "candidate_tree": "819a00b26f388fd2b98492cbd912942061339c0a",
+  "allow_files": [
+    "specs/guides/current-acceptance-handoff.md"
+  ],
+  "source_clean": true,
+  "verify_initial_clean": true,
+  "inputs": [
+    {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/implement-1/change.md",
+      "bytes": 7081,
+      "sha256": "0023261c87bf0e0e096b3912d7709824a8f11163ea83eed028abe48321db62b0"
+    },
+    {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/implement-1/checks.md",
+      "bytes": 6166,
+      "sha256": "62a90f8b2adcf46ff36aa971e5e7933548f33bd5c66abd6d2fa23d3706bf7315"
+    },
+    {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/review-1/review.md",
+      "bytes": 11132,
+      "sha256": "83d23c609dc8675cf3a363fb8c7d66e127ce4d5731360e0b23f773680efad28f"
+    }
+  ],
+  "current_final_checks": [
+    {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/implement-1/final-required-check-docs.json",
+      "bytes": 1494,
+      "sha256": "9a4dc6d44e1576031bc24563eaae858dd9f2fb4739d753af8f18715cb8948648",
+      "exit_code": 0,
+      "actual_start_utc": "2026-10-03T21:11:35.971349+00:00",
+      "actual_end_utc": "2026-10-03T21:11:36.016393+00:00"
+    },
+    {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/implement-1/final-required-cached-diff-check.json",
+      "bytes": 1483,
+      "sha256": "1ae475ec981651fcb9b06a14a011507f26f3886b0177cea6abea220744ac130e",
+      "exit_code": 0,
+      "actual_start_utc": "2026-10-03T21:11:36.023704+00:00",
+      "actual_end_utc": "2026-10-03T21:11:36.035715+00:00"
+    }
+  ],
+  "old_tree_checks_used": false,
+  "records": [
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/source-pre-identities.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/source-pre-clean.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/source-unfiltered-pathset.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/verify-initial-identities.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/verify-initial-clean.json"
+  ]
+}

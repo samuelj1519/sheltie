@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import subprocess,hashlib,json; from pathlib import Path; p=Path('specs/guides/continuity-choices.md'); print(json.dumps({'head':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}']).decode().strip(),'initial_tree':subprocess.check_output(['git','rev-parse','351feb7ac22c21317a686693b732d5ae0c4b4bcc^{tree}']).decode().strip(),'status':subprocess.check_output(['git','status','--porcelain=v1']).decode(),'changed_paths':subprocess.check_output(['git','diff','--name-status','351feb7ac22c21317a686693b732d5ae0c4b4bcc','HEAD']).decode(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size},ensure_ascii=False,indent=2))"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+  "start_utc": "2026-10-03T20:57:26.793455+00:00",
+  "end_utc": "2026-10-03T20:57:26.881193+00:00",
+  "elapsed_s": 0.087738,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/review-1/identity.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/review-1/identity.stderr",
+  "stdout_sha256": "5b13b824c3d300edeea332c765bf36d461c01a28af251eecbea8074ba3985d41",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

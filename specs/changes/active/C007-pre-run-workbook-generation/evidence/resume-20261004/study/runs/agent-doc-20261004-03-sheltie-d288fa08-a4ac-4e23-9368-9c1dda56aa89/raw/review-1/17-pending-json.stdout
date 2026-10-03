@@ -1,0 +1,33 @@
+16:        Error::EffectPending {
+17:            committed,
+19:            original,
+25:            root.insert("committed".to_string(), json!(committed));
+27:            if let Some(original) = original
+31:                if *committed {
+32:                    if let Some(revision) = original.get("revision") {
+35:                    root.insert("original".to_string(), original);
+113:        Error::EffectPending {
+114:            pending_request_id,
+116:            pending_original,
+120:            if let Some(p) = pending_request_id {
+121:                d["pending_request_id"] = json!(p);
+123:            if let Some(o) = pending_original {
+125:                    d["pending_original"] = v;
+151:        let blocked = Error::EffectPending {
+152:            committed: false,
+154:            pending_request_id: Some("request-A".into()),
+157:            original: None,
+158:            pending_original: Some(Box::from(
+163:        assert_eq!(outcome.json["committed"], false);
+165:        assert!(outcome.json.get("original").is_none());
+169:            outcome.json["error"]["detail"]["pending_request_id"],
+173:            outcome.json["error"]["detail"]["pending_original"]["request_id"],
+177:        let own = Error::EffectPending {
+178:            committed: true,
+180:            pending_request_id: None,
+183:            original: Some(Box::from(
+186:            pending_original: None,
+189:        assert_eq!(outcome.json["committed"], true);
+192:        assert_eq!(outcome.json["original"]["request_id"], "request-A");
+193:        assert_eq!(outcome.json["original"]["revision"], 7);
+196:                .get("pending_original")

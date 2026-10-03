@@ -1,0 +1,102 @@
+{
+  "status": "useful_partial_only",
+  "run_id": "agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728",
+  "actor_id": "/root/c007_study_coordinator/run04_partial",
+  "written_at_utc": "2026-10-03T20:51:47.491210+00:00",
+  "continuation": {
+    "stage": "implement",
+    "visit": 1,
+    "retry": 0,
+    "same_unfinished_native_phase": "implement-1",
+    "stage_completed": false,
+    "stage_json_modified": false,
+    "reports_completed": false,
+    "cold_worker_must_continue_same_phase": true
+  },
+  "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+  "head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "head_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "dirty_status": "?? specs/guides/continuity-choices.md\n",
+  "draft": {
+    "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/guides/continuity-choices.md",
+    "sha256": "693cef118e615f1c10d2cc15e9d197a6380d531bd26827ab5dd1bfe6446418e6",
+    "bytes": 5465,
+    "untracked": true,
+    "staged": false,
+    "committed": false
+  },
+  "completed": [
+    "Read assigned binding, stage, task, project and complete implement instruction including common strategy.",
+    "Read assigned CONTEXT, specs README and engineering; Chinese skill and controlled technical Chinese reference.",
+    "Checked clean assigned repository and exact initial HEAD/tree.",
+    "Wrote useful operator guide paragraphs: current status/resume, same running Attempt continuation, genuine fail versus content review back, fail/submit/begin examples with explicit Home and JSON, request IDs only on writes.",
+    "Verified these draft facts against assigned protocol sections 1/2/3/5/6, C005 spec/design, C004 README and existing sheltie skill."
+  ],
+  "unfinished": [
+    "Complete detailed replace operation prerequisites, command, once-per-Occurrence quota, exact inherited inputs and poststate stats, old submit/fail rejection and terminal error priority.",
+    "Complete EFFECT_PENDING committed=true versus committed=false, request_id and pending_request_id recovery; preserve same intent and avoid guessing state from diagnostic prose.",
+    "Complete unknown, query-only, human/gate and terminal response handling and stopping boundaries.",
+    "Recheck full guide against every task acceptance item and references/commands; current document is partial, not ready for review.",
+    "Run declared checks with immutable raw output; stage only allow_files and create bound candidate according to project after complete implementation.",
+    "Write implement-1 change.md and checks.md with real candidate and original evidence; this partial worker did not create them.",
+    "Coordinator and later workers retain responsibility for review, deliver and independent complete patch application verification."
+  ],
+  "source_material_paths": [
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/CONTEXT.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/README.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/engineering.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/contracts/protocol.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/contracts/storage.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/changes/completed/C004-verifiable-delegation/README.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/changes/completed/C005-executor-continuity/spec.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/specs/changes/completed/C005-executor-continuity/design.md",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native/skills/sheltie/SKILL.md"
+  ],
+  "source_read_scope": {
+    "protocol": "selected necessary sections and targeted search, not claimed full-file read",
+    "storage": "targeted search for status and effects; full recovery handling remains unfinished",
+    "C005_spec_design": "full files read",
+    "existing_skill": "full file read after initial aggregate truncation"
+  },
+  "other_inputs": [
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/run-binding.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/stage.json",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/continuity/task.md",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/continuity/project.md",
+    "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/instructions/implement.md",
+    "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md",
+    "/Users/shushu/.agents/skills/tech-doc-style-chinese/references/controlled-technical-chinese.md"
+  ],
+  "checks": [
+    {
+      "argv": [
+        "scripts/check-docs.sh",
+        "specs/guides/continuity-choices.md"
+      ],
+      "status": "not_run"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "status": "not_run"
+    }
+  ],
+  "checks_other": "Rust/build/tests/CLI scenarios/Sheltie not_run; no install or release actions",
+  "candidate_rule": "HEAD remains baseline; untracked draft SHA binds partial bytes only and is not a candidate commit/check PASS",
+  "actor_metadata": {
+    "declared_model": "gpt-6.1-sol",
+    "declared_reasoning": "high",
+    "inheritance": "inherited, no override requested or used",
+    "actual_provider_metadata": "not independently exposed to this worker",
+    "usage": "unknown",
+    "fees": "unknown"
+  },
+  "commands_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/commands.json",
+  "prior_read_evidence_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/partial-implement-1/session-read-refs.json",
+  "selfstarted_commands": "All subprocess commands in commands.json ended and were awaited; preceding exec calls ended with exit 0. No background jobs, no spawned helpers, no Sheltie invocation.",
+  "stop_boundary": "Useful partial written; normal turn completion after this persistence command. Do not treat as implement completion."
+}

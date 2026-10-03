@@ -1,0 +1,66 @@
+diff --git a/specs/guides/current-acceptance-handoff.md b/specs/guides/current-acceptance-handoff.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..d750db2747fd6af4fc92a4d2fa2f2c88e46392e0
+--- /dev/null
++++ b/specs/guides/current-acceptance-handoff.md
+@@ -0,0 +1,60 @@
++# 当前验收与用户交付卡
++
++本卡供首次接手者判断当前能使用什么、证据在哪里、下一步还缺什么。事实冻结在源码快照 `00e010ba8466b6ffc78ba603f5c923174b3d12af`；不包含该快照之后的实验或发布。产品语义仍以 [规格](../spec.md)、[宪章](../constitution.md) 和 [合同](../contracts/protocol.md) 为准，当前 release、active change 与实施入口以 [specs 地图](../README.md) 为准。文档、目录 `completed` 和 Work 成功都不授予用户接受、合并或发布。
++
++## 先选使用入口
++
++1. 使用已发布版本时，读 [README 快速开始](../../README.md#快速开始) 和 [v0.2.0 release record](../releases/v0.2.0/README.md)。远端安装对应 v0.2.0，发布目标仅为 `aarch64-apple-darwin`。
++2. 使用当前源码的任务交付与接续时，先读 [最小代码变更方法](../../examples/code-change/README.md)，准备明确的 task/project、授权仓库范围和必要检查；使用当前源码构建的引擎与新的显式管理根。该指南给出 Cargo 定位实际二进制的入口，不猜 `target` 路径。旧二进制、旧管理根保留。
++3. 核当前实际使用证据时，读 [C004 验证](../changes/completed/C004-verifiable-delegation/validation.md#c004-m3-当前采用范围收尾)。需要可编辑最终成果时，读 [导出指南](result-export.md)，按同一次结果核引用、字节和退出码。
++4. 判断后续任务或采用范围时，回到 [当前 specs 入口](../README.md) 与对应 plan。缺真实输入时记录缺项；没有 active change 时，不自行从提案选方案实施。
++
++引擎只记状态、生成任务书、限定合法下一步和守门槛，不判断报告或代码质量。协调者读当前 `next` 选路，独立审查者核内容，用户另行接受。引擎不安装宿主资源；外围导出只在显式授权父目录建立新副本。
++
++## 版本与已闭合范围
++
++| 对象 | 快照内事实 | 使用边界 |
++| --- | --- | --- |
++| 当前源码 | `0.3.0-rc.1`；开发目标 `v0.3.0`；schema `4`、`cli-result/v4`、`work-result/v1` | 尚未发布；[Store 合同](../contracts/storage.md) 拒绝 schema 1/2/3，不自动迁移或清空。二进制 rollback 不降级 Store，查旧记录用旧二进制配旧管理根 |
++| 已发布版本 | `v0.2.0`，macOS ARM64 | 按 release record/tag 核发布；当前源码的新结果、接续、替换与导出能力不能由远端安装推得 |
++| C001 / C003 | [C001](../changes/completed/C001-specs-governance/README.md) 完成文档治理；[C003](../changes/completed/C003-archive-v0.1.0/README.md) 完成 MVP 历史归档 | 不改变产品行为；归档与发布是不同事实 |
++| C002 | [修后 Spec 与工程独审](../changes/completed/C002-v0.2.0-reliability/validation.md#c002-t58-m2审计事实资格修复) scoped PASS；当前 macOS aarch64/APFS 可构造输入的恢复义务闭合 | 原失败、旧原生未执行、物理输入与资源限制留原；不授全安全、全平台或新发布 |
++| C004 | 自动 agent 实际交付、同 Attempt 冷上下文接续、具体终点三引用和真实消费者已限定验收 | 原真人、真正宿主关闭重开、配对净收益与费用未由此完成 |
++| C005 | 当前原生与 Rust 1.85 技术资格、真实撤销需求负前检已限定验收 | 七项真实撤销前提仍 `null`，没有执行真实撤销样本 |
++| C006 | 真实 agent 使用可编辑副本、保留旧编辑与新副本、不同设备号的 APFS 虚拟载体已限定验收 | 工具未发布或安装；外置物理盘、其他 OS、真人收益与物理断电保证不在范围内 |
++
++## 技术证据：计数各有自己的范围
++
++当前原生完整工程由 [C002 T58 门禁](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t58-final-gates.json) 与 [nextest 原文](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t58-final-nextest.txt) 绑定：run `424c53bc-4a8a-4bf1-8c26-f4b600335a83`，951/951 PASS、0 skip、0 LEAK；fmt/check/Clippy 均退出 0，[5 个 compile-fail doc](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t58-final-doctest.txt) 全通过。实际 nextest 为 0.9.145，原生 Rust 为 1.98.1。受影响 46/46 和 T58 新 helper 的 2/2 动态检测分别登记，不增加原 215 项计数。首次突变 formal baseline 为 0 tests、工具 exit 4 的停止记录保留，修正非零 baseline 后的新执行另列。
++
++当前 Rust 1.85 有新增实际测试，不能只引用历史编译成功：[C005 MSRV 执行](../changes/completed/C005-executor-continuity/evidence/resume-20261004/msrv-execution.json) 使用真实 1.85 Cargo 产物、独立冻结的 engine/export 二进制和 nextest 0.9.145；run `8d822614-fca3-453f-b28e-2d8345e810e4` 为 951/951 PASS、0 skip/LEAK，5 个 compile-fail doc 全通过，37 个 C005 用例均有实际 PASS 行。[结果核对](../changes/completed/C005-executor-continuity/evidence/resume-20261004/t06-msrv-result-check.json) 记录六步骤均退出 0、无 timeout、总耗时 160.4732879 秒。两个无 doc crate 的 0 样本不计额外用例。旧「1.85 仅 check」和旧工具 exit 92 不倒填为当时已测试。
++
++这些资格按 [C005 冻结输入](../changes/completed/C005-executor-continuity/evidence/resume-20261004/technical-freeze.json) 与 C004/C006 当前来源核同值引用。C002 原始源码域为 190 项、工程子集 134 项；后续 Git tracked 实际域为 192 项，软链接按 literal、普通文件按 bytes 核对。域不同，不能混称同一数量或把源码未变写成新执行。[fresh deny 四类原件](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/m2-deny-execution.json) 只对应 C002 原数据库 `ef6173` 的实际取数时点；旧缓存 `117edb3`、在线获取 TERM 和新取数各留自己的原件，见 [C002 验证](../changes/completed/C002-v0.2.0-reliability/validation.md)。
++
++原 215 项欠项的最终资格见 [T43 账本](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t43-215-dispositions.json)、[验收绑定](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t43-acceptance-binding.json) 与 [独审](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/t43-final-review.md)：
++
++| 资格 | 数量 | 不能推导的结论 |
++| --- | --- | --- |
++| 动态检测 | 185 | 其中 37 项在该最终候选实际执行，148 项沿各完整冻结闭包并经当前 caller/生产差异复核；不是 185 项全在最新候选重跑 |
++| 限定静态处分 | 21 | 动态 `not_run`，不记旧 Caught；仅核精确位置、合法 producer/caller 子集，保留诊断、资源和 UTF-8 差异，不能称完整等价 |
++| 结构验证 | 9 | 旧连接符被共享机制替换并验证新目标；不当作旧 mutant 等价、旧原生扰动已执行或旧 Caught |
++
++原 stage-1 `Missed`、`Caught=false`、9 个旧 native 未执行标记留原。T43 当前资格补验与独审另列，不洗掉旧缺失输入。T58 的更早 audit 核验改动涉及原 19 个 Service 目标所在的 5 个函数段；其余 196 个目标源码未改。旧冻结 Caught 不升级为最新执行，21 静态和 9 结构的限定条件经独审保持。C004 原定向突变只选 13 项，剩余 105 项未采用执行；以上均不是全代码或全安全覆盖。
++
++## 实际交付与仍未执行的义务
++
++**C004 普通接续与消费。** [T07–T10 原文](../changes/completed/C004-verifiable-delegation/validation.md#c004-t07-实际文档交付与同attempt冷接续) 记录 Work `2026-10-03-001-c005-opening-package`：A 停写后，B 新上下文仅凭 Home/WorkId/binary/protocol 查询，继续同 `implement#1.0`，不是新 Attempt 或 C005 撤销。最终 revision 7 / succeeded，`change`、`review`、`delivery` 三引用的 `source.attempt` 均为具体 `deliver#1.0`；前两者是该终点绑定输入，delivery 是封存输出。[三引用核对](../changes/completed/C004-verifiable-delegation/evidence/resume-20261004/final-three-reference-check.json) 核实际 bytes/size/SHA。新真实消费者实际读三成果和下一阶段来源，写准备判断；其 status/result 每条五表和 47 个业务对象 before=after。原 B 两次查询没有逐条嵌套快照的偏差永久留原；新补验闭合当前能力，不追补旧观察。21 份忽略日志的 tracking 缺口已精确修复。此代理接受仅限文档准备包，不等于真人接受或普遍收益。
++
++**C005 真实撤销负前检。** [原 preflight](../changes/completed/C005-executor-continuity/evidence/t03/preflight.json) 与 [当前 M3](../changes/completed/C005-executor-continuity/validation.md#c005-m3-当前技术完整限定验收) 保留七项 `null`：`work_id`、`old_attempt`、`real_revocation_event`、`old_executor_stop_or_host_isolation_evidence`、`new_executor`、`original_goal_and_acceptance`、`quality_and_total_activity_cost`。两个实际 C004 消费者只需普通续接，不能人为制造 replace 需求。真实撤销、真人接受、成本与净收益仍 `not_run`；引擎替换只撤销资格，不停止旧进程或证明宿主隔离。
++
++**C006 副本与载体。** [T08/M3](../changes/completed/C006-result-delivery/validation.md#c006-t08-当前实际副本与跨apfs) 记录同一 C004 成果的原 CLI/script 与工具对照、真实新消费者读/编辑三文件、第二次导出保留旧编辑且新副本仍为原字节。[编辑保全](../changes/completed/C006-result-delivery/evidence/resume-20261004/edit-and-new-copy-verification.json)、[跨设备核对](../changes/completed/C006-result-delivery/evidence/resume-20261004/cross-device-verification.json) 核三成果/manifest/权限和源状态；源 `st_dev=16777234`，目标 `16777243`，载体是自有挂载 APFS 虚拟卷，核后仅卸载 owned volume。7 个外层引擎/export 查询逐次五表与 47 个业务对象 before=after；SQLite 控制载体例外单列。16 份实际副本归档逐 SHA 读回。单 pair 的 CLI/script 0.315966 秒与工具 0.116367 秒均含 observer，仅是 agent/script 观察；外层 4 对 1 不能混称内部实测进程数或人类净收益。原 suffix AssertionError 与允许的观察 oracle 纠正留原，没有改产物求绿。
++
++**历史信号与范围。** C004 原 739 run 的 1 LEAK、C005 四条不同旧 run/case 的 LEAK、C006 原 842 run 的 4 LEAK 均保持 cause `unknown`；当前零 LEAK 不证明旧原因已修复或全宿主永久无残留。C006 四例为 `delete_refuses_root_replaced_before_unlink`、两条 `duplicate_flow_id` 场景、`replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt`，见 [C006 T06](../changes/completed/C006-result-delivery/validation.md#c006-t06-精确窗口收口)。本 APFS 上物理 badFF file/directory 创建被 errno 92 / EILSEQ 拒绝，物理遍历 fixture 为 `not_run/environment_blocked`；纯 bytes 名称测试不能替代物理执行。Linux/Intel 按用户范围排除，其他 OS、外置物理盘、物理断电持久与恶意同权限隔离不在当前 PASS 范围。usage、付费、人类历史和未取得的成本为 `null`/unknown，不当零。
++
++## 后续判断入口
++
++[C007](../changes/completed/C007-pre-run-workbook-generation/README.md) 在本快照仅完成技术资产与缺项交接；原三任务六次配对、正式准入、真实关闭重开、首次读者、自然返工、最终独立盲审、流程外用户接受与完整成本/价值仍 `not_run`。按其 [验证规则](../changes/completed/C007-pre-run-workbook-generation/validation.md) 补真实 task/actor × arm 历史、方法与两组条件、顺序、质量 oracle、预算及停止条件，先冻结再正式运行。当前 C004/C006 实际 agent 使用不替代六次正式试用。
++
++[C008](../changes/completed/C008-dependency-readiness/README.md) 仅做条件前检与延期交接；probe `not_adopted`，机制、真实观察与价值 `not_run`。有真实必需宿主声明、重复摩擦、固定 host/version 的选择与身份规则、授权只读范围和预算以后，由人决定是否采用。没有这些前提，不人为加 `requires` 或制作无目标探针。
++
++接手者先核当前 specs 入口和证据所属候选，再决定使用、补前提、缩小或停止。使用者对实际最终成果作接受判断，独立质量审阅另留原文；技术 scoped PASS 和归档不能代替这两项判断，也不授权安装、push、merge 或发布。

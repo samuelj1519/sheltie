@@ -1,0 +1,126 @@
+     1	# 接续、执行失败、内容返工与资格撤销的选择
+     2	
+     3	本指南面向接手已有 Work 的操作者。先查询当前状态，再判断是否继续原 Attempt、记录真实执行失败、按 Workbook 的显式边返工，或撤销旧 Attempt 的正式提交资格。状态、命令和错误以[协议合同](../contracts/protocol.md)为准；接续能力的范围见 [C004](../changes/completed/C004-verifiable-delegation/README.md)，资格撤销的边界见 [C005 产品方案](../changes/completed/C005-executor-continuity/spec.md)。
+     4	
+     5	## 先判断发生了什么
+     6	
+     7	| 实际触发 | 选择与前提 | 观察与停止条件 |
+     8	| --- | --- | --- |
+     9	| 重开会话、等待后继续，或已确认旧执行者停止后换人 | 查询 `work status`；当前 Attempt 仍为 `running` 时，按 `resume` 读取任务书与冻结输入，继续同一个 Attempt | 确认当前 `next` 和草稿位置。会话重开不会产生失败或新 Attempt；不能因此调用 `fail` 或重复 `begin` |
+    10	| 执行确实失败，例如执行者崩溃或超时且不能完成本次执行 | 仅在当前 `next` 有对应 `attempt fail` 时，记录真实原因；随后只在新的 `next` 允许时重试 | 成功响应返回 `data.attempt`、`data.work_status` 与 `next`。失败计入 `failed`；重试额度耗尽时停止，不自行增加额度 |
+    11	| 审查完成，但产物内容需要返工 | 将完整审查报告写到任务书声明的输出位置，正常 `submit`；协调者读报告后选择 `next` 中的显式 `back` 边 | 审查“不通过”不等于执行失败。返工进入目标节点的新 Occurrence，受 `max_visits` 限制；没有合法回边时停止 |
+    12	| 确需撤销旧 Attempt 的正式提交资格 | 选择当前 `next` 中的 `attempt replace`，具体前提和效果见 [C005](../changes/completed/C005-executor-continuity/spec.md) | 这是行政撤销事实，由操作者决定。引擎不停止旧进程、不认证接手者、不隔离宿主；处置未确认时不派新执行者写共享工作区 |
+    13	
+    14	## 重开会话后继续同一个 Attempt
+    15	
+    16	例子中的 `<专用Home绝对路径>` 指本 Work 创建时使用的管理根。开发候选应使用与旧版本分开的新管理根；接续时保持原路径，不改用默认 Home 或为接续另建 Work。将所有占位符换成真实值后执行。只读查询不带 `--request-id`。
+    17	
+    18	```text
+    19	sheltie --home <专用Home绝对路径> --json work status <完整WorkId>
+    20	sheltie --home <专用Home绝对路径> --json work stats <完整WorkId>
+    21	```
+    22	
+    23	1. 核对 `data.work_id`、`data.revision`、`data.status`、`data.current` 与当前 `next`。如果只需要查询，到此结束，不提交或推进 Work。
+    24	2. 读取 `data.resume`。没有当前 Attempt 时它是 `null`；有当前 Attempt 时包含 `attempt`、`brief_path`、`inputs` 和 `draft_outputs`。`resume` 存在本身不证明 Attempt 仍为 `running`，应结合当前状态和 `next` 判断资格。
+    25	3. 当前 Attempt 仍为 `running` 时，读取 `brief_path` 及全部绑定的冻结 `inputs`；可选输入的 `null` 保持未绑定。核对工作区里已有草稿，再按任务书继续写声明输出。`draft_outputs` 只列声明位置，不证明文件存在、完整或封存。
+    26	4. 接手者开始写共享工作区前，操作者确认旧执行者已停止，或新执行环境已隔离。该确认属于操作者事实，不能表述为引擎保证。
+    27	
+    28	`effects_pending=true` 表示本 Work 有已提交但未完成的文件效果；只读查询不会恢复效果。此时停止正常推进，保留原响应和请求身份，按[协议合同 §5](../contracts/protocol.md)的效果恢复规则处理。任务书缺失或草稿不完整不能直接推导为业务执行失败。
+    29	
+    30	## 真实执行失败后才重试
+    31	
+    32	调用前确认当前 `next` 包含目标 Attempt 的 `attempt fail`，并预先生成、保存本次写意图的 UUID。理由应说明实际失败，最多 4096 字节。
+    33	
+    34	```text
+    35	sheltie --home <专用Home绝对路径> --json --request-id <本次fail请求UUID> attempt fail <完整WorkId> --attempt <当前AttemptId> --reason "<真实失败原因>"
+    36	```
+    37	
+    38	成功后只从响应的 `next` 选择操作。若其中有同节点的 `attempt begin`，可使用另一个预先保存的请求 UUID 开始重试：
+    39	
+    40	```text
+    41	sheltie --home <专用Home绝对路径> --json --request-id <本次begin请求UUID> attempt begin <完整WorkId> --node <next给出的节点>
+    42	```
+    43	
+    44	重试沿用同一 Occurrence，并创建新的 Attempt。Attempt ID 后缀 `number` 是从 0 起连续递增的创建顺序号，不能当作失败数。`max_retries=k` 允许同一 Occurrence 的 k 次业务失败重试；第 k+1 次真实 `failed` 进入 `blocked(retries_exhausted)`。行政撤销产生的 `superseded` 不计入失败。额度耗尽时报告状态，由用户决定后续，不为恢复可用性虚构新的失败或撤销。
+    45	
+    46	## 内容审查退回沿显式 back 边
+    47	
+    48	审查者已经完成任务并写出“不通过”的报告时，仍正常提交审查 Attempt。引擎核对声明输出并封存文件，不判断审查结论是否正确。
+    49	
+    50	```text
+    51	sheltie --home <专用Home绝对路径> --json --request-id <本次审查submit请求UUID> attempt submit <完整WorkId> --attempt <审查AttemptId> --summary "<审查结论与报告位置>"
+    52	```
+    53	
+    54	协调者读取审查报告，确认返工必要后，仅选择成功响应 `next` 中 `op="attempt begin"` 且 `edge="back"` 的目标，使用新的请求 UUID 调用 `attempt begin`。进入目标节点时创建新的 Occurrence；不要把内容返工伪装成同一 Occurrence 的业务失败重试。若目标已达 `max_visits`、当前受阻或没有声明回边，停止并报告现有合法操作。
+    55	
+    56	若进入门槛阻塞，等待用户明确批准；不能通过选回边、替换或标失败绕过门槛。Work 为 `succeeded` 或 `cancelled` 时已终态，`next` 为空，保持只读查询。
+    57	
+    58	## 确需撤销资格时才 replace
+    59	
+    60	先确认 Work 为 `active`，当前 Occurrence 的最新 Attempt 为 `running`，且当前 `next` 列出这个 Attempt 的 `attempt replace`。理由应说明真实行政撤销意图；会话重开、等待和审查结论不能单独当作撤销事实。
+    61	
+    62	操作者可以先撤销正式资格。安排新执行者写共享工作区前，仍须确认旧执行者已停止，或新执行环境已隔离；确认不充分时停止派活。引擎只撤销正式接口资格，不停止进程、不认证接手者、不隔离宿主，也不撤销已经发生的副作用。
+    63	
+    64	预先保存本次写请求 UUID，再调用：
+    65	
+    66	```text
+    67	sheltie --home <专用Home绝对路径> --json --request-id <本次replace请求UUID> attempt replace <完整WorkId> --attempt <当前旧AttemptId> --reason "<真实替换理由>"
+    68	```
+    69	
+    70	`--reason` 也接受 `@<理由文件绝对路径>`；文本最多 4096 字节。新请求读取文件，已提交请求用相同 UUID、相同参数重放时不重新读取文件。不要把换了参数的请求当作原意图恢复。
+    71	
+    72	成功响应的 `data.replaced_attempt` 是旧身份，`data.attempt` 是同一 Occurrence 的新身份；同时给出 `node`、`occurrence`、`number`、`brief_path`、`output_dir`、`inputs`、`outputs`、`requires`。顶层 `request_id`、`revision` 和 `next` 来自提交快照。核对旧、新身份后，按新任务书与新输出路径继续，不再重复 `attempt begin`。
+    73	
+    74	这一次事务把旧 Attempt 结束为 `superseded`，并追加新 `running` Attempt。新 Attempt 继承进入来源和冻结的非统计输入，包括可选输入的 `null`；不重新选择上游最新产物。若节点声明 `engine.stats`，新文件按包含新 Attempt 的提交后状态生成，精确历史字节随请求保存。事实统计中 `attempts`、`superseded` 更新，`failed` 不因此增加；已结束旧 Attempt 纳入原有耗时口径。旧未提交输出仍是未封存草稿，不自动成为新 Attempt 的正式输入或输出；旧任务书和原请求保留。
+    75	
+    76	每个 Occurrence 固定最多替换一次。再次替换返回 `REPLACEMENTS_EXHAUSTED`，无状态变化，也不新增 blocked 状态；当前 Attempt 仍按当前 `next` 保有 `submit`、`fail`、`cancel` 的资格。新的 Occurrence 有自己的固定一次额度，不能为取得额度虚构失败或返工。
+    77	
+    78	新替换请求按以下顺序拒绝；已提交请求的重放先于这些新请求条件：
+    79	
+    80	| 首个不满足的条件 | 错误与停止方式 |
+    81	| --- | --- |
+    82	| Work 已 `succeeded` 或 `cancelled` | `WORK_TERMINAL`；保持只读 |
+    83	| 旧身份不存在 | `NOT_FOUND`；核对身份，不改猜测的目标 |
+    84	| 旧身份存在但非 `running` | `ATTEMPT_NOT_RUNNING`；查询当前 status |
+    85	| Work 非 `active`，或目标不是当前 Occurrence 最新资格 | `ILLEGAL_NEXT`；按当前 `next` 处理 |
+    86	| 同一 Occurrence 已使用替换额度 | `REPLACEMENTS_EXHAUSTED`；保留当前资格 |
+    87	| 理由越界、冻结输入不完整或不安全 | 对应有界文本、输入或完整性错误；保留原件，核查后再决定 |
+    88	
+    89	旧 `superseded` Attempt 的新 `submit`、`fail` 在非终态 Work 返回 `ATTEMPT_NOT_RUNNING`；Work 已终态时，`WORK_TERMINAL` 优先。旧成功请求仍能按历史快照重放，历史 `next` 不能用于当前推进。每次历史重放后重新查询 `work status`，再从当前 `next` 选择。
+    90	
+    91	## EFFECT_PENDING 与结果不明时保留请求身份
+    92	
+    93	`EFFECT_PENDING` 表示文件效果尚未完成，不等于业务执行失败。保留实际命令、Home、请求 UUID、完整 stdout、stderr、退出码和原响应；按结构化字段判断当前请求是否提交，不从错误文本或维护告警推断状态。
+    94	
+    95	| 实际响应 | 已知事实 | 恢复与停止 |
+    96	| --- | --- | --- |
+    97	| `error.code="EFFECT_PENDING"`，`committed=true`，`request_id=A` | A 已提交；Work 写操作在可核实时另带 `revision`，`original` 是已核实的提交快照 | 排查结构化 `error.detail` 指出的原因；保持 A 的原命令、原参数、原 UUID 重试，恢复同一意图。不能换 UUID 再造 Attempt |
+    98	| `error.code="EFFECT_PENDING"`，`committed=false`，`request_id=B`，`error.detail.pending_request_id=A` | B 尚未提交；A 的旧效果阻断 B。`pending_original`（若提供）属于 A，不是 B 的成功结果 | 先按已保存的 A 意图和 A UUID 恢复旧效果，再用 B 原命令、原参数、原 UUID 重试 B |
+    99	| `original`、`pending_original` 或 `revision` 未提供 | 引擎无法核实相应原响应或字段；不能补造成功快照 | 保留已确认的请求身份和 `error.detail.cause`。缺少原命令或身份时停止，交操作者核查 |
+   100	| 调用中断、无完整 JSON，或必要字段无法确认 | 本次提交与效果完成情况为 `unknown` | 保存现场；有原写意图与 UUID 时同意图重发，并查询当前 status。没有可靠身份时停止，不换新 UUID 猜状态 |
+   101	
+   102	例如，替换已提交但新任务书效果失败时，使用上节命令中原来的 `<本次replace请求UUID>`、旧 Attempt 参数和原理由重试；恢复的是同一个新 Attempt 与原登记字节，不是第二次替换。
+   103	
+   104	效果恢复成功或历史重放成功后，再执行只读 `work status`。确认当前 revision、Attempt、`effects_pending`、`pending_publish` 与 `next` 后才恢复正常推进。查询本身不恢复效果；其他 Work 的旧效果也可能在下一次写入时阻断当前请求。不要直接改 Store、删除 pending 原件、重造历史文件或放宽输入完整性检查。
+   105	
+   106	## human、gate 与终态的停止位置
+   107	
+   108	`attempt begin` 的 `next` 项含 `executor`、`tier`。`executor="human"` 时，把任务书交给人；`tier` 只是选模型的标签，不是引擎认证或安装行为。任务书或响应声明的宿主资源缺失时，停止并报告，不自动安装。
+   109	
+   110	`blocked(gate)` 时，合法操作是 `gate approve` 与 `work cancel`。操作者先向用户呈现状态和相关产物；用户明确批准后，才保存新写请求 UUID 并执行当前 `next` 指定的节点：
+   111	
+   112	```text
+   113	sheltie --home <专用Home绝对路径> --json --request-id <本次approve请求UUID> gate approve <完整WorkId> --node <当前gate节点>
+   114	```
+   115	
+   116	核对成功响应的 `data.node`、`data.occurrence`、`data.by`、`data.at`、`data.work_status` 与 `next`。`by` 是真实发起进程的 OS 账户；agent 代用户执行时，不表述为独立真人身份已被认证。未获批准时等待，不借 `replace`、`fail` 或回边绕过门槛。
+   117	
+   118	`blocked(retries_exhausted)` 或 `blocked(no_legal_edge)` 时，只剩 `work cancel` 合法，向用户报告并由用户决定。取消本身也需要实际授权与新的写请求 UUID；不把查询请求扩大为取消。
+   119	
+   120	`status.kind="succeeded"` 或 `"cancelled"` 时 `next=[]`，不再推进。取消不会把仍为 `running` 的 Attempt 伪造为结束；即使存在接续指针，也不能据此在终态提交。只要用户要求状态、统计或最终成果，就只查询相应入口：
+   121	
+   122	```text
+   123	sheltie --home <专用Home绝对路径> --json work result <完整WorkId>
+   124	```
+   125	
+   126	`final=true` 才列出该成功终点明确选择的冻结引用；未声明选择时可以为空。Work 成功、报告封存、命令退出 0 与内容质量合格分别核实，最终接受与发布按各自授权办理。

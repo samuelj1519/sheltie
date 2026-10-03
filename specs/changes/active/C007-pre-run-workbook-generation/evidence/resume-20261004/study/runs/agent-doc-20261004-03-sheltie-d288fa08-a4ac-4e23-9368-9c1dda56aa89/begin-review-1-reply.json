@@ -1,0 +1,53 @@
+{
+  "data": {
+    "attempt": "review#1.0",
+    "brief_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/brief.md",
+    "inputs": {
+      "change": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "checks": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "project": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/project",
+      "task": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/task"
+    },
+    "node": "review",
+    "number": 0,
+    "occurrence": 1,
+    "output_dir": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs",
+    "outputs": {
+      "review": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs/review.md"
+    },
+    "replayed": false,
+    "requires": []
+  },
+  "next": [
+    {
+      "args": {
+        "attempt": "review#1.0",
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "attempt submit"
+    },
+    {
+      "args": {
+        "attempt": "review#1.0",
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "attempt fail"
+    },
+    {
+      "args": {
+        "attempt": "review#1.0",
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "attempt replace"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true,
+  "request_id": "dfba6eb9-f67a-4a64-811d-7766509a9a7b",
+  "revision": 4
+}

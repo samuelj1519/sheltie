@@ -1,0 +1,97 @@
+{
+  "checked_utc": "2026-10-03T20:49:04.855388+00:00",
+  "actors": {
+    "/root/c007_study_coordinator/run03_review": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-38-35-01a1037d-7439-7ee2-b979-eda8f9122089.jsonl",
+      "session_id": "01a1037d-7439-7ee2-b979-eda8f9122089",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:42:53.422Z",
+        "ordinal": 182,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a1037d-74b2-7a43-acda-73feff96ace6",
+          "last_agent_message": "建议交付。已独立核候选、五项文档标准、两项检查原件和完整 patch，未发现需返工缺陷。\n\n已写 [review.md](/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs/review.md)，10155 bytes，SHA `c33aa607f297de2b26b0dc7e425a501fb92cad13406f77a9ede9c67f9fc7c13a`。新证据及 actor 在本 run `raw/review-1`。\n\n独立 apply 留 deliver；最终质量/接受仍 `not_run`。报告保留 cold status 的 timeout120 与 readonly60 配置偏差，未将实际短耗时判作配置合规。\n\n",
+          "started_at": 1791059915,
+          "completed_at": 1791060173,
+          "duration_ms": 257459,
+          "time_to_first_token_ms": 6573
+        }
+      },
+      "records_SHA": "ba9afb7eabf1417be73294661a1193fdd1fccce57d4353e7bf4daedf84acab85"
+    },
+    "/root/c007_study_coordinator/run03_deliver": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-43-32-01a10381-fb2e-73f2-bcee-8363e76fd087.jsonl",
+      "session_id": "01a10381-fb2e-73f2-bcee-8363e76fd087",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:46:41.388Z",
+        "ordinal": 95,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10381-fba9-78a1-bd30-923598e814e7",
+          "last_agent_message": "停止：`15-write-delivery` 实际发生 Python `SyntaxError`，exit 1，原件保留；未重跑。失败后的必要停止报告已写入，不能记为成功交付。\n\n完整 patch 独立应用已实际成功，candidate `89c1b6022ced9cfe698e56a0f1c08bc65168cf46`，applied tree `5640cd4993bcac032bc15fcdee17a9e05cf42eb5`；唯一授权文件字节相同。应用原件在本 run `raw/deliver-1/08`–`14`。\n\n五份完整路径、bytes、SHA 已保存于 [actor-activity.json](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/actor-activity.json)：\n\n| 引用 | bytes | SHA-256 |\n| --- | ---: | --- |\n| change | 6556 | `664b3ed17f4effbc1d5d5425aeb8485335bccf9c7103f1858b4755ed98ce065c` |\n| checks | 6512 | `f30f51bb8353d8b886bf5bfcf61be69ef22827f6dbbcbcdf85edf7859b58a9cd` |\n| review | 10155 | `c33aa607f297de2b26b0dc7e425a501fb92cad13406f77a9ede9c67f9fc7c13a` |\n| patch | 13748 | `a10bef129228ddc38cb77f9fbbda4e4e21ad1d62b84fc5032e3b3171ef41d1ac` |\n| delivery | 7227 | `13806d8620e012de6b86e1259ed73ec5b8e19a64983047069552686b33d82474` |\n\n两个输出均在实际 begin 指定的 deliver outputs：`delivery.md`、`change.patch`。停止报告 UTC `2026-10-03T20:46:28.462802+00:00`。自启命令全部结束，无自启后台任务；未推进引擎。质量/接受仍 `not_run`；usage/费用 unknown；冷 status 120 秒配置偏差及两次未 capture 的 bootstrap 读取均已明确保留。",
+          "started_at": 1791060212,
+          "completed_at": 1791060401,
+          "duration_ms": 188731,
+          "time_to_first_token_ms": 5536
+        }
+      },
+      "records_SHA": "5d70eb76eca9f30f1407ce461e6e7742390d726afbce5852d9c1a3b14319624c"
+    },
+    "/root/c007_study_coordinator/run03_partial": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-30-17-01a10375-d8dc-7402-8ef9-4834662a87a5.jsonl",
+      "session_id": "01a10375-d8dc-7402-8ef9-4834662a87a5",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:33:05.538Z",
+        "ordinal": 95,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10375-d93f-71d1-bde5-baf4cdcf1222",
+          "last_agent_message": "已完成有用 partial 草稿：status/resume、真实 fail 与内容 review back 的选择边界已核对源码。\n\n- 草稿：[continuity-choices.md](/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie/specs/guides/continuity-choices.md)，未跟踪、未暂存、未提交。\n- 持久状态：[partial-state-final.json](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/partial-implement-1/partial-state-final.json)；原件在同目录。\n- HEAD：`351feb7ac22c21317a686693b732d5ae0c4b4bcc`。草稿 SHA256：`c193628dbfb5f9ad48fee68aa6b06783d608feb28d1752d3db6475f051518b16`。\n\nUTC：`2026-10-03T20:32:57.454521+00:00`。已停止写入，正常结束本轮，无自启动后台任务。未变更 `implement#1.0` 引擎状态；完整义务、必需检查及实际 begin 输出尚未完成，检查为 `not_run`。",
+          "started_at": 1791059417,
+          "completed_at": 1791059585,
+          "duration_ms": 168124,
+          "time_to_first_token_ms": 6867
+        }
+      },
+      "records_SHA": "484f58cafe19670ecc7b22f5cbfc7ead82d15454c7135f440993dd11bae78561"
+    },
+    "/root/c007_study_coordinator/run03_cold_implement": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-33-49-01a10379-14b8-7603-9d63-deb7ae2b10e2.jsonl",
+      "session_id": "01a10379-14b8-7603-9d63-deb7ae2b10e2",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:37:55.843Z",
+        "ordinal": 138,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10379-1536-75a2-bc81-c9f8ad24b8a7",
+          "last_agent_message": "可审查，20:37:40.445230Z 完成。原 `implement#1.0` 接续，无引擎写动作或新 begin。\n\n- Candidate：`89c1b6022ced9cfe698e56a0f1c08bc65168cf46`\n- Tree：`5640cd4993bcac032bc15fcdee17a9e05cf42eb5`\n- 唯一修改：`specs/guides/continuity-choices.md`\n- 两项冻结检查 exit 0；检查 staged tree 与 commit tree 相同，工作区干净。\n- 原 begin 指定的 `change.md`、`checks.md` 已写齐。\n- 本 run `raw/implement-1/implement-handoff.json` 索引候选、输出摘要、检查和完整 patch；`raw/cold-implement-1/cold-resume-activity.json` 保存实际恢复核对及草稿接续依据。\n- readonly status 实际耗时 0.011445 秒；120 秒配置偏差如实保留。\n\n独立 review、deliver/apply、最终质量与接受仍为 `not_run`。无自启后台任务；引擎提交交协调者。",
+          "started_at": 1791059629,
+          "completed_at": 1791059875,
+          "duration_ms": 246471,
+          "time_to_first_token_ms": 5764
+        }
+      },
+      "records_SHA": "53b1664d96d7d984f2eb98e8f04345e46d3fbe5a31f45ee7a83824503cee5fec"
+    }
+  },
+  "all_same_actual_model_effort": true,
+  "new_cold_helper_distinct_session": true,
+  "no_complete_quality_or_acceptance_onfailedrun": true,
+  "CLI_config120_deviation_retained": true
+}

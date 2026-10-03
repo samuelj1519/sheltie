@@ -1,0 +1,220 @@
+# 任务书：独立审查候选
+
+Work: 2026-10-03-002-continuity（continuity）
+节点: review#1，第 0 次尝试
+来自: implement#1（main 边）
+执行者: agent（strong）
+
+## 输入
+
+| 名称 | 路径 | sha256 |
+| --- | --- | --- |
+| task | /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/task | a0e91be95c47fb82b5ca3af39c04956fb5d4f944bf9b86686a3f3482db44898d |
+| project | /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/project | 0e178e656e5559cd087437a4dbfa2e2c9dfdb630876e3ad35d8a5bc425998905 |
+| change | /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/change.md | 664b3ed17f4effbc1d5d5425aeb8485335bccf9c7103f1858b4755ed98ce065c |
+| checks | /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/checks.md | f30f51bb8353d8b886bf5bfcf61be69ef22827f6dbbcbcdf85edf7859b58a9cd |
+
+## 说明
+
+# 独立审查候选
+
+## 共有策略
+
+读取本阶段指定的全部输入，按 `task` 的目标与验收、`project` 的仓库位置、初始候选、权限和检查规则工作。先核对正在操作的独立仓库副本与当前候选；输入不足、权限不符或候选无法对应时停止并记录，不补造任务标准。
+
+只修改本次授权范围。遵守项目原有约定，使用已声明的模型、工具和本地检查；不安装宿主资源，不改宿主配置，不自动 push、merge 或发布。需要新增要求、扩大权限或改变固定方法时停止，交协调者处理，原记录保留。
+
+每份报告第一行写明确结论。报告必须区分实际完成、失败、停止、未知和 `not_run`，指出具体文件、候选和原始证据。检查原件记录实际命令、工作目录、影响结果的环境、stdout、stderr、退出码及对应候选；零退出和自述通过不代替内容审查。未知 usage、费用或时间记为未知，不从 Attempt 统计推算。
+
+把输出写到本阶段指定的目标路径。输入和已提交产物只读；不改旧报告或覆盖旧原件。新检查、重试和返工使用新记录，保留全部已投入成本。报告各不超过 262144 字节，patch 不超过 8388608 字节；达到限额、运行预算或固定次数上限时停止，不通过截掉必要事实或放宽边界取得成功。
+
+阶段内可以合理拆解工作；不得增设额外流程节点。固定路径为 implement → review → deliver，review 可返工到 implement；implement、review 各最多访问 3 次，deliver 最多访问 1 次。每次到达最多失败重试 1 次。真实执行失败才记失败；审查建议返工仍是一次正常完成的审查。协调者依据报告选择下一阶段，执行者不自行判断引擎状态。
+
+日常 review 与最终独立质量盲审是不同动作。deliver 默认不设门槛；流程外用户接受、独立质量审阅分别由真实参与者完成并计时。不得把 Work 成功、产物封存、门槛批准或命令退出 0 记成最终质量合格。
+
+## 本阶段输入
+
+读取 `task`、`project`、`change`、`checks`。本阶段执行者不得参与被审候选的实现；身份和所有助手实际动作进入运行记录。
+
+## 操作与输出
+
+1. 核对四份输入的任务、初始候选与当前候选一致，检查记录确实对应被审的代码。缺输入、候选漂移或原件不可取得时停止，不能只审实现说明。
+2. 阅读实际变更、相关调用者和任务标准。按预先声明的正向行为、拒绝/边界、授权范围和回归要求审查；必要时在允许副本执行预定检查，保存独立原件。未执行检查明确标 `not_run`。
+3. 核对 `change` 包含完整 patch 的已声明生成、应用命令、基线和未跟踪文件规则；核对 `checks` 的原件、退出码及候选。命令零退出、实现者结论或引擎状态不替代本阶段判断。
+4. 写 `review.md`。第一行只选择“建议交付”“需修改”或“停止”，并给原因。每个缺陷写具体文件/位置、触发条件、期望与实际行为、严重性及证据；明确满足与未核的任务标准、检查范围、所审候选以及交付前限制。没有发现缺陷时也保留具体检查依据，不写无来源的全面通过。
+5. 把真实报告交协调者。执行者不修改被审代码，也不自行进入下一节点；协调者依据报告选择既定返工或交付路径。报告“需修改”是成功完成审查，不用 `attempt fail` 冒充返工。
+
+本阶段不执行流程外用户接受，不代替实验最终独立盲审。若任务需要新的质量标准，停止并记录协议变化，不能事后把新标准并入原配对。
+
+## 输出要求
+
+| 名称 | 写到 | 必需 | 上限 |
+| --- | --- | --- | --- |
+| review | /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs/review.md | 是 | 256 KiB |
+
+完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。
+可审查：完整文档候选已提交，两项冻结检查成功；独立应用、日常审查和最终质量/接受尚未执行。
+
+# 目标与实际变更
+
+为首次接手 Work 的操作者提供 `specs/guides/continuity-choices.md`，区分同 running Attempt 的 status/resume 接续、真实执行 fail、内容 review 正常 submit 后沿 back 返工，以及确需行政资格撤销时 replace。冻结基线没有此指南；接手时已有 5874 字节未跟踪草稿，现完成为 13354 字节指南。
+
+保留原选择表、同 Attempt 接续步骤、真实 failed 计数和显式内容回边说明；核其自然草稿 SHA 与 partial state 完全相同。补齐 replace 命令/前提、每 Occurrence 固定一次额度、冻结输入与 stats、旧 submit/fail 和终态错误优先级、历史 next 刷新；增加结构化 EFFECT_PENDING 中 A/B 请求身份恢复、unknown、human/gate/终态停止说明。未改产品标准、Rust、测试、方法或其他文件。
+
+# 候选与授权
+
+- 独立仓库：`/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie`；初始 HEAD `351feb7ac22c21317a686693b732d5ae0c4b4bcc`，初始 tree `80ea3046b1b3575f07e68313444c051ee7c5b7db`。
+- 当前 candidate：`89c1b6022ced9cfe698e56a0f1c08bc65168cf46`；tree：`5640cd4993bcac032bc15fcdee17a9e05cf42eb5`。
+- 唯一变更：`specs/guides/continuity-choices.md`，SHA-256 `a028106d07209ad3026af594e88004acda12e878f2a710f0402bd379fddcf890`。
+- 完整基线→HEAD 路径集合等于唯一 allow_file，工作区干净；原件 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/07-candidate-closure.{json,stdout,stderr}`。两项检查的 staged tree 与提交 tree 完全相同。
+- 仓库历史入口显示无 active change，本次外部 C007 冻结 task/project 明确授权该独立样本，不从 proposed 自选工作。
+
+# 事实依据与使用
+
+先读选择表，按实际触发进入对应章节；将占位符替换为完整身份与本 Work 专用 Home。所有示例命令带显式 Home/JSON，只读不带 request-id，写意图先保存 UUID。本文是操作者选择指南，未执行其中 fail/replace/gate 示例以制造实验事实。
+
+字段与命令以 `specs/contracts/protocol.md` §1/3/5/6/7 为依据；输入、请求身份与效果按 `specs/contracts/storage.md` §2.1/3.2/5.5/6；replace 边界按 C005 spec EX-01–EX-08 和 design §2–4；接续范围链接 C004 README。已读取 assigned repo CONTEXT、README、engineering 和完整实际 brief/task/project，并按共享中文 skill 与受控技术写作参考组织。相关 CLI 参数、调用者及 core next/decision 只读核对，原件在 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1` 的 `01`–`07` 记录。协议宽读显示有截断，关键字段均在实际显示的 §3/5/6/7 中核对，不声称对未显示段落做完整内容审阅。
+
+# 同 Attempt 冷接续与返工
+
+实际只读 `work status` 在 2026-10-03T20:34:07.063716+00:00 开始，20:34:07.075161 完成，exit 0；仍为 running `implement#1.0`，resume 中 brief、inputs、draft_outputs 逐项与 stage 一致。输入 SHA/bytes 于候选闭包复核一致；previous-review 为 null，未收到自然审查返工。草稿位置经实际读取确认，不从路径推断存在或完整。
+
+原 helper 正常 turn 结束事实来自 stage：`2026-10-03T20:32:57.454521+00:00`，其自启命令/turn 范围报告无后台，未声称全宿主停止。当前 helper 仅继续原 stage；new begin/start/fail/replace/submit 为 0，无直接 Store 写，不重计 method use。冷查找、核对、解释和保留/修改/重做依据在 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/cold-resume-activity.json`；继承草稿原件 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/inherited-draft.md`。
+
+# 冻结完整 patch 与独立应用规则
+
+完整 patch 原件：`/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/06-full-patch.stdout`，13748 字节，SHA-256 `a10bef129228ddc38cb77f9fbbda4e4e21ad1d62b84fc5032e3b3171ef41d1ac`，小于 8 MiB。实际生成 argv：
+
+```text
+git diff --binary --full-index 351feb7ac22c21317a686693b732d5ae0c4b4bcc HEAD -- specs/guides/continuity-choices.md
+```
+
+新文件已 stage/commit；不是仅生成 unstaged diff。deliver 应再次核对 candidate 与完整路径集合，冻结 project 声明的授权独立应用副本为 `/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie`，从原 archive/full initial snapshot 建立，基线必须为上述初始 HEAD/tree；不得修改 source 或另一 arm。按冻结顺序执行：
+
+```text
+git apply --check <完整patch绝对路径>
+git apply --index <完整patch绝对路径>
+git write-tree
+```
+
+这些命令在授权检查副本的根执行；最终 tree 必须等于 `5640cd4993bcac032bc15fcdee17a9e05cf42eb5`，所有授权文件字节与 candidate 相同。本 helper 的 ownership 不含检查副本，独立 apply 为 `not_run`，留给 deliver 执行；未把可应用规则当作已验证事实。
+
+# 限制与未完成
+
+本候选只新增指南。真实撤销进程、宿主隔离、身份认证、Rust 回归和文档中的业务示例演练 `not_run`；检查成功不代替内容独审。日常独立 review、deliver 的独立 patch 应用、最终独立质量与代理接受均 `not_run`；安装、发布、push/merge 未执行。实际 usage、费用、API 模型/会话标识未知，冻结声明为 gpt-6.1-sol/high，Root 后续可核实际 metadata。
+
+Actor：`/root/c007_study_coordinator/run03_cold_implement`；写报告 UTC：`2026-10-03T20:37:40.445230+00:00`。引擎本阶段提交仍由协调者执行。
+必需检查成功：两项冻结检查 exit 0，绑定 staged tree 与本地 candidate tree 相同；不代表最终质量/接受通过。
+
+# 候选和完整范围
+
+工作目录 `/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie`。初始 HEAD `351feb7ac22c21317a686693b732d5ae0c4b4bcc` / tree `80ea3046b1b3575f07e68313444c051ee7c5b7db`。
+检查时 HEAD 为初始 HEAD，staged tree `5640cd4993bcac032bc15fcdee17a9e05cf42eb5`；当前 candidate `89c1b6022ced9cfe698e56a0f1c08bc65168cf46` / tree `5640cd4993bcac032bc15fcdee17a9e05cf42eb5`。提交前后实际断言 tree 相同、授权路径仅 `specs/guides/continuity-choices.md`、文件 SHA `a028106d07209ad3026af594e88004acda12e878f2a710f0402bd379fddcf890` 不变；工作区干净。
+
+# 实际冻结检查
+
+| 实际 argv | 结论 | 开始/结束 UTC | 原始证据 |
+| --- | --- | --- | --- |
+| `scripts/check-docs.sh specs/guides/continuity-choices.md` | exit `0`，timed_out=`false` | `2026-10-03T20:36:06.273910+00:00` / `2026-10-03T20:36:06.809637+00:00` | `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/03-check-docs.json`，同前缀 `.stdout` / `.stderr` |
+| `git diff --cached --check` | exit `0`，timed_out=`false` | `2026-10-03T20:36:06.869456+00:00` / `2026-10-03T20:36:06.882803+00:00` | `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/04-check-diff.json`，同前缀 `.stdout` / `.stderr` |
+
+两项均由冻结 `study/capture.py.execute` 运行，timeout 参数 120 秒，统一 run deadline `2026-10-03T20:49:09.582538+00:00` 未重置；原始 stderr 均为空，docs stdout 为 `check-docs: OK (1 个文件)`，diff stdout 为空。完整 stdout/stderr SHA 与实际 argv/cwd/exit/UTC/control_environment 在各 JSON。检查环境 PATH、LANG/LC_ALL/LC_CTYPE、Git 与 Rust 相关覆盖变量及平台实际原件见 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/02-staged-identity.stdout`；LANG=en_US.UTF-8，LC_ALL/LC_CTYPE=C.UTF-8，Git index/worktree/dir 覆盖及 Rust wrapper/target 为空，Sheltie failpoint/test 控制变量为 null。未安装工具、修改宿主配置或执行 Rust 构建。
+
+# 其他实际核对
+
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/01-stage.{json,stdout,stderr}`：仅 stage 授权新文件，exit 0。
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/02-staged-identity.{json,stdout,stderr}`：检查前 staged tree/路径/字节/环境，exit 0。
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/05-commit.{json,stdout,stderr}`：实际本地 candidate commit，使用 `core.hooksPath=/dev/null`、`commit.gpgsign=false` 与真实 Agent trailer，检查前后同 tree；exit 0。未改全局 Git 配置。
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/06-full-patch.{json,stdout,stderr}`：冻结完整 binary/full-index patch 生成，exit 0；完整 patch SHA `a10bef129228ddc38cb77f9fbbda4e4e21ad1d62b84fc5032e3b3171ef41d1ac`，13748 字节。
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/07-candidate-closure.{json,stdout,stderr}`：完整未过滤 diff 路径集等于 allow_file，候选 tree 等于检查 staged tree，task/project 摘要与实际 resume 相同，exit 0。
+- `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/resume-status.{json,stdout,stderr}`：真实只读 status，exit 0，0.011445 秒；新 helper 的实际 running Attempt/brief/input/draft 指针核对。最初调用 timeout 参数 120 秒；协调者后续说明 readonly 上限 60 秒到达前已完成，原记录保留真实配置，实际用时未超过 60 秒。
+
+作者已按协议/C005/storage 和实际 CLI/core 源码复核命令、字段、一次额度、拒绝顺序、门槛与 unknown；文档相对链接由 check-docs 检查。读取/事实复核原件 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/cold-implement-1/01`–`07`；手工内容复核属于作者，不是日常独立审查。
+
+# 覆盖和剩余缺口
+
+成功仅覆盖冻结文档/差异检查、同 tree 候选绑定、授权范围和输入完整性复核。完整工程门禁、check-specs、check-tests、真实 Sheltie 写场景、故障注入、进程/宿主隔离验证均 `not_run`：本 task 为单指南文案，project 只声明上述两项检查；未追加标准或用这些未执行项声称 PASS。独立 patch apply/tree 比较为 `not_run`，须由 deliver 在冻结检查副本执行；日常独审、最终质量、代理接受均 `not_run`。
+
+本 helper 实际命令无失败、超时或重试；旧原件与原 helper 成本保持不变。无自启后台任务，仅自己启动的命令/turn 范围，不证明全宿主无其他进程。usage/费用未知；实际 API model/session metadata 为 null，冻结 project 声明 gpt-6.1-sol/high。
+
+Actor `/root/c007_study_coordinator/run03_cold_implement`；报告 UTC `2026-10-03T20:37:40.445230+00:00`。
+{
+  "workspace_source_commit": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+  "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "repo_by_arm": {
+    "native": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+    "sheltie": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie"
+  },
+  "active_authority": "External C007 adopted study cards authorize this independent sample; historical no-active clone entry does not authorize proposed work, only this explicit task scope.",
+  "allow_files": [
+    "specs/guides/continuity-choices.md"
+  ],
+  "source_material_paths_relative_to_assigned_repo": [
+    "specs/contracts/protocol.md",
+    "specs/contracts/storage.md",
+    "specs/changes/completed/C004-verifiable-delegation/README.md",
+    "specs/changes/completed/C005-executor-continuity/spec.md",
+    "specs/changes/completed/C005-executor-continuity/design.md",
+    "skills/sheltie/SKILL.md"
+  ],
+  "current_method_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input",
+  "canonical_binary": "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+  "runner_environment": "gpt-6.1-sol/high inherited same for botharms; actual metadata recorded; macOS arm64 same tool permissions; globalhuman/modelhistory unknown",
+  "checks": [
+    [
+      "scripts/check-docs.sh",
+      "specs/guides/continuity-choices.md"
+    ],
+    [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ]
+  ],
+  "candidate_rule": "Implementation stages exactly allow_files (including new files), runs checks with immutable raw output outside repo, creates local candidate commit with hooksPath=/dev/null and signingfalse; exact HEAD and allowfiles SHA bound. No othercommits/content changes beyond ownsample.",
+  "patch_rule": {
+    "generate_argv": [
+      "git",
+      "diff",
+      "--binary",
+      "--full-index",
+      "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "HEAD",
+      "--",
+      "specs/guides/continuity-choices.md"
+    ],
+    "untracked_policy": "Required newfiles must be staged/committed; compare full diff path set toallow_files and candidate, never plain unstaged diff.",
+    "verify_repo_by_arm": {
+      "native": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/native",
+      "sheltie": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie"
+    },
+    "verify_sequence": "Create declared verify repo from original archive/full initial snapshot; use git apply --check then git apply --index on complete patch, compare git write-tree equals candidate HEAD^{tree}; source and oppositearm nevermodified."
+  },
+  "native_outputs_rule": "coordinator predeclares report paths under run-dir and persists samephase/inputs/counters/candidate; no Sheltie calls",
+  "sheltie_outputs_rule": "Only actualbegin outputs; publicCLI next/brief, readonlysealedinputs; no directmetadata writes",
+  "raw_check_rule": "Each required check actual argv/cwd/relevantenv/stdout/stderr/exit+candidate, failure kept; compare declaredsource initial tree and allowed-path change set.",
+  "shared_existing_doc_skill": {
+    "path": "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md",
+    "SHA": "24c1c75482d47270d3c58bfdab24df3747334cc61ea8be94e98131236aa9b243",
+    "both_arms_same": "Read and apply same existing skill guidance when authoring Chinese docs; no newinstallation. Relevant projectterms fromCONTEXT, task authorization explicit."
+  },
+  "candidate_commit_format": "docs(study): concise Chinese sample summary; body actual reason/checks; Change:C007, Task:C007-T05, Sample:<id>, Arm:<arm>, Agent:<actual worker>. These local sample commits are evidence, Root applies only final real patch underT07."
+}
+# 真实任务：首次使用者接续与资格撤销选择指南
+
+这是用户完成Sheltie产品交付请求中尚未完成的仓库文档patch。冻结基线中目标guide不存在；不是重新解决已完成Rust任务或机制fixture。原代码/真人实验不由本agent文档trial替代。
+
+允许修改：`specs/guides/continuity-choices.md`。严禁改其他产品文件/标准/测试/方法或安装发布。
+
+必需验收条件：
+1. 新增面向操作者的选择指南，区分普通status/resume同running Attempt、真实执行fail、内容review back、确需行政资格撤销replace。
+2. 每种选择说明真实触发、命令/前提、观察response/next和停止，不能自行造失败/撤销事件或把number当failed。
+3. replace固定一次/同Occurrence，新输入继承、stats更新、旧submit/fail拒绝和终态错误优先级准确，旧重放next必须status刷新；不称停止进程/身份认证/宿主隔离。
+4. EFFECT_PENDING按真实committed/request/pending ID保留同意图重试、诊断不解析自然语言猜状态，不放宽边界。
+5. unknown/human gate/终态/只需查询的动作保持准确，所有命令用新显式Home/JSON，request ID仅写；中文可读并链接真实protocol/C005/C004。
+
+共同必需：完整保留真实失败/unknown，candidate与检查/完整patch绑定；patch可在同基线独立副本应用且全部授权文件字节相同。无重大缺陷、真实链接和所引用命令/字段存在。
+
+自然返工由日常独立审查发现，不为实验造缺陷。每run20min/原方法3visits与1retry上限；输入/权限/标准不足停止。质量及代理接受在流程外另做。

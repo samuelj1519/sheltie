@@ -1,0 +1,34 @@
+{
+  "conclusion": "reviewable; required mechanical checks completed",
+  "end_utc": "2026-10-03T20:17:41.644807+00:00",
+  "head": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+  "tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+  "baseline_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "allow_files_sha256": {
+    "README.md": "27e090dc77a461ac9a026e03767622b46b2e95c76e2494c75991aa4f8e40be2b",
+    "specs/guides/source-quick-start.md": "d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850"
+  },
+  "changed_paths": [
+    "README.md",
+    "specs/guides/source-quick-start.md"
+  ],
+  "status": "clean",
+  "checks": [
+    {
+      "label": "required-docs",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.json",
+      "exit_code": 0,
+      "staged_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4"
+    },
+    {
+      "label": "required-staged-diff",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.json",
+      "exit_code": 0,
+      "staged_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4"
+    }
+  ],
+  "quality": "not_run",
+  "acceptance": "not_run",
+  "complete_patch_and_independent_apply": "not_run; assigned to deliver"
+}

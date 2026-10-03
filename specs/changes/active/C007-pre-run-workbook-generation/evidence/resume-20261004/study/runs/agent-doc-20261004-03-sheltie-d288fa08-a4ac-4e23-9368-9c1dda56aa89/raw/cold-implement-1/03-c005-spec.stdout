@@ -1,0 +1,142 @@
+# C005 产品方案
+
+状态：`completed`。本文件定义已采用目标，T01 已同步上游权威。实现与测试按 plan/validation 记录；真实使用尚为 `not_run`。
+
+## 1. 使用场景
+
+| 场景 | 操作 | 引擎变化 |
+| --- | --- | --- |
+| 重开会话、等待后继续、已确认旧执行者停止后换人 | 读取当前 `work status` 与任务书，继续原 Attempt | 无 |
+| 必须撤销旧 Attempt 的正式提交资格 | `attempt replace` | 原子结束旧尝试并开始新尝试 |
+| 执行确实失败 | `attempt fail` | 统计真实失败，按 `max_retries` 处理 |
+| 产物需要返工 | Workbook 显式回边 | 按 `max_visits` 到达下一 Occurrence |
+
+操作者判断是否撤销资格。替换理由属于调用者报告；引擎只确立替换请求和状态转换事实。不同执行者可以使用同一 Attempt，因此 Attempt 不表示已认证的执行者身份。
+
+## 2. 命令与响应
+
+```text
+sheltie attempt replace <work> --attempt <旧 AttemptId> --reason <文本或 @file>
+```
+
+全局 `--request-id` 沿用写命令的幂等规则。时间和操作者身份来自 runtime 系统边界，不接受 CLI 注入。理由最多 4096 字节，超出报 `SUMMARY_TOO_LONG`；文件参数的意图与重放按公开写命令合同处理。
+
+成功的持久响应包含 `replaced_attempt`、新 `attempt`、`node`、`occurrence`、`number`、`brief_path`、`output_dir`、`inputs`、`outputs`、`requires`、`revision` 和提交时 `next`。路径与声明来源和 `attempt begin` 一致。CLI 不在提交后回读当前状态补造历史响应。
+
+## 3. 状态与计数合同
+
+| ID | 规则 |
+| --- | --- |
+| EX-01 | 只接受 active Work 当前 Occurrence 的最新 `running` Attempt。在一次事务中将旧 Attempt 结束为 `superseded`，记录理由与结束时间，并追加一个新 `running` Attempt。不能拆成两次写操作。 |
+| EX-02 | 同一 Occurrence 最多存在一个 `superseded` Attempt。已有替换事实时，新替换返回 `REPLACEMENTS_EXHAUSTED`，不改变业务状态；当前 Attempt 保持原资格。每个新 Occurrence 有自己的固定一次额度。 |
+| EX-03 | 新 Attempt 继承旧 `entered_from` 和冻结输入引用，包括原本未绑定的可选输入。非 `engine.stats` 输入在提交前核对实际摘要和大小。`engine.stats` 从含新 Attempt 的提交后状态生成，精确字节随请求保存。 |
+| EX-04 | 旧未提交输出仍是未封存草稿，不成为新 Attempt 的正式输入或输出。旧任务书和原请求保留。新任务书使用 Work 的冻结说明书。 |
+| EX-05 | Attempt 显示为 `node#occurrence.number`。后缀从 0 起，每次创建新 Attempt 加 1；它是顺序号，不是失败数。加法溢出拒绝且不改变业务状态。 |
+| EX-06 | 业务失败直接统计同一 Occurrence 的 `failed` Attempt。`max_retries=k` 允许 k 次业务重试；第 k+1 次真实失败进入 `blocked(retries_exhausted)`。`superseded` 不计失败；顺序号不能决定重试资格或历史 fail 状态。 |
+| EX-07 | 非终态 Work 中旧 superseded Attempt 的新 `submit`、`fail` 返回 `ATTEMPT_NOT_RUNNING`；Work 已终态时按前置顺序返回 `WORK_TERMINAL`。旧成功请求仍按历史快照重放，其 `next` 只代表当时状态；继续操作前查询当前 `work status`。 |
+| EX-08 | 替换不跳过 Node、修改输入、增加失败、自动批准门槛或改变成果标准。等待不产生新状态。 |
+
+一个固定替换机会用于行政撤销，业务失败仍按已有 Workbook 重试规则处理。固定额度不需要 Workbook 配置；替换事实由 Attempt 历史统计。
+
+## 4. 合法操作与失败
+
+| 条件 | 结果 | 业务状态 |
+| --- | --- | --- |
+| active、当前最新 running、没有替换事实、输入完整 | 成功返回新任务书 | 旧 superseded、新 running、一次 revision |
+| 已有同 request-id、同参数的成功请求 | 原成功响应重放 | 无新增 Attempt 或 revision |
+| 同 request-id 改目标或理由参数 | `REQUEST_CONFLICT` | 无变化 |
+| 目标不存在 | `NOT_FOUND` | 无变化 |
+| 目标存在但非 running | `ATTEMPT_NOT_RUNNING` | 无变化 |
+| running 目标非当前最新 | `ILLEGAL_NEXT` | 无变化 |
+| Work 已 succeeded / cancelled | `WORK_TERMINAL` | 无变化 |
+| Work blocked | `ILLEGAL_NEXT` | 无变化 |
+| 同 Occurrence 已经替换过 | `REPLACEMENTS_EXHAUSTED` | 当前 Attempt 不变 |
+| 冻结输入缺失、修改或路径不安全 | 现有输入或完整性错误 | 无变化 |
+| COMMIT 后任务书效果失败 | `EFFECT_PENDING`、`committed=true` | 替换已提交；同 request-id 恢复 |
+
+新请求先核 Work 非终态，再核目标身份、active/当前最新资格、替换额度、理由和输入；幂等重放先于这些新请求校验。
+
+`next` 仅对满足 EX-01、EX-02 的状态列出 `attempt replace` 与目标 AttemptId。替换额度耗尽不新增 Work 阻塞状态；原有 `submit`、`fail`、`cancel` 仍遵守各自条件。
+
+## 5. 保证范围
+
+引擎保证正式接口拒绝已撤销资格的 Attempt。它不停止旧进程、不阻止同权限程序修改宿主文件、不撤销已经发生的副作用，也不提供多人并发开发隔离。接手前，操作者检查旧进程与共享工作区；这项人工报告不升级为引擎核实事实。
+
+## 6. 采用后同步的上游
+
+| 文件 | 内容 |
+| --- | --- |
+| `CONTEXT.md`、`specs/spec.md` | superseded、顺序号、显式撤销和固定一次规则 |
+| `specs/architecture.md` | 状态转换、统计、原子替换与持久状态不变式 |
+| `specs/contracts/protocol.md` | 命令、响应、next、错误、历史响应范围 |
+| `specs/contracts/storage.md` | 新状态与理由字段、意图、快照、效果、格式版本 |
+| `skills/sheltie/SKILL.md` | 继续与替换的选择、共享工作区责任、历史 next |
+
+本方案不改变 Workbook 的配置字段。采用时为持久格式及变更的响应格式明确选择新版本，完整严格解码；旧 Store 保留并整体拒绝，不自动迁移、不清空，不建立兼容读写路径。
+# C005 设计
+
+状态：`completed`。源码基线见 [README](README.md)；路径与职责已经实现，当前进度和完整候选只看 plan/validation。
+
+## 1. 模块职责与真实入口
+
+| 位置 / 符号 | 责任 |
+| --- | --- |
+| `crates/sheltie-core/src/ids.rs::AttemptId` | `retry` 改为 `number`；字符串形状不变，检查顺序号运算 |
+| `crates/sheltie-core/src/work/state.rs::AttemptStatus`、`WorkState::validate_persisted` | Superseded、理由与终止字段一致性；同 Occurrence 至多一次替换；连续顺序号 |
+| `crates/sheltie-core/src/work/command.rs::{Command,Reply}` | ReplaceAttempt 及持久响应所需数据 |
+| `crates/sheltie-core/src/work/decide.rs::{decide,reply_status_matches}` | 纯替换决策、按 failed 计数；历史 fail 的前缀校验 |
+| `crates/sheltie-core/src/work/next.rs::legal_next` | 固定一次替换资格和真实失败重试资格 |
+| `crates/sheltie-core/src/work/{layout,render}.rs` | 顺序号引用、任务书、紧凑状态与事实统计 |
+| `crates/sheltie-runtime/src/service.rs::{WorkService::run_command,validate_command_owner}` | 输入观察、同事务提交、历史请求归属校验 |
+| `crates/sheltie-runtime/src/{request,snapshot,load}.rs` | 意图、严格响应解码、状态及路径不变式 |
+| `crates/sheltie-runtime/src/{effects,recovery,failpoint}.rs` | 复用 prepare_attempt/write_file 的精确字节恢复与必要故障点 |
+| `crates/sheltie-runtime/src/store/{schema,read,commit}.rs` | 明确的新格式及原子状态、audit、request 写入 |
+| `crates/sheltie-cli/src/cli.rs::AttemptCmd`、`commands/attempt.rs::run` | 参数和真实 WorkService 调用；按原快照输出 |
+
+只新增 `Command::ReplaceAttempt`、`Reply::AttemptReplaced`、`WorkService::replace` 与所需状态字段。不增加 crate、身份注册、后台进程、宿主适配器或另一份事实来源。core 不做 I/O；runtime 不判断理由合理性。
+
+## 2. 一个完整原子操作
+
+1. 沿用真实写链，先识别 request-id 与意图；已提交请求走原快照重放。
+2. 新请求持管理根写锁，装入严格校验的 Work、冻结图与当前最新 Attempt，检查 active/running 和固定一次额度。
+3. 观察旧冻结输入的实际文件，同句柄核大小与摘要。可选 None 保持 None，不重新选择较新的上游产物；旧草稿不参与绑定。
+4. 用检查加法分配 `number+1`。纯 Decision 将旧 Attempt 结束为 Superseded，追加新 Running，并继承 `entered_from` 与非统计输入。
+5. 用 Decision 的完整提交后状态生成新 `engine.stats`，固定引用与精确字节，生成任务书和刷新状态卡效果。
+6. 在一次 SQLite 事务中提交 state、audit、request snapshot、effects，并做 revision CAS。COMMIT 后按既有效果链准备新目录、发布任务书和统计文件。
+
+Superseded 的状态字段约束为：有 ended_at 和 replacement_reason，没有 summary、fail_reason、封存 outputs。其他状态不得带 replacement_reason。理由使用既有有界文本类型；Store 读取必须验证字段组合，不把缺失当默认值。
+
+拒绝不能先撤销旧 Attempt，不能发表新任务书或增加审计成功事实。输入观测、身份、时钟属于 runtime 边界；不从 CLI 接收引擎核实事实。
+
+## 3. 顺序号与失败数
+
+创建 Attempt 时只按同一 Occurrence 最新顺序号分配。业务失败数来自 `AttemptStatus::Failed`；替换数来自 Superseded，不能另存可漂移的计数。统计分别展示 attempts、failed、superseded；现有耗时统计沿既有口径纳入已结束的尝试。
+
+所有依赖 `attempt.retry` 的真实调用方须同时闭合：ID 序列化、布局、begin 数据、render、next、failure 决策、snapshot、service 与 fixtures。不保留 retry/number 双字段，不用后缀推导失败数。
+
+`reply_status_matches` 当前被 `service.rs::validate_command_owner` 用来校验持久历史响应。它必须获得原 Attempt 所在 Occurrence 的事实序列，并以截至该 Attempt 的 failed 前缀判断当时 Work status。不得使用后续总失败数或当前 Work status。历史归属仍要核目标确为 Failed，不能只通过前缀计数就接受伪造 snapshot。
+
+关键真实 caller 回归：`max_retries=1`，begin→replace→首次 fail（number=1，仍 active）→begin（number=2）→第二次 fail（blocked）→同 request-id 重放首次 fail，仍返回原 active 响应。该路径同时暴露把顺序号当失败数和把当前失败数用于历史响应的错误。
+
+## 4. 并发、重放与恢复
+
+- submit 先提交：replace 因目标非 running 拒绝；replace 先提交：旧 submit/fail 拒绝。
+- 两个不同 replace 请求竞争同一旧 Attempt：至多一个成功。
+- 固定一次额度耗尽：整个请求拒绝，当前 running Attempt 仍可 submit/fail；不重置额度，不增加 blocked 原因。
+- COMMIT 前中断：没有替换业务事实。COMMIT 后中断：保留原 request 与精确 effects；恢复同一新 Attempt、brief 与 stats 字节。
+
+`RequestIntent::ReplaceAttempt` 保存完整 WorkId、旧 AttemptId、理由字面参数或词法绝对文件路径，不包含当前时钟、主体、摘要或文件内容。重放不重新读取理由文件或输入文件。
+
+原替换响应的旧/新身份、相邻顺序号、冻结输入、requires、路径和 revision 必须与原审计及对应历史 Attempt 相符。新 Attempt 后来可以 succeeded 或 failed，不能因此否定原 replace/begin 快照。历史 next 只与提交时事实对应；当前状态卡从最新 revision 刷新，不写入历史 next。
+
+## 5. 最小 Rust 实施
+
+状态机使用穷尽 enum；ID、理由、摘要与路径使用已有校验类型；新增公开项只服务真实 CLI→runtime→core caller。沿用每 crate Error 枚举和错误码映射，新增 `REPLACEMENTS_EXHAUSTED`。完整 serde 载荷拒绝未知字段。
+
+## 6. 阶段接口与实现责任
+
+T01 由复杂模型完整闭合 number 的全部消费者、Superseded 严格载荷、失败前缀、冻结输入观察、历史快照归属和精确 effects/recovery。手写合法持久夹具走真实读取 caller 验证历史校验原语；它只证明读取合同，不计实际替换已发生。M1 核完整原语与阶段测试后，T02 用真实 replace→fail→begin→fail 链复核同一义务。
+
+T01 固定 ReplaceAttempt/AttemptReplaced、WorkService::replace 的输入输出和恢复数据。本轮复杂作者在 T01 完成必要耦合的纯状态变换及 runtime 库替换原语；留给 T02 的是公开 CLI 与正常 next 接线；正常 CLI 与 next 在完整行为完成前不提供 replace。阶段骨架须编译并保持普通行为，不能返回假成功。复杂作者创建全部阶段 tests、fixtures、冻结命令和真实使用手册，原语用例归 T01，新行为用例归 T02 并先 ignore。
+
+T02 不改状态合同、serde、snapshot、事务、输入/文件政策或测试期望；缺口交复杂作者新增明确修复任务，独立复核后更新测试基准。M2 核正式入口、原子并发、历史重放、恢复与真实接续。未变化的 M1 原语证据可按相同闭包引用，不重复全套验证。

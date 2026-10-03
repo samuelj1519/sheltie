@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "\nimport json,hashlib,subprocess\nfrom pathlib import Path\np=Path(\"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/review-1/review.md\")\nb=p.read_bytes()\nassert b.decode().splitlines()[0].startswith(\"建议交付\")\nassert len(b)<=262144\nassert subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],text=True).strip()==\"567b6d3acb6bba50781927ee8cf8de9ed0397347\"\nassert subprocess.check_output([\"git\",\"status\",\"--porcelain\"],text=True).strip()==\"\"\nprint(json.dumps({\"report\":str(p),\"bytes\":len(b),\"sha256\":hashlib.sha256(b).hexdigest(),\"first_line\":b.decode().splitlines()[0],\"candidate\":\"567b6d3acb6bba50781927ee8cf8de9ed0397347\",\"worktree\":\"clean\"},ensure_ascii=False))\n"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+  "start_utc": "2026-10-03T21:17:07.545940+00:00",
+  "end_utc": "2026-10-03T21:17:07.594280+00:00",
+  "elapsed_s": 0.04834,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/review-1/report-readback-and-final-candidate.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/review-1/report-readback-and-final-candidate.stderr",
+  "stdout_sha256": "0d7e217019637d5894528933678cd801b8b4d9d3cd7813a5adffa6691799ad15",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

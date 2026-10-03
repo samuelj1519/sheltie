@@ -1,0 +1,95 @@
+{
+  "data": {
+    "blocked": null,
+    "current": "deliver#1",
+    "done": [
+      "implement#1",
+      "review#1"
+    ],
+    "effects_pending": false,
+    "flow": "default",
+    "last_attempt": {
+      "attempt": "deliver#1.0",
+      "outputs": {},
+      "reason": "deliver实际15-write-delivery Python命令SyntaxError退出1；完整patch/apply已发生，但成功delivery未产出。原件保留，本run停止，不启动重试。",
+      "status": "failed",
+      "summary": null
+    },
+    "name": "continuity",
+    "next": [
+      {
+        "args": {
+          "node": "deliver",
+          "work": "2026-10-03-002-continuity"
+        },
+        "executor": "agent",
+        "op": "attempt begin",
+        "tier": "strong"
+      },
+      {
+        "args": {
+          "work": "2026-10-03-002-continuity"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "pending": [],
+    "pending_publish": false,
+    "resume": {
+      "attempt": "deliver#1.0",
+      "brief_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/deliver/occurrence-001/attempt-000/brief.md",
+      "draft_outputs": {},
+      "inputs": {
+        "change": {
+          "bytes": 6556,
+          "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+          "sha256": "664b3ed17f4effbc1d5d5425aeb8485335bccf9c7103f1858b4755ed98ce065c"
+        },
+        "checks": {
+          "bytes": 6512,
+          "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+          "sha256": "f30f51bb8353d8b886bf5bfcf61be69ef22827f6dbbcbcdf85edf7859b58a9cd"
+        },
+        "review": {
+          "bytes": 10155,
+          "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+          "sha256": "c33aa607f297de2b26b0dc7e425a501fb92cad13406f77a9ede9c67f9fc7c13a"
+        },
+        "task": {
+          "bytes": 1679,
+          "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/start-inputs/task",
+          "sha256": "a0e91be95c47fb82b5ca3af39c04956fb5d4f944bf9b86686a3f3482db44898d"
+        }
+      }
+    },
+    "revision": 7,
+    "status": {
+      "kind": "active"
+    },
+    "visits": {
+      "deliver": "1/1",
+      "implement": "1/3",
+      "review": "1/3"
+    },
+    "work_id": "2026-10-03-002-continuity",
+    "workbook": "code-task-study@1.0.0"
+  },
+  "next": [
+    {
+      "args": {
+        "node": "deliver",
+        "work": "2026-10-03-002-continuity"
+      },
+      "executor": "agent",
+      "op": "attempt begin",
+      "tier": "strong"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-002-continuity"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true
+}

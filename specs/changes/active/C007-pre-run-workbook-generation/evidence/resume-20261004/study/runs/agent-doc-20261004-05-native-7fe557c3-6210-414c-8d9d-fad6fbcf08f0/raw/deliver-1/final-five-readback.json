@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport datetime,hashlib,json\nrun=Path('/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0')\napp=json.loads((run/'raw/deliver-1/application-binding.json').read_text())\npre=json.loads((run/'raw/deliver-1/preflight-binding.json').read_text())\npaths=[run/'outputs/implement-1/change.md',run/'outputs/implement-1/checks.md',run/'outputs/review-1/review.md',run/'outputs/deliver-1/delivery.md',run/'outputs/deliver-1/change.patch']\nitems=[]\nfor p in paths:\n b=p.read_bytes(); limit=8388608 if p.suffix=='.patch' else 262144\n assert 0<len(b)<=limit\n items.append({'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})\nfor i in pre['inputs']:\n assert hashlib.sha256(Path(i['path']).read_bytes()).hexdigest()==i['sha256']\nassert Path(app['patch']['path']).read_bytes()==Path(app['patch']['complete_raw_stdout']).read_bytes()\nassert items[3]['path'].endswith('/delivery.md') and paths[3].read_text().splitlines()[0].startswith('交付材料已整理')\nnow=datetime.datetime.now(datetime.timezone.utc)\nresult={'recorded_utc':now.isoformat(),'candidate':app['candidate'],'candidate_tree':app['candidate_tree'],'applied_tree':app['applied_index_tree'],'five_actual_refs':items,'input_reports_unchanged':True,'patch_byte_equal_raw_stdout':True,'application_binding':str(run/'raw/deliver-1/application-binding.json'),'raw_dir':str(run/'raw/deliver-1'),'deadline_utc':app['deadline_utc'],'remaining_seconds':(datetime.datetime.fromisoformat(app['deadline_utc'])-now).total_seconds(),'failed_commands':0,'retry_count':0,'final_quality':'not_run','proxy_acceptance':'not_run','user_acceptance':'not_run'}\nassert result['remaining_seconds']>0\nprint(json.dumps(result,ensure_ascii=False,indent=2))\n"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1",
+  "start_utc": "2026-10-03T21:20:38.016512+00:00",
+  "end_utc": "2026-10-03T21:20:38.041148+00:00",
+  "elapsed_s": 0.024636,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/final-five-readback.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/final-five-readback.stderr",
+  "stdout_sha256": "376b34042ca2ce0d19463bfec3c8c07118b1dc6a970a463658ec9d2be33afb1f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

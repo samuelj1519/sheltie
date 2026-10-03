@@ -1,0 +1,53 @@
+{
+  "data": {
+    "attempt": "implement#1.0",
+    "brief_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/brief.md",
+    "inputs": {
+      "previous-review": null,
+      "project": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/start-inputs/project",
+      "task": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/start-inputs/task"
+    },
+    "node": "implement",
+    "number": 0,
+    "occurrence": 1,
+    "output_dir": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs",
+    "outputs": {
+      "change": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "checks": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/checks.md"
+    },
+    "replayed": false,
+    "requires": []
+  },
+  "next": [
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt submit"
+    },
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt fail"
+    },
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "attempt replace"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-001-source-start"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true,
+  "request_id": "c3048b8c-f97c-44b0-9b89-8396493ec41e",
+  "revision": 2
+}

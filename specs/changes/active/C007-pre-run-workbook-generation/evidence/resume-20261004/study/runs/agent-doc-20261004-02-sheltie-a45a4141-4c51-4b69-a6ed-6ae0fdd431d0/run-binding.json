@@ -1,0 +1,37 @@
+{
+  "run_id": "agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0",
+  "sample_id": "source-start",
+  "arm": "sheltie",
+  "order_index": 2,
+  "actor_id": "/root/c007_study_coordinator",
+  "prior_uses": {
+    "native": 1,
+    "sheltie": 0
+  },
+  "actor_arm_use_index": 1,
+  "exposure": "first_use",
+  "exposure_scope": "local coordinator armhistory; globalhistoryunknown and Native priorfamiliarity1 explicit",
+  "started_at": "2026-10-03T20:12:28.417368+00:00",
+  "deadline_utc": "2026-10-03T20:32:28.417368+00:00",
+  "overall_deadline_utc": "2026-10-03T22:50:26.252142+00:00",
+  "protocol_id": "agent-doc-delivery-20261004",
+  "prep_commit": "9059663fcb3883691091d91ed40772212f41ba31",
+  "study_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study",
+  "run_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0",
+  "task": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/task.md",
+  "project": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/project.md",
+  "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+  "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+  "method_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input",
+  "binary": "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+  "sheltie_home": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+  "raw_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw",
+  "allowed_repo_files": [
+    "README.md",
+    "specs/guides/source-quick-start.md"
+  ],
+  "cold_resume_required": false,
+  "final_quality_ref": null,
+  "proxy_acceptance_ref": null,
+  "no_other_arm_answers_to_workers": true
+}

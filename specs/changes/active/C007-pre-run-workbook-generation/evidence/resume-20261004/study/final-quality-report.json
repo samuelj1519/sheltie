@@ -1,0 +1,898 @@
+{
+  "format": "c007-independent-final-quality/v1",
+  "reviewer": "/root/c007_final_quality",
+  "prepared_utc": "2026-10-03T21:48:31.173857+00:00",
+  "entry": "/private/tmp/sheltie-completion-20261003/c007-final-quality-neutral/review-entry.json",
+  "independent_of_task_method_oracle_candidate_authorship": true,
+  "arm_map_read": false,
+  "partial_blinding": {
+    "status": "partial_blinding",
+    "reason": "descriptor readonly repo、原report/必要raw已直接包含native/sheltie路径及Arm/Work身份；中性label不消除此泄露。未读取Root study freeze arm map，未请求或先接收标组统计；无法声称统计完全盲。",
+    "judgment_rule": "逐case同一原task/oracle，无放宽或新隐藏条件。"
+  },
+  "scope": "冻结文档内容、命令/字段/范围/来源时点、原材料/检查绑定、完整patch和实际可应用性。不是实验协议准入、用户接受、所有安全/平台/真人价值或发布审查。",
+  "source_context_limit": "只用descriptor assigned readonly repo中的冻结文档/CLI/合同/原运行证据。六clone初始tree一致；00e010到合成snapshot commit的来源归属按descriptor，不用Root当前docs替代，也未另验证Root原Git commit全树。",
+  "not_run": [
+    "new Rust/Cargo build or tests",
+    "new image/mount or release activity",
+    "Sheltie or Home writes",
+    "candidate or original application repo mutations",
+    "user/proxy acceptance",
+    "full experiment protocol eligibility adjudication"
+  ],
+  "reviewer_diagnostics_retained": [
+    {
+      "command": "first raw-evidence audit Python heredoc",
+      "exit_code": 1,
+      "reason": "regex required trailing slash and did not match K72 raw directory reference; TypeError before K72 reading; corrected matcher in new tool call",
+      "candidate_or_evidence_modified": false
+    }
+  ],
+  "cases": [
+    {
+      "neutral_label": "K41",
+      "sample_id": "source-start",
+      "quality_verdict": "阻断",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": false,
+      "actual_outcome_retained": "stopped",
+      "candidate": "8366454ddbc2a07d25b2e5e949171cde5b5169ae",
+      "candidate_tree": "3b9e14dfb50d3b577cc4caaacdf33e96082026fc",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增面向首次使用者的当前源码0.3.0-rc.1/schema4快速开始，不把v0.2远端安装当当前功能。",
+          "static_result": "PASS",
+          "evidence": "guide 3–5、46–50：当前未发布0.3.0-rc.1/schema4，与v0.2.0分开。"
+        },
+        {
+          "condition_number": 2,
+          "required": "从Cargo JSON取得实际executable，wrapper空/独立target；独立新显式Home且不回落旧Store/默认~/.sheltie、不安装/更新/发布。",
+          "static_result": "PASS",
+          "evidence": "guide 12–43：Cargo compiler-artifact.executable、空wrapper、独立target、新Home与显式engine函数。"
+        },
+        {
+          "condition_number": 3,
+          "required": "给code-change实际task/project输入、add/verify/start/begin、读取next/brief/resume、按声明写报告/submit/review/deliver/result的完整入口；节点内容委托工作agent，质量由协调者，默认无gate。",
+          "static_result": "PASS",
+          "evidence": "guide 54–171：实际greeting任务/project、add/verify/show/start/begin/submit/review/back/deliver/result；节点委派、协调者判断、无gate。"
+        },
+        {
+          "condition_number": 4,
+          "required": "提供错误/pending/预算/终态/未知停止边界，旧schema原件整体拒绝保留；明确先只读查当前，不用历史next推进。",
+          "static_result": "PASS",
+          "evidence": "guide 175–200：当前status/stats/resume、历史next刷新、pending、旧schema原件、次数/预算/unknown/终态停止。"
+        },
+        {
+          "condition_number": 5,
+          "required": "README仅添加一个清晰当前源码入口，不改v0.2安装历史或其他内容；新guide中文简洁、命令存在、链接正确。",
+          "static_result": "PASS",
+          "evidence": "README仅新增一个入口段落；guide链接均存在，中文角色/前提/动作/结果明确。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/implement-1/check-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "README.md",
+            "specs/guides/source-quick-start.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T19:54:59.107362+00:00",
+          "end_utc": "2026-10-03T19:54:59.702257+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/implement-1/check-cached-diff.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T19:54:59.702895+00:00",
+          "end_utc": "2026-10-03T19:54:59.715281+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": false,
+        "original_application_records": [],
+        "original_application": "not_run",
+        "reviewer_application": "not_run; no original complete patch to apply"
+      },
+      "blocking_findings": [
+        {
+          "id": "F-K41-DELIVERY",
+          "severity": "blocking",
+          "reason": "原run stopped；deliver在首个Git子命令启动前因剩余预算不足被capture拒绝。必需最终交付patch文件不存在，独立应用not_run。",
+          "evidence": [
+            "descriptor.json:actual_outcome/stop_reason",
+            "material-delivery.txt",
+            "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/deliver-1/driver-failure-observation.json"
+          ],
+          "resolution": "保持原stop/failed与失败原件；此审阅不重置预算、不修复或追补原run成功。任何后续重做须另记真实授权run。"
+        }
+      ],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true
+    },
+    {
+      "neutral_label": "K72",
+      "sample_id": "source-start",
+      "quality_verdict": "质量通过",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": true,
+      "actual_outcome_retained": "completed",
+      "candidate": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+      "candidate_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增面向首次使用者的当前源码0.3.0-rc.1/schema4快速开始，不把v0.2远端安装当当前功能。",
+          "static_result": "PASS",
+          "evidence": "guide 3–5、42：未发布0.3.0-rc.1/schema4，远端安装仍v0.2.0。"
+        },
+        {
+          "condition_number": 2,
+          "required": "从Cargo JSON取得实际executable，wrapper空/独立target；独立新显式Home且不回落旧Store/默认~/.sheltie、不安装/更新/发布。",
+          "static_result": "PASS",
+          "evidence": "guide 12–42：Cargo executable唯一/绝对/可执行、空wrapper/独立target、mktemp新显式Home，self version只读不建Home。"
+        },
+        {
+          "condition_number": 3,
+          "required": "给code-change实际task/project输入、add/verify/start/begin、读取next/brief/resume、按声明写报告/submit/review/deliver/result的完整入口；节点内容委托工作agent，质量由协调者，默认无gate。",
+          "static_result": "PASS",
+          "evidence": "guide 45–151：实际获准README任务/project与检查、完整code-change入口；实际Attempt ID、输出槽、独审/back、deliver/result，无gate。"
+        },
+        {
+          "condition_number": 4,
+          "required": "提供错误/pending/预算/终态/未知停止边界，旧schema原件整体拒绝保留；明确先只读查当前，不用历史next推进。",
+          "static_result": "PASS",
+          "evidence": "guide 155–180：先只读list/status/stats/resume，历史next不推进，pending同ID、真实fail、预算/终态/unknown/schema整体拒绝。"
+        },
+        {
+          "condition_number": 5,
+          "required": "README仅添加一个清晰当前源码入口，不改v0.2安装历史或其他内容；新guide中文简洁、命令存在、链接正确。",
+          "static_result": "PASS",
+          "evidence": "README完整diff仅增一个源码入口；所有相对路径/锚点实际对应。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "README.md",
+            "specs/guides/source-quick-start.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:17:39.148438+00:00",
+          "end_utc": "2026-10-03T20:17:41.533107+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:17:41.534026+00:00",
+          "end_utc": "2026-10-03T20:17:41.547075+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": true,
+        "original_application_records": [
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-check.json",
+            "argv": [
+              "git",
+              "apply",
+              "--check",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:24:52.738544+00:00",
+            "end_utc": "2026-10-03T20:24:52.750909+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-index.json",
+            "argv": [
+              "git",
+              "apply",
+              "--index",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:24:52.751466+00:00",
+            "end_utc": "2026-10-03T20:24:52.769341+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-tree.json",
+            "argv": [
+              "git",
+              "write-tree"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:24:52.769914+00:00",
+            "end_utc": "2026-10-03T20:24:52.781157+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          }
+        ],
+        "bytes": 13444,
+        "sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+        "byte_equal_to_complete_declared_base_candidate_diff": true,
+        "reviewer_scratch": "/private/tmp/c007-quality-K72-6t3bs5hk",
+        "reviewer_apply_check_exit": 0,
+        "reviewer_apply_index_exit": 0,
+        "reviewer_write_tree_exit": 0,
+        "reviewer_applied_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+        "reviewer_tree_equal_candidate": true,
+        "reviewer_all_allowed_bytes_equal": true
+      },
+      "blocking_findings": [],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true,
+      "retained_protocol_deviation": "deliver跨run rg误命中另一来源内容，资格待协议审；已在原delivery披露，不因patch成功抹除。"
+    },
+    {
+      "neutral_label": "K18",
+      "sample_id": "continuity",
+      "quality_verdict": "阻断",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": false,
+      "actual_outcome_retained": "failed",
+      "candidate": "89c1b6022ced9cfe698e56a0f1c08bc65168cf46",
+      "candidate_tree": "5640cd4993bcac032bc15fcdee17a9e05cf42eb5",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "specs/guides/continuity-choices.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "specs/guides/continuity-choices.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增面向操作者的选择指南，区分普通status/resume同running Attempt、真实执行fail、内容review back、确需行政资格撤销replace。",
+          "static_result": "PASS",
+          "evidence": "guide 9–12、23–28：四种真实选择，同running Attempt接续；缺草稿不推出执行失败。"
+        },
+        {
+          "condition_number": 2,
+          "required": "每种选择说明真实触发、命令/前提、观察response/next和停止，不能自行造失败/撤销事件或把number当failed。",
+          "static_result": "PASS",
+          "evidence": "guide 32–56：fail与正常submit/back分开；命令/前提/响应/停止齐，number不是failed。"
+        },
+        {
+          "condition_number": 3,
+          "required": "replace固定一次/同Occurrence，新输入继承、stats更新、旧submit/fail拒绝和终态错误优先级准确，旧重放next必须status刷新；不称停止进程/身份认证/宿主隔离。",
+          "static_result": "PASS",
+          "evidence": "guide 60–89：active/current/latest/running、一次/Occurrence、输入null/stats继承、旧submit/fail/终态优先级、历史next刷新；不保证停止/认证/隔离。"
+        },
+        {
+          "condition_number": 4,
+          "required": "EFFECT_PENDING按真实committed/request/pending ID保留同意图重试、诊断不解析自然语言猜状态，不放宽边界。",
+          "static_result": "PASS",
+          "evidence": "guide 93–104：committed true/false及A/B IDs、同意图重试、cause/unknown保留，不解析自然语言猜状态。"
+        },
+        {
+          "condition_number": 5,
+          "required": "unknown/human gate/终态/只需查询的动作保持准确，所有命令用新显式Home/JSON，request ID仅写；中文可读并链接真实protocol/C005/C004。",
+          "static_result": "PASS",
+          "evidence": "guide 16–21、108–126：显式Home/JSON，ID仅写，human/gate/终态与只读范围，真实protocol/C004/C005链接。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/03-check-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "specs/guides/continuity-choices.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:36:06.273910+00:00",
+          "end_utc": "2026-10-03T20:36:06.809637+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/implement-1/04-check-diff.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:36:06.869456+00:00",
+          "end_utc": "2026-10-03T20:36:06.882803+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": true,
+        "original_application_records": [
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/08-apply-check.json",
+            "argv": [
+              "git",
+              "apply",
+              "--check",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:44:42.568015+00:00",
+            "end_utc": "2026-10-03T20:44:42.580375+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/09-apply-index.json",
+            "argv": [
+              "git",
+              "apply",
+              "--index",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-002-continuity/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:44:42.580864+00:00",
+            "end_utc": "2026-10-03T20:44:42.593333+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/10-applied-tree.json",
+            "argv": [
+              "git",
+              "write-tree"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T20:44:42.593920+00:00",
+            "end_utc": "2026-10-03T20:44:42.606359+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          }
+        ],
+        "bytes": 13748,
+        "sha256": "a10bef129228ddc38cb77f9fbbda4e4e21ad1d62b84fc5032e3b3171ef41d1ac",
+        "byte_equal_to_complete_declared_base_candidate_diff": true,
+        "reviewer_scratch": "/private/tmp/c007-quality-K18-dm0zsekf",
+        "reviewer_apply_check_exit": 0,
+        "reviewer_apply_index_exit": 0,
+        "reviewer_write_tree_exit": 0,
+        "reviewer_applied_tree": "5640cd4993bcac032bc15fcdee17a9e05cf42eb5",
+        "reviewer_tree_equal_candidate": true,
+        "reviewer_all_allowed_bytes_equal": true
+      },
+      "blocking_findings": [
+        {
+          "id": "F-K18-DELIVERY",
+          "severity": "blocking",
+          "reason": "原run failed；15-write-delivery Python SyntaxError exit1。停止交接文件不是成功delivery，已有patch/apply不补齐原run成功交付。",
+          "evidence": [
+            "descriptor.json:actual_outcome/stop_reason",
+            "material-delivery.txt",
+            "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/raw/deliver-1/15-write-delivery.json"
+          ],
+          "resolution": "保持原stop/failed与失败原件；此审阅不重置预算、不修复或追补原run成功。任何后续重做须另记真实授权run。"
+        }
+      ],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true,
+      "retained_protocol_deviation": "cold status实际timeout配置120秒而冻结只读上限60秒；实际0.011445秒不补成配置合规。"
+    },
+    {
+      "neutral_label": "K95",
+      "sample_id": "continuity",
+      "quality_verdict": "质量通过",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": true,
+      "actual_outcome_retained": "completed",
+      "candidate": "c9823575920795db14dfd378d77c8b311ce71d87",
+      "candidate_tree": "404c3004895a9451d7cfc88b0c5a04400a4a0463",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "specs/guides/continuity-choices.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "specs/guides/continuity-choices.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增面向操作者的选择指南，区分普通status/resume同running Attempt、真实执行fail、内容review back、确需行政资格撤销replace。",
+          "static_result": "PASS",
+          "evidence": "guide 3–26：四种选择与当前status/resume；创建序号不当失败数。"
+        },
+        {
+          "condition_number": 2,
+          "required": "每种选择说明真实触发、命令/前提、观察response/next和停止，不能自行造失败/撤销事件或把number当failed。",
+          "static_result": "PASS",
+          "evidence": "guide 28–52：真实fail、完成审查submit/back、真实next响应/前提/额度停止与human/gate。"
+        },
+        {
+          "condition_number": 3,
+          "required": "replace固定一次/同Occurrence，新输入继承、stats更新、旧submit/fail拒绝和终态错误优先级准确，旧重放next必须status刷新；不称停止进程/身份认证/宿主隔离。",
+          "static_result": "PASS",
+          "evidence": "guide 54–75：一次/Occurrence、资格原子更换、冻结输入/optional null、poststate stats、旧接口拒绝/终态优先与重放刷新。"
+        },
+        {
+          "condition_number": 4,
+          "required": "EFFECT_PENDING按真实committed/request/pending ID保留同意图重试、诊断不解析自然语言猜状态，不放宽边界。",
+          "static_result": "PASS",
+          "evidence": "guide 77–89：A/B提交身份和pending ID保持同意图；缺记录停，未核快照不补造，查询不恢复。"
+        },
+        {
+          "condition_number": 5,
+          "required": "unknown/human gate/终态/只需查询的动作保持准确，所有命令用新显式Home/JSON，request ID仅写；中文可读并链接真实protocol/C005/C004。",
+          "static_result": "PASS",
+          "evidence": "guide 5、91–110：全部示例显式Home/JSON；只读无ID，human/gate/终态/unknown准确，链接及两个锚点对应。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/implement-1/check-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "specs/guides/continuity-choices.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:55:10.629496+00:00",
+          "end_utc": "2026-10-03T20:55:11.111567+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/implement-1/check-staged-whitespace.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T20:55:11.112170+00:00",
+          "end_utc": "2026-10-03T20:55:11.124751+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": true,
+        "original_application_records": [
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/deliver-1/apply-check.json",
+            "argv": [
+              "git",
+              "apply",
+              "--check",
+              "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/outputs/deliver-1/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:02:25.005261+00:00",
+            "end_utc": "2026-10-03T21:02:25.017099+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/deliver-1/apply-index.json",
+            "argv": [
+              "git",
+              "apply",
+              "--index",
+              "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/outputs/deliver-1/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:02:25.017501+00:00",
+            "end_utc": "2026-10-03T21:02:25.029568+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/raw/deliver-1/applied-tree.json",
+            "argv": [
+              "git",
+              "write-tree"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:02:25.029914+00:00",
+            "end_utc": "2026-10-03T21:02:25.042034+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          }
+        ],
+        "bytes": 14337,
+        "sha256": "800fec379f74e76f9fd9c1e56c437920e1c0ffe0f2d8a0d7764c1e7afe72f888",
+        "byte_equal_to_complete_declared_base_candidate_diff": true,
+        "reviewer_scratch": "/private/tmp/c007-quality-K95-b54hx_b0",
+        "reviewer_apply_check_exit": 0,
+        "reviewer_apply_index_exit": 0,
+        "reviewer_write_tree_exit": 0,
+        "reviewer_applied_tree": "404c3004895a9451d7cfc88b0c5a04400a4a0463",
+        "reviewer_tree_equal_candidate": true,
+        "reviewer_all_allowed_bytes_equal": true
+      },
+      "blocking_findings": [],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true
+    },
+    {
+      "neutral_label": "K33",
+      "sample_id": "acceptance-handoff",
+      "quality_verdict": "质量通过",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": true,
+      "actual_outcome_retained": "completed",
+      "candidate": "567b6d3acb6bba50781927ee8cf8de9ed0397347",
+      "candidate_tree": "819a00b26f388fd2b98492cbd912942061339c0a",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "specs/guides/current-acceptance-handoff.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "specs/guides/current-acceptance-handoff.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增一份首次接手能用的当前验收交付卡，source冻结在00e010，只概括该时点C001–C006已实际闭合范围、C007/C008尚未正式试用。",
+          "static_result": "PASS",
+          "evidence": "guide 3、19–26：仅00e010冻结事实，C001–C006范围、C007/C008正式not_run与无active分列。"
+        },
+        {
+          "condition_number": 2,
+          "required": "区分current0.3.0-rc.1/schema4/v4/resultv1与已发布v0.2/macARM；不称新发行、所有安全/所有平台/真人价值PASS。",
+          "static_result": "PASS",
+          "evidence": "guide 9–13：当前rc/schema4/cli-result v4/work-result v1与v0.2/macARM分开，无新发行/全平台/真人价值保证。"
+        },
+        {
+          "condition_number": 3,
+          "required": "列当前完整技术951/951零skip/LEAK、5doc与实际1.85新951证据，215旧处置185动态/21限定静态/9结构及原标记保留；精确source links与namespace不编造新count/run。",
+          "static_result": "PASS",
+          "evidence": "guide 34–40：两个951/951、各5doc、真实1.85；215=185/21/9、37/148、旧Missed/Caughtfalse/native not_run、190/134/192域分列。"
+        },
+        {
+          "condition_number": 4,
+          "required": "实际C004同Attempt新context/三refs/真实consumer，C005七真实撤销前提null，C006可编辑副本/跨APFS虚拟载体/原4LEAK unknown，成本/真人/物理FF不可构造/其他OS边界准确。",
+          "static_result": "PASS",
+          "evidence": "guide 46–62、72：同Attempt新context/三refs/consumer，七null，编辑副本/虚拟APFS/四LEAKunknown，费用/真人/物理FF/其他OS范围准确。"
+        },
+        {
+          "condition_number": 5,
+          "required": "给后续使用/判断最少入口（源码quick路径当前README/C004/导出指南/当前specs入口），不能以文档/目录completed授用户接受或改变上游产品合同；首次读者能定位真实下一步和限制。",
+          "static_result": "PASS",
+          "evidence": "guide 64–72：README/源码Cargo构建导出指南/C004/specs最少入口、当前next与失败现场；不授用户接受或改合同。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/implement-1/final-required-check-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "specs/guides/current-acceptance-handoff.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T21:11:35.971349+00:00",
+          "end_utc": "2026-10-03T21:11:36.016393+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/implement-1/final-required-cached-diff-check.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T21:11:36.023704+00:00",
+          "end_utc": "2026-10-03T21:11:36.035715+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": true,
+        "original_application_records": [
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/apply-check.json",
+            "argv": [
+              "git",
+              "apply",
+              "--check",
+              "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:19:28.555104+00:00",
+            "end_utc": "2026-10-03T21:19:28.561295+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/apply-index.json",
+            "argv": [
+              "git",
+              "apply",
+              "--index",
+              "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:19:28.561680+00:00",
+            "end_utc": "2026-10-03T21:19:28.573593+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/deliver-1/verify-applied-write-tree.json",
+            "argv": [
+              "git",
+              "write-tree"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/native",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:19:28.573947+00:00",
+            "end_utc": "2026-10-03T21:19:28.585936+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          }
+        ],
+        "bytes": 15229,
+        "sha256": "ca9df3f89d4f12587690e99da192664f56482a0df3ea63d2cd5c41009069e02a",
+        "byte_equal_to_complete_declared_base_candidate_diff": true,
+        "reviewer_scratch": "/private/tmp/c007-quality-K33-hs3fmpzf",
+        "reviewer_apply_check_exit": 0,
+        "reviewer_apply_index_exit": 0,
+        "reviewer_write_tree_exit": 0,
+        "reviewer_applied_tree": "819a00b26f388fd2b98492cbd912942061339c0a",
+        "reviewer_tree_equal_candidate": true,
+        "reviewer_all_allowed_bytes_equal": true
+      },
+      "blocking_findings": [],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true
+    },
+    {
+      "neutral_label": "K64",
+      "sample_id": "acceptance-handoff",
+      "quality_verdict": "质量通过",
+      "candidate_content_static_verdict": "质量通过",
+      "complete_delivery_quality_pass": true,
+      "actual_outcome_retained": "completed",
+      "candidate": "38eca4cf78bbbae002c9d3f255c680f8968dfe12",
+      "candidate_tree": "1b6deb6e862754a44d001253bf263745e5ad8b4d",
+      "declared_workspace_source": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+      "declared_local_baseline": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+      "local_baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+      "allow_files": [
+        "specs/guides/current-acceptance-handoff.md"
+      ],
+      "whole_unfiltered_changed_path_set": [
+        "specs/guides/current-acceptance-handoff.md"
+      ],
+      "source_clean_and_same_HEAD": true,
+      "copied_candidate_and_HEAD_blob_all_match": true,
+      "all_material_bytes_sha_match_descriptor": true,
+      "conditions": [
+        {
+          "condition_number": 1,
+          "required": "新增一份首次接手能用的当前验收交付卡，source冻结在00e010，只概括该时点C001–C006已实际闭合范围、C007/C008尚未正式试用。",
+          "static_result": "PASS",
+          "evidence": "guide 3、20–24、56–60：冻结00e010，只概括C001–C006范围，C007/C008正式试用仍not_run。"
+        },
+        {
+          "condition_number": 2,
+          "required": "区分current0.3.0-rc.1/schema4/v4/resultv1与已发布v0.2/macARM；不称新发行、所有安全/所有平台/真人价值PASS。",
+          "static_result": "PASS",
+          "evidence": "guide 7–8、18–19：rc/schema4/v4/resultv1与发布v0.2/macARM分开，旧根保留/不迁移，无全产品保证。"
+        },
+        {
+          "condition_number": 3,
+          "required": "列当前完整技术951/951零skip/LEAK、5doc与实际1.85新951证据，215旧处置185动态/21限定静态/9结构及原标记保留；精确source links与namespace不编造新count/run。",
+          "static_result": "PASS",
+          "evidence": "guide 28–42：原生/MSRV两个951/951及5doc，185/21/9与37/148、旧标签、T58新增2及46单列；source计数域不混。"
+        },
+        {
+          "condition_number": 4,
+          "required": "实际C004同Attempt新context/三refs/真实consumer，C005七真实撤销前提null，C006可编辑副本/跨APFS虚拟载体/原4LEAK unknown，成本/真人/物理FF不可构造/其他OS边界准确。",
+          "static_result": "PASS",
+          "evidence": "guide 46–52：同Attempt新context/三refs/consumer、七null、副本/跨虚拟APFS/原四LEAKunknown，费用/真人/物理FF/OS边界。"
+        },
+        {
+          "condition_number": 5,
+          "required": "给后续使用/判断最少入口（源码quick路径当前README/C004/导出指南/当前specs入口），不能以文档/目录completed授用户接受或改变上游产品合同；首次读者能定位真实下一步和限制。",
+          "static_result": "PASS",
+          "evidence": "guide 7–12、56–60：README/code-change实际Cargo入口/C004/export/specs、授权输入与真实下一步；接受另作，链接/锚点真实。"
+        }
+      ],
+      "missing_relative_links": [],
+      "unmatched_heading_fragments": [],
+      "required_checks": [
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/implement-1/check-docs.json",
+          "argv": [
+            "scripts/check-docs.sh",
+            "specs/guides/current-acceptance-handoff.md"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T21:28:17.986651+00:00",
+          "end_utc": "2026-10-03T21:28:18.583763+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        },
+        {
+          "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/implement-1/check-diff.json",
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/sheltie",
+          "exit_code": 0,
+          "timed_out": false,
+          "within_deadline": true,
+          "start_utc": "2026-10-03T21:28:18.597407+00:00",
+          "end_utc": "2026-10-03T21:28:18.608530+00:00",
+          "stdout_stderr_sha_recomputed_match": true
+        }
+      ],
+      "complete_patch_and_apply": {
+        "original_complete_patch_exists": true,
+        "original_application_records": [
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/deliver-1/apply-check.json",
+            "argv": [
+              "git",
+              "apply",
+              "--check",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:37:49.526963+00:00",
+            "end_utc": "2026-10-03T21:37:49.538314+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/deliver-1/apply-index.json",
+            "argv": [
+              "git",
+              "apply",
+              "--index",
+              "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:37:49.538830+00:00",
+            "end_utc": "2026-10-03T21:37:49.551081+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          },
+          {
+            "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/deliver-1/applied-tree.json",
+            "argv": [
+              "git",
+              "write-tree"
+            ],
+            "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/sheltie",
+            "exit_code": 0,
+            "start_utc": "2026-10-03T21:37:49.551476+00:00",
+            "end_utc": "2026-10-03T21:37:49.563877+00:00",
+            "stdout_stderr_sha_recomputed_match": true
+          }
+        ],
+        "bytes": 12897,
+        "sha256": "4bdb327e59615761ef331cd2fed5679901d83b231ad57aa270cecba07b95bf26",
+        "byte_equal_to_complete_declared_base_candidate_diff": true,
+        "reviewer_scratch": "/private/tmp/c007-quality-K64-ozvrw5qf",
+        "reviewer_apply_check_exit": 0,
+        "reviewer_apply_index_exit": 0,
+        "reviewer_write_tree_exit": 0,
+        "reviewer_applied_tree": "1b6deb6e862754a44d001253bf263745e5ad8b4d",
+        "reviewer_tree_equal_candidate": true,
+        "reviewer_all_allowed_bytes_equal": true
+      },
+      "blocking_findings": [],
+      "candidate_content_required_fixes": [],
+      "protocol_eligibility": "not adjudicated by final document quality review",
+      "partial_blinding": true
+    }
+  ]
+}

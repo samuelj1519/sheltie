@@ -152,3 +152,21 @@ C006当前收口00e010全209blob读回后开始当前准备，原34资产逐SHA�
 独立Reviewer /root/c007_admission_review未写标准/方法/工具，最后窄审PASS冻SHA f2caa6c5836283ecb4001d0914b330eec028abd8d8f36548e2016ee7d35ffc98，实际全部final消息与工具source_line见t04-admission-reviews/records。只授当前准备，先单T04提交与读回才T05六run；原code/humanM1/M2/真人关闭/人工ROI仍not_run，不由此准入抹去。当前无Rust改变，不跑空task.sh/无关wholeSuite，docs/spec/skill/tests/scope另核。
 
 首次T04commit typos发现continuity任务标准的英文拼写错误，原旧词在JSON诊断保留，task/oracle同一词统一为Occurrence，含义/质量/范围不变，原失败保留；没有正式run。独立窄审全部38资产SHA与拼写反向对照PASS，新finalfreeze55af1d5362952bf7ac21df26316cb36781194f7b2ebb1bcdfca710f20ef6ff53，旧f2准入保历史，不拿旧SHA代表新闭包。随后单任务提交/读回该确切新freeze。
+
+## C007-T05 六次当前agent协议实际运行
+
+T04提交9059663后按N1/S1/S2/N2/N3/S3冻结序真实启动，continuouscoordinator同localinstance每arm3actualuse，gpt-6.1-sol/high/权限无override，20helper真实session/model/forknone和coordinator765records/245call245response可核。原方法/38资产/fullinitialGitTree均不变，两armtask/project同字节；Root未代节点内容、没给另一臂候选答案。原App/真人实验不称完成，coldhelper替换不是同一helper复用。
+
+六raw outcome：N1 budgetstopped（实现/checks/review齐、完整patch/application缺，额外82.4s收尾保）；S1 source-start completed925.242s；S2 continuity failed1092.414s（同implement#1.0 coldresume和patch/apply成功，但delivery写SyntaxError1，actualattemptfail，未retry，不成功终点）；N2 continuity completed1029.523s；N3 handoff completed932.031s；S3 handoff completed1019.655s。四完整交付5refs/candidate/patchapply由Root实际核并代理接受，只限当前文档用途不代最终独审。
+
+公平/记录偏差不隐藏：S1三intent以write_text而非x（无旧覆盖，但原exclusive要求不完全满足）及deliver跨run rg误命中12行native记录/自述未用不能证明无影响；S2 readonlyCLI120s配置vs原60s（actual0.011445s不等config合规）与两次bootstrap未capture；N2 deliver额外读Root当前入口；N3自审发现不存在work resume改status.resume并重新checks，旧成功tree/checks及成本留，非独立reviewback；S3来源symbol匹配/同名md/json读核误差修正保原。诊断不是product失败，不把最初错误判断称成功；required delivery真实失败不归观察错误抹去。
+
+六candidate/现存原五材料/完整patch各bytes保真archive43members，N1原缺patch仍缺；Rootposttrial candidate-only diff另标仅证据，不补成原run成功交付。20helpers/coordinator全部工具source_line/actualmetadata、原raw/UUID/refs/stop/成本在study中，原absoluteHome refs不回写。正式method3Work只公CLI，failedWork保持active/lastfailed不擅自动retry/cancel；Native完全不调用引擎。
+
+Rootproxy接受在各run20min内，actualrun.wall_seconds原coordinatorend不含其后接受；完整已知R窗口start→proxyObserved另六summary记录：1282.400124、970.290387、1092.413753、1074.095014、990.804247、1089.938694秒。N1包含超限停止额外耗时，不称1200内completed。P/E准备细分及历史P/人工费用/usage未知不置0，末独审/分析/归档属于后续真实E/角色投入，不把并发event之和当总elapsed。
+
+末独立quality正在按neutral标签审真实task/candidate/patch/requiredraw，因路径可透露arm明确partialblind。执行完整性独审另核全部raw/历史/偏差与同质量ROI前提，原“全部六质量相同”不满足，15%改善不能由四成功筛出来计算。当前不预授T05完成/实验严谨公平PASS/价值/归档或发布。
+
+T05末独立质量原件final-quality-report：K72/K95/K33/K64完整交付质量通过，K41因缺patch/apply、K18因真实delivery写失败阻断；六candidate正文静态可用不解除两交付阻断。五现存patch由末审在自己的独立副本实际apply/check/index/write-tree全同，不变原run outcome。partialblinding披露，原路径透明不假统计盲。
+
+独立执行audit结论scoped_qualified_observation，305双流完整capture与20helper/同coordinator真实session原件、43archive成员/当前资产同SHA支持真实记录；strict完整/无偏6同质量未满足，run2/3/4偏差不授fairPASS。各actual窗口含Rootproxy接受，准备1752.967s整体已知但P/E精确/旧P/S/M完整聚合/人类usagecost未知，15%前提不足。没有新取证必修；T05done只当前真实运行/停止/失败与完整限定审，不当原code/human试验通过。T06分析/T07应用/M3尚待，22:50:26overall不重置。

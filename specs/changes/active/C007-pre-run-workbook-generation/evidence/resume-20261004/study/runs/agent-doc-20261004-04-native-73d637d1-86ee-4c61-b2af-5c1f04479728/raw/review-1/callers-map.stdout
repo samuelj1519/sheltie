@@ -1,0 +1,33 @@
+crates/sheltie-core/src/work/next.rs:26:    ReplaceAttempt { attempt: AttemptId },
+crates/sheltie-core/src/work/next.rs:49:            Self::ReplaceAttempt { attempt } => {
+crates/sheltie-core/src/work/next.rs:75:pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
+crates/sheltie-core/src/work/next.rs:103:                        ops.push(NextOp::ReplaceAttempt {
+crates/sheltie-core/src/work/next.rs:114:                        if state.failed_count_of(&state.current) <= def.max_retries as usize {
+crates/sheltie-cli/src/commands/attempt.rs:16:        AttemptCmd::Begin { work, node } => begin(ctx, &work, &node),
+crates/sheltie-cli/src/commands/attempt.rs:17:        AttemptCmd::Submit {
+crates/sheltie-cli/src/commands/attempt.rs:22:        AttemptCmd::Fail {
+crates/sheltie-cli/src/commands/attempt.rs:27:        AttemptCmd::Replace {
+crates/sheltie-cli/src/commands/attempt.rs:31:        } => replace(ctx, &work, &attempt, &reason),
+crates/sheltie-cli/src/commands/attempt.rs:130:fn replace(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
+crates/sheltie-cli/src/commands/attempt.rs:144:    let resp = match svc.replace(&wid, &attempt, &reason, ctx.request_id.clone()) {
+crates/sheltie-runtime/src/service.rs:444:    pub fn replace(
+crates/sheltie-runtime/src/service.rs:452:        let intent = RequestIntent::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:489:            Ok(PreparedCommand::plain(Command::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:1442:    if let Command::ReplaceAttempt { reason, .. } = &command {
+crates/sheltie-runtime/src/service.rs:1597:            Command::ReplaceAttempt {
+crates/sheltie-runtime/src/service.rs:2071:            if field == "reason" && matches!(cmd, Command::ReplaceAttempt { .. }) {
+crates/sheltie-core/src/work/decide.rs:55:                Command::ReplaceAttempt {
+crates/sheltie-core/src/work/decide.rs:60:                } => decide_replace(
+crates/sheltie-core/src/work/decide.rs:76:/// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
+crates/sheltie-core/src/work/decide.rs:79:        return Err(Error::WorkTerminal {
+crates/sheltie-core/src/work/decide.rs:315:        return Err(Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs:331:        return Err(Error::ReplacementsExhausted {
+crates/sheltie-core/src/work/decide.rs:365:fn decide_replace(
+crates/sheltie-core/src/work/decide.rs:610:/// 1. Attempt 必须 `Running`，否则 `Error::AttemptNotRunning`。
+crates/sheltie-core/src/work/decide.rs:624:    let not_running = || Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs:809:    let not_running = || Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs:833:        status_after_failure(new_state.failed_count_of(&prev.occurrence()), max_retries);
+crates/sheltie-core/src/work/decide.rs:1456:            Err(Error::AttemptNotRunning { .. })
+crates/sheltie-core/src/work/decide.rs:1716:        assert!(matches!(fx.begin("draft"), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs:1717:        assert!(matches!(fx.cancel(), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs:1720:            Err(Error::WorkTerminal { .. })

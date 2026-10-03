@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+    "--home",
+    "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+    "--json",
+    "--request-id",
+    "b8428cef-38b7-4e54-a855-ea8001bcbb78",
+    "attempt",
+    "fail",
+    "2026-10-03-002-continuity",
+    "--attempt",
+    "deliver#1.0",
+    "--reason",
+    "deliver实际15-write-delivery Python命令SyntaxError退出1；完整patch/apply已发生，但成功delivery未产出。原件保留，本run停止，不启动重试。"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "start_utc": "2026-10-03T20:46:27.048384+00:00",
+  "end_utc": "2026-10-03T20:46:27.137835+00:00",
+  "elapsed_s": 0.089451,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/cli/fail-deliver-1.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-03-sheltie-d288fa08-a4ac-4e23-9368-9c1dda56aa89/cli/fail-deliver-1.stderr",
+  "stdout_sha256": "761542d7439bf30684cd24c9110a05b31ab860179d5931e237f95c69151d9ddf",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

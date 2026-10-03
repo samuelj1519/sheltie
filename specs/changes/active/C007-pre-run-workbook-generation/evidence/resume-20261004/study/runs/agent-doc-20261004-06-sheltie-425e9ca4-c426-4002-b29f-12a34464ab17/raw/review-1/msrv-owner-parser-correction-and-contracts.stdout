@@ -1,0 +1,398 @@
+CORRECTION: previous matching used whole registration including owner/file/line; actual test header has test symbol. No input/raw/product changes, no test rerun.
+[
+  {
+    "registration": "C005-T02 replacement_is_atomic_and_business_failures_use_history_not_attempt_number crates/sheltie-cli/tests/attempt_replace.rs:51 -",
+    "actual_pass_lines": [
+      "        PASS [   4.969s] ( 33/951) sheltie-cli::attempt_replace replacement_is_atomic_and_business_failures_use_history_not_attempt_number"
+    ]
+  },
+  {
+    "registration": "C005-T02 replacement_does_not_consume_zero_business_retries_or_approve_a_gate crates/sheltie-cli/tests/attempt_replace.rs:172 -",
+    "actual_pass_lines": [
+      "        PASS [   5.968s] ( 46/951) sheltie-cli::attempt_replace replacement_does_not_consume_zero_business_retries_or_approve_a_gate"
+    ]
+  },
+  {
+    "registration": "C005-T02 replacement_replays_original_file_reason_and_rejects_conflicting_intent crates/sheltie-cli/tests/attempt_replace.rs:226 -",
+    "actual_pass_lines": [
+      "        PASS [   3.061s] ( 17/951) sheltie-cli::attempt_replace replacement_replays_original_file_reason_and_rejects_conflicting_intent"
+    ]
+  },
+  {
+    "registration": "C005-T02 replacement_reason_has_exact_limit_and_missing_identity_is_not_found crates/sheltie-cli/tests/attempt_replace.rs:257 -",
+    "actual_pass_lines": [
+      "        PASS [   5.846s] ( 42/951) sheltie-cli::attempt_replace replacement_reason_has_exact_limit_and_missing_identity_is_not_found"
+    ]
+  },
+  {
+    "registration": "C005-T02 replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt crates/sheltie-cli/tests/attempt_replace.rs:298 -",
+    "actual_pass_lines": [
+      "        PASS [   2.889s] ( 15/951) sheltie-cli::attempt_replace replacement_refuses_modified_frozen_input_without_revoking_the_running_attempt"
+    ]
+  },
+  {
+    "registration": "C005-T02 replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats crates/sheltie-cli/tests/attempt_replace.rs:335 -",
+    "actual_pass_lines": [
+      "        PASS [   5.421s] ( 37/951) sheltie-cli::attempt_replace replacement_crash_windows_preserve_atomic_state_and_exact_brief_and_stats"
+    ]
+  },
+  {
+    "registration": "C005-T02 stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load crates/sheltie-cli/tests/work.rs:555 -",
+    "actual_pass_lines": [
+      "        PASS [   1.941s] (185/951) sheltie-cli::work stats_and_next_keep_one_snapshot_when_a_writer_begins_after_reader_load"
+    ]
+  },
+  {
+    "registration": "C005-T01 attempt_id_requires_number_and_rejects_retired_retry_field crates/sheltie-core/src/ids.rs:349 -",
+    "actual_pass_lines": [
+      "        PASS [   0.010s] (281/951) sheltie-core ids::tests::attempt_id_requires_number_and_rejects_retired_retry_field"
+    ]
+  },
+  {
+    "registration": "C005-T01 attempt_number_allocation_checks_overflow_without_wraparound crates/sheltie-core/src/work/decide.rs:989 -",
+    "actual_pass_lines": [
+      "        PASS [   0.015s] (306/951) sheltie-core work::decide::tests::attempt_number_allocation_checks_overflow_without_wraparound"
+    ]
+  },
+  {
+    "registration": "C005-T02 status_card_active_mid_flow crates/sheltie-core/src/work/render.rs:978 -",
+    "actual_pass_lines": [
+      "        PASS [   0.026s] (388/951) sheltie-core work::render::tests::status_card_active_mid_flow"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs crates/sheltie-core/tests/attempt_replace.rs:55 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (432/951) sheltie-core::attempt_replace replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs"
+    ]
+  },
+  {
+    "registration": "C005-T01 second_replacement_rejects_without_removing_current_submit_or_fail_eligibility crates/sheltie-core/tests/attempt_replace.rs:129 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (437/951) sheltie-core::attempt_replace second_replacement_rejects_without_removing_current_submit_or_fail_eligibility"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_does_not_consume_failure_budget_and_historical_fail_uses_original_prefix crates/sheltie-core/tests/attempt_replace.rs:144 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (433/951) sheltie-core::attempt_replace replacement_does_not_consume_failure_budget_and_historical_fail_uses_original_prefix"
+    ]
+  },
+  {
+    "registration": "C005-T01 zero_retries_still_allows_replacement_but_first_real_failure_blocks crates/sheltie-core/tests/attempt_replace.rs:197 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (442/951) sheltie-core::attempt_replace zero_retries_still_allows_replacement_but_first_real_failure_blocks"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_quota_resets_for_new_occurrence_and_keeps_entered_from crates/sheltie-core/tests/attempt_replace.rs:219 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (434/951) sheltie-core::attempt_replace replacement_quota_resets_for_new_occurrence_and_keeps_entered_from"
+    ]
+  },
+  {
+    "registration": "C005-T01 superseded_submit_and_fail_reject_and_terminal_guard_takes_precedence crates/sheltie-core/tests/attempt_replace.rs:242 -",
+    "actual_pass_lines": [
+      "        PASS [   0.008s] (441/951) sheltie-core::attempt_replace superseded_submit_and_fail_reject_and_terminal_guard_takes_precedence"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_checks_target_and_qualification_before_reason_or_inputs crates/sheltie-core/tests/attempt_replace.rs:262 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (431/951) sheltie-core::attempt_replace replacement_checks_target_and_qualification_before_reason_or_inputs"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_rejects_any_changed_frozen_observation_and_optional_rebinding crates/sheltie-core/tests/attempt_replace.rs:293 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (436/951) sheltie-core::attempt_replace replacement_rejects_any_changed_frozen_observation_and_optional_rebinding"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_reason_accepts_exact_limit_and_rejects_one_more_byte_without_mutation crates/sheltie-core/tests/attempt_replace.rs:376 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (440/951) sheltie-core::attempt_replace replacement_reason_accepts_exact_limit_and_rejects_one_more_byte_without_mutation"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_stats_are_fresh_post_state_bytes_and_old_binding_is_preserved crates/sheltie-core/tests/attempt_replace.rs:409 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (438/951) sheltie-core::attempt_replace replacement_stats_are_fresh_post_state_bytes_and_old_binding_is_preserved"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected crates/sheltie-core/tests/attempt_replace.rs:439 -",
+    "actual_pass_lines": [
+      "        PASS [   0.009s] (439/951) sheltie-core::attempt_replace replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected"
+    ]
+  },
+  {
+    "registration": "C005-T01 persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded crates/sheltie-core/tests/attempt_replace.rs:462 -",
+    "actual_pass_lines": [
+      "        PASS [   0.010s] (430/951) sheltie-core::attempt_replace persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded"
+    ]
+  },
+  {
+    "registration": "C005-T02 public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence crates/sheltie-core/tests/attempt_replace.rs:510 -",
+    "actual_pass_lines": [
+      "        PASS [   0.010s] (435/951) sheltie-core::attempt_replace public_next_offers_current_replacement_once_and_restores_quota_on_new_occurrence"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_records_one_atomic_pair_and_inherits_nonstats_refs_with_new_exact_stats crates/sheltie-runtime/tests/attempt_replace.rs:131 -",
+    "actual_pass_lines": [
+      "        PASS [   1.545s] (641/951) sheltie-runtime::attempt_replace replacement_records_one_atomic_pair_and_inherits_nonstats_refs_with_new_exact_stats"
+    ]
+  },
+  {
+    "registration": "C005-T01 failed_history_uses_its_original_prefix_after_replacement_and_later_exhaustion crates/sheltie-runtime/tests/attempt_replace.rs:205 -",
+    "actual_pass_lines": [
+      "        PASS [   3.672s] (650/951) sheltie-runtime::attempt_replace failed_history_uses_its_original_prefix_after_replacement_and_later_exhaustion"
+    ]
+  },
+  {
+    "registration": "C005-T01 late_old_writes_and_second_replacement_are_rejected_without_new_records crates/sheltie-runtime/tests/attempt_replace.rs:259 -",
+    "actual_pass_lines": [
+      "        PASS [   2.787s] (646/951) sheltie-runtime::attempt_replace late_old_writes_and_second_replacement_are_rejected_without_new_records"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_replay_after_new_attempt_ends_preserves_reason_source_identity_and_bytes crates/sheltie-runtime/tests/attempt_replace.rs:344 -",
+    "actual_pass_lines": [
+      "        PASS [   2.364s] (645/951) sheltie-runtime::attempt_replace replacement_replay_after_new_attempt_ends_preserves_reason_source_identity_and_bytes"
+    ]
+  },
+  {
+    "registration": "C005-T01 qualification_precedes_reason_file_reads_and_modified_input_never_commits crates/sheltie-runtime/tests/attempt_replace.rs:430 -",
+    "actual_pass_lines": [
+      "        PASS [   1.838s] (644/951) sheltie-runtime::attempt_replace qualification_precedes_reason_file_reads_and_modified_input_never_commits"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_and_submit_or_two_replacements_have_exactly_one_committed_winner crates/sheltie-runtime/tests/attempt_replace.rs:504 -",
+    "actual_pass_lines": [
+      "        PASS [   4.317s] (655/951) sheltie-runtime::attempt_replace replacement_and_submit_or_two_replacements_have_exactly_one_committed_winner"
+    ]
+  },
+  {
+    "registration": "C005-T01 schema_three_and_missing_nullable_reason_are_rejected_without_rewriting_records crates/sheltie-runtime/tests/attempt_replace.rs:579 -",
+    "actual_pass_lines": [
+      "        PASS [   1.726s] (648/951) sheltie-runtime::attempt_replace schema_three_and_missing_nullable_reason_are_rejected_without_rewriting_records"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_history_rejects_forged_reason_input_binding_and_snapshot_identity crates/sheltie-runtime/tests/attempt_replace.rs:612 -",
+    "actual_pass_lines": [
+      "        PASS [   8.748s] (709/951) sheltie-runtime::attempt_replace replacement_history_rejects_forged_reason_input_binding_and_snapshot_identity"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_complete_payloads_are_decoded_before_frozen_workbook_io crates/sheltie-runtime/tests/attempt_replace.rs:680 -",
+    "actual_pass_lines": [
+      "        PASS [   8.230s] (705/951) sheltie-runtime::attempt_replace replacement_complete_payloads_are_decoded_before_frozen_workbook_io"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_with_no_inputs_rejects_changed_entry_source_before_another_write crates/sheltie-runtime/tests/attempt_replace.rs:742 -",
+    "actual_pass_lines": [
+      "        PASS [   2.847s] (652/951) sheltie-runtime::attempt_replace replacement_with_no_inputs_rejects_changed_entry_source_before_another_write"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_transaction_crash_boundaries_preserve_exact_committed_history crates/sheltie-runtime/tests/attempt_replace.rs:801 -",
+    "actual_pass_lines": [
+      "        PASS [   3.255s] (654/951) sheltie-runtime::attempt_replace replacement_transaction_crash_boundaries_preserve_exact_committed_history"
+    ]
+  },
+  {
+    "registration": "C005-T01 replacement_rejects_a_path_swap_after_opening_the_original_input crates/sheltie-runtime/tests/attempt_replace.rs:887 -",
+    "actual_pass_lines": [
+      "        PASS [   1.584s] (642/951) sheltie-runtime::attempt_replace replacement_rejects_a_path_swap_after_opening_the_original_input"
+    ]
+  },
+  {
+    "registration": "C005-T02 status_card_missing_is_regenerated_on_next_write crates/sheltie-runtime/tests/crash.rs:13 -",
+    "actual_pass_lines": [
+      "        PASS [   0.941s] (945/951) sheltie-runtime::crash status_card_missing_is_regenerated_on_next_write"
+    ]
+  },
+  {
+    "registration": "C005-T02 post_commit_card_failure_returns_committed_response crates/sheltie-runtime/tests/service.rs:1161 -",
+    "actual_pass_lines": [
+      "        PASS [   1.602s] (814/951) sheltie-runtime::service post_commit_card_failure_returns_committed_response"
+    ]
+  }
+]
+37 ALL True
+FILE specs/releases/v0.2.0/README.md
+1: # v0.2.0 release record
+2: 
+3: 状态：`released`（按用户授权范围完成）
+4: 版本：`0.2.0`
+5: Git tag：`v0.2.0`
+6: Release commit：`8455aed2bcd9ac1739852be3987091a0975e7ac3`
+7: 真实宿主与续接验收闭包：`785552be4fddc8fbbbcbffef7bcf69e65588ff8f`
+8: 发布时间：`2026-10-02T17:03:04Z`（UTC）
+9: 发布目标：`aarch64-apple-darwin`
+10: 
+11: ## 范围
+12: 
+13: 纳入 [C002 可靠性修复](../../changes/completed/C002-v0.2.0-reliability/README.md)：请求身份与历史重放、文件归属、Workbook 摘要与冻结、事务发布与恢复、事实视图、协调者续接、Workbook 与 skill，以及发布治理。仍为三个 crate、单一 `sheltie` 二进制和本地 SQLite 工作流引擎。
+14: 
+15: 本次正式发布仅提供 macOS aarch64 包。Linux 与 x86_64 目标按用户指示排除，本版没有这些平台的安装包；此前失败与未完成验证保留在 C002 的证据中，不记为跨平台通过。用户可感知变化见 [CHANGELOG](../../../CHANGELOG.md)。
+16: 
+17: ## 验收
+18: 
+19: - [正式 Release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) 的 tag 与源码固定到上述 Release commit。[发布工作流 37037558064](https://github.com/samuelj1519/sheltie/actions/runs/37037558064) 实际完成 quality、构建、host 与 announce，结论 `success`。
+20: - 同一源码 SHA 的 quality 实际通过工程、文档、规格、skill、测试治理、依赖与 MSRV 1.85 locked 门禁。Nextest 为 700/700、0 skipped、1 slow，测试阶段 156.541 秒；原始运行与范围见 [C002 validation](../../changes/completed/C002-v0.2.0-reliability/validation.md)。
+21: - T16 在本机实际完成样例、`spec-dev` 四任务、独立审查、真实关闭并重开会话后的 Work006 续接，以及获具体批准后的 Work003 最终 retro gate。闭包固定到上述 T16 提交，详见 [C002 review](../../changes/completed/C002-v0.2.0-reliability/review.md)。
+22: - 正式发布后重新下载并核验实际包、manifest 与二进制，不复用 PR 构建字节。使用默认 GitHub 来源在独立管理根执行指定 `0.2.0` 的远端 update 与 rollback；回退后二进制逐字相同、Store 不变、prev 移除。更新来源为 T16 的 C002/schema 2 构建，其显示版本为 `0.1.0`；这次验证不证明 legacy schema 1 迁移。
+23: 
+24: | 实物 | SHA256 |
+25: | --- | --- |
+26: | [macOS aarch64 包](https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/sheltie-cli-aarch64-apple-darwin.tar.xz)，1779600 字节 | `fc63c9d0c7132796cdacd050be102ed5501f637f2db0f19b279da6b4744899e4` |
+27: | 包内 `sheltie` 二进制 | `a220309ab437a5de52202acb8b8f933370a45969e2027c55964930818e315130` |
+28: | [dist-manifest.json](https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/dist-manifest.json) | `8540728b9db73a31a74e7f762128bebed90210ecfb2ec24845786db02a02354b` |
+29: 
+30: ## 兼容性
+31: 
+32: v0.2.0 使用 schema 2、`workbook-digest/v2`、新 Work 目录布局与 `cli-result/v2`。旧 schema 1 管理根以 `STORE_SCHEMA_MISMATCH` 拒绝；不自动迁移、不清空、不按新格式解释旧记录。新版本使用新的显式管理根，旧管理根和旧二进制保留用于查询历史。
+33: 
+34: ## 已知限制
+35: 
+36: - M1 按授权例外完成：SK01 缺最终 Spec 批准；SK02 的 215 个精确变异 ID 缺额外执行。完整变异验证、安全验证与最终 Spec 批准仍未通过，既有 FAIL、暂停与缺失原文保留。
+37: - Linux 原生验收与跨平台验证没有因本次发布变为 PASS；Linux、x86_64 包不在本版范围。
+38: - T16 使用手动提供的 skill，本机 Host 窗口访问限制保留。模型 usage 为 `null`；Work/Attempt 时长含人工、会话关闭和等待，不能换算为模型用量或成本。
+39: - OS 主体与本地 gate 不构成独立真人认证。完整限制、证据入口与任务完成范围见 [C002 validation](../../changes/completed/C002-v0.2.0-reliability/validation.md) 和 [review](../../changes/completed/C002-v0.2.0-reliability/review.md)。
+
+FILE specs/contracts/storage.md
+1: # 存储、事务与恢复
+2: 
+3: 本合同定义 `~/.sheltie` 下的持久结构与写入规则。SQLite 是唯一状态权威（`INV-7`）；目录树里的一切都是投影或产物。schema 版本 `4`；schema 1/2/3 的旧库被整体拒绝，不迁移、不清空（D-033）。
+4: 
+5: ## 1. SQLite
+6: 
+7: 文件 `store.db`。打开参数：WAL 模式，`synchronous = FULL`，`foreign_keys = ON`，`busy_timeout = 5000`。每次 CLI 调用开一个连接，结束即关，不做连接池。
+8: 
+9: ### 1.1 版本与结构校验
+10: 
+11: `PRAGMA user_version` 存 `SCHEMA_VERSION`，当前值 `4`，由 `sheltie-runtime/src/store/schema.rs` 的常量唯一定义。
+12: 
+13: 打开时：
+14: 
+15: 1. 先以只读方式识别：库文件不存在时，只读操作报 `NOT_FOUND`，不建库；写操作在取得管理根写锁后才建库（§2）。
+16: 2. 库已存在时，以只读连接识别 `user_version` 与 `sqlite_master`：`user_version ≠ 4` 报 `STORE_SCHEMA_MISMATCH`；逐表比对建表语句与期望一致（忽略空白）。拒绝前不得写`store.db`或既有WAL记录，不改journal mode、不写PRAGMA、不建表或checkpoint。`store.db-shm`维护与缺失WAL的零字节创建是D-039明定的SQLite控制文件例外，不能写WAL header/frame或改已有WAL字节；侧文件/数据库叶链接及特殊对象在调用SQLite前拒绝。
+17: 3. 结构校验通过后，读写连接才设置 WAL 与 `synchronous = FULL`。
+18: 4. 不自动迁移，不清空。测试放一个 schema 1 的库作负例，断言拒绝且文件字节不变。
+19: 
+20: 建库的 DDL 与 `PRAGMA user_version = 4` 在**同一个事务**里执行。首次建库在内存 SQLite 中生成并核对完整空库，以安全公开的序列化 API 取数据库字节，持锁独占写入自有 `tmp/store-init-<随机 id>/store.db` 并同步文件和父目录，再按同一打开对象以 NOREPLACE 发布为根下 `store.db`，同步源与目标父目录。SQLite 不按暂存绝对路径打开文件，不在暂存阶段切换 WAL；异常中断只留下自有 tmp，最终端点不存在或已经具有完整 schema。后续写操作可以重新创建独立暂存库；不得解释、初始化或删除任意既有 schema 0/1 文件。首次并发建库由管理根写锁串行化。
+21: 
+22: ### 1.2 表
+23: 
+24: ```sql
+25: CREATE TABLE workbooks (
+26:   id          TEXT NOT NULL,
+27:   version     TEXT NOT NULL,
+28:   digest      TEXT NOT NULL,           -- workbook-digest/v2 的 64 位十六进制
+29:   dir         TEXT NOT NULL,           -- 相对管理根
+30:   added_at    TEXT NOT NULL,           -- RFC 3339 UTC
+31:   PRIMARY KEY (id, version)
+32: );
+33: 
+34: CREATE TABLE works (
+35:   work_id     TEXT PRIMARY KEY,
+36:   revision    INTEGER NOT NULL,
+37:   status      TEXT NOT NULL,           -- active | blocked | succeeded | cancelled，冗余列，只为 list 查询
+38:   state_json  TEXT NOT NULL,           -- 完整 WorkState，serde_json，deny_unknown_fields
+39:   created_at  TEXT NOT NULL,
+40:   updated_at  TEXT NOT NULL
+41: );
+42: 
+43: CREATE TABLE work_sequence (
+44:   day          TEXT PRIMARY KEY,      -- UTC 日期 YYYY-MM-DD
+45:   last         INTEGER NOT NULL       -- 当日已分配的最大序号，1..999
+46: );
+47: 
+48: CREATE TABLE requests (
+49:   request_id   TEXT PRIMARY KEY,
+50:   intent_hash  TEXT NOT NULL,          -- RequestIntent canonical JSON 的 sha256（§2.1）
+51:   work_id      TEXT,                   -- 解析后的完整 WorkId；Workbook 级写操作为 NULL
+52:   reply_json   TEXT NOT NULL,          -- ResponseSnapshot：提交时的完整响应（cli-result/v4）
+53:   effects_json TEXT NOT NULL,          -- 效果意图与历史字节登记（§3.2）；删除完成另核 .deleted 标记
+54:   published    INTEGER NOT NULL,       -- 0 初始效果未完成；1 已完成。历史 write_file 可显式核对/补齐
+55:   at           TEXT NOT NULL
+56: );
+57: 
+58: CREATE TABLE audit (
+59:   seq          INTEGER PRIMARY KEY AUTOINCREMENT,
+60:   work_id      TEXT NOT NULL,          -- Workbook 级操作为空串
+61:   revision     INTEGER NOT NULL,       -- Work 提交后的 revision；Workbook 操作为 0
+62:   request_id   TEXT NOT NULL,
+63:   principal    TEXT NOT NULL,          -- 真实 OS 主体（§1.3）
+64:   command_json TEXT NOT NULL,          -- 去掉大字段后的 Command
+65:   at           TEXT NOT NULL
+66: );
+67: ```
+68: 
+69: 一切以 `state_json` 为准。`status` 列由写入时从状态派生，读时不信它做业务判断，只用于 `work list` 排序过滤。`requests.effects_json` 记录 I/O 完成情况，不参与业务选边，不构成第二套 Work 状态。
+70: 
+71: ### 1.3 主体
+72: 
+73: 审计与批准记录的主体是发起调用的真实 OS 进程身份：unix 上通过安全 Rust API 取 effective uid 对应的账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`；不读 `USER`/`USERNAME` 环境变量（D-036）。这是记账事实，不是真人认证（宪章 §5）。
+74: 
+75: ### 1.4 同一快照的 Work 读取闭包
+
+FILE specs/contracts/protocol.md
+1: # 公开操作、状态卡与错误
+2: 
+3: 本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v4`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+4: 
+5: ## 1. 全局约定
+6: 
+7: ```text
+8: sheltie [--json] [--home <dir>] <group> <verb> [args]
+9: ```
+10: 
+11: | 旗标 | 含义 |
+12: | --- | --- |
+13: | `--json` | stdout输出一行JSON（§5响应封装）。维护告警独立写stderr，不改业务JSON。不带时输出人读文本 |
+14: | `--home <dir>` | 覆盖管理根。默认取 `SHELTIE_HOME`，再默认 `~/.sheltie` |
+15: | `--request-id <uuid>` | 仅 Work 与 Workbook 写操作可选。不给时引擎生成并在响应里返回。协调者若要安全重试，先记下 id 再调用。只读操作和整个 `self` 命令组都不支持：给出即 `INVALID_REQUEST`、退出码 2，查询不虚构 request-id |
+16: 
+17: **主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
+18: 
+19: **只读操作**（`list`、`show`、`status`、`result`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 4控制Store、锁和自有未提交pending。
+20: 
+21: ## 2. 操作一览
+22: 
+23: | 命令 | 写 | 作用 |
+24: | --- | --- | --- |
+25: | `self install` | 是 | 把当前运行的二进制装到 `bin/sheltie`，建管理根。不写 shell 配置 |
+26: | `self update [--version <v>]` | 是 | 下载新版本，校验，原子替换 |
+27: | `self rollback` | 是 | 换回上一版本 |
+28: | `self uninstall [--purge]` | 是 | 默认删`bin/`；确认purge删用户数据/binary，保留空根和同一个`.lock` |
+29: | `self version` | 否 | 版本、平台、管理根、`SCHEMA_VERSION` |
+30: | `workbook add <dir>` | 是 | 校验并复制 Workbook 到管理根 |
+31: | `workbook list` | 否 | 列出已装 Workbook 的 id、版本、名称，标出每个 id 的最高版本；待发布版本带 `pending_publish` |
+32: | `workbook show <id>[@<version>]` | 否 | 打印 manifest、宿主资源声明与每个 Flow 的节点、边、有序起始输入键 |
+33: | `workbook remove <id>@<version>` | 是 | 删除一个已装版本；有非终态 Work 引用时拒绝 |
+34: | `workbook verify [<id>@<version>]` | 否 | 重算目录摘要与库中记录对比 |
+35: | `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | 是 | 创建 Work，冻结一份 Workbook 副本 |
+36: | `work list` | 否 | 列出 Work 的 id、名称、状态、当前节点、更新时间 |
+37: | `work status <work>` | 否 | 打印紧凑状态与当前 Attempt 接续指针（文本或 JSON） |
+38: | `work result <work>` | 否 | 返回终点明确选择的最终成果引用与交付就绪事实 |
+39: | `work stats <work>` | 否 | 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来 |
+40: | `work cancel <work>` | 是 | 取消 |
+
+RESULT FIELDS
+3: 本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v4`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+38: | `work result <work>` | 否 | 返回终点明确选择的最终成果引用与交付就绪事实 |
+139: ### `work result`
+141: `sheltie [--json] work result <work>` 是只读查询，前缀解析遵守 §2，不接受 request-id，不自动恢复或刷状态卡。`data` 为 `work-result/v1`：
+145: | `format` | 固定 `work-result/v1` |
+153: `source.kind` 为 `input` 或 `output`；`source.attempt` 是进行绑定或封存的具体成功终点 Attempt 字符串，`name` 是选中槽的逻辑名。ArtifactRef 完整采用该 Attempt 的冻结引用，不选上游最新产物。没有声明时 final=true、artifacts=[]，文本说明“未声明最终成果”；状态声称成功但终点、必需引用或归属矛盾时为 STORE_CORRUPT，不伪装成空选择。next 来自同次状态与图。
+236: ## 5. 响应封装（`--json`，`cli-result/v4`）
+377: sheltie --home <management-root> work result <full-work-id> --artifact <key> --revision <positive-integer>
+381: 原字节模式artifact/revision同时出现，拒绝json/request-id，参数拒绝stdout为空、stderr诊断/exit2。以单一已验证读取的结果核revision精确相同、final=true、effects_pending=false及key；普通模式仍只列Refs。用已核Ref的受限普通单链接同FD读取，限额、实际size/sha/身份全部成功才exit0，原件缺失/修改/不安全及业务资格按既有错误code/exit规则拒绝，诊断只在stderr。可能已有部分stdoutbytes，消费者先暂存并核最终exit；不把部分输出当完成，不清理或恢复。
+
+T43 REVIEW SHA MATCH False

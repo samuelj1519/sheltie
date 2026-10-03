@@ -1,0 +1,2672 @@
+{
+  "run_id": "agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0",
+  "sample_id": "source-start",
+  "arm": "sheltie",
+  "actor_id": "/root/c007_study_coordinator",
+  "assistant_ids": [
+    "/root/c007_study_coordinator/run02_implement",
+    "/root/c007_study_coordinator/run02_review",
+    "/root/c007_study_coordinator/run02_deliver"
+  ],
+  "prior_uses": {
+    "native": 1,
+    "sheltie": 0
+  },
+  "actor_arm_use_index": 1,
+  "exposure": "first_use_local_Sheltie_with_Native1_prior",
+  "protocol_id": "agent-doc-delivery-20261004",
+  "order_index": 2,
+  "input_refs": {
+    "binding": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/run-binding.json",
+    "task": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/task.md",
+    "project": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/project.md",
+    "method_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input"
+  },
+  "started_at": "2026-10-03T20:12:28.417368+00:00",
+  "ended_at": "2026-10-03T20:27:53.659792+00:00",
+  "wall_seconds": 925.242424,
+  "activity": [
+    {
+      "kind": "first_Sheltie_arm_setup",
+      "cost_bucket": "S_sheltie",
+      "started_at": "2026-10-03T20:13:18.345326+00:00",
+      "ended_at": "2026-10-03T20:13:18.477147+00:00",
+      "wall_seconds": 0.131821,
+      "refs": [
+        "cli/workbook-add.json",
+        "cli/workbook-show.json",
+        "cli/workbook-verify.json"
+      ],
+      "scope": "actual registration/show/verify captured command span; preparation/reading/modeloverhead remain their source events, do not doublecount",
+      "usage": null
+    }
+  ],
+  "agent_activity": [
+    {
+      "utc": "2026-10-03T20:13:58.989403+00:00",
+      "kind": "implement_delegated",
+      "actor_id": "/root/c007_study_coordinator/run02_implement",
+      "cost_bucket": "R",
+      "cold_fork": "none"
+    },
+    {
+      "utc": "2026-10-03T20:17:31.335350+00:00",
+      "kind": "helper_diagnostic_clarification",
+      "actor_id": "/root/c007_study_coordinator/run02_implement",
+      "question": "self-added rg/git Rust file count assertion192 failed before required checks",
+      "answer": "192 is frozen source192_inputs mixed-file map, not Rust file count; no task/project count requirement; retain failed diagnostic and use frozen checks unchanged",
+      "cost_bucket": "R",
+      "standard_changed": false,
+      "required_check_failure": false
+    },
+    {
+      "utc": "2026-10-03T20:19:48.774872+00:00",
+      "kind": "independent_review_delegated",
+      "actor_id": "/root/c007_study_coordinator/run02_review",
+      "cost_bucket": "R",
+      "cold_fork": "none"
+    },
+    {
+      "utc": "2026-10-03T20:23:34.373977+00:00",
+      "kind": "deliver_delegated",
+      "actor_id": "/root/c007_study_coordinator/run02_deliver",
+      "cost_bucket": "R",
+      "cold_fork": "none",
+      "review_conclusion": "建议交付"
+    },
+    {
+      "utc": "2026-10-03T20:27:53.659792+00:00",
+      "kind": "coordinator_final_close",
+      "cost_bucket": "R",
+      "public_result_verified": true,
+      "acceptance": null,
+      "quality": null,
+      "worker_actual_completions": [
+        "implement/review/deliver final observed"
+      ],
+      "native_prior": 1,
+      "sheltie_prior": 0,
+      "current_history_after_method_entry": {
+        "native": 1,
+        "sheltie": 1
+      }
+    }
+  ],
+  "interruptions": [],
+  "rework": [],
+  "usage": null,
+  "fees": null,
+  "human_minutes": null,
+  "delivery_refs": {
+    "change": {
+      "bytes": 6321,
+      "key": "change",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "sha256": "c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "change"
+      }
+    },
+    "checks": {
+      "bytes": 4173,
+      "key": "checks",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "sha256": "70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "checks"
+      }
+    },
+    "delivery": {
+      "bytes": 14261,
+      "key": "delivery",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+      "sha256": "d598ab347ccbf32be6aefff003128a6d3f7d0a3027705611cc185c59c10fc2ed",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "output",
+        "name": "delivery"
+      }
+    },
+    "patch": {
+      "bytes": 13444,
+      "key": "patch",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+      "sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "output",
+        "name": "patch"
+      }
+    },
+    "review": {
+      "bytes": 7976,
+      "key": "review",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+      "sha256": "db039bab3a4f6a74ec1eb39e64dcfca76868a13efdfe7f97c649ff9ce4798ccb",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "review"
+      }
+    }
+  },
+  "acceptance_ref": null,
+  "quality_ref": null,
+  "outcome": "completed",
+  "stop_reason": null,
+  "work_id": "2026-10-03-001-source-start",
+  "method_digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+  "arm_setup_refs": [
+    "cli/workbook-add.json",
+    "cli/workbook-show.json",
+    "cli/workbook-verify.json"
+  ],
+  "cross_arm_familiarity": "coordinator Native1 prior; no previous candidate/answer passed to newworker",
+  "global_model_human_history": null,
+  "candidate": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+  "candidate_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+  "recording_implementation_note": {
+    "intent_exclusivity": "workbook-add/work-start and submit-review/begin-deliver used open(x); begin-implement/submit-implement/begin-review saved before command with write_text not exclusive open(x); no existing intent was observed/overwritten; originalactual code/tooloutput retained; strictfirstuse exclusivecreate not enforced for three intent files",
+    "request_ids": "all actual writingcalls generated before command and actual raw response captured",
+    "scope": "recording deviation does not change input/standard; independentadmission/runtimeaudit determines significance"
+  },
+  "external_assistance": [
+    {
+      "actor_id": "/root",
+      "role": "binding/protocol owner, host metadata recorder and actual guidance messages",
+      "source": "actual parent messages in coordinator session",
+      "cost_bucket": "R for run-specific assistance; no fabricated separate wall-duration",
+      "messages": [
+        "acknowledged malformed binding cat diagnostic and current-path correction",
+        "reminded fixed hard deadline/scope and noqualityshortcut",
+        "required intent exclusivity deviation preserved, no retrospective correction",
+        "reviewed crossrun search exposure and allowed current-arm delivery only if no candidate-content exposure, with fairnessdeviation"
+      ],
+      "exact_message_utc_from_this_record": null,
+      "wall_seconds": null,
+      "usage": null,
+      "fees": null
+    }
+  ],
+  "fairness_deviations": [
+    {
+      "kind": "deliver_crossrun_rg_matches",
+      "source": "worker actualmessage; rawref pending actualworker write",
+      "observed_utc": "2026-10-03T20:25:01.365579+00:00",
+      "native_scope": "preflight and deliverdriver few matching lines, actualcontents tobe verified by Root",
+      "full_no_other_arm_condition": "not satisfied",
+      "impact": "unknown; eligibility and comparison not granted",
+      "root_direction": "no further crossrun search; proceed only current binding paths if no candidatecontent exposed",
+      "actual_original_output_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/read-boundary-rg-tool-output.txt",
+      "actual_incident_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/read-boundary-deviation.json",
+      "actual_exposure": "12 matching lines: own run2 preflight/driver and native run1 preflight/driver/implement script; no README/guide candidate text; method verification statements exposed"
+    }
+  ],
+  "hard_deadline_utc": "2026-10-03T20:32:28.417368+00:00",
+  "within_deadline": true,
+  "execution_scope": "workflow/candidate/completepatch/application/publicresult completed; protocoleligibility unresolved deviations; independentquality/Rootacceptance not_run",
+  "engine": {
+    "work_id": "2026-10-03-001-source-start",
+    "revision": 7,
+    "status": {
+      "kind": "succeeded"
+    },
+    "final": true,
+    "effects_pending": false,
+    "result_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/work-result-final-reply.json"
+  },
+  "visits": {
+    "implement": 1,
+    "review": 1,
+    "deliver": 1
+  },
+  "retries": {
+    "implement": 0,
+    "review": 0,
+    "deliver": 0
+  },
+  "natural_rework_observed": 0,
+  "commands": [
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-full-paths.json",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.794054+00:00",
+      "end_utc": "2026-10-03T20:24:52.806613+00:00",
+      "elapsed_s": 0.012559,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-full-paths.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-full-paths.stderr",
+      "stdout_sha256": "602387b885a8fb62f81150070c37ce6e6540d4b75ab25edb897a69e60a8836d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-tree.json",
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.769914+00:00",
+      "end_utc": "2026-10-03T20:24:52.781157+00:00",
+      "elapsed_s": 0.011243,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-tree.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/applied-tree.stderr",
+      "stdout_sha256": "01ce05d445464ae5d1f3143fc2132aebbc79d52cc0894c4ae4078ae33418b011",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-check.json",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.738544+00:00",
+      "end_utc": "2026-10-03T20:24:52.750909+00:00",
+      "elapsed_s": 0.012365,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-check.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-check.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-index.json",
+      "argv": [
+        "git",
+        "apply",
+        "--index",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.751466+00:00",
+      "end_utc": "2026-10-03T20:24:52.769341+00:00",
+      "elapsed_s": 0.017875,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-index.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/apply-index.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/baseline-identity.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.658069+00:00",
+      "end_utc": "2026-10-03T20:24:52.664216+00:00",
+      "elapsed_s": 0.006147,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/baseline-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/baseline-identity.stderr",
+      "stdout_sha256": "c468f61244ffa72ff7f2f4a751b2d4371f60ca33d1f82aa464245de840c0eedd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-full-paths.json",
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "-z",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.645555+00:00",
+      "end_utc": "2026-10-03T20:24:52.657716+00:00",
+      "elapsed_s": 0.012161,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-full-paths.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-full-paths.stderr",
+      "stdout_sha256": "602387b885a8fb62f81150070c37ce6e6540d4b75ab25edb897a69e60a8836d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity-final.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.840089+00:00",
+      "end_utc": "2026-10-03T20:24:52.850705+00:00",
+      "elapsed_s": 0.010616,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity-final.stderr",
+      "stdout_sha256": "4d05a5ba7434b14c14115d2dc266e407ea89f57cb01de993f06e7df11a1899d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.608075+00:00",
+      "end_utc": "2026-10-03T20:24:52.620565+00:00",
+      "elapsed_s": 0.01249,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-identity.stderr",
+      "stdout_sha256": "4d05a5ba7434b14c14115d2dc266e407ea89f57cb01de993f06e7df11a1899d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status-final.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.851185+00:00",
+      "end_utc": "2026-10-03T20:24:52.873250+00:00",
+      "elapsed_s": 0.022065,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status-final.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.621000+00:00",
+      "end_utc": "2026-10-03T20:24:52.645140+00:00",
+      "elapsed_s": 0.02414,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-tree-final.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.781690+00:00",
+      "end_utc": "2026-10-03T20:24:52.793506+00:00",
+      "elapsed_s": 0.011816,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-tree-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/candidate-tree-final.stderr",
+      "stdout_sha256": "01ce05d445464ae5d1f3143fc2132aebbc79d52cc0894c4ae4078ae33418b011",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-identity.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.677304+00:00",
+      "end_utc": "2026-10-03T20:24:52.689307+00:00",
+      "elapsed_s": 0.012003,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-identity.stderr",
+      "stdout_sha256": "024d81ffe90ba30313ac25b5ed389e7b72d41a3f3791ea8fb00f3bf7e702cbd9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.689750+00:00",
+      "end_utc": "2026-10-03T20:24:52.737994+00:00",
+      "elapsed_s": 0.048244,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-initial-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-unstaged-diff.json",
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.807174+00:00",
+      "end_utc": "2026-10-03T20:24:52.819149+00:00",
+      "elapsed_s": 0.011975,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-unstaged-diff.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-unstaged-diff.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-untracked.json",
+      "argv": [
+        "git",
+        "ls-files",
+        "--others",
+        "--exclude-standard"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.819754+00:00",
+      "end_utc": "2026-10-03T20:24:52.839440+00:00",
+      "elapsed_s": 0.019686,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-untracked.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/check-no-untracked.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/generate-full-patch.json",
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "--full-index",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "HEAD",
+        "--",
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:24:52.665353+00:00",
+      "end_utc": "2026-10-03T20:24:52.676755+00:00",
+      "elapsed_s": 0.011402,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/generate-full-patch.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/generate-full-patch.stderr",
+      "stdout_sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-identity.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:27:25.877207+00:00",
+      "end_utc": "2026-10-03T20:27:25.889676+00:00",
+      "elapsed_s": 0.012469,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-identity.stderr",
+      "stdout_sha256": "4d05a5ba7434b14c14115d2dc266e407ea89f57cb01de993f06e7df11a1899d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-scope.json",
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:27:25.914806+00:00",
+      "end_utc": "2026-10-03T20:27:25.926924+00:00",
+      "elapsed_s": 0.012118,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-scope.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-scope.stderr",
+      "stdout_sha256": "493db1c72190fe56af2c85b53835ebd6c9514e12c3e3f832db23511d61276862",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:27:25.890096+00:00",
+      "end_utc": "2026-10-03T20:27:25.914346+00:00",
+      "elapsed_s": 0.02425,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-candidate-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-confirm-after-diagnostic.json",
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H%n%T",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.073308+00:00",
+      "end_utc": "2026-10-03T20:17:39.085829+00:00",
+      "elapsed_s": 0.012521,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-confirm-after-diagnostic.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-confirm-after-diagnostic.stderr",
+      "stdout_sha256": "024d81ffe90ba30313ac25b5ed389e7b72d41a3f3791ea8fb00f3bf7e702cbd9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-identity.json",
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H%n%T",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:04.563685+00:00",
+      "end_utc": "2026-10-03T20:17:04.576138+00:00",
+      "elapsed_s": 0.012453,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/baseline-identity.stderr",
+      "stdout_sha256": "024d81ffe90ba30313ac25b5ed389e7b72d41a3f3791ea8fb00f3bf7e702cbd9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/before-stage-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.086318+00:00",
+      "end_utc": "2026-10-03T20:17:39.110618+00:00",
+      "elapsed_s": 0.0243,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/before-stage-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/before-stage-status.stderr",
+      "stdout_sha256": "632c5e74025a4c5342a2594d4536497e81c7ea322db12bea13171a5a05d2a7d3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-commit.json",
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "--file",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/commit-message.txt"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.561044+00:00",
+      "end_utc": "2026-10-03T20:17:41.581618+00:00",
+      "elapsed_s": 0.020574,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-commit.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-commit.stderr",
+      "stdout_sha256": "4b270018e1d29a09a1ba561622b2a32fa958ca4b3b7acb9359e586f3e5a05d21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-identity.json",
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H%n%T",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.582041+00:00",
+      "end_utc": "2026-10-03T20:17:41.594309+00:00",
+      "elapsed_s": 0.012268,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-identity.stderr",
+      "stdout_sha256": "4d05a5ba7434b14c14115d2dc266e407ea89f57cb01de993f06e7df11a1899d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-patch-paths.json",
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.594754+00:00",
+      "end_utc": "2026-10-03T20:17:41.607129+00:00",
+      "elapsed_s": 0.012375,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-patch-paths.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-patch-paths.stderr",
+      "stdout_sha256": "493db1c72190fe56af2c85b53835ebd6c9514e12c3e3f832db23511d61276862",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-stat.json",
+      "argv": [
+        "git",
+        "show",
+        "--stat",
+        "--oneline",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.632146+00:00",
+      "end_utc": "2026-10-03T20:17:41.644412+00:00",
+      "elapsed_s": 0.012266,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-stat.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-stat.stderr",
+      "stdout_sha256": "ff8aaf36436d1f3bfa40657dff626f80c020cd355082bc1b30d57e96aee20a9a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.607598+00:00",
+      "end_utc": "2026-10-03T20:17:41.631651+00:00",
+      "elapsed_s": 0.024053,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.json",
+      "argv": [
+        "scripts/check-docs.sh",
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.148438+00:00",
+      "end_utc": "2026-10-03T20:17:41.533107+00:00",
+      "elapsed_s": 2.384669,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stderr",
+      "stdout_sha256": "a6505630b88f4a7c20f9a8ae18b411e4e8e9d0cfd65f02f7c8543c19234fbccd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.json",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.534026+00:00",
+      "end_utc": "2026-10-03T20:17:41.547075+00:00",
+      "elapsed_s": 0.013049,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/source-file-list.json",
+      "argv": [
+        "git",
+        "ls-files",
+        "*.rs"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:04.576581+00:00",
+      "end_utc": "2026-10-03T20:17:04.582743+00:00",
+      "elapsed_s": 0.006162,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/source-file-list.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/source-file-list.stderr",
+      "stdout_sha256": "5277f562cacbdeffe0661b8936d7fecfbdb655aa59bc8f34bc896afac0f9b18f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/stage-authorized-files.json",
+      "argv": [
+        "git",
+        "add",
+        "--",
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.111180+00:00",
+      "end_utc": "2026-10-03T20:17:39.123648+00:00",
+      "elapsed_s": 0.012468,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/stage-authorized-files.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/stage-authorized-files.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-paths.json",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.124096+00:00",
+      "end_utc": "2026-10-03T20:17:39.136413+00:00",
+      "elapsed_s": 0.012317,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-paths.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-paths.stderr",
+      "stdout_sha256": "493db1c72190fe56af2c85b53835ebd6c9514e12c3e3f832db23511d61276862",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-after-checks.json",
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:41.547673+00:00",
+      "end_utc": "2026-10-03T20:17:41.560275+00:00",
+      "elapsed_s": 0.012602,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-after-checks.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-after-checks.stderr",
+      "stdout_sha256": "01ce05d445464ae5d1f3143fc2132aebbc79d52cc0894c4ae4078ae33418b011",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-before-checks.json",
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:17:39.136872+00:00",
+      "end_utc": "2026-10-03T20:17:39.147774+00:00",
+      "elapsed_s": 0.010902,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-before-checks.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-before-checks.stderr",
+      "stdout_sha256": "01ce05d445464ae5d1f3143fc2132aebbc79d52cc0894c4ae4078ae33418b011",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-head.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.259735+00:00",
+      "end_utc": "2026-10-03T20:13:18.272114+00:00",
+      "elapsed_s": 0.012379,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-head.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-head.stderr",
+      "stdout_sha256": "bcc1303599badf9f12050992f856dfa8b6f01396c31e7435ea9ca786a00ae081",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.284667+00:00",
+      "end_utc": "2026-10-03T20:13:18.308776+00:00",
+      "elapsed_s": 0.024109,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-tree.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.272507+00:00",
+      "end_utc": "2026-10-03T20:13:18.284271+00:00",
+      "elapsed_s": 0.011764,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-tree.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/initial-tree.stderr",
+      "stdout_sha256": "c468f61244ffa72ff7f2f4a751b2d4371f60ca33d1f82aa464245de840c0eedd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-docs.json",
+      "argv": [
+        "cat",
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.116595+00:00",
+      "end_utc": "2026-10-03T20:20:08.120178+00:00",
+      "elapsed_s": 0.003583,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-docs.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-docs.stderr",
+      "stdout_sha256": "1d97e08a12405793f9df49a9affa062e0853567f2744a54a9f3f52e9aa148acb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-full-diff.json",
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "--full-index",
+        "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.099229+00:00",
+      "end_utc": "2026-10-03T20:20:08.111980+00:00",
+      "elapsed_s": 0.012751,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-full-diff.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-full-diff.stderr",
+      "stdout_sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity-corrected.json",
+      "argv": [
+        "git",
+        "show",
+        "--no-patch",
+        "--format=fuller",
+        "HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:17.478186+00:00",
+      "end_utc": "2026-10-03T20:20:17.490776+00:00",
+      "elapsed_s": 0.01259,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity-corrected.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity-corrected.stderr",
+      "stdout_sha256": "f615e96f603a3d2139ab8e69d4ce95bbd41c6b564b7e93e3b2d4ee2ac2b9ad80",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity.json",
+      "argv": [
+        "git",
+        "show",
+        "--no-patch",
+        "--format=fuller HEAD"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.049854+00:00",
+      "end_utc": "2026-10-03T20:20:08.062328+00:00",
+      "elapsed_s": 0.012474,
+      "exit_code": 128,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-identity.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b257f5b35be647fc86966a28a1178e742e209454f79ead9211cc2984e615f406",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-status.json",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.075704+00:00",
+      "end_utc": "2026-10-03T20:20:08.098672+00:00",
+      "elapsed_s": 0.022968,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-status.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-status.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-tree.json",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.062851+00:00",
+      "end_utc": "2026-10-03T20:20:08.075265+00:00",
+      "elapsed_s": 0.012414,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-tree.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/candidate-tree.stderr",
+      "stdout_sha256": "4d05a5ba7434b14c14115d2dc266e407ea89f57cb01de993f06e7df11a1899d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/engineering-style-complete.json",
+      "argv": [
+        "cat",
+        "specs/engineering.md",
+        "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md",
+        "/Users/shushu/.agents/skills/tech-doc-style-chinese/references/controlled-technical-chinese.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:17.491246+00:00",
+      "end_utc": "2026-10-03T20:20:17.494594+00:00",
+      "elapsed_s": 0.003348,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/engineering-style-complete.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/engineering-style-complete.stderr",
+      "stdout_sha256": "dead063f91a6598c1e0e757189011b5ad8bec105f9b3b070e52a8dacf2881ba4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style-final.json",
+      "argv": [
+        "cat",
+        "specs/README.md",
+        "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:27.921020+00:00",
+      "end_utc": "2026-10-03T20:20:27.924367+00:00",
+      "elapsed_s": 0.003347,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style-final.stderr",
+      "stdout_sha256": "291b0165a87047f95adf508e34d2f0a3909496452ac85401530a35417690cf68",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style.json",
+      "argv": [
+        "cat",
+        "CONTEXT.md",
+        "specs/README.md",
+        "specs/engineering.md",
+        "/Users/shushu/.agents/skills/tech-doc-style-chinese/SKILL.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:08.112539+00:00",
+      "end_utc": "2026-10-03T20:20:08.116094+00:00",
+      "elapsed_s": 0.003555,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/entry-and-style.stderr",
+      "stdout_sha256": "68cd8dbee99d3b726fd6a3a3c26948684bbc90164f93775fb75bccb402aea2c5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/evidence-byte-audit.json",
+      "argv": [
+        "python3",
+        "-c",
+        "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path('/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0')\nimpl=root/'raw/implement-1'; checked=json.loads((impl/'checked-input.json').read_text()); reply=json.loads((root/'begin-review-1-reply.json').read_text())['data']\nexpected={'task':'1345a1ce70f26a1311de7d6b8a57b5786bd0ea154f4073a46eccd1fe461e4f64','project':'188dac600eeccd1593012bbd6894dc966b8daee495ac1d33f0ce59ab5f7b87ec','change':'c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f','checks':'70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785'}\nfor name,sha in expected.items():\n actual=hashlib.sha256(Path(reply['inputs'][name]).read_bytes()).hexdigest();assert actual==sha;print('input',name,actual)\nfor name,sha in checked['allow_files_sha256'].items():\n actual=hashlib.sha256(Path(name).read_bytes()).hexdigest();assert actual==sha;print('candidate-file',name,actual)\nfor label in ['required-docs','required-staged-diff','staged-tree-before-checks','staged-tree-after-checks','candidate-identity','candidate-patch-paths','candidate-status']:\n record=json.loads((impl/(label+'.json')).read_text())\n for kind in ['stdout','stderr']:\n  actual=hashlib.sha256(Path(record[kind+'_path']).read_bytes()).hexdigest();assert actual==record[kind+'_sha256']\n print('original',label,'exit',record['exit_code'],'argv',record['argv'],'cwd',record['cwd'])\nfor label in ['required-docs','required-staged-diff']:\n r=json.loads((impl/(label+'.json')).read_text());assert r['exit_code']==0 and not r['timed_out'] and r['within_deadline']\nprint('all declared input, candidate byte, and original hashes match')\n"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:21:34.803169+00:00",
+      "end_utc": "2026-10-03T20:21:34.851773+00:00",
+      "elapsed_s": 0.048604,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/evidence-byte-audit.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/evidence-byte-audit.stderr",
+      "stdout_sha256": "ec0267eeb0838068dc679d99fe520c9e4b4241b7d0df0c179bbe3d3b9642e858",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/implement-failure-and-env.json",
+      "argv": [
+        "cat",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/actor.json",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/diagnostic-runner1-failure.json"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:21:34.865359+00:00",
+      "end_utc": "2026-10-03T20:21:34.868697+00:00",
+      "elapsed_s": 0.003338,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/implement-failure-and-env.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/implement-failure-and-env.stderr",
+      "stdout_sha256": "2841299d2ef8b9dbb0008f848377135315bdbdf1bce63b27f39da000ba648e38",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/mechanical-originals.json",
+      "argv": [
+        "cat",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/checked-input.json",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.json",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stderr",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.json",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stderr",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-before-checks.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/staged-tree-after-checks.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-identity.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-patch-paths.stdout",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/candidate-status.stdout"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:21:09.221041+00:00",
+      "end_utc": "2026-10-03T20:21:09.227581+00:00",
+      "elapsed_s": 0.00654,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/mechanical-originals.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/mechanical-originals.stderr",
+      "stdout_sha256": "829f426fabfe642b2bdf7f1a7a2088a9b2c29156dedf2657a3de3576f3a8b491",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-cli.json",
+      "argv": [
+        "cat",
+        "crates/sheltie-cli/src/cli.rs",
+        "crates/sheltie-cli/src/commands/mod.rs",
+        "crates/sheltie-cli/src/commands/self_cmd.rs"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:52.703269+00:00",
+      "end_utc": "2026-10-03T20:20:52.706562+00:00",
+      "elapsed_s": 0.003293,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-cli.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-cli.stderr",
+      "stdout_sha256": "6542a7edab5bc0e48ea73a98a5bf688d9884167f381eaf68e5d3339e1de955a8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-coordinator-and-export.json",
+      "argv": [
+        "cat",
+        "skills/sheltie/SKILL.md",
+        "specs/guides/result-export.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:52.699142+00:00",
+      "end_utc": "2026-10-03T20:20:52.702779+00:00",
+      "elapsed_s": 0.003637,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-coordinator-and-export.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-coordinator-and-export.stderr",
+      "stdout_sha256": "afe67305ff0d2ab3a13d1096f9e3c6d6e290dc434db0b061c5d0369dbf8d221d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-method.json",
+      "argv": [
+        "cat",
+        "examples/code-change/README.md",
+        "examples/code-change/workbook.toml",
+        "examples/code-change/flows/default.toml",
+        "examples/code-change/instructions/implement.md",
+        "examples/code-change/instructions/review.md",
+        "examples/code-change/instructions/deliver.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:17.495053+00:00",
+      "end_utc": "2026-10-03T20:20:17.498245+00:00",
+      "elapsed_s": 0.003192,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-method.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-method.stderr",
+      "stdout_sha256": "388b6bcab8b7d04457df18b3b2859c6846a170ee03f0ef9c22fcdf808772560f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-path-correction.json",
+      "argv": [
+        "rg",
+        "-n",
+        "SCHEMA_VERSION|fn version_info|fn resolve|schema_version",
+        "crates/sheltie-runtime/src"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:21:34.852591+00:00",
+      "end_utc": "2026-10-03T20:21:34.864951+00:00",
+      "elapsed_s": 0.01236,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-path-correction.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-path-correction.stderr",
+      "stdout_sha256": "c18d1162d233b4af23eac0d04eb9144e6f409b0783ba4ca6eabf68afad4c6e21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-first.json",
+      "argv": [
+        "sed",
+        "-n",
+        "1,193p",
+        "specs/contracts/protocol.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:34.769901+00:00",
+      "end_utc": "2026-10-03T20:20:34.773662+00:00",
+      "elapsed_s": 0.003761,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-first.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-first.stderr",
+      "stdout_sha256": "074ca1ba20ef95f93bde665ab8484e9387e924a4365460131573588c600a6376",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-last.json",
+      "argv": [
+        "sed",
+        "-n",
+        "194,387p",
+        "specs/contracts/protocol.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:43.246317+00:00",
+      "end_utc": "2026-10-03T20:20:43.249758+00:00",
+      "elapsed_s": 0.003441,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-last.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-protocol-last.stderr",
+      "stdout_sha256": "2682bb4ebbebef30fa36bbb3235d6456c944e93f5d770c8b11b4c54e4e2cbfdd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-search.json",
+      "argv": [
+        "rg",
+        "-n",
+        "schema_version|self_version|enum.*Command|struct.*Args|request_id|pending_publish|EFFECT_PENDING",
+        "crates/sheltie-cli/src"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:27.924775+00:00",
+      "end_utc": "2026-10-03T20:20:27.936958+00:00",
+      "elapsed_s": 0.012183,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-search.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-search.stderr",
+      "stdout_sha256": "e07ceeaa5ca25343ec1f9a6f7a10f0bc63c37189e3be42ae04b1d425640e93c9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-size.json",
+      "argv": [
+        "python3",
+        "-c",
+        "from pathlib import Path\nfor f in ['specs/contracts/protocol.md','skills/sheltie/SKILL.md','specs/guides/result-export.md']:\n p=Path(f);print(f, len(p.read_text().splitlines()))\n"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:20:27.895976+00:00",
+      "end_utc": "2026-10-03T20:20:27.920569+00:00",
+      "elapsed_s": 0.024593,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-size.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/source-size.stderr",
+      "stdout_sha256": "09b5ddd50ecf49843f7bc68c01c2e6039002a70c43c60fd690bf08a5adc88b70",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/version-schema-method-lines.json",
+      "argv": [
+        "rg",
+        "-n",
+        "version =|name =|SCHEMA_VERSION|fn resolve|fn version_info|resume|start_inputs|pending_publish",
+        "Cargo.toml",
+        "crates/sheltie-cli/Cargo.toml",
+        "crates/sheltie-runtime/src/home.rs",
+        "crates/sheltie-runtime/src/store.rs",
+        "crates/sheltie-runtime/src/selfmgmt",
+        "crates/sheltie-cli/src/commands/workbook.rs",
+        "examples/code-change/flows/default.toml"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:21:09.228138+00:00",
+      "end_utc": "2026-10-03T20:21:09.240313+00:00",
+      "elapsed_s": 0.012175,
+      "exit_code": 2,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/version-schema-method-lines.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/version-schema-method-lines.stderr",
+      "stdout_sha256": "4afeec1ec83a6ab631ce31bad4337f1147ccbfb88eed36efd3938fe5bb117f33",
+      "stderr_sha256": "dd92b53cb0b5f91702251ce2b3f41bd9b83cb89051b7a795ef7e269b7af76f6b",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/write-review-report.json",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,datetime,hashlib,os\nfrom pathlib import Path\nreport=\"建议交付：本次日常独立审查未发现需返工的任务标准缺陷；完整 patch 的独立应用仍须由 deliver 执行，本结论不代替流程外质量盲审或代理接受。\\n\\n## 候选、输入与独立性\\n\\n实际审查仓库为 /private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie。候选 HEAD 为 957efb7076861d1dc54e780d841e0b0bb767bccd，tree 为 02966cae1d3fe7a601c26d4bd6f69c66e323a8c4；git status --porcelain=v1 为空。初始 HEAD/tree 为 351feb7ac22c21317a686693b732d5ae0c4b4bcc / 80ea3046b1b3575f07e68313444c051ee7c5b7db。完整初始 commit→HEAD diff 只有 README.md 和新增 specs/guides/source-quick-start.md；新文件已经提交，不依赖未跟踪文件。\\n\\n本 worker 为 /root/c007_study_coordinator/run02_review，未参与本候选实现，未读取另一 arm 或另一 run 的答案，未派助手、改候选、调用 Sheltie 推进或执行最终用户接受。完整读取本次实际 brief、task、project、change、checks。四份输入实际 SHA 与 brief 相同；两项候选文件 SHA 与检查闭包相同，独立原件 evidence-byte-audit.stdout 记录断言与实际值。\\n\\n原件目录：\\n/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1\\n\\n## 按冻结任务标准核对\\n\\n| 标准 | 实际依据与判断 |\\n| --- | --- |\\n| 当前源码入口，不混用远端 v0.2 | guide 第 1–5 行明确 0.3.0-rc.1、schema 4、cli-result/v4、尚未发布及默认无 gate。Cargo.toml 第 6 行版本为 0.3.0-rc.1；store/schema.rs 第 8 行 SCHEMA_VERSION=4。README 只在快速开始下新增一个链接段落，完整 diff 保留原有远端安装和其他正文。 |\\n| 实际 executable、隔离 target/Home、不安装 | guide 第 9–43 行先要求 Bash、源码根及授权；RUSTC_WRAPPER 为空、CARGO_TARGET_DIR 位于新的 mktemp session；解析 Cargo compiler-artifact executable，核唯一、绝对、存在、可执行，失败停止。所有 engine 命令显式传同一 source_home；self version 字段和只读不建 Home 由 commands/self_cmd.rs 与协议 §1/§3 对应。没有 install/update/release 操作。源码构建和实际运行 not_run。 |\\n| 实际 task/project 与完整节点入口 | guide 第 45–151 行提供可执行 README 文档任务、初始 HEAD、允许文件、检查及候选绑定要求；workbook add/verify/show/start、attempt begin/submit、独立 review、submit/back 返工、deliver 和 work result 命令均在 cli.rs/协议 §2–§3 存在。code-change manifest 版本 1.0.0，default Flow 输入为 task/project；outputs.change/review/delivery、previous-review 首次 null、main/back 与三个 result 槽都逐项对应实际 Flow。节点内容交工作 agent，协调者读报告核候选并选当前 next，引擎不判断质量。 |\\n| 当前查询、错误与停止边界 | guide 第 155–180 行要求恢复显式路径，先 work list/status/stats，核 revision、status、effects_pending、pending_publish、next/resume；草稿不证明存在/封存，旧进程与共享工作区须妥善处置，历史写快照不得用于当前推进。与协议 §5–§7 和现有 Sheltie skill 一致。表格区分非零/unknown、EFFECT_PENDING committed true/false、真实执行失败和内容返工、次数预算、受阻/终态、旧 schema 整体拒绝并保原件。 |\\n| 中文、链接与真实字段 | guide 的角色、前提、顺序、预期结果与停止条件可定位，机器命令和字段保留真实符号。共享 tech-doc-style-chinese SKILL.md 与 controlled-technical-chinese.md 已读；未把简洁当成删限制的理由。全部新增链接路径在 assigned repo 存在；必需 check-docs 原件 exit 0。 |\\n\\n相关资料已实际读取：assigned CONTEXT.md、specs/README.md、specs/engineering.md、README、code-change README/manifest/完整 Flow/三份 instruction、完整 protocol 合同、skills/sheltie/SKILL.md、result-export 指南及 CLI 参数/分派/self version 源码。规格入口显示该冻结副本没有 active change；本次明确外部 study task/project 授权两文件文档 patch，没有自行采用 proposed 方案。\\n\\n工程 review 项中，依据、不变式、文档、提交和证据已按本任务范围核对。纯文档 patch 未改 Rust、Workbook、协议、状态机、存储或测试，未新增 runtime 规则；新 I/O 路径崩溃、路径边界、正反测试和突变测试为不适用的实施检查，现有行为仅静态对照，不能据此声称相应产品验证通过。提交消息及 trailer 与冻结 project 的本地 study 格式相符。\\n\\n## 检查原件与真实失败\\n\\n独立读取 implement-1/checked-input.json、required-docs.json/.stdout/.stderr、required-staged-diff.json/.stdout/.stderr，以及 staged tree 前后、candidate 身份、路径集和 clean status 原件。又用 evidence-byte-audit 对这些记录指向的 stdout/stderr 实际 SHA 逐项核对，全部相同。\\n\\n两项必需检查的实际 cwd 都为 assigned repo：scripts/check-docs.sh README.md specs/guides/source-quick-start.md 退出 0，stdout 为 check-docs: OK (2 个文件)，stderr 空；git diff --cached --check 退出 0，stdout/stderr 空。检查前后 staged tree 等于 candidate commit tree，允许文件 SHA 与实际候选相同。本 review 复用这个相同输入闭包的原件，没有重跑两项检查；链接/空白机械检查不代替上述内容核查。原始 PATH/LANG/LC_ALL/Git/Cargo 环境见 implement-1/actor.json；capture 控制变量均 null。\\n\\n实现阶段的 glob 诊断 exit 1 与错误 Rust 文件数断言 exit 1 已保留在原 actor/diagnostic-runner1-failure.json，未覆盖或改标准。本 review 亦有两项真实只读诊断失败：\\n- candidate-identity.json：git show 的 --format 参数误合成“fuller HEAD”，exit 128；candidate-identity-corrected.json 使用分开的 --format=fuller 与 HEAD，exit 0，保留两份原件。\\n- version-schema-method-lines.json：rg 参数中两条猜测路径不存在，exit 2；source-path-correction.json 改搜实际 runtime/src，exit 0，定位 selfmgmt.rs 和 store/schema.rs，原失败保留。\\n\\n这些均不是必需检查、Attempt 执行失败或候选问题。最初 binding/brief/四输入及 capture.py 的 cat 通过真实 exec 工具读取，原始工具记录由 session 保存，未有 capture 分流原件；actor.json 明确索引此边界，不补造历史命令原件。后续实际命令使用冻结 capture.execute，唯一 label、120 秒上限、原 run deadline，并保存 argv/cwd/UTC/stdout/stderr/exit/hash。\\n\\n## 完整 patch 与交付前限制\\n\\nchange.md 已声明冻结规则：从初始 commit 到 HEAD 用 git diff --binary --full-index、显式两授权路径生成完整 patch；新增文件必须 stage/commit，核全路径集，禁止 plain unstaged diff；patch/报告限额保留。实际 candidate-full-diff 原件证实新 guide 未遗漏且无其他路径。\\n\\ndeliver 仍须从原始完整基线建立指定 patch-check/source-start/sheltie 副本，核初始 HEAD/tree 与干净状态，顺序执行 git apply --check、git apply --index、git write-tree；所得 tree 必须为 02966cae1d3fe7a601c26d4bd6f69c66e323a8c4，全部授权文件字节/SHA须等于候选，并保留命令原件。该独立应用当前 not_run，不能把本 review 中读取完整 diff 当作执行应用。候选若漂移，当前内容判断和同闭包检查引用须重新核实。\\n\\n本次 Rust build/check/test、安装/更新/发布、Sheltie 操作演练、完整 patch 独立应用、流程外最终质量盲审与代理接受均 not_run。模型声明为继承 gpt-6.1-sol/high、无 override；实际模型 session metadata 由 Root 核。usage、费用及未从工具获知的统计为 unknown，不从 Attempt 数据推算。\\n\"\nout=Path(\"/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md\")\nwith out.open('x') as f:f.write(report)\nraw=Path(\"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1\")\nrecords=[json.loads(p.read_text()) for p in raw.glob('*.json') if p.name!='actor.json']\nactor={'actor_id':'/root/c007_study_coordinator/run02_review','phase':'review#1.0','identity_recorded_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'model_declaration':'gpt-6.1-sol/high inherited; no override','runtime_model_session_metadata':'unknown; Root independently verifies','usage':'unknown','fee':'unknown','first_captured_command_utc':min(r['start_utc'] for r in records),'phase_start_utc':'unknown; original tool transcript held by session','tools':['functions.exec','tools.exec_command','collaboration.send_message'],'helpers':[],'repo':\"/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie\",'candidate':'957efb7076861d1dc54e780d841e0b0bb767bccd','tree':'02966cae1d3fe7a601c26d4bd6f69c66e323a8c4','direct_uncaptured_reads':'First actual exec cat: run-binding.json and begin-review-1-reply.json; second exec cat batch: actual brief/task/project/change/checks; third exec cat: frozen capture.py. Combined output in actual tool session transcript, separate streams unknown; not retroactively fabricated.','environment':{k:os.environ.get(k) for k in ['PATH','LANG','LC_ALL','RUSTC_WRAPPER','CARGO_TARGET_DIR','GIT_CONFIG_COUNT','GIT_INDEX_FILE','GIT_WORK_TREE','GIT_DIR']},'permissions':'Only actual outputs.review and own raw/review-1 written; repo and all inputs read-only; no other arm/run answers read; no Sheltie calls; no helpers.','review_path':str(out),'review_sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'review_bytes':out.stat().st_size,'not_run':['required mechanical checks rerun','Rust build/test','Sheltie operation rehearsal','patch independent apply','final blind quality','proxy acceptance']}\nwith (raw/'actor.json').open('x') as f:json.dump(actor,f,ensure_ascii=False,indent=2);f.write('\\n')\nprint(json.dumps({'review_path':str(out),'bytes':out.stat().st_size,'sha256':actor['review_sha256'],'written_utc':actor['identity_recorded_utc']},ensure_ascii=False))\n"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:22:33.808959+00:00",
+      "end_utc": "2026-10-03T20:22:33.834177+00:00",
+      "elapsed_s": 0.025218,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/write-review-report.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/write-review-report.stderr",
+      "stdout_sha256": "68d1fac2eda554dbb8be1fc95eae54eb47a9e9537f7c60e86167a3134756b50d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-deliver-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "e39293e3-ddd9-4a0f-8cbd-2059fea46ae6",
+        "attempt",
+        "begin",
+        "2026-10-03-001-source-start",
+        "--node",
+        "deliver"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:23:04.015355+00:00",
+      "end_utc": "2026-10-03T20:23:04.105425+00:00",
+      "elapsed_s": 0.09007,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-deliver-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-deliver-1.stderr",
+      "stdout_sha256": "d9eeccce51c9a3f66368c4f873add3abfdd7fbb6e5a4a3fcfc4a05c96acda3e1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-implement-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "c3048b8c-f97c-44b0-9b89-8396493ec41e",
+        "attempt",
+        "begin",
+        "2026-10-03-001-source-start",
+        "--node",
+        "implement"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:28.459692+00:00",
+      "end_utc": "2026-10-03T20:13:28.548464+00:00",
+      "elapsed_s": 0.088772,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-implement-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-implement-1.stderr",
+      "stdout_sha256": "e587cc3ed5a7813bfe10f52045ed55269f195029970ad7b7172c05fa85d8c80b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-review-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "5c7bfe74-d27d-40cb-9935-7f1ddbca58de",
+        "attempt",
+        "begin",
+        "2026-10-03-001-source-start",
+        "--node",
+        "review"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:19:23.670687+00:00",
+      "end_utc": "2026-10-03T20:19:23.761265+00:00",
+      "elapsed_s": 0.090578,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-review-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/begin-review-1.stderr",
+      "stdout_sha256": "5047f5da951be8fb8a94a6812f71a8541c52378bec47ee36a67ad044daa14db7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-deliver-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "308b3ea3-9c69-41fe-9e06-83a9d8d86f74",
+        "attempt",
+        "submit",
+        "2026-10-03-001-source-start",
+        "--attempt",
+        "deliver#1.0",
+        "--summary",
+        "完整五材料及指定同基线patch应用齐，tree与文件字节相同；公平性偏差保留，末质量接受not_run。"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:26:58.084499+00:00",
+      "end_utc": "2026-10-03T20:26:58.173390+00:00",
+      "elapsed_s": 0.088891,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-deliver-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-deliver-1.stderr",
+      "stdout_sha256": "30b52e324b806b0388234523c5a60625aa4aca60daae41687a7cd2ba43dd1939",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-implement-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "6f3bb813-9223-4bdc-8427-7845c1bd112a",
+        "attempt",
+        "submit",
+        "2026-10-03-001-source-start",
+        "--attempt",
+        "implement#1.0",
+        "--summary",
+        "当前源码文档候选与两必需检查齐，交独立审查。"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:19:23.579360+00:00",
+      "end_utc": "2026-10-03T20:19:23.669850+00:00",
+      "elapsed_s": 0.09049,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-implement-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-implement-1.stderr",
+      "stdout_sha256": "7807a9420e96e13cacc0fb4dd7469833a75347787e16d55a28e35315967e790d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-review-1.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "027828a2-68d8-45f7-925b-f3272f243608",
+        "attempt",
+        "submit",
+        "2026-10-03-001-source-start",
+        "--attempt",
+        "review#1.0",
+        "--summary",
+        "独立日常审查建议交付，无需返工；完整patch应用仍待deliver。"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:23:03.923774+00:00",
+      "end_utc": "2026-10-03T20:23:04.014377+00:00",
+      "elapsed_s": 0.090603,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-review-1.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/submit-review-1.stderr",
+      "stdout_sha256": "2818092f9b6b213540b66fad2f7c6d3ee01c5fd9081dde415f4920bead716d44",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-result-final.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "work",
+        "result",
+        "2026-10-03-001-source-start"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:26:58.187148+00:00",
+      "end_utc": "2026-10-03T20:26:58.199355+00:00",
+      "elapsed_s": 0.012207,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-result-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-result-final.stderr",
+      "stdout_sha256": "29a339b78d4a7db87ebda3df7a1b4fa097f4aec31f75ab7c190b52c35980f850",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-start.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "43dede14-631f-4ebf-b8ca-390bf04292db",
+        "work",
+        "start",
+        "--workbook",
+        "code-task-study@1.0.0",
+        "--flow",
+        "default",
+        "--name",
+        "source-start",
+        "--input",
+        "task=@/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/task.md",
+        "--input",
+        "project=@/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/samples/source-start/project.md"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.477885+00:00",
+      "end_utc": "2026-10-03T20:13:18.627374+00:00",
+      "elapsed_s": 0.149489,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-start.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-start.stderr",
+      "stdout_sha256": "6429bbb1026e08ee754cc7076ebbe21f418f53532ce256bc2a1768a130f723e8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-status-final.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "work",
+        "status",
+        "2026-10-03-001-source-start"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:26:58.174117+00:00",
+      "end_utc": "2026-10-03T20:26:58.186445+00:00",
+      "elapsed_s": 0.012328,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-status-final.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/work-status-final.stderr",
+      "stdout_sha256": "718e75441c01d253b01bda219543af5cdcb480bd11931fcc69f91a4b5bc4bc72",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-add.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "--request-id",
+        "c75beb62-1a29-4c52-93c8-7253c3af9e62",
+        "workbook",
+        "add",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.345326+00:00",
+      "end_utc": "2026-10-03T20:13:18.429519+00:00",
+      "elapsed_s": 0.084193,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-add.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-add.stderr",
+      "stdout_sha256": "54eba2773caeac611796472325c7f11738e220193eb1137ef0d16ba69b760afc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-show.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "workbook",
+        "show",
+        "code-task-study@1.0.0"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.430225+00:00",
+      "end_utc": "2026-10-03T20:13:18.454614+00:00",
+      "elapsed_s": 0.024389,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-show.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-show.stderr",
+      "stdout_sha256": "df541d2c49addd2f40bf7df475efbc0a05b0a6ff89b1afc5a5aaeec5b535f0a6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-verify.json",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+        "--home",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home",
+        "--json",
+        "workbook",
+        "verify",
+        "code-task-study@1.0.0"
+      ],
+      "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+      "start_utc": "2026-10-03T20:13:18.455288+00:00",
+      "end_utc": "2026-10-03T20:13:18.477147+00:00",
+      "elapsed_s": 0.021859,
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "within_deadline": true,
+      "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-verify.stdout",
+      "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/cli/workbook-verify.stderr",
+      "stdout_sha256": "98347dd01113fd9ee84ac8c51061ec87b84467e4213d7eb0beea8e3830a69940",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "control_environment": {
+        "SHELTIE_HOME": null,
+        "SHELTIE_FAILPOINT": null,
+        "SHELTIE_EXPORT_TEST_POINT": null,
+        "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+        "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+        "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+        "SHELTIE_TEST_RENDEZVOUS_ID": null,
+        "SHELTIE_TEST_RENDEZVOUS_DIR": null
+      }
+    }
+  ],
+  "actors": {
+    "implement-1": {
+      "ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/actor.json",
+      "raw_actor": {
+        "actor_id": "/root/c007_study_coordinator/run02_implement",
+        "phase": "implement#1.0",
+        "identity_recorded_utc": "2026-10-03T20:17:04.551023+00:00",
+        "model_declaration": "gpt-6.1-sol/high inherited; no override",
+        "runtime_model_session_metadata": "unknown; Root independently verifies",
+        "usage": "unknown",
+        "fee": "unknown",
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+        "baseline_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "baseline_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "initial_status_verified_by_tool": "clean before edits",
+        "task_project_sha256": {
+          "project": "188dac600eeccd1593012bbd6894dc966b8daee495ac1d33f0ce59ab5f7b87ec",
+          "task": "1345a1ce70f26a1311de7d6b8a57b5786bd0ea154f4073a46eccd1fe461e4f64"
+        },
+        "brief": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/brief.md",
+        "environment": {
+          "PATH": "/Users/shushu/.qoder/entry:/Users/shushu/.codex/packages/app-server-daemon/releases/0.160.0-aarch64-apple-darwin/codex-path:/Users/shushu/.local/share/mise/shims:/Users/shushu/.cargo/bin:/Users/shushu/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/shushu/.codex/tmp/arg0/codex-arg0SOquoi:/Users/shushu/.codex/tmp/arg0/codex-arg0iufOmK:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.3-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0L8XS1c:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.2-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0Saxvu1:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.1-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg09AAZBx:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.0-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0SjlmiS:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/codex-path:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/bin:/Users/shushu/.mimocode/bin:/Applications/Orca.app/Contents/Resources/bin:/Users/shushu/.sheltie/bin:/Users/shushu/.orbstack/bin:/Users/shushu/.gem/bin:/Users/shushu/job/cmd:/Users/shushu/tools/cmd:/Users/shushu/tools/nginx/openresty/bin:/Users/shushu/tools/nginx/goaccess/bin:/opt/homebrew/opt/postgresql@16/bin:/Users/shushu/.console-ninja/.bin:/Users/shushu/.bun/bin:/Users/shushu/tools/protoc/bin:/Users/shushu/Library/Application Support/JetBrains/Toolbox/scripts:/Users/shushu/.volta/bin:/Users/shushu/.asdf/shims:/Users/shushu/.fnm/aliases/default/bin:/Users/shushu/Library/pnpm:/Users/shushu/.yarn/bin:/usr/local/sbin:/nix/var/nix/profiles/default/bin:/Users/shushu/bin:/Users/shushu/.nix-profile/bin:/Users/shushu/.opencode/bin:/Users/shushu/.vite-plus/bin:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.157.1/bin:/Users/shushu/.local/share/mise/installs/node/26.5.0/bin:/Users/shushu/.local/share/mise/installs/go/1.26.5/bin:/Users/shushu/.local/share/mise/installs/java/temurin-25.0.3+9.0.LTS/bin:/Users/shushu/.local/share/mise/dotnet-root:/Users/shushu/.local/share/mise/installs/flutter/3.44.6/bin:/Users/shushu/.local/share/mise/installs/go-golang-org-x-tools-gopls/0.23.0/bin:/Users/shushu/.local/share/mise/installs/aqua-golangci-golangci-lint/2.12.2/golangci-lint-2.12.2-darwin-arm64:/Users/shushu/.local/share/mise/installs/aqua-bufbuild-buf/1.71.0/buf/bin:/Users/shushu/.local/share/mise/installs/npm-google-gemini-cli/0.1.3/bin:/Users/shushu/.local/share/mise/installs/npm-qwen-code-qwen-code/0.19.10/bin:/Users/shushu/.local/share/mise/installs/npm-tencent-qqmail-agently-cli/1.0.5/bin:/Users/shushu/.local/share/mise/installs/npm-serve/14.2.4/bin:/Users/shushu/.local/share/mise/installs/aqua-anthropics-claude-code/2.1.283:/Users/shushu/.local/share/mise/installs/npm-deepseek-ai-dsh/0.1.0-rc.7/bin:/Users/shushu/.local/share/mise/installs/http-cursor-agent/latest:/Users/shushu/.local/share/mise/installs/npm-moonshot-ai-kimi-code/2.1.1/bin",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "RUSTC_WRAPPER": null,
+          "CARGO_TARGET_DIR": null,
+          "GIT_CONFIG_COUNT": null,
+          "GIT_INDEX_FILE": null,
+          "GIT_WORK_TREE": null,
+          "GIT_DIR": null
+        },
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "commands": "Every command below is preserved through frozen capture.execute; preceding input/source reads and apply_patch are in the actual worker tool transcript.",
+        "earlier_diagnostic_failure": {
+          "argv": [
+            "zsh",
+            "-lc",
+            "rg -n 'enum|struct|Version|Verify|Start|Begin|Submit|home|request_id|artifact|revision' crates/sheltie-cli/src/cli.rs crates/sheltie-cli/src/main.rs Cargo.toml crates/sheltie-runtime/src/store* crates/sheltie-core/src/protocol*"
+          ],
+          "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+          "exit_code": 1,
+          "stdout_stderr_tool_combined": "zsh:1: no matches found: crates/sheltie-core/src/protocol*\n",
+          "separate_streams": "unknown; original exec tool returned combined output",
+          "impact": "Read-only glob diagnostic failed; correct concrete file paths subsequently read. Not a required check and not hidden."
+        },
+        "permissions": "Only assigned allow_files, actual begin outputs.change/checks, and this new raw/implement-1 directory. No Sheltie commands, Rust build, installation, source Root modifications, or other arm access."
+      }
+    },
+    "review-1": {
+      "ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/review-1/actor.json",
+      "raw_actor": {
+        "actor_id": "/root/c007_study_coordinator/run02_review",
+        "phase": "review#1.0",
+        "identity_recorded_utc": "2026-10-03T20:22:33.830175+00:00",
+        "model_declaration": "gpt-6.1-sol/high inherited; no override",
+        "runtime_model_session_metadata": "unknown; Root independently verifies",
+        "usage": "unknown",
+        "fee": "unknown",
+        "first_captured_command_utc": "2026-10-03T20:20:08.049854+00:00",
+        "phase_start_utc": "unknown; original tool transcript held by session",
+        "tools": [
+          "functions.exec",
+          "tools.exec_command",
+          "collaboration.send_message"
+        ],
+        "helpers": [],
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+        "candidate": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+        "tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+        "direct_uncaptured_reads": "First actual exec cat: run-binding.json and begin-review-1-reply.json; second exec cat batch: actual brief/task/project/change/checks; third exec cat: frozen capture.py. Combined output in actual tool session transcript, separate streams unknown; not retroactively fabricated.",
+        "environment": {
+          "PATH": "/Users/shushu/.qoder/entry:/Users/shushu/.codex/packages/app-server-daemon/releases/0.160.0-aarch64-apple-darwin/codex-path:/Users/shushu/.local/share/mise/shims:/Users/shushu/.cargo/bin:/Users/shushu/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/shushu/.codex/tmp/arg0/codex-arg0SOquoi:/Users/shushu/.codex/tmp/arg0/codex-arg0iufOmK:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.3-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0L8XS1c:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.2-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0Saxvu1:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.1-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg09AAZBx:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.0-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0SjlmiS:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/codex-path:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/bin:/Users/shushu/.mimocode/bin:/Applications/Orca.app/Contents/Resources/bin:/Users/shushu/.sheltie/bin:/Users/shushu/.orbstack/bin:/Users/shushu/.gem/bin:/Users/shushu/job/cmd:/Users/shushu/tools/cmd:/Users/shushu/tools/nginx/openresty/bin:/Users/shushu/tools/nginx/goaccess/bin:/opt/homebrew/opt/postgresql@16/bin:/Users/shushu/.console-ninja/.bin:/Users/shushu/.bun/bin:/Users/shushu/tools/protoc/bin:/Users/shushu/Library/Application Support/JetBrains/Toolbox/scripts:/Users/shushu/.volta/bin:/Users/shushu/.asdf/shims:/Users/shushu/.fnm/aliases/default/bin:/Users/shushu/Library/pnpm:/Users/shushu/.yarn/bin:/usr/local/sbin:/nix/var/nix/profiles/default/bin:/Users/shushu/bin:/Users/shushu/.nix-profile/bin:/Users/shushu/.opencode/bin:/Users/shushu/.vite-plus/bin:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.157.1/bin:/Users/shushu/.local/share/mise/installs/node/26.5.0/bin:/Users/shushu/.local/share/mise/installs/go/1.26.5/bin:/Users/shushu/.local/share/mise/installs/java/temurin-25.0.3+9.0.LTS/bin:/Users/shushu/.local/share/mise/dotnet-root:/Users/shushu/.local/share/mise/installs/flutter/3.44.6/bin:/Users/shushu/.local/share/mise/installs/go-golang-org-x-tools-gopls/0.23.0/bin:/Users/shushu/.local/share/mise/installs/aqua-golangci-golangci-lint/2.12.2/golangci-lint-2.12.2-darwin-arm64:/Users/shushu/.local/share/mise/installs/aqua-bufbuild-buf/1.71.0/buf/bin:/Users/shushu/.local/share/mise/installs/npm-google-gemini-cli/0.1.3/bin:/Users/shushu/.local/share/mise/installs/npm-qwen-code-qwen-code/0.19.10/bin:/Users/shushu/.local/share/mise/installs/npm-tencent-qqmail-agently-cli/1.0.5/bin:/Users/shushu/.local/share/mise/installs/npm-serve/14.2.4/bin:/Users/shushu/.local/share/mise/installs/aqua-anthropics-claude-code/2.1.283:/Users/shushu/.local/share/mise/installs/npm-deepseek-ai-dsh/0.1.0-rc.7/bin:/Users/shushu/.local/share/mise/installs/http-cursor-agent/latest:/Users/shushu/.local/share/mise/installs/npm-moonshot-ai-kimi-code/2.1.1/bin",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "RUSTC_WRAPPER": null,
+          "CARGO_TARGET_DIR": null,
+          "GIT_CONFIG_COUNT": null,
+          "GIT_INDEX_FILE": null,
+          "GIT_WORK_TREE": null,
+          "GIT_DIR": null
+        },
+        "permissions": "Only actual outputs.review and own raw/review-1 written; repo and all inputs read-only; no other arm/run answers read; no Sheltie calls; no helpers.",
+        "review_path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+        "review_sha256": "db039bab3a4f6a74ec1eb39e64dcfca76868a13efdfe7f97c649ff9ce4798ccb",
+        "review_bytes": 7976,
+        "not_run": [
+          "required mechanical checks rerun",
+          "Rust build/test",
+          "Sheltie operation rehearsal",
+          "patch independent apply",
+          "final blind quality",
+          "proxy acceptance"
+        ]
+      }
+    },
+    "deliver-1": {
+      "ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/actor.json",
+      "raw_actor": {
+        "actor": "/root/c007_study_coordinator/run02_deliver",
+        "start_utc": "2026-10-03T20:24:52.607550+00:00",
+        "model_declaration": "inherited gpt-6.1-sol/high; actual metadata Root verification; unknown here",
+        "usage": "unknown",
+        "fees": "unknown",
+        "environment": {
+          "PATH": "/Users/shushu/.qoder/entry:/Users/shushu/.codex/packages/app-server-daemon/releases/0.160.0-aarch64-apple-darwin/codex-path:/Users/shushu/.local/share/mise/shims:/Users/shushu/.cargo/bin:/Users/shushu/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/shushu/.codex/tmp/arg0/codex-arg0SOquoi:/Users/shushu/.codex/tmp/arg0/codex-arg0iufOmK:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.3-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0L8XS1c:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.2-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0Saxvu1:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.1-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg09AAZBx:/Users/shushu/.codex/packages/app-server-daemon/releases/0.159.0-aarch64-apple-darwin/codex-path:/Users/shushu/.codex/tmp/arg0/codex-arg0SjlmiS:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/codex-path:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.158.0/bin:/Users/shushu/.mimocode/bin:/Applications/Orca.app/Contents/Resources/bin:/Users/shushu/.sheltie/bin:/Users/shushu/.orbstack/bin:/Users/shushu/.gem/bin:/Users/shushu/job/cmd:/Users/shushu/tools/cmd:/Users/shushu/tools/nginx/openresty/bin:/Users/shushu/tools/nginx/goaccess/bin:/opt/homebrew/opt/postgresql@16/bin:/Users/shushu/.console-ninja/.bin:/Users/shushu/.bun/bin:/Users/shushu/tools/protoc/bin:/Users/shushu/Library/Application Support/JetBrains/Toolbox/scripts:/Users/shushu/.volta/bin:/Users/shushu/.asdf/shims:/Users/shushu/.fnm/aliases/default/bin:/Users/shushu/Library/pnpm:/Users/shushu/.yarn/bin:/usr/local/sbin:/nix/var/nix/profiles/default/bin:/Users/shushu/bin:/Users/shushu/.nix-profile/bin:/Users/shushu/.opencode/bin:/Users/shushu/.vite-plus/bin:/Users/shushu/.local/share/mise/installs/aqua-openai-codex/0.157.1/bin:/Users/shushu/.local/share/mise/installs/node/26.5.0/bin:/Users/shushu/.local/share/mise/installs/go/1.26.5/bin:/Users/shushu/.local/share/mise/installs/java/temurin-25.0.3+9.0.LTS/bin:/Users/shushu/.local/share/mise/dotnet-root:/Users/shushu/.local/share/mise/installs/flutter/3.44.6/bin:/Users/shushu/.local/share/mise/installs/go-golang-org-x-tools-gopls/0.23.0/bin:/Users/shushu/.local/share/mise/installs/aqua-golangci-golangci-lint/2.12.2/golangci-lint-2.12.2-darwin-arm64:/Users/shushu/.local/share/mise/installs/aqua-bufbuild-buf/1.71.0/buf/bin:/Users/shushu/.local/share/mise/installs/npm-google-gemini-cli/0.1.3/bin:/Users/shushu/.local/share/mise/installs/npm-qwen-code-qwen-code/0.19.10/bin:/Users/shushu/.local/share/mise/installs/npm-tencent-qqmail-agently-cli/1.0.5/bin:/Users/shushu/.local/share/mise/installs/npm-serve/14.2.4/bin:/Users/shushu/.local/share/mise/installs/aqua-anthropics-claude-code/2.1.283:/Users/shushu/.local/share/mise/installs/npm-deepseek-ai-dsh/0.1.0-rc.7/bin:/Users/shushu/.local/share/mise/installs/http-cursor-agent/latest:/Users/shushu/.local/share/mise/installs/npm-moonshot-ai-kimi-code/2.1.1/bin",
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "LC_CTYPE": "C.UTF-8",
+          "GIT_CONFIG_GLOBAL": null,
+          "GIT_CONFIG_SYSTEM": null,
+          "GIT_CONFIG_NOSYSTEM": null,
+          "GIT_CONFIG_COUNT": null,
+          "GIT_INDEX_FILE": null,
+          "GIT_DIR": null,
+          "GIT_WORK_TREE": null,
+          "GIT_AUTHOR_NAME": null,
+          "GIT_AUTHOR_EMAIL": null,
+          "GIT_COMMITTER_NAME": null,
+          "GIT_COMMITTER_EMAIL": null,
+          "RUSTC_WRAPPER": null,
+          "CARGO_TARGET_DIR": null,
+          "SHELTIE_HOME": null
+        },
+        "initial_tool_reads": "binding/brief/inputs/project/context/specs/engineering/skill/capture read via exec tool; raw split stdout/stderr absent; actual tool transcript retained",
+        "read_boundary_deviation": "rg initial archive search glob exclusion did not exclude runs; returned a few native run preflight/deliver script matches. No opposite report/patch/full script opened; no returned content adopted. Coordinator notified. Protocol eligibility unresolved; no concealment.",
+        "diagnostic_failure": "zsh glob lookup of preflight*.json failed exit 1; actual command/result retained in tool transcript; no split capture original",
+        "no_helpers": true,
+        "no_sheltie_progression": true
+      }
+    }
+  },
+  "public_verification_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/final-public-result-verification.json",
+  "application_ref": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/application-verification.json",
+  "proxy_acceptance_ref": null,
+  "final_quality_ref": null,
+  "protocol_eligibility": "unresolved: three intents not exclusiveopenx; crossrun search material exposure"
+}

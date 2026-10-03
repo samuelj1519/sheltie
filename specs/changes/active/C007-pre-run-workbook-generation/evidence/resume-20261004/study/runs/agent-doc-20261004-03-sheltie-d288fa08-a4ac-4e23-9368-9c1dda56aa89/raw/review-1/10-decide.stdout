@@ -1,0 +1,445 @@
+//! 状态机的唯一入口 `decide`，以及每个命令一个私有函数。
+//! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
+
+use std::collections::BTreeMap;
+
+use super::command::{Command, Context, Decision, Effect, ObservedFile, Reply};
+use super::next::legal_next;
+use super::render::{render_brief, render_stats_json};
+use super::start::validate_start_inputs;
+use super::state::{
+    Approval, ArtifactRef, Attempt, AttemptStatus, BlockedReason, Occurrence, WorkState, WorkStatus,
+};
+use crate::digest::Sha256Hex;
+use crate::error::{Error, Result};
+use crate::flow::{Graph, InputSource};
+use crate::ids::{AttemptId, NodeId};
+use crate::path::AbsPath;
+use crate::text::Summary;
+
+/// 对一个 Work 应用一个命令。
+///
+/// `state` 为 `None` 只在 `Command::Start` 时合法。其他命令先过 `guard_not_terminal`，
+/// 再分派到对应的私有函数。返回的 `Decision.state` 是完整的新状态。
+pub fn decide(
+    state: Option<&WorkState>,
+    graph: &Graph,
+    cmd: &Command,
+    ctx: &Context,
+) -> Result<Decision> {
+    match (state, cmd) {
+        (None, Command::Start { .. }) => decide_start(graph, cmd, ctx),
+        (None, other) => Err(Error::InvalidRequest {
+            reason: format!("{} 要求 Work 已存在", other.name()),
+        }),
+        (Some(_), Command::Start { .. }) => Err(Error::InvalidRequest {
+            reason: "Work 已存在，不能再 start".to_string(),
+        }),
+        (Some(state), cmd) => {
+            guard_not_terminal(state)?;
+            match cmd {
+                Command::Start { .. } => unreachable!("上面已处理"),
+                Command::BeginAttempt {
+                    node,
+                    observed_inputs,
+                    instruction_text,
+                } => decide_begin(state, graph, node, observed_inputs, instruction_text, ctx),
+                Command::SubmitAttempt {
+                    attempt,
+                    summary,
+                    observed_outputs,
+                } => decide_submit(state, graph, attempt, summary, observed_outputs, ctx),
+                Command::FailAttempt { attempt, reason } => {
+                    decide_fail(state, graph, attempt, reason, ctx)
+                }
+                Command::ReplaceAttempt {
+                    attempt,
+                    reason,
+                    observed_inputs,
+                    instruction_text,
+                } => decide_replace(
+                    state,
+                    graph,
+                    attempt,
+                    reason,
+                    observed_inputs,
+                    instruction_text,
+                    ctx,
+                ),
+                Command::ApproveGate { node } => decide_approve(state, graph, node, ctx),
+                Command::Cancel => decide_cancel(state, ctx),
+            }
+        }
+    }
+}
+
+/// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
+fn guard_not_terminal(state: &WorkState) -> Result<()> {
+    if state.status.is_terminal() {
+        return Err(Error::WorkTerminal {
+            status: state.status.to_string(),
+        });
+    }
+    Ok(())
+}
+
+fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
+    state.blocked_count =
+        state
+            .blocked_count
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "累计受阻次数超出可表示范围".to_string(),
+            })?;
+    Ok(())
+}
+
+/// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
+/// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
+/// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
+fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision> {
+    let Command::Start {
+        work_id,
+        name,
+        workbook,
+        flow,
+        work_dir,
+        inputs,
+    } = cmd
+    else {
+        return Err(Error::InvalidRequest {
+            reason: "decide_start 只接受 work start".to_string(),
+        });
+    };
+
+    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等（GF-30 的共享校验，
+    // runtime preflight 与 workbook show 用同一份结果，不各自重算）。
+    validate_start_inputs(graph, inputs.keys())?;
+
+    let entry = graph.entry().clone();
+    let mut visits = BTreeMap::new();
+    visits.insert(entry.clone(), 1);
+
+    // 宿主资源清单：Workbook 声明的**全部** requires，按 manifest 声明顺序，原样带上
+    // version / digest / source（protocol.md work start 第 8 步；不止本图用到的那些）。
+    let requires = graph.requires().to_vec();
+
+    let state = WorkState {
+        work_id: work_id.clone(),
+        name: name.clone(),
+        workbook: workbook.clone(),
+        flow: flow.clone(),
+        work_dir: work_dir.clone(),
+        inputs: inputs.clone(),
+        status: WorkStatus::Active,
+        current: Occurrence { node: entry, n: 1 },
+        visits,
+        attempts: Vec::new(),
+        approvals: Vec::new(),
+        blocked_count: 0,
+        created_at: ctx.now.clone(),
+        updated_at: ctx.now.clone(),
+    };
+
+    Ok(Decision {
+        state,
+        effects: vec![Effect::RefreshStatusCard],
+        reply: Reply::Started {
+            work_id: work_id.clone(),
+            work_dir: work_dir.clone(),
+            requires,
+        },
+    })
+}
+
+/// `attempt begin` 第 1 到 5 步。
+///
+/// 1. `node` 必须出现在 `legal_next` 的某个 `BeginAttempt` 项里，否则 `Error::IllegalNext`
+///    （`next` 字段填每项 `to_command_line` 的结果）。
+/// 2. 若 `node != current.node`：`visits[node] += 1`，`current = node#n`，记下 `entered_from`。
+///    同节点重试：`number + 1`，沿用上次的 `entered_from`。
+/// 3. `bind_inputs`。
+/// 4. 新建 `Running` 的 Attempt，`started_at = ctx.now`。
+/// 5. 回复 `Reply::AttemptBegun`；效果 `WriteBrief`（内容用 `render_brief(.., instruction_text)`）与 `RefreshStatusCard`。
+fn decide_begin(
+    state: &WorkState,
+    graph: &Graph,
+    node: &NodeId,
+    observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
+    instruction_text: &str,
+    ctx: &Context,
+) -> Result<Decision> {
+    let next = legal_next(state, graph);
+    let illegal = || Error::IllegalNext {
+        requested: format!("attempt begin {node}"),
+        next: next
+            .iter()
+            .map(|op| op.to_command_line(&state.work_id))
+            .collect(),
+    };
+    if !next.iter().any(|op| op.is_begin_of(node)) {
+        return Err(illegal());
+    }
+    let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
+        reason: format!("节点 {node} 不在图里"),
+    })?;
+
+    let mut new_state = state.clone();
+    let (occ_n, number, entered_from) = if node != &state.current.node {
+        let edge = graph
+            .out_edges(&state.current.node)
+            .iter()
+            .find(|e| e.to == *node)
+            .ok_or_else(illegal)?;
+        *new_state.visits.entry(node.clone()).or_insert(0) += 1;
+        let n = new_state.visits_of(node);
+        new_state.current = Occurrence {
+            node: node.clone(),
+            n,
+        };
+        (n, 0u32, Some((state.current.clone(), edge.kind)))
+    } else {
+        let prev = state.latest_attempt_of_current();
+        let number = next_attempt_number(prev)?;
+        let entered_from = prev.and_then(|a| a.entered_from.clone());
+        (state.current.n, number, entered_from)
+    };
+    let attempt_id = AttemptId::new(node.clone(), occ_n, number);
+
+    let (mut bound, wants_stats) = bind_inputs(state, graph, node, observed_inputs)?;
+
+    let mut effects = Vec::new();
+    let attempt = Attempt {
+        id: attempt_id.clone(),
+        status: AttemptStatus::Running,
+        entered_from,
+        inputs: bound.clone(),
+        outputs: BTreeMap::new(),
+        summary: None,
+        fail_reason: None,
+        replacement_reason: None,
+        started_at: ctx.now.clone(),
+        ended_at: None,
+    };
+    new_state.attempts.push(attempt);
+    new_state.updated_at = ctx.now.clone();
+
+    if wants_stats {
+        // stats.json 的口径含本次 Attempt（D-29）：用提交后的完整状态算，
+        // 崩溃后的重放才能从库里那份状态逐字节重建同一份文件。
+        // stats 只计数，不序列化 `inputs`，所以可以先推进状态再回填绑定。
+        let (artifact, content) = engine_stats_artifact(&new_state, graph, &attempt_id)?;
+        for decl in def
+            .inputs
+            .iter()
+            .filter(|d| matches!(d.from, InputSource::EngineStats))
+        {
+            bound.insert(decl.name.clone(), Some(artifact.clone()));
+        }
+        let idx = new_state.attempts.len() - 1;
+        new_state.attempts[idx].inputs = bound.clone();
+        // 一次 begin 只写一个 stats.json（多个 engine.stats 输入共享同一份内容）。
+        effects.push(Effect::WriteFile {
+            path: artifact.path,
+            content,
+        });
+    }
+    let attempt = &new_state.attempts[new_state.attempts.len() - 1];
+
+    let attempt_dir = new_state.attempt_dir(&attempt_id);
+    let brief_path = attempt_dir.join_segment("brief.md");
+    effects.push(Effect::WriteBrief {
+        path: brief_path.clone(),
+        content: render_brief(&new_state, graph, attempt, instruction_text),
+    });
+    effects.push(Effect::RefreshStatusCard);
+
+    let inputs = bound
+        .iter()
+        .map(|(k, v)| (k.clone(), v.as_ref().map(|r| r.path.clone())))
+        .collect();
+    let mut outputs = BTreeMap::new();
+    for decl in &def.outputs {
+        // 声明路径挂在 Attempt 目录的 outputs/ 之下（WorkLayout，O12）。
+        outputs.insert(
+            decl.name.clone(),
+            crate::work::layout::output_path(&attempt_dir, &decl.path),
+        );
+    }
+    let requires = graph
+        .node_requires(node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {node} 不在图里"),
+        })?;
+
+    Ok(Decision {
+        state: new_state,
+        effects,
+        reply: Reply::AttemptBegun {
+            attempt: attempt_id,
+            brief_path,
+            // 输出目录是 Attempt 目录下的 outputs/（协议 §3 attempt begin 第 5 步）。
+            output_dir: crate::work::layout::outputs_dir(&attempt_dir),
+            inputs,
+            outputs,
+            requires,
+        },
+    })
+}
+
+fn next_attempt_number(previous: Option<&Attempt>) -> Result<u32> {
+    match previous {
+        None => Ok(0),
+        Some(previous) => previous
+            .id
+            .number
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidRequest {
+                reason: "Attempt 顺序号超出可表示范围".to_string(),
+            }),
+    }
+}
+
+pub fn replacement_input_paths_for(
+    state: &WorkState,
+    graph: &Graph,
+    attempt: &AttemptId,
+) -> Result<BTreeMap<String, Option<AbsPath>>> {
+    guard_not_terminal(state)?;
+    let record = state
+        .attempt(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    if record.status != AttemptStatus::Running {
+        return Err(Error::AttemptNotRunning {
+            attempt: attempt.clone(),
+        });
+    }
+    if state.status != WorkStatus::Active
+        || state.latest_attempt_of_current().map(|record| &record.id) != Some(attempt)
+    {
+        return Err(Error::IllegalNext {
+            requested: format!("attempt replace {attempt}"),
+            next: legal_next(state, graph)
+                .iter()
+                .map(|operation| operation.to_command_line(&state.work_id))
+                .collect(),
+        });
+    }
+    if state.has_replacement_of(&state.current) {
+        return Err(Error::ReplacementsExhausted {
+            attempt: attempt.clone(),
+        });
+    }
+    let node = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    if record.inputs.len() != node.inputs().len() {
+        return Err(Error::InvalidRequest {
+            reason: "原 Attempt 的输入键集合与声明不一致".to_string(),
+        });
+    }
+    node.inputs()
+        .iter()
+        .map(|declaration| {
+            let reference =
+                record
+                    .inputs
+                    .get(declaration.name())
+                    .ok_or_else(|| Error::InvalidRequest {
+                        reason: format!("原 Attempt 缺少输入 {}", declaration.name()),
+                    })?;
+            let path = if matches!(declaration.source(), InputSource::EngineStats) {
+                None
+            } else {
+                reference.as_ref().map(|reference| reference.path.clone())
+            };
+            Ok((declaration.name().to_string(), path))
+        })
+        .collect()
+}
+
+fn decide_replace(
+    state: &WorkState,
+    graph: &Graph,
+    attempt: &AttemptId,
+    reason: &str,
+    observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
+    instruction_text: &str,
+    ctx: &Context,
+) -> Result<Decision> {
+    let paths = replacement_input_paths_for(state, graph, attempt)?;
+    let reason = Summary::new(reason, "reason").map_err(|_| Error::SummaryTooLong {
+        max: Summary::max_bytes(),
+        actual: reason.len(),
+    })?;
+    if paths.keys().ne(observed_inputs.keys()) {
+        return Err(Error::InvalidRequest {
+            reason: "替换的输入观察键集合与原声明不一致".to_string(),
+        });
+    }
+    let old = state
+        .attempt(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    let node = graph
+        .node(&attempt.node)
+        .ok_or_else(|| Error::InvalidRequest {
+            reason: format!("节点 {} 不在图里", attempt.node),
+        })?;
+    let number = next_attempt_number(Some(old))?;
+    let new_id = AttemptId::new(attempt.node.clone(), attempt.occurrence, number);
+    for declaration in node.inputs() {
+        let observed = observed_inputs
+            .get(declaration.name())
+            .and_then(Option::as_ref);
+        if matches!(declaration.source(), InputSource::EngineStats) {
+            if observed.is_some() {
+                return Err(Error::InvalidRequest {
+                    reason: "替换不能提交 engine.stats 文件观察".to_string(),
+                });
+            }
+        } else {
+            match old.inputs.get(declaration.name()).and_then(Option::as_ref) {
+                Some(reference) => {
+                    if !observed.is_some_and(|file| {
+                        file.path == reference.path
+                            && file.sha256 == reference.sha256
+                            && file.bytes == reference.bytes
+                    }) {
+                        return Err(Error::ArtifactModified {
+                            input: declaration.name().to_string(),
+                            path: reference.path.to_string(),
+                        });
+                    }
+                }
+                None if observed.is_none() => {}
+                None => {
+                    return Err(Error::InvalidRequest {
+                        reason: format!("未绑定输入 {} 不能在替换时重新绑定", declaration.name()),
+                    });
+                }
+            }
+        }
+    }
+    let mut new_state = state.clone();
+    let old_mut = new_state
+        .attempt_mut(attempt)
+        .ok_or_else(|| Error::AttemptNotFound {
+            attempt: attempt.clone(),
+        })?;
+    old_mut.status = AttemptStatus::Superseded;
+    old_mut.ended_at = Some(ctx.now.clone());
+    old_mut.replacement_reason = Some(reason);
+    new_state.attempts.push(Attempt {
+        id: new_id.clone(),
+        status: AttemptStatus::Running,
+        entered_from: old.entered_from.clone(),
+        inputs: old.inputs.clone(),
+        outputs: BTreeMap::new(),
+        summary: None,
+        fail_reason: None,

@@ -1,0 +1,195 @@
+---
+name: sheltie
+description: 用 sheltie 工作流引擎按 Workbook 推进一个 Work。当用户要求按一份 Workbook 的流程做事、管理已装的 Workbook 或 Work、从当前指针继续任务、显式撤销旧 Attempt 资格、查询明确最终成果、或输入 /sheltie 时使用。你是协调者：领任务书、派工作 agent、读输出文档选边；状态与合法下一步由引擎管。
+---
+
+# Sheltie 协调者
+
+Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。你是协调者：派活、读产出、在引擎给出的合法下一步（`next`）里选一条。
+
+## 铁律
+
+1. 只做 `next` 里的事——`next` 只限定**这个 Work 的推进**。每次写操作的响应都带
+   `next` 数组，给出合法操作和目标身份；摘要与失败、替换理由由调用者补充。`next` 之外的操作会被引擎拒绝，被拒绝了
+   就回到 `next` 里选，不要绕过。发现与管理工作另有入口：`workbook list/show/verify`、
+   `workbook add/remove`、`work start`、`work list`，它们不受某个 Work 的 `next` 限制；
+   `next` 为空只说明这个 Work 已终态，不是无事可做。
+2. 结论在输出文档里。执行成功只说明「这一步做完了」，通过与否写在输出文档里（通常第一行是结论）。你读文档后在多条边之间选，引擎不知道、也不替你知道哪个结论算通过。
+3. 只通过 CLI 读写状态。不直接改管理根（默认 `~/.sheltie`）下的任何文件。产出文件由执行者按任务书写到声明的位置，提交封存后任何人不得再改。
+4. 一律带 `--json` 调用，从响应的 `next` 取下一步。**要重试安全就先记下
+   `--request-id <uuid>` 再调用**（自己先生成并告知用户）；它只用于 Work 与 Workbook
+   的写操作，只读命令和整个 `self` 组给了会直接报参数错误。不确定上一次是否生效时，
+   用同一个 id 重发是安全的：同意图返回提交时的原响应（`replayed: true`），不会重复
+   执行。重放响应里的 `next` 是**历史**事实；续接一律先 `work status` 查当前状态。
+
+## 选择入口
+
+- 新任务需要选择方法和初始输入时，从下面第 1 步开始；用户已指定的方法与输入直接使用。
+- 已有 Work 要继续时，先按第 9 步查询当前 status，再从当前 next 选择操作；已有 running Attempt 按 resume 继续，不再创建 Work。
+- 用户只要查询状态、统计或最终成果时，只运行相应只读命令（第 9/10 步）；不把查询变为新建、提交或推进。Work ID 未明确时先用 work list 发现已有 Work，再取得目标，不为只读查询要求重新选择 Workbook/Flow。
+
+## 流程
+
+1. **选 Workbook。** 列出已装的方法，看清它的节点、边、宿主资源声明与**起始输入键**：
+
+   ```bash
+   sheltie workbook list --json
+   sheltie workbook show <id> --json
+   ```
+
+   `show` 的 `start_inputs` 列出该 Flow 要的全部起始输入键（有序）。用户没有指定
+   Workbook 或 Flow 时问用户；**用户指定了但未安装的，停下报告**（`NOT_FOUND`），
+   不要静默换成别的 Workbook。
+
+2. **开 Work。** 输入键从 `workbook show` 的 `start_inputs` 拿，不用失败的 start 去试：
+   **用户已给的信息直接用**（对话里说过、任务里写明、文件里有的都算），只对仍缺的键
+   问用户。给全再 start（多给少给都被拒绝）：
+
+   ```bash
+   sheltie work start --workbook <id> --flow <flow> --name <名字> --input <key>=<值> --json
+   ```
+
+   `--name` 省略时取 Flow id；`--input` 的值以 `@` 开头时读文件内容。响应给出
+   `work_id`、该 Workbook 声明的全部 `requires` 与首个 `next`。之后用 `work_id` 的
+   唯一前缀即可指代这个 Work。
+
+3. **核对宿主资源。** `work start`、`attempt begin` 与 `attempt replace` 的响应都列出本步需要的宿主资源（skill、命名 agent、MCP），任务书里也有「需要的宿主资源」一节。确认宿主里已装它们；缺任何一项就停下告知用户。引擎不检查也不安装，你也不要替它安装。
+
+4. **领任务书。** 从 `next` 选一条 `attempt begin` 执行：
+
+   ```bash
+   sheltie attempt begin <work> --node <node> --json
+   ```
+
+   响应的 `brief_path` 指向任务书：说明书原文加本次绑好的输入绝对路径与输出要求。`next` 项上的 `executor` 与 `tier` 说明这一步该谁做：`agent` 就派一个工作 agent（`tier` 是给你选模型的提示），`human` 就把任务书交给人。
+
+5. **派活。** 把 `brief_path` 交给执行者。执行者读输入、按说明干活、把结论写进声明的输出文件、用几句话回复你。不要替执行者写产出，也不要改任务书声明之外的文件。
+
+6. **提交或标失败。** 执行者回复后提交：
+
+   ```bash
+   sheltie attempt submit <work> --attempt <attempt_id> --summary "<几句话结论>" --json
+   ```
+
+   摘要有界（超 4096 字节被拒绝），细节放进输出文档。引擎只校验输出文件齐全合规，不判断内容。执行者崩溃、超时、交不出文件时标失败：
+
+   ```bash
+   sheltie attempt fail <work> --attempt <attempt_id> --reason "<原因>" --json
+   ```
+
+   `next` 里还有 `attempt begin` 就可以重试。注意：「审查结论是不通过」是一次成功的执行，走 submit，不走 fail。
+
+7. **选边。** submit 成功后的 `next` 可能有多条 `attempt begin`，各带 `edge`（`main` / `back` / `branch` / `re_review`）。读输出文档，按结论选一条进入；没有边声明的去处不能去。
+
+8. **门槛找人。** Work 因门槛受阻时 `next` 只剩 `gate approve` 与 `work cancel`。把状态卡与相关产出拿给用户看，用户明确批准后才执行：
+
+   ```bash
+   sheltie gate approve <work> --node <node> --json
+   ```
+
+   其他原因的受阻（重试耗尽、无合法边）只剩 `work cancel` 合法：报告用户，由用户决定。
+
+9. **随时看状态。** 不确定进行到哪，读状态卡与事实视图：
+
+   ```bash
+   sheltie work status <work> --json
+   sheltie work stats <work> --json
+   ```
+
+   重开会话先读当前 status，按 resume 读取当前 Attempt 的 brief 与冻结 inputs。draft_outputs 只给声明草稿位置，不证明文件已存在或封存；effects_pending=true 时只读查询不会恢复，按已登记写请求的恢复方式处理。确认旧执行者与共享工作区已妥善处置后继续原 running Attempt；会话重开不改状态，不为它调用 fail 或 begin。
+
+   只有确需撤销旧 Attempt 的正式提交资格时，才从当前 next 选择 replace：
+
+   ```bash
+   sheltie attempt replace <work> --attempt <old_attempt_id> --reason "<替换理由>" --json
+   ```
+
+   安排新执行者继续前，操作者确认旧执行者已停止，或新执行环境已隔离。可以先撤销正式资格；处置未确认时不派新执行者写共享工作区。这属于操作者事实，引擎不停止进程、不隔离宿主、不认证接手者。替换会原子结束旧 Attempt 并创建新 running Attempt，保持原冻结非统计输入、进入来源、说明和 gate；旧草稿不转成新成果。按新响应的任务书和路径继续。
+
+   每个 Occurrence 最多替换一次；额度耗尽返回 `REPLACEMENTS_EXHAUSTED`，当前仍可 submit/fail。行政替换不消耗业务失败重试；Attempt 后缀 number 是从 0 起的创建顺序号，不能当失败数。理由最多 4096 字节，也可用 @file；重放同 request-id 不重新读取理由文件。旧 Attempt 在非终态 Work 中新 submit/fail 返回 `ATTEMPT_NOT_RUNNING`，Work 已终态时返回 `WORK_TERMINAL`；旧成功请求仍按历史重放，继续前重查当前 status。
+
+10. **取得明确成果。** 流程结束后查询：
+
+   ```bash
+   sheltie work result <work> --json
+   ```
+
+   只有 final=true 时才给终点选择的 artifacts；路径、摘要、大小与 source 指向该具体终点绑定或封存的槽。终点绑定输入可以由其他步骤生产；没有选择明确为空，不猜最近文件。Work succeeded 和文件引用不代替内容质量、代码候选或检查过程的核验。结果查询列举冻结引用，消费原件时仍按实际读取合同核字节；接受、复制、合并、发布各按已有授权办理。
+
+## 最小代码方法
+
+`code-change` 固定 implement → review → deliver，review 可以沿 back 返工。方法作者准备步骤与稳定规则，任务使用者提供 task（目标和验收）与 project（位置、范围、检查前提）；阶段内由 agent 自主调查和拆分，不为每个代码子任务增加节点。默认没有 gate，实际授权边界由作者在新版本声明。
+
+每次使用自始至终保持相同管理根；专用 --home 的值不能在重开后回落默认。开发候选与已发布版本按各自格式使用独立管理根。图、输入与封存报告保持原版本，目标变化时另开 Work。自然审查的内容返工用 submit 与显式边，执行失败才用 fail。
+
+## 细节
+
+每条命令的参数、任务书格式、错误码见 [协议合同](../../specs/contracts/protocol.md)；Workbook 怎么写见 [Workbook 合同](../../specs/contracts/workbook.md)。
+# 取得可编辑的最终成果副本
+
+当前源码提供只读 raw 成果入口和外围 `sheltie-export` 工具。工具未发布或安装；从仓库临时构建。完整语义见[协议§8](../contracts/protocol.md#8-最终-artifact-原字节与外围导出)，实施证据见[C006](../changes/completed/C006-result-delivery/validation.md)。
+
+## 构建与输入
+
+在仓库根执行，Cargo JSON中的`executable`才是实际binary路径：
+
+```bash
+(
+set -e
+RUSTC_WRAPPER= CARGO_TARGET_DIR=/private/tmp/sheltie-export-build \
+  cargo build -p sheltie-cli -p sheltie-export --locked --message-format=json \
+  > /private/tmp/sheltie-export-build.json
+python3 - <<'PY'
+import json, hashlib
+from pathlib import Path
+paths = {}
+for line in Path('/private/tmp/sheltie-export-build.json').read_text().splitlines():
+    item = json.loads(line)
+    if item.get('reason') == 'compiler-artifact' and item.get('executable'):
+        name = item['target']['name']
+        if name in ('sheltie', 'sheltie-export'):
+            paths[name] = Path(item['executable'])
+assert set(paths) == {'sheltie', 'sheltie-export'}, paths
+for name, p in paths.items():
+    print(name, p, hashlib.sha256(p.read_bytes()).hexdigest())
+PY
+)
+```
+
+构建或解析非零立即停止；只有得到两项实际路径与SHA后才执行后续操作。
+
+把实际路径分别赋给`engine_binary`、`export_binary`。准备`management_root`（已有真实无链接绝对管理根）、完整`work_id`和`destination_parent`（已有真实无链接绝对目标父目录）。Home与目标父目录不能相互包含。二进制必须是可信绝对路径，工具不搜索PATH。
+
+## 查询和复制
+
+先核结果的`final=true`、`status.kind=succeeded`、没有待完成effects且选集非空。仅需要引用时使用查询结果；需要可编辑文件时执行复制：
+
+```bash
+"$engine_binary" --home "$management_root" --json work result "$work_id"
+"$export_binary" --sheltie "$engine_binary" --home "$management_root" \
+  --work "$work_id" --to "$destination_parent" --json
+```
+
+JSON响应是一行`work-export/v1`。只有`complete`和退出码0表示规定的字节核验、整目录不替换发布和OS同步完成；从`target_path`取得副本。`manifest.json`保存同一次结果和实际成果映射，`artifacts/0001/...`按结果key顺序编号。索引目录避免空key、Unicode或相同文件名冲突，不能把key直接拼成目标路径。副本可以编辑；编辑后的字节不再由初始清单保证，源Work不变。
+
+单个Artifact上限32MiB、选集合计256MiB、结果JSON上限1MiB。工具独立核全部size/sha及源退出码，全部成功才发布；不覆盖已有副本。再次执行创建另一份新副本，保留此前用户编辑。
+
+若只需某项原字节，使用同一次结果的正revision与literal key。先用mktemp创建本次新私有暂存文件；shell的`>`会截断它，不能指向已有文件：
+
+```bash
+local_file=$(mktemp /private/tmp/sheltie-artifact.XXXXXX)
+"$engine_binary" --home "$management_root" work result "$work_id" \
+  "--artifact=$artifact_key" --revision "$result_revision" > "$local_file"
+```
+
+raw模式不能带`--json`或`--request-id`，stdout不补换行。必须核最终退出码；读取失败可能已输出部分字节，不把该文件当完整成果。
+
+## 失败现场
+
+- `rejected` / 2：参数或确定性资格不合格，核`error.code`与输入。
+- `failed_before_publish` / 1：源、完整性或IO失败。`staging_path`只指能证明所属的本次私有暂存，不能当完成目录。
+- `publication_unconfirmed` / 3：整目录移动已经发生，但最终身份或父同步未确认。保留现场，核实际对象、manifest和字节；不删除或回滚补偿。
+
+进程被kill可能没有响应。按[C006现场手册](../changes/completed/C006-result-delivery/experiments/runbook.md)核对象，不据名字认领目录，不复用旧暂存。保留stdout/stderr/退出码、真实路径、权限和业务状态证据后重跑。该工具不保证停止整个宿主进程树、断电物理持久或用户编辑后的持续一致。
+
+当前实测平台是macOS arm64。本轮实际在不同st_dev的自有挂载APFS虚拟卷完成全体成果导出、清单/字节/权限和源状态核验后卸载；该结果不覆盖外置物理盘或其他OS。当前相同Cargo/config可复用[C002实际dist计划](../changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003/m2-dist-assets-verification.json)：六项引擎资产、唯一原生target为aarch64-apple-darwin、exporter排除；不是本轮新dist执行、构建或发布。临时机制不证明净收益；本轮真实agent已使用可编辑副本注释下一阶段资料，同质量原CLI/script与工具对照、旧编辑保留及新副本原字节均实际核验；单样本时间不推人类净收益，原真人手工/接受/人工费用未执行或未知。

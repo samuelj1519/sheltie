@@ -1,0 +1,597 @@
+crates/sheltie-cli/src/cli.rs:7:pub struct Cli {
+crates/sheltie-cli/src/cli.rs:18:    pub request_id: Option<String>,
+crates/sheltie-cli/src/cli.rs:63:    Version,
+crates/sheltie-runtime/src/store/tests.rs:33:    request_id: &str,
+crates/sheltie-runtime/src/store/tests.rs:44:        request_id: request_id.to_string(),
+crates/sheltie-runtime/src/store/tests.rs:85:             CREATE TABLE requests (request_id TEXT PRIMARY KEY, intent_hash TEXT NOT NULL, work_id TEXT, reply_json TEXT NOT NULL, effects_json TEXT NOT NULL, published INTEGER NOT NULL, at TEXT NOT NULL);
+crates/sheltie-runtime/src/store/tests.rs:86:             CREATE TABLE audit (seq INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL, revision INTEGER NOT NULL, request_id TEXT NOT NULL, principal TEXT NOT NULL, command_json TEXT NOT NULL, at TEXT NOT NULL);
+crates/sheltie-runtime/src/store/tests.rs:331:fn commit_replays_same_request_id_and_payload() {
+crates/sheltie-runtime/src/store/tests.rs:354:fn commit_rejects_same_request_id_different_payload() {
+crates/sheltie-runtime/src/store/schema.rs:44:  request_id   TEXT PRIMARY KEY,
+crates/sheltie-runtime/src/store/schema.rs:59:  request_id   TEXT NOT NULL,
+crates/sheltie-cli/src/commands/work.rs:50:    request_id: Option<&str>,
+crates/sheltie-cli/src/commands/work.rs:52:    svc.resolve_work_for_request(work, request_id)
+crates/sheltie-cli/src/commands/work.rs:82:    let resp = match svc.start(rt_args, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/work.rs:171:    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/work.rs:175:    let resp = match svc.cancel(&wid, ctx.request_id.clone()) {
+crates/sheltie-runtime/src/store/read.rs:12:pub struct WorkbookRow {
+crates/sheltie-runtime/src/store/read.rs:39:    pub(crate) fn check_row(&self, request_id: &str, row: &RequestRow) -> Result<()> {
+crates/sheltie-runtime/src/store/read.rs:46:                detail: format!("请求 {request_id} 的元数据在校验期间改变"),
+crates/sheltie-runtime/src/store/read.rs:66:    pub request_id: String,
+crates/sheltie-runtime/src/store/read.rs:76:    pub request_id: String,
+crates/sheltie-runtime/src/store/read.rs:86:pub struct WorkRow {
+crates/sheltie-runtime/src/store/read.rs:92:pub(crate) struct WorkReadRequest {
+crates/sheltie-runtime/src/store/read.rs:93:    pub(crate) request_id: String,
+crates/sheltie-runtime/src/store/read.rs:99:pub(crate) struct WorkReadBundle {
+crates/sheltie-runtime/src/store/read.rs:131:                "SELECT request_id, intent_hash, reply_json, effects_json, published, work_id, at
+crates/sheltie-runtime/src/store/read.rs:133:                   SELECT 1 FROM audit a WHERE a.request_id = r.request_id AND a.work_id = ?1
+crates/sheltie-runtime/src/store/read.rs:134:                 ) ORDER BY request_id",
+crates/sheltie-runtime/src/store/read.rs:138:                let request_id: String = row.get(0)?;
+crates/sheltie-runtime/src/store/read.rs:144:                            detail: format!("请求 {request_id} 的published值无效"),
+crates/sheltie-runtime/src/store/read.rs:149:                    request_id,
+crates/sheltie-runtime/src/store/read.rs:163:                "SELECT seq, request_id, work_id, revision, command_json, at, principal FROM audit a
+crates/sheltie-runtime/src/store/read.rs:165:                   SELECT 1 FROM requests r WHERE r.request_id = a.request_id AND r.work_id = ?1
+crates/sheltie-runtime/src/store/read.rs:175:            let request_id = &audit.request_id;
+crates/sheltie-runtime/src/store/read.rs:177:                .remove(request_id)
+crates/sheltie-runtime/src/store/read.rs:179:                    detail: format!("Work {id} 的audit请求 {request_id} 缺失或重复"),
+crates/sheltie-runtime/src/store/read.rs:192:                        "Work {id} 的请求 {request_id} 与audit归属/revision/时间不一致"
+crates/sheltie-runtime/src/store/read.rs:198:                request_id: request_id.clone(),
+crates/sheltie-runtime/src/store/read.rs:318:    pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {
+crates/sheltie-runtime/src/store/read.rs:322:                "SELECT intent_hash FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:323:                [request_id],
+crates/sheltie-runtime/src/store/read.rs:329:    pub(crate) fn lookup_request_work(&self, request_id: &str) -> Result<Option<Option<String>>> {
+crates/sheltie-runtime/src/store/read.rs:333:                "SELECT work_id FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:334:                [request_id],
+crates/sheltie-runtime/src/store/read.rs:342:        request_id: &str,
+crates/sheltie-runtime/src/store/read.rs:347:                "SELECT intent_hash, reply_json, work_id, at FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:348:                [request_id],
+crates/sheltie-runtime/src/store/read.rs:354:    pub(crate) fn lookup_request_effects(&self, request_id: &str) -> Result<Option<String>> {
+crates/sheltie-runtime/src/store/read.rs:358:                "SELECT effects_json FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:359:                [request_id],
+crates/sheltie-runtime/src/store/read.rs:366:    pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {
+crates/sheltie-runtime/src/store/read.rs:371:                 FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:372:                [request_id],
+crates/sheltie-runtime/src/store/read.rs:402:    pub(crate) fn unpublished_request_ids(&self) -> Result<Vec<String>> {
+crates/sheltie-runtime/src/store/read.rs:405:            "SELECT r.request_id FROM requests r
+crates/sheltie-runtime/src/store/read.rs:408:               (SELECT MIN(a.seq) FROM audit a WHERE a.request_id = r.request_id),
+crates/sheltie-runtime/src/store/read.rs:410:             ), r.request_id",
+crates/sheltie-runtime/src/store/read.rs:420:            "SELECT request_id, published, effects_json, work_id FROM requests ORDER BY request_id",
+crates/sheltie-runtime/src/store/read.rs:427:            "SELECT DISTINCT r.request_id, r.published, r.effects_json, r.work_id
+crates/sheltie-runtime/src/store/read.rs:428:             FROM requests r JOIN audit a ON a.request_id = r.request_id
+crates/sheltie-runtime/src/store/read.rs:429:             WHERE r.work_id = ?1 AND a.revision = 1 ORDER BY r.request_id",
+crates/sheltie-runtime/src/store/read.rs:446:            let request_id: String = row.get(0)?;
+crates/sheltie-runtime/src/store/read.rs:452:                        detail: format!("请求 {request_id} 的published值无效"),
+crates/sheltie-runtime/src/store/read.rs:461:                            detail: format!("请求 {request_id} 的effects_json不是UTF-8：{error}"),
+crates/sheltie-runtime/src/store/read.rs:465:                            detail: format!("请求 {request_id} 的effects_json不是TEXT"),
+crates/sheltie-runtime/src/store/read.rs:470:                request_id,
+crates/sheltie-runtime/src/store/read.rs:479:    pub(crate) fn audit_rows(&self, request_id: &str) -> Result<Vec<AuditRow>> {
+crates/sheltie-runtime/src/store/read.rs:482:            "SELECT seq, request_id, work_id, revision, command_json, at, principal FROM audit WHERE request_id = ?1 ORDER BY seq",
+crates/sheltie-runtime/src/store/read.rs:484:        let rows = stmt.query_map([request_id], audit_row_of)?;
+crates/sheltie-runtime/src/store/read.rs:492:            "SELECT seq, request_id, work_id, revision, command_json, at, principal
+crates/sheltie-runtime/src/store/read.rs:500:    pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {
+crates/sheltie-runtime/src/store/read.rs:503:            "UPDATE requests SET published = 1 WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/read.rs:504:            [request_id],
+crates/sheltie-runtime/src/store/read.rs:508:                detail: format!("请求 {request_id} 发布标记应更新1行，实际更新{changed}行"),
+crates/sheltie-runtime/src/store/read.rs:518:        request_id: row.get(1)?,
+crates/sheltie-runtime/src/store/read.rs:582:            reply_json: "{\"request_id\":\"committed\",\"revision\":1}".into(),
+crates/sheltie-runtime/src/store/read.rs:610:                    changed.reply_json = "{\"request_id\":\"committed\",\"revision\":2}".into()
+crates/sheltie-cli/src/commands/gate.rs:20:    let wid = match resolve(&svc, &work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/gate.rs:24:    let resp = match svc.approve(&wid, &node, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/mod.rs:18:    pub request_id: Option<String>,
+crates/sheltie-cli/src/commands/mod.rs:28:    if raw && (cli.json || cli.request_id.is_some()) {
+crates/sheltie-cli/src/commands/mod.rs:72:        Group::SelfCmd(command) => !matches!(command, SelfCmd::Version),
+crates/sheltie-cli/src/commands/mod.rs:75:    if cli.request_id.is_some() && read_only {
+crates/sheltie-cli/src/commands/mod.rs:85:        request_id: cli.request_id,
+crates/sheltie-runtime/src/store/commit.rs:26:    pub request_id: String,
+crates/sheltie-runtime/src/store/commit.rs:44:    /// 同 `request_id` 同意图重放：返回原响应快照与效果登记；`published` 是原请求
+crates/sheltie-runtime/src/store/commit.rs:90:                "SELECT intent_hash, reply_json, effects_json, published FROM requests WHERE request_id = ?1",
+crates/sheltie-runtime/src/store/commit.rs:91:                [&input.request_id],
+crates/sheltie-runtime/src/store/commit.rs:112:                request_id: input.request_id,
+crates/sheltie-runtime/src/store/commit.rs:238:            "INSERT INTO audit (work_id, revision, request_id, principal, command_json, at)
+crates/sheltie-runtime/src/store/commit.rs:246:                input.request_id,
+crates/sheltie-runtime/src/store/commit.rs:253:            "INSERT INTO requests (request_id, intent_hash, work_id, reply_json, effects_json, published, at)
+crates/sheltie-runtime/src/store/commit.rs:256:                input.request_id,
+crates/sheltie-cli/src/commands/workbook.rs:36:    match repo.add(&dir, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/workbook.rs:53:            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
+crates/sheltie-cli/src/commands/workbook.rs:198:    match repo.remove(&id, &version, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/workbook.rs:202:            output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
+crates/sheltie-runtime/src/selfmgmt.rs:75:pub struct VersionInfo {
+crates/sheltie-runtime/src/selfmgmt.rs:79:    pub schema_version: i64,
+crates/sheltie-runtime/src/selfmgmt.rs:95:pub fn version_info(home: &Home) -> VersionInfo {
+crates/sheltie-runtime/src/selfmgmt.rs:96:    VersionInfo {
+crates/sheltie-runtime/src/selfmgmt.rs:100:        schema_version: crate::store::SCHEMA_VERSION,
+crates/sheltie-cli/src/commands/self_cmd.rs:17:        selfmgmt::version_info(&ctx.home).schema_version
+crates/sheltie-cli/src/commands/self_cmd.rs:28:        SelfCmd::Version => version(ctx),
+crates/sheltie-cli/src/commands/self_cmd.rs:52:            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+crates/sheltie-cli/src/commands/self_cmd.rs:74:            output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
+crates/sheltie-cli/src/commands/self_cmd.rs:85:            ctx.request_id.clone(),
+crates/sheltie-cli/src/commands/self_cmd.rs:121:                    ctx.request_id.clone(),
+crates/sheltie-cli/src/commands/self_cmd.rs:135:                ctx.request_id.clone(),
+crates/sheltie-cli/src/commands/self_cmd.rs:152:        "schema_version": info.schema_version,
+crates/sheltie-cli/src/commands/self_cmd.rs:159:        info.schema_version
+crates/sheltie-cli/src/commands/attempt.rs:42:    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/attempt.rs:46:    let resp = match svc.begin(&wid, &node, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/attempt.rs:51:    let (attempt, brief_path, output_dir) = match &resp.reply {
+crates/sheltie-cli/src/commands/attempt.rs:54:            brief_path,
+crates/sheltie-cli/src/commands/attempt.rs:57:        } => (attempt.clone(), brief_path.clone(), output_dir.clone()),
+crates/sheltie-cli/src/commands/attempt.rs:61:        format!("已开始 {attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"),
+crates/sheltie-cli/src/commands/attempt.rs:79:    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/attempt.rs:83:    let resp = match svc.submit(&wid, &attempt, &summary, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/attempt.rs:114:    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/attempt.rs:118:    let resp = match svc.fail(&wid, &attempt, &reason, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/attempt.rs:140:    let wid = match resolve(&svc, work, ctx.request_id.as_deref()) {
+crates/sheltie-cli/src/commands/attempt.rs:144:    let resp = match svc.replace(&wid, &attempt, &reason, ctx.request_id.clone()) {
+crates/sheltie-cli/src/commands/attempt.rs:151:        brief_path,
+crates/sheltie-cli/src/commands/attempt.rs:160:            "已替换 {replaced_attempt}，新尝试：{attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"
+crates/sheltie-runtime/src/snapshot.rs:18:    pub(crate) request_id: String,
+crates/sheltie-runtime/src/snapshot.rs:45:    brief_path: AbsPath,
+crates/sheltie-runtime/src/snapshot.rs:62:    brief_path: AbsPath,
+crates/sheltie-runtime/src/snapshot.rs:172:            brief_path,
+crates/sheltie-runtime/src/snapshot.rs:183:                && &data.brief_path == brief_path
+crates/sheltie-runtime/src/snapshot.rs:198:            brief_path,
+crates/sheltie-runtime/src/snapshot.rs:213:                && &data.brief_path == brief_path
+crates/sheltie-cli/src/error_map.rs:18:            request_id,
+crates/sheltie-cli/src/error_map.rs:26:            root.insert("request_id".to_string(), json!(request_id));
+crates/sheltie-cli/src/error_map.rs:109:        Error::RequestConflict { request_id } => json!({ "request_id": request_id }),
+crates/sheltie-cli/src/error_map.rs:114:            pending_request_id,
+crates/sheltie-cli/src/error_map.rs:120:            if let Some(p) = pending_request_id {
+crates/sheltie-cli/src/error_map.rs:121:                d["pending_request_id"] = json!(p);
+crates/sheltie-cli/src/error_map.rs:153:            request_id: "request-B".into(),
+crates/sheltie-cli/src/error_map.rs:154:            pending_request_id: Some("request-A".into()),
+crates/sheltie-cli/src/error_map.rs:159:                r#"{"ok":true,"request_id":"request-A","revision":7,"data":{"replayed":false},"next":[]}"#,
+crates/sheltie-cli/src/error_map.rs:164:        assert_eq!(outcome.json["request_id"], "request-B");
+crates/sheltie-cli/src/error_map.rs:169:            outcome.json["error"]["detail"]["pending_request_id"],
+crates/sheltie-cli/src/error_map.rs:173:            outcome.json["error"]["detail"]["pending_original"]["request_id"],
+crates/sheltie-cli/src/error_map.rs:179:            request_id: "request-A".into(),
+crates/sheltie-cli/src/error_map.rs:180:            pending_request_id: None,
+crates/sheltie-cli/src/error_map.rs:184:                r#"{"ok":true,"request_id":"request-A","revision":7,"data":{"replayed":false},"next":[]}"#,
+crates/sheltie-cli/src/error_map.rs:190:        assert_eq!(outcome.json["request_id"], "request-A");
+crates/sheltie-cli/src/error_map.rs:192:        assert_eq!(outcome.json["original"]["request_id"], "request-A");
+crates/sheltie-cli/src/output.rs:14:    pub request_id: Option<String>,
+crates/sheltie-cli/src/output.rs:35:    request_id: Option<String>,
+crates/sheltie-cli/src/output.rs:42:        request_id,
+crates/sheltie-cli/src/output.rs:63:        Some(response.request_id),
+crates/sheltie-cli/src/output.rs:81:    request_id: Option<String>,
+crates/sheltie-cli/src/output.rs:88:    if let Some(id) = request_id {
+crates/sheltie-cli/src/output.rs:89:        root.insert("request_id".to_string(), serde_json::json!(id));
+crates/sheltie-runtime/src/service.rs:43:    pub request_id: String,
+crates/sheltie-runtime/src/service.rs:55:pub struct WorkSummary {
+crates/sheltie-runtime/src/service.rs:65:pub struct WorkService {
+crates/sheltie-runtime/src/service.rs:107:    request_id: &str,
+crates/sheltie-runtime/src/service.rs:125:        request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:148:    request_id: &str,
+crates/sheltie-runtime/src/service.rs:151:    crate::pending::verify_owner(home, internal_id, request_id, op)
+crates/sheltie-runtime/src/service.rs:166:    pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
+crates/sheltie-runtime/src/service.rs:167:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:183:                    if let Some(hash) = ro.lookup_request_hash(&request_id)? {
+crates/sheltie-runtime/src/service.rs:186:                                request_id: request_id.clone(),
+crates/sheltie-runtime/src/service.rs:222:        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
+crates/sheltie-runtime/src/service.rs:224:        if let Some(row) = svc.store.inspect_request(&request_id)? {
+crates/sheltie-runtime/src/service.rs:227:                    request_id: request_id.clone(),
+crates/sheltie-runtime/src/service.rs:230:            return svc.replay(request_id, row.reply_json, &session.lock);
+crates/sheltie-runtime/src/service.rs:257:            &request_id,
+crates/sheltie-runtime/src/service.rs:343:            &request_id,
+crates/sheltie-runtime/src/service.rs:352:        svc.recover_finish_request(&session.lock, &request_id, None, false)?;
+crates/sheltie-runtime/src/service.rs:360:        request_id: Option<String>,
+crates/sheltie-runtime/src/service.rs:362:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:367:        self.run_command(work, &intent, request_id, &|loaded, _| {
+crates/sheltie-runtime/src/service.rs:390:        request_id: Option<String>,
+crates/sheltie-runtime/src/service.rs:392:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:398:        self.run_command(work, &intent, request_id, &|loaded, _| {
+crates/sheltie-runtime/src/service.rs:427:        request_id: Option<String>,
+crates/sheltie-runtime/src/service.rs:429:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:435:        self.run_command(work, &intent, request_id, &|_, _| {
+crates/sheltie-runtime/src/service.rs:449:        request_id: Option<String>,
+crates/sheltie-runtime/src/service.rs:451:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:457:        self.run_command(work, &intent, request_id, &|loaded, lock| {
+crates/sheltie-runtime/src/service.rs:502:        request_id: Option<String>,
+crates/sheltie-runtime/src/service.rs:504:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:509:        self.run_command(work, &intent, request_id, &|_, _| {
+crates/sheltie-runtime/src/service.rs:516:    pub fn cancel(&self, work: &WorkId, request_id: Option<String>) -> Result<Response> {
+crates/sheltie-runtime/src/service.rs:517:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/service.rs:519:        self.run_command(work, &intent, request_id, &|_, _| {
+crates/sheltie-runtime/src/service.rs:669:        request_id: Option<&str>,
+crates/sheltie-runtime/src/service.rs:671:        if let Some(request_id) = request_id {
+crates/sheltie-runtime/src/service.rs:672:            if let Some(stored_work) = self.store.lookup_request_work(request_id)? {
+crates/sheltie-runtime/src/service.rs:675:                        request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:683:                        request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:762:                    verify_pending_owner(&self.home, segments[1], &start.request_id, "start_work")
+crates/sheltie-runtime/src/service.rs:790:                    &request.request_id,
+crates/sheltie-runtime/src/service.rs:799:                    &request.request_id,
+crates/sheltie-runtime/src/service.rs:806:                    &request.request_id,
+crates/sheltie-runtime/src/service.rs:907:        let request_id = reference.request_id.as_str();
+crates/sheltie-runtime/src/service.rs:910:                .inspect_request(request_id)?
+crates/sheltie-runtime/src/service.rs:912:                    detail: format!("Start {request_id} 缺少requests行"),
+crates/sheltie-runtime/src/service.rs:916:                detail: format!("Start {request_id} 的published在索引读取后回退"),
+crates/sheltie-runtime/src/service.rs:969:                detail: format!("未发布Start {request_id} 的Work归属不一致"),
+crates/sheltie-runtime/src/service.rs:974:                detail: format!("Start {request_id} 时间与WorkState.created_at不一致"),
+crates/sheltie-runtime/src/service.rs:978:            detail: format!("未发布Start {request_id} 的intent_hash无效：{error}"),
+crates/sheltie-runtime/src/service.rs:980:        let audits = self.store.audit_rows(request_id)?;
+crates/sheltie-runtime/src/service.rs:983:                detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
+crates/sheltie-runtime/src/service.rs:988:                detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
+crates/sheltie-runtime/src/service.rs:992:                detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
+crates/sheltie-runtime/src/service.rs:996:            && response.request_id == request_id
+crates/sheltie-runtime/src/service.rs:1004:                detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
+crates/sheltie-runtime/src/service.rs:1008:            match verify_pending_owner(&self.home, segments[1], request_id, "start_work") {
+crates/sheltie-runtime/src/service.rs:1011:                    let current = self.store.inspect_request(request_id)?;
+crates/sheltie-runtime/src/service.rs:1041:        request_id: String,
+crates/sheltie-runtime/src/service.rs:1048:            if let Some(hash) = ro.lookup_request_hash(&request_id)? {
+crates/sheltie-runtime/src/service.rs:1051:                        request_id: request_id.clone(),
+crates/sheltie-runtime/src/service.rs:1061:        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
+crates/sheltie-runtime/src/service.rs:1062:        if let Some(row) = svc.store.inspect_request(&request_id)? {
+crates/sheltie-runtime/src/service.rs:1065:                    request_id: request_id.clone(),
+crates/sheltie-runtime/src/service.rs:1068:            return svc.replay(request_id, row.reply_json, &session.lock);
+crates/sheltie-runtime/src/service.rs:1083:            &request_id,
+crates/sheltie-runtime/src/service.rs:1092:            crate::failpoint::rendezvous("submit_after_commit_before_seal", &request_id)
+crates/sheltie-runtime/src/service.rs:1095:        svc.finish_request_with_observed(&request_id, &session.lock, &prepared.observed_outputs)?;
+crates/sheltie-runtime/src/service.rs:1115:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1118:        crate::recovery::before_write(&self.home, &self.store, lock, request_id, intent_hash, self)
+crates/sheltie-runtime/src/service.rs:1124:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1132:            request_id,
+crates/sheltie-runtime/src/service.rs:1141:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1145:        self.recover_finish_request(lock, request_id, Some(observed), false)
+crates/sheltie-runtime/src/service.rs:1150:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1155:            detail: format!("请求 {request_id} 的intent_hash不合法：{error}"),
+crates/sheltie-runtime/src/service.rs:1157:        let audits = self.store.audit_rows(request_id)?;
+crates/sheltie-runtime/src/service.rs:1161:                    "请求 {request_id} 应有且仅有一条audit，实际 {} 条",
+crates/sheltie-runtime/src/service.rs:1171:                detail: format!("Work请求 {request_id} 缺少requests.work_id"),
+crates/sheltie-runtime/src/service.rs:1175:                    detail: format!("请求 {request_id} 的work_id不合法：{error}"),
+crates/sheltie-runtime/src/service.rs:1180:                detail: format!("请求 {request_id} 的audit归属/时间与requests行不一致"),
+crates/sheltie-runtime/src/service.rs:1188:                detail: format!("请求 {request_id} 的audit.revision无效"),
+crates/sheltie-runtime/src/service.rs:1192:                detail: format!("请求 {request_id} 的reply_json解不开：{error}"),
+crates/sheltie-runtime/src/service.rs:1194:        if persisted.request_id != request_id
+crates/sheltie-runtime/src/service.rs:1199:                detail: format!("请求 {request_id} 的snapshot身份/revision与audit不一致"),
+crates/sheltie-runtime/src/service.rs:1204:            request_id: persisted.request_id,
+crates/sheltie-runtime/src/service.rs:1213:                detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
+crates/sheltie-runtime/src/service.rs:1216:        validate_audit_snapshot(request_id, audit, &data)?;
+crates/sheltie-runtime/src/service.rs:1220:                detail: format!("请求 {request_id} 的audit revision超出Work当前revision"),
+crates/sheltie-runtime/src/service.rs:1225:            request_id,
+crates/sheltie-runtime/src/service.rs:1233:        validate_audit_execution(request_id, audit, &state.state, &snapshot.reply)?;
+crates/sheltie-runtime/src/service.rs:1238:                    .inspect_request(request_id)?
+crates/sheltie-runtime/src/service.rs:1240:                        detail: format!("缺少请求 {request_id} 的效果记录"),
+crates/sheltie-runtime/src/service.rs:1242:            metadata.check_row(request_id, &row)?;
+crates/sheltie-runtime/src/service.rs:1246:                request_id,
+crates/sheltie-runtime/src/service.rs:1261:                                    detail: format!("请求 {request_id} 的pending owner路径无效"),
+crates/sheltie-runtime/src/service.rs:1263:                        verify_pending_owner(&self.home, internal_id, request_id, "start_work")?;
+crates/sheltie-runtime/src/service.rs:1288:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1300:            request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:1317:            request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:1330:                    request_id: request_id.to_string(),
+crates/sheltie-runtime/src/service.rs:1339:                self.replay(request_id.to_string(), reply_json, lock)
+crates/sheltie-runtime/src/service.rs:1348:        request_id: String,
+crates/sheltie-runtime/src/service.rs:1354:            .inspect_request_metadata(&request_id)
+crates/sheltie-runtime/src/service.rs:1355:            .map_err(|cause| crate::recovery::own_pending(&request_id, None, cause))?
+crates/sheltie-runtime/src/service.rs:1358:                    &request_id,
+crates/sheltie-runtime/src/service.rs:1361:                        detail: format!("重放请求 {request_id} 在requests中消失"),
+crates/sheltie-runtime/src/service.rs:1366:            .load_checked_request(&request_id, &metadata)
+crates/sheltie-runtime/src/service.rs:1367:            .map_err(|failure| failure.into_pending(&request_id))?;
+crates/sheltie-runtime/src/service.rs:1371:                detail: format!("请求 {request_id} 的历史响应与requests记录不一致"),
+crates/sheltie-runtime/src/service.rs:1374:                &request_id,
+crates/sheltie-runtime/src/service.rs:1384:                request_id: &request_id,
+crates/sheltie-runtime/src/service.rs:1390:        resp.request_id = request_id.clone();
+crates/sheltie-runtime/src/service.rs:1399:        request_id: &str,
+crates/sheltie-runtime/src/service.rs:1403:            self.load_checked_request(request_id, metadata)
+crates/sheltie-runtime/src/service.rs:1406:            self.repo().load_checked_request(request_id, metadata)
+crates/sheltie-runtime/src/service.rs:1419:    let id = &request.request_id;
+crates/sheltie-runtime/src/service.rs:1430:    if persisted.request_id != *id
+crates/sheltie-runtime/src/service.rs:1450:        request_id: persisted.request_id,
+crates/sheltie-runtime/src/service.rs:1458:    validate_audit_snapshot(&request.request_id, &request.audit, &data)?;
+crates/sheltie-runtime/src/service.rs:1468:    request_id: &str,
+crates/sheltie-runtime/src/service.rs:1473:        detail: format!("请求 {request_id} 的audit时间格式无效：{error}"),
+crates/sheltie-runtime/src/service.rs:1479:            detail: format!("请求 {request_id} 的audit主体/时间与响应快照不一致"),
+crates/sheltie-runtime/src/service.rs:1486:    request_id: &str,
+crates/sheltie-runtime/src/service.rs:1523:            detail: format!("请求 {request_id} 的audit主体/时间与原执行事实不一致"),
+crates/sheltie-runtime/src/service.rs:1530:    request_id: &str,
+crates/sheltie-runtime/src/service.rs:1549:            detail: format!("请求 {request_id} 的snapshot状态与原操作不一致"),
+crates/sheltie-runtime/src/service.rs:1562:                brief_path,
+crates/sheltie-runtime/src/service.rs:1572:                detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
+crates/sheltie-runtime/src/service.rs:1589:                && brief_path == &state.attempt_dir(attempt).join_segment("brief.md")
+crates/sheltie-runtime/src/service.rs:1606:                brief_path,
+crates/sheltie-runtime/src/service.rs:1617:                    detail: format!("请求 {request_id} 引用未知旧Attempt {replaced_attempt}"),
+crates/sheltie-runtime/src/service.rs:1620:                detail: format!("请求 {request_id} 引用未知新Attempt {attempt}"),
+crates/sheltie-runtime/src/service.rs:1625:                    detail: format!("请求 {request_id} 的替换节点不在冻结图中"),
+crates/sheltie-runtime/src/service.rs:1669:                && brief_path == &state.attempt_dir(attempt).join_segment("brief.md")
+crates/sheltie-runtime/src/service.rs:1723:            detail: format!("请求 {request_id} 的audit命令与Work {work_id}状态不一致"),
+crates/sheltie-runtime/src/service.rs:1882:            brief_path,
+crates/sheltie-runtime/src/service.rs:1890:            brief_path,
+crates/sheltie-runtime/src/service.rs:1916:                "brief_path": brief_path.as_str(),
+crates/sheltie-runtime/src/service.rs:2111:            "{\"format\":\"pending/v1\",\"internal_id\":\"internal-1\",\"request_id\":\"request-1\",\"op\":\"remove_workbook\"}\n"
+crates/sheltie-runtime/src/effects.rs:27:    request_id: Option<String>,
+crates/sheltie-runtime/src/effects.rs:109:    request_id: &str,
+crates/sheltie-runtime/src/effects.rs:326:        request_id: Some(request_id.to_string()),
+crates/sheltie-runtime/src/effects.rs:357:            let brief_path = home.to_rel(&state.attempt_dir(attempt).join_segment("brief.md"))?;
+crates/sheltie-runtime/src/effects.rs:369:                && matches!(&ops[ops.len() - 2], EffectOp::WriteFile { path, .. } if path == &brief_path);
+crates/sheltie-runtime/src/effects.rs:506:    request_id: &str,
+crates/sheltie-runtime/src/effects.rs:579:        request_id: Some(request_id.to_string()),
+crates/sheltie-runtime/src/effects.rs:725:                        request_id: ops.request_id.as_deref(),
+crates/sheltie-runtime/src/effects.rs:832:                let request_id = ops
+crates/sheltie-runtime/src/effects.rs:833:                    .request_id
+crates/sheltie-runtime/src/effects.rs:838:                delete_dir(home, lock, request_id, pending, final_path, owner, digest)?;
+crates/sheltie-runtime/src/effects.rs:889:    request_id: Option<&'a str>,
+crates/sheltie-runtime/src/effects.rs:900:        request_id,
+crates/sheltie-runtime/src/effects.rs:923:            if let Some(request_id) = request_id {
+crates/sheltie-runtime/src/effects.rs:924:                crate::failpoint::rendezvous("publish_after_tree_sync", request_id)
+crates/sheltie-runtime/src/effects.rs:1135:    request_id: &str,
+crates/sheltie-runtime/src/effects.rs:1144:            detail: format!("remove请求 {request_id} 的owner不是Workbook"),
+crates/sheltie-runtime/src/effects.rs:1147:    crate::service::verify_pending_owner(home, internal_id, request_id, "remove_workbook")?;
+crates/sheltie-runtime/src/effects.rs:1154:                detail: format!("删除请求 {request_id} 的完成marker与目录对象同时存在"),
+crates/sheltie-runtime/src/effects.rs:1157:        sync_deleted_marker(home, lock, internal_id, request_id, &marker_file)?;
+crates/sheltie-runtime/src/effects.rs:1162:                detail: format!("marker同步期间删除请求 {request_id} 出现目录对象"),
+crates/sheltie-runtime/src/effects.rs:1169:            detail: format!("删除请求 {request_id} 的final与pending同时存在"),
+crates/sheltie-runtime/src/effects.rs:1174:            detail: format!("删除请求 {request_id} 两端点均缺失且没有合法完成marker，结果不明"),
+crates/sheltie-runtime/src/effects.rs:1193:        fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+crates/sheltie-runtime/src/effects.rs:1205:        fsx::remove_managed_tree(home, lock, &tree, pending, request_id)?;
+crates/sheltie-runtime/src/effects.rs:1212:            detail: format!("删除请求 {request_id} 后仍有final或pending对象"),
+crates/sheltie-runtime/src/effects.rs:1215:    write_deleted_marker(home, lock, internal_id, request_id)?;
+crates/sheltie-runtime/src/effects.rs:1221:            detail: format!("删除请求 {request_id} 写marker期间出现目录对象"),
+crates/sheltie-runtime/src/effects.rs:1246:    request_id: &str,
+crates/sheltie-runtime/src/effects.rs:1253:        return sync_deleted_marker(home, lock, internal_id, request_id, &file);
+crates/sheltie-runtime/src/effects.rs:1265:    sync_deleted_marker(home, lock, internal_id, request_id, &file)?;
+crates/sheltie-runtime/src/effects.rs:1332:    request_id: &str,
+crates/sheltie-runtime/src/effects.rs:1338:    crate::failpoint::rendezvous("delete_marker_after_validation_before_sync", request_id)
+crates/sheltie-runtime/src/effects.rs:1378:            request_id: None,
+crates/sheltie-runtime/src/effects.rs:1550:                "SELECT command_json FROM audit WHERE request_id='publication-contract'",
+crates/sheltie-runtime/src/effects.rs:1558:                "SELECT effects_json FROM requests WHERE request_id='publication-contract'",
+crates/sheltie-runtime/src/effects.rs:1568:            &response.request_id,
+crates/sheltie-runtime/src/effects.rs:1617:                        &response.request_id,
+crates/sheltie-runtime/src/effects.rs:1659:                "SELECT effects_json FROM requests WHERE request_id=?1",
+crates/sheltie-runtime/src/effects.rs:1999:                "SELECT effects_json FROM requests WHERE request_id='owned-work-start'",
+crates/sheltie-runtime/src/fsx.rs:780:        request_id: &str,
+crates/sheltie-runtime/src/fsx.rs:788:        crate::failpoint::rendezvous("delete_before_root_unlink", request_id)
+crates/sheltie-runtime/src/fsx.rs:3076:    request_id: &str,
+crates/sheltie-runtime/src/fsx.rs:3079:    ManagedFs::open_existing(home)?.remove_managed_tree(lock, tree, &path, request_id)
+crates/sheltie-runtime/src/fsx.rs:6483:                "request_id": "failed-owner",
+crates/sheltie-runtime/src/failpoint.rs:30:    request_id: String,
+crates/sheltie-runtime/src/failpoint.rs:55:    request_id: &str,
+crates/sheltie-runtime/src/failpoint.rs:66:            request_id: request_id.to_string(),
+crates/sheltie-runtime/src/failpoint.rs:71:    let _ = (name, request_id, directory);
+crates/sheltie-runtime/src/failpoint.rs:156:pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
+crates/sheltie-runtime/src/failpoint.rs:157:    rendezvous_payload(name, request_id, name.as_bytes())
+crates/sheltie-runtime/src/failpoint.rs:162:    request_id: &str,
+crates/sheltie-runtime/src/failpoint.rs:165:    rendezvous_payload(name, request_id, observed_path.as_bytes())
+crates/sheltie-runtime/src/failpoint.rs:168:fn rendezvous_payload(name: &str, request_id: &str, payload: &[u8]) -> std::io::Result<()> {
+crates/sheltie-runtime/src/failpoint.rs:177:            .filter(|point| point.name == name && point.request_id == request_id)
+crates/sheltie-runtime/src/failpoint.rs:182:                (configured_name == name && configured_id == request_id).then(|| Rendezvous {
+crates/sheltie-runtime/src/failpoint.rs:184:                    request_id: configured_id,
+crates/sheltie-runtime/src/failpoint.rs:201:    let _ = (name, request_id, payload);
+crates/sheltie-runtime/src/recovery.rs:43:    pub(crate) fn into_pending(self, request_id: &str) -> Error {
+crates/sheltie-runtime/src/recovery.rs:44:        own_pending(request_id, self.original, *self.cause)
+crates/sheltie-runtime/src/recovery.rs:53:        request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:60:    pub(crate) request_id: &'a str,
+crates/sheltie-runtime/src/recovery.rs:81:fn request_metadata(store: &Store, request_id: &str) -> Result<RequestMetadata> {
+crates/sheltie-runtime/src/recovery.rs:83:        .inspect_request_metadata(request_id)?
+crates/sheltie-runtime/src/recovery.rs:85:            detail: format!("缺少请求 {request_id} 的持久记录"),
+crates/sheltie-runtime/src/recovery.rs:94:    request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:98:    let current_hash = store.lookup_request_hash(request_id)?;
+crates/sheltie-runtime/src/recovery.rs:104:            request_id: request_id.to_string(),
+crates/sheltie-runtime/src/recovery.rs:108:        let metadata = request_metadata(store, request_id)
+crates/sheltie-runtime/src/recovery.rs:109:            .map_err(|cause| own_pending(request_id, None, cause))?;
+crates/sheltie-runtime/src/recovery.rs:112:                .load_request(request_id, &metadata)
+crates/sheltie-runtime/src/recovery.rs:113:                .map_err(|failure| failure.into_pending(request_id))?,
+crates/sheltie-runtime/src/recovery.rs:120:    for pending_id in store.unpublished_request_ids()? {
+crates/sheltie-runtime/src/recovery.rs:121:        let loaded = if pending_id == request_id {
+crates/sheltie-runtime/src/recovery.rs:137:                if pending_id == request_id {
+crates/sheltie-runtime/src/recovery.rs:141:                    request_id,
+crates/sheltie-runtime/src/recovery.rs:149:        if pending_id == request_id && request.row.intent_hash != intent_hash {
+crates/sheltie-runtime/src/recovery.rs:151:                request_id: request_id.to_string(),
+crates/sheltie-runtime/src/recovery.rs:159:                request_id: &pending_id,
+crates/sheltie-runtime/src/recovery.rs:165:            if pending_id == request_id {
+crates/sheltie-runtime/src/recovery.rs:169:                request_id,
+crates/sheltie-runtime/src/recovery.rs:178:        crate::pending::prepare_new_request(home, store, lock, request_id)?;
+crates/sheltie-runtime/src/recovery.rs:188:    request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:193:    let metadata = request_metadata(store, request_id)
+crates/sheltie-runtime/src/recovery.rs:194:        .map_err(|cause| own_pending(request_id, None, cause))?;
+crates/sheltie-runtime/src/recovery.rs:196:        .load_request(request_id, &metadata)
+crates/sheltie-runtime/src/recovery.rs:197:        .map_err(|failure| failure.into_pending(request_id))?;
+crates/sheltie-runtime/src/recovery.rs:206:            request_id,
+crates/sheltie-runtime/src/recovery.rs:224:        request_id,
+crates/sheltie-runtime/src/recovery.rs:235:    execution.map_err(|cause| own_pending(request_id, original.clone(), cause))?;
+crates/sheltie-runtime/src/recovery.rs:239:            .map_err(|cause| own_pending(request_id, original.clone(), cause))?;
+crates/sheltie-runtime/src/recovery.rs:241:            .mark_published(request_id)
+crates/sheltie-runtime/src/recovery.rs:242:            .map_err(|cause| own_pending(request_id, original, cause))?;
+crates/sheltie-runtime/src/recovery.rs:248:pub(crate) fn own_pending(request_id: &str, original: Option<String>, cause: Error) -> Error {
+crates/sheltie-runtime/src/recovery.rs:249:    Error::effect_pending(true, request_id.to_string(), None, &cause, original, None)
+crates/sheltie-runtime/src/recovery.rs:253:    request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:255:    pending_request_id: &str,
+crates/sheltie-runtime/src/recovery.rs:271:        request_id: request_id.to_string(),
+crates/sheltie-runtime/src/recovery.rs:272:        pending_request_id: Some(pending_request_id.to_string()),
+crates/sheltie-runtime/src/recovery.rs:294:    serde_json::json!({"ok":true, "request_id":response.request_id,
+crates/sheltie-runtime/src/recovery.rs:300:pub(crate) fn workbook_original_response(request_id: &str, mut data: serde_json::Value) -> String {
+crates/sheltie-runtime/src/recovery.rs:304:    serde_json::json!({"ok":true, "request_id":request_id, "data":data, "next":[]}).to_string()
+crates/sheltie-runtime/src/error.rs:28:    #[error("请求 {request_id} 已用不同意图提交过")]
+crates/sheltie-runtime/src/error.rs:29:    RequestConflict { request_id: String },
+crates/sheltie-runtime/src/error.rs:35:        request_id: String,
+crates/sheltie-runtime/src/error.rs:36:        pending_request_id: Option<String>,
+crates/sheltie-runtime/src/error.rs:95:        request_id: impl Into<String>,
+crates/sheltie-runtime/src/error.rs:96:        pending_request_id: Option<String>,
+crates/sheltie-runtime/src/error.rs:103:            request_id: request_id.into(),
+crates/sheltie-runtime/src/error.rs:104:            pending_request_id,
+crates/sheltie-runtime/src/pending.rs:19:    pub(crate) request_id: String,
+crates/sheltie-runtime/src/pending.rs:25:    pub(crate) request_id: String,
+crates/sheltie-runtime/src/pending.rs:47:    request_ids: BTreeSet<String>,
+crates/sheltie-runtime/src/pending.rs:69:            index.request_ids.insert(request.request_id.clone());
+crates/sheltie-runtime/src/pending.rs:73:                        &request.request_id,
+crates/sheltie-runtime/src/pending.rs:74:                        &format!("requests/{}.effects_json", request.request_id),
+crates/sheltie-runtime/src/pending.rs:103:                                    request.request_id
+crates/sheltie-runtime/src/pending.rs:121:                            request.request_id
+crates/sheltie-runtime/src/pending.rs:130:                        request_id: request.request_id.clone(),
+crates/sheltie-runtime/src/pending.rs:160:    pub(crate) fn contains_request(&self, request_id: &str) -> bool {
+crates/sheltie-runtime/src/pending.rs:161:        self.request_ids.contains(request_id)
+crates/sheltie-runtime/src/pending.rs:289:    request_id: &str,
+crates/sheltie-runtime/src/pending.rs:307:            if owner.request_id == request_id {
+crates/sheltie-runtime/src/pending.rs:320:                "当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}",
+crates/sheltie-runtime/src/pending.rs:334:                    "当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求",
+crates/sheltie-runtime/src/pending.rs:365:                            &reference.request_id,
+crates/sheltie-runtime/src/pending.rs:428:                            .map(|reference| reference.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:439:                        .map(|reference| reference.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:452:            (Some((owner, _)), None) => !references.contains_request(&owner.request_id),
+crates/sheltie-runtime/src/pending.rs:456:            let request_id = reference
+crates/sheltie-runtime/src/pending.rs:457:                .map(|reference| reference.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:461:                        .map(|(owner, _)| owner.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:465:                request_id,
+crates/sheltie-runtime/src/pending.rs:487:                .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))
+crates/sheltie-runtime/src/pending.rs:489:            let request_id = owner_file
+crates/sheltie-runtime/src/pending.rs:491:                .map(|(owner, _)| owner.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:494:                request_id,
+crates/sheltie-runtime/src/pending.rs:496:                "owner.request_id已存在但effects未引用该id，保留原件",
+crates/sheltie-runtime/src/pending.rs:500:        let cleanup_request_id = reference
+crates/sheltie-runtime/src/pending.rs:501:            .map(|reference| reference.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:505:                    .map(|(owner, _)| owner.request_id.as_str())
+crates/sheltie-runtime/src/pending.rs:509:        let cleanup_request_id = cleanup_request_id.as_str();
+crates/sheltie-runtime/src/pending.rs:513:                    &reference.request_id,
+crates/sheltie-runtime/src/pending.rs:522:                        &reference.request_id,
+crates/sheltie-runtime/src/pending.rs:534:                                &reference.request_id,
+crates/sheltie-runtime/src/pending.rs:555:                    cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:566:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:578:                            cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:586:                            cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:595:                    cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:598:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:606:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:614:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:623:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:631:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:638:                    fsx::remove_managed_tree(home, lock, &tree, &path, cleanup_request_id)
+crates/sheltie-runtime/src/pending.rs:641:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:652:                    cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:662:                        cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:674:                    cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:686:                            cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:694:                    cleanup_request_id,
+crates/sheltie-runtime/src/pending.rs:708:fn maintenance_warning(request_id: &str, object: &str, reason: &str) -> String {
+crates/sheltie-runtime/src/pending.rs:709:    format!("request_id={request_id} object={object} reason={reason}")
+crates/sheltie-runtime/src/pending.rs:719:        && owner.request_id == reference.request_id
+crates/sheltie-runtime/src/pending.rs:744:                detail: format!("publish请求 {} 的work_id与owner不一致", request.request_id),
+crates/sheltie-runtime/src/pending.rs:749:            detail: format!("Workbook publish请求 {} 带有Work归属", request.request_id),
+crates/sheltie-runtime/src/pending.rs:762:                detail: format!("请求 {} effects路径无效：{error}", request.request_id),
+crates/sheltie-runtime/src/pending.rs:768:                detail: format!("Workbook请求 {} 含Work效果路径", request.request_id),
+crates/sheltie-runtime/src/pending.rs:772:                detail: format!("请求 {} 的work_id无效：{error}", request.request_id),
+crates/sheltie-runtime/src/pending.rs:781:                    request.request_id, path, parsed
+crates/sheltie-runtime/src/pending.rs:792:                    detail: format!("请求 {} PrepareAttempt.work_id不一致", request.request_id),
+crates/sheltie-runtime/src/pending.rs:802:                    detail: format!("请求 {} WriteFile摘要无效", request.request_id),
+crates/sheltie-runtime/src/pending.rs:811:                        detail: format!("请求 {} SealOutputs摘要无效", request.request_id),
+crates/sheltie-runtime/src/pending.rs:822:                        request.request_id
+crates/sheltie-runtime/src/pending.rs:829:                        request.request_id
+crates/sheltie-runtime/src/pending.rs:836:                detail: format!("请求 {} 目录效果进入非目录校验入口", request.request_id),
+crates/sheltie-runtime/src/pending.rs:973:    request_id: &str,
+crates/sheltie-runtime/src/pending.rs:977:    if owner.request_id != request_id || owner.op != operation {
+crates/sheltie-runtime/src/pending.rs:1303:                    "SELECT effects_json FROM requests WHERE request_id='qualified-add'",
+crates/sheltie-runtime/src/pending.rs:1331:                    "UPDATE requests SET effects_json=?1 WHERE request_id='qualified-add'",
+crates/sheltie-runtime/src/pending.rs:1352:                    "SELECT effects_json FROM requests WHERE request_id='qualified-add'",
+crates/sheltie-runtime/src/pending.rs:1472:                "SELECT effects_json FROM requests WHERE request_id='completed-delete'",
+crates/sheltie-runtime/src/workbook_repo.rs:28:    pub request_id: String,
+crates/sheltie-runtime/src/workbook_repo.rs:37:    pub request_id: String,
+crates/sheltie-runtime/src/workbook_repo.rs:44:enum WorkbookAuditCommand {
+crates/sheltie-runtime/src/workbook_repo.rs:49:fn decode_added_snapshot(request_id: &str, reply_json: &str) -> Result<AddedSnapshot> {
+crates/sheltie-runtime/src/workbook_repo.rs:54:    if s.request_id != request_id || s.replayed {
+crates/sheltie-runtime/src/workbook_repo.rs:56:            detail: format!("Workbook add请求 {request_id} 的历史snapshot身份无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:59:    s.request_id = request_id.to_string();
+crates/sheltie-runtime/src/workbook_repo.rs:64:fn decode_removed_snapshot(request_id: &str, reply_json: &str) -> Result<RemovedSnapshot> {
+crates/sheltie-runtime/src/workbook_repo.rs:69:    if s.request_id != request_id || s.replayed {
+crates/sheltie-runtime/src/workbook_repo.rs:71:            detail: format!("Workbook remove请求 {request_id} 的历史snapshot身份无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:74:    s.request_id = request_id.to_string();
+crates/sheltie-runtime/src/workbook_repo.rs:131:pub struct WorkbookListItem {
+crates/sheltie-runtime/src/workbook_repo.rs:140:pub struct WorkbookRepo {
+crates/sheltie-runtime/src/workbook_repo.rs:159:    pub fn add(&self, dir: &AbsPath, request_id: Option<String>) -> Result<AddedSnapshot> {
+crates/sheltie-runtime/src/workbook_repo.rs:160:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/workbook_repo.rs:175:                if let Some(hash) = ro.lookup_request_hash(&request_id)? {
+crates/sheltie-runtime/src/workbook_repo.rs:178:                            request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:206:        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
+crates/sheltie-runtime/src/workbook_repo.rs:207:        if let Some(row) = repo.store.inspect_request(&request_id)? {
+crates/sheltie-runtime/src/workbook_repo.rs:210:                    request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:214:            return decode_added_snapshot(&request_id, &row.reply_json);
+crates/sheltie-runtime/src/workbook_repo.rs:219:        let payload = stage_pending(&self.home, &lock, &internal_id, &request_id, "add_workbook")?;
+crates/sheltie-runtime/src/workbook_repo.rs:250:            request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:267:            request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:289:        repo.recover_finish_request(&lock, &request_id, false)?;
+crates/sheltie-runtime/src/workbook_repo.rs:293:                    .inspect_request(&request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:295:                        detail: format!("重放请求 {request_id} 在requests中消失"),
+crates/sheltie-runtime/src/workbook_repo.rs:297:            decode_added_snapshot(&request_id, &row.reply_json)
+crates/sheltie-runtime/src/workbook_repo.rs:306:        request_id: &str,
+crates/sheltie-runtime/src/workbook_repo.rs:313:            .inspect_request_metadata(request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:315:                detail: format!("缺少Workbook请求 {request_id} 的持久记录"),
+crates/sheltie-runtime/src/workbook_repo.rs:318:            .load_checked_request(request_id, &metadata)
+crates/sheltie-runtime/src/workbook_repo.rs:325:        request_id: &str,
+crates/sheltie-runtime/src/workbook_repo.rs:331:                detail: format!("Workbook请求 {request_id} 不应归属Work"),
+crates/sheltie-runtime/src/workbook_repo.rs:335:        let audits = self.store.audit_rows(request_id)?;
+crates/sheltie-runtime/src/workbook_repo.rs:338:                detail: format!("Workbook请求 {request_id} 应有且仅有一条audit"),
+crates/sheltie-runtime/src/workbook_repo.rs:344:                detail: format!("Workbook请求 {request_id} 的audit包含Work归属"),
+crates/sheltie-runtime/src/workbook_repo.rs:350:                detail: format!("Workbook请求 {request_id} 的audit时间与requests行不一致"),
+crates/sheltie-runtime/src/workbook_repo.rs:355:            detail: format!("Workbook请求 {request_id} 的intent_hash不合法：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:359:                detail: format!("Workbook请求 {request_id} 的audit命令不符合合同：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:365:                        detail: format!("Workbook add请求 {request_id} 的intent_hash与audit不一致"),
+crates/sheltie-runtime/src/workbook_repo.rs:371:                        detail: format!("Workbook add请求 {request_id} snapshot解不开：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:373:                if snapshot.request_id != request_id || snapshot.replayed {
+crates/sheltie-runtime/src/workbook_repo.rs:375:                        detail: format!("Workbook add请求 {request_id} snapshot身份无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:383:                            "Workbook add请求 {request_id} snapshot.data不符合合同：{error}"
+crates/sheltie-runtime/src/workbook_repo.rs:400:                        detail: format!("Workbook add请求 {request_id} snapshot.data字段无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:406:                    detail: format!("Workbook add请求 {request_id} snapshot.digest无效：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:419:                    detail: format!("Workbook remove请求 {request_id} 的audit target无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:428:                            "Workbook remove请求 {request_id} 的intent_hash与audit不一致"
+crates/sheltie-runtime/src/workbook_repo.rs:435:                        detail: format!("Workbook remove请求 {request_id} snapshot解不开：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:437:                if snapshot.request_id != request_id || snapshot.replayed {
+crates/sheltie-runtime/src/workbook_repo.rs:439:                        detail: format!("Workbook remove请求 {request_id} snapshot身份无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:447:                            "Workbook remove请求 {request_id} snapshot.data不符合合同：{error}"
+crates/sheltie-runtime/src/workbook_repo.rs:453:                            "Workbook remove请求 {request_id} snapshot与audit身份不一致"
+crates/sheltie-runtime/src/workbook_repo.rs:474:                .lookup_request_effects(request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:476:                    detail: format!("Workbook add请求 {request_id} 缺少发布登记"),
+crates/sheltie-runtime/src/workbook_repo.rs:483:        let original = crate::recovery::workbook_original_response(request_id, response_data);
+crates/sheltie-runtime/src/workbook_repo.rs:488:                        .inspect_request(request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:490:                            detail: format!("缺少Workbook请求 {request_id} 的效果记录"),
+crates/sheltie-runtime/src/workbook_repo.rs:492:                metadata.check_row(request_id, &row)?;
+crates/sheltie-runtime/src/workbook_repo.rs:506:                                    detail: format!("Workbook add请求 {request_id} 缺少登记行"),
+crates/sheltie-runtime/src/workbook_repo.rs:519:                                    "Workbook add请求 {request_id} 的发布登记在校验期间改变"
+crates/sheltie-runtime/src/workbook_repo.rs:528:                    request_id,
+crates/sheltie-runtime/src/workbook_repo.rs:545:                            detail: format!("Workbook请求 {request_id} 的Checked效果形状无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:553:                        detail: format!("Workbook请求 {request_id} 的pending路径无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:559:                        request_id,
+crates/sheltie-runtime/src/workbook_repo.rs:562:                        let current = self.store.inspect_request(request_id)?;
+crates/sheltie-runtime/src/workbook_repo.rs:593:        request_id: &str,
+crates/sheltie-runtime/src/workbook_repo.rs:596:        crate::recovery::before_write(&self.home, &self.store, lock, request_id, intent_hash, self)
+crates/sheltie-runtime/src/workbook_repo.rs:602:        request_id: &str,
+crates/sheltie-runtime/src/workbook_repo.rs:609:            request_id,
+crates/sheltie-runtime/src/workbook_repo.rs:644:            .map(|reference| reference.request_id.as_str())
+crates/sheltie-runtime/src/workbook_repo.rs:650:                    detail: format!("audit {} 命令JSON无效：{error}", audit.request_id),
+crates/sheltie-runtime/src/workbook_repo.rs:656:            if !workbook_command && !publisher_ids.contains(audit.request_id.as_str()) {
+crates/sheltie-runtime/src/workbook_repo.rs:661:                    detail: format!("Workbook audit {} 命令解不开：{error}", audit.request_id),
+crates/sheltie-runtime/src/workbook_repo.rs:667:                            .inspect_request(&audit.request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:671:                                    audit.request_id
+crates/sheltie-runtime/src/workbook_repo.rs:678:                                audit.request_id
+crates/sheltie-runtime/src/workbook_repo.rs:686:                                    audit.request_id
+crates/sheltie-runtime/src/workbook_repo.rs:692:                            || publisher_ids.contains(audit.request_id.as_str()),
+crates/sheltie-runtime/src/workbook_repo.rs:698:                        || publisher_ids.contains(audit.request_id.as_str()),
+crates/sheltie-runtime/src/workbook_repo.rs:703:                latest = Some((audit.seq, audit.request_id, is_add));
+crates/sheltie-runtime/src/workbook_repo.rs:706:        let Some((_, request_id, true)) = latest else {
+crates/sheltie-runtime/src/workbook_repo.rs:708:                Some((_, request_id, false)) => {
+crates/sheltie-runtime/src/workbook_repo.rs:711:                    self.checked_effects_for(&request_id)?;
+crates/sheltie-runtime/src/workbook_repo.rs:719:        let (request, checked) = self.checked_effects_for(&request_id)?;
+crates/sheltie-runtime/src/workbook_repo.rs:720:        let audits = self.store.audit_rows(&request_id)?;
+crates/sheltie-runtime/src/workbook_repo.rs:723:                detail: format!("Workbook add请求 {request_id} 应有且仅有一条audit"),
+crates/sheltie-runtime/src/workbook_repo.rs:738:                detail: format!("Workbook add请求 {request_id} snapshot解不开：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:740:        if snapshot.request_id != request_id || snapshot.replayed {
+crates/sheltie-runtime/src/workbook_repo.rs:742:                detail: format!("Workbook add请求 {request_id} snapshot身份无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:747:                detail: format!("Workbook add请求 {request_id} snapshot.data解不开：{error}"),
+crates/sheltie-runtime/src/workbook_repo.rs:765:                detail: format!("Workbook add请求 {request_id} 的发布效果形状无效"),
+crates/sheltie-runtime/src/workbook_repo.rs:774:                detail: format!("Workbook add请求 {request_id} 的effect与当前workbooks行不一致"),
+crates/sheltie-runtime/src/workbook_repo.rs:780:                detail: format!("Workbook add请求 {request_id} 缺少pending引用索引项"),
+crates/sheltie-runtime/src/workbook_repo.rs:783:        if reference.request_id != request_id
+crates/sheltie-runtime/src/workbook_repo.rs:791:                detail: format!("Workbook add请求 {request_id} 与pending引用索引不一致"),
+crates/sheltie-runtime/src/workbook_repo.rs:1010:        request_id: Option<String>,
+crates/sheltie-runtime/src/workbook_repo.rs:1028:        let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
+crates/sheltie-runtime/src/workbook_repo.rs:1041:        let replay_exists = if let Some(hash) = ro.lookup_request_hash(&request_id)? {
+crates/sheltie-runtime/src/workbook_repo.rs:1044:                    request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:1055:        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
+crates/sheltie-runtime/src/workbook_repo.rs:1056:        if let Some(row) = repo.store.inspect_request(&request_id)? {
+crates/sheltie-runtime/src/workbook_repo.rs:1059:                    request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:1062:            return decode_removed_snapshot(&request_id, &row.reply_json);
+crates/sheltie-runtime/src/workbook_repo.rs:1066:                detail: format!("Workbook请求 {request_id} 重放预检与写锁内记录不一致"),
+crates/sheltie-runtime/src/workbook_repo.rs:1127:            &request_id,
+crates/sheltie-runtime/src/workbook_repo.rs:1131:            request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:1146:            request_id: request_id.clone(),
+crates/sheltie-runtime/src/workbook_repo.rs:1167:        repo.recover_finish_request(&lock, &request_id, false)?;
+crates/sheltie-runtime/src/workbook_repo.rs:1171:                    .inspect_request(&request_id)?
+crates/sheltie-runtime/src/workbook_repo.rs:1173:                        detail: format!("重放请求 {request_id} 在requests中消失"),
+crates/sheltie-runtime/src/workbook_repo.rs:1175:            decode_removed_snapshot(&request_id, &row.reply_json)
+crates/sheltie-runtime/src/workbook_repo.rs:1241:        request_id: &str,
+crates/sheltie-runtime/src/workbook_repo.rs:1248:                .load_checked_request(request_id, metadata)
+crates/sheltie-runtime/src/workbook_repo.rs:1251:            self.load_checked_request(request_id, metadata)

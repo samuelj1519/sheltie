@@ -1,0 +1,72 @@
+{
+  "utc": "2026-10-03T20:27:25.927290+00:00",
+  "public_result": "final/succeeded/noeffects",
+  "five_exact_source_refs": [
+    {
+      "bytes": 6321,
+      "key": "change",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "sha256": "c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "change"
+      }
+    },
+    {
+      "bytes": 4173,
+      "key": "checks",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "sha256": "70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "checks"
+      }
+    },
+    {
+      "bytes": 14261,
+      "key": "delivery",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+      "sha256": "d598ab347ccbf32be6aefff003128a6d3f7d0a3027705611cc185c59c10fc2ed",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "output",
+        "name": "delivery"
+      }
+    },
+    {
+      "bytes": 13444,
+      "key": "patch",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+      "sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "output",
+        "name": "patch"
+      }
+    },
+    {
+      "bytes": 7976,
+      "key": "review",
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+      "sha256": "db039bab3a4f6a74ec1eb39e64dcfca76868a13efdfe7f97c649ff9ce4798ccb",
+      "source": {
+        "attempt": "deliver#1.0",
+        "kind": "input",
+        "name": "review"
+      }
+    }
+  ],
+  "candidate_head": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+  "candidate_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+  "applied_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+  "facts": {
+    "final-candidate-identity": "957efb7076861d1dc54e780d841e0b0bb767bccd\n02966cae1d3fe7a601c26d4bd6f69c66e323a8c4\n",
+    "final-candidate-status": "",
+    "final-candidate-scope": "README.md\nspecs/guides/source-quick-start.md\n"
+  },
+  "asset38_unchanged": true,
+  "protected_source_inputs_unchanged": true,
+  "scope": "actual publicCLI/result bytes and candidate identity, not contentquality or acceptance"
+}

@@ -1,0 +1,116 @@
+diff --git a/specs/guides/continuity-choices.md b/specs/guides/continuity-choices.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1b076914eb5bf4f569068fcb5bc7b86937baf500
+--- /dev/null
++++ b/specs/guides/continuity-choices.md
+@@ -0,0 +1,110 @@
++# 接续、执行失败、内容返工与资格撤销的选择
++
++本指南面向协调者与操作者。重开会话、等待后继续或更换执行者时，先查询当前 Work，再判断是继续原 Attempt、记录真实执行失败、按 Workbook 回边返工，还是撤销旧 Attempt 的正式提交资格。选择依据是实际发生的事实；引擎不从审查文案判断内容好坏。
++
++命令示例中的尖括号占位符必须替换为实际值。新试用选择一个未使用的独立管理根；已有 Work 则始终使用创建它时的同一个显式 `--home`，重开后也不能回落默认管理根。只读查询不带 `--request-id`；写操作先保存一个 UUID，重试保持同一 ID 与同一意图。完整字段和命令以[公开协议](../contracts/protocol.md)为准，接续指针的范围见 [C004](../changes/completed/C004-verifiable-delegation/README.md)，行政撤销的采用规则见 [C005](../changes/completed/C005-executor-continuity/spec.md)。
++
++## 先查询当前状态
++
++```bash
++sheltie --json --home "<本次 Work 的管理根绝对路径>" work status "<完整 work_id>"
++```
++
++保存 JSON 响应，读取 `data.status`、`data.current`、`data.resume`、`data.revision`、`data.effects_pending`、`data.pending_publish` 和顶层 `next`。查询不推进 Work，不刷新磁盘状态卡，也不恢复文件效果。旧写请求的重放响应保留提交时的 `next`；接续必须使用新的 `work status`，不能把历史 `next` 当成当前资格。
++
++`resume` 为 `null` 表示没有当前 Attempt；非空时给出 `attempt`、`brief_path`、冻结 `inputs` 和 `draft_outputs`。`draft_outputs` 仅在 running 时列出声明位置，路径不证明文件存在、完整或封存。读取任务书和输入后再继续，不从「最近修改的文件」猜输入版本。
++
++## 按真实触发选择
++
++| 实际情况 | 选择 | 观察与停止条件 |
++| --- | --- | --- |
++| 会话中断或等待后继续，当前 Attempt 仍 running；操作者已确认旧执行者与共享工作区妥善处置 | 按当前 `resume` 继续同一 Attempt，无需另开 Work 或调用 `attempt begin` | 核对 Attempt 身份、任务书、冻结输入和草稿位置；身份或处置无法确认时停止派活，不为中断制造 fail 或 replace 事实 |
++| 执行者实际崩溃、超时或确实交不出声明输出 | 当前 `next` 允许时调用 `attempt fail`，如实记录原因 | 返回 `data.attempt`、`data.work_status` 与 `next`；只在下一步允许时重试。`blocked(retries_exhausted)` 时停止，不修改重试额度 |
++| 审查工作已完成，报告结论要求内容返工 | 提交已完成的审查 Attempt，再从 `next` 选择 Workbook 已声明的 `edge = back` | 审查结论「不通过」仍是执行成功。目标节点必须在当前 `next`；没有合法回边时停止，不把内容问题记成执行 fail |
++| 确需撤销旧 running Attempt 的正式提交资格 | 从当前 `next` 选择 `attempt replace`，由操作者给出真实撤销理由 | 这是资格撤销，不是普通接续。接手者写共享工作区前仍须确认旧进程已停止或环境已隔离；引擎不停止进程、不认证接手者、不隔离宿主 |
++
++Attempt 的 `node#occurrence.number` 后缀是从 0 连续增加的创建顺序号，不是失败数。真实 `failed` 才计入业务失败；`superseded` 不消耗 `max_retries`。`max_retries = k` 允许同一 Occurrence 的 k 次业务失败重试，第 k+1 次真实失败进入 `blocked(retries_exhausted)`。
++
++## 记录真实执行失败
++
++前提是当前 Attempt 具有合法 running 资格，且真实执行已经失败。理由最多 4096 字节；不要为了试验命令或安排换人而伪造失败。
++
++```bash
++sheltie --json --home "<本次 Work 的管理根绝对路径>" --request-id "<已保存的 UUID>" attempt fail "<完整 work_id>" --attempt "<当前 AttemptId>" --reason "<实际执行失败原因>"
++```
++
++先检查 `ok` 和结构化错误码，再检查返回的 Attempt 与 Work 状态。失败响应不能从自然语言诊断推断是否提交；保留完整响应。获得成功响应后，只从返回的合法下一步选择重试；若曾重放旧请求，先重新查询当前状态。
++
++## 审查结论要求内容返工
++
++审查执行者完成任务书规定的审查与输出后，把结论写入声明输出，再提交审查 Attempt。内容结论和执行状态分别表达。
++
++```bash
++sheltie --json --home "<本次 Work 的管理根绝对路径>" --request-id "<本次 submit 已保存的 UUID>" attempt submit "<完整 work_id>" --attempt "<审查 AttemptId>" --summary "<真实审查结论摘要>"
++```
++
++只有提交后的当前 `next` 包含目标节点且 `edge = back`，才选择回边。用该项的 `args.work`、`args.node` 和执行者要求继续；进入回边目标形成下一 Occurrence，受 `max_visits` 限制，不是同一 Attempt 的执行失败重试。
++
++```bash
++sheltie --json --home "<本次 Work 的管理根绝对路径>" --request-id "<本次 begin 已保存的另一 UUID>" attempt begin "<next.args.work>" --node "<back 项的 next.args.node>"
++```
++
++返回后按新的 `brief_path`、`inputs`、`outputs` 与 `requires` 交接。必需宿主资源缺失时停止，不由引擎或协调者自行安装；`executor = human` 时交给人执行。若提交使 Work 成为 `blocked(gate)`，先停在真人门槛，不绕过门槛进入回边；用户明确批准后才按当前 `next` 处理。
++
++## 确需撤销旧提交资格时替换
++
++替换适用于操作者确需撤销旧 running Attempt 正式提交资格的情形。普通重开、等待、内容返工不自动满足这个条件。可以先撤销正式资格；派接手者写共享工作区前，操作者仍必须确认旧进程已停止或新环境已隔离。处置未确认时停止派活。替换不停止进程、不认证执行者、不撤销已经发生的宿主副作用，也不提供宿主隔离。
++
++1. 查询当前 status。只有 Work 为 active、目标是当前 Occurrence 的最新 running Attempt，且当前 `next` 包含该身份的 `attempt replace` 时，才发起新替换。每个 Occurrence 固定最多一次，不通过换 request ID 重置额度。
++2. 保存本次 UUID 和完整命令，以真实原因调用：
++
++   ```bash
++   sheltie --json --home "<本次 Work 的管理根绝对路径>" --request-id "<本次 replace 已保存的 UUID>" attempt replace "<next.args.work>" --attempt "<replace 项的 next.args.attempt>" --reason "<确需撤销资格的真实理由>"
++   ```
++
++   理由最多 4096 字节，也可使用 `--reason "@<理由文件的绝对路径>"`。同 ID 重放保持原目标、理由字面参数或原文件源路径；已提交重放不重新读取理由文件。改变目标或理由参数返回 `REQUEST_CONFLICT`，不能用它掩盖原请求结果。
++3. 成功后核对 `data.replaced_attempt` 是旧身份，`data.attempt` 是同一 Occurrence 的新身份，`data.number` 是旧顺序号加 1。核对 `data.node`、`data.occurrence`、`data.brief_path`、`data.output_dir`、`data.inputs`、`data.outputs`、`data.requires`，以及顶层 `revision`、`request_id`、`next`。旧 Attempt 在同一事务中成为 superseded，新 Attempt 成为 running；仅增加一次 revision。失败则保留结构化响应，按下一节区分是否已提交，不自行补造新 Attempt。
++4. 用新任务书、新输出位置交接。新 Attempt 保持旧 `entered_from` 和冻结的非 `engine.stats` 输入，包括值为 `null` 的未绑定可选输入；不重新选上游最新版本。引擎在替换提交前核对这些旧引用的实际摘要和大小。旧未提交输出仍是未封存草稿，不转成新 Attempt 的正式输入或输出。任务书使用 Work 的冻结说明书，门槛、节点和成果标准保持原定义。
++
++新 `engine.stats` 从包含新 Attempt 的提交后状态生成，精确字节随请求保存；不是复制旧 stats，也不在历史重放时按最新状态重算。替换使尝试数 `attempts` 增加 1、`superseded` 增加 1，真实失败数 `failed` 与节点到达数不因替换增加。需要观察当前统计时，只读查询：
++
++```bash
++sheltie --json --home "<本次 Work 的管理根绝对路径>" work stats "<完整 work_id>"
++```
++
++额度耗尽返回 `REPLACEMENTS_EXHAUSTED`，不会新增 blocked 状态；当前 Attempt 保持资格，按当前 `next` 继续 submit、真实 fail 或已有取消选择。其他拒绝的优先级以[协议 §3](../contracts/protocol.md#3-各操作细则)为准：新请求先核 Work 非终态，再核旧身份存在、running、active 当前最新资格，随后核一次额度、理由和输入。非终态 Work 中，旧 superseded Attempt 的新 submit/fail 返回 `ATTEMPT_NOT_RUNNING`；Work 已 succeeded 或 cancelled 时先返回 `WORK_TERMINAL`。旧成功请求的同 ID 重放先于这些新请求校验，仍返回历史快照；即使新 Attempt 后来结束，也不据此否定旧快照。重放后继续前重新查询 status，使用当前 `next`。
++
++## 文件效果未完成与未知结果
++
++`EFFECT_PENDING` 表示文件效果待完成，不等于执行者内容失败。保留原命令、管理根、完整 stdout JSON、stderr、退出码和 request ID。按[协议 §5](../contracts/protocol.md)与[存储恢复合同](../contracts/storage.md#3-崩溃语义与恢复)的结构化字段判断：
++
++| 可观察响应 | 已确认事实 | 恢复与停止条件 |
++| --- | --- | --- |
++| `error.code = EFFECT_PENDING` 且 `committed = true` | 本次 `request_id` 已提交，自己的效果未完成；已核实的提交快照可在 `original` 中，Work 写操作可带原 `revision` | 用原 ID、原目标与原用户参数重发同一写命令，恢复同一请求。replace 已提交时恢复的是同一新 Attempt、brief 和 stats 字节；不因 `ok = false` 换新 ID 重做替换 |
++| `error.code = EFFECT_PENDING` 且 `committed = false`，本次 `request_id = B`，`error.detail.pending_request_id = A` | B 尚未提交，被旧请求 A 的效果阻断；若提供 `pending_original`，它属于 A | 从实际记录取得 A 的原命令和原 ID，解决已报告的效果问题并重试 A；随后用 B 原 ID、原意图重试 B。不把 A 的快照当 B 成功，不为 B 制造执行失败事实 |
++| 未获得完整、可信的 JSON 响应，或提交身份、原命令无法对应 | 当前结果 unknown；超时、断连或自然语言诊断不能证明未提交 | 先保存现场与记录，查询 status；已有原 UUID 与完整命令时可同 ID、同意图重发以取得真实结果。缺恢复所需记录、结构化字段矛盾或身份无法核对时停止并报告，不能生成新 ID 猜测重做 |
++
++`original`、`pending_original` 和 `revision` 可能因提交快照无法独立核实而省略；缺少它们不否定响应明确给出的提交身份。检查 `error.detail.cause` 与实际路径/系统错误，不解析 `message` 或 stderr 的自然语言来猜业务状态。若原件缺失、被修改、归属不明或完整性错误未解决，停止恢复并交人工核查；不直接改 Store、不删除 pending、不补造原件、不覆盖冲突对象来「修好」结果。
++
++`work status` 的 `effects_pending = true` 或 `pending_publish = true` 只是同一只读快照的提示，查询本身不恢复文件效果，也不推进 Work。恢复通过已登记写请求的正常 CLI 路径进行；只有查询请求时，报告待恢复事实并停在查询范围，不顺手重发写命令。恢复成功的重放仍提供历史 `next`，必须再查 status 才能选当前操作。
++
++## 查询、真人与终态的停止边界
++
++- 只需看状态、统计或最终成果时，执行相应只读查询后结束。Work ID 未明确但管理根已知时，可先查询 `work list`，确认目标完整 ID；不为查询新建 Work 或要求重新选 Workbook。
++
++  ```bash
++  sheltie --json --home "<已有 Work 所在管理根绝对路径>" work list
++  sheltie --json --home "<本次 Work 的管理根绝对路径>" work result "<完整 work_id>"
++  ```
++
++- `resume` 非空本身不证明 Attempt running。核对当前 Work 状态和 `next` 中的 Attempt 身份；只有确认当前 running 资格后才继续草稿。状态无法核对时保留 unknown 并停止推进，不从目录、后缀数字或历史响应猜当前资格。
++- `attempt begin` 的 `next` 项带 `executor`、`tier`。`executor = human` 时交给人；`tier` 只是选模型的标签。begin/replace 响应和任务书的 `requires` 是宿主资源声明，缺任何必需资源时停止报告，不自行安装。
++- `blocked(gate)` 只允许当前 `next` 的 `gate approve` 与 `work cancel`。先把状态与产出交给用户；取得明确批准后，才使用下列写命令，不能以替换、重试或内容返工绕过门槛。批准记录的 `by` 是发起进程的 OS 账户，不等于独立真人身份认证。
++
++  ```bash
++  sheltie --json --home "<本次 Work 的管理根绝对路径>" --request-id "<本次 approve 已保存的 UUID>" gate approve "<next.args.work>" --node "<approve 项的 next.args.node>"
++  ```
++
++  核对响应的 `data.node`、`data.occurrence`、`data.by`、`data.at`、`data.work_status` 和 `next`；重放后仍先查当前 status。
++- `blocked(retries_exhausted)`、`blocked(no_legal_edge)` 不允许继续 begin、replace 或 approve，当前只剩取消选择；停止并报告，由用户决定是否取消，不扩大 Workbook 额度。
++- `succeeded`、`cancelled` 是终态，当前 `next = []`，停止推进。仍可只读查询。`work result` 只有 `data.final = true` 才列出终点明确选择的 `artifacts`；未满足成功终点、门槛或文件效果条件时 `final = false`、集合为空。成功终点未声明成果时可 `final = true` 且集合为空；不猜最近文件，不把流程成功或封存引用当内容质量、候选检查、接受或发布许可。

@@ -1,0 +1,303 @@
+crates/sheltie-cli/src/cli.rs-123-    pub inputs: Vec<String>,
+crates/sheltie-cli/src/cli.rs-124-}
+crates/sheltie-cli/src/cli.rs-125-
+crates/sheltie-cli/src/cli.rs-126-#[derive(Debug, Subcommand)]
+crates/sheltie-cli/src/cli.rs:127:pub enum AttemptCmd {
+crates/sheltie-cli/src/cli.rs-128-    /// 进入节点并开始一次尝试，返回任务书。
+crates/sheltie-cli/src/cli.rs-129-    Begin {
+crates/sheltie-cli/src/cli.rs-130-        work: String,
+crates/sheltie-cli/src/cli.rs-131-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-132-        node: String,
+crates/sheltie-cli/src/cli.rs-133-    },
+crates/sheltie-cli/src/cli.rs-134-    /// 提交尝试。
+crates/sheltie-cli/src/cli.rs-135-    Submit {
+crates/sheltie-cli/src/cli.rs-136-        work: String,
+crates/sheltie-cli/src/cli.rs-137-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-138-        attempt: String,
+crates/sheltie-cli/src/cli.rs-139-        /// 摘要文本，或 `@file`。
+crates/sheltie-cli/src/cli.rs-140-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-141-        summary: String,
+--
+crates/sheltie-cli/src/cli.rs-148-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-149-        reason: String,
+crates/sheltie-cli/src/cli.rs-150-    },
+crates/sheltie-cli/src/cli.rs-151-    /// 撤销当前尝试的正式提交资格并领取新任务书。
+crates/sheltie-cli/src/cli.rs:152:    Replace {
+crates/sheltie-cli/src/cli.rs-153-        work: String,
+crates/sheltie-cli/src/cli.rs-154-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-155-        attempt: String,
+crates/sheltie-cli/src/cli.rs-156-        /// 替换理由，或 `@file`。
+crates/sheltie-cli/src/cli.rs-157-        #[arg(long)]
+crates/sheltie-cli/src/cli.rs-158-        reason: String,
+crates/sheltie-cli/src/cli.rs-159-    },
+crates/sheltie-cli/src/cli.rs-160-}
+crates/sheltie-cli/src/cli.rs-161-
+crates/sheltie-cli/src/cli.rs-162-#[derive(Debug, Subcommand)]
+crates/sheltie-cli/src/cli.rs-163-pub enum GateCmd {
+crates/sheltie-cli/src/cli.rs-164-    /// 真人批准门槛。
+crates/sheltie-cli/src/cli.rs-165-    Approve {
+crates/sheltie-cli/src/cli.rs-166-        work: String,
+--
+crates/sheltie-core/src/work/decide.rs-51-                } => decide_submit(state, graph, attempt, summary, observed_outputs, ctx),
+crates/sheltie-core/src/work/decide.rs-52-                Command::FailAttempt { attempt, reason } => {
+crates/sheltie-core/src/work/decide.rs-53-                    decide_fail(state, graph, attempt, reason, ctx)
+crates/sheltie-core/src/work/decide.rs-54-                }
+crates/sheltie-core/src/work/decide.rs:55:                Command::ReplaceAttempt {
+crates/sheltie-core/src/work/decide.rs-56-                    attempt,
+crates/sheltie-core/src/work/decide.rs-57-                    reason,
+crates/sheltie-core/src/work/decide.rs-58-                    observed_inputs,
+crates/sheltie-core/src/work/decide.rs-59-                    instruction_text,
+crates/sheltie-core/src/work/decide.rs-60-                } => decide_replace(
+crates/sheltie-core/src/work/decide.rs-61-                    state,
+crates/sheltie-core/src/work/decide.rs-62-                    graph,
+crates/sheltie-core/src/work/decide.rs-63-                    attempt,
+crates/sheltie-core/src/work/decide.rs-64-                    reason,
+crates/sheltie-core/src/work/decide.rs-65-                    observed_inputs,
+crates/sheltie-core/src/work/decide.rs-66-                    instruction_text,
+crates/sheltie-core/src/work/decide.rs-67-                    ctx,
+crates/sheltie-core/src/work/decide.rs-68-                ),
+crates/sheltie-core/src/work/decide.rs-69-                Command::ApproveGate { node } => decide_approve(state, graph, node, ctx),
+--
+crates/sheltie-core/src/work/decide.rs-72-        }
+crates/sheltie-core/src/work/decide.rs-73-    }
+crates/sheltie-core/src/work/decide.rs-74-}
+crates/sheltie-core/src/work/decide.rs-75-
+crates/sheltie-core/src/work/decide.rs:76:/// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
+crates/sheltie-core/src/work/decide.rs-77-fn guard_not_terminal(state: &WorkState) -> Result<()> {
+crates/sheltie-core/src/work/decide.rs-78-    if state.status.is_terminal() {
+crates/sheltie-core/src/work/decide.rs:79:        return Err(Error::WorkTerminal {
+crates/sheltie-core/src/work/decide.rs-80-            status: state.status.to_string(),
+crates/sheltie-core/src/work/decide.rs-81-        });
+crates/sheltie-core/src/work/decide.rs-82-    }
+crates/sheltie-core/src/work/decide.rs-83-    Ok(())
+crates/sheltie-core/src/work/decide.rs-84-}
+crates/sheltie-core/src/work/decide.rs-85-
+crates/sheltie-core/src/work/decide.rs-86-fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
+crates/sheltie-core/src/work/decide.rs-87-    state.blocked_count =
+crates/sheltie-core/src/work/decide.rs-88-        state
+crates/sheltie-core/src/work/decide.rs-89-            .blocked_count
+crates/sheltie-core/src/work/decide.rs-90-            .checked_add(1)
+crates/sheltie-core/src/work/decide.rs-91-            .ok_or_else(|| Error::InvalidRequest {
+crates/sheltie-core/src/work/decide.rs-92-                reason: "累计受阻次数超出可表示范围".to_string(),
+crates/sheltie-core/src/work/decide.rs-93-            })?;
+--
+crates/sheltie-core/src/work/decide.rs-216-        inputs: bound.clone(),
+crates/sheltie-core/src/work/decide.rs-217-        outputs: BTreeMap::new(),
+crates/sheltie-core/src/work/decide.rs-218-        summary: None,
+crates/sheltie-core/src/work/decide.rs-219-        fail_reason: None,
+crates/sheltie-core/src/work/decide.rs:220:        replacement_reason: None,
+crates/sheltie-core/src/work/decide.rs-221-        started_at: ctx.now.clone(),
+crates/sheltie-core/src/work/decide.rs-222-        ended_at: None,
+crates/sheltie-core/src/work/decide.rs-223-    };
+crates/sheltie-core/src/work/decide.rs-224-    new_state.attempts.push(attempt);
+crates/sheltie-core/src/work/decide.rs-225-    new_state.updated_at = ctx.now.clone();
+crates/sheltie-core/src/work/decide.rs-226-
+crates/sheltie-core/src/work/decide.rs-227-    if wants_stats {
+crates/sheltie-core/src/work/decide.rs-228-        // stats.json 的口径含本次 Attempt（D-29）：用提交后的完整状态算，
+crates/sheltie-core/src/work/decide.rs-229-        // 崩溃后的重放才能从库里那份状态逐字节重建同一份文件。
+crates/sheltie-core/src/work/decide.rs-230-        // stats 只计数，不序列化 `inputs`，所以可以先推进状态再回填绑定。
+crates/sheltie-core/src/work/decide.rs-231-        let (artifact, content) = engine_stats_artifact(&new_state, graph, &attempt_id)?;
+crates/sheltie-core/src/work/decide.rs-232-        for decl in def
+crates/sheltie-core/src/work/decide.rs-233-            .inputs
+crates/sheltie-core/src/work/decide.rs-234-            .iter()
+--
+crates/sheltie-core/src/work/decide.rs-311-        .ok_or_else(|| Error::AttemptNotFound {
+crates/sheltie-core/src/work/decide.rs-312-            attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-313-        })?;
+crates/sheltie-core/src/work/decide.rs-314-    if record.status != AttemptStatus::Running {
+crates/sheltie-core/src/work/decide.rs:315:        return Err(Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs-316-            attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-317-        });
+crates/sheltie-core/src/work/decide.rs-318-    }
+crates/sheltie-core/src/work/decide.rs-319-    if state.status != WorkStatus::Active
+crates/sheltie-core/src/work/decide.rs-320-        || state.latest_attempt_of_current().map(|record| &record.id) != Some(attempt)
+crates/sheltie-core/src/work/decide.rs-321-    {
+crates/sheltie-core/src/work/decide.rs-322-        return Err(Error::IllegalNext {
+crates/sheltie-core/src/work/decide.rs-323-            requested: format!("attempt replace {attempt}"),
+crates/sheltie-core/src/work/decide.rs-324-            next: legal_next(state, graph)
+crates/sheltie-core/src/work/decide.rs-325-                .iter()
+crates/sheltie-core/src/work/decide.rs-326-                .map(|operation| operation.to_command_line(&state.work_id))
+crates/sheltie-core/src/work/decide.rs-327-                .collect(),
+crates/sheltie-core/src/work/decide.rs-328-        });
+crates/sheltie-core/src/work/decide.rs-329-    }
+crates/sheltie-core/src/work/decide.rs-330-    if state.has_replacement_of(&state.current) {
+crates/sheltie-core/src/work/decide.rs:331:        return Err(Error::ReplacementsExhausted {
+crates/sheltie-core/src/work/decide.rs-332-            attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-333-        });
+crates/sheltie-core/src/work/decide.rs-334-    }
+crates/sheltie-core/src/work/decide.rs-335-    let node = graph
+crates/sheltie-core/src/work/decide.rs-336-        .node(&attempt.node)
+crates/sheltie-core/src/work/decide.rs-337-        .ok_or_else(|| Error::InvalidRequest {
+crates/sheltie-core/src/work/decide.rs-338-            reason: format!("节点 {} 不在图里", attempt.node),
+crates/sheltie-core/src/work/decide.rs-339-        })?;
+crates/sheltie-core/src/work/decide.rs-340-    if record.inputs.len() != node.inputs().len() {
+crates/sheltie-core/src/work/decide.rs-341-        return Err(Error::InvalidRequest {
+crates/sheltie-core/src/work/decide.rs-342-            reason: "原 Attempt 的输入键集合与声明不一致".to_string(),
+crates/sheltie-core/src/work/decide.rs-343-        });
+crates/sheltie-core/src/work/decide.rs-344-    }
+crates/sheltie-core/src/work/decide.rs-345-    node.inputs()
+--
+crates/sheltie-core/src/work/decide.rs-431-        .attempt_mut(attempt)
+crates/sheltie-core/src/work/decide.rs-432-        .ok_or_else(|| Error::AttemptNotFound {
+crates/sheltie-core/src/work/decide.rs-433-            attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-434-        })?;
+crates/sheltie-core/src/work/decide.rs:435:    old_mut.status = AttemptStatus::Superseded;
+crates/sheltie-core/src/work/decide.rs-436-    old_mut.ended_at = Some(ctx.now.clone());
+crates/sheltie-core/src/work/decide.rs:437:    old_mut.replacement_reason = Some(reason);
+crates/sheltie-core/src/work/decide.rs-438-    new_state.attempts.push(Attempt {
+crates/sheltie-core/src/work/decide.rs-439-        id: new_id.clone(),
+crates/sheltie-core/src/work/decide.rs-440-        status: AttemptStatus::Running,
+crates/sheltie-core/src/work/decide.rs-441-        entered_from: old.entered_from.clone(),
+crates/sheltie-core/src/work/decide.rs-442-        inputs: old.inputs.clone(),
+crates/sheltie-core/src/work/decide.rs-443-        outputs: BTreeMap::new(),
+crates/sheltie-core/src/work/decide.rs-444-        summary: None,
+crates/sheltie-core/src/work/decide.rs-445-        fail_reason: None,
+crates/sheltie-core/src/work/decide.rs:446:        replacement_reason: None,
+crates/sheltie-core/src/work/decide.rs-447-        started_at: ctx.now.clone(),
+crates/sheltie-core/src/work/decide.rs-448-        ended_at: None,
+crates/sheltie-core/src/work/decide.rs-449-    });
+crates/sheltie-core/src/work/decide.rs-450-    new_state.updated_at = ctx.now.clone();
+crates/sheltie-core/src/work/decide.rs-451-    let mut effects = Vec::new();
+crates/sheltie-core/src/work/decide.rs-452-    if node
+crates/sheltie-core/src/work/decide.rs-453-        .inputs()
+crates/sheltie-core/src/work/decide.rs-454-        .iter()
+crates/sheltie-core/src/work/decide.rs-455-        .any(|input| matches!(input.source(), InputSource::EngineStats))
+crates/sheltie-core/src/work/decide.rs-456-    {
+crates/sheltie-core/src/work/decide.rs-457-        let (reference, content) = engine_stats_artifact(&new_state, graph, &new_id)?;
+crates/sheltie-core/src/work/decide.rs-458-        let index = new_state.attempts.len() - 1;
+crates/sheltie-core/src/work/decide.rs-459-        for declaration in node
+crates/sheltie-core/src/work/decide.rs-460-            .inputs()
+--
+crates/sheltie-core/src/work/decide.rs-505-        })?;
+crates/sheltie-core/src/work/decide.rs-506-    Ok(Decision {
+crates/sheltie-core/src/work/decide.rs-507-        state: new_state,
+crates/sheltie-core/src/work/decide.rs-508-        effects,
+crates/sheltie-core/src/work/decide.rs:509:        reply: Reply::AttemptReplaced {
+crates/sheltie-core/src/work/decide.rs-510-            replaced_attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-511-            attempt: new_id,
+crates/sheltie-core/src/work/decide.rs-512-            brief_path,
+crates/sheltie-core/src/work/decide.rs-513-            output_dir: crate::work::layout::outputs_dir(&directory),
+crates/sheltie-core/src/work/decide.rs-514-            inputs,
+crates/sheltie-core/src/work/decide.rs-515-            outputs,
+crates/sheltie-core/src/work/decide.rs-516-            requires,
+crates/sheltie-core/src/work/decide.rs-517-        },
+crates/sheltie-core/src/work/decide.rs-518-    })
+crates/sheltie-core/src/work/decide.rs-519-}
+crates/sheltie-core/src/work/decide.rs-520-
+crates/sheltie-core/src/work/decide.rs-521-/// 按节点的 `inputs[]` 逐条绑定。
+crates/sheltie-core/src/work/decide.rs-522-///
+crates/sheltie-core/src/work/decide.rs-523-/// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
+--
+crates/sheltie-core/src/work/decide.rs-606-}
+crates/sheltie-core/src/work/decide.rs-607-
+crates/sheltie-core/src/work/decide.rs-608-/// `attempt submit` 第 1 到 6 步。
+crates/sheltie-core/src/work/decide.rs-609-///
+crates/sheltie-core/src/work/decide.rs:610:/// 1. Attempt 必须 `Running`，否则 `Error::AttemptNotRunning`。
+crates/sheltie-core/src/work/decide.rs-611-/// 2. `summary` ≤ 4096 字节，否则 `Error::SummaryTooLong`。
+crates/sheltie-core/src/work/decide.rs-612-/// 3. `check_outputs`。任一失败整体 `Err`，状态不变。
+crates/sheltie-core/src/work/decide.rs-613-/// 4. 记录输出 `ArtifactRef`，`status = Succeeded`，`ended_at = ctx.now`。
+crates/sheltie-core/src/work/decide.rs-614-/// 5. `status_after_success` 定 Work 状态（含 `gate`）。
+crates/sheltie-core/src/work/decide.rs-615-/// 6. 回复 `Reply::AttemptSubmitted`；效果 `SealOutputs`、`RefreshStatusCard`。
+crates/sheltie-core/src/work/decide.rs-616-fn decide_submit(
+crates/sheltie-core/src/work/decide.rs-617-    state: &WorkState,
+crates/sheltie-core/src/work/decide.rs-618-    graph: &Graph,
+crates/sheltie-core/src/work/decide.rs-619-    attempt: &AttemptId,
+crates/sheltie-core/src/work/decide.rs-620-    summary: &str,
+crates/sheltie-core/src/work/decide.rs-621-    observed_outputs: &BTreeMap<String, Option<ObservedFile>>,
+crates/sheltie-core/src/work/decide.rs-622-    ctx: &Context,
+crates/sheltie-core/src/work/decide.rs-623-) -> Result<Decision> {
+crates/sheltie-core/src/work/decide.rs:624:    let not_running = || Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs-625-        attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-626-    };
+crates/sheltie-core/src/work/decide.rs-627-    let prev = state.attempt(attempt).ok_or_else(not_running)?;
+crates/sheltie-core/src/work/decide.rs-628-    if prev.status != AttemptStatus::Running {
+crates/sheltie-core/src/work/decide.rs-629-        return Err(not_running());
+crates/sheltie-core/src/work/decide.rs-630-    }
+crates/sheltie-core/src/work/decide.rs-631-    // 协议 attempt submit 第 2 步：超限报 `SUMMARY_TOO_LONG`，不是通用的 `TEXT_TOO_LONG`。
+crates/sheltie-core/src/work/decide.rs-632-    let summary_text = Summary::new(summary, "summary").map_err(|_| Error::SummaryTooLong {
+crates/sheltie-core/src/work/decide.rs-633-        max: Summary::max_bytes(),
+crates/sheltie-core/src/work/decide.rs-634-        actual: summary.len(),
+crates/sheltie-core/src/work/decide.rs-635-    })?;
+crates/sheltie-core/src/work/decide.rs-636-    let sealed = check_outputs(state, graph, attempt, observed_outputs)?;
+crates/sheltie-core/src/work/decide.rs-637-
+crates/sheltie-core/src/work/decide.rs-638-    let mut new_state = state.clone();
+--
+crates/sheltie-core/src/work/decide.rs-789-            graph.node(node).is_some()
+crates/sheltie-core/src/work/decide.rs-790-                && (status == success_status_at(graph, node, false, false)
+crates/sheltie-core/src/work/decide.rs-791-                    || status == success_status_at(graph, node, false, true))
+crates/sheltie-core/src/work/decide.rs-792-        }
+crates/sheltie-core/src/work/decide.rs:793:        Reply::Started { .. } | Reply::AttemptBegun { .. } | Reply::AttemptReplaced { .. } => {
+crates/sheltie-core/src/work/decide.rs-794-            status == WorkStatus::Active
+crates/sheltie-core/src/work/decide.rs-795-        }
+crates/sheltie-core/src/work/decide.rs-796-        Reply::Cancelled => status == WorkStatus::Cancelled,
+crates/sheltie-core/src/work/decide.rs-797-    }
+crates/sheltie-core/src/work/decide.rs-798-}
+crates/sheltie-core/src/work/decide.rs-799-
+crates/sheltie-core/src/work/decide.rs-800-/// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
+crates/sheltie-core/src/work/decide.rs-801-/// 真实失败数超过 `max_retries` 时 Work → `Blocked(RetriesExhausted)`。效果 `RefreshStatusCard`。
+crates/sheltie-core/src/work/decide.rs-802-fn decide_fail(
+crates/sheltie-core/src/work/decide.rs-803-    state: &WorkState,
+crates/sheltie-core/src/work/decide.rs-804-    graph: &Graph,
+crates/sheltie-core/src/work/decide.rs-805-    attempt: &AttemptId,
+crates/sheltie-core/src/work/decide.rs-806-    reason: &str,
+crates/sheltie-core/src/work/decide.rs-807-    ctx: &Context,
+crates/sheltie-core/src/work/decide.rs-808-) -> Result<Decision> {
+crates/sheltie-core/src/work/decide.rs:809:    let not_running = || Error::AttemptNotRunning {
+crates/sheltie-core/src/work/decide.rs-810-        attempt: attempt.clone(),
+crates/sheltie-core/src/work/decide.rs-811-    };
+crates/sheltie-core/src/work/decide.rs-812-    let prev = state.attempt(attempt).ok_or_else(not_running)?;
+crates/sheltie-core/src/work/decide.rs-813-    if prev.status != AttemptStatus::Running {
+crates/sheltie-core/src/work/decide.rs-814-        return Err(not_running());
+crates/sheltie-core/src/work/decide.rs-815-    }
+crates/sheltie-core/src/work/decide.rs-816-    // 同 submit 第 2 步：超限报 `SUMMARY_TOO_LONG`。
+crates/sheltie-core/src/work/decide.rs-817-    let reason_text = Summary::new(reason, "reason").map_err(|_| Error::SummaryTooLong {
+crates/sheltie-core/src/work/decide.rs-818-        max: Summary::max_bytes(),
+crates/sheltie-core/src/work/decide.rs-819-        actual: reason.len(),
+crates/sheltie-core/src/work/decide.rs-820-    })?;
+crates/sheltie-core/src/work/decide.rs-821-    let max_retries = graph
+crates/sheltie-core/src/work/decide.rs-822-        .node(&attempt.node)
+crates/sheltie-core/src/work/decide.rs-823-        .map(|d| d.max_retries)
+--
+crates/sheltie-core/src/work/decide.rs-1452-        fx.begin("draft").unwrap();
+crates/sheltie-core/src/work/decide.rs-1453-        fx.submit_ok("draft#1.0", "ok").unwrap();
+crates/sheltie-core/src/work/decide.rs-1454-        assert!(matches!(
+crates/sheltie-core/src/work/decide.rs-1455-            fx.submit_ok("draft#1.0", "again"),
+crates/sheltie-core/src/work/decide.rs:1456:            Err(Error::AttemptNotRunning { .. })
+crates/sheltie-core/src/work/decide.rs-1457-        ));
+crates/sheltie-core/src/work/decide.rs-1458-    }
+crates/sheltie-core/src/work/decide.rs-1459-
+crates/sheltie-core/src/work/decide.rs-1460-    // Task: C002-T40
+crates/sheltie-core/src/work/decide.rs-1461-    #[test]
+crates/sheltie-core/src/work/decide.rs-1462-    fn submit_rejects_summary_over_4096_bytes() {
+crates/sheltie-core/src/work/decide.rs-1463-        let mut fx = Fixture::article_review().started();
+crates/sheltie-core/src/work/decide.rs-1464-        fx.begin("draft").unwrap();
+crates/sheltie-core/src/work/decide.rs-1465-        assert!(matches!(
+crates/sheltie-core/src/work/decide.rs-1466-            fx.submit_ok("draft#1.0", &"x".repeat(4097)),
+crates/sheltie-core/src/work/decide.rs-1467-            Err(Error::SummaryTooLong {
+crates/sheltie-core/src/work/decide.rs-1468-                max: 4096,
+crates/sheltie-core/src/work/decide.rs-1469-                actual: 4097
+crates/sheltie-core/src/work/decide.rs-1470-            })
+--
+crates/sheltie-core/src/work/decide.rs-1712-    #[test]
+crates/sheltie-core/src/work/decide.rs-1713-    fn terminal_work_rejects_every_command_with_work_terminal() {
+crates/sheltie-core/src/work/decide.rs-1714-        let mut fx = Fixture::article_review().started();
+crates/sheltie-core/src/work/decide.rs-1715-        fx.cancel().unwrap();
+crates/sheltie-core/src/work/decide.rs:1716:        assert!(matches!(fx.begin("draft"), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs:1717:        assert!(matches!(fx.cancel(), Err(Error::WorkTerminal { .. })));
+crates/sheltie-core/src/work/decide.rs-1718-        assert!(matches!(
+crates/sheltie-core/src/work/decide.rs-1719-            fx.approve("draft"),
+crates/sheltie-core/src/work/decide.rs:1720:            Err(Error::WorkTerminal { .. })
+crates/sheltie-core/src/work/decide.rs-1721-        ));
+crates/sheltie-core/src/work/decide.rs-1722-        assert!(legal_next(fx.state(), &fx.graph).is_empty());
+crates/sheltie-core/src/work/decide.rs-1723-    }
+crates/sheltie-core/src/work/decide.rs-1724-
+crates/sheltie-core/src/work/decide.rs-1725-    // ── M1 补测（上限边界与重试路径） ─────────────────────────
+crates/sheltie-core/src/work/decide.rs-1726-
+crates/sheltie-core/src/work/decide.rs-1727-    // Task: T07
+crates/sheltie-core/src/work/decide.rs-1728-    #[test]
+crates/sheltie-core/src/work/decide.rs-1729-    fn retry_binds_engine_stats_under_retry_dir() {
+crates/sheltie-core/src/work/decide.rs-1730-        let mut fx = Fixture::with_engine_stats_input();
+crates/sheltie-core/src/work/decide.rs-1731-        fx.begin("only").unwrap();
+crates/sheltie-core/src/work/decide.rs-1732-        fx.fail("only#1.0", "再来").unwrap();
+crates/sheltie-core/src/work/decide.rs-1733-        let d = fx.begin("only").unwrap();
+crates/sheltie-core/src/work/decide.rs-1734-        let stats = d.state.latest_attempt_of_current().unwrap().inputs["stats"]

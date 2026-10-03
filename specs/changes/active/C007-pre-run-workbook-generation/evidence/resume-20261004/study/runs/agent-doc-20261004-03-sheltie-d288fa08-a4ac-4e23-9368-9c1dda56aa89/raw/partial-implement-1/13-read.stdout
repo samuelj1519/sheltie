@@ -1,0 +1,44 @@
+1:# 存储、事务与恢复
+5:## 1. SQLite
+9:### 1.1 版本与结构校验
+22:### 1.2 表
+49:  request_id   TEXT PRIMARY KEY,
+62:  request_id   TEXT NOT NULL,
+71:### 1.3 主体
+75:### 1.4 同一快照的 Work 读取闭包
+81:schema4包含number/superseded/replacement_reason及新response的单一严格载荷；旧schema1/2/3保留并拒绝，不迁移。结果/接续采用决定仍见D-040，当前替换格式见D-041。目录摘要算法与既有写事务/效果格式保持不变。当前格式决定见 [D-041](../decisions/D-041-attempt-number-and-replacement.md)。
+83:## 2. 写操作与锁
+85:### 2.1 RequestIntent 与意图指纹
+91:- 新请求的 `Work` 前缀在只读预检阶段从 `works` 表解析为唯一完整 `WorkId`；已存在的 Work 行即使终态也能解析，不靠读 Workbook。已有 `request_id` 先读该行的 `work_id`：Work 命令的原始前缀必须匹配这条已提交目标，再用该完整 id 构造意图比对；不重新用当前 Work 列表解析历史前缀。后来创建的 Work 即使让此前缀不再唯一，也不能使历史重放失败或改绑目标。不匹配则 `REQUEST_CONFLICT`。
+93:- `self` 命令组没有 RequestIntent，也不支持 `request_id`（协议 §1）。
+95:### 2.2 管理根写锁
+106:### 2.3 一次写事务
+109:只读预检（无锁）：解析用户参数与目标身份、识别 schema、查 request_id 可重放项；未命中才读取 @file/Workbook 并做对应预检；Workbook add只核源结构/类型/限额，内容在锁内私有副本校验
+111:锁内重核：schema、request_id、受并发影响的前置事实；先恢复未完成效果
+113:  SELECT intent_hash, reply_json, effects_json, published FROM requests WHERE request_id = ?
+133:## 3. 崩溃语义与恢复
+135:### 3.1 窗口表
+146:| 发布失败（磁盘满、权限） | 已提交 | 部分 | 响应报 `EFFECT_PENDING`，携带 `committed = true`、request-id 与原响应；Work 写操作另带 revision，不回滚状态 |
+148:### 3.2 效果登记
+165:恢复顺序：按`audit.seq`处理未完成请求；在第一个I/O动作前校验整组效果闭包。依序发布、prepare、写历史文件、封存/删除、刷新最新状态卡；所有必需文件/目录sync成功后才置`published=1`，随后清理元数据。已完成请求的纯快照重放不执行目录效果；显式重放begin只核自己的write_file字节。本人效果失败返回顶层`committed=true`、request_id和原响应，Work另带revision；旧A阻断未提交新B时返回`committed=false`、B的request_id及detail.pending_request_id/pending_original。状态卡永远按最新WorkState生成。清理失败通过stderr维护诊断报告，不改成功JSON或历史快照。已清owner不妨碍根据当前行读取已完成final。
+169:### 3.3 pending 与清理
+171:`pending/`只放引擎持锁创建的私有暂存：未提交准备区、已提交未发布的Work/Workbook原件、待删除目录。每次操作生成内部UUID v7。`.owner`是单行UTF-8 JSON加换行，字段顺序固定为`format`、`internal_id`、`request_id`、`op`；`format = "pending/v1"`，`internal_id`与目录名相同，`request_id`是本次请求id，`op`只取`start_work | add_workbook | remove_workbook`。侧车不进入最终Work或Workbook；效果记录payload路径和业务归属。
+175:`delete_dir` 完成删除后，独占创建 `pending/<内部 id>.deleted`，写入并 fsync `{"format":"delete-complete/v1","internal_id":"<内部 id>"}` 加换行。若请求仍 `published = 0`，最终目录与 pending payload 都不存在时，只有合法完成标记才能证明删除完成；标记缺失或损坏时报 `EFFECT_PENDING`，说明结果不明并保留原响应，不能把外部删除误判为本操作成功。COMMIT 后唯一原件被外部删除时同样停止，不重造。清理规则：
+184:## 4. 产物封存
+196:## 5. Workbook 仓库与目录摘要
+198:### 5.1 workbook-digest/v2
+215:### 5.2 add 与 remove 的事务
+231:3. COMMIT后按remove专属效果核final身份/摘要；此时payload尚不存在。随后将final移入本请求payload并sync父目录，安全删除同一对象；删除及必要sync完成后独占写、sync本id的`.deleted` marker，核marker与owner/op/请求绑定后才mark published。final/payload都缺且无合法marker时报EFFECT_PENDING、保留原响应，不补造marker；内容/归属不符即停止。
+236:### 5.3 源目录与宿主元数据
+240:### 5.4 Work 的冻结副本
+250:### 5.5 行政替换持久不变式
+252:AttemptId字段只用number，无retry兼容字段。replacement_reason在完整schema4载荷必须出现（null或BoundedText），缺失拒绝，所有state未知字段拒绝。Superseded有ended_at/replacement_reason且无summary/fail_reason/outputs，其他状态replacement_reason=null；每Occurrence连续number、至多一次superseded、有合法接替、唯一当前最新running。
+256:一个SQLite事务旧superseded+新running+audit/request/effects，未提交拒绝不撤销资格/创建新最终目录；提交后按已有prepare/write/seal/refresh和真实原字节恢复。不得拆两次提交，不加第二计数库、lease、session或执行者身份注册。
+258:## 6. 历史文件与当前投影
+262:## 7. 时间与 ID
+264:时间统一为秒精度的 RFC 3339 UTC 字符串，固定形如 `2026-09-24T03:00:00Z`（`YYYY-MM-DDTHH:MM:SSZ`，大写 `T` 与 `Z`，无小数秒、无时区偏移），由 runtime 取 `SystemTime::now()` 后放进 `Context` 传给 core。默认 `request_id` 是 UUID v7，在 runtime 生成。core 不碰时钟与随机数，测试里传固定值。core 的 `Timestamp` 构造与读取都校验这个格式，不合法就报错：格式固定，所以字符串字典序就是时间序。由 Unix 秒数换算（`from_unix_secs`）时超出 9999 年的输入饱和到 `9999-12-31T23:59:59Z`，引擎产生的时间永远是这个格式。
+266:### 7.1 `work_id` 的序号分配
+285:- 同 `request_id` 的重放查 `requests` 表命中即直接返回，不分配新号。
+287:## 8. 清理
+293:## 9. 二进制自身
+325:### 累计受阻事实的内部界

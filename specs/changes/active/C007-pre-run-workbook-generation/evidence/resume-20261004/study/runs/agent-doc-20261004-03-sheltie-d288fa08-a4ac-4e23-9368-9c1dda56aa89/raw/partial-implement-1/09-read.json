@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "rg",
+    "-n",
+    "ReplaceAttempt|FailAttempt|work_status|WorkTerminal|failed|superseded",
+    "crates/sheltie-core/src/work/decide.rs",
+    "crates/sheltie-core/src/work/next.rs",
+    "crates/sheltie-cli/src/commands/attempt.rs",
+    "crates/sheltie-cli/src/cli.rs"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+  "started_at_utc": "2026-10-03T20:31:02.087882+00:00",
+  "finished_at_utc": "2026-10-03T20:31:02.095577+00:00",
+  "exit_code": 0,
+  "relevant_environment": {},
+  "purpose": "read-only source",
+  "stdout": "09-read.stdout",
+  "stderr": "09-read.stderr"
+}

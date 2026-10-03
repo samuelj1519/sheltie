@@ -1,0 +1,64 @@
+{
+  "checked_utc": "2026-10-03T20:13:08.261862+00:00",
+  "actors": {
+    "/root/c007_study_coordinator/run01_deliver": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-00-15-01a1035a-58d9-7a72-bc8e-53b8122de1f5.jsonl",
+      "session_id": "01a1035a-58d9-7a72-bc8e-53b8122de1f5",
+      "forked_from_id": null,
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "record_SHA": "3ff57eb8c718a5e599620b22a4a954ff5523115e93dc84741d5c4a87e6b5bb96",
+      "task_complete": null,
+      "task_complete_observed": false
+    },
+    "/root/c007_study_coordinator/run01_implement": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T03-51-41-01a10352-82b2-7fd3-9fc0-3efeef3bce6b.jsonl",
+      "session_id": "01a10352-82b2-7fd3-9fc0-3efeef3bce6b",
+      "forked_from_id": null,
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "record_SHA": "5d75b869ea85300fe46eba0c136aa7257c4ff8d9390b8dc1cb7f879f486d0a0a",
+      "task_complete": {
+        "timestamp": "2026-10-03T19:57:07.575Z",
+        "ordinal": 173,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10352-8322-73d0-a8f8-0816595cd2a4",
+          "last_agent_message": "可审查。候选 `8366454ddbc2a07d25b2e5e949171cde5b5169ae`，tree `3b9e14dfb50d3b577cc4caaacdf33e96082026fc`，工作区 clean，仅修改两份授权文档。\n\n- [change 报告](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/outputs/implement-1/change.md)\n- [checks 报告](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/outputs/implement-1/checks.md)\n\n两条必需检查均 exit 0；原件、候选绑定和身份记录位于 `raw/implement-1/`。检查树与提交树相同。完成 UTC：`2026-10-03T19:56:39.251570+00:00`。\n\n未运行 Sheltie、构建、安装、文档演练或 Rust 测试。review、deliver、patch 独立应用及最终质量尚未执行；usage/fees 为 unknown。\n\n",
+          "started_at": 1791057101,
+          "completed_at": 1791057427,
+          "duration_ms": 325966,
+          "time_to_first_token_ms": 6449
+        }
+      },
+      "task_complete_observed": true
+    },
+    "/root/c007_study_coordinator/run01_review": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T03-57-10-01a10357-8988-7a20-ae59-aef6eb2b28df.jsonl",
+      "session_id": "01a10357-8988-7a20-ae59-aef6eb2b28df",
+      "forked_from_id": null,
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "record_SHA": "55dd099bf45d1e5f055c22edd6e80dc4a43d2a8a972f8667928437cb0313b055",
+      "task_complete": {
+        "timestamp": "2026-10-03T20:00:12.965Z",
+        "ordinal": 119,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10357-89fa-78b2-95a4-15e3bd6e3288",
+          "last_agent_message": "建议交付。独立静态审查未发现需返工缺陷；两条必需检查的原件与候选 tree 绑定已核验。\n\n报告：[review.md](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/outputs/review-1/review.md)\n\nCandidate：`8366454ddbc2a07d25b2e5e949171cde5b5169ae`。完整 patch 独立应用、操作演练、最终质量与接受仍 `not_run`，未调用 Sheltie。证据及身份记录已写入 `raw/review-1/`。\n\n结束 UTC：`2026-10-03T20:00:06.982738+00:00`。\n\n",
+          "started_at": 1791057431,
+          "completed_at": 1791057612,
+          "duration_ms": 181924,
+          "time_to_first_token_ms": 7941
+        }
+      },
+      "task_complete_observed": true
+    }
+  },
+  "outcome": "stopped_under_budget; deliverinterrupted/patchmissing, no independentcompletequality/proxyacceptance",
+  "partial_outputs_only": true,
+  "original_failure_and_extra_stop_time_retained": true
+}

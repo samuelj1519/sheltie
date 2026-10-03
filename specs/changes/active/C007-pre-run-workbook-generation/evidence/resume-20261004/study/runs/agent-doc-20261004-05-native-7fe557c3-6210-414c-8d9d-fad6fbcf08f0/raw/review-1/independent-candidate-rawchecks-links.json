@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "\nimport subprocess,json,hashlib,re,os\nfrom pathlib import Path\nrepo=Path.cwd()\nrun=Path(\"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0\")\ndef git(*a): return subprocess.check_output([\"git\",*a],text=True).strip()\npath=\"specs/guides/current-acceptance-handoff.md\"\nassert git(\"rev-parse\",\"HEAD\")==\"567b6d3acb6bba50781927ee8cf8de9ed0397347\"\nassert git(\"rev-parse\",\"HEAD^{tree}\")==\"819a00b26f388fd2b98492cbd912942061339c0a\"\nassert git(\"write-tree\")==git(\"rev-parse\",\"HEAD^{tree}\")\nassert git(\"status\",\"--porcelain\")==\"\"\nassert git(\"rev-parse\",\"351feb7ac22c21317a686693b732d5ae0c4b4bcc^{tree}\")==\"80ea3046b1b3575f07e68313444c051ee7c5b7db\"\nassert git(\"diff\",\"--name-only\",\"351feb7ac22c21317a686693b732d5ae0c4b4bcc\",\"HEAD\").splitlines()==[path]\nsha=hashlib.sha256((repo/path).read_bytes()).hexdigest()\nassert sha==\"c73f6d7bc7e386bc2689ef1fd284caa1f36c755d74be89991890971179d6abad\"\nchecks={}\nfor name in [\"final-required-check-docs\",\"final-required-cached-diff-check\"]:\n    raw=json.loads((run/\"raw\"/\"implement-1\"/(name+\".json\")).read_text())\n    assert raw[\"exit_code\"]==0 and not raw[\"timed_out\"] and raw[\"within_deadline\"]\n    assert Path(raw[\"cwd\"]).resolve()==repo.resolve()\n    for stream in [\"stdout\",\"stderr\"]:\n        data=Path(raw[stream+\"_path\"]).read_bytes()\n        assert hashlib.sha256(data).hexdigest()==raw[stream+\"_sha256\"]\n    checks[name]=raw\nbindings={}\nfor name in [\"final-staged-candidate-binding\",\"committed-candidate-binding\",\"staged-candidate-binding\"]:\n    bindings[name]=json.loads((run/\"raw\"/\"implement-1\"/(name+\".json\")).read_text())\nlinks=[]\nfor target in re.findall(r\"\\]\\(([^)]+)\\)\",(repo/path).read_text()):\n    if \"://\" in target: continue\n    leaf=target.split(\"#\",1)[0]\n    resolved=(repo/path).parent/leaf\n    assert resolved.exists(),target\n    anchor=target.split(\"#\",1)[1] if \"#\" in target else None\n    if anchor:\n        heads=re.findall(r\"^#+ +(.+)$\",resolved.read_text(),re.M)\n        normalized=[re.sub(r\"[^\\w\\- ]\",\"\",h.lower()).replace(\" \",\"-\") for h in heads]\n        assert anchor in normalized,(target,normalized)\n    links.append(target)\nprint(json.dumps({\"candidate\":git(\"rev-parse\",\"HEAD\"),\"tree\":git(\"rev-parse\",\"HEAD^{tree}\"),\"initial_tree\":git(\"rev-parse\",\"351feb7ac22c21317a686693b732d5ae0c4b4bcc^{tree}\"),\"status\":\"clean\",\"changed_paths\":[path],\"file_sha256\":sha,\"checks\":checks,\"bindings\":bindings,\"local_links_checked\":links,\"env\":{k:os.environ.get(k) for k in [\"PATH\",\"LANG\",\"LC_ALL\",\"LC_CTYPE\",\"GIT_CONFIG_GLOBAL\",\"GIT_CONFIG_SYSTEM\"]}},ensure_ascii=False,indent=2))\n"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+  "start_utc": "2026-10-03T21:14:42.114769+00:00",
+  "end_utc": "2026-10-03T21:14:42.258720+00:00",
+  "elapsed_s": 0.143951,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/review-1/independent-candidate-rawchecks-links.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/raw/review-1/independent-candidate-rawchecks-links.stderr",
+  "stdout_sha256": "18dee6114671556c640f063cd4a89834b70f1dddbaf4ed0bc692531e120f7f7e",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

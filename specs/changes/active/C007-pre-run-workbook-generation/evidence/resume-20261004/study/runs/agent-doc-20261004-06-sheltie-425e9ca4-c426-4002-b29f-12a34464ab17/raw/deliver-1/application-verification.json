@@ -1,0 +1,56 @@
+{
+  "conclusion": "independent patch application verified",
+  "actor": "/root/c007_study_coordinator/run06_deliver",
+  "started_utc": "2026-10-03T21:37:49.370228+00:00",
+  "ended_utc": "2026-10-03T21:37:49.681298+00:00",
+  "deadline_utc": "2026-10-03T21:43:59.533850+00:00",
+  "candidate": "38eca4cf78bbbae002c9d3f255c680f8968dfe12",
+  "candidate_tree": "1b6deb6e862754a44d001253bf263745e5ad8b4d",
+  "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "verify_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/sheltie",
+  "applied_tree": "1b6deb6e862754a44d001253bf263745e5ad8b4d",
+  "verify_head_still_initial": true,
+  "source_clean_and_candidate_unchanged": true,
+  "full_source_and_applied_path_set": [
+    "specs/guides/current-acceptance-handoff.md"
+  ],
+  "protected_tracked_index_unchanged": true,
+  "patch": {
+    "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+    "bytes": 12897,
+    "sha256": "4bdb327e59615761ef331cd2fed5679901d83b231ad57aa270cecba07b95bf26"
+  },
+  "files": {
+    "specs/guides/current-acceptance-handoff.md": {
+      "bytes": 12546,
+      "sha256": "2cd606363a2efdffb8b28e83c21904017315be3794c9df03e0e33f8f8a70ff45",
+      "source_candidate_applied_bytes_equal": true
+    }
+  },
+  "inputs": {
+    "change": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "bytes": 7747,
+      "sha256": "c4a913be93f84d04af1b534f63cec8cbeeafe63e9b40d8c4cd790e267b81cb72"
+    },
+    "checks": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "bytes": 5824,
+      "sha256": "2963800988b22523fa2e8675c4cf5558134fc3a1075c9770d27525afcc836bc2"
+    },
+    "review": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+      "bytes": 9746,
+      "sha256": "52777bb41290221352023bac9eeb62578b49f72cf3b4e884209c7269d53bd783"
+    },
+    "task": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-003-acceptance-handoff/start-inputs/task",
+      "bytes": 1807,
+      "sha256": "c92e416ac263ac2f00efd3ced03febc81d78055c1ad77e97f742bac3cdd79f92"
+    }
+  },
+  "raw_directory": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/deliver-1",
+  "commands_per_timeout_seconds": 120,
+  "remaining_seconds": 369.852477
+}

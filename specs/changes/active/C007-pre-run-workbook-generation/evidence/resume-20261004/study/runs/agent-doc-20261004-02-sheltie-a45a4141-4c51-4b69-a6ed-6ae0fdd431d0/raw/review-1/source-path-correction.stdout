@@ -1,0 +1,19 @@
+crates/sheltie-runtime/src/store/tests.rs:5:use crate::store::{CommitInput, CommitOutcome, OpenMode, SCHEMA_VERSION};
+crates/sheltie-runtime/src/store/tests.rs:106:        assert_eq!(detail, "表 works 的建表语句与 SCHEMA_VERSION 不符");
+crates/sheltie-runtime/src/store/tests.rs:143:    assert_eq!(v, SCHEMA_VERSION);
+crates/sheltie-runtime/src/store/schema.rs:1://! 表结构。这里是唯一定义；改结构必须同时升 `SCHEMA_VERSION`。
+crates/sheltie-runtime/src/store/schema.rs:8:pub const SCHEMA_VERSION: i64 = 4;
+crates/sheltie-runtime/src/store/schema.rs:75:    script.push_str(&format!("PRAGMA user_version = {SCHEMA_VERSION};\n"));
+crates/sheltie-runtime/src/store/mod.rs:19:pub use schema::SCHEMA_VERSION;
+crates/sheltie-runtime/src/store/mod.rs:57:    if version != SCHEMA_VERSION {
+crates/sheltie-runtime/src/store/mod.rs:59:            detail: format!("user_version 是 {version}，期望 {SCHEMA_VERSION}"),
+crates/sheltie-runtime/src/store/mod.rs:79:                        detail: format!("表 {name} 的建表语句与 SCHEMA_VERSION 不符"),
+crates/sheltie-runtime/src/store/mod.rs:103:    /// 建表语句：`user_version ≠ SCHEMA_VERSION` 报 `StoreSchemaMismatch`，
+crates/sheltie-runtime/src/selfmgmt.rs:79:    pub schema_version: i64,
+crates/sheltie-runtime/src/selfmgmt.rs:95:pub fn version_info(home: &Home) -> VersionInfo {
+crates/sheltie-runtime/src/selfmgmt.rs:100:        schema_version: crate::store::SCHEMA_VERSION,
+crates/sheltie-runtime/src/selfmgmt.rs:450:fn resolve_tag(source: &ReleaseSource, version: Option<&str>) -> Result<String> {
+crates/sheltie-runtime/src/service.rs:642:    pub fn resolve_work(&self, prefix: &str) -> Result<WorkId> {
+crates/sheltie-runtime/src/service.rs:666:    pub fn resolve_work_for_request(
+crates/sheltie-runtime/src/error.rs:44:    #[error("数据库结构与 SCHEMA_VERSION 不符：{detail}")]
+crates/sheltie-runtime/src/home.rs:54:    pub fn resolve(cli: Option<&str>) -> Result<Self> {

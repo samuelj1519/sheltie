@@ -1,0 +1,74 @@
+{
+  "checked_utc": "2026-10-03T20:29:51.201374+00:00",
+  "actors": {
+    "/root/c007_study_coordinator/run02_review": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-19-38-01a1036c-18e4-7622-a146-ff048ebe8228.jsonl",
+      "session_id": "01a1036c-18e4-7622-a146-ff048ebe8228",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:22:41.323Z",
+        "ordinal": 116,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a1036c-195b-7a81-b36f-62bae0d4e213",
+          "last_agent_message": "建议交付。已独立核对两份实际文档、CLI/Flow/合同、完整差异及同候选检查原件，未发现需返工缺陷。\n\n已写实际 `outputs.review` 的 [review.md](/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md)，7976 字节，SHA `db039bab3a4f6a74ec1eb39e64dcfca76868a13efdfe7f97c649ff9ce4798ccb`。身份与全部新原件在本 run `raw/review-1`，实际失败均保留。\n\n写入 UTC `2026-10-03T20:22:33.830175+00:00`。完整 patch 独立应用、实际构建/演练、最终盲审及代理接受仍 `not_run`；未调用 Sheltie 推进。",
+          "started_at": 1791058778,
+          "completed_at": 1791058961,
+          "duration_ms": 182856,
+          "time_to_first_token_ms": 5774
+        }
+      },
+      "record_SHA": "140b682ede533984223a8bf08c0cfdb60f0f9b8188aa0de50bcb9b3e0bce6e7b"
+    },
+    "/root/c007_study_coordinator/run02_deliver": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-23-20-01a1036f-7db0-7f03-93df-eea91362c011.jsonl",
+      "session_id": "01a1036f-7db0-7f03-93df-eea91362c011",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:26:38.929Z",
+        "ordinal": 108,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a1036f-7e26-7b53-b1a9-68303cbe9679",
+          "last_agent_message": "交付材料已整理，实际 outputs：\n\n- [delivery.md](/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md)：14,261 bytes，SHA256 `d598ab347ccbf32be6aefff003128a6d3f7d0a3027705611cc185c59c10fc2ed`\n- [change.patch](/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch)：13,444 bytes，SHA256 `c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468`\n\n完整独立应用成功：初始 HEAD/tree、clean 均匹配；`apply --check`、`apply --index`、`write-tree` 退出 0。应用 tree 为 `02966cae1d3fe7a601c26d4bd6f69c66e323a8c4`，两文件逐字节等于候选，保护路径不变，源候选仍 clean。\n\n五份材料 actualpath/SHA/bytes 与 UTC 已保存到 [handoff.json](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/deliver-1/handoff.json)，应用原件在同目录 `application-verification.json`。完成 UTC：`2026-10-03T20:26:15.470108+00:00`。\n\n跨 arm 搜索误命中的全部原文、argv、chunk 已保留，未命中 candidate 文档正文；实验资格仍待独立判断。最终质量、代理接受均 `not_run`。Sheltie submit/status/result 交协调者办理。",
+          "started_at": 1791059000,
+          "completed_at": 1791059198,
+          "duration_ms": 198052,
+          "time_to_first_token_ms": 5819
+        }
+      },
+      "record_SHA": "9c24ae3e5224c1fa4de4ea66aa35dd47924e93cb0e333c1f4b2d946301e604ea"
+    },
+    "/root/c007_study_coordinator/run02_implement": {
+      "source_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T04-13-43-01a10366-adfe-70e0-b6bb-79fdfca8e5e8.jsonl",
+      "session_id": "01a10366-adfe-70e0-b6bb-79fdfca8e5e8",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "forked_from": null,
+      "task_complete": {
+        "timestamp": "2026-10-03T20:18:59.640Z",
+        "ordinal": 175,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a10366-ae5f-7d73-ab7e-90f99db11404",
+          "last_agent_message": "可审查，已完成两个授权文档文件，本地工作区干净。\n\n- Candidate：`957efb7076861d1dc54e780d841e0b0bb767bccd`\n- Tree：`02966cae1d3fe7a601c26d4bd6f69c66e323a8c4`\n- 两项冻结必需检查均 exit 0，同 tree 绑定；原诊断失败完整保留。\n- 实际 begin 输出：`outputs/change.md`、`outputs/checks.md`，均已写入；完整绝对路径见 `raw/implement-1/handoff.json`。\n- 原件：本 run 的 `raw/implement-1/`，包含检查 stdout/stderr/argv/cwd/env、提交与候选记录。\n- 结束 UTC：`2026-10-03T20:18:51.392576+00:00`。\n\n完整 patch 生成及指定独立副本应用规则已复述给 deliver；独立 review、patchapply、最终质量与代理接受仍 `not_run`。usage/费用 unknown。\n\n",
+          "started_at": 1791058423,
+          "completed_at": 1791058739,
+          "duration_ms": 316243,
+          "time_to_first_token_ms": 7490
+        }
+      },
+      "record_SHA": "d5eeb5d3e4c9bbff1a25090fe6cc1950110ba30355c67e2cb87201bbd6c1fd75"
+    }
+  },
+  "all_actual_model_effort_matches": true,
+  "protocol_eligibility": "sourceintent/crossarmsearch deviations remain, no clean unbiasedcomparison claim",
+  "final_blindquality_not_granted": true
+}

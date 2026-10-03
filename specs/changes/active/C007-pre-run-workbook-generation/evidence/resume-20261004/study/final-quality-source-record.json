@@ -1,0 +1,31 @@
+{
+  "actual_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T05-43-16-01a103b8-aaae-7763-b2c6-e3db8a930ad7.jsonl",
+  "recordsSHA": "860a1aa9fe86bebc9b890f65d833ec834b8a460f95a313bd9e97c375b0ef3e7e",
+  "task_complete": {
+    "timestamp": "2026-10-03T21:48:53.608Z",
+    "ordinal": 231,
+    "type": "event_msg",
+    "payload": {
+      "type": "task_complete",
+      "turn_id": "01a103b8-ab0c-7f42-a793-8b21a7c00f16",
+      "last_agent_message": "独立末质量审阅完成：\n\n- **质量通过**：K72、K95、K33、K64。\n- **阻断**：K41 缺必需最终交付 patch 与独立应用；K18 成功交付报告写入失败。原 stopped/failed 保留。\n- 六份候选正文未发现必修项；五个现存完整 patch 独立应用均与候选全 tree、授权字节相同。\n- 已披露 partial blinding；实验协议资格与用户接受另审。\n\n报告：[Markdown](/private/tmp/sheltie-completion-20261003/c007-final-quality-report.md) · [JSON](/private/tmp/sheltie-completion-20261003/c007-final-quality-report.json)。",
+      "started_at": 1791063796,
+      "completed_at": 1791064133,
+      "duration_ms": 337109,
+      "time_to_first_token_ms": 6346
+    }
+  },
+  "all_review_inputs_results_with_source_line": true,
+  "quality_PASScases": [
+    "K72",
+    "K95",
+    "K33",
+    "K64"
+  ],
+  "blockedcases": [
+    "K41",
+    "K18"
+  ],
+  "protocol_andhuman_acceptance_not_granted": true,
+  "metadata_paths_partialblind_disclosed": true
+}

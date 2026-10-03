@@ -1,0 +1,36 @@
+{
+  "candidate": "8366454ddbc2a07d25b2e5e949171cde5b5169ae",
+  "tree": "3b9e14dfb50d3b577cc4caaacdf33e96082026fc",
+  "base": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "clean": true,
+  "paths": [
+    "README.md",
+    "specs/guides/source-quick-start.md"
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "56b6e924f8cdd784a60523d56f583f02fed439e5bf47dd872c3d0fe564dffc89",
+      "bytes": 4372
+    },
+    "specs/guides/source-quick-start.md": {
+      "sha256": "b053c64c3a3076532c767e05f71ce7a12c7e0b097e3c928716afab09ca5937da",
+      "bytes": 13527
+    }
+  },
+  "checks": [
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/implement-1/check-docs.json",
+      "exit_code": 0,
+      "stdout": "check-docs: OK (2 个文件)\n",
+      "stderr": "",
+      "bound_tree": "3b9e14dfb50d3b577cc4caaacdf33e96082026fc"
+    },
+    {
+      "record": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-01-native-b1701a86-af2b-4543-abff-c4018ca94b01/raw/implement-1/check-cached-diff.json",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "bound_tree": "3b9e14dfb50d3b577cc4caaacdf33e96082026fc"
+    }
+  ]
+}

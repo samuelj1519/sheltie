@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import pathlib,json,re,hashlib\nmsrv=pathlib.Path('specs/changes/completed/C005-executor-continuity/evidence/resume-20261004');freeze=json.loads((msrv/'technical-freeze.json').read_text());text=(msrv/'msrv-nextest.stderr').read_text();matches=[]\nfor item in freeze['C005_test_owners37']:\n name=item.split()[1]; lines=[line for line in text.splitlines() if re.search(r'^\\s*PASS\\s+\\[',line) and re.search(r'(?<![A-Za-z_])'+re.escape(name)+r'$',line)]\n matches.append({'registration':item,'actual_pass_lines':lines})\nprint('CORRECTION: previous matching used whole registration including owner/file/line; actual test header has test symbol. No input/raw/product changes, no test rerun.');print(json.dumps(matches,ensure_ascii=False,indent=2));print('37 ALL',len(matches)==37 and all(len(x['actual_pass_lines'])==1 for x in matches))\nfor name,start,end in [('specs/releases/v0.2.0/README.md',1,85),('specs/contracts/storage.md',1,75),('specs/contracts/protocol.md',1,40)]:\n print('FILE',name);print(''.join(f'{i}: {line}\\n' for i,line in enumerate(pathlib.Path(name).read_text().splitlines(),1) if start<=i<=end))\np=pathlib.Path('specs/contracts/protocol.md'); lines=p.read_text().splitlines(); print('RESULT FIELDS');print(''.join(f'{i}: {line}\\n' for i,line in enumerate(lines,1) if ('work-result/v1' in line or 'source.attempt' in line or 'final=true' in line or 'work result' in line or 'cli-result/v4' in line)))\nb=pathlib.Path('specs/changes/completed/C002-v0.2.0-reliability/evidence/completion-20261003');binding=json.loads((b/'t43-acceptance-binding.json').read_text());print('T43 REVIEW SHA MATCH',hashlib.sha256((b/'t43-final-review.md').read_bytes()).hexdigest()==binding['review_sha256'])\n"
+  ],
+  "cwd": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/sheltie",
+  "start_utc": "2026-10-03T21:33:06.074940+00:00",
+  "end_utc": "2026-10-03T21:33:06.155652+00:00",
+  "elapsed_s": 0.080712,
+  "exit_code": 0,
+  "timed_out": false,
+  "owned_group_termination_requested": false,
+  "within_deadline": true,
+  "stdout_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/review-1/msrv-owner-parser-correction-and-contracts.stdout",
+  "stderr_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-06-sheltie-425e9ca4-c426-4002-b29f-12a34464ab17/raw/review-1/msrv-owner-parser-correction-and-contracts.stderr",
+  "stdout_sha256": "8cb55c736f4465f952fcacea266e1af8610a0103ed41e9d9f57979b7d93f709a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "control_environment": {
+    "SHELTIE_HOME": null,
+    "SHELTIE_FAILPOINT": null,
+    "SHELTIE_EXPORT_TEST_POINT": null,
+    "SHELTIE_EXPORT_TEST_DIRECTORY": null,
+    "SHELTIE_EXPORT_TEST_SYNC_ERROR": null,
+    "SHELTIE_TEST_RENDEZVOUS_NAME": null,
+    "SHELTIE_TEST_RENDEZVOUS_ID": null,
+    "SHELTIE_TEST_RENDEZVOUS_DIR": null
+  }
+}

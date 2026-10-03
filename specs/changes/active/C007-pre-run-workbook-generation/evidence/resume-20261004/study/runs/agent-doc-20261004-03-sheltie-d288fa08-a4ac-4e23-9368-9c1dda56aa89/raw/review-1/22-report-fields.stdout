@@ -1,0 +1,20 @@
+        Error::RequestConflict { request_id } => json!({ "request_id": request_id }),
+        Error::RevisionConflict { expected, actual } => {
+            json!({ "expected": expected, "actual": actual })
+        }
+        Error::EffectPending {
+            pending_request_id,
+            cause,
+            pending_original,
+            ..
+        } => {
+            let mut d = json!({ "cause": cause.as_str() });
+            if let Some(p) = pending_request_id {
+                d["pending_request_id"] = json!(p);
+            }
+            if let Some(o) = pending_original {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(o) {
+                    d["pending_original"] = v;
+                }
+            }
+            d

@@ -1,0 +1,100 @@
+{
+  "observed_utc": "2026-10-03T20:24:52.665134+00:00",
+  "inputs": {
+    "change": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "sha256": "c32492c68390230be9694edbe441ff1cb63d7053f7ac25a8d897f73a22d6dc8f",
+      "bytes": 6321
+    },
+    "checks": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "sha256": "70ef96b75abb845b3b45ef135d937f5c47cdeb5591cc62321064b06487db6785",
+      "bytes": 4173
+    },
+    "review": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+      "sha256": "db039bab3a4f6a74ec1eb39e64dcfca76868a13efdfe7f97c649ff9ce4798ccb",
+      "bytes": 7976
+    },
+    "task": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/start-inputs/task",
+      "sha256": "1345a1ce70f26a1311de7d6b8a57b5786bd0ea154f4073a46eccd1fe461e4f64",
+      "bytes": 1660
+    }
+  },
+  "files": {
+    "README.md": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie/README.md",
+      "sha256": "27e090dc77a461ac9a026e03767622b46b2e95c76e2494c75991aa4f8e40be2b",
+      "bytes": 4327
+    },
+    "specs/guides/source-quick-start.md": {
+      "path": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie/specs/guides/source-quick-start.md",
+      "sha256": "d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850",
+      "bytes": 12450
+    }
+  },
+  "candidate_head": "957efb7076861d1dc54e780d841e0b0bb767bccd",
+  "candidate_tree": "02966cae1d3fe7a601c26d4bd6f69c66e323a8c4",
+  "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+  "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+  "clean": true,
+  "full_paths": [
+    "README.md",
+    "specs/guides/source-quick-start.md"
+  ],
+  "checks": [
+    {
+      "record": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.json",
+        "sha256": "bc71f8ee2fb4942ebf541be77da7f02cefe29d1095c2bcf0fb9ef06766122bff",
+        "bytes": 1476
+      },
+      "start_utc": "2026-10-03T20:17:39.148438+00:00",
+      "end_utc": "2026-10-03T20:17:41.533107+00:00",
+      "exit_code": 0,
+      "argv": [
+        "scripts/check-docs.sh",
+        "README.md",
+        "specs/guides/source-quick-start.md"
+      ],
+      "stdout": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stdout",
+        "sha256": "a6505630b88f4a7c20f9a8ae18b411e4e8e9d0cfd65f02f7c8543c19234fbccd",
+        "bytes": 29
+      },
+      "stderr": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-docs.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "record": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.json",
+        "sha256": "7830e1b9d6f09f3592034fe77432512f712bbb668ad42c69f671fb3b78a75c56",
+        "bytes": 1456
+      },
+      "start_utc": "2026-10-03T20:17:41.534026+00:00",
+      "end_utc": "2026-10-03T20:17:41.547075+00:00",
+      "exit_code": 0,
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "stdout": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-02-sheltie-a45a4141-4c51-4b69-a6ed-6ae0fdd431d0/raw/implement-1/required-staged-diff.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "protected_paths_unchanged": true
+}
