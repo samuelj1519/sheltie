@@ -1,9 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[`C004 实际成果与agent冷接续补验`](active/C004-verifiable-delegation/README.md)
 
-C002当前恢复验收已完成，下一步按用户授权恢复C004。
+C002当前恢复验收已完成，当前只恢复C004。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -18,7 +18,7 @@ C002当前恢复验收已完成，下一步按用户授权恢复C004。
 
 | Change | 范围 | 入口 |
 | --- | --- | --- |
-暂无。
+| C004 | 自动agent实际交付与冷上下文接续，历史真人/成本未执行分列 | [README](active/C004-verifiable-delegation/README.md) |
 
 ## Completed
 
@@ -29,7 +29,6 @@ C002当前恢复验收已完成，下一步按用户授权恢复C004。
 | C007 | 技术资产/同源方法与缺项交接通过；原正式准入、六trial与真实价值not_run | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 完整成果副本/raw与独立限定验收；真实价值/环境与未知LEAK保留 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 原子替换/失败前缀/输入及恢复限定验收通过；真实使用及环境缺项延期 | [README](completed/C005-executor-continuity/README.md) |
-| C004 | 明确成果与可靠接续实现闭包通过；实际试用和环境缺项按授权延期 | [README](completed/C004-verifiable-delegation/README.md) |
 | C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
 | C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
 

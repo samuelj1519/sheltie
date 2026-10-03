@@ -4,10 +4,10 @@
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 开发目标：`v0.3.0`
-Active change：无
+Active change：[`C004 实际成果与agent冷接续补验`](changes/active/C004-verifiable-delegation/README.md)
 
-C002当前采用恢复义务已按限定范围独审完成；下一步依次恢复用户已授权的C004–C008。
-Completed：[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）、[`C006 成果原字节与完整副本`](changes/completed/C006-result-delivery/README.md)（限定实现/指南，真实价值与环境缺项延期）、[`C005 原子撤销与重新领取`](changes/completed/C005-executor-continuity/README.md)（限定实现与说明，真实使用/环境缺项延期）、[`C004 明确成果与可靠接续`](changes/completed/C004-verifiable-delegation/README.md)（实现闭包；真实试用和环境缺项授权延期）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
+C002当前采用恢复义务已按限定范围独审完成；当前只恢复C004，后续C005–C008依次激活。
+Completed：[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）、[`C007 技术准备与缺项交接`](changes/completed/C007-pre-run-workbook-generation/README.md)（原真实实验未执行）、[`C006 成果原字节与完整副本`](changes/completed/C006-result-delivery/README.md)（限定实现/指南，真实价值与环境缺项延期）、[`C005 原子撤销与重新领取`](changes/completed/C005-executor-continuity/README.md)（限定实现与说明，真实使用/环境缺项延期）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
 Proposed：无。本轮C008只盘点实际条件，不虚构依赖或创建无目标探针。
 
 此前 C004–C008 的限定实施已归档。2026-10-03 用户恢复全部跳过义务；一次只激活一个 package，缺真实输入时继续可独立执行的工作，未执行项保持 `not_run`。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。

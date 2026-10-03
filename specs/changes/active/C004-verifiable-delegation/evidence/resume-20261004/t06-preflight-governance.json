@@ -1,0 +1,44 @@
+{
+  "results": [
+    {
+      "name": "docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "2c6ff85d59ed2e1bae79aa7a60fe321a187bc360d65f36ca3a228f223b5320f3"
+    },
+    {
+      "name": "specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "tests",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "be9a9af604d0d793239daeec35da99a6b5e4fc254e8036c8a6ea6396d02044e8"
+    },
+    {
+      "name": "skill",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    {
+      "name": "core-vocab",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+    }
+  ]
+}
