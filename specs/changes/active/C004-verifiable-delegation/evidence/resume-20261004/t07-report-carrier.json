@@ -1,0 +1,18 @@
+{
+  "reason": "pre-commit typos false positive on actual nl -ba command; immutable reports must retain exact bytes. Preserve original md member paths in archive and directly readable txt copies under existing raw policy; no hook skipped/no original edited.",
+  "archive_sha256": "b370c0093e1b0f0fde4e6da94d0ca22e366dffddc693f7d140d0e6dfd165e847",
+  "reports": {
+    "actor-a-partial-change.md": {
+      "sha256": "4497b596d6fa4a92df868cbaa81ea5646ac303ce0f2daa4d3c3f0d8d9ef9af1d",
+      "readable_copy": "actor-a-partial-change.txt"
+    },
+    "actor-b-complete-change.md": {
+      "sha256": "e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332",
+      "readable_copy": "actor-b-complete-change.txt"
+    },
+    "final-change.md": {
+      "sha256": "e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332",
+      "readable_copy": "final-change.txt"
+    }
+  }
+}

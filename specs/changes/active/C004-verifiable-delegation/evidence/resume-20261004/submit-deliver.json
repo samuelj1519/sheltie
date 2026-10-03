@@ -1,0 +1,23 @@
+{
+  "name": "submit-deliver",
+  "argv": [
+    "/private/tmp/sheltie-completion-20261003/t58-final-frozen-binaries/sheltie",
+    "--home",
+    "/private/tmp/sheltie-completion-20261003/c004-real-work-home",
+    "--json",
+    "--request-id",
+    "a3fe19ba-1edc-4411-b5cb-5ace6877da4f",
+    "attempt",
+    "submit",
+    "2026-10-03-001-c005-opening-package",
+    "--attempt",
+    "deliver#1.0",
+    "--summary",
+    "交付文档与独立审查绑定同一候选，下一消费者只读使用和成果核验随后记录"
+  ],
+  "start_utc": "2026-10-03T17:58:58.658243+00:00",
+  "end_utc": "2026-10-03T17:58:58.710047+00:00",
+  "exit_code": 0,
+  "stdout": "{\"data\":{\"attempt\":\"deliver#1.0\",\"outputs\":{\"delivery\":{\"bytes\":11870,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2\"}},\"replayed\":false,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[],\"ok\":true,\"request_id\":\"a3fe19ba-1edc-4411-b5cb-5ace6877da4f\",\"revision\":7}\n",
+  "stderr": ""
+}

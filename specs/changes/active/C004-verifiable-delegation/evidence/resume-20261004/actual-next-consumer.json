@@ -1,0 +1,49 @@
+{
+  "consumer": "/root actual next C005 coordinator",
+  "used_documents": {
+    "change": "e465b6cd1f45cd30fc2b88e798a58d0e0be9c62eff6e517c03b1eb725be93332",
+    "review": "3edd3209f279dc5cd72806dd8501718676846bbd1bbee02c0157063a26b22b93",
+    "delivery": "7825e55ef8924d6af1513c08ade61c786eade0c52f71d113c09cf787720e26e2"
+  },
+  "calls": [
+    {
+      "argv": [
+        "sed",
+        "-n",
+        "143,160p",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C005-executor-continuity/validation.md"
+      ],
+      "start_utc": "2026-10-03T17:59:16.100208+00:00",
+      "end_utc": "2026-10-03T17:59:16.102948+00:00",
+      "exit_code": 0,
+      "stdout": "## 原义务、未执行与未知（不进入PASS表）\n\n| 义务 / 信号 | 当前结果 | 原因与补全条件 | 保证边界 |\n| --- | --- | --- | --- |\n| 真实撤销/接手/约束/完整投入与用户接受 | not_run / authorized_defer | 未提供真实Work、撤销事件、旧新actor/宿主处置/接受原件；补后按runbook执行 | 夹具、说明和机制不等于价值 |\n| nextest0.9.145要求的原版本门禁 | not_run | 原命令exit92；实际0.9.140override已执行 | 不称正确版本已跑 |\n| online fresh advisory | not_run | 复用已有缓存快照，不伪称在线最新 | 当前cached结果仅对应固定HEAD |\n| 其他平台及Rust1.85测试执行 | not_run | 已补macOS arm64/Rust1.85编译；测试实际由1.98.1执行，其他平台延期 | 不称跨平台或1.85测试已跑 |\n| 局部与T01/T03的LEAK | unknown | 4条不同原run/case记录保留，未定位；最终T02干净不能证明过去无残留 | 测试断言PASS不等于永久无泄漏 |\n| 两次cached原文whitespace检查 | raw_diagnostic_exception | 原工具上下文/尾空格保留，明确knownraw例外后的作者范围PASS | 不把作者范围称全cached通过 |\n\n真实使用延期仅来自本轮用户授权，不删原产品实验义务。M2独立限定结论已追加；完成记录不授权发布、安装或宿主变更。\n\n## C005-M2 最终独立限定验收\n\nReviewer `/root/independent_review` 未参与实现/oracle，固定完整候选 `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`：限定 `PASS`。EX01–08、完整caller、计数/历史、同FD输入、事务恢复、冻结oracle与准确说明已核。按消费者复用同源T02的774原run与T03新9技能run，不称同whole闭包重跑。真实撤销价值、原nextest版本、onlinefresh、其他平台与永久无leak不在PASS范围，全部原失败和raw空格例外保留。\n\n补充本机实际已安装Rust1.85.0，执行隔离target/wrapper的 [locked全targets/features编译](evidence/m2/msrv-check.txt) exit0、6.14s；不是1.85上的测试执行，也没有改源码或依赖。当前docs/specs/tests/skill及作者diff/scope另行检查，M2仅记录。\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "cat",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C005-executor-continuity/evidence/t03/preflight.json"
+      ],
+      "start_utc": "2026-10-03T17:59:16.102955+00:00",
+      "end_utc": "2026-10-03T17:59:16.105378+00:00",
+      "exit_code": 0,
+      "stdout": "{\n  \"candidate\": \"668f2220ac19cc29548d1c19feac4849b6128114\",\n  \"authorization\": \"User adopted all C004-C008 plans and authorized recording/skipping operations that cannot be executed\",\n  \"observed_sources\": [\n    \"user task in current conversation\",\n    \"C005 spec and frozen experiments/runbook.md\"\n  ],\n  \"actual_trial\": {\n    \"work_id\": null,\n    \"old_attempt\": null,\n    \"real_revocation_event\": null,\n    \"old_executor_stop_or_host_isolation_evidence\": null,\n    \"new_executor\": null,\n    \"original_goal_and_acceptance\": null,\n    \"quality_and_total_activity_cost\": null\n  },\n  \"result\": \"not_run\",\n  \"reason\": \"No supplied real withdrawal task, actor or host-operation evidence; fixture mechanism and code implementation are not trial or benefit evidence\",\n  \"handoff\": \"Provide the frozen real context, verify actor/host facts, then use the runbook with explicit same home; do not manufacture a revocation need\"\n}\n",
+      "stderr": ""
+    }
+  ],
+  "preparation_judgement": {
+    "real_C005_work": null,
+    "old_attempt": null,
+    "real_revocation_event": null,
+    "new_executor": null,
+    "stop_or_isolation_evidence": null,
+    "goal_and_acceptance": null,
+    "cost_usage": null,
+    "current_observed_need": "C004 A-to-B is ordinary sameAttempt cold resume, no actual withdrawal event. It cannot satisfy original C005 trial. User sequential restoration authorizes technical supplement and prospective preparation; do not manufacture revocation sample.",
+    "next_action": "After C004 archive, reactivate C005 sequentially with exact original obligations and current native technical qualification; independently assess whether real revocation prerequisite exists before replacement."
+  },
+  "accepted": "proxy acceptance of reviewed C005 document opening package only",
+  "human_acceptance": null,
+  "actual_usage_observed_utc": "2026-10-03T17:59:16.105487+00:00",
+  "scope": "actual read-only consumption; no C005/workflow state written"
+}

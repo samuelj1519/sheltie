@@ -1,0 +1,172 @@
+文档开工包已完成：执行者 B 通过 CLI resume 继续同一 running Attempt，独立核对冻结输入与原件，补齐 C005 的准备入口、执行前提、命令、正反判据和停止条件。仅完成交接文档；C005 真实撤销、审查、交付封存及下一消费者实际使用尚未在本报告中验收。
+
+# C005 恢复开工交接包
+
+受众是继续 C001–C008 请求的下一协调者。本报告只准备 C005 的恢复判断，不是 C005 已恢复 active、代码修复或真实撤销试用完成的证明。当前 C004 仍 active；下一消费者先只读原件并整理本轮范围判断，待 C004 最终归档后再另任务恢复 C005。
+
+## 1. 当前输入与采用边界
+
+仓库绝对根为 `/Users/shushu/orca/workspaces/sheltie/codex`。以下表格的 `C005/` 均指该根下 `specs/changes/completed/C005-executor-continuity/`；`行` 是本次冻结原文件的行号，标题用于行号变化时定位。所有结论以原文件为依据，不以这份摘要替代来源。
+
+| 标识 | 本次实际值与含义 |
+| --- | --- |
+| 文档 Work | `2026-10-03-001-c005-opening-package`，当前为 `implement#1.0` 的声明草稿 |
+| 冻结 task SHA-256 | `66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e` |
+| 冻结 project SHA-256 | `8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b` |
+| 本次冻结源码候选 | `ccf7a0cc4d4c4a3a1b3c040473ab2cbc069a1982`，来自 C004 事前 freeze，不是本报告新造候选 |
+| 本次读取的仓库 HEAD | `af830f5d188e7fc8a8fff8ff329bcbbe56a86464`；读取时 C004 plan 与 run 证据已有协调者修改，未回退或改写 |
+| C005 历史限定验收候选 | `d8d8c20fc71e3bd8bb813afecc6a4aa1af4a63f4`；该历史候选的 PASS 不自动适用于当前源码或真实用户价值 |
+| 当前格式与开发线 | `0.3.0-rc.1`、Store schema `4`、`cli-result/v4`；`work-result/v1` 与 `workbook-digest/v2` 保持。已发布 `v0.2.0` 是另一 release，不由开发目标推断已发布 |
+| C005 全部冻结原件检查 | 已对 `freeze.json` 的 `complete_C005_package_files_sha256` 逐文件核 SHA-256：62 文件，`drift=[]` |
+
+冻结清单与来源政策的原件为 `/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C004-verifiable-delegation/evidence/resume-20261004/freeze.json`；执行规程为同目录 `protocol.md`。需新增未冻结来源或任一输入漂移时，停止本 run，先独立重审与重新冻结，不能在报告完成后换材料。
+
+C005 的采用记录允许实施机械行为和本地提交，旧真实试用与环境缺项按当时授权延期。历史延期不是本轮补验完成。普通上下文恢复、换人继续可以沿 `work status` 的 `resume` 使用同一 `running` Attempt；只有确需撤销旧正式提交资格才调用 `attempt replace`。替换是一次事务内旧 `superseded`、同一 Occurrence 新 `running`，不是执行失败；每 Occurrence 最多一次，顺序号 `number` 不等于业务失败数。引擎不停止旧进程、不认证执行者、不隔离宿主工作区。
+
+现行依据：`specs/contracts/protocol.md` §3 `attempt replace`（行125–133）、§6 状态卡（行332–334）；`specs/contracts/storage.md` §5.5（行250–254）。历史采用依据：`C005/adoption.md` 行3–11；`C005/README.md` 行10–24。没有 push、merge、release、部署或宿主安装授权。
+
+## 2. 原延期与未知义务清单
+
+以下是 C005 最终留下的义务和信号，不是早期预定义表的所有 `not_run`。`C005/validation.md` §3 证据表（行46–55）与 `C005/review.md` §历史方案审查、§两次实施审查（行4、20–21）的 `not_run` 是当时阶段事实；其后 M1/M2 有限定结论。保留阶段原文，当前未补义务按 validation §原义务、未执行与未知（行143–154）判断。
+
+| 义务或信号 | 原状态与未获事实 | 精确来源与原文路径 | 本轮恢复前提与边界 |
+| --- | --- | --- | --- |
+| 真实撤销、接手、原约束保持、完整投入与用户接受 | `not_run / authorized_defer`；真实 Work、旧 Attempt、撤销事件、旧执行者停止或隔离证据、新执行者、原目标/验收、质量与总活动成本均缺失 | `C005/validation.md` §C005-T03（行121–127）、§原义务（行147）；`C005/plan.md` §T03 本轮采用范围与未执行义务（行160–162）；原结构化盘点 `C005/evidence/t03/preflight.json` 的 `actual_trial` 全部为 `null`、`result="not_run"` | 先提供真实对象和“普通继续为何不足”的理由。新执行者开始前由操作者确认旧进程已停止或新宿主环境已隔离。操作者报告与实际证据分别记；不把替换响应称为停止或隔离验证 |
+| 原要求的 nextest `0.9.145` 门禁 | `not_run`；原要求命令 exit `92`，没有执行测试。历史实际用 `0.9.140` override | `C005/validation.md` 行75、83、115、148；`C005/experiments/runbook.md` §机制验证（行18）；错误原文 `C005/evidence/t01/required-task.txt` 行1–2 | 记录本轮实际工具版本与命令。后来的其他包工具证据不能自动清除 C005 的原版本缺项；只有相同输入闭包和原 run ID 才能明确引用，不称旧命令已跑 |
+| 在线 fresh advisory | `not_run`；只有固定 RustSec 缓存快照结果 | `C005/validation.md` 行91、139、149；缓存原文 `C005/evidence/t01/deny-cached.txt`、`C005/evidence/t02/gates-revised.txt` | 缓存 HEAD 为 `117edb3bed98e9be112f277b7615eea3252e7c43`，记录时点 `2026-10-02T10:58:33+02:00`。本轮若采用更新审查，需对应实际 Cargo/lock/policy/features/环境；不得将缓存审查写成在线最新 |
+| 其他平台及 Rust `1.85` 测试执行 | `not_run`；历史 `1.85.0` 仅 macOS arm64 locked 全 targets/features 编译 PASS，测试由 `1.98.1` 执行 | `C005/validation.md` 行141、150、160；编译原文 `C005/evidence/m2/msrv-check.txt` | 本轮范围仅 macOS aarch64。平台或编译结论不代替测试；未跑平台和 Rust 1.85 测试继续具体 `not_run` |
+| 历史 LEAK | `unknown`；4 个不同原 run/case，原因均未定位。后来的 T02 干净回归不能证明旧运行没有残留 | `C005/validation.md` 行75、83、87、115、127、151；下面四条原文索引 | 只记新运行实际观察到的信号。旧未知保持，不以断言 PASS、进程命令返回或后续无 LEAK 推断永久无泄漏、宿主全进程树关闭 |
+| 两次全 cached whitespace 诊断 | `raw_diagnostic_exception`；全 cached 检查 exit `2`，排除指定不可变 raw 后作者范围 exit `0` | `C005/validation.md` 行107、119、152；原结构化结果 `C005/evidence/t04/whitespace-check.json`、`C005/evidence/t02/whitespace-check.json` | 保留 raw 原字节及例外范围；不把作者范围 PASS 改称全 cached PASS。此项是原检查异常边界，不是源码缺陷或真实试用 |
+
+历史 LEAK 的逐条来源如下；同一 case 在同一 raw 中重复出现只记一次：
+
+| 原 run ID | 原 case 与信号 | 原文路径/行 |
+| --- | --- | --- |
+| `a1295822-a8e8-488a-b5cc-2debf16ec6e5` | `result_selects_terminal_bound_input_and_sealed_output_in_key_order`，LEAK | `C005/evidence/t01/runtime-consumers.txt` 行5、17 |
+| `c1f30428-2691-47cf-befc-3821fc4986e7` | `install_modify_path_flag_is_rejected`，LEAK | `C005/evidence/t01/gates-repaired.txt` 行13、18 |
+| `f4212b4e-a74c-4857-96e3-2ee4605f1094` | `post_commit_card_failure_returns_committed_response`，FAIL + LEAK | `C005/evidence/t01/future-red.txt` 行5、67；行269是同条输出重复 |
+| `e2e42412-cead-461e-a4fc-d11cbf0acf4c` | `generated_reference_keeps_authority_prose_verbatim`，LEAK | `C005/evidence/t03/skill-consumers-revised.txt` 行4、6 |
+
+`usage=null`、`paid_cost=null`、`human_activity=null`、`user_acceptance=null`。本报告没有获得这些事实；Work/Attempt 墙钟不折算人工时间或费用。当前自动 agent 文档交接也不替代历史真人配对、真人宿主重开或净收益义务。
+
+## 3. 首次接续者的来源索引
+
+| 读取顺序 | 原件入口 | 用途与限制 |
+| --- | --- | --- |
+| 1 | 冻结 task/project；C004 当前 `protocol.md` | 明确本次只能写文档、不能提前 activate 或写 C005；真实消费者先只读准备 |
+| 2 | `C005/adoption.md` 行3–11；`C005/README.md` §产品目标、§采用条件 | 明确已采用机械范围、真实需求与停止/隔离的边界、版本和发布限制。README 行24仍保留历史“已移入 active”的表述；当前目录和根入口为 C005 completed、C004 active，不按历史句子提前激活 |
+| 3 | `C005/validation.md` §原义务、未执行与未知（行143–160）；`C005/evidence/t03/preflight.json` | 确认真正需补的事实，区分历史预定义 not_run 与后来限定 PASS |
+| 4 | `C005/plan.md` §C005-T03（行116–126）、§C005-M2（行128–130）、§T03 本轮采用范围（行160–162） | 明确责任、真实操作、停止和独立验收；这是历史任务卡，本轮若恢复须另明确任务与范围，不能直接把历史 done 改成新义务已完成 |
+| 5 | `C005/experiments/runbook.md` §真实接续的前提、§记录停止与交接（行20–38） | 提供同绝对 Home/WorkId 的 status→有理由的 replace→status 命令，真实变量先由任务记录填写，不执行替代样本 |
+| 6 | `specs/contracts/protocol.md` §3 `attempt replace`、§6 `resume`；`specs/contracts/storage.md` §5.5 | 现行精确资格、一次额度、输入继承、重放、错误优先级和原子事务规则；合同优先于手册摘要 |
+| 7 | `C005/spec.md`；`C005/design.md` §原子替换、§顺序号与失败数、§并发重放与恢复 | 解释普通 resume 与撤销资格不同、完整 caller 和失败前缀；机制测试不作为真实撤销样本 |
+| 8 | `C005/verification/commands.sh`；`C005/plan.md` T01/T02 测试清单；`C005/tasks.toml` | 定向机制验证入口与历史任务归属/白名单。当前只交文档，不运行空 task.sh；历史 future-red 是阶段准备证据，不在当前实现上冒充预定失败或产品 PASS |
+| 9 | `C005/review.md` §C005-M1、§C005-T03、§C005-M2（行31–61）；`C005/progress.md` 行3–7 | 理解历史独立限定 PASS 的范围，原件/run ID 与缺项保持；审查、实现完成和真实价值分别判断 |
+
+下一协调者的第一个合法准备动作：只读 `C005/validation.md` 行143–160 和 `C005/evidence/t03/preflight.json`，列出本轮能提供的真实撤销对象及证据缺口，并判断是否只有普通续接需求。当前 C004 active 期间不写 C005、不调用替换来制造样本、不激活下一 change。
+
+可直接执行的首动作如下，仅读取已冻结的原件：
+
+```bash
+sed -n '143,160p' /Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C005-executor-continuity/validation.md
+cat /Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C005-executor-continuity/evidence/t03/preflight.json
+```
+
+## 4. 下一协调者的准备与执行顺序
+
+下表是恢复计划的交接要求，不是已执行记录。Owner 是角色，当前 C005 恢复任务尚未指定实际责任人；下一协调者在新采用记录中固定本人、手册执行者、宿主操作者和未编写产物的独立 Reviewer。不要把历史 T03 的 done 当作本轮执行状态。
+
+| 顺序与责任 | 必需输入与具体动作 | 正判据 | 负判据与停止 |
+| --- | --- | --- | --- |
+| P1，下一协调者，现在只读 | 执行 §3 首动作，读原 validation 和 preflight；列出本轮实际有无真实 Work、旧 Attempt、撤销理由、旧新执行者、原目标/验收和宿主处置证据 | 能逐项指向已有原件，明确只是普通 resume 还是确需撤销资格；未知为 null | 仅有上下文缺失、演示或夹具时，真实撤销仍 not_run；不能用 C004 本次 A→B 的同 Attempt 冷接续顶替 |
+| P2，下一协调者，C004 归档以后另任务 | 固定本轮 C005 的采用范围、Owner/Reviewer、输入与验证入口，再恢复唯一 active C005；先核现行根入口、当前候选与 dirty 内容 | 只有一个 active；历史义务保留，新范围可执行；冻结候选用完整 SHA | C004 尚 active 时停在只读准备；本报告不授权提前改 C005、Rust 或任何状态文件 |
+| P3，协调者与宿主操作者 | 提供真实绝对 Home、完整 WorkId、Workbook/Flow 摘要、当前状态与原 brief；固定候选 binary/hash、模型、权限、环境、原质量标准/检查命令和投入记录口径 | 当前确为 active、当前 Occurrence 最新 running，且需要撤销正式资格；原约束可逐项对照 | Work 终态/blocked、对象缺失或撤销需求未成立时不 replace；不要拿本次文档 Work 制造新样本 |
+| P4，宿主操作者 | 在新执行者开始前确认旧执行者停止，或提供隔离的新宿主工作区；保存操作者报告和实际证据的分别指针 | 记录支持本次停止/隔离判断，说明观察范围与未覆盖进程/目录 | 停写不明、共享写入无法排除时不派新执行者；替换响应不能证明停止、宿主全进程树关闭或隔离 |
+| P5，协调者 | 先 CLI status，按 resume 读取原 brief、全部 input ArtifactRef 和原声明草稿；普通接续直接继续原 Attempt。确需撤销时，使用 §4.1 同 Home/Work、唯一 request-id 的 replace 命令 | 普通 resume 不增 Attempt/revision；replace 原子形成旧 superseded、新 running，单次 revision；新 brief/input/output 指针来自响应 | 原目标、输入、说明、标准或 gate 丢失立即停；未使用额度并不构成调用理由 |
+| P6，手册执行者与协调者 | 比对新旧 entered_from、非 stats 输入 path/sha/bytes、optional null、原 Node 标准/gate/requires；读新 brief，使用新声明输出完成原目标 | 原约束完整，stats 来自提交后状态；旧草稿只有明确参考地位，不成为新封存输入或输出 | 上游新产物、旧未封存草稿不能暗中替代冻结绑定；发现漂移保留原件并交责任作者 |
+| P7，协调者与独立 Reviewer | 协调者查询当前 next，按既定 submit→review→gate/终点完成原目标；Reviewer 独立对照原标准、命令原输出和真实用户接受 | 质量检查与接受有具体原件；必要 gate 仍取得任务规定的授权；价值只按该真实场景判定 | 图 done、审查 PASS、授权或机械替换不代表质量/用户价值/费用；缺事实逐项 not_run/null |
+| P8，协调者与 Reviewer | 给 M2 交新旧身份、请求/revision、原输入/brief 摘要、旧迟到正式接口证据、原目标成果、解释/重验/重做/总投入、全部旧缺项 | 机制、质量、接受、成本、平台分别结论；保留原 run ID/输出/异常 | 不得让旧进程故意继续写共享目录制造事故；无真实迟到接口观察时该项保持未获证据，不能由机制测试推成真实观察 |
+
+本轮若发现需改合同、测试、质量标准或 source 之外的新事实材料，应先停止相应执行，把最小复现、原件和缺数据交给责任作者及独立 Reviewer；独立重审、明确任务与重新冻结后再继续。普通内容返工沿 Workbook 合法回边，执行确实失败才 fail；行政撤销不能伪造业务失败。
+
+### 4.1 恢复后的真实命令模板
+
+这些命令未在本次文档任务执行。变量必须由 P3 的真实任务记录填入，`trial_binary` 为冻结候选的绝对 binary 路径，`trial_root` 为唯一明确的绝对 Home；`work_id`、`old_attempt` 从最新状态取得。不得照抄本次文档 Work 的身份作为撤销样本。`replace_request` 是本次写请求的固定 UUID；`reason` 是实际理由，最多 4096 字节，可按合同使用 `@file`。
+
+```bash
+"$trial_binary" --home "$trial_root" --json work status "$work_id"
+```
+
+先核 `data.resume.attempt`、`data.resume.brief_path`、`data.resume.inputs`、`data.resume.draft_outputs`、`data.next`、revision/effects_pending/pending_publish。只有 P3–P4 满足且当前 next 包含对应旧 Attempt 的 replace 时调用：
+
+```bash
+"$trial_binary" --home "$trial_root" --json --request-id "$replace_request" attempt replace "$work_id" --attempt "$old_attempt" --reason "$reason"
+"$trial_binary" --home "$trial_root" --json work status "$work_id"
+```
+
+读取成功响应的 `data.replaced_attempt`、新 `data.attempt`、brief/output_dir、inputs/outputs/requires，以及顶层 revision/request_id/next。不要用仓库的最新说明书覆盖 Work 冻结副本。若返回 `EFFECT_PENDING`，先按 `committed` 和 `pending_request_id` 判断；当前请求已提交时用**同一 request-id、同一参数**恢复，不另 begin/replace。旧效果阻断时先恢复其原请求，不能新造 ID 逃过阻断。成功历史响应的 next 是当时快照，继续前再查 status。
+
+只有新执行者完成输出、协调者核清停写且当前 next 允许 submit 时，才按既定 Workbook 继续：
+
+```bash
+"$trial_binary" --home "$trial_root" --json --request-id "$submit_request" attempt submit "$work_id" --attempt "$new_attempt" --summary "$summary"
+"$trial_binary" --home "$trial_root" --json work status "$work_id"
+```
+
+`new_attempt` 取本次 replace/当前 resume；`submit_request` 与实际 summary 在写前固定。Review 的 Node、gate 与终点均取当前 next 和冻结 Workbook，不从本报告猜名字。不存在人工 gate 时不制造 gate；存在 gate 时不因 replace 绕过。旧迟到 submit/fail 只收录真实事件或已授权的正式接口验证，不要求旧进程继续写共享目录。
+
+命令与恢复依据：`C005/experiments/runbook.md` §2–3；现行 `specs/contracts/protocol.md` §3 replace/submit、§5、§6；持久与原字节依据：`specs/contracts/storage.md` §5.5。
+
+## 5. 正反验收与证据边界
+
+下表用于下一轮检查选择。其判据来自 `C005/spec.md` EX-01–08、`C005/validation.md` §1–2、`C005/design.md` §2–4、现行 protocol §3/5/6 和 storage §5.5。真实任务只观察自然路径；并发、故障注入、上限/错误优先级用冻结机制测试验证，不在真实对象上制造破坏。旧历史 PASS 只对应其原输入闭包，不表示当前候选已按下表重跑。
+
+| 要求 | 合法/正判据 | 拒绝/负判据与必需观察 |
+| --- | --- | --- |
+| 一次原子转换 | 同 Occurrence 旧 superseded（有 ended_at/replacement_reason，无 summary/fail_reason/封存 outputs），新 latest running；number 检查加 1；一次 revision | 不能只撤销而无新 Attempt，或创建两个新 Attempt；COMMIT 前拒绝/中断不产生业务转换。原件含前后状态、revision、request/audit/effects 与目录事实 |
+| 固定一次额度 | 每 Occurrence 至多一个 superseded，额度用尽的当前 running 仍可 submit/fail/cancel | 第二次 replace 报 REPLACEMENTS_EXHAUSTED，无新 Attempt/revision/成功审计，不制造 blocked；新 Occurrence 独立拥有一次额度 |
+| 编号、失败与历史前缀 | replace 后 number=1、failed=0；max_retries=1 的首次真 fail 仍 active、下一 begin number=2、第二次真 fail blocked；重放首次 fail 仍为原 active | number 不能充当失败数；max_retries=0 的第一次真 fail 必须 blocked；历史校验不能用后续总失败数或当前 WorkStatus |
+| 输入、标准与门槛 | entered_from、非 stats path/sha/bytes、optional null 保持；新 stats 按 poststate 冻结；说明书、Node、requires、成果标准/gate 不变 | 输入缺失/修改/大小变化或路径不安全整次拒绝；旧草稿不自动封存/继承，上游新产物不重新绑定；replace 不跳 Node、不 approve gate |
+| 旧资格与错误优先级 | 新 Attempt 按合法 next 完成；旧成功请求仍按原快照重放 | 新请求按 Work 非终态→旧身份→running→active/最新→额度→reason/inputs 检查：终态 WORK_TERMINAL；无身份 NOT_FOUND；非 running ATTEMPT_NOT_RUNNING；非最新/blocked ILLEGAL_NEXT。非终态旧 superseded 新 submit/fail 为 ATTEMPT_NOT_RUNNING；Work 终态先为 WORK_TERMINAL |
+| 意图、理由与重放 | 同 request-id/同字面参数返回原响应，无新 revision/Attempt；理由上限 4096 字节接受；@file 只固定词法绝对路径，重放不读其内容 | 改目标或理由 REQUEST_CONFLICT；4097 字节 SUMMARY_TOO_LONG；理由文件删除不能使已成功请求重放变成新请求。审计真实 OS 主体/时间不由 USER 或 CLI 注入 |
+| 并发和恢复 | submit/replace 或不同 replace 竞争至多一个成功；COMMIT 后效果恢复同一新 Attempt 和原 brief/stats 字节 | 前 COMMIT 无成功请求与替换事实；后 COMMIT EFFECT_PENDING/committed=true 不撤销已提交转换；不能重算旧 stats 或用当前状态补造原 next；核字节或独立 SHA |
+| 严格格式与只读 | schema 4/cli-result-v4 单一目标，work-result/v1/digest-v2 保持；状态查询同一 Store 快照，resume 草稿只在 running 有路径 | 未知字段/非法组合/第二 superseded/旧 Store 拒绝，旧字节保留，无迁移/清空/兼容层。查询不改业务状态/revision/五表、不恢复效果/刷新卡；SQLite 控制载体变化与业务对象分开记录 |
+| 真实接手及价值 | 真撤销需求成立；新执行者按原冻结目标/标准完成，有宿主处置和独立质量/接受证据 | 普通恢复、fixture、授权、机械 PASS 和图 done 均不能代替真实价值；缺停止/隔离事实不开始新执行者；成本和接受缺值保持 null |
+
+五表、历史文件和 revision 的拒绝/只读核对由本轮协调者/独立验证者承担；工作 agent 不直改 Store。CLI status 的成功读取不是对全宿主写进程停止、永不泄漏或同权限外部写入隔离的证明。
+
+## 6. 机制、环境和治理验证入口
+
+当前恢复重点是未执行的真实 T03 义务，不重新实施已经完成的 T01/T02。需要补当前候选机制证据时，先由 Owner 在恢复后的 plan 明确输入闭包与检查范围，再使用冻结入口。这里列出的都是后续入口，本次未执行：
+
+```bash
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh primitives
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh feature
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh regression
+bash specs/changes/completed/C005-executor-continuity/verification/commands.sh gates
+```
+
+路径为当前冻结 completed 原件。若恢复后移动目录或调整脚本，先独立核本轮 plan/路径/归属与新冻结闭包，不把旧路径命令冒称新执行。脚本自身 `cd` 仓库根、设置 `RUSTC_WRAPPER=` 与隔离 `CARGO_TARGET_DIR`，使用 task 注册过滤器；无注册测试 exit 2，nextest 使用 `--no-tests=fail`。`future-red` 是历史 T01 准备入口，当前已完成实现不能要求它继续 red；不将当前运行结果写成历史预定失败。无 T03 Rust 用例时不跑零测试 task.sh，使用实际 CLI 和文档/事实检查。
+
+工具与缓存应逐项记录真实版本、命令 stdout/stderr/exit、run ID 和候选/dirty diff。原 nextest 0.9.145 缺项只能由实际对应命令执行补证；0.9.140 override 是补充执行。`SHELTIE_NEXTEST_VERSION_OVERRIDE=1` 和 `SHELTIE_DENY_OFFLINE=1` 分别改变版本门禁/在线证据口径，不能隐藏在 PASS 中。原 deny 缓存事实保留；要称在线 fresh 必须有本次真实更新证据及对应 Cargo.lock/policy/features/环境，不能引用后来包的缓存结果抹除旧缺项。
+
+预算来自原 runbook：原语/feature 单次 5 分钟，普通回归/完整 gates 各 12 分钟。超时保留 raw、停止交作者诊断，不重跑到绿。平台范围仍仅 macOS aarch64；原 Rust 1.85 编译 PASS 不代替 Rust 1.85 测试。
+
+文案、任务记录和事实检查按恢复后的实际采用 plan 执行；若修改 skill，另读 writing-for-agents 并运行技能消费者。历史 T03 的入口为 `scripts/check-skill.sh`、`scripts/check-docs.sh`、`scripts/check-specs.sh`、diff 检查以及 `scripts/check-task.sh C005-T03 <本轮确定的完整范围基准> --staged`；M2 用其本轮开工完整提交做同类 scope 检查，提交后以同基准再核。尖括号是待固定参数，不是可以照抄的 shell 命令。历史 tasks.toml 仍带 active 目录白名单，恢复者必须核本轮目录与新任务，不绕过 scope 校验。实际新来源/工具事实加入前独立重审和重新冻结，不从本报告发明结论。
+
+## 7. 本 Attempt 实际检查、产物和待验证事项
+
+B 从指定 binary 的 `work status` `--json` 取得 `implement#1.0`、revision `2`、running、effects_pending=false、pending_publish=false，再自行读 brief、task/project 和 change 草稿。B 未取得 A 会话正文；续接没有调用 start/begin/replace/fail/submit。B 独立读取本报告列出的原件，核下一首动作、runbook/commands.sh 与当前合同，核四条 LEAK 原 case/run 与 required-task/whitespace 原文。
+
+B 的实际检查如下。原 stdout/stderr/exit 由同步工具调用记录保留，协调者可收录其原文；这不是引擎已核验仓库或检查。
+
+| 检查 | B 实际命令/方法与结果 | 原文位置 |
+| --- | --- | --- |
+| 当前恢复状态 | 指定 binary `--json --home /private/tmp/sheltie-completion-20261003/c004-real-work-home work status 2026-10-03-001-c005-opening-package`，exit 0，原 Attempt/revision 如上 | B status 工具调用原 stdout |
+| 冻结源与输入完整性 | 只读 Python `hashlib.sha256(Path.read_bytes())` 对 freeze 的 source_files 18、complete_C005_package_files_sha256 62、task_project_protocol_sha256 3 逐项比对，均 drift=[]；重新核 task 1670B、project 1578B 摘要与 brief 一致，exit 0 | B SHA 工具调用原 stdout；算法不采用本报告摘要生成期望 |
+| 原件与命令/判据 | `cat`、`sed -n`、`nl -ba`、`rg -n` 读取本报告注明文件，exit 0；实际路径存在，current contract 与 frozen runbook 的 replace/status 参数一致 | B 原件工具调用原 stdout；§2–6 来源索引 |
+| 仓库状态 | `git status --short`、`git rev-parse HEAD`，exit 0；HEAD 仍 af830f5d188e7fc8a8fff8ff329bcbbe56a86464，其他协调者的 C004 plan/run证据保留 | B git 工具调用原 stdout，不将 dirty 工作区称为纯净冻结候选 |
+
+A 先前检查只按已有草稿报告保留；B 不从 A 自报推导宿主事实。B 实际只续写本任务书的 `outputs/change.md`，没有写仓库、管理元数据、其他槽位或封存产物。没有运行 C005 试用、Rust tests/nextest/cargo deny、docs/specs 全仓库门禁；本外部草稿的内容检查不由无关仓库门禁替代。未获得 usage/paid_cost/human_activity/user_acceptance，均 null。
+
+文档内容已补齐，可交未参与编写的 Reviewer 按冻结 task 独立查源。独立 review、delivery、三成果封存、next-consumer 真实使用和最终 C004 接受仍由协调者后续执行，本报告不提前记为 PASS。B 结束回复后停止写入；所有自己启动的同步命令已退出，未启动后台/长驻命令或其他 agent。此事实仅覆盖 B 自己启动的命令，不是全宿主进程树关闭结论。

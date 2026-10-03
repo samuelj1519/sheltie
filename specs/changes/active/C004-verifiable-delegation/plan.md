@@ -133,7 +133,8 @@ T02/T03 最新冻结测试修订：`2914e8564047809659c4610d151f9ea6ceef7476`，
 | ID | 状态 | Owner | 依赖 | 可观察结果 |
 | --- | --- | --- | --- | --- |
 | C004-T06 | done | Codex；独立Reviewer | C002-M2 ccf7a0c | 事前输入/角色/质量/完整原件/预算及独立scope复核通过 |
-| C004-T07 | not_run | 协调者；实际A/B执行者；独立内容Reviewer | T06 | 真实C005开工包，通过同Attempt冷接续、独立质量和最终三refs，下一协调者实际使用 |
+| C004-T07 | done | 协调者；实际A/B执行者；独立内容Reviewer | T06 af830f5 | 真实C005开工包，通过同Attempt冷接续、独立质量和最终三refs，下一协调者实际使用 |
+| C004-T08 | todo | Codex；独立Reviewer | T07发现 | 恢复21原raw日志tracking，字节不改 |
 | C004-M3 | not_run | 未参与产物编写的Reviewer | T07 | 当前采用agent范围及环境完整限定验收，不改写旧真人/净收益 |
 
 ### C004-T06 恢复范围与事前冻结
@@ -155,3 +156,7 @@ Root协调者根据输出选择next，未编写change的Reviewer实际执行revi
 独立核事前freeze、实际writer停止和新上下文、同Attempt/输入、质量/返工/预算、只读保全、终点refs和真实下一消费者；不声称原人类paired或成本净收益。若产品真实缺陷另定修复任务/源闭包，不能用报告或oldnormal门禁掩盖。所有旧not_run和环境unknown留原；完成后只归档当前采用范围再依次恢复C005，无发布。
 
 T06范围/快照门禁基线明确为ccf7a0cc4d4c4a3a1b3c040473ab2cbc069a1982；历史18e骨架不用于此次纯文档恢复的零测试/快照检查。T06不运行空task.sh，先提交事前freeze再开始T07真实run。
+
+### C004-T08 恢复目录移动遗漏的原始日志跟踪
+
+T06移动package时21个原tracked的M2 mutation .log在新路径受*.log忽略，磁盘字节完整但提交缺失；独立M3审发现。精确路径与旧/新SHA见evidence/resume-20261004/t06-move-ignored-raw-finding.json。只显式force-add该21文件并记录原因，不改原字节/全局ignore/旧提交/历史结论。复核原ccf7a0c旧路径blob字节、git index新路径blob与工作文件一致；docs/specs/任务scope、提交读回通过后独立增量核。基线使用T07实际提交完整SHA。

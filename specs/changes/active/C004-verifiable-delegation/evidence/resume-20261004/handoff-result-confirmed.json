@@ -1,0 +1,49 @@
+{
+  "data": {
+    "artifacts": [],
+    "effects_pending": false,
+    "final": false,
+    "flow": "default",
+    "format": "work-result/v1",
+    "revision": 2,
+    "status": {
+      "kind": "active"
+    },
+    "work_id": "2026-10-03-001-c005-opening-package",
+    "workbook": {
+      "digest": "6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6",
+      "id": "code-change",
+      "version": "1.0.0"
+    }
+  },
+  "next": [
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-c005-opening-package"
+      },
+      "op": "attempt submit"
+    },
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-c005-opening-package"
+      },
+      "op": "attempt fail"
+    },
+    {
+      "args": {
+        "attempt": "implement#1.0",
+        "work": "2026-10-03-001-c005-opening-package"
+      },
+      "op": "attempt replace"
+    },
+    {
+      "args": {
+        "work": "2026-10-03-001-c005-opening-package"
+      },
+      "op": "work cancel"
+    }
+  ],
+  "ok": true
+}

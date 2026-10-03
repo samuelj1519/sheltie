@@ -1,0 +1,268 @@
+{
+  "extracted_utc": "2026-10-03T17:59:48.853323+00:00",
+  "actors": {
+    "A": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T01-42-46-01a102dc-7bba-7c41-95e6-a8f35a7514a7.jsonl",
+      "session_id": "01a102dc-7bba-7c41-95e6-a8f35a7514a7",
+      "extracted_path": "actor-A-actual-tool-records.jsonl",
+      "extracted_sha256": "da213b47568bc49ec2ec5232a45cac1b7ad9b55f41aa4bca5cb3aea691acd3ab",
+      "record_count": 18,
+      "calls": [
+        {
+          "name": "exec",
+          "call_id": "call_sOvWpmGN14XudeEkvSsPl3Gm",
+          "timestamp": "2026-10-03T17:43:00.580Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_8LrlYaY0KwnYqksrOA6L7ld0",
+          "timestamp": "2026-10-03T17:43:07.410Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_cxOA7WWXAKZTfaJ81MIThtx6",
+          "timestamp": "2026-10-03T17:43:14.671Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_h5GsKmAGezHLPj7ZL4fgVJSv",
+          "timestamp": "2026-10-03T17:43:22.090Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_Q5H0y851DWA7NDW3bcyxzy5P",
+          "timestamp": "2026-10-03T17:43:35.131Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_QcLITZDhbRdSsB6wiUjnWH0m",
+          "timestamp": "2026-10-03T17:44:49.406Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_H8Oen5FqoKr79Tm3Nwy5iD5m",
+          "timestamp": "2026-10-03T17:44:56.112Z"
+        }
+      ],
+      "policy": "Exact parsed session metadata, user/final messages and tool call/result records with source line; hidden analysis and unrelated turns excluded",
+      "completion_events": [
+        {
+          "timestamp": "2026-10-03T17:45:03.248Z",
+          "started_at": 1791049366,
+          "completed_at": 1791049503,
+          "duration_ms": 136690
+        }
+      ]
+    },
+    "B": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T01-47-35-01a102e0-e55f-77f0-bf1e-d3e648e0ebfa.jsonl",
+      "session_id": "01a102e0-e55f-77f0-bf1e-d3e648e0ebfa",
+      "extracted_path": "actor-B-actual-tool-records.jsonl",
+      "extracted_sha256": "2f701b02a0d320f55378ae2c0647a23c56d2949c97d8237cae9c9c13c1502ff1",
+      "record_count": 30,
+      "calls": [
+        {
+          "name": "exec",
+          "call_id": "call_6lUpKJRCT1lqI8RQdeIwTiIZ",
+          "timestamp": "2026-10-03T17:47:43.993Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_BbJO4cDNxW4e6xZN6AEk7Op0",
+          "timestamp": "2026-10-03T17:47:46.326Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_S8M8hWc3eSzCu83qE3Wl9RfB",
+          "timestamp": "2026-10-03T17:47:50.158Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_gw9Iy0z3ILM5s2aqIZMbnemK",
+          "timestamp": "2026-10-03T17:47:56.076Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_zqCGfxOgtPfeaHRJmND0gVXr",
+          "timestamp": "2026-10-03T17:48:02.085Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_bI0cXjE0kPyxhNzY0VSQFgR7",
+          "timestamp": "2026-10-03T17:48:08.127Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_a3TafO5VJ2OO4280pu3dIAMW",
+          "timestamp": "2026-10-03T17:48:12.898Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_jQq7qLyzqkKiqk0Djyaj66vJ",
+          "timestamp": "2026-10-03T17:48:21.958Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_6lu5AqUawMW7E4biIT5RFxop",
+          "timestamp": "2026-10-03T17:48:34.391Z"
+        },
+        {
+          "name": "send_message",
+          "call_id": "call_yLQY0K2QLN1RTOBQeelXEdbA",
+          "timestamp": "2026-10-03T17:48:38.328Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_uOKmC5Vizlon1yTW502fwtSU",
+          "timestamp": "2026-10-03T17:50:08.754Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_h999tSaIhJ4SmNowK4WUv77j",
+          "timestamp": "2026-10-03T17:50:24.660Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_7fIAGP0tz3UgCbhr2vEsYT62",
+          "timestamp": "2026-10-03T17:50:27.310Z"
+        }
+      ],
+      "policy": "Exact parsed session metadata, user/final messages and tool call/result records with source line; hidden analysis and unrelated turns excluded",
+      "completion_events": [
+        {
+          "timestamp": "2026-10-03T17:50:33.519Z",
+          "started_at": 1791049655,
+          "completed_at": 1791049833,
+          "duration_ms": 177774
+        }
+      ]
+    },
+    "content_review": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T01-53-16-01a102e6-1a35-7bc0-8206-f25e9996e16b.jsonl",
+      "session_id": "01a102e6-1a35-7bc0-8206-f25e9996e16b",
+      "extracted_path": "actor-content_review-actual-tool-records.jsonl",
+      "extracted_sha256": "1c25bd02c0a7e0548257ab176f3d50584d3ba9166c951158e12de7334e47e2f8",
+      "record_count": 22,
+      "calls": [
+        {
+          "name": "exec",
+          "call_id": "call_SlFuvT3dsNhRZUSNYNEi1WfY",
+          "timestamp": "2026-10-03T17:53:33.821Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_PQC7QfqPOTEKzX1nh5QZNyQt",
+          "timestamp": "2026-10-03T17:53:45.094Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_JpibhxTZLu7jjmSt6ZWZWqHr",
+          "timestamp": "2026-10-03T17:53:55.700Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_n4gSatINPxHCU6J7iO3Lgc92",
+          "timestamp": "2026-10-03T17:53:59.310Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_cCH5jOKjWdzOwGrul8ZbXgsm",
+          "timestamp": "2026-10-03T17:54:10.430Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_wgSemg5M2NWrZjiCc3sVIFIH",
+          "timestamp": "2026-10-03T17:54:24.823Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_I8MtkxeFDwv4jwNbBdHMG1QE",
+          "timestamp": "2026-10-03T17:54:45.067Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_aBjoHAlfFkPXpgRbeilAIOam",
+          "timestamp": "2026-10-03T17:54:56.909Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_lmjWhzAPsv3TZjCtDNWWTB4d",
+          "timestamp": "2026-10-03T17:55:52.731Z"
+        }
+      ],
+      "policy": "Exact parsed session metadata, user/final messages and tool call/result records with source line; hidden analysis and unrelated turns excluded",
+      "completion_events": [
+        {
+          "timestamp": "2026-10-03T17:56:00.868Z",
+          "started_at": 1791049996,
+          "completed_at": 1791050160,
+          "duration_ms": 163913
+        }
+      ]
+    },
+    "deliver": {
+      "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T01-56-28-01a102e9-079f-7d31-b61b-bbd5c89527f4.jsonl",
+      "session_id": "01a102e9-079f-7d31-b61b-bbd5c89527f4",
+      "extracted_path": "actor-deliver-actual-tool-records.jsonl",
+      "extracted_sha256": "5799630f4ffe4609b1d2c54b1fa40bb5bd5cf0d1f59d646d251e310a487e7baf",
+      "record_count": 22,
+      "calls": [
+        {
+          "name": "exec",
+          "call_id": "call_lEHBoQwUpwwq3eJHeaSgmlEs",
+          "timestamp": "2026-10-03T17:56:37.723Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_90mdobfuWW4cZjEfJBl82TMb",
+          "timestamp": "2026-10-03T17:56:41.945Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_UreqGYNSTna6M5kpJuSygnNY",
+          "timestamp": "2026-10-03T17:56:46.722Z"
+        },
+        {
+          "name": "send_message",
+          "call_id": "call_bjYSFy9HJnM7rJj8PA8WziaT",
+          "timestamp": "2026-10-03T17:56:50.684Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_D9GToP5bmPnPrtDXcwSXJGiE",
+          "timestamp": "2026-10-03T17:56:54.888Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_LwR5yPJcbYE1lKFoOGopEma4",
+          "timestamp": "2026-10-03T17:57:07.313Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_fXoqgRErHzQOTxuYVGqtZHNA",
+          "timestamp": "2026-10-03T17:57:22.723Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_RD7EjY0aQVtK7UwwNf7bDIR9",
+          "timestamp": "2026-10-03T17:58:28.322Z"
+        },
+        {
+          "name": "exec",
+          "call_id": "call_Y13q8JiuU6yf6lXpPNY8UsKA",
+          "timestamp": "2026-10-03T17:58:41.199Z"
+        }
+      ],
+      "policy": "Exact parsed session metadata, user/final messages and tool call/result records with source line; hidden analysis and unrelated turns excluded",
+      "completion_events": [
+        {
+          "timestamp": "2026-10-03T17:58:48.310Z",
+          "started_at": 1791050188,
+          "completed_at": 1791050328,
+          "duration_ms": 139512
+        }
+      ]
+    }
+  },
+  "extraction_correction": "Actual final messages use phase=final_answer, not channel; final/task_complete included, extraction revised from same raw session. No source events rewritten."
+}

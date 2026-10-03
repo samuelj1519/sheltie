@@ -160,3 +160,17 @@ C002-M2已归档ccf7a0c，当前只激活C004，原package移动前后文件SHA�
 源码190/方法/fixture/Cargo/config逐SHA等于C002修后候选：可同闭包引用新951 run424c.../5doc/46、新binary7c961与当前freshdeny ef6173政策；只作当前工程资格，不追溯旧C004原工具/LEAK原因。T06治理docs/specs/tests/skill/core-vocab全部0、唯一active1、原件/模板及复核仍在进行；T06保持doing，尚无真实value或内容质量结果。
 
 T06两个事前小缺口（完整C005 evidence SHA/硬时点）在Work前补齐，62原件稳定；文档任务不宣称codefix、下一C005首动作只读。独立preflight PASS仅当前T06，不授T07实物/质量或价值；原frozenJSON/protocol/消息模板是运行前输入，后续真实角色/CLI输出另记。
+
+## C004-T07 实际文档交付与同Attempt冷接续
+
+T06提交af830f5后使用冻结binary7c961、code-change1.0.0、独立Home实际启动Work `2026-10-03-001-c005-opening-package`。A产生12631-byte有用草稿后结束；B新fork-none仅拿Home/WorkId/binary/protocol，自status/resume取得同implement#1.0/revision2/冻结task与project，补齐27476-byte开工包。原A对话未提供B；Root未写节点内容。实际工具输入/响应、session/task_complete原事件及来源行见[evidence manifest](evidence/resume-20261004/actor-tool-records-manifest.json)，停写限定于这些自启动命令与completed turn，不称全宿主关闭。
+
+未参与change编写的content-review独立查原件并逐质量条件通过，9259-byte review；新deliver整理11870-byte说明。没有自然内容返工；deliver因可写路径措辞歧义暂停，Root明确只能写任务书声明delivery输出，额外往返计入成本。Root按next分别submit/begin，最终Succeeded revision7；[三引用核对](evidence/resume-20261004/final-three-reference-check.json)手写终点/keys/kinds期望并独立核实际字节、size、SHA，恰好change/delivery/review，input分别对应生产者封存输出，source都为具体deliver#1.0的槽。非最终result为空，终态status/result前后五表和业务对象不变；[只读原文](evidence/resume-20261004/final-readonly-oracle.json)保留SQLite载体例外。
+
+Root作为真实下一C005消费者读取三文档并按交付首动作实际读取原validation143–160与preflight，两个命令exit0；[使用与判断](evidence/resume-20261004/actual-next-consumer.json)记录代理接受仅本文档包。原真实撤销七前提仍null；C004普通resume不是C005撤销事件，当前不提前激活/写C005，不制造替换样本。真人接受、原宿主关闭重开、人类paired净收益仍not_run，usage/付费/人工活动仍null。
+
+[时间成本](evidence/resume-20261004/actual-timing-cost.json)保留整个run墙钟，等待、路径澄清、oracle修正和补原工具记录都计入，不折算人工或费用。submit-implement/begin-review只有Root at_utc粒度，不补造起止。两次观察oracle错误（artifacts空值类型与Git符号链接解引用）保留原失败，修正观察后重核；未改被测文件、合同或期望迎合实现。当前源/config/方法输入相对ccf7a0c的192tracked文件按Git symlink literal与regular bytes分别核同值，不能把数量混称C002原190域。独立执行审阅现场重核终态/三refs与5表、47业务对象查询保全；核四actor原session全部工具调用/响应和停写先后通过。early deliver工具仅打印r.output未展示shell exit字段，保持“同步tool响应完成”粒度，不补称每条独立exit0。最后治理/范围/提交读回单列。
+
+独审补发现T06目录移动的21旧tracked mutation .log未在新active路径纳入Git（*.log忽略）。工作文件与ccf7a0c旧blob逐字节同值，但af830f5新checkout缺原件；不将“物理移动同值”冒称“提交全原件保全”。精确清单见[evidence finding](evidence/resume-20261004/t06-move-ignored-raw-finding.json)，新增T08恢复tracking后再M3归档。T07实际使用链通过与M3候选需修分列。
+
+查询观察粒度：Root的handoff、review-running、final三个窗口逐次取得五表和业务对象前后快照；B自行两次status只有真实stdout/revision2/同Attempt和冻结输入核对，未取得每个调用自己的嵌套五表/全对象before-after。这是相对原protocol“每条”的实际观察偏差，不补造历史快照、不称所有调用逐条完全观测。C002同binary只读消费者与当前最终业务写审计支持机制判断，但不替代缺少的本run逐调用观察；M3由独审明确判断限定范围。

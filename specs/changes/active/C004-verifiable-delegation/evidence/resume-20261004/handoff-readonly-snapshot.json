@@ -1,0 +1,771 @@
+{
+  "before": {
+    "rows": {
+      "workbooks": [
+        [
+          "code-change",
+          "1.0.0",
+          "6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6",
+          "workbooks/code-change/1.0.0",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "works": [
+        [
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "active",
+          "{\"work_id\":\"2026-10-03-001-c005-opening-package\",\"name\":\"c005-opening-package\",\"workbook\":{\"id\":\"code-change\",\"version\":\"1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"inputs\":{\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"implement\",\"n\":1},\"visits\":{\"implement\":1},\"attempts\":[{\"id\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"status\":\"running\",\"entered_from\":null,\"inputs\":{\"previous-review\":null,\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{},\"summary\":null,\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:41:37Z\",\"ended_at\":null}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-03T17:41:37Z\",\"updated_at\":\"2026-10-03T17:41:37Z\"}",
+          "2026-10-03T17:41:37Z",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "work_sequence": [
+        [
+          "2026-10-03",
+          1
+        ]
+      ],
+      "requests": [
+        [
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709",
+          null,
+          "{\"request_id\":\"97ab40b4-2b5f-4abd-99fa-1a3b787932cd\",\"replayed\":false,\"data\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"flows\":[\"default\"],\"id\":\"code-change\",\"requires\":[],\"version\":\"1.0.0\"}}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6dbd77ad875dd92cd1842d54/payload\",\"final\":\"workbooks/code-change/1.0.0\",\"owner\":\"workbook:code-change@1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "6e67aca427cdb69fd7cacb1c80bba92a20fe6c1d1e1800dbbc6f4131e80055d4",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"5d497865-dc6b-459e-a139-76cf08b77144\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"c005-opening-package\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6e21767c9553af0900affeeb/payload\",\"final\":\"works/2026-10-03-001-c005-opening-package\",\"owner\":\"work:2026-10-03-001-c005-opening-package\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "e6b64907caa2f4035e16391a89c83e281dd468d1867b596c18232013f96099d9",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"6bfb5a60-c93a-44c8-919e-d45cfbfacf1f\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"data\":{\"attempt\":\"implement#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"implement\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"implement#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/implement\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"sha256\":\"9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a\",\"content\":\"# 任务书：实现代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: implement#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| previous-review | 尚无（上游 review 还没有产出） | |\\n\\n## 说明\\n\\n# 实现代码变更\\n\\n读取 task 的目标与验收标准、project 的仓库位置和检查前提。先检查工作区及仓库规则，保留无关修改。在本阶段内自主调查、规划和拆分子任务，完成授权范围的代码变更与必要检查。\\n\\nprevious-review 有绑定时读取具体意见；它可能来自之前的审查，以任务书“来自”和文件内容核对。普通内容返工不新增审批；部署、合并、发布等操作仍按任务授权执行。\\n\\n在 change.md 第一行说明实际完成程度。写清候选标识、变更范围、验收依据、实际检查命令和原文位置、退出状态、未执行项目、剩余问题。报告中的工具结果是执行者报告，不能说引擎已核验检查或仓库快照。未完成义务准确保留，不改验收标准迁就代码。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "audit": [
+        [
+          1,
+          "",
+          0,
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "shushu",
+          "{\"intent\":\"add_workbook\",\"source\":\"64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709\"}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          2,
+          "2026-10-03-001-c005-opening-package",
+          1,
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "shushu",
+          "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}},\"name\":\"c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          3,
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<839 字节>\",\"node\":\"implement\",\"observed_inputs\":{\"previous-review\":null,\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:41:37Z"
+        ]
+      ]
+    },
+    "objects": {
+      "works": {
+        "device": 16777234,
+        "inode": 689678544,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package": {
+        "device": 16777234,
+        "inode": 689678547,
+        "mode": 16832,
+        "links": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs": {
+        "device": 16777234,
+        "inode": 689678559,
+        "mode": 16832,
+        "links": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/status-card.md": {
+        "device": 16777234,
+        "inode": 689678641,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "ebe0405902056d2ef679a427822a765ac03c3c21286532df36c06cc43f7dfe00"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts": {
+        "device": 16777234,
+        "inode": 689678627,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook": {
+        "device": 16777234,
+        "inode": 689678550,
+        "mode": 16749,
+        "links": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/project": {
+        "device": 16777234,
+        "inode": 689678560,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/task": {
+        "device": 16777234,
+        "inode": 689678561,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement": {
+        "device": 16777234,
+        "inode": 689678628,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions": {
+        "device": 16777234,
+        "inode": 689678552,
+        "mode": 16749,
+        "links": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/workbook.toml": {
+        "device": 16777234,
+        "inode": 689678558,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/README.md": {
+        "device": 16777234,
+        "inode": 689678553,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows": {
+        "device": 16777234,
+        "inode": 689678551,
+        "mode": 16749,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/implement.md": {
+        "device": 16777234,
+        "inode": 689678556,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/deliver.md": {
+        "device": 16777234,
+        "inode": 689678555,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/review.md": {
+        "device": 16777234,
+        "inode": 689678557,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows/default.toml": {
+        "device": 16777234,
+        "inode": 689678554,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001": {
+        "device": 16777234,
+        "inode": 689678629,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000": {
+        "device": 16777234,
+        "inode": 689678630,
+        "mode": 16832,
+        "links": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md": {
+        "device": 16777234,
+        "inode": 689678632,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs": {
+        "device": 16777234,
+        "inode": 689678631,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md": {
+        "device": 16777234,
+        "inode": 689678877,
+        "mode": 33188,
+        "links": 1,
+        "sha256": "4497b596d6fa4a92df868cbaa81ea5646ac303ce0f2daa4d3c3f0d8d9ef9af1d"
+      },
+      "workbooks": {
+        "device": 16777234,
+        "inode": 689678508,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change": {
+        "device": 16777234,
+        "inode": 689678509,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0": {
+        "device": 16777234,
+        "inode": 689678487,
+        "mode": 16749,
+        "links": 6,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions": {
+        "device": 16777234,
+        "inode": 689678489,
+        "mode": 16749,
+        "links": 5,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/workbook.toml": {
+        "device": 16777234,
+        "inode": 689678495,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "workbooks/code-change/1.0.0/README.md": {
+        "device": 16777234,
+        "inode": 689678490,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "workbooks/code-change/1.0.0/flows": {
+        "device": 16777234,
+        "inode": 689678488,
+        "mode": 16749,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions/implement.md": {
+        "device": 16777234,
+        "inode": 689678493,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "workbooks/code-change/1.0.0/instructions/deliver.md": {
+        "device": 16777234,
+        "inode": 689678492,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "workbooks/code-change/1.0.0/instructions/review.md": {
+        "device": 16777234,
+        "inode": 689678494,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "workbooks/code-change/1.0.0/flows/default.toml": {
+        "device": 16777234,
+        "inode": 689678491,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "pending": {
+        "device": 16777234,
+        "inode": 689678484,
+        "mode": 16832,
+        "links": 2,
+        "sha256": null
+      }
+    }
+  },
+  "after": {
+    "rows": {
+      "workbooks": [
+        [
+          "code-change",
+          "1.0.0",
+          "6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6",
+          "workbooks/code-change/1.0.0",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "works": [
+        [
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "active",
+          "{\"work_id\":\"2026-10-03-001-c005-opening-package\",\"name\":\"c005-opening-package\",\"workbook\":{\"id\":\"code-change\",\"version\":\"1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\"},\"flow\":\"default\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"inputs\":{\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"status\":{\"kind\":\"active\"},\"current\":{\"node\":\"implement\",\"n\":1},\"visits\":{\"implement\":1},\"attempts\":[{\"id\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"status\":\"running\",\"entered_from\":null,\"inputs\":{\"previous-review\":null,\"project\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\",\"bytes\":1578},\"task\":{\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\",\"bytes\":1670}},\"outputs\":{},\"summary\":null,\"fail_reason\":null,\"replacement_reason\":null,\"started_at\":\"2026-10-03T17:41:37Z\",\"ended_at\":null}],\"approvals\":[],\"blocked_count\":0,\"created_at\":\"2026-10-03T17:41:37Z\",\"updated_at\":\"2026-10-03T17:41:37Z\"}",
+          "2026-10-03T17:41:37Z",
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "work_sequence": [
+        [
+          "2026-10-03",
+          1
+        ]
+      ],
+      "requests": [
+        [
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709",
+          null,
+          "{\"request_id\":\"97ab40b4-2b5f-4abd-99fa-1a3b787932cd\",\"replayed\":false,\"data\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"flows\":[\"default\"],\"id\":\"code-change\",\"requires\":[],\"version\":\"1.0.0\"}}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6dbd77ad875dd92cd1842d54/payload\",\"final\":\"workbooks/code-change/1.0.0\",\"owner\":\"workbook:code-change@1.0.0\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "6e67aca427cdb69fd7cacb1c80bba92a20fe6c1d1e1800dbbc6f4131e80055d4",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"5d497865-dc6b-459e-a139-76cf08b77144\",\"revision\":1,\"replayed\":false,\"reply\":{\"reply\":\"started\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"requires\":[]},\"data\":{\"flow\":\"default\",\"name\":\"c005-opening-package\",\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}},\"next\":[{\"op\":\"attempt begin\",\"node\":\"implement\",\"edge\":null,\"executor\":\"agent\",\"tier\":\"strong\"},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"publish_dir\",\"pending\":\"pending/01a102db6e21767c9553af0900affeeb/payload\",\"final\":\"works/2026-10-03-001-c005-opening-package\",\"owner\":\"work:2026-10-03-001-c005-opening-package\",\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"digest_root\":\"workbook\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "e6b64907caa2f4035e16391a89c83e281dd468d1867b596c18232013f96099d9",
+          "2026-10-03-001-c005-opening-package",
+          "{\"request_id\":\"6bfb5a60-c93a-44c8-919e-d45cfbfacf1f\",\"revision\":2,\"replayed\":false,\"reply\":{\"reply\":\"attempt_begun\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0},\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"data\":{\"attempt\":\"implement#1.0\",\"brief_path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"previous-review\":null,\"project\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"task\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\"},\"node\":\"implement\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\",\"outputs\":{\"change\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md\"},\"requires\":[]},\"next\":[{\"op\":\"attempt submit\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt fail\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"attempt replace\",\"attempt\":{\"node\":\"implement\",\"occurrence\":1,\"number\":0}},{\"op\":\"work cancel\"}]}",
+          "[{\"kind\":\"prepare_attempt\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"attempt_id\":\"implement#1.0\",\"dirs\":[\"works\",\"works/2026-10-03-001-c005-opening-package\",\"works/2026-10-03-001-c005-opening-package/attempts\",\"works/2026-10-03-001-c005-opening-package/attempts/implement\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000\",\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs\"]},{\"kind\":\"write_file\",\"path\":\"works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md\",\"sha256\":\"9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a\",\"content\":\"# 任务书：实现代码变更\\n\\nWork: 2026-10-03-001-c005-opening-package（c005-opening-package）\\n节点: implement#1，第 0 次尝试\\n来自: 入口\\n执行者: agent（strong）\\n\\n## 输入\\n\\n| 名称 | 路径 | sha256 |\\n| --- | --- | --- |\\n| task | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task | 66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e |\\n| project | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project | 8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b |\\n| previous-review | 尚无（上游 review 还没有产出） | |\\n\\n## 说明\\n\\n# 实现代码变更\\n\\n读取 task 的目标与验收标准、project 的仓库位置和检查前提。先检查工作区及仓库规则，保留无关修改。在本阶段内自主调查、规划和拆分子任务，完成授权范围的代码变更与必要检查。\\n\\nprevious-review 有绑定时读取具体意见；它可能来自之前的审查，以任务书“来自”和文件内容核对。普通内容返工不新增审批；部署、合并、发布等操作仍按任务授权执行。\\n\\n在 change.md 第一行说明实际完成程度。写清候选标识、变更范围、验收依据、实际检查命令和原文位置、退出状态、未执行项目、剩余问题。报告中的工具结果是执行者报告，不能说引擎已核验检查或仓库快照。未完成义务准确保留，不改验收标准迁就代码。\\n\\n## 输出要求\\n\\n| 名称 | 写到 | 必需 | 上限 |\\n| --- | --- | --- | --- |\\n| change | /private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md | 是 | 256 KiB |\\n\\n完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\\n\"},{\"kind\":\"refresh_status_card\",\"work_id\":\"2026-10-03-001-c005-opening-package\"}]",
+          1,
+          "2026-10-03T17:41:37Z"
+        ]
+      ],
+      "audit": [
+        [
+          1,
+          "",
+          0,
+          "97ab40b4-2b5f-4abd-99fa-1a3b787932cd",
+          "shushu",
+          "{\"intent\":\"add_workbook\",\"source\":\"64045921c7039324e83b40700101db0e297f55fa7a37dc9c2788a49caf474709\"}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          2,
+          "2026-10-03-001-c005-opening-package",
+          1,
+          "5d497865-dc6b-459e-a139-76cf08b77144",
+          "shushu",
+          "{\"command\":\"start\",\"flow\":\"default\",\"inputs\":{\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}},\"name\":\"c005-opening-package\",\"work_dir\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package\",\"work_id\":\"2026-10-03-001-c005-opening-package\",\"workbook\":{\"digest\":\"6317734c9afd151ad6d0c00b784aca0556f1bf0a1704dbc7e1a7e236477d68d6\",\"id\":\"code-change\",\"version\":\"1.0.0\"}}",
+          "2026-10-03T17:41:37Z"
+        ],
+        [
+          3,
+          "2026-10-03-001-c005-opening-package",
+          2,
+          "6bfb5a60-c93a-44c8-919e-d45cfbfacf1f",
+          "shushu",
+          "{\"command\":\"begin_attempt\",\"instruction_text\":\"<839 字节>\",\"node\":\"implement\",\"observed_inputs\":{\"previous-review\":null,\"project\":{\"bytes\":1578,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project\",\"sha256\":\"8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b\"},\"task\":{\"bytes\":1670,\"path\":\"/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task\",\"sha256\":\"66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e\"}}}",
+          "2026-10-03T17:41:37Z"
+        ]
+      ]
+    },
+    "objects": {
+      "works": {
+        "device": 16777234,
+        "inode": 689678544,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package": {
+        "device": 16777234,
+        "inode": 689678547,
+        "mode": 16832,
+        "links": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs": {
+        "device": 16777234,
+        "inode": 689678559,
+        "mode": 16832,
+        "links": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/status-card.md": {
+        "device": 16777234,
+        "inode": 689678641,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "ebe0405902056d2ef679a427822a765ac03c3c21286532df36c06cc43f7dfe00"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts": {
+        "device": 16777234,
+        "inode": 689678627,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook": {
+        "device": 16777234,
+        "inode": 689678550,
+        "mode": 16749,
+        "links": 6,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/project": {
+        "device": 16777234,
+        "inode": 689678560,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b"
+      },
+      "works/2026-10-03-001-c005-opening-package/start-inputs/task": {
+        "device": 16777234,
+        "inode": 689678561,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement": {
+        "device": 16777234,
+        "inode": 689678628,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions": {
+        "device": 16777234,
+        "inode": 689678552,
+        "mode": 16749,
+        "links": 5,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/workbook.toml": {
+        "device": 16777234,
+        "inode": 689678558,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/README.md": {
+        "device": 16777234,
+        "inode": 689678553,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows": {
+        "device": 16777234,
+        "inode": 689678551,
+        "mode": 16749,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/implement.md": {
+        "device": 16777234,
+        "inode": 689678556,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/deliver.md": {
+        "device": 16777234,
+        "inode": 689678555,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/instructions/review.md": {
+        "device": 16777234,
+        "inode": 689678557,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "works/2026-10-03-001-c005-opening-package/workbook/flows/default.toml": {
+        "device": 16777234,
+        "inode": 689678554,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001": {
+        "device": 16777234,
+        "inode": 689678629,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000": {
+        "device": 16777234,
+        "inode": 689678630,
+        "mode": 16832,
+        "links": 4,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md": {
+        "device": 16777234,
+        "inode": 689678632,
+        "mode": 33152,
+        "links": 1,
+        "sha256": "9e19d4d5a07343a479b48b4b319ce2e244715fc820d3e3f0a09c4cdc8ac72b5a"
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs": {
+        "device": 16777234,
+        "inode": 689678631,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md": {
+        "device": 16777234,
+        "inode": 689678877,
+        "mode": 33188,
+        "links": 1,
+        "sha256": "4497b596d6fa4a92df868cbaa81ea5646ac303ce0f2daa4d3c3f0d8d9ef9af1d"
+      },
+      "workbooks": {
+        "device": 16777234,
+        "inode": 689678508,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change": {
+        "device": 16777234,
+        "inode": 689678509,
+        "mode": 16832,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0": {
+        "device": 16777234,
+        "inode": 689678487,
+        "mode": 16749,
+        "links": 6,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions": {
+        "device": 16777234,
+        "inode": 689678489,
+        "mode": 16749,
+        "links": 5,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/workbook.toml": {
+        "device": 16777234,
+        "inode": 689678495,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+      },
+      "workbooks/code-change/1.0.0/README.md": {
+        "device": 16777234,
+        "inode": 689678490,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+      },
+      "workbooks/code-change/1.0.0/flows": {
+        "device": 16777234,
+        "inode": 689678488,
+        "mode": 16749,
+        "links": 3,
+        "sha256": null
+      },
+      "workbooks/code-change/1.0.0/instructions/implement.md": {
+        "device": 16777234,
+        "inode": 689678493,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+      },
+      "workbooks/code-change/1.0.0/instructions/deliver.md": {
+        "device": 16777234,
+        "inode": 689678492,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+      },
+      "workbooks/code-change/1.0.0/instructions/review.md": {
+        "device": 16777234,
+        "inode": 689678494,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+      },
+      "workbooks/code-change/1.0.0/flows/default.toml": {
+        "device": 16777234,
+        "inode": 689678491,
+        "mode": 33060,
+        "links": 1,
+        "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+      },
+      "pending": {
+        "device": 16777234,
+        "inode": 689678484,
+        "mode": 16832,
+        "links": 2,
+        "sha256": null
+      }
+    }
+  },
+  "allfive_andbusinessobjects_unchanged": true,
+  "running_attempt": "implement#1.0",
+  "status": {
+    "data": {
+      "blocked": null,
+      "current": "implement#1",
+      "done": [],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "implement#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "c005-opening-package",
+      "next": [
+        {
+          "args": {
+            "attempt": "implement#1.0",
+            "work": "2026-10-03-001-c005-opening-package"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "implement#1.0",
+            "work": "2026-10-03-001-c005-opening-package"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "implement#1.0",
+            "work": "2026-10-03-001-c005-opening-package"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-03-001-c005-opening-package"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [
+        "review",
+        "deliver"
+      ],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "implement#1.0",
+        "brief_path": "/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "change": "/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/attempts/implement/occurrence-001/attempt-000/outputs/change.md"
+        },
+        "inputs": {
+          "previous-review": null,
+          "project": {
+            "bytes": 1578,
+            "path": "/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/project",
+            "sha256": "8720c0940953935968d8b6a5c3925690f70718112282fcd9f6d1327684cb2e7b"
+          },
+          "task": {
+            "bytes": 1670,
+            "path": "/private/tmp/sheltie-completion-20261003/c004-real-work-home/works/2026-10-03-001-c005-opening-package/start-inputs/task",
+            "sha256": "66feae2dda4b66a94aaad56ed9f34e67ff90903fb66f0a7d67174dbf503a760e"
+          }
+        }
+      },
+      "revision": 2,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "0/1",
+        "implement": "1/3",
+        "review": "0/3"
+      },
+      "work_id": "2026-10-03-001-c005-opening-package",
+      "workbook": "code-change@1.0.0"
+    },
+    "next": [
+      {
+        "args": {
+          "attempt": "implement#1.0",
+          "work": "2026-10-03-001-c005-opening-package"
+        },
+        "op": "attempt submit"
+      },
+      {
+        "args": {
+          "attempt": "implement#1.0",
+          "work": "2026-10-03-001-c005-opening-package"
+        },
+        "op": "attempt fail"
+      },
+      {
+        "args": {
+          "attempt": "implement#1.0",
+          "work": "2026-10-03-001-c005-opening-package"
+        },
+        "op": "attempt replace"
+      },
+      {
+        "args": {
+          "work": "2026-10-03-001-c005-opening-package"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "ok": true
+  },
+  "scope": "technical read-onlySQL snapshot; state decisions solelyCLI; SQLitecontrolfiles excluded"
+}

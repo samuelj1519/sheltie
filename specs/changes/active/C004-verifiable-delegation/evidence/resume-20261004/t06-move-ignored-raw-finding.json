@@ -1,0 +1,174 @@
+{
+  "baseline": "ccf7a0cc4d4c4a3a1b3c040473ab2cbc069a1982",
+  "finding": "21 old tracked raw logs ignored at new path by *.log; physical raw intact but af830f5 lacks tracked copies",
+  "items": [
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/debug.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/debug.log",
+      "bytes": 27070,
+      "sha256": "518dc2557ab574d7fdafab0e5ec2d7bfa21f4a58c523a32b56c03e8e500e7459",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/baseline.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/baseline.log",
+      "bytes": 111883,
+      "sha256": "314f582bca7aa29157a661ddff5c79bf9ee48dd2df278c9d31060f88ab7cb9db",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_326_col_5.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_326_col_5.log",
+      "bytes": 23435,
+      "sha256": "aaeda38595b890dd97cecda639515bbec6bd6accaaf994b520aec87937ede952",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_350_col_16.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_350_col_16.log",
+      "bytes": 22131,
+      "sha256": "a337aa53d8d88ef5a93b45327acb37f0066903713448070719d9feb392ca2c25",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_353_col_16.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_353_col_16.log",
+      "bytes": 19856,
+      "sha256": "e84329c5bd9c14d71a443a53bf7a77a46662f4fec0ef7f84b1fe9885c5c82423",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_356_col_16.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_356_col_16.log",
+      "bytes": 19880,
+      "sha256": "1b7f3b34460adc9bee5f7e6b71e1346beaa12628187b9e11e5bf49297b42c1ae",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_359_col_16.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_359_col_16.log",
+      "bytes": 18608,
+      "sha256": "04c1dc79e407785d4c28fca714e77dac9c935a49f0d98f06251b06a981bef6bb",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/debug.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/debug.log",
+      "bytes": 18156,
+      "sha256": "57c46bfa0943243bbeb42cd134b5cb478a63b986ed6e335fcf4a0f06fe6c9dde",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/baseline.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/baseline.log",
+      "bytes": 69564,
+      "sha256": "8fe838f969686cfd693fa15438b16dc8177196d49561a7e1223161991129dfa8",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_45.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_45.log",
+      "bytes": 50470,
+      "sha256": "d4ac3f673c23c89f3361d49138a4ae071109988e5cf03e6471898c5986529d63",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_64.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_64.log",
+      "bytes": 50112,
+      "sha256": "43abfe8ee279e99b57f2566d68f67092c9243726afc233484a232032ce6f333a",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_83.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_83.log",
+      "bytes": 50470,
+      "sha256": "9270bce619c589eeddb2c2d16c66e7b2bf3b91b56aad79c4250c7d5b74148af1",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/debug.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/debug.log",
+      "bytes": 3923,
+      "sha256": "2e7deca0b10a0df984d2967ade7cf881394928c73acc35620d56411a3d9ed1df",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/log/baseline.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/log/baseline.log",
+      "bytes": 12290,
+      "sha256": "986dd9f1645fc07752cf12cbddab4be7688cf8463f2cd597016cfbeb101c2ed9",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/debug.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/debug.log",
+      "bytes": 27416,
+      "sha256": "15f03d34be0e5fc00e01212f017d4b185abf8402900f72035548a4c53bf3b860",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/baseline.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/baseline.log",
+      "bytes": 142835,
+      "sha256": "ccc64a68706d0c298121aa380e5633cd786c806178651e71e4ce9d65500773b5",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_116_col_8.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_116_col_8.log",
+      "bytes": 68897,
+      "sha256": "6c7a51d2984b7ac84613685c6a38cc216f4a1fab0b25fc802212018b3b1dde55",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_67_col_21.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_67_col_21.log",
+      "bytes": 80266,
+      "sha256": "fe698ad461fb09f129b4bd9ebff0629b784db387cf5b9f4d7f792a0b0acb6906",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_73_col_8.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_73_col_8.log",
+      "bytes": 70778,
+      "sha256": "9afd6aadf487cab2bbcddf0165b54d1be5b33bd1eabdb4f03ff4ed4204752912",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_81_col_51.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_81_col_51.log",
+      "bytes": 70905,
+      "sha256": "285255f24836712bbaa8c5d76f275b5ee54b21b22c1f6c7221de3a62a5672b01",
+      "original_bytes_identical": true,
+      "tracked": false
+    },
+    {
+      "old": "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_83_col_24.log",
+      "new": "specs/changes/active/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_83_col_24.log",
+      "bytes": 70827,
+      "sha256": "c11054fa6262ff7f7ab20971451545883f2d3181c415852c0d1843b716ba2c5a",
+      "original_bytes_identical": true,
+      "tracked": false
+    }
+  ]
+}

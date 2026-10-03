@@ -94,3 +94,9 @@ Reviewer独立核完整741/741无skip及check/clippy/fmt/governance；13selected
 真实trial/用户收益和nextest原0.9.145授权not_run；在线fresh更新执行后终止未完成；历史LEAK causeunknown保留。本轮按实现范围归档，原真实义务与环境缺项留同一package等待后期补验；不是完整用户价值验收、发布或全安全结论。阶段M1通过从未用来替代M2。
 
 收口独立复核通过：Candidate与实现限定PASS表一致，所有授权延期/未完成/unknown项独立完整保留，未把not_run改PASS；日志原字节保全后可按已有授权归档并采用C005。生产闭包未变，未发布。
+
+## C004-T07 独立实际执行审阅
+
+Reviewer /root/c004_execution_review未参与规程/输入/节点产物，当前实际链scoped通过，原件见[evidence报告](evidence/resume-20261004/t07-execution-review.md)与同名JSON。独立现场查询及逐原session核A/B停写和冷续、内容质量、终态、3refs、5表/47业务对象、下一消费者实际使用；不冒称真人或净收益。
+
+M3需修改：21原tracked日志移动后新路径被忽略，T08恢复tracking；B两次直接status未逐调用采集全对象快照，原标准有实际偏差，保留未观测，后续事前冻结观察器补新实际执行者查询，不能补造历史。early deliver部分shell exit字段未打印、写操作时间粒度与最终消息/task_complete区别均如实限定。T07文档治理/任务范围及提交读回单列，不以内容PASS代替门禁。
