@@ -1,3 +1,3 @@
 # C006 交接
 
-T00/T01/M1完成；T02执行，冻结基准 `6e60faacbe039cd21c04e5aa4d514ea5765e2ba3`。只开放main/CLI参数并删除所属19ignore，不改安全原语/测试/fixture/oracle。37原语与811普通回归、真实future19red及独立manifest复算见validation/review。真实价值和环境延期保留；不安装或发布。
+T01/M1完成。T02草稿隔离，whole829PASS/1FAIL已记录；C006-T04修复实际通知握手并独立审查后固定新基准，再恢复仅接线/19ignore删除。生产源/目标/政策与原成果oracle未变。当前原语37、握手新增2；future19仍阶段禁用，不能把旧featuregreen当修后wholePASS。真实价值/环境延期保留。

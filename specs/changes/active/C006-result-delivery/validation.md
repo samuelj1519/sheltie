@@ -97,3 +97,13 @@ T01全cached diff检查exit2，仅[清单](evidence/t01/diff-check.json)内不�
 ## C006-M1 冻结交接
 
 独立阶段PASS，candidate `6e60faacbe039cd21c04e5aa4d514ea5765e2ba3`。精确[输入manifest](evidence/m1/t01-input-manifest.json)已由Reviewer从git candidate独立复算，代码与oracle没有修改。M1新增的是记录/白名单与状态，单独治理检查；T02冻结代码/测试完整基准为该T01SHA，允许范围仍仅main/CLI和删除19ignore。
+
+## C006-T04 checkpoint握手修复
+
+T02 first feature run `48ed88a3-1e54-48c7-bc8d-9634a43b8c65` 19/19PASS，但whole `4954967d-d5fb-4e4e-b50c-8018086598a1` 829PASS/1FAIL/0skip，exit100；后续deny/docs未执行。失败原件保留，不记全门禁PASS。reached先create_new再write_all，reader见名字即断言全文，实际读到空内容；无证据指向源/目标业务错误。
+
+自有草稿stash `ef7d9bdfe49697a1aa858935c4ac0040ab28b117` 及[六文件字节](evidence/t04/draft-preservation-before.json)保留。修复仅测试握手消费，不动fault producer或原成果/kill/权限/重跑断言。真实空/部分标记和活直接child的确定性red `a896fcdd-4079-4de2-afb1-18c9a1737f4b` 1FAIL；完整bytes才返回，合法prefix等待、错误点拒绝，原12秒/退出检查/RAII保持。green `c8ef4066-23bc-4983-a62a-532f3924df04` 2/2，clippy0。
+
+Cargo nextest会在开始执行前重建同executable路径，pre-build SHA不能证明之后执行的字节；helper仅核路径存在。[post采样](evidence/t04/post-failed-gates-binaries.json)只证明采样时身份。T02恢复后另以Cargo JSON真实build复制到独占私有binary路径，前后SHA相同的19真实公共consumer验证解决该证据缺口；不改冻结命令或helper，不以旧prehash代新实际身份。
+
+T04独审发现初次positive在wait返回后writer.join，会放过提前返回变体；原初次2green保留但不是最终oracle充分性证据。修订改为真实fs::read后的观察回调：first read是固定空/部分字节，再写完整真实文件；返回时必须观察[initial,full]，没有调度/等待时长假设。正常10caller同一body的noop callback，生产代码未改。具体prefixassert后return变体run `d9683d94-91e6-4f03-b68f-3f623a88a06c` 实际1FAIL；最终 `6a65908d-fe53-46ed-a53d-a9465fd1dc49` 2/2PASS、clippy0。错误点必须特定通知拒绝，timeout或无关panic不能通过。独立Reviewer逐字节核原command/helper外的10场景和全部业务断言未变，T04短审PASS；仅握手/冻结修订，不当832全回归PASS。

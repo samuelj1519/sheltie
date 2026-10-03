@@ -25,8 +25,9 @@
 | --- | --- | --- | --- | --- |
 | C006-T00 | done | Codex /root；独立 Reviewer | 采用、前版归档与唯一实施入口 | 用户明确采用 |
 | C006-T01 | done | 复杂模型架构、原语与测试作者 | 源合同、实际安全原语、窄骨架与阶段测试 | 人采用、C004 结果已验收 |
+| C006-T04 | done | 复杂作者/root；独立Reviewer | checkpoint完整字节握手修复及冻结基准更新 | T02实际回归失败 |
 | C006-M1 | done | 独立复杂模型 Reviewer | 安全及实现准备审查 | T01 |
-| C006-T02 | doing | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
+| C006-T02 | todo | 简单模型 / 初级开发者 | 固定原语内完成整份副本及正式接线 | M1 通过及骨架完整 SHA |
 | C006-T03 | todo | 手册执行者；复杂模型负责结论 | 临时构建说明、真实副本与最终证据 | T02 |
 | C006-M2 | todo | 独立复杂模型 Reviewer | 源到副本、工程与真实结果审阅 | T03 |
 
@@ -134,3 +135,11 @@ T03 若只有说明和真实操作记录，范围基准用本任务开工完整�
 开工候选 `8d27348d995a434ae3dbf8255e1110973dec1381`。归档已限定独立完成的C005，保留全部raw字节/未知/授权延期；只激活C006，更新当前索引和引用。用户明确开发需求允许实施，没有编造真实复制成本或可编辑副本用途。代码尚未改，T01同步source/target合同后再实现；docs/specs/tests/TOML/diff与独立短审通过再提交。
 
 本轮继续由同等能力作者实现必要耦合原语，保留T01/M1/T02和未参与oracle/代码的独立Reviewer。用户明确真实无链接的绝对home/to；key保留C004字符串（含空名/非ASCII），NUL因argv不可表达明确拒绝。complete表示核验及规定OS文件/树/父fsync成功，不增加断电物理持久承诺。实际平台API仍须T01实测。
+
+### C006-T04：修复真实checkpoint通知握手
+
+T02完整回归4954967d为829PASS/1FAIL，reached文件已存在但尚为空；writer create_new与write_all之间允许reader读取。隔离自有T02草稿stash `ef7d9bdfe49697a1aa858935c4ac0040ab28b117`，不改失败历史。复杂作者仅修crash.rs的checkpoint消费等待：完整预期字节才宣称到达，空/合法前缀继续等待；错误同步点仍拒绝，12秒上限、child退出和原artifact/kill/重跑断言不变。
+
+**测试。** `boundary_waits_for_complete_marker_bytes_before_claiming_the_checkpoint`、`boundary_rejects_bytes_from_another_checkpoint`。
+
+先用真实文件与活子进程构造已存在空/部分通知取得有效red，再修等待取green；不调整业务政策、fault生产端或原成果断言。两项独立期望、fmt/check/clippy、独立review和治理/范围检查完成后提交T04；该完整SHA是T02新冻结基准。恢复自有草稿仅保留公共接线与19ignore删除，其他部分字节保真。RC生命周期治理另列后续任务。

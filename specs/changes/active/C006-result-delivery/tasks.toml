@@ -30,3 +30,8 @@ allow_test_changes = false
 files = ["specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/review.md"]
 test_files = []
 allow_test_changes = false
+
+[C006-T04]
+files = ["crates/sheltie-export/tests/crash.rs", "specs/changes/active/C006-result-delivery/evidence/t04", "specs/changes/active/C006-result-delivery/validation.md", "specs/changes/active/C006-result-delivery/progress.md", "specs/changes/active/C006-result-delivery/review.md"]
+test_files = ["crates/sheltie-export/tests/crash.rs"]
+allow_test_changes = true

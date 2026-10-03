@@ -1,0 +1,33 @@
+Supplemental execution: --override-version-check; the configured-version gate remains not_run.
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
+{"sheltie-export": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie-export", "sha256": "b874ccd48d08a33e467eb13f557fd5d7f5ea2e8658dd2bd6fb37f31429b24fe4"}, "sheltie": {"path": "/private/tmp/sheltie-c006-target/debug/sheltie", "sha256": "990a3c585cd6fc4f0d729ba5940b9097a1b20bbbd75154219ec0557c10630ae3"}}
+info: overriding version check (required: 0.9.145, current: 0.9.140)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+────────────
+ Nextest run ID 48ed88a3-1e54-48c7-bc8d-9634a43b8c65 with nextest profile: default
+    Starting 19 tests across 59 binaries (811 tests skipped)
+        PASS [   0.565s] ( 1/19) sheltie-cli::result_artifact result_artifact_rejects_json_request_ids_and_unpaired_parameters_before_creating_a_home
+        PASS [   1.497s] ( 2/19) sheltie-cli::result_artifact result_artifact_stdout_preserves_binary_empty_and_text_bytes_without_json_or_extra_newline
+        PASS [   1.521s] ( 3/19) sheltie-cli::result_artifact result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_keys
+        PASS [   1.529s] ( 4/19) sheltie-cli::result_artifact result_artifact_rejects_revision_key_and_source_modification_without_business_writes
+        PASS [   1.887s] ( 5/19) sheltie-export::cli exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target
+        PASS [   1.899s] ( 6/19) sheltie-export::cli exporter_rejects_a_nonfinal_work_before_creating_staging
+        PASS [   1.910s] ( 7/19) sheltie-export::export export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory
+        PASS [   1.935s] ( 8/19) sheltie-export::export export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work
+        PASS [   1.961s] ( 9/19) sheltie-export::export export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy
+        PASS [   1.966s] (10/19) sheltie-export::crash kill_after_file_sync_preserves_owned_scene_without_a_published_copy
+        PASS [   0.329s] (11/19) sheltie-export::crash kill_after_independent_readback_preserves_owned_scene_without_a_published_copy
+        PASS [   0.333s] (12/19) sheltie-export::crash kill_after_manifest_write_preserves_owned_scene_without_a_published_copy
+        PASS [   0.322s] (13/19) sheltie-export::crash kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another
+        PASS [   0.326s] (14/19) sheltie-export::crash kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response
+        PASS [   0.309s] (15/19) sheltie-export::crash kill_after_staging_creation_preserves_owned_scene_without_a_published_copy
+        PASS [   0.318s] (16/19) sheltie-export::crash kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy
+        PASS [   0.311s] (17/19) sheltie-export::crash kill_during_actual_receive_preserves_partial_scene_without_a_published_copy
+        PASS [   0.630s] (18/19) sheltie-export::crash sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_copy
+        PASS [   0.310s] (19/19) sheltie-export::crash sync_failure_before_publication_keeps_staging_and_rerun_preserves_the_original_scene
+────────────
+     Summary [   5.156s] 19 tests run: 19 passed, 811 skipped

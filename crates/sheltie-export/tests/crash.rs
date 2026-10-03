@@ -24,11 +24,19 @@ impl Drop for ExportChild {
 
 impl ExportChild {
     fn wait_at(&mut self, marker: &Path, point: &str) {
+        self.wait_at_observing(marker, point, |_| {});
+    }
+
+    fn wait_at_observing(&mut self, marker: &Path, point: &str, mut on_read: impl FnMut(&[u8])) {
         let deadline = Instant::now() + Duration::from_secs(12);
         loop {
             if marker.exists() {
-                assert_eq!(std::fs::read(marker).unwrap(), point.as_bytes());
-                return;
+                let bytes = std::fs::read(marker).unwrap();
+                on_read(&bytes);
+                if bytes == point.as_bytes() {
+                    return;
+                }
+                assert!(point.as_bytes().starts_with(&bytes), "收到不同同步点的通知");
             }
             if self.0.as_mut().unwrap().try_wait().unwrap().is_some() {
                 let output = self.0.take().unwrap().wait_with_output().unwrap();
@@ -334,4 +342,59 @@ fn sync_failure_after_rename_reports_unconfirmed_and_keeps_the_whole_visible_cop
             before
         );
     }
+}
+
+// Task: C006-T04
+#[test]
+fn boundary_waits_for_complete_marker_bytes_before_claiming_the_checkpoint() {
+    let point = "after_manifest_write";
+    for initial in [b"".as_slice(), b"after_man".as_slice()] {
+        let dir = tempfile::tempdir().unwrap();
+        let marker = dir.path().join("reached");
+        std::fs::write(&marker, initial).unwrap();
+        let mut child = ExportChild(Some(
+            Command::new("python3")
+                .args(["-c", "import time; time.sleep(30)"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap(),
+        ));
+        let mut observed = Vec::new();
+        child.wait_at_observing(&marker, point, |bytes| {
+            observed.push(bytes.to_vec());
+            if observed.len() == 1 {
+                std::fs::write(&marker, point.as_bytes()).unwrap();
+            }
+        });
+        assert_eq!(observed, vec![initial.to_vec(), point.as_bytes().to_vec()]);
+        assert_eq!(std::fs::read(&marker).unwrap(), point.as_bytes());
+        assert!(child.0.as_mut().unwrap().try_wait().unwrap().is_none());
+    }
+}
+
+// Task: C006-T04
+#[test]
+fn boundary_rejects_bytes_from_another_checkpoint() {
+    let dir = tempfile::tempdir().unwrap();
+    let marker = dir.path().join("reached");
+    std::fs::write(&marker, b"after_file_sync").unwrap();
+    let mut child = ExportChild(Some(
+        Command::new("python3")
+            .args(["-c", "import time; time.sleep(30)"])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap(),
+    ));
+    let rejected = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        child.wait_at(&marker, "after_manifest_write");
+    }));
+    let panic = rejected.expect_err("不同同步点必须立即拒绝");
+    let message = panic
+        .downcast_ref::<String>()
+        .map(String::as_str)
+        .or_else(|| panic.downcast_ref::<&str>().copied())
+        .unwrap();
+    assert!(message.contains("收到不同同步点的通知"), "{message}");
 }

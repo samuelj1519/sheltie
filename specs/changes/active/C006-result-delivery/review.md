@@ -35,3 +35,7 @@ Candidate: `6e60faacbe039cd21c04e5aa4d514ea5765e2ba3`。独立Reviewer `/root/in
 Reviewer从不可变candidate独立复取295路径/尺寸/每文件SHA，以manifest域和u64BE帧算法精确复算 `6712a54ead3b8aa1245227e17cc7beb421638729ec6bbcf4a660910e71751aae`。只在内存还原plan T01 done→doing；三处tracked LICENSE-MIT链接按该candidate根license内容解析，全部一致。复用之前源码/修复独审及Source1/Target4真实消费者，核37原语、811普通回归、有效future19与MSRV/工程结果。
 
 公开raw/export及完整kill/sync用户链待T02，真实用途/用户价值待T03/M2。dist实际plan、nextest0.9.145、其他OS/跨设备、fresh advisory继续not_run；缓存deny仅既定快照。历史LEAK unknown与所有诊断原文保留，不当零残留。阶段审查不授权发布或安装。
+
+## C006-T04 独立握手修订审查
+
+结论：`PASS`，仅checkpoint握手与oracle修复。独立Reviewer未编写修复。已核完整字节才放行、前缀等待/错误点拒绝、原期限/child退出/RAII，以及确定性真实read序列对具体提前返回变体的实际red。原10场景全部业务断言与生产fault/source/target代码字节未变；新增2green、clippy/check通过。此提交完整SHA替代原M1SHA成为T02冻结基准。原弱oracle与whole829/1原件保留；恢复公共链后仍须19与最终832门禁。
