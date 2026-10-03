@@ -166,7 +166,7 @@ T04 最新独立测试基准：`c9492f80969d59897480f138b780dc8c1d83ec62`。T02 
 | ID | 状态 | Owner | 依赖 | 实际交付 |
 | --- | --- | --- | --- | --- |
 | C005-T05 | done | Codex；独立Reviewer | C004-M3 9862083 | 原件/缺项、真实需求判断与事前native技术闭包冻结 |
-| C005-T06 | not_run | Codex；独立Reviewer | T05提交 | 当前nextest/freshdeny同源资格与macARM Rust1.85实际测试，旧unknown分列 |
+| C005-T06 | done | Codex；独立Reviewer | T05提交 | 当前nextest/freshdeny同源资格与macARM Rust1.85实际测试，旧unknown分列 |
 | C005-M3 | not_run | 未参与修订/执行的Reviewer | T06 | 当前技术完整闭环与真实需求负前检，原真实试用不冒PASS |
 
 ### C005-T05 恢复真实前提与技术补验准备

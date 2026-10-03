@@ -1,0 +1,11 @@
+{
+  "full_cached_exit": 2,
+  "full_stdout": "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/msrv-doctest.stdout:20: new blank line at EOF.\n",
+  "full_stderr": "",
+  "authoring_exit": 0,
+  "authoring_stdout": "",
+  "authoring_stderr": "",
+  "exact_immutable_raw_exclusion": "specs/changes/active/C005-executor-continuity/evidence/resume-20261004/msrv-doctest.stdout",
+  "original_raw_sha256": "40db857507b9e83bc0a2e48b75ca6c0d34407a8d8cfe3b489b9e829d4321323c",
+  "reason": "Actual Cargo doctest stdout ends with two blank lines; preserve exact bytes under existing raw policy, do not call full cached check PASS"
+}

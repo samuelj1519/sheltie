@@ -1,0 +1,138 @@
+{
+  "started_utc": "2026-10-03T18:33:59.977554+00:00",
+  "freeze_sha256": "8818cf1af89a52c5c72e80766100ceb294d2ff4f10295007d535b6c891377aab",
+  "env": {
+    "RUSTC_WRAPPER": "",
+    "CARGO_TARGET_DIR": "/private/tmp/sheltie-c005-msrv-tests-target",
+    "RUSTUP_TOOLCHAIN": "1.85.0",
+    "SHELTIE_NEXTEST_VERSION_OVERRIDE": null,
+    "SHELTIE_TEST_ENGINE_BINARY": null,
+    "SHELTIE_TEST_EXPORT_BINARY": null
+  },
+  "steps": [
+    {
+      "name": "rustc-version",
+      "argv": [
+        "rustc",
+        "+1.85.0",
+        "-vV"
+      ],
+      "start_utc": "2026-10-03T18:33:59.982934+00:00",
+      "end_utc": "2026-10-03T18:34:00.133367+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "9e5ca763c214efa1c5a1ad84b9d9363e3d993a2ce3a7c896e24def1ce9b5b7aa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cargo-version",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "-V"
+      ],
+      "start_utc": "2026-10-03T18:34:00.144441+00:00",
+      "end_utc": "2026-10-03T18:34:00.193062+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "2d3bc7bb1b2e9f3bfeadb1b2a370e8462c3c3a0bc7481c2d8d5fa4e6953465bf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "nextest-version",
+      "argv": [
+        "/private/tmp/sheltie-completion-20261003/tools/nextest/cargo-nextest",
+        "--version"
+      ],
+      "start_utc": "2026-10-03T18:34:00.203806+00:00",
+      "end_utc": "2026-10-03T18:34:00.216412+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "2dd33b631455b8402a9aa8e3ddc37aca17e5c27e504a61bb1572f6c32708a755",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "msrv-build",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "build",
+        "-p",
+        "sheltie-cli",
+        "-p",
+        "sheltie-export",
+        "--all-features",
+        "--locked",
+        "--message-format=json"
+      ],
+      "start_utc": "2026-10-03T18:34:00.226119+00:00",
+      "end_utc": "2026-10-03T18:34:07.780293+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "6f5badc6f17c2b9c8e2bc06d552496212371098472126464d3338e2fff354554",
+      "stderr_sha256": "5c27d5baa4d02ff04b25d0997c44847109e848d9268b478aab73c5a6aaff76f1"
+    },
+    {
+      "name": "msrv-nextest",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "nextest",
+        "run",
+        "--all-features",
+        "--no-tests=fail",
+        "--no-fail-fast"
+      ],
+      "start_utc": "2026-10-03T18:34:07.811607+00:00",
+      "end_utc": "2026-10-03T18:36:39.186396+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "74b298146f0e87aa830d94233e0cbf1c8e13b17515dd5d121f1e8a5074af96ec"
+    },
+    {
+      "name": "msrv-doctest",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "test",
+        "--all-features",
+        "--doc",
+        "--locked"
+      ],
+      "start_utc": "2026-10-03T18:36:39.207447+00:00",
+      "end_utc": "2026-10-03T18:36:40.443274+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "owned_group_termination_requested": false,
+      "stdout_sha256": "40db857507b9e83bc0a2e48b75ca6c0d34407a8d8cfe3b489b9e829d4321323c",
+      "stderr_sha256": "b77464ec619707fb24baeb75dfc4153fd5c22ef3842c41c0d296ac91c91e4db1"
+    }
+  ],
+  "usage": null,
+  "actual_cargo_executables": {
+    "sheltie-export": {
+      "cargo_path": "/private/tmp/sheltie-c005-msrv-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/c005-msrv-frozen-binaries/sheltie-export",
+      "sha256": "17876365dbab3031e942cc151c3ac4512bdd4778aa31daa99facbe44c3c08832"
+    },
+    "sheltie": {
+      "cargo_path": "/private/tmp/sheltie-c005-msrv-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/c005-msrv-frozen-binaries/sheltie",
+      "sha256": "5f5194f1bf345b4028b89e1670e98cee5b2ab929a9a205c460e1322dc64edce4"
+    }
+  },
+  "test_binary_env": {
+    "SHELTIE_TEST_ENGINE_BINARY": "/private/tmp/sheltie-completion-20261003/c005-msrv-frozen-binaries/sheltie",
+    "SHELTIE_TEST_EXPORT_BINARY": "/private/tmp/sheltie-completion-20261003/c005-msrv-frozen-binaries/sheltie-export"
+  },
+  "result": "completed",
+  "source_unchanged": true,
+  "ended_utc": "2026-10-03T18:36:40.450834+00:00",
+  "total_elapsed_s": 160.47328791598557
+}

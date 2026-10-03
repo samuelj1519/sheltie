@@ -168,3 +168,11 @@ C004两个真实消费者明确当前只是普通接续，无真实running撤销
 原1.85只有check，当前新增实际1.85全feature测试和5doc。执行前固定runner/12min连续上限、失败/漂移即停、所有原argv/stdoutstderr/exit、实际Cargo JSON的1.85两个产物及专用target/frozen路径。CLI测试使用本nextest原Cargo产物，export测试绑定实际1.85新副本，旧1.98冻结binary仅资格引用。准备独立审正在进行，未运行T06/引擎替换、未接受原真实价值或发布。
 
 T05事前审查单一timeout处置finding已在实际运行前修复：每次启动预留8s，owned process group TERM后KILL不依赖leader是否已退出、实际leader exit与timed_out分列、全部成功前核连续总耗时<720。初版finding留原；Reviewer已核原62路径集合、旧四LEAK真实case/run、134与原C002工程字典逐同及37全部原PASS用例，不授未运行MSRV/M3。
+
+## C005-T06 当前原生Rust1.85实际测试
+
+T05提交5ccf9d4后启动真实runner，初实际rustc1.85.0/Cargo/nextest0.9.145输出与host aarch64-apple-darwin保存。MSRV Cargo build7.50s取得两个真实executable后复制到独立frozen目录，engine SHA-256 `5f5194f1bf345b4028b89e1670e98cee5b2ab929a9a205c460e1322dc64edce4`，export SHA-256 `17876365dbab3031e942cc151c3ac4512bdd4778aa31daa99facbe44c3c08832`；不是旧1.98二进制。
+
+实际nextest run `8d822614-fca3-453f-b28e-2d8345e810e4` 为951/951 PASS、2slow、0skip/LEAK，测试139.594s；5个compile-fail doc全PASS，两个无doc crate的0样本不计额外用例。全部6步骤exit0/无timeout，总构建/版本/测试160.4732879s，原12min内。37 C005用例逐PASS原行核，全192源前后SHA无漂移；argv/env/真实Cargo JSON/各stdoutstderr摘要与binary SHA全存msrv-execution.json和t06-result/source核对。初runid解析器期待冒号但真实header无冒号，从原UUID匹配修正，仅记录解析不变原raw。
+
+新MSRV测试填当前1.85实际执行缺口；原历史1.85只有check事实留原，原0.9.140/exit92/缓存/fresh时点/四LEAK cause unknown不追改。当前1.98 run424c与四类freshdeny按134/192同源输入精确引用，不说本轮重跑全部1.98或本刻刷新数据库；其他平台按用户范围排除。七真实撤销前提仍null、真实试用not_run，负前检不造样本。独立T06/M3审核正在进行，不以本actualtest推真实价值/接受或发布。

@@ -1,0 +1,20 @@
+{
+  "observed_utc": "2026-10-03T18:38:47.657738+00:00",
+  "rows": {
+    "sheltie-export": {
+      "Cargo_build_path": "/private/tmp/sheltie-c005-msrv-tests-target/debug/sheltie-export",
+      "build_frozen_SHA": "17876365dbab3031e942cc151c3ac4512bdd4778aa31daa99facbe44c3c08832",
+      "post_nextest_doc_target_SHA": "b0d9a38f153a347cef9f7ee36c1fcc03b222065baaaf6825f19d3322cf37f176",
+      "actual_frozen_SHA": "17876365dbab3031e942cc151c3ac4512bdd4778aa31daa99facbe44c3c08832",
+      "frozen_still_equal": true
+    },
+    "sheltie": {
+      "Cargo_build_path": "/private/tmp/sheltie-c005-msrv-tests-target/debug/sheltie",
+      "build_frozen_SHA": "5f5194f1bf345b4028b89e1670e98cee5b2ab929a9a205c460e1322dc64edce4",
+      "post_nextest_doc_target_SHA": "a3e4fa277bff955ce45d606de2e4ac2ce3808b43fa7669b8091b3fe715c2c971",
+      "actual_frozen_SHA": "5f5194f1bf345b4028b89e1670e98cee5b2ab929a9a205c460e1322dc64edce4",
+      "frozen_still_equal": true
+    }
+  },
+  "qualification": "Cargo target/debug mutable rebuild path is not frozen identity; exporter tests explicitly bound immutable copied1.85 binaries; ordinary CLI uses same1.85 nextest/Cargo built target. Do not infer original target bytes remained unchanged after nextest."
+}

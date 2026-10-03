@@ -1,5 +1,5 @@
 # C005 恢复交接
 
-当前仅C005 active；C004终验归档9862083后本package按原62字节保全恢复。T05独立准备审PASS、待提交：技术与真实前提负判断、134/192同源输入及37用例、Rust1.85新实际测试runner/上限已冻结，准备独审与治理已通过；T05提交后才T06执行。plan唯一状态权威。
+当前仅C005 active。T05事前准备已提交5ccf9d4且hooks/独审通过；T06实际Rust1.85进行中，runner所有原件在evidence/resume-20261004/msrv-execution.json及各stdout/stderr。rustc1.85.0、Cargo/nextest0.9.145版本与实际1.85构建均exit0，两个真实Cargo executable独立冻结，nextest951开始执行，doctest尚未完成；未提前标PASS。tool session90619，source192每步核无漂移，连续上限720s，失败即停。
 
-没有真实撤销事件/对象，七前提null，不能以C004同Attempt续接或fixture造replace样本。原真人/费用/旧LEAK因果/旧nextest92/fresh/MSRV编译边界留原。后续新1.85真实测试只补当前资格，不倒改旧raw。暂无源码改动，无推送/发布/宿主安装。
+七真实撤销前提仍null，只普通续接需求，原四LEAK原因unknown、原旧工具/MSRVcheck/fresh缓存事实不追改。无源码改动，无推送/发布/宿主安装。最终原件到齐才T06/M3独审、治理/提交后归档；plan为唯一进度权威。
