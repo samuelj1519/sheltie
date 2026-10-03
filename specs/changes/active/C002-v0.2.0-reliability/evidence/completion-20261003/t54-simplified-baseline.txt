@@ -1,0 +1,13 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.66s
+────────────
+ Nextest run ID a8dc0dc4-0810-41d9-9dc8-d2704c66d0c0 with nextest profile: default
+    Starting 6 tests across 19 binaries (397 tests skipped)
+        PASS [   0.046s] (1/6) sheltie-runtime fsx::synchronization_origin_contract_tests::a_seal_observation_failure_preserves_the_unsealed_original
+        PASS [   0.048s] (2/6) sheltie-runtime fsx::synchronization_origin_contract_tests::an_old_root_epoch_cannot_authorize_synchronizing_the_same_transplanted_object
+        PASS [   0.053s] (3/6) sheltie-runtime fsx::synchronization_origin_contract_tests::synchronizing_a_current_root_handle_preserves_its_original_and_all_names
+        PASS [   0.370s] (4/6) sheltie-runtime::result_artifact a_restored_output_cannot_erase_the_bad_length_already_observed_during_sealing
+        PASS [   0.379s] (5/6) sheltie-runtime::attempt_replace replacement_rejects_a_path_swap_after_opening_the_original_input
+        PASS [   2.699s] (6/6) sheltie-runtime::result_artifact submission_accepts_the_actual_output_limit_and_refuses_one_more_byte_before_commit
+────────────
+     Summary [   2.703s] 6 tests run: 6 passed, 397 skipped

@@ -1,0 +1,57 @@
+[
+  {
+    "name": "task",
+    "argv": [
+      "scripts/task.sh",
+      "C002-T54"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.474,
+    "sha256": "f25d3c9441b3200bd97b28618717e0e963c0b798ed9af87ff2d83e2e3128de54"
+  },
+  {
+    "name": "check-docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.282,
+    "sha256": "eee11cbb897912201205c474f3cbe96caaa16cb76cbd1feffdb4e1945bdee1b5"
+  },
+  {
+    "name": "check-specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.59,
+    "sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+  },
+  {
+    "name": "check-tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.26,
+    "sha256": "2bb8835e95343f056b6d86441f42041b053abe6a192ab17d661d8897dbadfcc2"
+  },
+  {
+    "name": "check-skill",
+    "argv": [
+      "scripts/check-skill.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.616,
+    "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+  },
+  {
+    "name": "check-core-vocab",
+    "argv": [
+      "scripts/check-core-vocab.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.188,
+    "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+  }
+]

@@ -568,3 +568,21 @@ set_mode 的拒绝对照明确旧 held A 已先被 chmod；只保证新名称 B 
 [最终工程](evidence/completion-20261003/t53-final-gates.json) 用真实 Cargo 返回路径与 [冻结 binary/SHA/env](evidence/completion-20261003/t53-frozen-binaries.json)：run `c74ca010-14aa-4a71-bd43-5cc7bef0d03a` 为 908/908、零 skip/零 LEAK；5 compile-fail、fmt/check/Clippy、Rust 1.85、默认特性、Task7/7和治理通过，134 工程输入/190 变异输入无漂移。[最终独立审查](evidence/completion-20261003/t53-final-review.md) 核准确8旧集合/映射、逐log/diff SHA、完整caller和静态限制，区分 raw 观察与顺序源码推导。
 
 原 finding、修前/修后源码与基线、独立零字节向量、实际样本及最终原文见 [原文档案](evidence/completion-20261003/t53-g06-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t53-oracle-archive.json) 全部一致。累计142/215项动态检测、14/215项限定静态处分，59项继续T43；不称旧M1、M2或全产品完成。
+
+
+## C002-T54 同步来源、封存长度和输出硬上限
+
+依据 [G07 独立准备](evidence/completion-20261003/g07-oracle-directions.md)。新增5项、复用既有C005同bytes新inode输入换名用例，共6项focused基线通过；Task归属仅新增5项。同步用真实旧根改名、同路径新根/新锁、原对象移入保留dev/ino，不手造来源。新增既有特性同步点在封存fstat/regular资格后、长度比较前，默认无新增I/O。
+
+真实Flow明确声明33554432：恰好32MiB submit成功、Ref.bytes/独立零字节SHA、0444、published=1、单一revision3审计；多1字节拒OUTPUT_TOO_LARGE、未登记请求、五表与文件身份/权限不变。另由真实已提交submit产生Ref，COMMIT后grow5→fstat已捕获5→恢复data4；仍EffectPending/StoreCorrupt，手写公共original与已提交身份、完整五表、published0、未封存权限均保留。不是只测持续growth被后SHA兜底。
+
+fixture探索经历revision类型编译101、错误SQL列、内部reply_json与公开original混比较，原文均保留；修后公共original完全手写，不调用生产投影生成期望。marker I/O错误先disarm并保留未封原件。整理仅提取身份tuple/将fixture TOML改字节相同raw string，pre-source与全部断言不变。[源码独立准备审查](evidence/completion-20261003/t54-source-review.md) 和整理后6/6通过。
+
+3代表31.704秒、最终5动态112.420秒均全部Caught、输入稳定；[逐ID账本](evidence/completion-20261003/t54-g07-dispositions.json) 分2错误epoch同步授权、1同bytes新inode输入绑定授权、1已观察封存坏长度恢复后submit成功、1合法exact cap被拒。输入没有different bytes变化，epoch单列有界API，raw未单独打印最终mode/published不伪称完整打印。第6项由 [完整当前caller静态证明](evidence/completion-20261003/t54-published-static-review.md) 限定Some+complete=false不可达，动态not_run、不记Caught、不扩为私有参数全域或未来caller等价。
+
+最终工程913/913、零skip/零LEAK与5compile-fail通过，其余工程/MSRV/default/Task5/5/治理通过；[最终独立审查](evidence/completion-20261003/t54-final-review.md) 已通过，T54标记done后核提交范围；M2仍not_run。
+
+
+[最终工程](evidence/completion-20261003/t54-final-gates.json) 使用 [Cargo真实产物路径/冻结SHA/env](evidence/completion-20261003/t54-frozen-binaries.json)，run `70094d27-8006-4142-a7c8-d15bbdf5f4f3` 913/913、零skip/零LEAK；5compile-fail、fmt/check/Clippy、Rust1.85、默认特性、Task新增5/5/完整focused6及治理全部通过，134工程与190变异输入无漂移。最终独审准确核5日志、6旧集合/映射、当前caller证明与完整输入/产物闭包。
+
+fixture失败、整理前/后源码、独立原文、样本和最终日志见 [原文档案](evidence/completion-20261003/t54-g07-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t54-oracle-archive.json) 全部一致。当前147/215动态检测、15/215限定静态处分，剩余53项继续T43；原stage1 Missed未改写，不称M2或全产品完成。

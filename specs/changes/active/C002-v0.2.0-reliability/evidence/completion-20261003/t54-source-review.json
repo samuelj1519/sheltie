@@ -1,0 +1,53 @@
+{
+  "result": "PASS_source_oracle_preparation_only",
+  "reviewer": "/root/oracle_review; no G07 direction/oracle/implementation authorship; read-only",
+  "base": "029e472e",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "f255394d0cfad7b7c99414f2ca560ecbb4054b27ec3fe490001f618f6e62bfb3",
+    "crates/sheltie-runtime/tests/result_artifact.rs": "71ed98c975472539051dc3a6f940f628fe0b786b8950c1010469429116f761dd"
+  },
+  "new_oracles": 5,
+  "reused_oracles": 1,
+  "baseline": {
+    "raw": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t54-wire-corrected-baseline.txt",
+    "sha256": "77b0b098c408831db06fed85ce8fe56466fba0a73bbce89e320de6e0ad6bb980",
+    "tests": 6,
+    "passed": 6,
+    "filtered": 397
+  },
+  "required_source_changes": [],
+  "fixture_failures_retained": [
+    "compile101 Response.revision numeric vs Some",
+    "SQL nonexistent snapshot_json before growth, worker released",
+    "wire original vs internal Response shape mismatch after release/join; corrected independently handwritten public original"
+  ],
+  "observer": "SafeFile seal reference after actual fstat/check_regular, before captured length/identity comparison and hash; existing feature default no IO",
+  "oracles": {
+    "sync": "real old root moved, new root/new lock and actual A transplanted; unchanged SafeFile origin; same lex root/path and later dev/ino/bytes matched; requires early InvalidRequest",
+    "output_cap": "real Repo.add/start/begin Flow max33554432 and same sparse actual output; exact cap submit revision3/published1/ref bytes+independent zeroSHA/mode0444; cap+1 OutputTooLarge exactactual/max/five rows unchanged, no submit row, original mode retained",
+    "seal": "real submit commit pause -> originalRef4/dataSHA -> same inode grows5 -> new final fstat/checks pause -> restore4 -> actual captured5 must still reject; EffectPending committed/request identity/causeStoreCorrupt/handwritten original/five rows same/published0/bytes mode identity retained",
+    "marker": "real non-directory carrier observer failure, synchronous disarm before assertions, actualIo path and ordinary unsealed original retained",
+    "reused_binding": "C005 real Attempt replace input A retained, same bytes new inode B; exactbeforecore input-open point; no new duplicate oracle; five rows unchanged before refusal"
+  },
+  "cleanup": "existing RendezvousWorker records both release files before first wait; Drop writes both/reaps worker/disarms; explicit finish joins before assertions; waits10s must never classify missing window deadline as caught",
+  "limits": [
+    "real Runtime WorkService integration, not actual CLI process commands",
+    "Store comparison starts after true submit COMMIT, not claims precommit rows remained unchanged for seal case",
+    "sync epoch bounded crate API, not full actual CLI epoch sequence",
+    "output sourceRef/mode+five table scope, not full whole business-tree bytes proof",
+    "final6 mapping/5dynamic+1static/gates not reviewed yet"
+  ],
+  "post_simplification_baseline": {
+    "tests": 6,
+    "passed": 6,
+    "filtered": 397,
+    "sha256": "4dfed15b258931db660aa332b2c2d145c0dd8a9a178637250f61be4cdd0638c8"
+  },
+  "simplification_review": {
+    "fsx_pre_new_module_identical": true,
+    "runtime_old_test_prefix_identical": true,
+    "new_result_tests_identical": true,
+    "two_TOML_values_independently_decoded_identical": true,
+    "metadata_helpers": "direct std fields only"
+  }
+}

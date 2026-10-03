@@ -1,0 +1,10 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.61s
+────────────
+ Nextest run ID c045de65-0a05-486b-8a52-770b7e20c7ff with nextest profile: default
+    Starting 3 tests across 19 binaries (397 tests skipped)
+        PASS [   0.040s] (1/3) sheltie-runtime fsx::synchronization_origin_contract_tests::an_old_root_epoch_cannot_authorize_synchronizing_the_same_transplanted_object
+        PASS [   0.040s] (2/3) sheltie-runtime fsx::synchronization_origin_contract_tests::synchronizing_a_current_root_handle_preserves_its_original_and_all_names
+        PASS [   0.289s] (3/3) sheltie-runtime::attempt_replace replacement_rejects_a_path_swap_after_opening_the_original_input
+────────────
+     Summary [   0.290s] 3 tests run: 3 passed, 397 skipped

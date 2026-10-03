@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+────────────
+ Nextest run ID 664da1ed-0073-4cf6-afe1-f1e3ca82525d with nextest profile: default
+    Starting 5 tests across 60 binaries (908 tests skipped)
+        PASS [   0.033s] (1/5) sheltie-runtime fsx::synchronization_origin_contract_tests::synchronizing_a_current_root_handle_preserves_its_original_and_all_names
+        PASS [   0.033s] (2/5) sheltie-runtime fsx::synchronization_origin_contract_tests::a_seal_observation_failure_preserves_the_unsealed_original
+        PASS [   0.033s] (3/5) sheltie-runtime fsx::synchronization_origin_contract_tests::an_old_root_epoch_cannot_authorize_synchronizing_the_same_transplanted_object
+        PASS [   0.280s] (4/5) sheltie-runtime::result_artifact a_restored_output_cannot_erase_the_bad_length_already_observed_during_sealing
+        PASS [   2.612s] (5/5) sheltie-runtime::result_artifact submission_accepts_the_actual_output_limit_and_refuses_one_more_byte_before_commit
+────────────
+     Summary [   2.614s] 5 tests run: 5 passed, 908 skipped

@@ -2901,6 +2901,8 @@ impl SafeFile {
     pub(crate) fn verify_seal_reference(&self, sha256: &str, bytes: u64) -> Result<()> {
         let before = fstat(&self.file).map_err(|e| map_fs_error(self.path.as_str(), e))?;
         check_regular_stat(self.path.as_str(), &before)?;
+        crate::failpoint::rendezvous("seal_reference_after_stat", self.path.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
         if before.st_dev as u64 != self.meta.dev()
             || before.st_ino as u64 != self.meta.ino()
             || before.st_size as u64 != bytes
@@ -5656,5 +5658,123 @@ mod external_read_contract_tests {
         assert_eq!(object_identity(&after), object_identity(&before));
         assert_eq!(std::fs::read(&carrier).unwrap(), b"retain carrier");
         assert_eq!(std::fs::read_dir(&source).unwrap().count(), 1);
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod synchronization_origin_contract_tests {
+    use super::*;
+
+    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32, u64) {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.mode(),
+            metadata.nlink(),
+        )
+    }
+
+    // Task: C002-T54
+    #[test]
+    fn synchronizing_a_current_root_handle_preserves_its_original_and_all_names() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("original").unwrap();
+        fs.write_new(&lock, &rel, b"legitimate original bytes")
+            .unwrap();
+        let observed = fs.open_regular(&rel).unwrap();
+        let path = home.rel("original").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        fs.sync_regular_file_handle_locked(&lock, &rel, &observed)
+            .unwrap();
+        let after = std::fs::metadata(path.as_path()).unwrap();
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"legitimate original bytes"
+        );
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T54
+    #[test]
+    fn an_old_root_epoch_cannot_authorize_synchronizing_the_same_transplanted_object() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        let old_lock = home.acquire_lock().unwrap();
+        let old_fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("original").unwrap();
+        old_fs
+            .write_new(&old_lock, &rel, b"held original bytes")
+            .unwrap();
+        let observed = old_fs.open_regular(&rel).unwrap();
+        let path = home.rel("original").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let old_root = directory.path().join("retained-home");
+        let old_root_metadata = std::fs::metadata(&root).unwrap();
+        std::fs::rename(&root, &old_root).unwrap();
+        let new_lock = home.acquire_lock().unwrap();
+        let new_fs = ManagedFs::open_existing(&home).unwrap();
+        let new_root_metadata = std::fs::metadata(&root).unwrap();
+        assert_eq!(old_root_metadata.dev(), new_root_metadata.dev());
+        assert_ne!(old_root_metadata.ino(), new_root_metadata.ino());
+        std::fs::rename(old_root.join("original"), path.as_path()).unwrap();
+        let Error::InvalidRequest { reason } = new_fs
+            .sync_regular_file_handle_locked(&new_lock, &rel, &observed)
+            .unwrap_err()
+        else {
+            panic!("a stale managed origin must be refused before synchronizing")
+        };
+        assert!(reason.contains("文件句柄身份与同步路径不一致"), "{reason}");
+        let after = std::fs::metadata(path.as_path()).unwrap();
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"held original bytes"
+        );
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert!(old_root.join(".lock").is_file());
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T54
+    #[test]
+    fn a_seal_observation_failure_preserves_the_unsealed_original() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("original").unwrap();
+        fs.write_new(&lock, &rel, b"data").unwrap();
+        let observed = fs.open_regular(&rel).unwrap();
+        let path = home.rel("original").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let carrier = directory.path().join("invalid-sync-directory");
+        std::fs::write(&carrier, b"retain carrier").unwrap();
+        crate::failpoint::arm_rendezvous("seal_reference_after_stat", path.as_str(), &carrier)
+            .unwrap();
+        let result = observed.verify_seal_reference(
+            "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7",
+            4,
+        );
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::Io {
+            path: reported_path,
+            ..
+        } = result.unwrap_err()
+        else {
+            panic!("failed seal observation must refuse before hashing or chmod")
+        };
+        assert_eq!(reported_path, path.as_str());
+        assert_eq!(std::fs::read(path.as_path()).unwrap(), b"data");
+        let after = std::fs::metadata(path.as_path()).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"retain carrier");
+        assert!(!home.store_path().as_path().exists());
     }
 }

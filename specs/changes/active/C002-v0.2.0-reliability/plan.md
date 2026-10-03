@@ -340,7 +340,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T51 | done | Codex；独立 Reviewer | G04 精确27全部动态检测；894全回归与独审通过 |
 | C002-T52 | done | Codex；独立 Reviewer | G05 精确16全部动态检测；901全回归及独审通过 |
 | C002-T53 | done | Codex；独立 Reviewer | G06 精确8：7动态/1分类限定静态；908全回归及独审通过 |
-| C002-T54 | not_run | Codex；独立 Reviewer | G07 同步来源、封存和输出边界；T53 提交后实施 |
+| C002-T54 | done | Codex；独立 Reviewer | G07 精确6：5动态/1当前caller静态；913全回归及独审通过 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
