@@ -100,3 +100,5 @@ protocol/quality/templates记录实际任务、连续使用者/history、模型/
 独立补核first-use实际字段：status.data含resume/revision/effects_pending/pending_publish，resume含attempt/brief_path/draft_outputs/inputs；额外self version退出0，schema_version4/version0.3.0-rc.1，原件preparation/self-version.json。前13条原件不修改，不把单次机制续接查询算真实关闭重开。
 
 T01作者文件的8处多余EOF空行在cached diff检查被发现，仅规范结尾单换行，未改方法词句。原CLI/闭包保真存preparation/prior-authoring，因Workbook字节摘要改变，另用新Home按规范后实际输入重跑13条CLI全部PASS，并登记新asset-closure；不把旧digest当新输入。
+
+C007-M1本轮限定PASS，candidate53ceed8d完整SHA；原正式准入与六run不变，未重跑同输入CLI/引擎。docs/spec/tests及scope另验。

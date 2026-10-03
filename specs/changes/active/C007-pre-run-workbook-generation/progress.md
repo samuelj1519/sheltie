@@ -1,3 +1,3 @@
 # C007 交接
 
-T00/T01技术准备完成，下一步独立M1审资产/准入缺项。私有方法、同源Native说明、first-use、protocol/oracle/templates齐全，真实CLI合法/非法及临时3节点/5结果已执行；正式三sample/actor/history/会话/预算/质量等pending，six runs not_run。M1不批准正式试用，T02只登记真实缺项规划槽位；无产品源码/宿主配置改动。
+T01/M1技术资产与真实准入缺项审阅完成，冻结53ceed8d。原正式M1仍not_run，下一T02只登记six planning slots，所有actual actors/history/host/budget/quality/usage/cost保持null；不创建正式run.json/ID。T03据缺项报告未知价值，再M2审准备/延期交接。
