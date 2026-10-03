@@ -1,0 +1,78 @@
+{
+  "format": "c008-target-preflight/v1",
+  "source_head": "fd11f96d98eb987a89546f81fed9dc76c509b65d",
+  "observed_at": "2026-10-03T02:18:39.821943+00:00",
+  "scope": "Authorized repository declaration/condition inventory; no probe or formal host observation",
+  "target": {
+    "workbook_dir": null,
+    "flow_file": null,
+    "node": null,
+    "kind": null,
+    "name": null,
+    "kind_name": null,
+    "declared_version": null,
+    "declared_digest": null,
+    "declared_source": null
+  },
+  "host": {
+    "name": null,
+    "actual_version": null,
+    "search_selection_identity_rules": null,
+    "authorized_read_roots": null
+  },
+  "author_necessity_confirmation": null,
+  "repeated_manual_friction_events": null,
+  "preparation_maintenance_observation_budget": null,
+  "minimum_meaningful_net_benefit": null,
+  "real_cost_data": null,
+  "probe_adoption": "not_adopted",
+  "original_obligations": {
+    "probe_config_implementation": "not_run",
+    "mechanism_fixtures_and_tests": "not_run",
+    "probe_interval_no_write_validation": "not_run",
+    "M1_original_mechanism_admission": "not_run",
+    "real_manual_script_comparison": "not_run",
+    "real_scope_identity_observations": "not_run",
+    "net_cost_or_value_analysis": "not_run",
+    "M2_original_real_value_review": "not_run"
+  },
+  "reason": "The supplied project has zero explicit manifest/node host requirements and provides no selected real required kind:name, author confirmation, fixed actual host/version/rules/read scope, repeated friction, or experiment budget. C007 formal runs and host experience are not_run. Original C008 adoption prerequisites are therefore missing. Do not fabricate a requires declaration, host target, dependency or friction event to start a probe.",
+  "evidence_scope": {
+    "inventory": "inventory.json",
+    "evidence_files": [
+      {
+        "path": "specs/changes/active/C008-dependency-readiness/adoption.md",
+        "bytes": 629,
+        "file_sha256": "6f228510e3aeca0c0bdccaccf2f91ed6b616f6c828d096e4681fe560deff8432"
+      },
+      {
+        "path": "specs/changes/active/C008-dependency-readiness/README.md",
+        "bytes": 3839,
+        "file_sha256": "ec058dc04ea14d12f331d1740ac24599ab5cff922485c4a6210f26b7c01f8cfc"
+      },
+      {
+        "path": "specs/changes/active/C008-dependency-readiness/spec.md",
+        "bytes": 5005,
+        "file_sha256": "bd0d40694f9f0ba902cd464e844c3c80be98b494f9107924e6df2450236be9a4"
+      },
+      {
+        "path": "specs/changes/active/C008-dependency-readiness/validation.md",
+        "bytes": 5978,
+        "file_sha256": "9b951e1b8f446e56d87c9d5ff4ff131ee9dacf840cc24aa986d03bede098c47d"
+      },
+      {
+        "path": "specs/changes/completed/C007-pre-run-workbook-generation/experiments/protocol.md",
+        "bytes": 3807,
+        "file_sha256": "0ad83ea40f5603818c57c79e414abd5157eb1697895e0197b770ec571d190fe9"
+      }
+    ],
+    "excluded": [
+      "host configuration or installed-skill directories",
+      "credentials or process environment",
+      "Store or Work state",
+      "host resource execution/network/install",
+      "probe/config/fixture/test skeleton creation"
+    ],
+    "outcome_limit": "No host scanned; this is neither mismatch nor a proof of host-resource absence. Technical declaration inventory completion is distinct from probe adoption and original mechanism/real-value acceptance."
+  }
+}

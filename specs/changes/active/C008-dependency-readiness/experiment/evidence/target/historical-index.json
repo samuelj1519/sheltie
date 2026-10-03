@@ -1,0 +1,21 @@
+{
+  "format": "c008-historical-inventory-index/v1",
+  "copies": [
+    {
+      "original_path": "/private/tmp/c008-requires-inventory.json",
+      "archived_path": "historical/before-eof-normalization.json",
+      "bytes": 17326,
+      "sha256": "645bebaf5eb23c0322698664efa4146d6b80a8ff1fd339f3cdac93a92b917b26",
+      "label": "Historical inventory: old active C007 path and prior HEAD/SHA identities. Preserved exactly; not current scope or validation evidence."
+    },
+    {
+      "original_path": "/private/tmp/c008-requires-inventory-final.json",
+      "archived_path": "historical/after-eof-normalization-active-c007.json",
+      "bytes": 19106,
+      "sha256": "c81d9a0c4c579b9556bdda620f5980379816fffb07bbf300f282e91f6afce23d",
+      "label": "Historical inventory: old active C007 path and prior HEAD/SHA identities. Preserved exactly; not current scope or validation evidence."
+    }
+  ],
+  "current_inventory": "inventory.json",
+  "limit": "These are earlier read-only inventories, not probe observations or host evidence."
+}

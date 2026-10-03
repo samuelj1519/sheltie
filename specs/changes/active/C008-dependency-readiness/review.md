@@ -23,3 +23,9 @@
 每任务短语义复核保留；阶段对同闭包已经核准的工作引用原候选与 run，不重复全套门禁。M1 是准备就绪，不是公开功能、用户价值或 M2 PASS。Reviewer 不编写被审修复，问题交复杂作者补接口/测试并重固定基准。
 
 文档、规格、测试声明/归属、五份任务 TOML/plan 对齐与 diff 静态检查通过；没有执行未来 Rust 用例或真实实验。实际命令与原文见 [validation](validation.md)，任务状态只见 [plan](plan.md)。全部实际采用义务完成后才能 completed；发布、推送、合并和外部安装不随方案通过发生。
+
+## C008-T01 本轮前检短审
+
+结论：`PASS`，仅technical preflight，原mechanismM1仍not_run。独立Reviewer限定6Workbook复算6/6/24、0requires、15resource绑定/13文件；29源size/SHA、6target证据size/SHA与两个历史tmp原文一致。preflight全实际前提null、probe未采用、8原义务not_run，不推host不存在/mismatch；原三态/来源/identity/no-write/真实对照及成本条件保留未来语义，不当已实现能力。
+
+本轮只读，没有host/Store/env/资源执行或probe/config/fixture半脚本；两处措辞明确原probe资产尚未创建、29文件字节读取scope，包括resource与C007instruction/README。没有input/规则改变，不复跑scanner/CLI/engine。

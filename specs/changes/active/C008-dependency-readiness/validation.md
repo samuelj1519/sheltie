@@ -66,3 +66,11 @@ T01 复杂模型完整制作 probe、手写 fixtures/tests、runbook 并完成�
 保存实际命令、raw run ID、stdout/stderr/退出码、配置/脚本/fixture 标识及宿主环境。未知、中断、未采用或无样本不能改写成 PASS；复用必须保留同输入闭包和原 run ID。静态文档检查不进入上表机制或价值结果。
 
 本轮采用前提盘点/授权延期交接，原probe未采用与全部机制/真实义务not_run。C007十二份preparation/evidence原文保真；不修改原正式数据门槛。
+
+## C008-T01 前提证据与原规则边界
+
+基准 `fd11f96d98eb987a89546f81fed9dc76c509b65d`。只读[evidence/target](experiment/evidence/target/README.md)盘点6manifest/6Flow/24Node：manifest/node requires均0，resource.*15绑定/13文件是冻结参考材料。29当前声明/Flow/resource/私有方法源文件SHA读后复核一致；两个历史/tmp清单原字节保留、旧path/HEAD明确历史。没有扫描host/Store/env或新增依赖。
+
+[preflight](experiment/evidence/target/preflight.json)实际kind:name/作者必需确认、host/version/规则/roots、重复摩擦、预算/benefit/cost均null；probe not_adopted，原8机制/实际观察/value义务not_run。不把0声明解释成host资源不存在或mismatch，也不以resource.*推requires。
+
+[protocol](experiment/protocol.md)/[host-rule](experiment/host-rule.md)/[runbook](experiment/runbook.md)保原完整采用/机制/三态/身份/no-write/真实对照条件；真实目标缺失不创建probe/config/fixture/test或运行占位命令。技术盘点时间不当人工实验投入；原准备/维护/观察成本unknown，费用/usage不估算。无Rust/机制测试实体，test_files为空，不跑零task.sh或以import错误当拒绝。

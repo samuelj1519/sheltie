@@ -1,3 +1,3 @@
 # C008 交接
 
-T00仅采用真实条件前检/交接。下一T01读项目声明并复核0requires、区别resource.*，列目标/host/version/rules/范围/摩擦/预算缺项；不开发probe或扫host。原采用not_adopted、机制/真实价值not_run，后续按原条件补。
+T01本轮条件前检完成：6/6/24、0requires，29当前源SHA与历史清单有原件；目标/host/version/规则/范围/重复摩擦/预算缺失，probe not_adopted。下一M1只独审前检/规则边界/补验，原probe机制准入not_run；T02记录具体原操作未执行，T03分析未知净成本，M2审本轮交接。无host/Store/产品代码写入或probe/fixture。

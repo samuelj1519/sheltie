@@ -8,8 +8,8 @@ allow_test_changes = false
 # T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。
 
 [C008-T01]
-files = ["specs/changes/active/C008-dependency-readiness/experiment/protocol.md", "specs/changes/active/C008-dependency-readiness/experiment/host-rule.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.toml", "specs/changes/active/C008-dependency-readiness/experiment/runbook.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.py", "specs/changes/active/C008-dependency-readiness/experiment/evidence/target", "specs/changes/active/C008-dependency-readiness/experiment/evidence/mechanism", "specs/changes/active/C008-dependency-readiness/review.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/progress.md"]
-test_files = ["specs/changes/active/C008-dependency-readiness/experiment/test_probe.py", "specs/changes/active/C008-dependency-readiness/experiment/fixtures"]
+files = ["specs/changes/active/C008-dependency-readiness/design.md", "specs/changes/active/C008-dependency-readiness/experiment/protocol.md", "specs/changes/active/C008-dependency-readiness/experiment/host-rule.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.toml", "specs/changes/active/C008-dependency-readiness/experiment/runbook.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.py", "specs/changes/active/C008-dependency-readiness/experiment/evidence/target", "specs/changes/active/C008-dependency-readiness/experiment/evidence/mechanism", "specs/changes/active/C008-dependency-readiness/review.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/progress.md"]
+test_files = []
 allow_test_changes = true
 
 [C008-M1]

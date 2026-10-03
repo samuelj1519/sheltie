@@ -1,0 +1,38 @@
+{
+  "format": "c008-target-evidence-byte-manifest/v1",
+  "source_head": "fd11f96d98eb987a89546f81fed9dc76c509b65d",
+  "observed_at": "2026-10-03T02:18:39.821943+00:00",
+  "scope": "Files under target evidence only; byte-manifest.json excluded from its own list",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1795,
+      "sha256": "e2272532997dce5535ed3638aa702e5093fc607d8d6a593250c4f3a880aa631b"
+    },
+    {
+      "path": "historical/after-eof-normalization-active-c007.json",
+      "bytes": 19106,
+      "sha256": "c81d9a0c4c579b9556bdda620f5980379816fffb07bbf300f282e91f6afce23d"
+    },
+    {
+      "path": "historical/before-eof-normalization.json",
+      "bytes": 17326,
+      "sha256": "645bebaf5eb23c0322698664efa4146d6b80a8ff1fd339f3cdac93a92b917b26"
+    },
+    {
+      "path": "historical-index.json",
+      "bytes": 1037,
+      "sha256": "d7fa4fc42eed1750e30f24008acfed9dd6d50dec99c847f684edc79b8b95f4fa"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 23873,
+      "sha256": "edfe2ef241785683b1b4078f6e392d39f4b024170770458ba1cb9931fffff61e"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 3381,
+      "sha256": "e5c2d29335a4eb3bcd5c98dbd8659dedc1628c007cac190c469b0c52b625646e"
+    }
+  ]
+}
