@@ -1,6 +1,6 @@
 # C008 验证：机制与真实净成本
 
-Candidate: `none`
+Candidate: `fedec201e2f71df8042088fd3caeed50519a497b`
 
 状态：`active`；采用决定尚无真实对象，探针与独立里程碑均为 `not_run`。
 
@@ -52,7 +52,7 @@ T01 复杂模型完整制作 probe、手写 fixtures/tests、runbook 并完成�
 
 ## 4. 执行记录
 
-| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| 原机制/真实义务 | 原计划模式 | 待补输入 | 原计划命令 | 原状态 | 原计划证据 |
 | --- | --- | --- | --- | --- | --- |
 | 真实必需资源与重复摩擦 | not_run | 待实际声明与事件 | 未执行 | not_run | 无 |
 | 宿主规则与授权范围 | not_run | 待单宿主固定版本 | 未执行 | not_run | 无 |
@@ -84,3 +84,32 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## C008-T03 前检边界与未知成本报告
 
 开工2229b9ac9ad4ef9d85b08dec3c2a43c3d321bd63。[report](experiment/report.md)仅从6/6/24、0requires、15resource/13文件及29SHA和原条件缺项作结论；不扩为全host或所有任务资源不存在/无摩擦。没有probe/实际人观察和P/M/复核/误报/近期复用原件，成本/收益unknown/null，不估算避免损失或ready，不把C007机制当自然需求。当前保留条件和补验、不启动未采用机制，不修改原件/门槛或新增通用平台。
+
+## 本轮前检与授权延期交接验收
+
+本表只核当前已采用scope，原条件probe未采用/机制与真实对照未执行。77f09112起当前inventory/规则/protocol/runbook及原件未变，独审按相同输入引用；没有scanner/probe/CLI/引擎重新执行，也没有RootSHA以外新的工具行为。
+
+| Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| 当前声明范围与resource/host要求区别 | executed | 明确6Workbook、6Flow、24Node与29当前源文件SHA | 独立TOML计数/每file尺寸SHA复核，T01/M1 | PASS | [inventory](experiment/evidence/target/inventory.json)、[manifest](experiment/evidence/target/byte-manifest.json) |
+| 实际采用前提缺失，禁止制造依赖或ready事实 | executed | target/host/rules/roots/necessity/friction/budget全null、probe未采用 | 独立前检字段/scope复核 | PASS | [preflight](experiment/evidence/target/preflight.json)、[scope](experiment/evidence/target/README.md) |
+| 未来规则与完整补验入口保持原标准 | executed | 不存在probe/config/fixture，文案与原spec/design一致 | 独立protocol/host-rule/runbook审阅 | PASS | [protocol](experiment/protocol.md)、[rule](experiment/host-rule.md)、[runbook](experiment/runbook.md) |
+| 八原义务未执行原因及unknown投入保真 | executed | T02只新增具体skip记录，无actual IDs/观察/成本 | 逐项条件/结果/字段复核 | PASS | [8项原记录](experiment/evidence/real/README.md) |
+| 不扩展0声明到host不存在/无负担或价值结论 | executed | T03只分析当前声明与缺数据，source/原件/规则未变 | 独立M2限定分析复核 | PASS | [report](experiment/report.md) |
+| 历史原文/当前文档/归档scope与补验 | executed | 两tmp历史清单原字节+当前29SHA，原C00712raw保真 | docs/spec/tests/diff/task与独立检查 | PASS | [history](experiment/evidence/target/historical-index.json)、[archive](evidence/archive-c007-raw-preservation.json)、[review](review.md) |
+
+## 原条件机制与真实实验延期
+
+| 原义务 | 结果 | 补验前提 |
+| --- | --- | --- |
+| 真实必需目标/作者确认/重复摩擦 | not_run | 提供真实kind:name/Workbook/Flow/Node及可复核事件，不能用resource.*替代 |
+| 固定host/version/规则/获准root与预算 | not_run | 完整/部分搜索依据和字段身份语义、实际预算/阈值在开发前冻结 |
+| probe/config/独立fixtures/tests与原M1 | not_run | 机制not_adopted，前提满足再完整制作并独立机制准入 |
+| probe no-write/matches-mismatch-unknown实际验证 | not_run | 没有脚本，文案不代实际试验，不从exit0推ready |
+| 实际人工/script同条件观察、成本/复用与原M2 | not_run | 真观察者/顺序/活动/unknown误报/维护/费用原件，未知不当0 |
+
+当前task done/limited review PASS只表示前检与授权延期交接完成。原probe/conditional实验没有实现或通过；不承诺host持续ready，不授权安装/发布或新增产品机制。
+
+## C008-M2 本轮限定结论
+
+独立审定fedec201e2f71df8042088fd3caeed50519a497b，前检/8未执行记录/未知投入报告限定PASS，无必改。原声明29SHA和规则资产不变，不扩观察范围；真实目标/host/预算缺项不造ready/收益。原机制与真实义务仍not_run，原件完整保留，后续T04保真归档不增加执行/发行授权。

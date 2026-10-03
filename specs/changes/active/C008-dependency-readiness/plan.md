@@ -27,7 +27,8 @@ T01 由复杂模型或有经验作者完整制作小 probe、必要 fixtures/tes
 | C008-M1 | done | 独立复杂模型 Reviewer | 前检/缺项保真独审；原机制准入not_run | T01 |
 | C008-T02 | done | 简单模型 / 初级开发者；真实观察者执行真实动作 | 原机制/真实对照的具体未执行记录 | M1 |
 | C008-T03 | done | 复杂模型产品分析者 | 未知成本/覆盖边界和原条件补验报告 | T02 |
-| C008-M2 | todo | 独立复杂模型 Reviewer | 本轮前检/延期交接独审；原真实价值not_run | T03 |
+| C008-T04 | todo | root；独立Reviewer | 本轮限定归档、原件保真与无active索引 | M2限定PASS |
+| C008-M2 | done | 独立复杂模型 Reviewer | 本轮前检/延期交接独审；原真实价值not_run | T03 |
 
 M1/M2 Reviewer 均未参与被审脚本、fixtures、tests、oracle、实现或分析。任务短审和里程碑在同一闭包、义务下引用同一证据，不双跑；输入变化只核受影响义务。提交一个任务一个提交，按工程规范和 check-task 核范围。无 Rust 归属测试，不运行 scripts/task.sh；测试归 T01，发现数必须非零，import 错误不算机制拒绝通过。
 
@@ -97,3 +98,7 @@ fixture PASS、静态审查或退出 0 不替真实收益。缺项保留 not_run
 基线75b81ebed655693844ae417bb7d501a1b12a4387。用户授权顺序执行并允许缺环境/数据操作记录跳过；当前没有真实必需kind:name、固定host/version/rules、读取范围、重复摩擦或预算。本轮只完成T01声明/条件盘点与规则边界/runbook，M1审前检保真；T02登记原观察/探针机制not_run；T03报告未知成本与补验；M2审本轮交接。原probe not_adopted及机制/真实验收not_run完整保留，不添加requires或扫host制造目标。
 
 原T01开发probe/test、原M1机制准入、原T02人工/script对照、原M2价值结论都在实际条件补齐后再按原标准执行。本轮task done仅可执行前检与授权延期交接，不表示原conditional实验完成。各CLI/声明读取30秒反馈预算，不作为人工实验预算或安装授权。
+
+### C008-T04：保真归档与本轮关闭
+
+按用户顺序授权完成所有可执行方案交付后，归档C008本轮前检/缺项范围；原probe未采用和真实义务not_run保留。仅当前索引/链接/作者状态说明与本package归档，所有evidence和声明source字节不改。root开发目标0.3.0/未发布RC保持，无active不发明方案或发布tag。独立核原件保真、README/plan/spec/design/review/validation状态一致和明确限定结果；docs/spec/tests/diff/范围检查通过再提交。未变源码/原832/842/CLI等原run不重跑。

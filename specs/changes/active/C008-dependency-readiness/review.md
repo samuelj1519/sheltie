@@ -35,3 +35,11 @@
 Candidate: `77f09112f1d868a79368037b3c650480bb85c442`。
 
 结论：`PASS`，仅前检/真实条件缺项/未来规则/补验入口。独立Reviewer核完整commit与experiment无后续diff，复用6声明/24Node/29SHA及两历史原件和规则/runbook独审，无必改。probe仍not_adopted、原机制M1 not_run，无host readiness观测。T02只记录8未执行义务及null成本，不能扫host/造requires/创建probe/config/fixtures。
+
+## C008-M2 本轮最终限定审阅
+
+Candidate: `fedec201e2f71df8042088fd3caeed50519a497b`。
+
+结论：`PASS`，仅前检/真实条件缺项/授权延期补验交接。独立Reviewer未参与准备或分析，核77f09112至候选只有8not_run表/report与索引，inventory/rules/protocol/runbook无diff，声明/SHA不扩到host或全部未来任务，无实际run/ready/成本/value虚构。
+
+probe未采用；原配置/脚本/fixtures/no-write/机制M1/实际paired/覆盖/净收益和原M2真实结果全部not_run。无host/Store/env扫描、源码/安装/发布或新机制许可。当前taskdone或completed只表示本轮前检与补验交接完成，不把原条件实验变通过。

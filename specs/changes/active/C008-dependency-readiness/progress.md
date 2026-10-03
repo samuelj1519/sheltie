@@ -1,3 +1,3 @@
-# C008 交接
+# C008 最终交接
 
-本轮前检、M1、八原义务未执行记录及边界报告完成，待M2独审。原机制未采用、脚本/no-write/正式人工script对照/真实净成本与原M1/M2 not_run。不得据本轮taskdone当probe或条件实验通过；原target/host/规则/范围/摩擦/预算补齐后按runbook再独立采用。
+本轮条件前检、原机制/真实义务未执行记录、未知净成本报告及M2限定独审完成。当前仅在明确六Workbook/29源文件范围确认0requires，不能推host不存在。probe not_adopted，原机制与实际paired/ready/value not_run。下一T04保真归档/无active索引；不改产品/host，不安装发布，不替原实验接受。
