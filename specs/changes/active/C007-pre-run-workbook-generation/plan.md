@@ -107,7 +107,7 @@ M1 只批准该实验准备是否可以进入实际试用，不宣布真实收�
 | C007-T04 | done | Root；独立准入Reviewer | C006-M3 00e010 | 三真实文档任务/独立副本/相同方法/actor与顺序/质量成本预算冻结 |
 | C007-T05 | done | 新连续coordinator与实际worker；独立质量Reviewer | T04提交与准入 | 六实际配对run、一次同阶段两arm冷agent接续、五成果/完整patch/独立质量/代理接受 |
 | C007-T06 | done | Root分析者；独立Reviewer | T05 | 实际历史与完整自动agent投入复算、方向与当前可用文档选择 |
-| C007-T07 | not_run | Root；独立Reviewer | T06 | 已质量达标的三真实文档patch实际应用到本产品，绝不复制实验流水为根spec |
+| C007-T07 | done | Root；独立Reviewer | T06 | 已质量达标的三真实文档patch实际应用到本产品，绝不复制实验流水为根spec |
 | C007-M3 | not_run | 未写标准/方法/产物/分析的Reviewer | T07 | 新协议完整试用与实际交付限定验收，原代码/真人not_run留原 |
 
 ### C007-T04 准备并准入当前真实agent配对

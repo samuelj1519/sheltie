@@ -174,3 +174,9 @@ T05末独立质量原件final-quality-report：K72/K95/K33/K64完整交付质量
 ## C007-T06 限定分析
 
 独立复核analysis.md/json及全部实际summary/末quality/audit PASS，无必修。Native已知窗口3347.299385s、Sheltie3152.642834s是含失败/stop/Rootaccept的描述量，不当同quality性能比较；P/E/S/M分项、历史P/usage/人类分钟/付费unknown，15%not_evaluable，不声称改善或无价值。全部成本/偏差与partialblind限制保留。冻结选择rule据末quality选run2/run4/run5的原实际patch，未应用不说Root有newguide，不提出无证据新引擎runner/状态/probe。T07实际应用与M3尚待，整体22:50:26不变。
+
+## C007-T07 真实文档交付应用
+
+T06分析cb315f5后按冻结规则选K72/run2（source-start仅完整合格）、K95/run4（continuity仅完整合格）、K33/run5（两handoff都合格固定Native）。Root三原actualpatch分别gitapply--check/apply0，授权README+三个guide逐byte/SHA等selectedcandidate；样本/标准/失败原件无改。Root唯一额外创作是guides README三入口，未把实验流水写rootspec。新指南作用与00e010冻结验收卡/最新specs入口分开。
+
+独立末quality同Reviewer对actualpatch/Rootfile/candidateSHA及index新link小增量PASS，无必修，原报告source_line在study/product-application-independent-review.json；未跑无关Rust/CLI，不代人类接受/发布。docs/spec/skill/tests/corevocab治理全0，原mandatoryquality与协议偏差/15%not_evaluable保持。提交/最终M3全归档和总体成本随后实际核。

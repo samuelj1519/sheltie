@@ -51,3 +51,7 @@ Reviewer /root/c007_admission_review原完整first-use/探针原件缺口needsch
 ## C007-T06 独立分析复核
 
 Reviewer /root/c007_admission_review未写分析/样本/标准，复算真实R/failedstop/proxyUTC、unknown分项及15%前提不足、原规则选择准确，PASS无必修；原finalsource_line存study/analysis-independent-review.json。只授限定分析，不授原代码真人实验、严格公平/价值或尚未应用文档。
+
+## C007-T07 实际应用独立增量
+
+/root/c007_final_quality只读核三原patch与中性原件、Root四授权文件candidateSHA逐same、guideindex只新3links、交接时点与lateststate界面清晰，PASS无必修。原样本质量与协议限制不改，当前应用不授人类/发布结论，实际最终消息保source_line。

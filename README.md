@@ -10,6 +10,8 @@ v0.2.0 的发布范围为 macOS aarch64；其余平台按用户决定排除，�
 
 ## 快速开始
 
+使用当前 `0.3.0-rc.1` / schema 4 源码候选，先读 [当前源码快速开始](specs/guides/source-quick-start.md)：从源码构建，以新的显式管理根运行 `code-change` 并取得成果。
+
 装引擎（本版本 macOS aarch64）：
 
 ```bash

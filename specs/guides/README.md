@@ -8,3 +8,7 @@
 - [取得可编辑成果副本](result-export.md)：当前源码外围工具的权限、结果与失败边界。
 
 强制门禁由[工程规范](../engineering.md)定义。钩子自动结果复用没有实现，不能将手工记录当成已安装的缓存能力。
+
+- [当前源码快速开始](source-quick-start.md)：开发候选、新显式管理根、实际任务书/审查/成果与停止入口。
+- [接续与资格撤销选择](continuity-choices.md)：普通resume、真实fail、内容back、实际replace及pending/门槛边界。
+- [冻结时点验收交接卡](current-acceptance-handoff.md)：00e010时点C001–C006证据与原not_run/unknown；最新状态仍看specs入口。

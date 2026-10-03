@@ -1,0 +1,107 @@
+{
+  "applied_utc": "2026-10-03T21:57:30.249824+00:00",
+  "Root_base_before_application": "cb315f5273e909d5a3c8cb0bf622c2ba3f15d086",
+  "originalselectionrule_unchanged": true,
+  "records": [
+    {
+      "choice": {
+        "sample": "source-start",
+        "choose": "sheltie",
+        "run_order": 2,
+        "neutral": "K72",
+        "reason": "OnlycompletequalityPASS arm; NativeK41 stoppedmissingpatch"
+      },
+      "actual_patch_source": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+      "patch_sha256": "c8052e40378d96273d72d3443d2c598a082ae39fc81d075a16d642ef78a1f468",
+      "check_argv": [
+        "git",
+        "apply",
+        "--check",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+      ],
+      "check_exit": 0,
+      "check_stdout": "",
+      "check_stderr": "",
+      "apply_argv": [
+        "git",
+        "apply",
+        "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/formal-sheltie-home/works/2026-10-03-001-source-start/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+      ],
+      "apply_exit": 0,
+      "apply_stdout": "",
+      "apply_stderr": "",
+      "applied_files_sha256": {
+        "README.md": "27e090dc77a461ac9a026e03767622b46b2e95c76e2494c75991aa4f8e40be2b",
+        "specs/guides/source-quick-start.md": "d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850"
+      },
+      "exact_candidate_selected_bytes": true
+    },
+    {
+      "choice": {
+        "sample": "continuity",
+        "choose": "native",
+        "run_order": 4,
+        "neutral": "K95",
+        "reason": "OnlycompletequalityPASS arm; SheltieK18 faileddelivery"
+      },
+      "actual_patch_source": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/outputs/deliver-1/change.patch",
+      "patch_sha256": "800fec379f74e76f9fd9c1e56c437920e1c0ffe0f2d8a0d7764c1e7afe72f888",
+      "check_argv": [
+        "git",
+        "apply",
+        "--check",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/outputs/deliver-1/change.patch"
+      ],
+      "check_exit": 0,
+      "check_stdout": "",
+      "check_stderr": "",
+      "apply_argv": [
+        "git",
+        "apply",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-04-native-73d637d1-86ee-4c61-b2af-5c1f04479728/outputs/deliver-1/change.patch"
+      ],
+      "apply_exit": 0,
+      "apply_stdout": "",
+      "apply_stderr": "",
+      "applied_files_sha256": {
+        "specs/guides/continuity-choices.md": "d7f53c99fae26656972b941b604cb2547fe5461790a973a7cb3dffed8cbc91aa"
+      },
+      "exact_candidate_selected_bytes": true
+    },
+    {
+      "choice": {
+        "sample": "acceptance-handoff",
+        "choose": "native",
+        "run_order": 5,
+        "neutral": "K33",
+        "reason": "BothcompletequalityPASS, predeclaredchooseNative"
+      },
+      "actual_patch_source": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1/change.patch",
+      "patch_sha256": "ca9df3f89d4f12587690e99da192664f56482a0df3ea63d2cd5c41009069e02a",
+      "check_argv": [
+        "git",
+        "apply",
+        "--check",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1/change.patch"
+      ],
+      "check_exit": 0,
+      "check_stdout": "",
+      "check_stderr": "",
+      "apply_argv": [
+        "git",
+        "apply",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/runs/agent-doc-20261004-05-native-7fe557c3-6210-414c-8d9d-fad6fbcf08f0/outputs/deliver-1/change.patch"
+      ],
+      "apply_exit": 0,
+      "apply_stdout": "",
+      "apply_stderr": "",
+      "applied_files_sha256": {
+        "specs/guides/current-acceptance-handoff.md": "c73f6d7bc7e386bc2689ef1fd284caa1f36c755d74be89991890971179d6abad"
+      },
+      "exact_candidate_selected_bytes": true
+    }
+  ],
+  "Root_only_extra_authoring": "guideindex links todeclarednewdocs, no samplebody rewritten",
+  "protected_engine_source_unchanged": true,
+  "final_product_doc_checks_pending": true
+}
