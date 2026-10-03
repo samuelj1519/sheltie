@@ -1,6 +1,6 @@
 # C004 真实增量试用前提盘点
 
-本轮按用户“环境无法执行可记录后跳过”授权，完成前提核对和补验交接。实际用户试用为 `not_run`，不是机制 PASS 或用户收益 PASS。候选为 T03 提交 `fbe80ad`，真实标准与步骤在 [stage-1](../stage-1.md#真实增量试用规程)，指标在 [C007 validation](../../../proposed/C007-pre-run-workbook-generation/validation.md)。
+本轮按用户“环境无法执行可记录后跳过”授权，完成前提核对和补验交接。实际用户试用为 `not_run`，不是机制 PASS 或用户收益 PASS。候选为 T03 提交 `fbe80ad`，真实标准与步骤在 [stage-1](../stage-1.md#真实增量试用规程)，指标在 [C007 validation](../../../active/C007-pre-run-workbook-generation/validation.md)。
 
 | 必要前提 | 当前事实 | 本轮处置 | 后续补验入口 |
 | --- | --- | --- | --- |

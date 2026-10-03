@@ -7,11 +7,11 @@
 [commands.sh](../verification/commands.sh) 以Cargo JSON的真实executable取得两份binary路径并记录SHA；不猜target目录。明确使用隔离target和空RUSTC_WRAPPER。消费者收到SHELTIE_TEST_ENGINE_BINARY/SHELTIE_TEST_EXPORT_BINARY；helper只检查路径存在，SHA由冻结命令记录，不能说helper验过代码身份。
 
 ```bash
-bash specs/changes/active/C006-result-delivery/verification/commands.sh primitives
-bash specs/changes/active/C006-result-delivery/verification/commands.sh future-red
-bash specs/changes/active/C006-result-delivery/verification/commands.sh feature
-bash specs/changes/active/C006-result-delivery/verification/commands.sh regression
-bash specs/changes/active/C006-result-delivery/verification/commands.sh dist-plan
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh primitives
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh future-red
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh feature
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh regression
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh dist-plan
 ```
 
 原配置要求nextest0.9.145，本机0.9.140。原命令exit92且测试not_run；已授权延期后可显式SHELTIE_NEXTEST_VERSION_OVERRIDE=1执行补充验证，版本与原run分记。原语/feature各5分钟，完整回归/工程门禁12分钟，dist-plan3分钟；超时保存原输出，停止相应run交作者，不当PASS。原本实验预算与真实用途仍需明确提供。

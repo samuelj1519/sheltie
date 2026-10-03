@@ -20,10 +20,10 @@ Sheltie 将可复用的工作方法可靠地执行下去。它应减少重复解
 
 | 候选 | 用户问题 | 采用条件 | 不成立时 |
 | --- | --- | --- | --- |
-| [C007 完整任务体验实验](changes/proposed/C007-pre-run-workbook-generation/README.md) | 同一方法首次使用、复用与重开是否值得？ | 三个真实近期任务、等价认真配置的原生基线、质量与预算 | 缩小方法、完善说明或停止；不先建平台 |
+| [C007 完整任务体验实验](changes/active/C007-pre-run-workbook-generation/README.md) | 同一方法首次使用、复用与重开是否值得？ | 三个真实近期任务、等价认真配置的原生基线、质量与预算 | 缩小方法、完善说明或停止；不先建平台 |
 | [C004 明确成果与可靠接续](changes/completed/C004-verifiable-delegation/README.md) | 当前指针或最终选择是否仍需要重复核对？ | C007 或明确近期消费者证明所选增量必要 | 当前接口足够则不增加命令 |
 | [C005 原子撤销与重新领取](changes/completed/C005-executor-continuity/README.md) | 普通接续之外是否必须撤销旧提交资格？ | 实际旧资格风险和可核旧执行者/工作区处置 | 继续原 Attempt，不建设替换生命周期 |
-| [C006 完整新副本](changes/active/C006-result-delivery/README.md) | 用户是否反复需要可编辑外部副本？ | C004 明确成果稳定、真实复制负担及有界成果 | 只提供结果入口，不增加分发物 |
+| [C006 完整新副本](changes/completed/C006-result-delivery/README.md) | 用户是否反复需要可编辑外部副本？ | C004 明确成果稳定、真实复制负担及有界成果 | 只提供结果入口，不增加分发物 |
 | [C008 单宿主只读预检](changes/proposed/C008-dependency-readiness/README.md) | 必需资源的人工核对是否重复耗时或出错？ | 真实显式 requires、固定宿主观测和收益预算 | 无需求就不采用，未知如实报告 |
 
 C007 是共同学习入口，可以为后续提供材料，但实验不自动采用产品能力；C004 也可由同等明确需求直接采用。C005/C006 依赖实际采用的通用合同，不相互依赖。C008 不要求 C004，只有自然出现的依赖需求才执行。一次只执行一个 active package，不因编号连续全部实施。

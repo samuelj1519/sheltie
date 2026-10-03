@@ -2,7 +2,7 @@
 
 状态：`accepted`
 日期：2026-10-03
-关联 change：[C006](../changes/active/C006-result-delivery/README.md)
+关联 change：[C006](../changes/completed/C006-result-delivery/README.md)
 
 C004结果是唯一选择来源。引擎同一已核结果快照绑定revision/key，受限同FD读取，stdout原bytes、诊断stderr，不写宿主或回执。外围sheltie-export只通过公开CLI，不依赖runtime，不开Store；publish=false/dist=false，外部分发另定。
 

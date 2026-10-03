@@ -1,6 +1,6 @@
 # C006 产品方案
 
-状态：`active`。结果资格与选择只在 [C004](../../completed/C004-verifiable-delegation/spec.md)定义。本文件定义可编辑副本，不定义第二套结果。
+状态：`completed`；实现与M2限定验收完成，真实价值/环境原义务延期。当前实际范围见[plan](plan.md)与[validation](validation.md)，下文保留设计合同。
 
 ## 1. 用户路径与命令
 

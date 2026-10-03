@@ -1,6 +1,6 @@
 # C006 实施计划
 
-状态：`active`。用户已采用开发全范围，按计划执行，无法执行的义务记录后延期。本方案涉及安全文件原语和原字节接口，采用两阶段交付；小型说明与真实使用按固定手册完成。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)。
+状态：`completed`。用户已采用开发全范围，按计划执行，无法执行的义务记录后延期。本方案涉及安全文件原语和原字节接口，采用两阶段交付；小型说明与真实使用按固定手册完成。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)。
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。
 
@@ -61,10 +61,10 @@ T01 原语测试归 T01，交接时实际 green；T01 创建的新完整行为�
 **验证与交接。** 创建命令文件后运行：
 
 ```bash
-bash specs/changes/active/C006-result-delivery/verification/commands.sh primitives
-bash specs/changes/active/C006-result-delivery/verification/commands.sh future-red
-bash specs/changes/active/C006-result-delivery/verification/commands.sh regression
-bash specs/changes/active/C006-result-delivery/verification/commands.sh dist-plan
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh primitives
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh future-red
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh regression
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh dist-plan
 scripts/check-tests.sh
 scripts/check-docs.sh
 scripts/check-specs.sh
@@ -105,9 +105,9 @@ primitives 含 `scripts/task.sh C006-T01`，实际非零数量且通过；future
 **验证。**
 
 ```bash
-bash specs/changes/active/C006-result-delivery/verification/commands.sh feature
-bash specs/changes/active/C006-result-delivery/verification/commands.sh regression
-bash specs/changes/active/C006-result-delivery/verification/commands.sh gates
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh feature
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh regression
+bash specs/changes/completed/C006-result-delivery/verification/commands.sh gates
 scripts/check-task.sh C006-T02 <阶段骨架或最新独立测试修订完整提交> --staged
 scripts/check-task.sh C006-T02 <同一完整提交>
 ```

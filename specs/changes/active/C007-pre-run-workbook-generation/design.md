@@ -1,6 +1,6 @@
 # C007 设计：一份方法、六次完整运行
 
-状态：`proposed`；资产和运行 `not_run`。下面的路径与字段是实验记录约定，不是产品格式。
+状态：`active`；资产和运行 `not_run`。下面的路径与字段是实验记录约定，不是产品格式。
 
 ## 1. 最小资产
 
@@ -43,7 +43,7 @@ T01 固定真实 binary 的版本、绝对路径及字节标识。可使用已�
 2. 为实验创建显式的专用 Home。运行 `<binary> --json --home <experiment-home> workbook add <confirmed-input>`，保存原始 stdout/stderr/退出码及 `data.id/version/digest`。再用同一 Home 执行 `workbook show <id>@<version>`、`workbook verify <id>@<version>`。结构拒绝即停止准备，不继续运行。
 3. 每个 B 组任务运行 `work start --workbook <id>@<version> --flow <flow> --input task=@<task-file> --input project=@<project-file>`。全局 `--json --home <experiment-home>` 始终显式传入，保存响应的 `work_id/work_dir/workbook.digest`。
 4. 按当前响应的 `next` 调用 `attempt begin <work_id> --node <node>`。使用返回的 `brief_path`、`inputs`、`outputs`、`output_dir`；把声明输出写到这些真实路径。完成用 `attempt submit`，执行失败用 `attempt fail`。审查内容由协调者判断选边；引擎只限定合法操作。
-5. 重开会话后先读 `work status <work_id>`、`next` 和该 run 保存的 begin 响应，按其真实路径找任务书、输入与输出；必要时读 Work 目录中的当前格式文件。记录每一次查找和核对，不能假定存在 C004 handoff 接口。
+5. 重开会话后先读 `work status <work_id>`、`next` 和该 run 保存的 begin 响应，按其真实路径找任务书、输入与输出；必要时读 Work 目录中的当前格式文件。记录每一次查找和核对，按当前已实现resume读取同一running Attempt；真实关闭重开仍需实际会话证据。
 6. 默认 deliver 提交后流程结束。只有 T01 已固定真实授权门槛时，用户授权后才调用 `gate approve <work_id> --node deliver`，A 组执行等价人工动作。保存完整最终交付及外部检查原始输出，分别记录流程之外的用户接受和独立盲审。未接受如实记录，不由 agent 或 gate 推断接受。
 
 命令块中的值由 T01 替换为实际路径、ID 和上限并写入 first-use.md。手册逐步列命令、参数文件、stdout/退出码、产物位置、唯一证据路径和停止交接；T01 先用真实 CLI 核合法与拒绝 oracle，M1 独立走查。不让第一次使用者猜接口或从提案推断能力。所有正常 Work 写入发生在专用 Home；任务仓库修改与实验记录由实验 Owner 在用户授权范围内完成，不归为引擎的宿主写入。

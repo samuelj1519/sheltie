@@ -1,3 +1,8 @@
+[C007-T00]
+files = ["specs/changes/completed/C004-verifiable-delegation/README.md", "specs/changes/completed/C004-verifiable-delegation/experiments/readiness.md", "specs/changes/completed/C004-verifiable-delegation/stage-1.md", "specs/changes/completed/C004-verifiable-delegation/validation.md", "specs/changes/completed/C005-executor-continuity/README.md", "specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C006-result-delivery", "specs/changes/completed/C006-result-delivery", "specs/changes/proposed/C007-pre-run-workbook-generation", "specs/changes/active/C007-pre-run-workbook-generation", "specs/changes/proposed/C008-dependency-readiness", "specs/guides/result-export.md", "specs/decisions/D-042-final-artifact-copy.md", "specs/decisions/D-043-development-target-authority.md"]
+test_files = []
+allow_test_changes = false
+
 # 人采用并移入 active/ 后生效；proposed 不执行任务。
 # T01 复杂模型完整准备和测试；T02 冻结边界由确切 files 路径控制。
 # T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。

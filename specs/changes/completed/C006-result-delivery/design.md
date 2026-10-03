@@ -1,6 +1,6 @@
 # C006 设计
 
-状态：`active`。只以 C004 的 `work-result/v1` 为结果来源；实现 `not_run`。
+状态：`completed`；实现与M2限定验收完成，真实价值/环境原义务延期。当前实际范围见[plan](plan.md)与[validation](validation.md)，下文保留设计合同。
 
 ## 1. 最小模块与真实 caller
 
