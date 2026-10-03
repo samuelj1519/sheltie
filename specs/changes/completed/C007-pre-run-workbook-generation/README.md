@@ -1,6 +1,6 @@
 # C007：验证完整任务体验与方法复用价值
 
-状态：`active`（2026-10-04当前自动agent仓库交付试用）
+状态：`completed`（2026-10-04当前自动agent观察与真实文档交付限定收尾）
 目标版本：`不进入产品 release`（实验结论供人决定后续范围）
 兼容性：不改产品代码、持久格式或公开接口；不建设兼容层
 基线：`6614e42ceed5b46ea7143a343441f6c3e5e33617`
@@ -42,3 +42,9 @@ Owner：`Codex /root；任务作者与独立Reviewer`
 5. [tasks.toml](tasks.toml)：采用后的文件范围；[progress.md](progress.md) 保存交接；[review.md](review.md) 保存独立审查。
 
 本轮先按[adoption](adoption.md)和T00范围创建私有技术资产、临时CLI验证与缺项交接；不修改真实任务仓库。正式六次试用须补真实任务/参与者/历史/预算/质量前提，再冻结并通过正式准入，不能由本轮准备审查代替。
+
+## 当前恢复结果
+
+新协议agent-doc-delivery-20261004实际六run：4完整交付质量通过、1预算停止、1真实失败；同continuouscoordinator每arm3use、两arm冷agent接续、真实五材料/patch/完整原件及独立审已执行。strict公平/完整6同质量条件未满足，15%改善not_evaluable、未知成本原义务留原。按预先规则应用3实际质量合格文档patch，源码快速开始/接续选择/冻结验收交接卡已本地交付。
+
+本归档只完成当前限定真实观察/负结果和文档交付，不使原code/human试验、主App关闭、费用/人类净收益取得PASS。没有引擎变化或新发布，完整边界见新validation/study原件，实施状态只看plan。

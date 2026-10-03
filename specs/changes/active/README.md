@@ -1,3 +1,3 @@
 # Active change
 
-当前仅 [C007 自动agent配对试用](C007-pre-run-workbook-generation/README.md) active，进度只看其plan。C002/C004/C005/C006当前范围已归档；原代码/真人试用不由本轮文档agent记录升级。C008后续恢复，不自行采用探针或安装资源。
+无。C002/C004–C007当前采用恢复范围已归档，C007严格公平/完整六次同质量未满足，原code/human价值不授PASS。C008后续仅据真实条件恢复，不能为了编号加requires/probe或安装资源。进度只看唯一active package plan。

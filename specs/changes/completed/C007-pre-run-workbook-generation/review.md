@@ -55,3 +55,7 @@ Reviewer /root/c007_admission_review未写分析/样本/标准，复算真实R/f
 ## C007-T07 实际应用独立增量
 
 /root/c007_final_quality只读核三原patch与中性原件、Root四授权文件candidateSHA逐same、guideindex只新3links、交接时点与lateststate界面清晰，PASS无必修。原样本质量与协议限制不改，当前应用不授人类/发布结论，实际最终消息保source_line。
+
+## C007-M3 当前完整限定范围
+
+/root/c007_admission_review未写std/方法/工具/样本/分析，current记录/负结论/实际文档交付限定PASS无必修；原最终消息在study/m3-current-scope-independent-review.json。严格unbiased6samequality未满足、不授15%/真人价值、原notrun/unknown保持。Root最终归档/fullblob/实际总时间未预授，原deadline不重置。

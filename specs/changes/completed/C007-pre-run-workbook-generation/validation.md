@@ -180,3 +180,11 @@ T05末独立质量原件final-quality-report：K72/K95/K33/K64完整交付质量
 T06分析cb315f5后按冻结规则选K72/run2（source-start仅完整合格）、K95/run4（continuity仅完整合格）、K33/run5（两handoff都合格固定Native）。Root三原actualpatch分别gitapply--check/apply0，授权README+三个guide逐byte/SHA等selectedcandidate；样本/标准/失败原件无改。Root唯一额外创作是guides README三入口，未把实验流水写rootspec。新指南作用与00e010冻结验收卡/最新specs入口分开。
 
 独立末quality同Reviewer对actualpatch/Rootfile/candidateSHA及index新link小增量PASS，无必修，原报告source_line在study/product-application-independent-review.json；未跑无关Rust/CLI，不代人类接受/发布。docs/spec/skill/tests/corevocab治理全0，原mandatoryquality与协议偏差/15%not_evaluable保持。提交/最终M3全归档和总体成本随后实际核。
+
+## C007-M3 当前限定观察与真实资料收尾
+
+独立执行/分析Reviewer最终限定PASS，无取证或当前交付必修，确认T07提交edb8f89四授权file blobs等实际quality选定candidate，source192和冻结38原资产无漂移。当前六run真实结果和全部偏差、qualified观察、4质量通过/2交付阻断、strictfairnotmet/15%not_evaluable/unknown分项及原code/human义务准确保留。新negative结果可完成观察，不能改成实验公平/价值PASS，也不认为产品无价值。
+
+T05 040bcbdf原件/末审、T06 cb315f5限定分析、T07 edb8f89实际文档应用分别独立单提交。公共/每armsetup/rolecost不知道的仍null，首个run19:50:26至所有审阅/分析/应用/最终归档整体180min原限22:50:26不重置；最终总值在actual收尾原件，不以六R窗口和替实际elapsed。原绝对路径/原frozenJSON/原报告计时都保原source，不归档后回写。
+
+根入口/原34资产/新六raw/43archive/20helper与同coordinatoractualtool records/quality/分析/三实际patch完整stage/index/全commitblob逐SHA保全，Root收尾实际完成后才归档完成。新的操作指南放guides，不将实验流水加rootspec；没有push/merge/release/安装或自动未采用probe，下一C008仅按真实条件。

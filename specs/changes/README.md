@@ -1,9 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[`C007 当前自动agent配对试用`](active/C007-pre-run-workbook-generation/README.md)
+Active change：无
 
-C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，当前恢复C007，后续C008恢复。
+C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，后续C008恢复。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -16,14 +16,13 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-| Change | 范围 | 入口 |
-| --- | --- | --- |
-| C007 | 三个真实仓库文档任务的agent配对/接续/独立质量与实际交付，原正式代码真人义务留原 | [README](active/C007-pre-run-workbook-generation/README.md) |
+无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C007 | 六实际agentrun/负结果/4质量通过2交付阻断与三真实文档交付限定完成，严格公平/15%/原codehuman不授PASS | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C006 | 真实agent副本/两组同质量/编辑与newcopy/跨APFS导出卸载和完整限定链通过；原真人/费用/物理盘/旧unknown留原 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 当前macARM真实1.85新951/5doc及EX01–08同源工程和需求负前检通过；原真实撤销/真人/费用/旧LEAK因果留原 | [README](completed/C005-executor-continuity/README.md) |
 | C004 | 当前agent实际质量/同Attempt冷接续/三refs与新消费者逐查询和实际使用通过；旧真人/成本/取证偏差留原 | [README](completed/C004-verifiable-delegation/README.md) |
