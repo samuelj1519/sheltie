@@ -1,0 +1,13 @@
+    Checking sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Checking sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+error: using a non-octal value to set unix file permissions
+    --> crates/sheltie-runtime/src/fsx.rs:4112:76
+     |
+4112 |             std::fs::set_permissions(path, std::fs::Permissions::from_mode(0)).unwrap();
+     |                                                                            ^ help: consider using an octal literal instead: `0o0`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#non_octal_unix_permissions
+     = note: `#[deny(clippy::non_octal_unix_permissions)]` on by default
+
+error: could not compile `sheltie-runtime` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

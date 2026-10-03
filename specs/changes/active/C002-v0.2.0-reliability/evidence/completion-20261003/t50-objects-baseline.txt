@@ -1,0 +1,32 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.53s
+────────────
+ Nextest run ID ec7be770-9977-44bd-871b-7b2af5bef747 with nextest profile: default
+    Starting 4 tests across 19 binaries (353 tests skipped)
+        PASS [   0.037s] (1/4) sheltie-runtime fsx::controlled_object_tests::ensuring_a_directory_rejects_replacement_after_the_outer_observation
+        PASS [   0.047s] (2/4) sheltie-runtime fsx::controlled_object_tests::existing_lock_rejects_a_changed_object_after_its_initial_stat
+        FAIL [   0.047s] (3/4) sheltie-runtime fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans
+  stdout ───
+
+    running 1 test
+    test fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans ... FAILED
+
+    failures:
+
+    failures:
+        fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans' (62665343) panicked at crates/sheltie-runtime/src/fsx.rs:3643:17:
+    /private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpnJUZ3s/late-unregistered.txt：purge部分清理失败；已完整删除顶层对象：无；当前顶层对象 late-unregistered.txt 可能已部分清理；错误：数据库内容损坏：purge完成后根内仍有对象 late-unregistered.txt；修复问题后可重试
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 1 test still running
+        PASS [   0.073s] (4/4) sheltie-runtime fsx::controlled_object_tests::a_new_file_keeps_its_written_object_when_its_link_count_changes
+────────────
+     Summary [   0.074s] 4 tests run: 3 passed, 1 failed, 353 skipped
+        FAIL [   0.047s] (3/4) sheltie-runtime fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans
+error: test run failed

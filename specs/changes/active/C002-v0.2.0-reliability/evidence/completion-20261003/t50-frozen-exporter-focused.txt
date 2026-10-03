@@ -1,0 +1,13 @@
+   Compiling sheltie-export v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+────────────
+ Nextest run ID eba1b582-65bd-4740-8c37-79d590982706 with nextest profile: default
+    Starting 6 tests across 2 binaries (5 binaries skipped)
+        PASS [   0.354s] (1/6) sheltie-export::cli exporter_version_is_available_without_an_engine_or_management_root
+        PASS [   0.575s] (2/6) sheltie-export::cli exporter_rejects_an_overlapping_or_symlinked_parent_without_modifying_the_target
+        PASS [   0.600s] (3/6) sheltie-export::export export_source_integrity_failure_preserves_owned_staging_without_publishing_a_final_directory
+        PASS [   0.630s] (4/6) sheltie-export::export export_publishes_all_final_bytes_and_deterministic_provenance_without_changing_work
+        PASS [   0.649s] (5/6) sheltie-export::export export_rerun_creates_a_new_copy_and_preserves_edits_in_the_previous_copy
+        PASS [   0.684s] (6/6) sheltie-export::cli exporter_rejects_a_nonfinal_work_before_creating_staging
+────────────
+     Summary [   0.685s] 6 tests run: 6 passed, 0 skipped

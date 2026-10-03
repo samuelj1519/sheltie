@@ -336,7 +336,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T47 | done | Codex；独立 Reviewer | 补 G10/G11/G12 存活体的合同 oracle，保持生产行为 |
 | C002-T48 | done | Codex；独立 Reviewer | G01共享闭包oracle：同步合法形状的坏业务绑定与读顺序 |
 | C002-T49 | done | Codex；独立 Reviewer | G02精确47闭环：35动态捕获/12限定静态；863全回归、独审通过 |
-| C002-T50 | not_run | Codex；独立 Reviewer | G03 根、锁、FD 与 Store 控制边界判据；依赖 T49 收尾 |
+| C002-T50 | done | Codex；独立 Reviewer | G03精确26：25动态/1限定静态，880全回归及独审通过 |
+| C002-T51 | not_run | Codex；独立 Reviewer | G04 文件打开 flags 的真实内核事实与同 inode 别名；依赖 T50 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -389,3 +390,12 @@ G01当前19项普通94消费者全部Missed，不继续照抄普通测试。补g
 只在已有 failpoint 特性下补实际缺失观察点，默认产品行为保持；同步 hook 必须命中目标事实读取间隙，未到窗口、超时或前层拒绝不记检测。根/锁替换、持有 FD 期间硬链接、锁等待后出现孤儿 sidecar、schema 重验与 purge 最后复扫分别使用真实对象；不写宿主配置，不清理根外对象。纯静态处分须列完整当前 caller/producer 与诊断边界，交未参与准备的 Reviewer 复核。
 
 先非零基线与短样本，再按共享能力分批，每批不超过 12 项/600 秒。最终冻结输入、工程/MSRV/治理及独立审查；新增 observer 导致旧 ID 行号变化时，更新精确映射并保留原 diff/source SHA，不把历史结果移植成当前 PASS。发现真实未变异缺陷时另列修复任务，不为杀 mutant 改合同。
+
+
+### C002-T51 文件打开标志
+
+G04 共 27 个准确旧 ID。按独立当前 Darwin 位值拆清每项 `|→&` 实际同时丢失的 flag 和访问模式；以真实创建、锁、目录、外部读取与删除消费者验证。先冻结合法对象与字节、权限、身份、真实 FD flags；同 inode 的 symlink 别名需在 stat/open 的准确窗口建立，不能拿后一次 FD 身份相同证明早期名字不变。
+
+仅在现有测试特性下增加确实缺失的观察点，禁止随机猜 tmp 名或概率 sleep。CLOEXEC/NONBLOCK 机制检测须记内核事实和采用合同边界，不扩大为全部并行 spawn 安全；CREATE+EXCL 只能覆盖具体维度，不把还丢 CLOEXEC 的整项称等价。FIFO 不阻塞握手、RAII 释放/回收、根外 sentinel 与源对象完整性先于扩大样本；timeout 或别处拒绝不当捕获。
+
+先非零合法基线与代表样本，再每批最多 12 项/600 秒，冻结源码/fixture/flags/二进制闭包。最终完整工程、MSRV、治理和未参与准备的独立 Reviewer 逐 ID 审定；源码观察点改变行号时同步精确映射并保留原 diff，原历史结果不改写。

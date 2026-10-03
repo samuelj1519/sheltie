@@ -1,0 +1,51 @@
+{
+  "scope": "independent read-only T50 candidate review; no oracle authorship, no dynamic execution or PASS annotations",
+  "head": "44d6d1b4ed05c13637122047d552e1e4fa6781cd",
+  "worktree_scope": "current T50 observation-point/test edits, read-only",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "bcb4a175ebe66bd6e96e24fd76dd6245f8a1ab4eeeaa479d3900c4efe70e4e2f",
+    "crates/sheltie-runtime/src/home.rs": "1ae58be3dc6b29d107a1047337b832ef03de4725cc4eed474b15eea64b665a7b",
+    "crates/sheltie-runtime/src/service.rs": "958101a3e60c1f9c8204ef3ae1106b65f7df636c2b7538f038fbf32a3dac58ea",
+    "crates/sheltie-runtime/src/request.rs": "2f115182e4d2a45300f295d297cfb3d720ec29e4b9b8c5ce2cd0a13c1a88ad93",
+    "crates/sheltie-core/src/path.rs": "7e0475fcc2aabdc08ea0d7e4c4c45cedf691daabc73d171637d8ee2c14651e01"
+  },
+  "items": [
+    {
+      "inventory_current_id": "crates/sheltie-runtime/src/fsx.rs:398:29: replace match guard FileType::from_raw_mode(stat.st_mode) != FileType::Directory with false in ManagedFs::ensure_dir_unlocked",
+      "disposition": "open_for_unconditional_static_equivalence",
+      "stable_case": "same non-directory remains in place: open_directory_at rejects same kind with same InvalidRequest/path/reason; healthy directory takes same path",
+      "external_fact_boundary": "outer statat S0 and helper statat S1 are different queries; outer fstat guards only successfully opened directory afterwards",
+      "counterexample_direction": "remove/rename observed non-directory between S0 and S1: original retains captured-kind InvalidRequest, variant can return later NotFound/I/O before outer identity comparison",
+      "counterexample_executed": false,
+      "inode_reuse_claimed": false,
+      "observation_point": "shared exact boundary after S0 result but before match guards; existing ensure_directory_after_stat inside fallback arm is not shared for bad kind",
+      "stop": "no claim of accepted invalid directory, inode reuse or dynamic caught without actual event/red proof"
+    },
+    {
+      "inventory_current_id": "crates/sheltie-runtime/src/home.rs:192:28: replace match guard p != base.as_path() with true in Home::confine",
+      "disposition": "open_real_api_counterexample_available",
+      "producer": "only production caller WorkService::start; creates private inputs_dir then calls Home::confine for validated start key",
+      "captured_fact": "base_canon is PathBuf from completed canonicalize, not a handle proving current base still exists",
+      "counterexample_direction": "rename/remove base after successful canonicalize; missing joined path original stops when next parent is base and returns lexical joined; variant continues above missing base and misreports InvalidPath from parent outside old base_canon",
+      "counterexample_executed": false,
+      "observation_point": "feature-scoped rendezvous just after successful base_canon capture, before symlink_metadata loop",
+      "caller_limit": "actual start may subsequently fail safe file creation with NotFound; do not claim original Work start succeeds or commits after base disappears"
+    },
+    {
+      "inventory_current_id": "crates/sheltie-runtime/src/fsx.rs:198:31: replace || with && in ManagedFs::traverse_root",
+      "disposition": "supported_candidate_current_complete_caller_normalization_scope",
+      "producer_closure": [
+        "ManagedFs::open_existing→open_root(Home.root), Home.root private and only produced by Home.resolve/canonicalize_deepest",
+        "Home::acquire_lock_once→create_root(Home.root)",
+        "ExternalReadFile::open_regular→std::fs::canonicalize(parent)→open_root",
+        "ExternalReadFile::open_regular_no_follow→canonical_external_root(parent)→lexical_abs→open_root",
+        "ExternalReadTree::open→canonical_external_root(root)→lexical_abs→open_root",
+        "current T50 cfg test create_root(home.root) and open_root(home.rel(occupied)), canonical Home plus validated ManagedRelPath"
+      ],
+      "predicate_proof": "all returned roots have no literal dot/dotdot component; both predicates false so OR/AND identical within this caller closure",
+      "AbsPath_type_is_not_proof": true,
+      "limits": "does not cover a future raw internal AbsPath caller, arbitrary direct private helper invocation, or added unnormalized test; no branch deletion or broad public API proof"
+    }
+  ],
+  "dynamic_execution": "not_run_by_this_review"
+}

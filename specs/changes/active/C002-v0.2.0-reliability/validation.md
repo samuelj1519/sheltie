@@ -504,3 +504,21 @@ T49 最终动态批次 A/B/C 分别 12/12、12/12、11/11 Caught，exit0，sourc
 [最终独立验收](evidence/completion-20261003/t49-final-qualification-review.md) 逐原 log 复核全部 35 项目标失败及 12 项限定证明，核原旧 G02 精确集合、190 项 mutation 输入及其与工程输入的共同闭包、生产和旧测试字节及阶段边界，限定 T49/G02 通过；T49 收尾，不批准旧候选、其他组、全部 215 或 C002-M2。
 
 提交钩子首次补齐索引静态报告可读副本的末尾换行，原作者字节保存在档案；[格式化记录](evidence/completion-20261003/t49-review-formatting.json) 校验仅增加一个换行，不改正文或 runtime 输入。
+
+
+## C002-T50 根、锁、FD 和 Store 控制边界（执行中）
+
+G03 的 26 个旧 ID 按 [独立分组](evidence/completion-20261003/g03-oracle-directions.md) 准备。现补实际 metadata 读取间隙的六个 failpoint 观察点：既有锁 stat 后、建立目录外层 stat 后且 match 前、新文件同步后身份复查前、purge 控制文件复扫后、Store 控制预检后、Home.confine 首次 canonicalize 后。默认特性调用既有 no-op；写后 marker 错误保留 RecoveryRequired 与创建对象，purge marker 错误沿部分删除诊断，不新增状态或内容判断。
+
+17 个共享原语/消费者测试基线 run `5b7e6c09-bbdb-4a97-988d-1eeca3c48d72` 全通过，测试保留真实 bytes/dev/ino/mode、锁和 sidecar 身份、管理对象范围、错误类型/绝对路径及 scoped 线程回收。PermissionRestore 在正常/异常路径恢复权限；schema 的稳定 RW 拒绝先无持锁，RO 交错另持真实锁并调用 genuine purge，避免把同线程死锁算检测。同步 helper 在 worker 提前结束时返回真实结果，再由业务判据判定，不等待到 timeout。
+
+先前 P2/P5/P6/P8 的 12 个精确变体短样本 12/12 Caught、exit0、57.477 秒、source_unchanged=true；它们不包含 schema mode 变体。后来修订的清理/观察范围与最终候选另记，原结果不扩大。最初 purge 错误类型期望和缺 PermissionsExt 的 fixture 失败保留，不是产品红。独立准备指出 ensure_dir 的两个 stat 是不同外部事实，Home.confine 的 base 可在 canonicalize 后消失，两者用真实移动对象反例，不能称简单等价；traverse_root 的点段条件仅是当前完整 caller 规范化闭包的静态候选，见 [限定复核](evidence/completion-20261003/t50-static-candidates-review.md)。当前尚未最终 26 项、完整工程或 T50 独审验收。
+
+
+T50 最终 A/B/C 为 12/12、12/12、1/1 Caught，exit0，source/fixture/config 未漂移，耗时 123.401/75.213/16.764 秒。原第一轮 A12/B11+1Missed、C 未派发保留；新增 absent-base 合法控制后冻结重验，不反写原结果。1 个 traverse_root 点段条件由完整当前规范化 caller 闭包限定证明，不扩大到任意 AbsPath、未来 caller 或其它平台。[逐 ID 账本](evidence/completion-20261003/t50-g03-dispositions.json) 覆盖原 G03 的 26 个精确 ID；保留诊断来源、错误分类、对象接受、词法输入、纯 retry classifier 和 schema 等待机制的检测区别。
+
+完整普通回归初轮 880/880；下一冻结轮 875/880，5 个 exporter 夹具启动引擎空输出失败，根因未确认，原文 `t50-unfrozen-binaries-*` 保留。实际单次 locked/all-features 构建后复制两个 binary，使用夹具已有显式 binary 入口；[固定二进制 SHA/12 次真实并发 Add](evidence/completion-20261003/t50-frozen-binaries.json) 全0、[受影响六项](evidence/completion-20261003/t50-frozen-exporter-focused.txt) 全通过，不当原失败原因证明。随后 [最终工程](evidence/completion-20261003/t50-final-gates.json) 记录固定 env/二进制 SHA、source_unchanged=true：run `0fa1bc4a-c025-4ad2-82f9-3944a09d58fe` 为 880/880、零 skip/零 LEAK，5 compile-fail、fmt/check/Clippy 全通过。
+
+Rust 1.85、默认特性编译及治理各自原文保留。原 from_mode 非八进制 Clippy101、purge 类型期望、缺 import、schema 控制潜在死锁均留在旧候选；后者在 mode 变体派发前修复，未以 timeout 记检测。Root 只新增六个测试特性观察点，不增产品判断/公开接口/业务状态。当前累计 92 项动态检测、13 项限定静态处分，110 项继续 T43；T50 通过不批准全 215 或 C002-M2。
+
+[最终独立审查](evidence/completion-20261003/t50-final-review.md) 逐 25 个原 log、当前 1 个静态 caller 闭包、精确 26 集合、190 输入、6 个默认行为观察点和固定 binary/env 闭包复核通过；[原文档案](evidence/completion-20261003/t50-g03-oracles.tar.gz) 与 [逐成员回读](evidence/completion-20261003/t50-oracle-archive.json) 一致。T50 当前范围收尾，不扩大其分类器、诊断、unlink FD 生命周期或 test-only 分支证据。

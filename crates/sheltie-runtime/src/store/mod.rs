@@ -244,6 +244,8 @@ impl Store {
                 crate::fsx::validate_store_files(home)?;
             }
         }
+        crate::failpoint::rendezvous("store_before_metadata", self.path.as_str())
+            .map_err(|error| Error::io(self.path.as_str(), error))?;
         let metadata = match std::fs::symlink_metadata(self.path.as_path()) {
             Ok(metadata) => metadata,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {

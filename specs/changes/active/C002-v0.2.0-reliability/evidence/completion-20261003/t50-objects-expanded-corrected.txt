@@ -1,0 +1,14 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.73s
+────────────
+ Nextest run ID 626ad33b-10e6-496d-bdd9-c85b08534b32 with nextest profile: default
+    Starting 7 tests across 19 binaries (353 tests skipped)
+        PASS [   0.030s] (1/7) sheltie-runtime fsx::controlled_object_tests::an_existing_lock_lookup_does_not_treat_permission_denial_as_absence
+        PASS [   0.042s] (2/7) sheltie-runtime fsx::controlled_object_tests::lock_opening_distinguishes_absence_regular_files_fifo_and_hardlinks
+        PASS [   0.050s] (3/7) sheltie-runtime fsx::controlled_object_tests::ensuring_a_directory_rejects_replacement_after_the_outer_observation
+        PASS [   0.051s] (4/7) sheltie-runtime fsx::controlled_object_tests::purge_retains_an_unknown_entry_arriving_after_control_rescans
+        PASS [   0.064s] (5/7) sheltie-runtime fsx::controlled_object_tests::existing_lock_rejects_a_changed_object_after_its_initial_stat
+        PASS [   0.066s] (6/7) sheltie-runtime fsx::controlled_object_tests::a_new_file_keeps_its_written_object_when_its_link_count_changes
+        PASS [   0.071s] (7/7) sheltie-runtime fsx::controlled_object_tests::a_real_add_rechecks_orphan_sqlite_sidecars_after_waiting_for_the_lock
+────────────
+     Summary [   0.072s] 7 tests run: 7 passed, 353 skipped

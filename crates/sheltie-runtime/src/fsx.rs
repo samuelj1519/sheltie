@@ -283,6 +283,8 @@ impl ManagedFs {
                 reason: format!("{} 必须是普通单链接锁文件", lock_path),
             });
         }
+        crate::failpoint::rendezvous("existing_lock_after_stat", lock_path.as_str())
+            .map_err(|error| Error::io(lock_path.as_str(), error))?;
         let fd = openat(
             &self.root_dir,
             ".lock",
@@ -389,7 +391,10 @@ impl ManagedFs {
                 value: prefix.join("/"),
                 segments: prefix.clone(),
             };
-            match statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW) {
+            let observed = statat(&current, segment, AtFlags::SYMLINK_NOFOLLOW);
+            crate::failpoint::rendezvous("ensure_directory_after_stat", &self.display_path(&rel))
+                .map_err(|error| Error::io(self.display_path(&rel), error))?;
+            match observed {
                 Ok(stat) if FileType::from_raw_mode(stat.st_mode) == FileType::Symlink => {
                     return Err(Error::InvalidRequest {
                         reason: format!("{} 是符号链接，不能作为管理目录", self.display_path(&rel)),
@@ -965,6 +970,12 @@ impl ManagedFs {
                 }),
             };
         }
+        crate::failpoint::rendezvous("new_file_before_identity_check", &display).map_err(
+            |error| Error::RecoveryRequired {
+                path: display.clone(),
+                detail: format!("新文件已同步但身份复核被打断，保留创建inode：{error}"),
+            },
+        )?;
         let metadata = file.metadata().map_err(|error| Error::RecoveryRequired {
             path: display.clone(),
             detail: format!("新文件内容已写入，但无法复核原句柄元数据：{error}"),
@@ -1448,6 +1459,16 @@ impl ManagedFs {
                 })?;
             }
         }
+        crate::failpoint::rendezvous("purge_after_control_rescan", self.root.as_str()).map_err(
+            |error| {
+                partial_purge_error(
+                    &self.root,
+                    ".",
+                    &removed_roots,
+                    Error::io(self.root.as_str(), error),
+                )
+            },
+        )?;
         let remaining = directory_entry_names(&self.root_dir, self.root.as_str())
             .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?
             .into_iter()
@@ -3393,6 +3414,709 @@ mod new_atomic_tests {
             fs.cleanup_expired_tmp(&lock, boundary + Duration::from_nanos(1))
                 .unwrap();
             assert!(!path.exists(), "超过阈值一纳秒应清理");
+        }
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+pub(crate) mod controlled_object_tests {
+    use super::permission_test_support::PermissionRestore;
+    use super::*;
+
+    fn temporary_home() -> (tempfile::TempDir, crate::Home) {
+        let directory = tempfile::tempdir().unwrap();
+        let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32) {
+        (metadata.dev(), metadata.ino(), metadata.mode())
+    }
+
+    pub(crate) fn observe_change<T: Send>(
+        name: &str,
+        scope: &str,
+        operation: impl FnOnce() -> T + Send,
+        change: impl FnOnce(),
+    ) -> T {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let sync = tempfile::tempdir().unwrap();
+        crate::failpoint::arm_rendezvous(name, scope, sync.path()).unwrap();
+        struct Release<'a>(&'a std::path::Path);
+        impl Drop for Release<'_> {
+            fn drop(&mut self) {
+                let _ = std::fs::write(self.0.join("release"), b"release");
+                let _ = crate::failpoint::disarm_rendezvous();
+            }
+        }
+        std::thread::scope(|threads| {
+            let worker = threads.spawn(operation);
+            let _release = Release(sync.path());
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+            while !sync.path().join("reached").exists() {
+                if worker.is_finished() {
+                    return worker.join().unwrap();
+                }
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "target object observation was not reached: {name}"
+                );
+                std::thread::sleep(std::time::Duration::from_millis(2));
+            }
+            change();
+            std::fs::write(sync.path().join("release"), b"release").unwrap();
+            worker.join().unwrap()
+        })
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn existing_lock_rejects_a_changed_object_after_its_initial_stat() {
+        for change in ["replace", "hardlink"] {
+            let (directory, home) = temporary_home();
+            drop(home.acquire_lock().unwrap());
+            let path = home.lock_path();
+            std::fs::write(path.as_path(), b"original lock bytes").unwrap();
+            let before = std::fs::metadata(path.as_path()).unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let moved = directory.path().join("original-lock");
+            let result = observe_change(
+                "existing_lock_after_stat",
+                path.as_str(),
+                move || fs.open_existing_lock_file(),
+                || {
+                    if change == "replace" {
+                        std::fs::rename(path.as_path(), &moved).unwrap();
+                        std::fs::write(path.as_path(), b"new lock bytes").unwrap();
+                    } else {
+                        std::fs::hard_link(path.as_path(), &moved).unwrap();
+                    }
+                },
+            );
+            let error = result.err().unwrap();
+            assert!(
+                matches!(error, Error::InvalidRequest { .. }),
+                "{change}: {error}"
+            );
+            assert!(
+                error.to_string().contains("在安全打开期间被替换"),
+                "{change}: {error}"
+            );
+            assert_eq!(std::fs::read(&moved).unwrap(), b"original lock bytes");
+            let after = std::fs::metadata(&moved).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+            assert_eq!(
+                std::fs::read(path.as_path()).unwrap(),
+                if change == "replace" {
+                    b"new lock bytes".as_slice()
+                } else {
+                    b"original lock bytes".as_slice()
+                }
+            );
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn a_new_file_keeps_its_written_object_when_its_link_count_changes() {
+        for change in ["hardlink", "unlink"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let positive = fs
+                .write_new_observed(
+                    &lock,
+                    &ManagedRelPath::new("positive.txt").unwrap(),
+                    b"positive",
+                )
+                .unwrap();
+            assert_eq!(
+                std::fs::read(home.rel("positive.txt").unwrap().as_path()).unwrap(),
+                b"positive"
+            );
+            assert_eq!(positive.meta.nlink(), 1);
+            let path = home.rel("changed.txt").unwrap();
+            let alias = directory.path().join("alias.txt");
+            let mut held = None;
+            let mut captured = None;
+            let result = observe_change(
+                "new_file_before_identity_check",
+                path.as_str(),
+                move || {
+                    fs.write_new_observed(
+                        &lock,
+                        &ManagedRelPath::new("changed.txt").unwrap(),
+                        b"written before observation",
+                    )
+                },
+                || {
+                    held = Some(std::fs::File::open(path.as_path()).unwrap());
+                    captured = Some(held.as_ref().unwrap().metadata().unwrap());
+                    if change == "hardlink" {
+                        std::fs::hard_link(path.as_path(), &alias).unwrap();
+                    } else {
+                        std::fs::remove_file(path.as_path()).unwrap();
+                    }
+                },
+            );
+            let error = result.err().unwrap();
+            let Error::RecoveryRequired {
+                path: error_path,
+                detail,
+            } = error
+            else {
+                panic!("{change}: {error}")
+            };
+            assert_eq!(error_path, path.as_str());
+            assert!(detail.contains("身份、类型或链接数改变"));
+            let mut held = held.unwrap();
+            let mut bytes = Vec::new();
+            held.read_to_end(&mut bytes).unwrap();
+            assert_eq!(bytes, b"written before observation");
+            let before = captured.unwrap();
+            let after = held.metadata().unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+            assert_eq!(after.mode() & 0o777, 0o600);
+            assert_eq!(
+                held.metadata().unwrap().nlink(),
+                if change == "hardlink" { 2 } else { 0 }
+            );
+            if change == "hardlink" {
+                assert_eq!(std::fs::read(&alias).unwrap(), bytes);
+                assert_eq!(
+                    std::fs::metadata(&alias).unwrap().ino(),
+                    held.metadata().unwrap().ino()
+                );
+                assert!(path.as_path().is_file());
+            } else {
+                assert!(!path.as_path().exists());
+            }
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn ensuring_a_directory_rejects_replacement_after_the_outer_observation() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("slot").unwrap())
+            .unwrap();
+        let slot = home.rel("slot").unwrap();
+        std::fs::write(slot.join_segment("original").as_path(), b"retain").unwrap();
+        let before = std::fs::metadata(slot.as_path()).unwrap();
+        let moved = directory.path().join("original-slot");
+        let result = observe_change(
+            "ensure_directory_after_stat",
+            slot.as_str(),
+            move || fs.ensure_dir(&lock, &ManagedRelPath::new("slot").unwrap()),
+            || {
+                std::fs::rename(slot.as_path(), &moved).unwrap();
+                std::fs::create_dir(slot.as_path()).unwrap();
+                std::fs::write(
+                    slot.join_segment("replacement").as_path(),
+                    b"keep replacement",
+                )
+                .unwrap();
+            },
+        );
+        let error = result.unwrap_err();
+        assert!(matches!(error, Error::InvalidRequest { .. }), "{error}");
+        assert!(error.to_string().contains("在建立期间被替换"));
+        let after = std::fs::metadata(&moved).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(std::fs::read(moved.join("original")).unwrap(), b"retain");
+        assert_eq!(
+            std::fs::read(slot.join_segment("replacement").as_path()).unwrap(),
+            b"keep replacement"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn purge_retains_an_unknown_entry_arriving_after_control_rescans() {
+        for late in [false, true] {
+            let (_directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+            let late_file = home.rel("late-unregistered.txt").unwrap();
+            let result = observe_change(
+                "purge_after_control_rescan",
+                home.root().as_str(),
+                move || fs.purge_contents(&lock),
+                || {
+                    if late {
+                        std::fs::write(late_file.as_path(), b"unregistered original").unwrap();
+                    }
+                },
+            );
+            if late {
+                let error = result.unwrap_err();
+                assert!(matches!(error, Error::Io { .. }), "{error}");
+                assert!(error.to_string().contains("late-unregistered.txt"));
+                assert_eq!(
+                    std::fs::read(late_file.as_path()).unwrap(),
+                    b"unregistered original"
+                );
+            } else {
+                result.unwrap();
+            }
+            let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+            assert_eq!(
+                (lock_after.dev(), lock_after.ino()),
+                (lock_before.dev(), lock_before.ino())
+            );
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn lock_opening_distinguishes_absence_regular_files_fifo_and_hardlinks() {
+        for kind in ["missing", "regular", "fifo", "hardlink"] {
+            let (directory, home) = temporary_home();
+            let fs = ManagedFs::create_root(home.root()).unwrap();
+            let path = home.lock_path();
+            if kind == "fifo" {
+                assert!(
+                    std::process::Command::new("mkfifo")
+                        .arg(path.as_path())
+                        .status()
+                        .unwrap()
+                        .success()
+                );
+            } else if kind != "missing" {
+                std::fs::write(path.as_path(), b"retain lock bytes").unwrap();
+                if kind == "hardlink" {
+                    std::fs::hard_link(path.as_path(), directory.path().join("alias")).unwrap();
+                }
+            }
+            let result = fs.open_existing_lock_file();
+            match kind {
+                "missing" => {
+                    assert!(result.unwrap().is_none());
+                    assert!(!path.as_path().exists());
+                }
+                "regular" => {
+                    assert!(result.unwrap().is_some());
+                    assert!(fs.open_lock_file().is_ok());
+                }
+                _ => {
+                    let error = result.err().unwrap();
+                    assert!(
+                        matches!(error, Error::InvalidRequest { .. }),
+                        "{kind}: {error}"
+                    );
+                    assert!(
+                        error.to_string().contains("必须是普通单链接锁文件"),
+                        "{kind}: {error}"
+                    );
+                    let error = fs.open_lock_file().unwrap_err();
+                    assert!(
+                        matches!(error, Error::InvalidRequest { .. }),
+                        "{kind}: {error}"
+                    );
+                    assert!(
+                        error.to_string().contains("必须是普通单链接锁文件"),
+                        "{kind}: {error}"
+                    );
+                }
+            }
+            if kind == "regular" || kind == "hardlink" {
+                assert_eq!(std::fs::read(path.as_path()).unwrap(), b"retain lock bytes");
+            }
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn an_existing_lock_lookup_does_not_treat_permission_denial_as_absence() {
+        let (_directory, home) = temporary_home();
+        drop(home.acquire_lock().unwrap());
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let denied = PermissionRestore::deny(home.root().as_path().as_std_path());
+        let result = fs.open_existing_lock_file();
+        drop(denied);
+        let Error::Io { path, source } = result.err().unwrap() else {
+            panic!("permission denial must retain its I/O cause")
+        };
+        assert_eq!(path, home.lock_path().as_str());
+        assert_eq!(source.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(home.lock_path().as_path().is_file());
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn a_real_add_rechecks_orphan_sqlite_sidecars_after_waiting_for_the_lock() {
+        for name in ["store.db-wal", "store.db-shm", "store.db-journal"] {
+            let (_directory, home) = temporary_home();
+            let held_lock = home.acquire_lock().unwrap();
+            let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+            let repo = crate::WorkbookRepo::new(home.clone());
+            let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../../examples/two-step")
+                .canonicalize()
+                .unwrap();
+            let source = AbsPath::new(source.to_str().unwrap()).unwrap();
+            let sidecar = home.rel(name).unwrap();
+            let mut sidecar_before = None;
+            let result = observe_change(
+                "home_lock_waiting",
+                home.lock_path().as_str(),
+                move || repo.add(&source, Some("locked-sidecar".into())),
+                || {
+                    assert!(!home.store_path().as_path().exists());
+                    std::fs::write(sidecar.as_path(), b"").unwrap();
+                    sidecar_before = Some(std::fs::metadata(sidecar.as_path()).unwrap());
+                    drop(held_lock);
+                },
+            );
+            let error = result.unwrap_err();
+            assert!(
+                matches!(error, Error::StoreCorrupt { .. }),
+                "{name}: {error}"
+            );
+            assert!(
+                error
+                    .to_string()
+                    .contains("store.db不存在但仍有SQLite控制文件"),
+                "{name}: {error}"
+            );
+            assert!(!home.store_path().as_path().exists());
+            assert_eq!(std::fs::read(sidecar.as_path()).unwrap(), b"");
+            let before = sidecar_before.unwrap();
+            let after = std::fs::metadata(sidecar.as_path()).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+            let after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+            assert_eq!(
+                (after.dev(), after.ino()),
+                (lock_before.dev(), lock_before.ino())
+            );
+            assert!(!home.workbooks_dir().as_path().exists());
+        }
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn managed_directory_errors_retain_the_actual_root_and_object_kind() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        assert!(
+            !fs.directory_exists_readonly(&ManagedRelPath::new("absent").unwrap())
+                .unwrap()
+        );
+        fs.ensure_dir(&lock, &ManagedRelPath::new("real").unwrap())
+            .unwrap();
+        assert!(
+            fs.directory_exists_readonly(&ManagedRelPath::new("real").unwrap())
+                .unwrap()
+        );
+        let occupied = directory.path().join("occupied");
+        std::fs::write(&occupied, b"original occupied bytes").unwrap();
+        let expected_path = directory.path().canonicalize().unwrap().join("occupied");
+        let error = fs
+            .ensure_dir(&lock, &ManagedRelPath::new("occupied").unwrap())
+            .unwrap_err();
+        let Error::InvalidRequest { reason } = error else {
+            panic!("a non-directory must be rejected as invalid management input")
+        };
+        assert_eq!(reason, format!("{} 不是目录", expected_path.display()));
+        let error = fs
+            .directory_exists_readonly(&ManagedRelPath::new("occupied").unwrap())
+            .unwrap_err();
+        let Error::StoreCorrupt { detail } = error else {
+            panic!("a registered directory location occupied by a file must be corrupt")
+        };
+        assert_eq!(detail, format!("{} 不是受管目录", expected_path.display()));
+        let invalid_root = home.rel("occupied").unwrap();
+        let error = ManagedFs::open_root(&invalid_root).err().unwrap();
+        let Error::InvalidRequest { reason } = error else {
+            panic!("non-directory root must be invalid")
+        };
+        assert_eq!(
+            reason,
+            format!("管理根段 {} 不是目录", expected_path.display())
+        );
+        assert_eq!(
+            std::fs::read(&occupied).unwrap(),
+            b"original occupied bytes"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn external_file_parent_errors_distinguish_missing_from_not_a_directory() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let missing = AbsPath::new(root.join("missing/input.txt").to_str().unwrap()).unwrap();
+        let error = ExternalReadFile::open_regular(&missing).unwrap_err();
+        let Error::NotFound { what } = error else {
+            panic!("missing source parent must retain NotFound")
+        };
+        assert_eq!(what, missing.as_str());
+        std::fs::write(root.join("occupied"), b"original parent bytes").unwrap();
+        let path = AbsPath::new(root.join("occupied/sub/input.txt").to_str().unwrap()).unwrap();
+        let Error::Io {
+            path: error_path,
+            source,
+        } = ExternalReadFile::open_regular(&path).unwrap_err()
+        else {
+            panic!("non-directory parent must retain real I/O cause")
+        };
+        assert_eq!(error_path, path.as_str());
+        assert_eq!(source.kind(), std::io::ErrorKind::NotADirectory);
+        assert_eq!(
+            std::fs::read(root.join("occupied")).unwrap(),
+            b"original parent bytes"
+        );
+        assert!(!root.join("missing").exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn store_connection_retains_a_permission_error_after_its_control_precheck() {
+        let (_directory, home) = temporary_home();
+        let session = crate::session::WriteSession::open_or_create(&home).unwrap();
+        drop(session.store.connect().unwrap());
+        let before = std::fs::read(home.store_path().as_path()).unwrap();
+        let metadata = std::fs::metadata(home.store_path().as_path()).unwrap();
+        let mut denied = None;
+        let store = session.store.clone();
+        let result = observe_change(
+            "store_before_metadata",
+            home.store_path().as_str(),
+            move || store.connect(),
+            || {
+                denied = Some(PermissionRestore::deny(home.root().as_path().as_std_path()));
+            },
+        );
+        drop(denied);
+        let Error::Io { path, source } = result.err().unwrap() else {
+            panic!("real connection metadata permission failure must remain I/O")
+        };
+        assert_eq!(path, home.store_path().as_str());
+        assert_eq!(source.kind(), std::io::ErrorKind::PermissionDenied);
+        assert_eq!(std::fs::read(home.store_path().as_path()).unwrap(), before);
+        assert_eq!(
+            std::fs::metadata(home.store_path().as_path())
+                .unwrap()
+                .ino(),
+            metadata.ino()
+        );
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn readonly_schema_recognition_waits_for_a_real_locked_purge_and_rechecks() {
+        let (_directory, home) = temporary_home();
+        drop(home.acquire_lock().unwrap());
+        let old = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        old.execute_batch(concat!(
+            "PRAGMA user_version=0; ",
+            "CREATE TABLE old_material(value TEXT); ",
+            "INSERT INTO old_material VALUES ('retain until explicit purge');",
+        ))
+        .unwrap();
+        drop(old);
+        let original = std::fs::read(home.store_path().as_path()).unwrap();
+        assert!(matches!(
+            crate::store::Store::open_for_home(&home, crate::store::OpenMode::ReadWrite),
+            Err(Error::StoreSchemaMismatch { .. })
+        ));
+        assert_eq!(
+            std::fs::read(home.store_path().as_path()).unwrap(),
+            original
+        );
+        let held_lock = home.acquire_lock().unwrap();
+        let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        let reader_home = home.clone();
+        let result = observe_change(
+            "home_lock_waiting",
+            home.lock_path().as_str(),
+            move || {
+                crate::store::Store::open_for_home(&reader_home, crate::store::OpenMode::ReadOnly)
+            },
+            || {
+                assert_eq!(
+                    std::fs::read(home.store_path().as_path()).unwrap(),
+                    original
+                );
+                ManagedFs::open_existing(&home)
+                    .unwrap()
+                    .purge_contents(&held_lock)
+                    .unwrap();
+                assert!(!home.store_path().as_path().exists());
+                drop(held_lock);
+            },
+        );
+        let Error::NotFound { what } = result.err().unwrap() else {
+            panic!("readonly reader must recheck after purge and report the missing Store")
+        };
+        assert_eq!(what, home.store_path().as_str());
+        assert!(!home.store_path().as_path().exists());
+        let after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        assert_eq!(
+            (after.dev(), after.ino()),
+            (lock_before.dev(), lock_before.ino())
+        );
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn a_captured_non_directory_is_rejected_even_after_its_name_disappears() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let path = home.rel("occupied").unwrap();
+        std::fs::write(path.as_path(), b"retain captured non-directory").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let moved = directory.path().join("moved-original");
+        let result = observe_change(
+            "ensure_directory_after_stat",
+            path.as_str(),
+            move || fs.ensure_dir(&lock, &ManagedRelPath::new("occupied").unwrap()),
+            || {
+                std::fs::rename(path.as_path(), &moved).unwrap();
+            },
+        );
+        let Error::InvalidRequest { reason } = result.unwrap_err() else {
+            panic!("captured non-directory must retain its original invalid-kind diagnosis")
+        };
+        assert_eq!(reason, format!("{path} 不是目录"));
+        let after = std::fs::metadata(&moved).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(
+            std::fs::read(&moved).unwrap(),
+            b"retain captured non-directory"
+        );
+        assert!(!path.as_path().exists());
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn a_failed_write_observation_retains_the_synchronized_created_file() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let carrier = tempfile::tempdir().unwrap();
+        let bad_sync = carrier.path().join("non-directory-sync");
+        std::fs::write(&bad_sync, b"retain observation carrier").unwrap();
+        let path = home.rel("created.txt").unwrap();
+        crate::failpoint::arm_rendezvous(
+            "new_file_before_identity_check",
+            path.as_str(),
+            &bad_sync,
+        )
+        .unwrap();
+        let result = fs.write_new_observed(
+            &lock,
+            &ManagedRelPath::new("created.txt").unwrap(),
+            b"synchronized exact bytes",
+        );
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::RecoveryRequired {
+            path: error_path,
+            detail,
+        } = result.err().unwrap()
+        else {
+            panic!("a synchronized file must retain recovery-required ownership")
+        };
+        assert_eq!(error_path, path.as_str());
+        assert!(detail.contains("新文件已同步但身份复核被打断"));
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"synchronized exact bytes"
+        );
+        let metadata = std::fs::metadata(path.as_path()).unwrap();
+        assert!(metadata.is_file());
+        assert_eq!(metadata.nlink(), 1);
+        assert_eq!(metadata.mode() & 0o777, 0o600);
+        assert_eq!(
+            metadata.dev(),
+            std::fs::metadata(home.root().as_path()).unwrap().dev()
+        );
+        assert_eq!(
+            std::fs::read(&bad_sync).unwrap(),
+            b"retain observation carrier"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn a_failed_final_purge_observation_preserves_the_root_and_reports_removed_objects() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        std::fs::create_dir(home.works_dir().as_path()).unwrap();
+        std::fs::write(
+            home.works_dir().join_segment("owned-material").as_path(),
+            b"explicitly purged",
+        )
+        .unwrap();
+        let before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        let carrier = tempfile::tempdir().unwrap();
+        let bad_sync = carrier.path().join("non-directory-sync");
+        std::fs::write(&bad_sync, b"retain observation carrier").unwrap();
+        crate::failpoint::arm_rendezvous(
+            "purge_after_control_rescan",
+            home.root().as_str(),
+            &bad_sync,
+        )
+        .unwrap();
+        let result = fs.purge_contents(&lock);
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::Io { path, source } = result.unwrap_err() else {
+            panic!("partial purge must report its exact completed deletions")
+        };
+        assert_eq!(path, format!("{}/.", home.root()));
+        assert!(source.to_string().contains("已完整删除顶层对象：works"));
+        assert!(!home.works_dir().as_path().exists());
+        let after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert!(home.root().as_path().is_dir());
+        assert_eq!(
+            std::fs::read(&bad_sync).unwrap(),
+            b"retain observation carrier"
+        );
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod permission_test_support {
+    use std::os::unix::fs::PermissionsExt;
+
+    pub(crate) struct PermissionRestore {
+        path: std::path::PathBuf,
+        permissions: std::fs::Permissions,
+    }
+
+    impl PermissionRestore {
+        pub(crate) fn deny(path: &std::path::Path) -> Self {
+            let permissions = std::fs::metadata(path).unwrap().permissions();
+            let restore = Self {
+                path: path.to_owned(),
+                permissions,
+            };
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o0)).unwrap();
+            restore
+        }
+    }
+
+    impl Drop for PermissionRestore {
+        fn drop(&mut self) {
+            let _ = std::fs::set_permissions(&self.path, self.permissions.clone());
         }
     }
 }

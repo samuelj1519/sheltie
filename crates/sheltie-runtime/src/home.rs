@@ -180,6 +180,8 @@ impl Home {
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(joined),
             Err(error) => return Err(Error::io(base.as_str(), error)),
         };
+        crate::failpoint::rendezvous("confine_after_base_canonicalize", base.as_str())
+            .map_err(|error| Error::io(base.as_str(), error))?;
         // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。
         let mut probe = joined.as_path().to_path_buf();
         loop {
@@ -454,5 +456,105 @@ mod lock_retry_tests {
         ));
         assert!(!home.lock_path().as_path().exists());
         assert!(home.root().as_path().is_dir());
+    }
+}
+
+#[cfg(test)]
+mod setup_error_contract_tests {
+    use super::*;
+    use crate::fsx::permission_test_support::PermissionRestore;
+
+    // Task: C002-T50
+    #[test]
+    fn setup_io_retry_is_confined_to_a_missing_management_object() {
+        let directory = tempfile::tempdir().unwrap();
+        let home = Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        let missing_inside = Error::io(
+            home.lock_path().as_str(),
+            std::io::Error::from(std::io::ErrorKind::NotFound),
+        );
+        assert!(home.is_lock_setup_path_missing(&missing_inside));
+        for (path, kind) in [
+            (
+                home.lock_path().to_string(),
+                std::io::ErrorKind::PermissionDenied,
+            ),
+            (
+                format!("{}-other/.lock", home.root()),
+                std::io::ErrorKind::NotFound,
+            ),
+        ] {
+            assert!(!home.is_lock_setup_path_missing(&Error::io(path, std::io::Error::from(kind))));
+        }
+        let denied = PermissionRestore::deny(home.root().as_path().as_std_path());
+        let result = home.acquire_lock();
+        drop(denied);
+        let Error::Io { path, source } = result.unwrap_err() else {
+            panic!("real denied root must return its original I/O error")
+        };
+        assert_eq!(path, home.root().as_str());
+        assert_eq!(source.kind(), std::io::ErrorKind::PermissionDenied);
+        assert!(!home.lock_path().as_path().exists());
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T50
+    #[test]
+    fn confined_missing_paths_are_lexical_and_do_not_create_ancestors() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let base = AbsPath::new(root.to_str().unwrap()).unwrap();
+        let path = Home::confine(&base, "new/leaf.txt").unwrap();
+        assert_eq!(path.as_str(), root.join("new/leaf.txt").to_str().unwrap());
+        assert!(!root.join("new").exists());
+        let absent_base = AbsPath::new(root.join("not-created-base").to_str().unwrap()).unwrap();
+        let absent_target = Home::confine(&absent_base, "new/leaf.txt").unwrap();
+        assert_eq!(
+            absent_target.as_str(),
+            root.join("not-created-base/new/leaf.txt").to_str().unwrap()
+        );
+        assert!(!root.join("not-created-base").exists());
+        std::fs::write(root.join("occupied"), b"retain").unwrap();
+        let error = Home::confine(&base, "occupied/sub/leaf.txt").unwrap_err();
+        let Error::Io { path, source } = error else {
+            panic!("non-directory ancestor must retain I/O cause")
+        };
+        assert_eq!(path, root.join("occupied/sub/leaf.txt").to_str().unwrap());
+        assert_eq!(source.kind(), std::io::ErrorKind::NotADirectory);
+        assert_eq!(std::fs::read(root.join("occupied")).unwrap(), b"retain");
+    }
+
+    // Task: C002-T50
+    #[cfg(feature = "failpoint")]
+    #[test]
+    fn a_confined_missing_target_remains_lexical_when_its_base_disappears() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let original_base = root.join("base");
+        std::fs::create_dir(&original_base).unwrap();
+        std::fs::write(original_base.join("original"), b"retain base material").unwrap();
+        let base = AbsPath::new(original_base.to_str().unwrap()).unwrap();
+        let expected = original_base.join("new.txt");
+        assert_eq!(
+            Home::confine(&base, "new.txt").unwrap().as_str(),
+            expected.to_str().unwrap()
+        );
+        let reader_base = base.clone();
+        let moved = root.join("moved-base");
+        let result = crate::fsx::controlled_object_tests::observe_change(
+            "confine_after_base_canonicalize",
+            base.as_str(),
+            move || Home::confine(&reader_base, "new.txt"),
+            || {
+                std::fs::rename(&original_base, &moved).unwrap();
+            },
+        );
+        assert_eq!(result.unwrap().as_str(), expected.to_str().unwrap());
+        assert!(!original_base.exists());
+        assert_eq!(
+            std::fs::read(moved.join("original")).unwrap(),
+            b"retain base material"
+        );
+        assert!(!moved.join("new.txt").exists());
     }
 }
