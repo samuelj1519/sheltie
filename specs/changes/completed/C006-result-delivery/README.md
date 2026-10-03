@@ -1,6 +1,6 @@
 # C006：取得可编辑的最终成果副本
 
-状态：`active`（2026-10-04恢复当前agent副本与原生载体验收）
+状态：`completed`（2026-10-04当前agent副本与APFS跨设备验收）
 目标版本：`v0.3.0`（尚未发布，外围工具不进入dist）
 兼容性：`只采用 work-result/v1 与本方案的源读取合同；release 版本仅标识来源`
 基线：`8d27348d995a434ae3dbf8255e1110973dec1381`
@@ -52,3 +52,7 @@ Owner：`Codex /root`
 ## 历史限定完成范围
 
 实现/raw/export/精确崩溃窗口/指南与M2限定验收完成。842语义PASS、21公开链、默认14机制与MSRV有原件；4旧CLI LEAK unknown保留。真实使用价值、其他OS/跨设备、工具要求版本/dist实际计划与fresh审查延期。完整边界见validation/review，不当发行或原全范围验收。
+
+## 当前恢复验收
+
+T07/T08/M3当前采用scope完整独审通过：真实三报告副本由新agent实际编辑/使用，same-result原CLI/script对照质量相同，newcopy保旧编辑；本机真实挂载APFS虚拟载体不同st_dev全CLI导出/字节/manifest/权限/源状态保全/owned卸载完成。工程、正确nextest、native/MSRV951/fresh/dist6按精确资格闭合。原真人/人类费用/净收益、物理外置盘/其他OS、四旧LEAK因果未知留原；不当对外发行。完整范围见validation/原件，进度仅plan。

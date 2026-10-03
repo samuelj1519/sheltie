@@ -1,9 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[`C006 恢复当前验收`](active/C006-result-delivery/README.md)
+Active change：无
 
-C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，当前只恢复C006，后续依次恢复C007–C008。
+C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，后续依次恢复C007–C008。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -16,14 +16,13 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-| Change | 范围 | 入口 |
-| --- | --- | --- |
-| C006 | 真实agent副本使用、同质量原CLI对照与APFS跨设备载体 | [README](active/C006-result-delivery/README.md) |
+无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C006 | 真实agent副本/两组同质量/编辑与newcopy/跨APFS导出卸载和完整限定链通过；原真人/费用/物理盘/旧unknown留原 | [README](completed/C006-result-delivery/README.md) |
 | C005 | 当前macARM真实1.85新951/5doc及EX01–08同源工程和需求负前检通过；原真实撤销/真人/费用/旧LEAK因果留原 | [README](completed/C005-executor-continuity/README.md) |
 | C004 | 当前agent实际质量/同Attempt冷接续/三refs与新消费者逐查询和实际使用通过；旧真人/成本/取证偏差留原 | [README](completed/C004-verifiable-delegation/README.md) |
 | C002 | 当前采用恢复义务完整Spec/工程scoped PASS；macOS aarch64/APFS可构造输入，215处分与旧未执行限制分列 | [README](completed/C002-v0.2.0-reliability/README.md) |

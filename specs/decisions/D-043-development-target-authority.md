@@ -2,7 +2,7 @@
 
 状态：`accepted`
 日期：2026-10-03
-关联 change：[C006](../changes/active/C006-result-delivery/README.md)
+关联 change：[C006](../changes/completed/C006-result-delivery/README.md)
 
 产品实施完成后仍可保留未发布RC，随后执行不进入产品release的实验。现有check-specs只从active目标取基础版本，归档产品package后误拒绝同一RC。
 

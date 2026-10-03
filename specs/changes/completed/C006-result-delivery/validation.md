@@ -206,3 +206,13 @@ T07提交f74881a及freeze blob已实际核；prepare实际从C005完成18:45:12�
 实际diskutil ASIF/APFS create/attach/info/cross-export/eject全部exit0，源st_dev16777234、target16777243，真实独立挂载虚拟volume disk7s1由ownedimage返回，不是外置物理盘或别的OS。跨设备all3/manifest/权限与原五表对象核相同，证据bytes转存未挂载root后只eject本ownedmount，无force；后mountpoint不存在/非mount，device路径不存在，原9MiB镜像保留。原plist/argv/raw/identity及cross-device-verification留原，complete只规定OSsync不当断电保证。
 
 所有7外层engine/export查询逐次5表/47业务对象before=after，exit0/无timeout/源original不变；SQLite控制载体例外明确。16份实际manual/tool-edited/tool-new/cross-persisted文件归档actual-copies.tar.gz逐SHA读回，.md原文不因typos改字节。没有新Rust或人为kill/竞争，旧crash/边界/来源能力用同当前输入的真实native951/MSRV951精确引用，旧4LEAK未知/原缓存版本/其他OS/真人限制不注销。独立完整当前scope审PASS，无剩余产品/oracle必修；实际actor停写/来源链/DL01–10/工程原件与当前Home最终快照已核。五治理均0；提交、归档和最终总墙钟仍待，不预授完成。
+
+## C006-M3 当前采用完整限定验收
+
+独立Reviewer完整当前scope PASS固定T08原件，T08提交82611f8全195文件blob实际同值，hooks通过。执行关闭时46直接源全SHA无漂移，后续仅guide/入口收尾文案更新，原freeze/运行记录不回写，不能用历史observe脚本直接重跑新事实。source192/134、native/MSRV951及dist/fresh精确闭包未变，无新增产品机制；原actor真实编辑/消费者、两对照质量、newcopy保旧编辑、跨APFS全体字节/权限及owned卸载通过。
+
+所有11原子命令exit0，7外层Home观察完整前后当前仍同；旧root额外suffix序列化assertion错误和独审允许的内容oracle纠正留原，不隐藏投入。两个传递来源由事前commit链核，原46名单不结果后扩大。16实际copy文件归档全SHA读回。成本只有agent/script单pair，设备/APFS虚拟性质、未知usage/付费/真人/净收益和旧四LEAK原因准确分列。
+
+guide更新为当前已实际完成副本/不同st_dev虚拟APFS与旧编辑保留，仍不说外置盘/其他OS、人类净收益、物理断电或同权限隔离。归档完整文件集合/index/原字节和根入口由独立增量再核，提交后全blob读回与连续最终墙钟实际记录；原45min上限不重置。无push/merge/release/宿主安装，随后C007依次恢复。
+
+M3首次提交f266c59全部hooks通过、206完整package文件blob与磁盘逐字节读回、204 manifest基准逐SHA同值；实际run全收尾至首次读回1012.899224s，低于45min。原值m3-postcommit-first-audit.json保全；Root首次suffix错误原输入/exit1响应两条session记录已补。首次提取定位失败未写新原件，后续错误发起的无内容amend92d2034只改提交元数据，tree不变，不作新增门禁证据；完整错误/耗时保留。现在同M3并入真实原件，最终完整树和后续总时间另实际读回，不把首次值当最后值。
