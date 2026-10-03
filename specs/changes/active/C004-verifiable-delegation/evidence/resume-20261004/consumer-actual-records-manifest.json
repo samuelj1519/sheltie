@@ -1,0 +1,28 @@
+{
+  "session_path": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T02-13-51-01a102f8-f16f-7262-b758-dde1c48c05ec.jsonl",
+  "session_id": "01a102f8-f16f-7262-b758-dde1c48c05ec",
+  "instance": "/root/c004_actual_consumer",
+  "source_line_extraction": "metadata/user/final/tool inputs/results/task_complete only; no hidden analysis",
+  "sha256": "2e09038cd2e648ea53de3a343264d6670d2fbc05d44644a34c7daa7f117aaad8",
+  "record_count": 26,
+  "tool_calls": 11,
+  "tool_results": 11,
+  "task_complete": {
+    "timestamp": "2026-10-03T18:15:59.189Z",
+    "ordinal": 97,
+    "type": "event_msg",
+    "payload": {
+      "type": "task_complete",
+      "turn_id": "01a102f8-f1cc-7162-a3f7-d3f202bd958d",
+      "last_agent_message": "已写入并停止写：[consumer-report.md](/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C004-verifiable-delegation/evidence/resume-20261004/consumer-report.md)。\n\n- status/result 各查询一次，CLI/观察器均 exit `0`；四份快照相同。\n- 三成果 bytes/SHA/source 与 `deliver#1.0` 匹配；84 项冻结 SHA 无漂移。\n- 已执行交付首动作，两命令均 exit `0`。真实试用七字段仍 null；当前仅支持普通文档接续准备。\n- 报告写入、最终读回均 exit `0`；未启动后台进程、未留下未完成 session、未派 agent。\n- 未修改原件/Home/C005。真实撤销、真人接受及费用未获事实，留原边界。\n\n报告 SHA-256：`aa9021ceecf92b707cea31e965a24d542b7987a681a0196596d333a1133c52f5`。",
+      "started_at": 1791051231,
+      "completed_at": 1791051359,
+      "duration_ms": 127490,
+      "time_to_first_token_ms": 6621
+    }
+  },
+  "report_sha256": "aa9021ceecf92b707cea31e965a24d542b7987a681a0196596d333a1133c52f5",
+  "completed_turn_observed_utc": "2026-10-03T18:16:18.481514+00:00",
+  "local_prior_use": 0,
+  "model_human_prior_use": null
+}

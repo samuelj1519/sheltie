@@ -184,3 +184,11 @@ Root作为真实下一C005消费者读取三文档并按交付首动作实际读
 F02旧B快照不可追补。独立Reviewer确认原running窗口+新fork-none完成Work真实消费的每查询观察足够，无需重复文档生产或造新撤销样本。新规程、84实际冻结路径（含Work task/project原件）、observer、prompt均在consumer-*文件；observer只读五表/业务对象，Home外新证据不覆盖，透传原CLI stdout与exit，CLI/observer资格失败exit分别记，正常/timeout部分字节以base64留原。原run17:41:37连续60min计；CLI前剩余时间重核、timeout受remaining限制、结束后超限不得成功。
 
 独审初版发现入口deadline不足与实际start-inputs未冻结，尚未派consumer时修正，原finding保存。语法AST和84SHA检查通过；独立事前窄审PASS，freeze/observer/84原件及原finding逐核；先提交T09再派T10，不提前授实际消费或M3 PASS。无新产品行为或管理状态；原21日志提交d8e0349已逐blob读回同值。
+
+## C004-T10 新消费者实际逐查询与使用
+
+T09提交62f0d49后派新fork-none /root/c004_actual_consumer。实际status/result各一次，CLI与observer exit均0、期限内，每条5表全部行和47业务对象before=after；base64原字节与stdout/stderr一致，两个窗口四快照也相同。当前revision7/succeeded、三source均具体deliver#1.0，非第二结果源。原件为consumer-status/result-observation.json；Root独立字节/行/对象核对见t10-coordinator-observation-check.json。
+
+消费者由refs实际读三成果算bytes/SHA，读开工包/审查/交付并按首动作实际读原validation/preflight，自写[准备判断](evidence/resume-20261004/consumer-report.md)。不是引擎新Node，不写Home/C005；七真实撤销前提仍null，当前只有普通文档接续，拒绝造replace样本。84SHA无漂移，11tool输入/响应均有对应完成记录，18:15:59Z task_complete、原始source_line/session见consumer-actual-records-manifest.json，停写仅自己命令和completed turn，不扩为全宿主。
+
+该新实际观察结合原running窗口补当前只读能力与真消费，原B两次逐查询快照仍未发生，不把原run改成每条已观测。原真人/费用/净收益、C005撤销/旧LEAK等不变。所有补取证/门禁/审核投入从17:41:37连续计，T10报告18:15:45时为2048.650s，不作为最终总成本。独立Reviewer已逐原session的11/11工具和消费者内容/实际查询增量核通过，F02当前能力闭合，旧B偏差永久留原；docs/specs/tests/skill/core-vocab治理均exit0，任务范围/提交读回随后完成。

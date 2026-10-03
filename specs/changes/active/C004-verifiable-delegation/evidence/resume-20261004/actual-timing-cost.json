@@ -111,7 +111,7 @@
   },
   "trial_start_utc": "2026-10-03T17:41:37.324097+00:00",
   "records_observed_utc": "2026-10-03T18:00:06.831596+00:00",
-  "elapsed_wallclock_s": 1424.858327,
+  "elapsed_wallclock_s": 2100.435199,
   "max_wallclock_s": 3600,
   "usage": null,
   "paid_cost": null,
@@ -130,5 +130,12 @@
   "command_output_granularity": "All actual tool calls have completed synchronous results; deliver early r.output prints omitted shell exit-code fields. Do not independently label each shell exit0; worker exit0 statement remains self-report.",
   "timing_field_correction": "Independent review identified task_complete and final message as distinct events; both exact raw timestamps retained under correct names.",
   "trial_execution_and_initial_review_recorded_utc": "2026-10-03T18:05:22.182424+00:00",
-  "completion_scope": "actual deliver and consumer complete; final governance/commit and M3 raw/query repairs still pending, not final C004 total"
+  "completion_scope": "actual deliver and consumer complete; final governance/commit and M3 raw/query repairs still pending, not final C004 total",
+  "latest_recorded_utc": "2026-10-03T18:16:37.759296+00:00",
+  "supplemental_tasks": [
+    "T08 raw tracking repair",
+    "T09 observer preflight and findings repair",
+    "T10 new actual consumer with every query snapshot"
+  ],
+  "final_total_pending": true
 }
