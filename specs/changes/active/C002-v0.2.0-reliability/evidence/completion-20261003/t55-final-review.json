@@ -1,0 +1,946 @@
+{
+  "result": "PASS_scoped_T55_G08_current_candidate",
+  "reviewer": "independent read-only; no implementation/oracle author",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "1d08de8efe6a865b6b7ae429c240d84b33a1a462d3cbf7545e3c36db95264d53",
+    "crates/sheltie-runtime/src/pending.rs": "a7f3dae65535a7bf2f45b29768dc25fcee3f74e54a7920ec6535c69d7c4d537d",
+    "crates/sheltie-runtime/src/effects.rs": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+    "crates/sheltie-runtime/tests/effect_contracts.rs": "a884ae60f05f169c8c5d347f36384ce4be8d8783842704a2139d4c4c1d1c79b1",
+    "crates/sheltie-runtime/tests/common/owned_tempdir.rs": "c1fbc74d80e9db9567f43ae773ed867f3b908261bc931191301e3c76e7ac9e20"
+  },
+  "input_count": 190,
+  "gate_input_count": 134,
+  "source_unchanged_verified": true,
+  "original33_unique_exact_set": true,
+  "counts": {
+    "old_direct_dynamic_caught": 20,
+    "old_scoped_static": 4,
+    "old_structural_current_candidate_qualified": 9,
+    "old_native_executed_by_structural_path": 0,
+    "new_shared_broad_caught": 9,
+    "new_shared_pure_caught": 9,
+    "timeout": 0,
+    "compile_caught": 0,
+    "missing_current_G08": 0
+  },
+  "direct_classification_counts": {
+    "cause_code_diagnostic": 1,
+    "private_integrity_check_returned_Ok": 3,
+    "late_endpoint_result_not_StoreCorrupt_source_success_inference": 2,
+    "first_marker_qualification_diagnostic": 1,
+    "old_root_epoch_binding_returned_Ok": 4,
+    "corrupt_global_registration_returned_list": 1,
+    "completion_marker_created_before_late_refusal": 1,
+    "replaced_object_recursive_operation_returned_Ok": 3,
+    "preflight_side_effect_before_refusal": 2,
+    "valid_symlink_purge_refused": 1,
+    "temporary_IO_misclassified_as_absence": 1
+  },
+  "old_history_preserved": true,
+  "old1595_outside215": "stage1Missed + original later focusedCLI caught, no newG08old obligation",
+  "full_engineering": {
+    "tests": 935,
+    "passed": 935,
+    "skip": 0,
+    "leak": 0,
+    "run": "b062be43-16ad-4137-8760-805efe524d21",
+    "compilefail": 5,
+    "fmt_check_clippy_msrv_default": 0
+  },
+  "direct_entries": [
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:865:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:859:37: replace match guard source.kind() == std::io::ErrorKind::AlreadyExists with false in classify_committed_path_error",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "a_repaired_history_collision_reports_corruption_and_preserves_the_competing_original",
+          "panic": "assertion `left == right` failed\n      left: Io\n     right: StoreCorrupt"
+        }
+      ],
+      "log_sha256": "8f31a83675914bd0b8a659e75ac5e8fade5b2dc9bebaa00c705047eb4d14a1b6",
+      "diff_sha256": "9f63b15dd0d88bbae7368ea598d3a4c14f86c63bd8b74a2c999798088cf44d99",
+      "classification": "cause_code_diagnostic"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1020:23: replace || with && in verify_publish_final_state",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1014:23: replace || with && in verify_publish_final_state",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::final_publication_refuses_an_additional_pending_tree_even_when_final_is_the_verified_original",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "8e17579c5f616e71eb23a70383efe347a155e2dc5dc6999065126b884aec3f70",
+      "diff_sha256": "8d170b6dbe7d5a95cb6d2ccefd61746e57df38df6534877fa964b281a51943c3",
+      "classification": "private_integrity_check_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1018:5: replace verify_publish_final_state -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1012:5: replace verify_publish_final_state -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::final_publication_refuses_an_additional_pending_tree_even_when_final_is_the_verified_original",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "85d3380c34ac1bf9458ff01de62b27bd690dcb6114aa5a8556f235ee21ec9a63",
+      "diff_sha256": "f98ac7da918c802b29eba79b30054e623d297d33e538cd25bd14ada59452ed20",
+      "classification": "private_integrity_check_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1113:5: replace verify_owned_digest -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1107:5: replace verify_owned_digest -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "ceb8942f918ca124e743de959036f15d798d9d6d2b8d9a30adea3140f482ddd2",
+      "diff_sha256": "0499ed279d9f7659ce75f6c210f7b857285fce38502e94410eeedeb554d3bdb1",
+      "classification": "private_integrity_check_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1159:13: replace || with && in delete_dir",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1153:13: replace || with && in delete_dir",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor",
+          "panic": "assertion failed: matches!(result, Err(Error::StoreCorrupt { .. }))"
+        }
+      ],
+      "log_sha256": "7b756df7cb29dae131aff1b158ccbac13fff73e7db7174c29257e00197aa1058",
+      "diff_sha256": "543afdf84fefa3dbe35304da961b0ca5d5556d83f6e4620f9f0b0d560eb16a85",
+      "classification": "late_endpoint_result_not_StoreCorrupt_source_success_inference"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1152:27: replace || with && in delete_dir",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1146:27: replace || with && in delete_dir",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor",
+          "panic": "marker同步期间删除请求 marker-remove 出现目录对象"
+        }
+      ],
+      "log_sha256": "a47d2e9e0f70e1c7f3e09c3119778c5c7db6dd4116c7186ff10960e3d58572b6",
+      "diff_sha256": "65c41f4fe53c80615238f37db8fa68fc46539c5a03e727c4c7be3d5839d04dca",
+      "classification": "first_marker_qualification_diagnostic"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:672:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:568:9: replace ManagedFs::verify_tree_at -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "7780c6d0f1ac97eaa2b6a1db6c590468836377b6336f5703bc9f57bd0df59216",
+      "diff_sha256": "ec1b647f7731c467af7ed633250895d4ee6ea34d5d58b3d3f796b8007da0e3ef",
+      "classification": "old_root_epoch_binding_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:921:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:813:9: replace ManagedFs::check_tree_root -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "900c823a08ee37c942723c043584089ee4fc2b5daf768ac83adb65047d9f2d17",
+      "diff_sha256": "bf59b1ea1b95ff40c645ab3e1427ed84299ebc0a4153484ed97f697766e6783b",
+      "classification": "old_root_epoch_binding_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:3026:5: replace verify_managed_tree_at -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2770:5: replace verify_managed_tree_at -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "206032d79ff1112213144f95deb1e2bd2efbf7fa13bd385e473f2c2237e1eafb",
+      "diff_sha256": "9972ed52f37dab56a1920baa946f792af01ef9d61f2cc3e2203fbb4a1b571b6c",
+      "classification": "old_root_epoch_binding_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:921:35: replace || with && in ManagedFs::check_tree_root",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:813:35: replace || with && in ManagedFs::check_tree_root",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: ()"
+        }
+      ],
+      "log_sha256": "66b2ddfa554ac5a1ad4d0a198bb96236c88dc86780b2b1673bbfbfbe5b48f003",
+      "diff_sha256": "e757b28f170fb2a786b032254929d1ac5f1e86d0fe244d6b6b2ee6c0ca0f3369",
+      "classification": "old_root_epoch_binding_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:858:13: replace || with && in validate_publish_reference",
+      "old_id": "crates/sheltie-runtime/src/pending.rs:852:13: replace || with && in validate_publish_reference",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "workbook_listing_rejects_a_global_work_publication_bound_to_another_legal_final_path",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: [WorkbookListItem { id: \"two-step\", version: \"1.0.0\", digest: \"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\", pending_publish: false }]"
+        }
+      ],
+      "log_sha256": "09b9cc6b87839a1f3db1d0e6bd8b9877c94ba3319d5b20a8f6055bb01337e367",
+      "diff_sha256": "efd31b18a5566e48c6379a3652529189fa109cc39593d93ef0d23a4f4bc8480c",
+      "classification": "corrupt_global_registration_returned_list"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1209:9: replace || with && in delete_dir",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1203:9: replace || with && in delete_dir",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::deletion_rechecks_single_late_endpoints_after_tree_removal_and_after_marker_publication",
+          "panic": "endpoint refusal must precede creating a false completion marker"
+        }
+      ],
+      "log_sha256": "a9d03ab2015bc73fadc470e3a8a45ca35a171282459b9eddeb79ef6784d9563c",
+      "diff_sha256": "a3c4a8bce2b80e206950fb4a2493dd039277e12861a9b02fb5b4e2b9a7284b97",
+      "classification": "completion_marker_created_before_late_refusal"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2613:37: replace || with && in remove_at",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2450:37: replace || with && in remove_at",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects",
+          "panic": "assertion failed: result.is_err()"
+        }
+      ],
+      "log_sha256": "c9a9f7267738a8884a4ec7d12106068648a8e433ea059f9607eddd56332bdfa2",
+      "diff_sha256": "2b4571b5725b7e827ac757733552320d27082deb1fc69b65810a6c0562ca3c1e",
+      "classification": "replaced_object_recursive_operation_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1218:9: replace || with && in delete_dir",
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1212:9: replace || with && in delete_dir",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::deletion_rechecks_single_late_endpoints_after_tree_removal_and_after_marker_publication",
+          "panic": "assertion failed: matches!(result, Err(Error::StoreCorrupt { .. }))"
+        }
+      ],
+      "log_sha256": "93deb1e4bfbb2b66b371a6121166ed0f51056a5c0d31f3f0092829c4d9ce406f",
+      "diff_sha256": "6738e4ea3fcc87aa168b29d5f1aba2469d472190cb267fab291001fae7c1b818",
+      "classification": "late_endpoint_result_not_StoreCorrupt_source_success_inference"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2681:5: replace preflight_remove_at -> Result<()> with Ok(())",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2516:5: replace preflight_remove_at -> Result<()> with Ok(())",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::purge_preflights_the_entire_root_before_any_chmod_or_deletion",
+          "panic": "assertion `left == right` failed: whole-root preflight must precede the first permission or unlink side effect\n      left: {\"\": (16777234, 686713194, 16832, 4, []), \".lock\": (16777234, 686713195, 33152, 1, []), \"zz-late\": (16777234, 686713199, 16832, 3, []), \"zz-late/child\": (16777234, 686713200, 16832, 3, []), \"zz-late/child/hardlink\": (16777234, 686713201, 33188, 2, [101, 120, 116, 101, 114, 110, 97, 108, 32, 108, 105, 110, 107, 101, 100, 32, 111, 114, 105, 103, 105, 110, 97, 108])}\n     right: {\"\": (16777234, 686713194, 16704, 5, []), \".lock\": (16777234, 686713195, 33152, 1, []), \"works\": (16777234, 686713196, 16832, 3, []), \"works/early\": (16777234, 686713197, 16749, 3, []), \"works/early/original\": (16777234, 686713198, 33188, 1, [101, 97, 114, 108, 121, 32, 114, 101, 97, 100, 111, 110, 108, 121, 32, 111, 114, 105, 103, 105, 110, 97, 108]), \"zz-late\": (16777234, 686713199, 16832, 3, []), \"zz-late/child\": (16777234, 686713200, 16832, 3, []), \"zz-late/child/hardlink\": (16777234, 686713201, 33188, 2, [101, 120, 116, 101, 114, 110, 97, 108, 32, 108, 105, 110, 107, 101, 100, 32, 111, 114, 105, 103, 105, 110, 97, 108])}"
+        }
+      ],
+      "log_sha256": "13ecda62f86bd9ef5d231311b39c4d2c06406bd2370cdc14931f92213a3ac358",
+      "diff_sha256": "43cc08cf8bf940c8d536c4dd1eecd3c8f7de10bc2b3bb149d5d49c9a53e0ad31",
+      "classification": "preflight_side_effect_before_refusal"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2684:9: delete match arm FileType::Symlink in preflight_remove_at",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2519:9: delete match arm FileType::Symlink in preflight_remove_at",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::purge_unlinks_a_legitimate_leaf_symlink_without_touching_its_external_target",
+          "panic": "called `Result::unwrap()` on an `Err` value: InvalidRequest { reason: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp8mMsOt/home/leaf-alias 是特殊文件，拒绝 purge\" }"
+        }
+      ],
+      "log_sha256": "1a518cae505e733594a71cae7df93f3223531d2d6e7b353b34f0a3ff225ca269",
+      "diff_sha256": "9348f49d415f449f17c6828666d148f7273ecfc4a7a0bf6d3942661878ffe73f",
+      "classification": "valid_symlink_purge_refused"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2685:34: replace match guard stat.st_nlink == 1 with true in preflight_remove_at",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2520:34: replace match guard stat.st_nlink == 1 with true in preflight_remove_at",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::purge_preflights_the_entire_root_before_any_chmod_or_deletion",
+          "panic": "assertion `left == right` failed: whole-root preflight must precede the first permission or unlink side effect\n      left: {\"\": (16777234, 686728012, 16832, 4, []), \".lock\": (16777234, 686728013, 33152, 1, []), \"zz-late\": (16777234, 686728017, 16832, 3, []), \"zz-late/child\": (16777234, 686728018, 16832, 3, []), \"zz-late/child/hardlink\": (16777234, 686728019, 33188, 2, [101, 120, 116, 101, 114, 110, 97, 108, 32, 108, 105, 110, 107, 101, 100, 32, 111, 114, 105, 103, 105, 110, 97, 108])}\n     right: {\"\": (16777234, 686728012, 16704, 5, []), \".lock\": (16777234, 686728013, 33152, 1, []), \"works\": (16777234, 686728014, 16832, 3, []), \"works/early\": (16777234, 686728015, 16749, 3, []), \"works/early/original\": (16777234, 686728016, 33188, 1, [101, 97, 114, 108, 121, 32, 114, 101, 97, 100, 111, 110, 108, 121, 32, 111, 114, 105, 103, 105, 110, 97, 108]), \"zz-late\": (16777234, 686728017, 16832, 3, []), \"zz-late/child\": (16777234, 686728018, 16832, 3, []), \"zz-late/child/hardlink\": (16777234, 686728019, 33188, 2, [101, 120, 116, 101, 114, 110, 97, 108, 32, 108, 105, 110, 107, 101, 100, 32, 111, 114, 105, 103, 105, 110, 97, 108])}"
+        }
+      ],
+      "log_sha256": "55096b8653601c07da91832b6937ca5cbfab014a3c222f6c35830d9243767947",
+      "diff_sha256": "2da156581eb8e6a86569aa3ad1a05d3ccfd701e5612ae1761976c2a01ebc1730",
+      "classification": "preflight_side_effect_before_refusal"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:3347:45: replace || with && in set_dir_tree_mode",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:3085:45: replace || with && in set_dir_tree_mode",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects",
+          "panic": "assertion failed: result.is_err()"
+        }
+      ],
+      "log_sha256": "a4d5e828542ebc18c7a94a2da833ad1fe333982b8e194418418d53dc60589694",
+      "diff_sha256": "ab6e7050d9b2df7d9782db7012bf84a88c8575cfa307d96231922aa8832e55ca",
+      "classification": "replaced_object_recursive_operation_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:3379:45: replace || with && in set_dir_tree_mode",
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:3113:45: replace || with && in set_dir_tree_mode",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects",
+          "panic": "assertion failed: result.is_err()"
+        }
+      ],
+      "log_sha256": "64e4d70a3827a852dc9325ef808ccb4e7a56595d542e51d142fb8044efb1eb18",
+      "diff_sha256": "07d1b44ebf60925808da00212c3a9d3a0d4e211c69d21e0cfab412131c7634e1",
+      "classification": "replaced_object_recursive_operation_returned_Ok"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:233:25: replace && with || in locate_publish_dir",
+      "old_id": "crates/sheltie-runtime/src/pending.rs:227:25: replace && with || in locate_publish_dir",
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::readonly_locator_accepts_only_the_single_qualified_registered_tree",
+          "panic": "unqualified endpoints remain temporary IO, not false absence"
+        }
+      ],
+      "log_sha256": "1f8ad1e91c32129b9f6caa706caa40d0a78180b08173b55aeb467b9f2fdf11cc",
+      "diff_sha256": "16f13514c76ac7c1f5472f30a44348691a64ca7af12cc01b867d438213857869",
+      "classification": "temporary_IO_misclassified_as_absence"
+    }
+  ],
+  "new_shared_broad_entries": [
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:5: replace directory_has_identity -> bool with true",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_rename_checks_the_native_source_before_moving_a_competitor",
+          "panic": "source identity refusal must precede moving the competitor"
+        }
+      ],
+      "log_sha256": "fac65959bc1da472682a0ca5e78e581c9f6835b1c2f829def7b1c75dba7ab49c",
+      "diff_sha256": "51ab212447a9373bf0576e81b3f346e19cc8efb18b849bc5907117e5bc5b5f2e"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:33: replace && with || in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::a_tree_rename_checks_the_native_source_before_moving_a_competitor",
+          "panic": "source identity refusal must precede moving the competitor"
+        },
+        {
+          "test": "fsx::directory_binding_contract_tests::deletion_checks_the_current_name_before_unlinking_a_different_empty_root",
+          "panic": "name verification must not unlink the competitor"
+        }
+      ],
+      "log_sha256": "7e8163028363d6bfed5c6ff5baeadbb20d297c7cd06eb115abe10fa28f67ce2c",
+      "diff_sha256": "2ef6f606fad88756b863fcc9a36ca22e49216ec2ed689412cd3a885e1ab3d771"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:5: replace directory_has_identity -> bool with false",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::a_changed_owned_digest_stops_removal_before_moving_or_deleting_the_original",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpGBdyN2/home/tmp/store-init-01a1017eabe576c09e52f2c06adf58d1 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmptj5Lo1/home/tmp/store-init-01a1017eabe577da86d1c14ffda3701a 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmppZ4W8t/home/tmp/store-init-01a1017eabe5763083928c16f0258f5e 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpqUnJsF/home/tmp/store-init-01a1017eabe575408eeca64fbb6ce2d6 不再指向已验证的目录inode\" }"
+        }
+      ],
+      "log_sha256": "512767ce37f7f2c56759b2036b7a167621d4ca7e32883e7db48ecb3f8fc72d6f",
+      "diff_sha256": "7adb04ed1e6927348240364f78f19860f2294c1ffe8f0a179d04dc7584ff6a9a"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:10: replace == with != in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpNtTd2f/home/tmp/store-init-01a1017eb5b570ea90cbf80455529200 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::a_changed_owned_digest_stops_removal_before_moving_or_deleting_the_original",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpbaSy14/home/tmp/store-init-01a1017eb5b571ce8a210b5bb1aca4db 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpgmxkN4/home/tmp/store-init-01a1017eb5b577a7a3e6593ff27f2d8c 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpaXLMHU/home/tmp/store-init-01a1017eb5b57116a9602c4ae09f00e3 不再指向已验证的目录inode\" }"
+        }
+      ],
+      "log_sha256": "a43581fb0eedd1f8aa468da6b4f6fa6d9b28d912ed44c49b64817cde3206512e",
+      "diff_sha256": "70e61f6627b5da635058bf1440054ba6f07e4b8fd0293dad565e674e6077319c"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:43: replace == with != in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::terminal_effect_contract_tests::a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpixCY0Q/home/tmp/store-init-01a1017ec00471ae8ef09f6e9651d3a4 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::a_changed_owned_digest_stops_removal_before_moving_or_deleting_the_original",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpjpzRhr/home/tmp/store-init-01a1017ec00370f0b79b9ecdf8808560 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::terminal_effect_contract_tests::deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmp7IFaLM/home/tmp/store-init-01a1017ec004718d8ecfda4277cd68c3 不再指向已验证的目录inode\" }"
+        },
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpMesANr/home/tmp/store-init-01a1017ec004727395bc91e53eb9cb67 不再指向已验证的目录inode\" }"
+        }
+      ],
+      "log_sha256": "a9e590ec8c258370866486fee502d873a168674a0149aa439c0b48131078c551",
+      "diff_sha256": "41b2be5cce798be9b1751aba801a27264a9bf5a358b056d0e226dd908d17de69"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:5: replace sole_directory_exists -> bool with true",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: EffectPending { committed: true, request_id: \"owned-work-start\", pending_request_id: None, cause: Io, cause_detail: \"works/2026-10-03-001-default：pending/final目录在只读读取期间持续rename交错\", original: Some(\"{\\\"data\\\":{\\\"flow\\\":\\\"default\\\",\\\"name\\\":\\\"default\\\",\\\"replayed\\\":false,\\\"requires\\\":[],\\\"work_dir\\\":\\\"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpobKR8k/home/works/2026-10-03-001-default\\\",\\\"work_id\\\":\\\"2026-10-03-001-default\\\",\\\"workbook\\\":{\\\"digest\\\":\\\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\\\",\\\"id\\\":\\\"two-step\\\",\\\"version\\\":\\\"1.0.0\\\"}},\\\"next\\\":[{\\\"args\\\":{\\\"node\\\":\\\"outline\\\",\\\"work\\\":\\\"2026-10-03-001-default\\\"},\\\"executor\\\":\\\"agent\\\",\\\"op\\\":\\\"attempt begin\\\",\\\"tier\\\":\\\"standard\\\"},{\\\"args\\\":{\\\"work\\\":\\\"2026-10-03-001-default\\\"},\\\"op\\\":\\\"work cancel\\\"}],\\\"ok\\\":true,\\\"request_id\\\":\\\"owned-work-start\\\",\\\"revision\\\":1}\"), pending_original: None }"
+        }
+      ],
+      "log_sha256": "0ff9dd8dace4a34b62c9abb9fb8bb9c882a42a36fff4351f1c2d8d98a835ba27",
+      "diff_sha256": "175de12e6261934d53449d321a1cb3e40873e2e440189736cde5221adc740794"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:5: replace sole_directory_exists -> bool with false",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: EffectPending { committed: true, request_id: \"owned-work-start\", pending_request_id: None, cause: Io, cause_detail: \"works/2026-10-03-001-default：发布目录在只读定位期间处于rename交错窗口\", original: None, pending_original: None }"
+        }
+      ],
+      "log_sha256": "7b79f75dfddcf42aeade60e8dabdc2bd204a4b7666076cc920ac81e436abc983",
+      "diff_sha256": "3878fe490d670e914e006e8bcfc90a1a284cdfc39c480af415097be4244accb4"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:22: replace && with || in sole_directory_exists",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::a_competing_endpoint_created_after_the_first_read_invalidates_both_pending_and_final_selection",
+          "panic": "called `Result::unwrap_err()` on an `Ok` value: (AbsPath(\"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpiAc51a/pending/source\"), true)"
+        }
+      ],
+      "log_sha256": "095b0aa8d72479f91524686c869a2b580135eeb9c6fe511ce40a440dfda9f5d5",
+      "diff_sha256": "4b09914c29b36fc1b13a95010dc1e3a331a71947985e9469095d9f763863ee5a"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:25: delete ! in sole_directory_exists",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest",
+          "panic": "called `Result::unwrap()` on an `Err` value: EffectPending { committed: true, request_id: \"owned-work-start\", pending_request_id: None, cause: Io, cause_detail: \"works/2026-10-03-001-default：发布目录在只读定位期间处于rename交错窗口\", original: None, pending_original: None }"
+        }
+      ],
+      "log_sha256": "86892971643e101bb2bf3e0d6a18288e050e5b7f85ef6b92db41c9e184aaee8c",
+      "diff_sha256": "a9e5960a369a47a8f900958cc2120f10190ed117217114318086ea1f74424ce5"
+    }
+  ],
+  "new_shared_pure_entries": [
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:5: replace directory_has_identity -> bool with true",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity",
+          "panic": "assertion `left == right` failed: kind=Directory, actual=(12, 7), expected=(11, 7)\n      left: true\n     right: false"
+        }
+      ],
+      "log_sha256": "e8a17911668ca95dc7511ff11e76eaa2501c11f7fc8a916d8d73fe48d41169d3",
+      "diff_sha256": "51ab212447a9373bf0576e81b3f346e19cc8efb18b849bc5907117e5bc5b5f2e"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:33: replace && with || in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity",
+          "panic": "assertion `left == right` failed: kind=Directory, actual=(12, 7), expected=(11, 7)\n      left: true\n     right: false"
+        }
+      ],
+      "log_sha256": "3dd5d13aa2ab7a72e9217218e0170f33da20acf88230a114a12e070da0f522b8",
+      "diff_sha256": "2ef6f606fad88756b863fcc9a36ca22e49216ec2ed689412cd3a885e1ab3d771"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:10: replace == with != in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity",
+          "panic": "assertion `left == right` failed: kind=Directory, actual=(11, 7), expected=(11, 7)\n      left: false\n     right: true"
+        }
+      ],
+      "log_sha256": "b684f15bcfad1d28c1556f713fc4bc6aec0873f704ba5aad44fcbff20512a80b",
+      "diff_sha256": "70e61f6627b5da635058bf1440054ba6f07e4b8fd0293dad565e674e6077319c"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:5: replace directory_has_identity -> bool with false",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity",
+          "panic": "assertion `left == right` failed: kind=Directory, actual=(11, 7), expected=(11, 7)\n      left: false\n     right: true"
+        }
+      ],
+      "log_sha256": "713ee8849b76921b53eb809ac9039b88ddfb6d3edbdbef5b12158db44037460b",
+      "diff_sha256": "7adb04ed1e6927348240364f78f19860f2294c1ffe8f0a179d04dc7584ff6a9a"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1739:43: replace == with != in directory_has_identity",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity",
+          "panic": "assertion `left == right` failed: kind=Directory, actual=(11, 7), expected=(11, 7)\n      left: false\n     right: true"
+        }
+      ],
+      "log_sha256": "faec15a2df707fc3d450b08ced23860a285c7994e2df722e05bc319ef073a867",
+      "diff_sha256": "41b2be5cce798be9b1751aba801a27264a9bf5a358b056d0e226dd908d17de69"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:5: replace sole_directory_exists -> bool with true",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::only_one_existing_directory_qualifies_as_the_selected_candidate",
+          "panic": "assertion `left == right` failed\n      left: true\n     right: false"
+        }
+      ],
+      "log_sha256": "f0a9b4701626868d3e8decc1ada3c4a6332276255bb6108fdbc08dd8c9dcaceb",
+      "diff_sha256": "175de12e6261934d53449d321a1cb3e40873e2e440189736cde5221adc740794"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:5: replace sole_directory_exists -> bool with false",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::only_one_existing_directory_qualifies_as_the_selected_candidate",
+          "panic": "assertion `left == right` failed\n      left: false\n     right: true"
+        }
+      ],
+      "log_sha256": "06338d21641f0cbd6eed7349d8c1fd08da7faeffae1af2e0f1876f239ede16c0",
+      "diff_sha256": "3878fe490d670e914e006e8bcfc90a1a284cdfc39c480af415097be4244accb4"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:22: replace && with || in sole_directory_exists",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::only_one_existing_directory_qualifies_as_the_selected_candidate",
+          "panic": "assertion `left == right` failed\n      left: true\n     right: false"
+        }
+      ],
+      "log_sha256": "aa416669e557c9fe7f6a2a50c9e0ee0174805f3d340576a3533b3e80628b0cb3",
+      "diff_sha256": "4b09914c29b36fc1b13a95010dc1e3a331a71947985e9469095d9f763863ee5a"
+    },
+    {
+      "current_id": "crates/sheltie-runtime/src/pending.rs:191:25: delete ! in sole_directory_exists",
+      "old_id": null,
+      "build_success": true,
+      "test_failure": 100,
+      "raw_panics": [
+        {
+          "test": "pending::locator_contract_tests::only_one_existing_directory_qualifies_as_the_selected_candidate",
+          "panic": "assertion `left == right` failed\n      left: false\n     right: true"
+        }
+      ],
+      "log_sha256": "d128b85a1ef11db11f852662b04468f02b89a5b1137b24e0d58fcf9ec80ce26c",
+      "diff_sha256": "a9e5960a369a47a8f900958cc2120f10190ed117217114318086ea1f74424ce5"
+    }
+  ],
+  "structural_items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:576:13: replace || with && in ManagedFs::verify_tree_at",
+      "current_id": null,
+      "old_diff_sha256": "ab7670159a45f9e3f6eeb8624a476ff8d82e4d2176acfe62eda7aa53de46a616",
+      "function": "ManagedFs::verify_tree_at",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V2_tree_binding",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/fsx.rs:659:13: replace || with && in ManagedFs::verify_tree_at",
+      "previous_candidate_current_diff_sha256": "45daaa0a18d1d9541fb6ca48fe054e2b599e2b64d58ab7da63aa8e76ce0693ea",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at",
+      "current_id": null,
+      "old_diff_sha256": "e8e39c347a827305dafd938ae4c1978b49ddae86cae6222d40f5f6689b121a90",
+      "function": "ManagedFs::verify_tree_at",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V2_tree_binding",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/fsx.rs:658:13: replace || with && in ManagedFs::verify_tree_at",
+      "previous_candidate_current_diff_sha256": "f623f3ad5c2961597dc72a13e50f9c5d2ebac2051153c7d22fb670d2908cd040",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:617:13: replace || with && in ManagedFs::rename_tree_new",
+      "current_id": null,
+      "old_diff_sha256": "9bee196aa5d111a106df6dfbc40a2f0a0f209898af19920f2472c6913627f871",
+      "function": "ManagedFs::rename_tree_new",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V2_tree_binding",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/fsx.rs:700:13: replace || with && in ManagedFs::rename_tree_new",
+      "previous_candidate_current_diff_sha256": "761d7d217422744a6705ce01f36dadf35cd0de0edaed091bb7af2ebb71cd8d29",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:616:13: replace || with && in ManagedFs::rename_tree_new",
+      "current_id": null,
+      "old_diff_sha256": "d5833bee19b09ebf94869d15a3c06635f1e20f460857d5ede13a8f4bece91a62",
+      "function": "ManagedFs::rename_tree_new",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V2_tree_binding",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/fsx.rs:699:13: replace || with && in ManagedFs::rename_tree_new",
+      "previous_candidate_current_diff_sha256": "9c5266b0eabd1e82d3ce6ec6161c1c07220c3cec7b2bcf9b8592c1ec2fa51d49",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1594:9: replace || with && in verify_tree_entry_at",
+      "current_id": null,
+      "old_diff_sha256": "4406cdc7a2ab26a13e84430bf49f23c79433a42cdade73a0151fb0c02c839e66",
+      "function": "verify_tree_entry_at",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V2_tree_binding",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/fsx.rs:1691:9: replace || with && in verify_tree_entry_at",
+      "previous_candidate_current_diff_sha256": "857405ad22a3e88aeed1cca6ef902a65fccf92a798c9893dfb0f7ade3424d237",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir",
+      "current_id": null,
+      "old_diff_sha256": "51bb6fe08a4b9c9258375bcfdd4db6d5421e7d5b95b613910416e853ccf4a2c4",
+      "function": "locate_publish_dir",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V5_readonly_location",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/pending.rs:211:27: replace && with || in locate_publish_dir",
+      "previous_candidate_current_diff_sha256": "51bb6fe08a4b9c9258375bcfdd4db6d5421e7d5b95b613910416e853ccf4a2c4",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:214:30: replace && with || in locate_publish_dir",
+      "current_id": null,
+      "old_diff_sha256": "6e76c8ce2cff7d91bd7a53e24e1c2f4f908763ef1cbc854508309095fbe24168",
+      "function": "locate_publish_dir",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V5_readonly_location",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/pending.rs:214:30: replace && with || in locate_publish_dir",
+      "previous_candidate_current_diff_sha256": "6e76c8ce2cff7d91bd7a53e24e1c2f4f908763ef1cbc854508309095fbe24168",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:218:28: replace && with || in locate_publish_dir",
+      "current_id": null,
+      "old_diff_sha256": "84d80862b4b41c649926ec1351f7ca01c2deaf33380cea929ca2883d0c72c5b0",
+      "function": "locate_publish_dir",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V5_readonly_location",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/pending.rs:218:28: replace && with || in locate_publish_dir",
+      "previous_candidate_current_diff_sha256": "84d80862b4b41c649926ec1351f7ca01c2deaf33380cea929ca2883d0c72c5b0",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:221:31: replace && with || in locate_publish_dir",
+      "current_id": null,
+      "old_diff_sha256": "b893945fe07770c206c4df7f2b4979154e116f1e958f059919f53a9f6f59684d",
+      "function": "locate_publish_dir",
+      "execution": "old_native_not_run",
+      "disposition": "structural_replacement_verified_pending_final_review",
+      "static_boundary": null,
+      "group": "V5_readonly_location",
+      "mapping": "old connector replaced by shared pure directory_has_identity or sole_directory_exists; pending full structural verification",
+      "previous_candidate_current_id": "crates/sheltie-runtime/src/pending.rs:221:31: replace && with || in locate_publish_dir",
+      "previous_candidate_current_diff_sha256": "b893945fe07770c206c4df7f2b4979154e116f1e958f059919f53a9f6f59684d",
+      "current_target": "removed old expression; replacement modules pending final mechanism/wiring/caller verification",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "current_mechanism_execution": "mutation-g08-final/C, 9/9 new shared targets caught; independently scoped from old IDs",
+      "proof": "pure interface tables + exact same-role wiring/IO-order + real caller cases + current final gates; final independent review pending",
+      "scope": "current replacement contract verification only; old native window not executed and old mutant not classified equivalent"
+    }
+  ],
+  "scoped_static_items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1080:45: replace || with && in verify_start_input_references",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1086:45: replace || with && in verify_start_input_references",
+      "old_diff_sha256": "92f8f02c0f3191533cd96f6f5029b0177fadb605c74412a428d1d2d6ba4e848d",
+      "current_diff_sha256": "096ca74fb7a771ad29402a391606e55c1a75e7f15709cb6d5f1538c275c3cc33",
+      "static_boundary": "all_current_execute_producers_force_both_predicates_false",
+      "scope": "normal completion current execution producers; shape path/SHA guard only",
+      "proof": "CheckedEffects fields private, only check_work_effects/check_workbook_effects factories; Work execution sourceService load->load_row_at->validate_work_paths fixes each state.inputs path to work/start-inputs/key; RefJson path home.to_rel same path, SHA as_str from valid typedSha; checked Publish final exactlyworks/work. Thus mismatch=false, invalidSha=false. Workbook startInputsNone returns early, read-side check_work_effects does not execute, test checked_submit has noPublish. execute passes only checked context.",
+      "difference": "original evaluates/clones/parses valid SHA after false path predicate; mutant&& skips it. No actualIO/error/output difference on current producers normally; no allocation/CPU/OOM equivalence; later actualbytes/sha checks remain necessary",
+      "invalidated_by": "new CheckedEffects factory, raw RefJson startInputs, unvalidated WorkState execution producer",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1299:46: replace || with && in validate_deleted_marker_file",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1305:46: replace || with && in validate_deleted_marker_file",
+      "old_diff_sha256": "61de0c879f2751ed95887ebe293a8ee8566859e238732041dde8c9312de3f038",
+      "current_diff_sha256": "914dd1b224411cb027f15d2c23daff70b858e3b87792fa57fd1ba0e862f80145",
+      "static_boundary": "same_rejection_set_and_stop_via_canonical_bytes_but_diagnostic_changes",
+      "scope": "same ordinary reject/accept set and no further business IO; diagnosis differs",
+      "proof": "one alreadyRead bounded4096 byteVec, LF removed and strict DeletedMarker parsed. Bothbad rejected bybothguards; onebad variant continues pure canonical serialization, but byte equality with expected canonical two fields would imply parsed format/id correct, contradiction. Original andvariant reject before return/sync. Validfields noncanonical reject bysame bytescomparison.",
+      "difference": "internalid inconsistency detail vs canonicalformat detail; extra pure allocations/serialization not equivalent; error JSON/cause_detail differs",
+      "invalidated_by": "dropping canonical compare, alternate accepted format, IO/action inserted before compare",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1519:13: delete match arm FileType::Symlink in sync_dir_tree",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1673:13: delete match arm FileType::Symlink in sync_dir_tree",
+      "old_diff_sha256": "4d06db27bd90bde484a1094ff7057c52934c78ca902780eaab38a0c7da158fad",
+      "current_diff_sha256": "698063b6f84640002781fc8e5ddb18e08196703ea51493060559cd49ef261866",
+      "static_boundary": "same_rejection_and_no_child_io_via_wildcard_but_diagnostic_changes",
+      "scope": "same this-child reject and no child open/sync; diagnosis differs",
+      "proof": "same immutable statmatch kindSymlink goes from explicit return InvalidRequest to wildcard InvalidRequest. Prior entries IOsame, root/furtherchild sync neverreached.",
+      "difference": "符号链接 vs 特殊文件 reason, not full errorresponse equality",
+      "invalidated_by": "wildcard semantics or match ordering changes",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2521:9: delete match arm FileType::RegularFile in preflight_remove_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2686:9: delete match arm FileType::RegularFile in preflight_remove_at",
+      "old_diff_sha256": "298ead2431c6e0b28de023e5c702826e6213766ca5f1b4979fe323414bf69d4e",
+      "current_diff_sha256": "3ee8a845281970b005f533432eba614736bf0bdd69ac2da5357b4a2b3345483b",
+      "static_boundary": "same_rejection_and_preflight_stop_via_wildcard_but_diagnostic_changes",
+      "scope": "same preflight reject/accept set and no chmod/unlink; diagnosis differs",
+      "proof": "RegularFile ifnlink==1 firstarm unchanged. Remainingregular non1 drops from explicit InvalidRequest to wildcard same InvalidRequest. Directory/symlink branches unchanged; current immutable stat nlink reused.",
+      "difference": "硬链接nlink detail vs 特殊文件; not nlinkguard->true or wholeFn->Ok proof",
+      "invalidated_by": "guard/arm ordering or wildcard semantics changes",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved"
+    }
+  ],
+  "frozen_binaries": {
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t55-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967",
+      "cargo_reported_executable": true
+    },
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t55-frozen-binaries/sheltie",
+      "sha256": "93abba157c4c1161b99e4b740e9e4773dc7e30546edac721e8d8d67c5a7aea25",
+      "cargo_reported_executable": true
+    }
+  },
+  "boundaries": [
+    "current-candidate structural qualification, no old native perturbation execution/Caught/equivalence",
+    "pure nine witnessed independentInterface relations; broadC nine includes legal producer setup failures distinct from integrity acceptance",
+    "private integrity checks/standalone delete controls are not full request published1/original qualification",
+    "some late marker raw only mismatched expectedStoreCorrupt; source confirms weakened terminal check canreturnOk, raw not separately printed",
+    "three static diagnostics differ; shape static resource/clone/OOM not equivalent",
+    "previous sources/failures/samples preserved, current935 only stated closure"
+  ],
+  "governance": [
+    {
+      "name": "check-docs",
+      "exit_code": 0,
+      "elapsed_seconds": 2.145,
+      "sha256": "73cae89c4eae92a70e994639224a62193eff2614f22c8e26f17b6f4315063765"
+    },
+    {
+      "name": "check-specs",
+      "exit_code": 0,
+      "elapsed_seconds": 0.71,
+      "sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    },
+    {
+      "name": "check-tests",
+      "exit_code": 0,
+      "elapsed_seconds": 1.392,
+      "sha256": "910ca7d47b33fa4f31296ec98426675e0a692067763a5eb9d8a90548c5835884"
+    },
+    {
+      "name": "check-skill",
+      "exit_code": 0,
+      "elapsed_seconds": 0.843,
+      "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    {
+      "name": "check-core-vocab",
+      "exit_code": 0,
+      "elapsed_seconds": 0.146,
+      "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+    }
+  ],
+  "task_count": 22,
+  "original_governance_docs_failure_preserved": {
+    "name": "check-docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 2.49,
+    "sha256": "06acf0e2a6f07a6a8020dffd4484eb1eba8a6ea2d8fabaf1abe305cbb2314b7d"
+  },
+  "ledger_sha256_at_independent_review": "180b0ba9980aaf830a663393377b5d0df1ff7d56a2f0140ed7ef7fd51f666aed",
+  "qualification": "20direct+4scopedStatic+9structural current candidate accepted; structural old native not_run/Caughtfalse",
+  "task_completion_gate": "Owner mark structural accepted/done, rerun check-task, archive readback and commit; reviewer did not perform"
+}

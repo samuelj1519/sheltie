@@ -586,3 +586,21 @@ fixture探索经历revision类型编译101、错误SQL列、内部reply_json与�
 [最终工程](evidence/completion-20261003/t54-final-gates.json) 使用 [Cargo真实产物路径/冻结SHA/env](evidence/completion-20261003/t54-frozen-binaries.json)，run `70094d27-8006-4142-a7c8-d15bbdf5f4f3` 913/913、零skip/零LEAK；5compile-fail、fmt/check/Clippy、Rust1.85、默认特性、Task新增5/5/完整focused6及治理全部通过，134工程与190变异输入无漂移。最终独审准确核5日志、6旧集合/映射、当前caller证明与完整输入/产物闭包。
 
 fixture失败、整理前/后源码、独立原文、样本和最终日志见 [原文档案](evidence/completion-20261003/t54-g07-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t54-oracle-archive.json) 全部一致。当前147/215动态检测、15/215限定静态处分，剩余53项继续T43；原stage1 Missed未改写，不称M2或全产品完成。
+
+
+## C002-T55 发布、目录身份与只读定位
+
+依据 [G08 独立准备](evidence/completion-20261003/g08-oracle-directions.md)，当前源码33项准确账本由20直接、4限定静态、9结构迁移组成。三目录身份判定归一为纯私有directory_has_identity，4sole-exists角色归一为纯私有sole_directory_exists。接线保留actual stat、held fstat、存在性读取/锁/分支/错误/sleep次序；无trait/公开Interface/业务状态或fake stat。旧9target已移除，旧native not_run/stage1 Missed/Caught=false保持，替换前diff明确以previous_candidate命名；不是旧mutant等价或原生扰动已执行。
+
+初始pure5Caught；FSx12为10Caught/2Miss，两个静态候选被旧ID排除器误选，exit2后停止；locator5为3Caught/2Miss，独立否定未采用“初次Both后single必须retry”判据，转完整四角色结构验证；effects9为6Caught/3Miss，补真实Work-owned digest消费者、首次marker拒绝诊断与post-delete后错误创建marker的停点。修订样本7/7、46.345秒。全部原执行保留，不回写早期标签。
+
+新增22项基线通过：完整8/4关系表、真实Tree/epoch/rename/delete/目录与文件权限竞争者、purge第一chmod/unlink前全根预检、合法symlink、locator稳定与前后观察、实际add/start/remove、marker四阶段、公开历史修补竞争目标以及全局Work引用资格。首轮PermissionsExt编译缺口保留；marker/rename/locator观察错误均先释放/解除配置再核原件。跨设备同inum的旧原生窗口没有构造，不用同device新inode伪称其捕获。
+
+独立审查发现普通TempDir不保证Readonly目录回收，改复用tests/common/owned_tempdir.rs唯一FD根清理机制，仅cfg(test)入口。原生Drop控制核自有root消失，另一TempDir的0755目录与0444文件bytes/dev/ino/mode不变，硬链接计数1→2→1；不跟随外部alias。修前样本与修后22/22、source SHA分开保留，普通绿不当Drop成功。
+
+最终A11/11、B9/9直接全部Caught，164.064/73.185秒；C9/9新共享机制Caught，48.837秒，source稳定。C广filter有部分真实caller先失败，不能称纯表均红；另同冻结源只跑两个纯表的9target补验，2非零基线、9/9实际纯表失败，48.473秒，原C证据保留。最终工程935/935、零skip/零LEAK、5compile-fail、fmt/check/Clippy、Rust1.85与默认特性已过。[最终独立审查](evidence/completion-20261003/t55-final-review.md) 完成当前候选全部闭包；9结构按采用路径验证，原native未执行不改写。M2仍not_run。
+
+
+[准确账本](evidence/completion-20261003/t55-g08-dispositions.json) 覆盖33个唯一旧ID，20直接动态、4限定静态和9结构验证分别登记；广C/纯表各9个新target不计旧Caught。最终独审核全部log/diff、190变异/134工程输入、根FD回收、相同caller接线/普通资源与诊断差异、真实Cargo产物路径/冻结SHA/env。run `b062be43-16ad-4137-8760-805efe524d21`935/935零skip/LEAK，5compile-fail与工程/MSRV/default/22归属测试通过，文档首次禁词exit1与修后治理全0分别保留。
+
+原生旧1595正式Missed与后补focusedCLI Caught仅作为215外背景，不增造G08第34项。源码/fixture/原scope finding、全部样本与最终原文见[原文档案](evidence/completion-20261003/t55-g08-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t55-oracle-archive.json)全部一致。当前累计167/215动态检测、19/215限定静态、9/215结构验证，剩余20项继续T43；不称215旧原生全部运行、旧M1或M2完成。

@@ -1,0 +1,15 @@
+# C002-T55 合并源码/oracle 准备复核
+
+**PASS，限定当前22项oracle及源码准备；不批准最终33处分/T55或M2。** Reviewer只读未写G08方向、实现或oracle。当前全source/helper SHA见JSON，cleanup-qualified baseline22/22 PASS、403过滤。先前sample/compile及普通TempDir版本单独保留，不移植为当前PASS。
+
+F-T55-01清理缺口已解决：普通TempDir Drop会忽略readonly tree删除错误；现在新FSx与真实add/start unitfixture共享既有OwnedTempDir，cfg(test)path include、rootFD持有、只chmod目录、不跟随symlink、不改hardlink文件mode；原helperfile逐字未动。scope worker先join，outer fixture最晚drop。native Drop control明确断言root实际消失，外部另TempDir根0755/dev/ino/mode与sentinel0444/bytes/identity保留；nlink beforealias1/drop后1正确，期间2不误算不变。
+
+locator纯sole(candidate,other)表4手写结果与4处role接线正确。独立逆替换4条件、删除pure helper和新增puretable，整before-locator文件逐字重建；原I/O/read/branch/sleep、published分支例外、最后Io/NotFound未变。native single/双缺失/双存在及后竞争者、markerIo控制保留。没新增“initialBoth后来single必须先retry”的未采用时序保证，也不以原2旧sampleCaught当新target现捕获。目录3接线/8关系/wiring前报告及215扫描仍有效，5目录+4locator=9struct候选，与6目录语法位置区别。
+
+3修后effect oracle边界已核：verify_owned_digest现在从真实Work.start的work owner/SQLdigest/digest_root=workbook产生实际consumer，健康后改变真实frozenTOML注释，确在私有digest校验拒绝；此前Workbook分支另用verify_publish_object，不能称原样本覆盖了该helper。首次完成marker单端点不明要求准确initial detail，因为弱guard仍可能晚拒，这是诊断/阶段检测，非坏完成接受。删树后新增单端点要求创建marker之前拒绝（markerabsent）；弱化会先写.deleted再晚拒；另marker-synced阶段必须保留已真实写marker和competitor。退出/重启不代替该同次invocation窗口。
+
+上述private effect calls不读取/改变业务Store，因此不能自动称已验证全部EffectPending original/五表；真实Runtime public collision与globalindex两case另外覆原响应/五表/文件边界。collision从真begin/正常replay、postFileSync修补窗口产生原件竞争；list从真WorkStart关联publish效应只改合法final路径，实际全局index先拒。其他terminalnativecontrol继承相应阶段的原件、root preflight零chmod/unlink、symlink合法、当前name/io/目录binding。tree snapshots使用no-follow元数据与file/link bytes；profile与各断言实际范围列在JSON，不扩大为所有业务tree或完整CLI进程。
+
+4准确静态候选独立证明通过，见t55-static-review；1producer shape无IO结果差异（但clone/CPU/OOM不等价）、3错误停止集合相同而detail不同。9结构仅源码/pure/wiring准备，现在还须最终9shared实际日志、20direct、真实caller与完整工程冻结验收，才能按采用路径单列结构完成，不能记oldCaught/等价/native已运行。
+
+current_id=null草拟structural row的current_diff_sha仍是之前候选已删除表达式的diff，最终账本须清楚标previousCandidate，不能声称有现存target。旧1595 formalMissed+后补focusedCaught/no missing的原件背景保留于独立JSON，不造第34项。后续source变化需新SHA增量；本报告不关闭最终集合。

@@ -1186,3 +1186,98 @@ fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
         });
     }
 }
+
+// Task: C002-T55
+#[cfg(feature = "failpoint")]
+#[test]
+fn a_repaired_history_collision_reports_corruption_and_preserves_the_competing_original() {
+    use std::os::unix::fs::MetadataExt as _;
+    let (_directory, home, service) = home_with_example("two-step");
+    let work = work_id_of(&start_two_step(&service));
+    let node = NodeId::new("outline").unwrap();
+    let rid = "collision-begin";
+    let original = service.begin(&work, &node, Some(rid.into())).unwrap();
+    let replay = service.begin(&work, &node, Some(rid.into())).unwrap();
+    assert_eq!(replay.data, original.data);
+    let connection = Connection::open(home.store_path().as_str()).unwrap();
+    let registered = effects(&connection, rid);
+    let path = registered
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|effect| {
+            effect["kind"] == "write_file"
+                && effect["path"].as_str().unwrap().ends_with("/brief.md")
+        })
+        .unwrap()["path"]
+        .as_str()
+        .unwrap();
+    let target = home.rel(path).unwrap();
+    std::fs::remove_file(target.as_path()).unwrap();
+    let sync = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "atomic_write_after_file_sync",
+        target.as_str(),
+        sync.path(),
+    )
+    .unwrap();
+    let writer = service.clone();
+    let writer_work = work.clone();
+    let writer_node = node.clone();
+    let worker = std::thread::spawn(move || {
+        writer.begin(&writer_work, &writer_node, Some("collision-begin".into()))
+    });
+    let mut worker = RendezvousWorker::single(worker, sync.path());
+    worker.wait("history repair did not reach its actual post-sync temporary write");
+    std::fs::write(target.as_path(), b"competing historical original").unwrap();
+    let competitor = std::fs::metadata(target.as_path()).unwrap();
+    let before = store_rows(&connection);
+    let error = worker.finish().unwrap().unwrap_err();
+    let snapshot = assert_effect_pending(error, true, Some(rid), None);
+    assert_original_data(&snapshot, &original.data);
+    assert_eq!(store_rows(&connection), before);
+    assert_eq!(
+        std::fs::read(target.as_path()).unwrap(),
+        b"competing historical original"
+    );
+    let after = std::fs::metadata(target.as_path()).unwrap();
+    assert_eq!(
+        (after.dev(), after.ino(), after.mode(), after.nlink()),
+        (
+            competitor.dev(),
+            competitor.ino(),
+            competitor.mode(),
+            competitor.nlink()
+        )
+    );
+}
+
+// Task: C002-T55
+#[test]
+fn workbook_listing_rejects_a_global_work_publication_bound_to_another_legal_final_path() {
+    let (_directory, home, service) = home_with_example("two-step");
+    let started = start_two_step(&service);
+    let work = work_id_of(&started);
+    let connection = Connection::open(home.store_path().as_str()).unwrap();
+    let rid: String = connection
+        .query_row(
+            "SELECT request_id FROM audit WHERE work_id=?1 AND revision=1",
+            [work.as_str()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut registered = effects(&connection, &rid);
+    let publish = registered
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|effect| effect["kind"] == "publish_dir")
+        .unwrap();
+    publish["final"] = json!("works/2026-10-03-999-other");
+    set_effects(&connection, &rid, &registered, 1);
+    let before = store_rows(&connection);
+    let before_files = files(home.root().as_path().as_std_path());
+    let error = repo(&home).list().unwrap_err();
+    assert_eq!(error.code(), sheltie_core::ErrorCode::StoreCorrupt);
+    assert_unchanged(&home, &connection, before, before_files);
+}

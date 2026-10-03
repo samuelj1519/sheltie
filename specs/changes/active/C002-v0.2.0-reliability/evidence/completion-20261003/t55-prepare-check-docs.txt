@@ -1,0 +1,2 @@
+./specs/changes/active/C002-v0.2.0-reliability/plan.md:461:T55独审新增夹具回收义务：FSx tree与真实add/start所用新unit fixture复用现有tests/common/owned_tempdir.rs的OwnedTempDir，仅cfg(test)共享入口，不复制清理逻辑。先结束worker作用域/解除故障，再由原根FD只放开目录权限、不跟随链接、不chmod硬链接文件/外部目标。生产代码与CLI配置不变；再冻结源码/映射/基线，原普通TempDir样本保留。
+禁用措辞命中（见上）

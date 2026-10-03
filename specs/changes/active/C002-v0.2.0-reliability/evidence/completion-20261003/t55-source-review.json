@@ -1,0 +1,51 @@
+{
+  "result": "PASS_current_source_oracle_preparation_not_final_T55",
+  "reviewer": "/root/oracle_review read-only independent; no G08 direction/code/oracle authorship",
+  "base": "746d130c",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "1d08de8efe6a865b6b7ae429c240d84b33a1a462d3cbf7545e3c36db95264d53",
+    "crates/sheltie-runtime/src/pending.rs": "a7f3dae65535a7bf2f45b29768dc25fcee3f74e54a7920ec6535c69d7c4d537d",
+    "crates/sheltie-runtime/src/effects.rs": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+    "crates/sheltie-runtime/tests/effect_contracts.rs": "a884ae60f05f169c8c5d347f36384ce4be8d8783842704a2139d4c4c1d1c79b1",
+    "crates/sheltie-runtime/tests/common/owned_tempdir.rs": "c1fbc74d80e9db9567f43ae773ed867f3b908261bc931191301e3c76e7ac9e20"
+  },
+  "baseline": {
+    "file": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t55-cleanup-qualified-baseline.txt",
+    "sha256": "c781b00caa1a183fe6500192607f8a927edd06c8998dbccd74c9ce9c326c93f2",
+    "tests": 22,
+    "passed": 22,
+    "filtered": 403
+  },
+  "required_source_changes": [],
+  "resolved_findings": [
+    {
+      "id": "F-T55-01",
+      "issue": "plain TempDir ignores readonly tree removal failure; green assertions did not observe Drop",
+      "fix": "same existing OwnedTempDir test-only module shared by new FSx and real add/start fixtures, rootFD held, dirs-only chmod, no symlink follow, no file chmod; helper file unchanged",
+      "native_control": "root/read-only child reclaimed after explicitDrop; external separate root mode0755/dev/inode and sentinel0444 bytes/dev/inode/mode preserved; nlink capturedbefore alias1 and afterDrop1 accounts temporary2"
+    }
+  ],
+  "locator_wiring": "inverse four exact replacements/private solehelper/new puretest reconstruct entire before-locator file bytes; roles pending/final before/after correct; same original read/branch/sleep/diagnostic/published exception",
+  "directory_wiring": "t55-directory-source-review and impact-scan; exact original correct predicate equivalence/held current fstat; five215 removed connectors, sixthsyntax position historicaloutside215",
+  "oracles": {
+    "sole_matrix": "four literal bool outcomes, no bool fakeFilesystem claim; native pendingonly/finalonly/publishedfinal/both/neither and latecompetitor/markerIo; no invented beforeRetry guarantee",
+    "owned_work_digest": "real add+Work.start constructs work:owner,digest_root workbook and SQLdigest; valid private verify then append frozenTOML comment; expectedStoreCorrupt and changedbytes retained. Direct consumer not full recovery original/SQL chain",
+    "marker_first_guard": "genuine completed remove marker, single competing endpoint, exactinitial detail; weaker guard may still late reject, diagnostic/stop mechanism only",
+    "post_tree_guard": "real interrupted committed remove, same invocation tree-removed rendezvous creates one endpoint; before-marker requires markerabsent, post-marker requires markerpresent; weaker first guard may falsely create marker then late reject, not finalcompletionacceptance",
+    "public_collision": "real Begin commit+healthyreplay; exact postfileSync historicalrepair window adds competitor; EffectPending StoreCorrupt original/fiveSQLrows/competitor metadata retained",
+    "global_index": "real WorkStart publish data, alter validfinalpath only; actual WorkbookList globalconsumer rejects StoreCorrupt; five rows and capturedbytes kept",
+    "terminal_publication": "direct exactprivate final-publish check from genuineAdd andheld tree plus latependingcompetitor; classStageNoSQL/original automatic claim"
+  },
+  "cleanup_and_windows": "Owned outerFixture declaredfirst/droppedlast; worker scopedRelease/join then asserts; runtimeRendezvousWorker drop releases/reaps/disarms; PermissionRestore restores own perms and nativeDrop proves rollbackfree readonly reclamation",
+  "simplification": "tree snapshot typealias and duplicated path expression afterbranch only; observation/assert sections unchanged, three other source files unchanged before cleanup except owned fixture types",
+  "static_report": "t55-static-review.md/json four scoped proofs; no completeerror/resourceequivalence",
+  "structural_status": "9 source/wiring relations prepared under adopted active path; all remain pending final20direct/9shared/currentcaller/fullgates exact closure; oldCaught/native/equivalence never inferred",
+  "limits": [
+    "22 baseline/new source prep not all33/finalT55 acceptance",
+    "private helper unit consumers must be distinguished from public Runtime/CLI effects qualification",
+    "tree/frozen metadata assertions per testcase scope; no full entirebusiness tree or original for every private call",
+    "previous samples and TempDir-stage source snapshots retained, not reused as current fullPASS",
+    "current null-target diffSHA field in draft must be clearly previouscandidate, no current runnable target",
+    "native differentdev sameinode historical perturbation remainsnot_run; old1595 outside215 context preserved"
+  ]
+}

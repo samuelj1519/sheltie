@@ -341,6 +341,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T52 | done | Codex；独立 Reviewer | G05 精确16全部动态检测；901全回归及独审通过 |
 | C002-T53 | done | Codex；独立 Reviewer | G06 精确8：7动态/1分类限定静态；908全回归及独审通过 |
 | C002-T54 | done | Codex；独立 Reviewer | G07 精确6：5动态/1当前caller静态；913全回归及独审通过 |
+| C002-T55 | done | Codex；独立 Reviewer | G08准确33：20动态/4限定静态/9结构验证；935回归与独审通过 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -434,3 +435,27 @@ G07 准确 6 个旧 ID。同步来源资格沿真实 SafeFile/新 root epoch，�
 完整发布 guard 静态候选由当前所有 caller、同一个不可变行、Some/None 路由与前层 early-return 证明，不套用相似名称。observe_output 的恰好 32MiB 接受/多一字节拒绝必须真实合法 Flow 的 max_bytes=32MiB，不能由较小 core 上限或其它 guard 提前挡住。
 
 先非零合法基线与代表样本，冻结精确6 ID、源/fixture/二进制闭包；每批最多12项/600秒。完整工程/MSRV/治理和未参与准备的独立逐 ID 审查后，一个任务一个提交，不关闭其它组或M2。
+
+
+### C002-T55 发布、目录绑定、删除 marker 与只读定位
+
+G08准确33旧ID，按独立5组能力准备，先非零合法/拒绝基线和短样本，再每批最多12项/600秒冻结。真实提交/合法original/完整五表/业务原件、全根预检前无chmod/unlink、后期单端点变化、同轮locator前后事实与有限重试分别核；更早guard或exit后重启不代替目标阶段。仅在缺失真实读取窗口下增加既有feature观察点，不用假stat、fake ManagedTree或概率竞态。
+
+三处kind/dev首连接符没有完整caller排除证明，当前原生场景尚无反例，保持open。先独立评估重复目录身份判定集中为纯私有module的Interface：输入FileType与实际/期望(device,inode)，只返回判定，不新I/O、trait、公开Interface或业务状态；调用点原statat/fstat/锁/错误与副作用次序保持。未评估通过不实施；旧表达式的结构替换、纯合同验证、实际caller验证与旧ID未执行分别记录，不冒称旧Caught或原生窗口反例。
+
+独立静态候选按准确producer/caller/局部immutable事实和诊断差异逐条复核；不套同FD/相似条件。最终准确33账本、工程/MSRV/治理与未参与准备的独立审查通过才done；M2保持未完成。
+
+
+T55 的纯目录联合身份 module 经独立设计复核后采用。三个调用点的整段 kind/dev/inode 表达式由 `directory_has_identity(FileType,(u64,u64),(u64,u64))->bool` 统一实现，expected来自当前held fstat，绝不使用root_ident。保持所有实际statat/fstat/锁/错误和副作用顺序；纯Interface用手写完整8种身份关系，真实I/O caller另验证。整段替换会移除每处两个连接符，须重扫全部215映射，当前215清单内已知5项G08连接符记录结构替换与新共享机制/wiring验证，不称旧Caught/原生不同dev同ino反例/旧mutant等价；原native执行not_run与stage1 Missed保留。完整新候选合同闭包和历史原执行义务分开，M2按实际证据审查。
+
+
+T55明确采用当前候选的结构验证路径验收三处函数内六个语法连接符（其中五项位于215欠项）：完整纯Interface真假表、三处同式/接线证明、共享新机制实际变异执行与每个真实I/O caller验证均必需。旧源码的原生不同dev同ino扰动仍not_run，不作为当前新module的替代成功记录；历史执行标签保持。结构处分单列第三类，不并入dynamic Caught或静态等价数。若接线、纯合同或caller检查缺失，这五项仍open。
+
+
+T55独立扫描校正：此次共删除6个源码连接符，但原215中只有5个（verify_tree_at旧575/576、rename_tree_new616/617、verify_tree_entry_at1594）。verify_tree_entry_at旧1595不在215欠项，不增造第34个G08 ID。verify_tree_at旧568的Fn→Ok仍存在，按实际current映射执行，不归结构替换。结构验证计数仅原清单的5项；六个语法位置/全部源码影响另留扫描记录。
+
+
+T55定位首轮两存活的时序方案经独立审查否定：没有采用“初次Both后single必须先retry”的产品合同，不加retry hook人为捕获。明确采用四处重复sole-exists的纯私有判定模块（candidate_exists && !other_exists），四种布尔输入期望手写；四个原位置及candidate/other角色同式、原存在性读取/分支/错误/sleep次序保持。全四个旧connector转结构验证，不复用早期2Caught当当前target；原3Caught/2Miss批次与not_run原生历史保留。published=true分支与最后NotFound/WouldBlock条件不改。结构项因此从5增加为原33内9项，必须完整纯机制/wiring/原生caller及最终独审才关闭当前义务。
+
+
+T55独审新增夹具回收义务：FSx tree与真实add/start所用新unit fixture复用tests/common/owned_tempdir.rs的OwnedTempDir，仅cfg(test)共享入口，不复制清理逻辑。先结束worker作用域/解除故障，再由原根FD只放开目录权限、不跟随链接、不chmod硬链接文件/外部目标。夹具回收调整仅位于cfg(test)，清理实现由该共享文件提供；再冻结源码/映射/基线，原普通TempDir样本保留。

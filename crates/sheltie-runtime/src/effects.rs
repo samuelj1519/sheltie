@@ -1628,3 +1628,408 @@ mod publication_contract_tests {
         }
     }
 }
+
+#[cfg(all(test, feature = "failpoint"))]
+mod terminal_effect_contract_tests {
+    use super::*;
+    use crate::fsx::controlled_object_tests::observe_change;
+    use crate::fsx::owned_test_directory::OwnedTempDir;
+    use std::os::unix::fs::PermissionsExt as _;
+
+    fn registered_add() -> (OwnedTempDir, Home) {
+        let directory = OwnedTempDir::new();
+        let home = Home::resolve(Some(directory.path().join("home").to_str().unwrap())).unwrap();
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/two-step")
+            .canonicalize()
+            .unwrap();
+        crate::WorkbookRepo::new(home.clone())
+            .add(
+                &AbsPath::new(source.to_str().unwrap()).unwrap(),
+                Some("effect-add".into()),
+            )
+            .unwrap();
+        (directory, home)
+    }
+
+    fn registered_effect(home: &Home, id: &str) -> EffectOp {
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id=?1",
+                [id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let ops: Vec<EffectOp> = serde_json::from_str(&raw).unwrap();
+        ops.into_iter()
+            .find(|op| matches!(op, EffectOp::PublishDir { .. } | EffectOp::DeleteDir { .. }))
+            .unwrap()
+    }
+
+    fn unfinished_remove(home: &Home, id: &str) {
+        crate::failpoint::arm_sync_error(home.root().as_str(), "publish_source_parent_sync")
+            .unwrap();
+        let error = crate::WorkbookRepo::new(home.clone())
+            .remove("two-step", "1.0.0", Some(id.into()))
+            .unwrap_err();
+        crate::failpoint::disarm_sync_error().unwrap();
+        assert!(
+            matches!(
+                error,
+                Error::EffectPending {
+                    committed: true,
+                    ..
+                }
+            ),
+            "{error:?}"
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn final_publication_refuses_an_additional_pending_tree_even_when_final_is_the_verified_original()
+     {
+        let (_directory, home) = registered_add();
+        let EffectOp::PublishDir {
+            pending,
+            final_path,
+            ..
+        } = registered_effect(&home, "effect-add")
+        else {
+            panic!("actual add must publish")
+        };
+        let lock = home.acquire_lock().unwrap();
+        let tree = fsx::open_managed_tree(&home, &lock, &final_path).unwrap();
+        verify_publish_final_state(&home, &lock, &pending, &final_path, &tree).unwrap();
+        let final_file = home.rel(&final_path).unwrap().join_segment("workbook.toml");
+        let original = std::fs::read(final_file.as_path()).unwrap();
+        let competitor = home.rel(&pending).unwrap();
+        std::fs::create_dir_all(competitor.as_path()).unwrap();
+        std::fs::write(
+            competitor.as_path().join("competitor"),
+            b"extra pending bytes",
+        )
+        .unwrap();
+        let Error::StoreCorrupt { detail } =
+            verify_publish_final_state(&home, &lock, &pending, &final_path, &tree).unwrap_err()
+        else {
+            panic!("both endpoints cannot be completed publication")
+        };
+        assert!(detail.contains("四格状态改变"), "{detail}");
+        assert_eq!(std::fs::read(final_file.as_path()).unwrap(), original);
+        assert_eq!(
+            std::fs::read(competitor.as_path().join("competitor")).unwrap(),
+            b"extra pending bytes"
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_changed_owned_digest_stops_removal_before_moving_or_deleting_the_original() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (_directory, home) = registered_add();
+        unfinished_remove(&home, "digest-remove");
+        let EffectOp::DeleteDir {
+            pending,
+            final_path,
+            owner,
+            digest,
+        } = registered_effect(&home, "digest-remove")
+        else {
+            panic!("actual remove must delete")
+        };
+        let file = home.rel(&pending).unwrap().join_segment("README.md");
+        let existed = file.as_path().exists();
+        if existed {
+            std::fs::set_permissions(file.as_path(), std::fs::Permissions::from_mode(0o600))
+                .unwrap();
+        }
+        std::fs::write(file.as_path(), b"changed registered content").unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let result = delete_dir(
+            &home,
+            &lock,
+            "digest-remove",
+            &pending,
+            &final_path,
+            &owner,
+            &digest,
+        );
+        assert!(
+            home.rel(&pending).unwrap().as_path().is_dir(),
+            "digest refusal must precede deleting the only registered original"
+        );
+        assert!(result.is_err());
+        assert_eq!(
+            std::fs::read(file.as_path()).unwrap(),
+            b"changed registered content"
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor() {
+        for endpoint in ["pending", "final"] {
+            let (_directory, home) = registered_add();
+            crate::WorkbookRepo::new(home.clone())
+                .remove("two-step", "1.0.0", Some("marker-remove".into()))
+                .unwrap();
+            let EffectOp::DeleteDir {
+                pending,
+                final_path,
+                owner,
+                digest,
+            } = registered_effect(&home, "marker-remove")
+            else {
+                panic!("actual remove must delete")
+            };
+            let lock = home.acquire_lock().unwrap();
+            delete_dir(
+                &home,
+                &lock,
+                "marker-remove",
+                &pending,
+                &final_path,
+                &owner,
+                &digest,
+            )
+            .unwrap();
+            let path = home
+                .rel(if endpoint == "pending" {
+                    &pending
+                } else {
+                    &final_path
+                })
+                .unwrap();
+            std::fs::create_dir_all(path.as_path()).unwrap();
+            std::fs::write(path.as_path().join("competitor"), b"preserved competitor").unwrap();
+            let Error::StoreCorrupt { detail } = delete_dir(
+                &home,
+                &lock,
+                "marker-remove",
+                &pending,
+                &final_path,
+                &owner,
+                &digest,
+            )
+            .unwrap_err() else {
+                panic!("a valid completion marker cannot coexist with an endpoint")
+            };
+            assert!(detail.contains("完成marker与目录对象同时存在"), "{detail}");
+            assert_eq!(
+                std::fs::read(path.as_path().join("competitor")).unwrap(),
+                b"preserved competitor"
+            );
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor() {
+        for endpoint in ["pending", "final"] {
+            let (_directory, home) = registered_add();
+            crate::WorkbookRepo::new(home.clone())
+                .remove("two-step", "1.0.0", Some("marker-sync-remove".into()))
+                .unwrap();
+            let EffectOp::DeleteDir {
+                pending,
+                final_path,
+                owner,
+                digest,
+            } = registered_effect(&home, "marker-sync-remove")
+            else {
+                panic!("actual remove must delete")
+            };
+            let lock = home.acquire_lock().unwrap();
+            let path = home
+                .rel(if endpoint == "pending" {
+                    &pending
+                } else {
+                    &final_path
+                })
+                .unwrap();
+            let worker_home = home.clone();
+            let result = observe_change(
+                "delete_marker_after_validation_before_sync",
+                "marker-sync-remove",
+                move || {
+                    delete_dir(
+                        &worker_home,
+                        &lock,
+                        "marker-sync-remove",
+                        &pending,
+                        &final_path,
+                        &owner,
+                        &digest,
+                    )
+                },
+                || {
+                    std::fs::create_dir_all(path.as_path()).unwrap();
+                    std::fs::write(
+                        path.as_path().join("competitor"),
+                        b"preserved late competitor",
+                    )
+                    .unwrap();
+                },
+            );
+            assert!(matches!(result, Err(Error::StoreCorrupt { .. })));
+            assert_eq!(
+                std::fs::read(path.as_path().join("competitor")).unwrap(),
+                b"preserved late competitor"
+            );
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn deletion_rechecks_single_late_endpoints_after_tree_removal_and_after_marker_publication() {
+        for checkpoint in [
+            "delete_after_tree_removed_before_marker",
+            "delete_marker_synced_before_mark",
+        ] {
+            for endpoint in ["pending", "final"] {
+                let (_directory, home) = registered_add();
+                let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+                unfinished_remove(&home, "late-remove");
+                drop(_serial);
+                let EffectOp::DeleteDir {
+                    pending,
+                    final_path,
+                    owner,
+                    digest,
+                } = registered_effect(&home, "late-remove")
+                else {
+                    panic!("actual remove must delete")
+                };
+                let marker = home.pending_dir().join_segment(&format!(
+                    "{}.deleted",
+                    pending_internal_id(&pending).unwrap()
+                ));
+                assert!(!marker.as_path().exists());
+                let lock = home.acquire_lock().unwrap();
+                let path = home
+                    .rel(if endpoint == "pending" {
+                        &pending
+                    } else {
+                        &final_path
+                    })
+                    .unwrap();
+                let worker_home = home.clone();
+                let result = observe_change(
+                    checkpoint,
+                    checkpoint,
+                    move || {
+                        delete_dir(
+                            &worker_home,
+                            &lock,
+                            "late-remove",
+                            &pending,
+                            &final_path,
+                            &owner,
+                            &digest,
+                        )
+                    },
+                    || {
+                        std::fs::create_dir_all(path.as_path()).unwrap();
+                        std::fs::write(
+                            path.as_path().join("competitor"),
+                            b"preserved after-removal competitor",
+                        )
+                        .unwrap();
+                    },
+                );
+                if checkpoint == "delete_after_tree_removed_before_marker" {
+                    assert!(
+                        !marker.as_path().exists(),
+                        "endpoint refusal must precede creating a false completion marker"
+                    );
+                } else {
+                    assert!(marker.as_path().is_file());
+                }
+                assert!(matches!(result, Err(Error::StoreCorrupt { .. })));
+                assert_eq!(
+                    std::fs::read(path.as_path().join("competitor")).unwrap(),
+                    b"preserved after-removal competitor"
+                );
+            }
+        }
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod owned_work_digest_contract_tests {
+    use super::*;
+    use crate::fsx::owned_test_directory::OwnedTempDir;
+    use std::os::unix::fs::PermissionsExt as _;
+
+    // Task: C002-T55
+    #[test]
+    fn a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest() {
+        let directory = OwnedTempDir::new();
+        let home = Home::resolve(Some(directory.path().join("home").to_str().unwrap())).unwrap();
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/two-step")
+            .canonicalize()
+            .unwrap();
+        crate::WorkbookRepo::new(home.clone())
+            .add(&AbsPath::new(source.to_str().unwrap()).unwrap(), None)
+            .unwrap();
+        let service = crate::WorkService::new(home.clone());
+        service
+            .start(
+                crate::StartArgs {
+                    workbook_id: "two-step".into(),
+                    version: None,
+                    flow: "default".into(),
+                    name: None,
+                    inputs: BTreeMap::from([(
+                        "topic".into(),
+                        crate::request::InputValue::Literal {
+                            text: "real owned source".into(),
+                        },
+                    )]),
+                },
+                Some("owned-work-start".into()),
+            )
+            .unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='owned-work-start'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let ops: Vec<EffectOp> = serde_json::from_str(&raw).unwrap();
+        let EffectOp::PublishDir {
+            final_path,
+            owner,
+            digest,
+            digest_root,
+            ..
+        } = ops
+            .into_iter()
+            .find(|op| matches!(op, EffectOp::PublishDir { .. }))
+            .unwrap()
+        else {
+            unreachable!()
+        };
+        assert!(owner.starts_with("work:"));
+        assert_eq!(digest_root, "workbook");
+        let tree = home.rel(&final_path).unwrap().join_segment("workbook");
+        verify_owned_digest(&home, &tree, &owner, &digest).unwrap();
+        let file = tree.join_segment("workbook.toml");
+        std::fs::set_permissions(file.as_path(), std::fs::Permissions::from_mode(0o600)).unwrap();
+        let mut bytes = std::fs::read(file.as_path()).unwrap();
+        bytes.extend_from_slice(b"\n# genuine changed frozen source\n");
+        std::fs::write(file.as_path(), &bytes).unwrap();
+        let Error::StoreCorrupt { detail } =
+            verify_owned_digest(&home, &tree, &owner, &digest).unwrap_err()
+        else {
+            panic!("registered Work digest must reject changed actual bytes")
+        };
+        assert!(detail.contains("摘要与登记不符"), "{detail}");
+        assert_eq!(std::fs::read(file.as_path()).unwrap(), bytes);
+    }
+}

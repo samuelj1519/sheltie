@@ -1,0 +1,167 @@
+{
+  "scope": "Independent read-only static follow-up for exactly three G08 first connectors; no oracle writing/execution, no fake stats, mounts or tracked edits",
+  "head": "029e472eb9a5a66437e3caffdcada8158f41d2b4",
+  "count": 3,
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:575:13: replace || with && in ManagedFs::verify_tree_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:658:13: replace || with && in ManagedFs::verify_tree_at",
+      "old_diff_sha256": "e8e39c347a827305dafd938ae4c1978b49ddae86cae6222d40f5f6689b121a90",
+      "current_diff_sha256": "f623f3ad5c2961597dc72a13e50f9c5d2ebac2051153c7d22fb670d2908cd040",
+      "disposition": "open",
+      "dynamic_execution": "not_run_by_this_review",
+      "full_caller_equivalence_proved": false,
+      "native_counterexample_fixture_proved": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:616:13: replace || with && in ManagedFs::rename_tree_new",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:699:13: replace || with && in ManagedFs::rename_tree_new",
+      "old_diff_sha256": "d5833bee19b09ebf94869d15a3c06635f1e20f460857d5ede13a8f4bece91a62",
+      "current_diff_sha256": "9c5266b0eabd1e82d3ce6ec6161c1c07220c3cec7b2bcf9b8592c1ec2fa51d49",
+      "disposition": "open",
+      "dynamic_execution": "not_run_by_this_review",
+      "full_caller_equivalence_proved": false,
+      "native_counterexample_fixture_proved": false
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1594:9: replace || with && in verify_tree_entry_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1691:9: replace || with && in verify_tree_entry_at",
+      "old_diff_sha256": "4406cdc7a2ab26a13e84430bf49f23c79433a42cdade73a0151fb0c02c839e66",
+      "current_diff_sha256": "857405ad22a3e88aeed1cca6ef902a65fccf92a798c9893dfb0f7ade3424d237",
+      "disposition": "open",
+      "dynamic_execution": "not_run_by_this_review",
+      "full_caller_equivalence_proved": false,
+      "native_counterexample_fixture_proved": false
+    }
+  ],
+  "source_sha256": {
+    "crates/sheltie-runtime/src/fsx.rs": "f255394d0cfad7b7c99414f2ca560ecbb4054b27ec3fe490001f618f6e62bfb3",
+    "crates/sheltie-runtime/src/effects.rs": "7c8fad349738bdf64e883162ace75e753cc4489f6c01f16647920402a768ab9f",
+    "crates/sheltie-runtime/src/pending.rs": "6d70b9b4488b8fe85ff1d11869a6d01473dc181a2876fb185cefad20213c7fc9",
+    "crates/sheltie-runtime/src/home.rs": "cf6cb4470000003c412f5b8523853ba4b3840e9d828a1f5831182900ed90529b",
+    "crates/sheltie-runtime/src/session.rs": "766c70955ee5f8dfb774da70e347b5ea2740fe1f5387ebef18053b866d3ce17e",
+    "crates/sheltie-runtime/src/workbook_digest.rs": "3f9c8dcab015df14e7bed311464149ca4a119db5171c35509c2d0f41862f8ffa",
+    "specs/contracts/storage.md": "145bed3eacce1266f1477152abaf787eae38204d92820ac067fcd2120a3d7020",
+    "specs/architecture.md": "f5ec890a2a2f21c27256dc1258593568113b2580ff4b83b566d305d107f9cdd6"
+  },
+  "input_sha256": {
+    "independent-sk02-mapping.json": "2af2e37b4bd35f4de6b1a48b7306d9c6752c79bb72202faa4b0fd9450f4e7794",
+    "current-runtime-mutants.json": "5674f9b98aebdd5de592b86214cfd55705275f71882ce03e7c7afaec8c756b79"
+  },
+  "predicate": {
+    "A": "named entry kind != Directory",
+    "B": "named entry dev != held Directory FD dev",
+    "C": "named entry inode number != held Directory FD inode number",
+    "original": "A || B || C",
+    "mutated": "(A && B) || C",
+    "difference": "C=false and A xor B=true; under same-device same-inode joint-object identity, outstanding fact is A=false,B=true,C=false",
+    "same_device_new_inode_case": "C=true: both reject; cannot distinguish these first connectors"
+  },
+  "producer_and_caller_closure": {
+    "ManagedFs::verify_tree_at": {
+      "direct_callers": {
+        "ManagedFs::cleanup_expired_tmp": 2,
+        "ManagedFs::managed_tree_is_empty_locked": 1,
+        "ManagedFs::rename_tree_new_post_rename": 1,
+        "ManagedFs::make_managed_tree_writable_pre_and_post_mode": 2,
+        "verify_managed_tree_at_wrapper": 1
+      },
+      "wrapper_callers": {
+        "effects::publish_dir": 7,
+        "effects::verify_publish_final_state": 1,
+        "effects::delete_dir": 6
+      },
+      "consumers": [
+        "Home::maintain_expired_tmp",
+        "pending::cleanup_selected",
+        "effects publication/delete recovery",
+        "WriteSession initialization empty tmp cleanup via adjacent tree-entry helper"
+      ],
+      "producer": "Single ManagedTree literal in open_tree_locked; checked HomeLock then open_dir",
+      "later_dominance": "No same immutable named-entry stat value. Publish pre-rename original rename_tree_new can reject later but final-parent mkdir is between; final-only branch may continue digest/readonly after weakened checks; make-writable chmod precedes post-check."
+    },
+    "ManagedFs::rename_tree_new": {
+      "direct_callers": {
+        "rename_managed_tree_new_wrapper": 1
+      },
+      "wrapper_callers": {
+        "effects::publish_dir_pending_branch": 1,
+        "effects::delete_dir_final_branch": 1
+      },
+      "producer": "Same single open_tree_locked ManagedTree constructor",
+      "later_dominance": "Earlier verify has different live stat; after guard actual rename precedes verify_tree_at and parent sync; target check produces RecoveryRequired only after move, not pre-move same-stop proof."
+    },
+    "verify_tree_entry_at": {
+      "direct_callers": {
+        "ManagedFs::remove_managed_tree_before_contents_and_before_unlink": 2,
+        "ManagedFs::remove_empty_managed_tree_before_empty_read_and_before_unlink": 2,
+        "ManagedFs::sync_directory_entry_locked_after_directory_sync_and_after_parent_sync": 2
+      },
+      "producers": [
+        "ManagedTree.file from open_tree_locked",
+        "sync_directory_entry_locked local File from open_directory_at"
+      ],
+      "consumers": [
+        "effects::delete_dir→remove_managed_tree",
+        "pending orphan cleanup→remove_managed_tree",
+        "expired tmp cleanup→remove_managed_tree",
+        "pending published empty metadata cleanup→remove_empty_managed_tree",
+        "WriteSession new Store temporary directory cleanup→remove_empty_managed_tree",
+        "effects::PrepareAttempt→sync_managed_directory_entry→sync_directory_entry_locked"
+      ],
+      "later_dominance": "Each helper call does new stat/fstat; both calls affected by same mutation. Remove held contents/unlink or parent fsync can intervene. Sync-directory consumer is additional to ManagedTree consumers."
+    }
+  },
+  "device_constraint": {
+    "tree_dev_eq_root_dev_guard": false,
+    "submount_rejection": false,
+    "device_number_globally_unique_inode_assumption": false,
+    "root_string_equal_epoch_assumption": false,
+    "argument": "Root epoch fields identify management root only; open_directory_at checks before/opened tuple for each child but does not compare child dev to parent/root."
+  },
+  "native_existing_metadata": {
+    "scope": "Read-only metadata for five already existing paths; no API/candidate test invocation and not a mutation oracle",
+    "records": [
+      {
+        "path": "/",
+        "device": 16777234,
+        "inode": 2,
+        "directory": true,
+        "symlink": false
+      },
+      {
+        "path": "/System/Volumes/Data",
+        "device": 16777234,
+        "inode": 1152921500311879682,
+        "directory": true,
+        "symlink": false
+      },
+      {
+        "path": "/private/tmp",
+        "device": 16777234,
+        "inode": 443908188,
+        "directory": true,
+        "symlink": false
+      },
+      {
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex",
+        "device": 16777234,
+        "inode": 416342830,
+        "directory": true,
+        "symlink": false
+      },
+      {
+        "path": "/dev",
+        "device": 1642716082,
+        "inode": 333,
+        "directory": true,
+        "symlink": false
+      }
+    ],
+    "different_dev_equal_inode_pair_found": false,
+    "conclusion": "Sample confirms current temp/workspace share device and devfs differs; establishes neither complete filesystem-domain exclusion nor a reachable counterexample."
+  },
+  "full_proof": false,
+  "conclusion": "All three remain open. No all-caller same-device restriction, no same captured-stat later dominance, no actual permitted native tuple/window established.",
+  "tracked_writes": false
+}

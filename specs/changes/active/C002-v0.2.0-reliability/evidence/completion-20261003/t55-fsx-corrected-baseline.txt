@@ -1,0 +1,15 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.23s
+────────────
+ Nextest run ID 3f46d8dd-9fbe-4c01-bbaf-9b5585f0130d with nextest profile: default
+    Starting 8 tests across 19 binaries (403 tests skipped)
+        PASS [   0.028s] (1/8) sheltie-runtime fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity
+        PASS [   0.029s] (2/8) sheltie-runtime fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory
+        PASS [   0.029s] (3/8) sheltie-runtime fsx::directory_binding_contract_tests::directory_verification_binds_the_native_name_and_keeps_replaced_trees_unchanged
+        PASS [   0.032s] (4/8) sheltie-runtime fsx::directory_binding_contract_tests::purge_unlinks_a_legitimate_leaf_symlink_without_touching_its_external_target
+        PASS [   0.036s] (5/8) sheltie-runtime fsx::directory_binding_contract_tests::purge_preflights_the_entire_root_before_any_chmod_or_deletion
+        PASS [   0.037s] (6/8) sheltie-runtime fsx::directory_binding_contract_tests::a_tree_rename_checks_the_native_source_before_moving_a_competitor
+        PASS [   0.035s] (7/8) sheltie-runtime fsx::directory_binding_contract_tests::deletion_checks_the_current_name_before_unlinking_a_different_empty_root
+        PASS [   0.052s] (8/8) sheltie-runtime fsx::directory_binding_contract_tests::recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects
+────────────
+     Summary [   0.055s] 8 tests run: 8 passed, 403 skipped

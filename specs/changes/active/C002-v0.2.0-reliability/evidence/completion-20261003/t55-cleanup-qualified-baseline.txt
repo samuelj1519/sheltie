@@ -1,0 +1,29 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.22s
+────────────
+ Nextest run ID 120eda41-1792-4ca4-b267-ea17a351a753 with nextest profile: default
+    Starting 22 tests across 19 binaries (403 tests skipped)
+        PASS [   0.031s] ( 1/22) sheltie-runtime fsx::directory_binding_contract_tests::directory_verification_binds_the_native_name_and_keeps_replaced_trees_unchanged
+        PASS [   0.032s] ( 2/22) sheltie-runtime fsx::directory_binding_contract_tests::directory_identity_requires_a_directory_and_both_parts_of_the_object_identity
+        PASS [   0.042s] ( 3/22) sheltie-runtime fsx::directory_binding_contract_tests::owned_fixture_reclaims_readonly_trees_without_chmoding_external_aliases
+        PASS [   0.045s] ( 4/22) sheltie-runtime fsx::directory_binding_contract_tests::deletion_checks_the_current_name_before_unlinking_a_different_empty_root
+        PASS [   0.059s] ( 5/22) sheltie-runtime fsx::directory_binding_contract_tests::purge_unlinks_a_legitimate_leaf_symlink_without_touching_its_external_target
+        PASS [   0.015s] ( 6/22) sheltie-runtime pending::locator_contract_tests::only_one_existing_directory_qualifies_as_the_selected_candidate
+        PASS [   0.039s] ( 7/22) sheltie-runtime pending::locator_contract_tests::a_locator_observation_failure_preserves_the_registered_tree_without_opening_a_store
+        PASS [   0.073s] ( 8/22) sheltie-runtime fsx::directory_binding_contract_tests::a_tree_rename_observation_failure_preserves_the_unmoved_source
+        PASS [   0.092s] ( 9/22) sheltie-runtime fsx::directory_binding_contract_tests::a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory
+        PASS [   0.096s] (10/22) sheltie-runtime fsx::directory_binding_contract_tests::purge_preflights_the_entire_root_before_any_chmod_or_deletion
+        PASS [   0.116s] (11/22) sheltie-runtime fsx::directory_binding_contract_tests::a_tree_rename_checks_the_native_source_before_moving_a_competitor
+        PASS [   0.146s] (12/22) sheltie-runtime fsx::directory_binding_contract_tests::recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects
+        PASS [   0.119s] (13/22) sheltie-runtime pending::locator_contract_tests::readonly_locator_accepts_only_the_single_qualified_registered_tree
+        PASS [   0.178s] (14/22) sheltie-runtime pending::locator_contract_tests::a_competing_endpoint_created_after_the_first_read_invalidates_both_pending_and_final_selection
+        PASS [   0.360s] (15/22) sheltie-runtime effects::terminal_effect_contract_tests::final_publication_refuses_an_additional_pending_tree_even_when_final_is_the_verified_original
+        PASS [   0.418s] (16/22) sheltie-runtime effects::terminal_effect_contract_tests::a_changed_owned_digest_stops_removal_before_moving_or_deleting_the_original
+        PASS [   0.626s] (17/22) sheltie-runtime::effect_contracts workbook_listing_rejects_a_global_work_publication_bound_to_another_legal_final_path
+        PASS [   0.703s] (18/22) sheltie-runtime effects::owned_work_digest_contract_tests::a_work_owned_frozen_tree_checks_its_actual_bytes_against_the_registered_digest
+        PASS [   0.744s] (19/22) sheltie-runtime effects::terminal_effect_contract_tests::a_valid_deleted_marker_never_authorizes_a_pending_or_final_competitor
+        PASS [   0.753s] (20/22) sheltie-runtime effects::terminal_effect_contract_tests::deleted_marker_checks_each_late_endpoint_after_sync_without_discarding_the_competitor
+        PASS [   0.798s] (21/22) sheltie-runtime::effect_contracts a_repaired_history_collision_reports_corruption_and_preserves_the_competing_original
+        PASS [   0.939s] (22/22) sheltie-runtime effects::terminal_effect_contract_tests::deletion_rechecks_single_late_endpoints_after_tree_removal_and_after_marker_publication
+────────────
+     Summary [   0.944s] 22 tests run: 22 passed, 403 skipped

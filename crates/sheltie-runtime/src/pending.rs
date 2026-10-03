@@ -187,6 +187,10 @@ impl PendingReferenceIndex {
     }
 }
 
+fn sole_directory_exists(candidate_exists: bool, other_exists: bool) -> bool {
+    candidate_exists && !other_exists
+}
+
 /// Locate the single registered directory through the rename window without creating a lock or
 /// Store. The caller still verifies request/owner/digest before exposing loaded bytes.
 pub(crate) fn locate_publish_dir(
@@ -208,17 +212,19 @@ pub(crate) fn locate_publish_dir(
             continue;
         }
         let pending_before = fsx::managed_directory_exists_readonly(home, pending)?;
-        if pending_before && !final_before {
+        crate::failpoint::rendezvous("locator_after_initial_observation", final_path)
+            .map_err(|error| Error::io(final_path, error))?;
+        if sole_directory_exists(pending_before, final_before) {
             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;
             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;
-            if pending_after && !final_after {
+            if sole_directory_exists(pending_after, final_after) {
                 return Ok((home.rel(pending)?, true));
             }
         }
-        if !pending_before && final_before {
+        if sole_directory_exists(final_before, pending_before) {
             let final_after = fsx::managed_directory_exists_readonly(home, final_path)?;
             let pending_after = fsx::managed_directory_exists_readonly(home, pending)?;
-            if !pending_after && final_after {
+            if sole_directory_exists(final_after, pending_after) {
                 return Ok((home.rel(final_path)?, true));
             }
         }
@@ -1030,5 +1036,171 @@ mod tests {
         assert_eq!(attempts, 2);
         assert!(!home.lock_path().as_path().exists(), "只读定位不创建引擎锁");
         assert!(!home.store_path().as_path().exists(), "只读定位不创建Store");
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod locator_contract_tests {
+    use super::*;
+    use crate::fsx::controlled_object_tests::observe_change;
+    use std::os::unix::fs::MetadataExt as _;
+
+    fn fixture() -> (tempfile::TempDir, Home) {
+        let directory = tempfile::tempdir().unwrap();
+        let home = Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        std::fs::create_dir(directory.path().join("pending")).unwrap();
+        std::fs::create_dir(directory.path().join("works")).unwrap();
+        (directory, home)
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn only_one_existing_directory_qualifies_as_the_selected_candidate() {
+        for (candidate, other, answer) in [
+            (false, false, false),
+            (false, true, false),
+            (true, false, true),
+            (true, true, false),
+        ] {
+            assert_eq!(sole_directory_exists(candidate, other), answer);
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn readonly_locator_accepts_only_the_single_qualified_registered_tree() {
+        for (pending_exists, final_exists, pending_publish, answer) in [
+            (true, false, true, Some("pending/source")),
+            (false, true, true, Some("works/final")),
+            (false, true, false, Some("works/final")),
+            (true, true, true, None),
+            (false, false, true, None),
+        ] {
+            let (_directory, home) = fixture();
+            for (exists, name) in [
+                (pending_exists, "pending/source"),
+                (final_exists, "works/final"),
+            ] {
+                if exists {
+                    std::fs::create_dir(home.rel(name).unwrap().as_path()).unwrap();
+                    std::fs::write(
+                        home.rel(name).unwrap().as_path().join("original"),
+                        name.as_bytes(),
+                    )
+                    .unwrap();
+                }
+            }
+            let result =
+                locate_publish_dir(&home, "pending/source", "works/final", pending_publish);
+            if let Some(expected) = answer {
+                let (path, flag) = result.unwrap();
+                assert_eq!(path, home.rel(expected).unwrap());
+                assert_eq!(flag, pending_publish);
+            } else {
+                let Error::Io { path, source } = result.unwrap_err() else {
+                    panic!("unqualified endpoints remain temporary IO, not false absence")
+                };
+                assert_eq!(path, "works/final");
+                assert_eq!(source.kind(), std::io::ErrorKind::WouldBlock);
+            }
+            assert!(!home.lock_path().as_path().exists());
+            assert!(!home.store_path().as_path().exists());
+            for (exists, name) in [
+                (pending_exists, "pending/source"),
+                (final_exists, "works/final"),
+            ] {
+                if exists {
+                    assert_eq!(
+                        std::fs::read(home.rel(name).unwrap().as_path().join("original")).unwrap(),
+                        name.as_bytes()
+                    );
+                }
+            }
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_competing_endpoint_created_after_the_first_read_invalidates_both_pending_and_final_selection()
+     {
+        for initially_pending in [true, false] {
+            let (_directory, home) = fixture();
+            let selected = if initially_pending {
+                "pending/source"
+            } else {
+                "works/final"
+            };
+            let competitor = if initially_pending {
+                "works/final"
+            } else {
+                "pending/source"
+            };
+            let source = home.rel(selected).unwrap();
+            let other = home.rel(competitor).unwrap();
+            std::fs::create_dir(source.as_path()).unwrap();
+            std::fs::write(source.as_path().join("original"), b"registered original").unwrap();
+            let before = std::fs::metadata(source.as_path()).unwrap();
+            let worker_home = home.clone();
+            let result = observe_change(
+                "locator_after_initial_observation",
+                "works/final",
+                move || locate_publish_dir(&worker_home, "pending/source", "works/final", true),
+                || {
+                    std::fs::create_dir(other.as_path()).unwrap();
+                    std::fs::write(other.as_path().join("competitor"), b"competitor unchanged")
+                        .unwrap();
+                },
+            );
+            let Error::Io { source: error, .. } = result.unwrap_err() else {
+                panic!("after-read double presence must not select either directory")
+            };
+            assert_eq!(error.kind(), std::io::ErrorKind::WouldBlock);
+            assert_eq!(
+                std::fs::read(source.as_path().join("original")).unwrap(),
+                b"registered original"
+            );
+            assert_eq!(
+                std::fs::read(other.as_path().join("competitor")).unwrap(),
+                b"competitor unchanged"
+            );
+            let after = std::fs::metadata(source.as_path()).unwrap();
+            assert_eq!(
+                (after.dev(), after.ino(), after.mode(), after.nlink()),
+                (before.dev(), before.ino(), before.mode(), before.nlink())
+            );
+            assert!(!home.lock_path().as_path().exists());
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_locator_observation_failure_preserves_the_registered_tree_without_opening_a_store() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (directory, home) = fixture();
+        let source = home.rel("pending/source").unwrap();
+        std::fs::create_dir(source.as_path()).unwrap();
+        std::fs::write(source.as_path().join("original"), b"preserved bytes").unwrap();
+        let carrier = directory.path().join("not-a-sync-directory");
+        std::fs::write(&carrier, b"preserved carrier").unwrap();
+        crate::failpoint::arm_rendezvous(
+            "locator_after_initial_observation",
+            "works/final",
+            &carrier,
+        )
+        .unwrap();
+        let result = locate_publish_dir(&home, "pending/source", "works/final", true);
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::Io { path, .. } = result.unwrap_err() else {
+            panic!("failed locator observation must not select bytes")
+        };
+        assert_eq!(path, "works/final");
+        assert_eq!(
+            std::fs::read(source.as_path().join("original")).unwrap(),
+            b"preserved bytes"
+        );
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"preserved carrier");
+        assert!(!home.lock_path().as_path().exists());
+        assert!(!home.store_path().as_path().exists());
     }
 }

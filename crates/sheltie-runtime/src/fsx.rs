@@ -675,10 +675,11 @@ impl ManagedFs {
             .map_err(|error| map_fs_error(&self.display_path(path), error))?;
         let held =
             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(path), error))?;
-        if FileType::from_raw_mode(stat.st_mode) != FileType::Directory
-            || stat.st_dev != held.st_dev
-            || stat.st_ino != held.st_ino
-        {
+        if !directory_has_identity(
+            FileType::from_raw_mode(stat.st_mode),
+            (stat.st_dev as u64, stat.st_ino),
+            (held.st_dev as u64, held.st_ino),
+        ) {
             return Err(Error::StoreCorrupt {
                 detail: format!("{} 不再指向已核验的发布目录对象", self.display_path(path)),
             });
@@ -712,14 +713,17 @@ impl ManagedFs {
         let from = &tree.path;
         let (source_parent, source_leaf) = self.open_parent(from)?;
         let (target_parent, target_leaf) = self.open_parent(to)?;
+        crate::failpoint::rendezvous("tree_rename_before_source_stat", &self.display_path(from))
+            .map_err(|error| Error::io(self.display_path(from), error))?;
         let source = statat(&source_parent, &source_leaf, AtFlags::SYMLINK_NOFOLLOW)
             .map_err(|error| map_fs_error(&self.display_path(from), error))?;
         let held =
             fstat(&tree.file).map_err(|error| map_fs_error(&self.display_path(from), error))?;
-        if FileType::from_raw_mode(source.st_mode) != FileType::Directory
-            || source.st_dev != held.st_dev
-            || source.st_ino != held.st_ino
-        {
+        if !directory_has_identity(
+            FileType::from_raw_mode(source.st_mode),
+            (source.st_dev as u64, source.st_ino),
+            (held.st_dev as u64, held.st_ino),
+        ) {
             return Err(Error::StoreCorrupt {
                 detail: format!("{} 在发布前已被替换", self.display_path(from)),
             });
@@ -1731,6 +1735,10 @@ fn sync_rename_parents(
     })
 }
 
+fn directory_has_identity(kind: FileType, actual: (u64, u64), expected: (u64, u64)) -> bool {
+    kind == FileType::Directory && actual == expected
+}
+
 fn verify_tree_entry_at(
     parent: &std::fs::File,
     leaf: &str,
@@ -1740,10 +1748,11 @@ fn verify_tree_entry_at(
     let entry = statat(parent, leaf, AtFlags::SYMLINK_NOFOLLOW)
         .map_err(|error| map_fs_error(display, error))?;
     let held = fstat(tree).map_err(|error| map_fs_error(display, error))?;
-    if FileType::from_raw_mode(entry.st_mode) != FileType::Directory
-        || entry.st_dev != held.st_dev
-        || entry.st_ino != held.st_ino
-    {
+    if !directory_has_identity(
+        FileType::from_raw_mode(entry.st_mode),
+        (entry.st_dev as u64, entry.st_ino),
+        (held.st_dev as u64, held.st_ino),
+    ) {
         return Err(Error::StoreCorrupt {
             detail: format!("{display} 不再指向已验证的目录inode"),
         });
@@ -5776,5 +5785,465 @@ mod synchronization_origin_contract_tests {
         assert_eq!(object_identity(&after), object_identity(&before));
         assert_eq!(std::fs::read(&carrier).unwrap(), b"retain carrier");
         assert!(!home.store_path().as_path().exists());
+    }
+}
+
+#[cfg(test)]
+#[path = "../tests/common/owned_tempdir.rs"]
+pub(crate) mod owned_test_directory;
+
+#[cfg(all(test, feature = "failpoint"))]
+mod directory_binding_contract_tests {
+    use super::controlled_object_tests::observe_change;
+    use super::owned_test_directory::OwnedTempDir;
+    use super::*;
+    use std::collections::BTreeMap;
+    use std::os::unix::fs::PermissionsExt as _;
+
+    type TreeSnapshot = BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)>;
+
+    fn temporary_home() -> (OwnedTempDir, crate::Home) {
+        let directory = OwnedTempDir::new();
+        let root = directory.path().join("home");
+        let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    fn tree_snapshot(root: &std::path::Path) -> TreeSnapshot {
+        fn visit(base: &std::path::Path, path: &std::path::Path, out: &mut TreeSnapshot) {
+            let meta = std::fs::symlink_metadata(path).unwrap();
+            let bytes = if meta.is_file() {
+                std::fs::read(path).unwrap()
+            } else if meta.file_type().is_symlink() {
+                std::fs::read_link(path)
+                    .unwrap()
+                    .as_os_str()
+                    .as_encoded_bytes()
+                    .to_vec()
+            } else {
+                Vec::new()
+            };
+            out.insert(
+                path.strip_prefix(base).unwrap().to_owned(),
+                (meta.dev(), meta.ino(), meta.mode(), meta.nlink(), bytes),
+            );
+            if meta.is_dir() {
+                for child in std::fs::read_dir(path).unwrap() {
+                    visit(base, &child.unwrap().path(), out);
+                }
+            }
+        }
+        let mut out = BTreeMap::new();
+        visit(root, root, &mut out);
+        out
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn owned_fixture_reclaims_readonly_trees_without_chmoding_external_aliases() {
+        let external = tempfile::tempdir().unwrap();
+        std::fs::set_permissions(external.path(), std::fs::Permissions::from_mode(0o755)).unwrap();
+        let external_before = std::fs::metadata(external.path()).unwrap();
+        let sentinel = external.path().join("sentinel");
+        std::fs::write(&sentinel, b"external immutable original").unwrap();
+        std::fs::set_permissions(&sentinel, std::fs::Permissions::from_mode(0o444)).unwrap();
+        let before = std::fs::metadata(&sentinel).unwrap();
+        let directory = OwnedTempDir::new();
+        let root = directory.path().to_owned();
+        let child = root.join("readonly");
+        std::fs::create_dir(&child).unwrap();
+        std::fs::write(child.join("original"), b"readonly owned original").unwrap();
+        std::fs::hard_link(&sentinel, child.join("hardlink")).unwrap();
+        std::os::unix::fs::symlink(external.path(), root.join("outside-alias")).unwrap();
+        std::fs::set_permissions(&child, std::fs::Permissions::from_mode(0o555)).unwrap();
+        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o555)).unwrap();
+        drop(directory);
+        assert!(
+            !root.exists(),
+            "fixture Drop must actually reclaim its readonly tree"
+        );
+        assert_eq!(
+            std::fs::read(&sentinel).unwrap(),
+            b"external immutable original"
+        );
+        let external_after = std::fs::metadata(external.path()).unwrap();
+        assert_eq!(
+            (
+                external_after.dev(),
+                external_after.ino(),
+                external_after.mode()
+            ),
+            (
+                external_before.dev(),
+                external_before.ino(),
+                external_before.mode()
+            )
+        );
+        let after = std::fs::metadata(&sentinel).unwrap();
+        assert_eq!(
+            (after.dev(), after.ino(), after.mode(), after.nlink()),
+            (before.dev(), before.ino(), before.mode(), before.nlink())
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_tree_rename_observation_failure_preserves_the_unmoved_source() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let from = ManagedRelPath::new("source").unwrap();
+        let to = ManagedRelPath::new("target").unwrap();
+        fs.ensure_dir(&lock, &from).unwrap();
+        let source = home.rel("source").unwrap();
+        std::fs::write(source.as_path().join("original"), b"unmoved original").unwrap();
+        let tree = fs.open_tree_locked(&lock, &from).unwrap();
+        let before = tree_snapshot(source.as_path().as_std_path());
+        let carrier = directory.path().join("invalid-sync-directory");
+        std::fs::write(&carrier, b"unmodified carrier").unwrap();
+        crate::failpoint::arm_rendezvous(
+            "tree_rename_before_source_stat",
+            source.as_str(),
+            &carrier,
+        )
+        .unwrap();
+        let result = fs.rename_tree_new(&lock, &tree, &to);
+        crate::failpoint::disarm_rendezvous().unwrap();
+        let Error::Io { path, .. } = result.unwrap_err() else {
+            panic!("observation error must precede rename")
+        };
+        assert_eq!(path, source.as_str());
+        assert!(!home.rel("target").unwrap().as_path().exists());
+        assert_eq!(tree_snapshot(source.as_path().as_std_path()), before);
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"unmodified carrier");
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn directory_identity_requires_a_directory_and_both_parts_of_the_object_identity() {
+        let cases = [
+            (FileType::Directory, (11, 7), (11, 7), true),
+            (FileType::Directory, (12, 7), (11, 7), false),
+            (FileType::Directory, (11, 8), (11, 7), false),
+            (FileType::Directory, (12, 8), (11, 7), false),
+            (FileType::RegularFile, (11, 7), (11, 7), false),
+            (FileType::RegularFile, (12, 7), (11, 7), false),
+            (FileType::RegularFile, (11, 8), (11, 7), false),
+            (FileType::RegularFile, (12, 8), (11, 7), false),
+        ];
+        for (kind, actual, expected, answer) in cases {
+            assert_eq!(
+                directory_has_identity(kind, actual, expected),
+                answer,
+                "kind={kind:?}, actual={actual:?}, expected={expected:?}"
+            );
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn directory_verification_binds_the_native_name_and_keeps_replaced_trees_unchanged() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("owned").unwrap();
+        fs.ensure_dir(&lock, &rel).unwrap();
+        let path = home.rel("owned").unwrap();
+        std::fs::write(path.as_path().join("original"), b"original A").unwrap();
+        let tree = fs.open_tree_locked(&lock, &rel).unwrap();
+        fs.verify_tree_at(&tree, &rel).unwrap();
+        verify_managed_tree_at(&home, &tree, "owned").unwrap();
+        let retained = directory.path().join("retained-tree");
+        std::fs::rename(path.as_path(), &retained).unwrap();
+        std::fs::create_dir(path.as_path()).unwrap();
+        std::fs::write(path.as_path().join("competitor"), b"competitor B").unwrap();
+        let a = tree_snapshot(&retained);
+        let b = tree_snapshot(path.as_path().as_std_path());
+        assert!(matches!(
+            fs.verify_tree_at(&tree, &rel),
+            Err(Error::StoreCorrupt { .. })
+        ));
+        assert!(matches!(
+            verify_managed_tree_at(&home, &tree, "owned"),
+            Err(Error::StoreCorrupt { .. })
+        ));
+        assert_eq!(tree_snapshot(&retained), a);
+        assert_eq!(tree_snapshot(path.as_path().as_std_path()), b);
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_tree_from_an_old_root_epoch_cannot_bind_the_same_transplanted_directory() {
+        let (directory, home) = temporary_home();
+        let old_lock = home.acquire_lock().unwrap();
+        let old_fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("owned").unwrap();
+        old_fs.ensure_dir(&old_lock, &rel).unwrap();
+        let path = home.rel("owned").unwrap();
+        std::fs::write(path.as_path().join("original"), b"held tree A").unwrap();
+        let tree = old_fs.open_tree_locked(&old_lock, &rel).unwrap();
+        let before = tree_snapshot(path.as_path().as_std_path());
+        let old_root = directory.path().join("retained-home");
+        let old_root_meta = std::fs::metadata(home.root().as_path()).unwrap();
+        std::fs::rename(home.root().as_path(), &old_root).unwrap();
+        let _new_lock = home.acquire_lock().unwrap();
+        let new_root_meta = std::fs::metadata(home.root().as_path()).unwrap();
+        assert_eq!(old_root_meta.dev(), new_root_meta.dev());
+        assert_ne!(old_root_meta.ino(), new_root_meta.ino());
+        std::fs::rename(old_root.join("owned"), path.as_path()).unwrap();
+        let Error::InvalidRequest { reason } =
+            verify_managed_tree_at(&home, &tree, "owned").unwrap_err()
+        else {
+            panic!("old root epoch cannot authorize a current tree")
+        };
+        assert_eq!(reason, "发布目录句柄不属于此管理根");
+        assert_eq!(tree_snapshot(path.as_path().as_std_path()), before);
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn a_tree_rename_checks_the_native_source_before_moving_a_competitor() {
+        for replace in [false, true] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let from = ManagedRelPath::new("source").unwrap();
+            let to = ManagedRelPath::new("target").unwrap();
+            fs.ensure_dir(&lock, &from).unwrap();
+            let source = home.rel("source").unwrap();
+            let target = home.rel("target").unwrap();
+            std::fs::write(source.as_path().join("original"), b"original tree A").unwrap();
+            let tree = fs.open_tree_locked(&lock, &from).unwrap();
+            let original = tree_snapshot(source.as_path().as_std_path());
+            if !replace {
+                fs.rename_tree_new(&lock, &tree, &to).unwrap();
+                assert!(!source.as_path().exists());
+                assert_eq!(tree_snapshot(target.as_path().as_std_path()), original);
+                continue;
+            }
+            let retained = directory.path().join("retained-source");
+            let mut competitor = BTreeMap::new();
+            let result = observe_change(
+                "tree_rename_before_source_stat",
+                source.as_str(),
+                move || fs.rename_tree_new(&lock, &tree, &to),
+                || {
+                    std::fs::rename(source.as_path(), &retained).unwrap();
+                    std::fs::create_dir(source.as_path()).unwrap();
+                    std::fs::write(source.as_path().join("competitor"), b"competitor tree B")
+                        .unwrap();
+                    competitor = tree_snapshot(source.as_path().as_std_path());
+                },
+            );
+            assert!(
+                !target.as_path().exists(),
+                "source identity refusal must precede moving the competitor"
+            );
+            assert!(matches!(result, Err(Error::StoreCorrupt { .. })));
+            assert_eq!(tree_snapshot(source.as_path().as_std_path()), competitor);
+            assert_eq!(tree_snapshot(&retained), original);
+        }
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn deletion_checks_the_current_name_before_unlinking_a_different_empty_root() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("owned").unwrap();
+        fs.ensure_dir(&lock, &rel).unwrap();
+        let path = home.rel("owned").unwrap();
+        std::fs::write(
+            path.as_path().join("original"),
+            b"legitimately removed A child",
+        )
+        .unwrap();
+        let tree = fs.open_tree_locked(&lock, &rel).unwrap();
+        let retained = directory.path().join("retained-emptied-A");
+        let mut competitor = BTreeMap::new();
+        let result = observe_change(
+            "delete_before_root_unlink",
+            "delete-name-swap",
+            move || fs.remove_managed_tree(&lock, &tree, &rel, "delete-name-swap"),
+            || {
+                assert_eq!(std::fs::read_dir(path.as_path()).unwrap().count(), 0);
+                std::fs::rename(path.as_path(), &retained).unwrap();
+                std::fs::create_dir(path.as_path()).unwrap();
+                competitor = tree_snapshot(path.as_path().as_std_path());
+            },
+        );
+        assert!(
+            path.as_path().is_dir(),
+            "name verification must not unlink the competitor"
+        );
+        assert!(matches!(result, Err(Error::RecoveryRequired { .. })));
+        assert_eq!(tree_snapshot(path.as_path().as_std_path()), competitor);
+        assert!(retained.is_dir());
+        assert_eq!(std::fs::read_dir(&retained).unwrap().count(), 0);
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn purge_preflights_the_entire_root_before_any_chmod_or_deletion() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("works/early").unwrap())
+            .unwrap();
+        let early = home.rel("works/early").unwrap();
+        std::fs::write(early.as_path().join("original"), b"early readonly original").unwrap();
+        let early_restore =
+            super::permission_test_support::PermissionRestore::deny(early.as_path().as_std_path());
+        std::fs::set_permissions(early.as_path(), std::fs::Permissions::from_mode(0o555)).unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("zz-late/child").unwrap())
+            .unwrap();
+        let outside = directory.path().join("outside-sentinel");
+        std::fs::write(&outside, b"external linked original").unwrap();
+        let hardlink = home.rel("zz-late/child/hardlink").unwrap();
+        std::fs::hard_link(&outside, hardlink.as_path()).unwrap();
+        let restore = super::permission_test_support::PermissionRestore::deny(
+            home.root().as_path().as_std_path(),
+        );
+        std::fs::set_permissions(
+            home.root().as_path(),
+            std::fs::Permissions::from_mode(0o500),
+        )
+        .unwrap();
+        let before = tree_snapshot(home.root().as_path().as_std_path());
+        let outside_meta = std::fs::metadata(&outside).unwrap();
+        let result = fs.purge_contents(&lock);
+        let after = tree_snapshot(home.root().as_path().as_std_path());
+        drop(restore);
+        drop(early_restore);
+        assert_eq!(
+            after, before,
+            "whole-root preflight must precede the first permission or unlink side effect"
+        );
+        assert!(matches!(result, Err(Error::InvalidRequest { .. })));
+        assert_eq!(
+            std::fs::read(&outside).unwrap(),
+            b"external linked original"
+        );
+        let after_meta = std::fs::metadata(&outside).unwrap();
+        assert_eq!(
+            (
+                after_meta.dev(),
+                after_meta.ino(),
+                after_meta.mode(),
+                after_meta.nlink()
+            ),
+            (
+                outside_meta.dev(),
+                outside_meta.ino(),
+                outside_meta.mode(),
+                outside_meta.nlink()
+            )
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn purge_unlinks_a_legitimate_leaf_symlink_without_touching_its_external_target() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let outside = directory.path().join("outside");
+        std::fs::create_dir(&outside).unwrap();
+        std::fs::write(outside.join("sentinel"), b"external untouched bytes").unwrap();
+        let before = tree_snapshot(&outside);
+        let leaf = home.rel("leaf-alias").unwrap();
+        std::os::unix::fs::symlink(&outside, leaf.as_path()).unwrap();
+        let lock_before = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        fs.purge_contents(&lock).unwrap();
+        assert!(std::fs::symlink_metadata(leaf.as_path()).is_err());
+        assert_eq!(tree_snapshot(&outside), before);
+        let lock_after = std::fs::metadata(home.lock_path().as_path()).unwrap();
+        assert_eq!(
+            (lock_after.dev(), lock_after.ino(), lock_after.mode()),
+            (lock_before.dev(), lock_before.ino(), lock_before.mode())
+        );
+    }
+
+    // Task: C002-T55
+    #[test]
+    fn recursive_delete_and_chmod_refuse_replaced_directory_and_regular_file_objects() {
+        for operation in ["delete", "mode-directory", "mode-file"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let rel = ManagedRelPath::new("tree").unwrap();
+            fs.ensure_dir(&lock, &rel).unwrap();
+            let tree_root = home.rel("tree").unwrap();
+            if operation == "mode-file" {
+                std::fs::write(tree_root.as_path().join("child"), b"original A").unwrap();
+            } else {
+                std::fs::create_dir(tree_root.as_path().join("child")).unwrap();
+                std::fs::write(tree_root.as_path().join("child/original"), b"original A").unwrap();
+            }
+            let target = home.rel("tree/child").unwrap();
+            let original_meta = std::fs::metadata(target.as_path()).unwrap();
+            let retained = directory.path().join("retained-A");
+            let mut competitor = BTreeMap::new();
+            let marker = if operation == "delete" {
+                "remove_directory_before_open"
+            } else {
+                "tree_mode_before_open"
+            };
+            let result = observe_change(
+                marker,
+                target.as_str(),
+                move || {
+                    if operation == "delete" {
+                        fs.remove_owned_tree(&lock, &rel)
+                    } else {
+                        fs.set_tree_readonly(&lock, &rel)
+                    }
+                },
+                || {
+                    std::fs::rename(target.as_path(), &retained).unwrap();
+                    if operation == "mode-file" {
+                        std::fs::write(target.as_path(), b"competitor B").unwrap();
+                    } else {
+                        std::fs::create_dir(target.as_path()).unwrap();
+                        std::fs::write(target.as_path().join("sentinel"), b"competitor B").unwrap();
+                    }
+                    let metadata = std::fs::metadata(target.as_path()).unwrap();
+                    assert_eq!(metadata.dev(), original_meta.dev());
+                    assert_ne!(metadata.ino(), original_meta.ino());
+                    competitor = if operation == "mode-file" {
+                        let parent = target.as_path().parent().unwrap();
+                        tree_snapshot(parent.as_std_path())
+                    } else {
+                        tree_snapshot(target.as_path().as_std_path())
+                    };
+                },
+            );
+            assert!(result.is_err());
+            if operation == "mode-file" {
+                assert_eq!(
+                    tree_snapshot(target.as_path().parent().unwrap().as_std_path()),
+                    competitor
+                );
+                assert_eq!(std::fs::read(&retained).unwrap(), b"original A");
+            } else {
+                assert_eq!(tree_snapshot(target.as_path().as_std_path()), competitor);
+                assert_eq!(
+                    std::fs::read(retained.join("original")).unwrap(),
+                    b"original A"
+                );
+            }
+            let preserved = std::fs::metadata(&retained).unwrap();
+            assert_eq!(
+                (preserved.dev(), preserved.ino(), preserved.mode()),
+                (
+                    original_meta.dev(),
+                    original_meta.ino(),
+                    original_meta.mode()
+                )
+            );
+        }
     }
 }
