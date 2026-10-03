@@ -47,3 +47,7 @@ Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`。
 ## C007-T04 新agent协议独立准入
 
 Reviewer /root/c007_admission_review原完整first-use/探针原件缺口needschanges保留，修后PASS，再capture格式AST等价与finalfreeze窄增量PASS，无必修。真实任务/同输入/初始同tree/模型权限/actor历史/预算阈值/冷agent续及质量/成本口径可执行，exact实际消息/source_line在本evidence。原代码/真人协议不同，不授原准入/质量/收益，正式samples尚未开始，Root必须提交后才运行。
+
+## C007-T06 独立分析复核
+
+Reviewer /root/c007_admission_review未写分析/样本/标准，复算真实R/failedstop/proxyUTC、unknown分项及15%前提不足、原规则选择准确，PASS无必修；原finalsource_line存study/analysis-independent-review.json。只授限定分析，不授原代码真人实验、严格公平/价值或尚未应用文档。

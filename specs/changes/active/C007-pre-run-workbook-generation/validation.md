@@ -170,3 +170,7 @@ Rootproxy接受在各run20min内，actualrun.wall_seconds原coordinatorend不含
 T05末独立质量原件final-quality-report：K72/K95/K33/K64完整交付质量通过，K41因缺patch/apply、K18因真实delivery写失败阻断；六candidate正文静态可用不解除两交付阻断。五现存patch由末审在自己的独立副本实际apply/check/index/write-tree全同，不变原run outcome。partialblinding披露，原路径透明不假统计盲。
 
 独立执行audit结论scoped_qualified_observation，305双流完整capture与20helper/同coordinator真实session原件、43archive成员/当前资产同SHA支持真实记录；strict完整/无偏6同质量未满足，run2/3/4偏差不授fairPASS。各actual窗口含Rootproxy接受，准备1752.967s整体已知但P/E精确/旧P/S/M完整聚合/人类usagecost未知，15%前提不足。没有新取证必修；T05done只当前真实运行/停止/失败与完整限定审，不当原code/human试验通过。T06分析/T07应用/M3尚待，22:50:26overall不重置。
+
+## C007-T06 限定分析
+
+独立复核analysis.md/json及全部实际summary/末quality/audit PASS，无必修。Native已知窗口3347.299385s、Sheltie3152.642834s是含失败/stop/Rootaccept的描述量，不当同quality性能比较；P/E/S/M分项、历史P/usage/人类分钟/付费unknown，15%not_evaluable，不声称改善或无价值。全部成本/偏差与partialblind限制保留。冻结选择rule据末quality选run2/run4/run5的原实际patch，未应用不说Root有newguide，不提出无证据新引擎runner/状态/probe。T07实际应用与M3尚待，整体22:50:26不变。
