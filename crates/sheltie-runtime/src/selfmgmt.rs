@@ -946,6 +946,94 @@ fn path_hint(home: &Home) -> String {
 mod tests {
     use super::*;
 
+    // Task: C002-T47
+    #[test]
+    fn asset_names_preserve_valid_single_segments_and_reject_forbidden_paths() {
+        for valid in [
+            "artifact",
+            "sheltie-cli-1.2.3-aarch64-apple-darwin.tar.xz",
+            "结果.tar",
+        ] {
+            assert_eq!(checked_asset_name(valid).unwrap(), valid);
+        }
+        for invalid in ["", ".", "..", "dir/name", "dir\\name", "nul\0name"] {
+            assert!(
+                matches!(
+                    checked_asset_name(invalid),
+                    Err(Error::UpdateUnavailable { .. })
+                ),
+                "{invalid:?}"
+            );
+        }
+    }
+
+    // Task: C002-T47
+    #[test]
+    fn exact_child_pipe_limits_do_not_kill_a_child_waiting_for_explicit_release() {
+        use std::time::{Duration, Instant};
+        struct ReleaseOnDrop<'a>(&'a std::path::Path);
+        impl Drop for ReleaseOnDrop<'_> {
+            fn drop(&mut self) {
+                let _ = std::fs::write(self.0, b"release");
+            }
+        }
+        for (emit, stdout, stderr) in [
+            ("printf abcd", b"abcd".as_slice(), b"".as_slice()),
+            ("printf wxyz >&2", b"".as_slice(), b"wxyz".as_slice()),
+        ] {
+            let directory = tempfile::tempdir().unwrap();
+            let reached = directory.path().join("pipes-closed");
+            let release = directory.path().join("release");
+            let script = format!(
+                "{emit}; exec 1>&-; exec 2>&-; touch \"$1\"; n=0; while [ ! -f \"$2\" ]; do n=$((n+1)); [ \"$n\" -le 300 ] || exit 73; sleep 0.01; done"
+            );
+            let (reached_before_release, ended_early, release_result, result) =
+                std::thread::scope(|scope| {
+                    let _release_on_drop = ReleaseOnDrop(&release);
+                    let reached_arg = &reached;
+                    let release_arg = &release;
+                    let worker = scope.spawn(move || {
+                        let mut command = std::process::Command::new("sh");
+                        command
+                            .arg("-c")
+                            .arg(script)
+                            .arg("fixture")
+                            .arg(reached_arg)
+                            .arg(release_arg);
+                        run_child_bounded(&mut command, None, "held fixture", 4, 4)
+                    });
+                    let deadline = Instant::now() + Duration::from_secs(3);
+                    while !reached.exists() && !worker.is_finished() && Instant::now() < deadline {
+                        std::thread::sleep(Duration::from_millis(5));
+                    }
+                    let reached_before_release = reached.exists();
+                    let deadline = Instant::now() + Duration::from_millis(250);
+                    while !worker.is_finished() && Instant::now() < deadline {
+                        std::thread::sleep(Duration::from_millis(5));
+                    }
+                    let ended_early = worker.is_finished();
+                    let release_result = std::fs::write(&release, b"release");
+                    (
+                        reached_before_release,
+                        ended_early,
+                        release_result,
+                        worker.join(),
+                    )
+                });
+            release_result.unwrap();
+            let result = result.unwrap();
+            assert!(reached_before_release, "fixture never closed its pipes");
+            assert!(
+                !ended_early,
+                "the child was terminated before explicit release: {result:?}"
+            );
+            let output = result.unwrap();
+            assert!(output.status.success(), "{output:?}");
+            assert_eq!(output.stdout, stdout);
+            assert_eq!(output.stderr, stderr);
+        }
+    }
+
     // Task: C002-T23
     #[test]
     fn bounded_child_accepts_exact_stdout_limit_and_rejects_one_more() {

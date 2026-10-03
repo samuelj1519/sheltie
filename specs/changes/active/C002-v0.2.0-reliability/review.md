@@ -315,3 +315,7 @@ Reviewer：`/root/completion_spec_review`，未参与本轮入口/文档编写�
 ## C002-T46 独立修复复核
 
 `/root/completion_spec_review` 对当前 HEAD 加T46实际diff独立复核，限定 PASS，无剩余必改。Command/data 的纯解码先于冻结读；业务资格、效果载荷分层与 original/pending_original 合同保留。四反例比较完整五表/全树字节，独立 strict_state5/5及效果资格4/4通过；完整作者工程843/843、零skip/零LEAK。报告与输入见 [独立原文](evidence/completion-20261003/independent-t46-review.md)。当前受审关键Spec通过，不给旧e3eea89补造最终批准，也不扩为全部215变异、其他平台或真实价值。
+
+## C002-T47 oracle 独立审查
+
+Reviewer `/root/oracle_review`，未参与设计/编写。初审需修改仅指出子进程夹具的失败释放/join缺口；局部修复后的独立增量通过，五例合法控制、指定10项捕获与修后4项重验范围准确，生产源码前缀不变。完整作者848/848和五项compile-fail通过。见 [原文](evidence/completion-20261003/independent-t47-review-after-cleanup.md)，不把此范围扩大到剩余T43或平台。

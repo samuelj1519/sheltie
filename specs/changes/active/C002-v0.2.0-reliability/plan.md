@@ -329,10 +329,11 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | --- | --- | --- | --- |
 | C002-T41 | done | Codex；独立 Reviewer | 恢复唯一实施入口、核原件保真与欠项来源 |
 | C002-T42 | doing | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
-| C002-T43 | not_run | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
+| C002-T43 | doing | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
 | C002-T44 | doing | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
 | C002-T45 | not_run | Codex；平台执行者 | 恢复需补的平台及物理目录环境验证；范围待实际用户答复与载体 |
 | C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
+| C002-T47 | done | Codex；独立 Reviewer | 补 G10/G11/G12 存活体的合同 oracle，保持生产行为 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -350,3 +351,9 @@ C004 后续欠项见其 validation 和 experiments/readiness；C005 需真实撤
 ### C002-T46 历史快照解码顺序
 
 依据 protocol §5、storage §3.2 与 engineering §2.2。先追加真实 CLI 用例：合法历史 begin 重放逐字段不变；只加 Command/data 未知字段并移走冻结副本时，cause 为 STORE_CORRUPT 且明确未知字段，已提交身份保留但无 original，Store 和保留目录逐字不变。必须先见真实红。实现复用 snapshot::check_data 和 validate_command_owner_data，移纯解码到 self.load 前，不新增 payload/状态/读取层。效果解码按独立原响应资格合同继续核，不把该异常改成无 original。工程规范准确区分快照读取与效果动作，不更改产品合同。补受影响原响应正反例、完整稳定候选工程及独立复核。单消费者 5 分钟、完整 12 分钟；运行期间不对共享 target 另做构建。
+
+### C002-T47 补已有边界的辨别力
+
+T43当前G10/G11/G12基线分别25/40/40实际PASS，11个对应突变中10个存活；schema先前两旧ID另捕获。只补已存在合同：0持久revision在CAS前拒绝/非constraint SQLite错误不归WorkbookExists；资产名单段、保留点名与分隔符；stdout/stderr恰好限额的真实child关闭管道后仍未退出，不应被提前kill。用手写字段、字节和显式child释放事件作为独立期望，不复制guard表达式或引入生产观察配置。必要合法控制、完整SQL/文件变化与实际child回收单列；超时3秒保存失败并停止，任何panic前先释放自有子进程。Store.validate的真实consumer和副作用由独立审查明确，不能仅凭重复schema检查认等价。
+
+只允许修改store/tests.rs和selfmgmt.rs的cfg(test)区域，生产源码AST保持。测试先在现有正确候选通过，再用指定存活突变验证确能失败，正式Missed不反写。范围/源码变异映射按新tests闭包登记，受影响runtime/CLI和完整里程碑门禁及独立复核后提交。

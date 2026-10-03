@@ -1,0 +1,33 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
+────────────
+ Nextest run ID 2de50515-66d6-49af-a385-5e60326988eb with nextest profile: default
+    Starting 5 tests across 1 binary (52 tests skipped)
+        PASS [   0.029s] (1/5) sheltie-runtime selfmgmt::tests::asset_names_preserve_valid_single_segments_and_reject_forbidden_paths
+        PASS [   0.035s] (2/5) sheltie-runtime store::tests::workbook_insert_preserves_nonconstraint_sqlite_errors_and_rolls_back_the_transaction
+        PASS [   0.035s] (3/5) sheltie-runtime store::tests::commit_rejects_zero_persisted_revision_before_reporting_a_cas_conflict
+        FAIL [   0.038s] (4/5) sheltie-runtime store::tests::opening_a_write_session_configures_wal_before_any_later_store_operation
+  stdout ───
+
+    running 1 test
+    test store::tests::opening_a_write_session_configures_wal_before_any_later_store_operation ... FAILED
+
+    failures:
+
+    failures:
+        store::tests::opening_a_write_session_configures_wal_before_any_later_store_operation
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.01s
+
+  stderr ───
+
+    thread 'store::tests::opening_a_write_session_configures_wal_before_any_later_store_operation' (60126412) panicked at crates/sheltie-runtime/src/store/tests.rs:720:5:
+    assertion failed: persisted_rows(&connection).iter().all(Vec::is_empty)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 1 test still running
+        PASS [   0.620s] (5/5) sheltie-runtime selfmgmt::tests::exact_child_pipe_limits_do_not_kill_a_child_waiting_for_explicit_release
+────────────
+     Summary [   0.621s] 5 tests run: 4 passed, 1 failed, 52 skipped
+        FAIL [   0.038s] (4/5) sheltie-runtime store::tests::opening_a_write_session_configures_wal_before_any_later_store_operation
+error: test run failed

@@ -678,3 +678,115 @@ fn store_accepts_real_running_and_failed_attempt_states() {
     assert_eq!(row.revision, 3);
     assert_eq!(&row.state, fixture.state());
 }
+
+fn persisted_rows(connection: &rusqlite::Connection) -> Vec<Vec<Vec<rusqlite::types::Value>>> {
+    ["workbooks", "works", "work_sequence", "requests", "audit"]
+        .into_iter()
+        .map(|table| {
+            let mut statement = connection
+                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
+                .unwrap();
+            let columns = statement.column_count();
+            statement
+                .query_map([], |row| (0..columns).map(|index| row.get(index)).collect())
+                .unwrap()
+                .collect::<rusqlite::Result<Vec<_>>>()
+                .unwrap()
+        })
+        .collect()
+}
+
+// Task: C002-T47
+#[test]
+fn opening_a_write_session_configures_wal_before_any_later_store_operation() {
+    let (_directory, home) = handwritten_current_schema(HANDWRITTEN_WORKS);
+    let before = {
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let mode: String = connection
+            .query_row("PRAGMA journal_mode=DELETE", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(mode, "delete");
+        persisted_rows(&connection)
+    };
+    let session = crate::session::WriteSession::open_existing(&home).unwrap();
+    let connection = rusqlite::Connection::open_with_flags(
+        home.store_path().as_str(),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let mode: String = connection
+        .query_row("PRAGMA journal_mode", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(mode, "wal");
+    assert_eq!(persisted_rows(&connection), before);
+    drop(session);
+}
+
+// Task: C002-T47
+#[test]
+fn commit_rejects_zero_persisted_revision_before_reporting_a_cas_conflict() {
+    let (_directory, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    assert_eq!(
+        store
+            .commit(input(&state, "legal-start", "start", None))
+            .unwrap(),
+        CommitOutcome::Committed { revision: 1 }
+    );
+    assert_eq!(
+        store
+            .commit(input(&state, "legal-next", "next", Some(1)))
+            .unwrap(),
+        CommitOutcome::Committed { revision: 2 }
+    );
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    connection
+        .execute("UPDATE works SET revision=0", [])
+        .unwrap();
+    let before = persisted_rows(&connection);
+    let error = store
+        .commit(input(&state, "invalid-revision", "reject", Some(2)))
+        .unwrap_err();
+    assert!(matches!(error, Error::StoreCorrupt { .. }), "{error}");
+    assert_eq!(persisted_rows(&connection), before);
+}
+
+// Task: C002-T47
+#[test]
+fn workbook_insert_preserves_nonconstraint_sqlite_errors_and_rolls_back_the_transaction() {
+    let (_directory, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    let row = crate::WorkbookRow {
+        id: "x".into(),
+        version: "1.0.0".into(),
+        digest: "0".repeat(64),
+        dir: "workbooks/x/1.0.0".into(),
+        added_at: "2026-09-25T00:00:00Z".into(),
+    };
+    let mut legal = input(&state, "legal-add", "add", None);
+    legal.workbook_insert = Some(row.clone());
+    store.commit(legal).unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let before_duplicate = persisted_rows(&connection);
+    let mut duplicate = input(&state, "duplicate", "duplicate", Some(1));
+    duplicate.workbook_insert = Some(row.clone());
+    let error = store.commit(duplicate).unwrap_err();
+    assert!(matches!(error, Error::WorkbookExists { .. }), "{error}");
+    assert_eq!(persisted_rows(&connection), before_duplicate);
+    connection.execute_batch("CREATE TRIGGER invalid_workbook_insert BEFORE INSERT ON workbooks BEGIN SELECT missing_fixture_function(); END;").unwrap();
+    let before = persisted_rows(&connection);
+    let mut broken = input(&state, "sqlite-error", "broken", Some(1));
+    broken.workbook_insert = Some(crate::WorkbookRow {
+        id: "other".into(),
+        ..row
+    });
+    let error = store.commit(broken).unwrap_err();
+    assert!(matches!(error, Error::StoreCorrupt { .. }), "{error}");
+    assert!(
+        error.to_string().contains("missing_fixture_function"),
+        "{error}"
+    );
+    assert_eq!(persisted_rows(&connection), before);
+}

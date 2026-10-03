@@ -444,3 +444,13 @@ T42 的当前完整工程与在线公告仍是独立补验任务；T44 已发现
 完整稳定输入 Nextest `843/843`、零 skip、零 LEAK、2 slow，run `62efeb8a-8680-4a38-9958-8ac5376e800b`（完整 ID 以 [原文](evidence/completion-20261003/t46-final-nextest.txt)为准）；fmt/check/Clippy 和五项 compile-fail doctest 均 exit0，源码哈希前后相同。源码变化后的完整回归不复用修前输入。独立审查当前关键 Spec 合同通过，旧 e3eea89/SK01 的原暂停仍为历史事实；215项/平台/真实价值不随本任务关闭。
 
 首次环境运行是842项中841 PASS/1FAIL、零skip/零LEAK，原文 [nextest](evidence/completion-20261003/nextest.txt)。失败发生于 CLI `.output()` 的 ENOENT，执行者同时在共享 target 构建了另一个 feature 组合的 CLI；该调度冲突保留为验证失败，不改记产品 PASS。后续 stable 输入运行禁止并发改建同一 target。历史 C004–C006 LEAK 因果尚未逐次证明；官方 nextest0.9.145 修复的捕获管道继承问题和当前零LEAK只能作为限定证据，不反写旧run。
+
+## C002-T47 存活条件的独立 oracle
+
+基线 `06e5a91`，仅改selfmgmt的cfg(test)与store/tests测试模块，生产前缀逐字不变，见 [保真记录](evidence/completion-20261003/t47-production-preservation.json)。五条真实Store/WriteSession/child及纯资产路径合同用例：WAL在首次RW初始化已设置且行不变；0持久revision先报损坏而非CAS冲突；真实SQLite非constraint INSERT失败保留准确原因和整事务；单文件名保留/拒绝；恰好stdout/stderr限额时关闭管道、仍等待显式释放的child不得被提前kill。
+
+原分组25/40/40基线通过，11项中10项Missed。新增用例后指定10项全部Caught；独立复核指出夹具释放前的panic清理缺口，改为RAII release、scoped join和有限producer后，新5/5控制及受影响4项再次Caught。前6项Store/asset源码/oracle未变，保留原具体执行范围，不说整组相同闭包重跑。所有Build Success→真实Test Failure、diff、argv、run与选择原文集中在 [oracle档案](evidence/completion-20261003/t47-oracles.tar.gz)，[逐成员校验](evidence/completion-20261003/t47-oracle-archive.json)全部回读一致。旧正式Missed标签不改写。
+
+首次新WAL用例假设手写fixture五表为空而失败；该fixture本来含控制行，已改为构造前后的独立完整行比较。旧失败原文保留，不算产品red。初审与修后报告分别 [初审](evidence/completion-20261003/independent-t47-review.md)、[增量](evidence/completion-20261003/independent-t47-review-after-cleanup.md)；独立Reviewer `/root/oracle_review` 未参与用例设计/编写。修后限定PASS，无剩余T47finding。producer轮询有限但不是严格3秒墙钟保证。
+
+稳定完整工程848/848、零skip/零LEAK，run `fbb2e15c-7dd1-4910-8ab4-93147c66057a`；fmt/check/Clippy及5compile-fail均exit0，见 [完整输入/结果](evidence/completion-20261003/t47-final-gates.json)。此前误指T46输出的验证已停止，四份旧原文按Git对象逐字恢复，校验 [恢复记录](evidence/completion-20261003/t47-misdirected-run-restoration.json)；其partial没有计PASS。当前差异不含任何旧T46原文变更。T47关闭这10项的判定缺口；T43此前另有schema两项与readonly初检一项实际捕获，合计13项，另外202项仍在T43，不扩大到完整变异或全产品验收。
