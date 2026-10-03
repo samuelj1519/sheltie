@@ -1,0 +1,10 @@
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.12s
+────────────
+ Nextest run ID f996ead5-69fb-47d2-a205-f90277d1d26e with nextest profile: default
+    Starting 3 tests across 29 binaries (220 tests skipped)
+        PASS [   0.552s] (1/3) sheltie-cli::reliability_crash replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning
+        PASS [   0.791s] (2/3) sheltie-cli::reliability_crash replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache
+        PASS [   1.266s] (3/3) sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned
+────────────
+     Summary [   1.267s] 3 tests run: 3 passed, 220 skipped

@@ -1,0 +1,74 @@
+{
+  "result": "PASS_two_scoped_static_proofs_current_source_ID_bound",
+  "reviewer": "independent read-only; no G09 oracle/code preparation",
+  "source_sha256": {
+    "crates/sheltie-runtime/src/pending.rs": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+    "crates/sheltie-runtime/src/service.rs": "958101a3e60c1f9c8204ef3ae1106b65f7df636c2b7538f038fbf32a3dac58ea",
+    "crates/sheltie-runtime/src/recovery.rs": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43",
+    "crates/sheltie-runtime/src/effects.rs": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c"
+  },
+  "count": 2,
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "old_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+      "current_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+      "scope": "same ordinary accepted/rejected index set, StoreCorrupt and before cleanup businessIO; changed first diagnosis/work",
+      "proof": "onlyPublish/Delete reach; preceding validate_publish_reference/validate_delete_reference bothvalid_digest on sameowned String true, soinvalidDigest false. Mutated && mayappendduplicateinternalid to ownedVec; final same invocation iter rejects len!=1. PrivatefromRows not queriedStore/FS betweenguards and neverreturnsbadindex; all load/load_work_start global/read consumers receiveErr.",
+      "difference": "duplicatewithinRequest vs multipleeffects detail; later malformed rows maywinfirsterror; clone/parsing/extraindexappend work/allocation differs, not completeJSON/resource/OOM equality",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved",
+      "exact_inventory_verified": {
+        "function": "PendingReferenceIndex::from_rows",
+        "span": {
+          "end": {
+            "column": 23,
+            "line": 116
+          },
+          "start": {
+            "column": 21,
+            "line": 116
+          }
+        },
+        "genre": "BinaryOperator",
+        "replacement": "&&"
+      }
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:475:43: replace || with && in cleanup_selected",
+      "old_diff_sha256": "4e3f33f6b378eb3111b93c67b96bb1a2a23963072d1ecbc2a487c93f64890706",
+      "current_diff_sha256": "4b5a4d5d060732752ddad24a4470450f4ae357595f27ce2e6082240609417b51",
+      "scope": "this exact dead branch only current complete callers",
+      "proof": "target nestedunder referenceNone && ownerFileNone; prior matchon same local Options None,None sets owner_matches false; next if!falsewarns andcontinues. No reassignment/reread between. prepare_new_request selected path and cleanup general path onlycallers reach samefunction. Filesystem laterchanges do notchange local Option None.",
+      "difference": "no reachable change atthisconnector; no staticproof for othercleanupwarnings/metadata/time-of-observation predicates",
+      "execution": "not_run_by_static_review",
+      "caught": false,
+      "disposition": "static_scoped_proved",
+      "exact_inventory_verified": {
+        "function": "cleanup_selected",
+        "span": {
+          "end": {
+            "column": 45,
+            "line": 475
+          },
+          "start": {
+            "column": 43,
+            "line": 475
+          }
+        },
+        "genre": "BinaryOperator",
+        "replacement": "&&"
+      }
+    }
+  ],
+  "full_caller_search": "cleanup_selected onlycleanup andprepare_new_request; from_rows private onlyload/load_work_start; execution/helper inputs owned local immutablevalues",
+  "limits": [
+    "current producer/caller only",
+    "fromRows altereddiagnostic/order/work, no completeerror/resourceequivalence",
+    "full15/mutants/gates notapproved",
+    "update source/currentinventory binding after newtest edits"
+  ]
+}

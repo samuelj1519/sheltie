@@ -342,6 +342,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T53 | done | Codex；独立 Reviewer | G06 精确8：7动态/1分类限定静态；908全回归及独审通过 |
 | C002-T54 | done | Codex；独立 Reviewer | G07 精确6：5动态/1当前caller静态；913全回归及独审通过 |
 | C002-T55 | done | Codex；独立 Reviewer | G08准确33：20动态/4限定静态/9结构验证；935回归与独审通过 |
+| C002-T56 | done | Codex；独立 Reviewer | G09准确15：13动态/2限定静态；945回归与独审通过 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -459,3 +460,17 @@ T55定位首轮两存活的时序方案经独立审查否定：没有采用“�
 
 
 T55独审新增夹具回收义务：FSx tree与真实add/start所用新unit fixture复用tests/common/owned_tempdir.rs的OwnedTempDir，仅cfg(test)共享入口，不复制清理逻辑。先结束worker作用域/解除故障，再由原根FD只放开目录权限、不跟随链接、不chmod硬链接文件/外部目标。夹具回收调整仅位于cfg(test)，清理实现由该共享文件提供；再冻结源码/映射/基线，原普通TempDir样本保留。
+
+
+### C002-T56 pending资格、失败补偿与恢复分派
+
+G09准确15旧ID。全局索引pending形状用真实登记的单项改变/合法未提交孤儿，先拒整个索引且不清邻居原件；不以CheckedEffects另一caller的前层形状支配全部producer。owner父目录sync的唯一stage_pending顺序在container创建前，用已有root-scoped sync_error设施定位真实边界；不把后续mkdir同步当此前义务。
+
+新文件失败补偿只沿真实CREATE|EXCL/write或sync失败分支：合法补偿只unlink本次A，同设备新inode竞争者B必须保留并RecoveryRequired。仅在缺失失败窗口加局部feature故障/观察点，不填盘/unsafe/改宿主全局限额，不用成功后的身份观察点假称进入失败清理。
+
+恢复缓存分派用实际completed B和真实已提交未完成A，重放B须先处理A；原响应/请求归属、五表、unpublished与原件分别核。名字UUID、未提交准备清理门槛、已完成delete无marker时重复维护的准确告警范围用当前consumer共享oracle，不以warnings非空代替关系。
+
+2限定静态候选由完整当前caller/同局部值/纯后置索引拒绝复核，保留diagnostic/成本差异；不称原native执行。先非零基线与短样本，每批最多12项/600秒，freeze源/fixture/binary/配置、完整工程/MSRV/治理与独立逐ID审查后一个任务一个提交。M2保持未完成。
+
+
+T56失败补偿采用已有feature sync_error模型化真实write后的file.sync边界（managed_new_file_sync），created metadata仍来自实际CREATE|EXCL FD；失败分支清理前新增new_file_failure_before_cleanup精确观察。目录fsync边界managed_directory_sync在open/lock资格之后、实际fsync前，仅既有测试特性控制；标明模型化外部I/O失败，不称真实磁盘/断电证明。marker I/O失败保留本次创建对象RecoveryRequired，合法补偿/同inode竞争者保留/owner-before-container顺序各有独立正反例。

@@ -604,3 +604,24 @@ fixture失败、整理前/后源码、独立原文、样本和最终日志见 [�
 [准确账本](evidence/completion-20261003/t55-g08-dispositions.json) 覆盖33个唯一旧ID，20直接动态、4限定静态和9结构验证分别登记；广C/纯表各9个新target不计旧Caught。最终独审核全部log/diff、190变异/134工程输入、根FD回收、相同caller接线/普通资源与诊断差异、真实Cargo产物路径/冻结SHA/env。run `b062be43-16ad-4137-8760-805efe524d21`935/935零skip/LEAK，5compile-fail与工程/MSRV/default/22归属测试通过，文档首次禁词exit1与修后治理全0分别保留。
 
 原生旧1595正式Missed与后补focusedCLI Caught仅作为215外背景，不增造G08第34项。源码/fixture/原scope finding、全部样本与最终原文见[原文档案](evidence/completion-20261003/t55-g08-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t55-oracle-archive.json)全部一致。当前累计167/215动态检测、19/215限定静态、9/215结构验证，剩余20项继续T43；不称215旧原生全部运行、旧M1或M2完成。
+
+
+## C002-T56 pending 资格、失败补偿与恢复分派
+
+依据 [G09 独立准备](evidence/completion-20261003/g09-oracle-directions.md)，准确15旧ID分13动态和2限定静态证明。新增10项、复用1项既有未提交同请求清理门槛测试；修后11/11针对性基线通过。真实CREATE|EXCL对象在write后模型化sync错误进入失败补偿，合法补偿移除本次A，换名竞争者B及保留A的字节、设备/inode/权限/链接数均不变。清理观察自身I/O失败保留原件并RecoveryRequired；直接stage_pending三操作核owner已写、父目录sync失败时container/payload尚未创建。不称真实磁盘故障、断电或整个业务事务验证。
+
+真实登记的全局pending路径单项损坏先拒索引，合法未提交邻居原件不被清理；coupled owner/container非UUID只告未知并保全。missing root用真实未发布A与完成B，告警关系仅A，并比较保存树的完整路径/字节/dev/inode/mode/nlink与五表原始值。独立审查首次发现只核is_dir不足，补完整保全断言后增量通过；原needs-changes和编译错误保留，不声称SQLite物理文件或timestamp全部不变。
+
+CLI由真实completed B和真实COMMIT后exit70未完成A产生缓存分派场景。健康A先恢复再重放B；坏A拒EFFECT_PENDING，顶层当前请求B、手写原B、detail原A/cause、五表与实际A树均保留。已清完成delete配置专属清理故障后重放仍无不存在marker告警；既有同rid未提交场景验证故障时未登记、解除后仅一次提交。fixture API/wire探索失败原文保留，不写成产品错误或通过。
+
+静态证明仅处分两个精确位置：同局部None/None组合已early continue的不可达分支，以及纯索引装入前置digest资格/末尾同invocation重复关联拒绝。后者保留首诊断、处理顺序、克隆/解析/分配成本差异；均动态not_run，不记旧Caught或完整资源/JSON等价。
+
+最终冻结候选A10/10、B3/3全部Caught，113.236/53.659秒；[逐ID账本](evidence/completion-20261003/t56-g09-dispositions.json)核准确13动态与2限定静态，保留全部旧stage1 Missed。先前6代表样本在补保全断言前执行，第二7短反馈在修后源执行154.297秒，不混用其输入；最终两批均新源且190输入无漂移。
+
+[最终工程](evidence/completion-20261003/t56-final-gates.json)由[真实Cargo产物/冻结SHA/env](evidence/completion-20261003/t56-frozen-binaries.json)运行：945/945、零skip/零LEAK，run `ce4a581d-5b63-488e-b383-603661eaefca`，5 compile-fail、fmt/check/Clippy、Rust1.85、默认特性、Task10/10及修后focused11/11通过，134工程输入稳定。[最终逐ID独立验收](evidence/completion-20261003/t56-final-review.md)通过；T56标记done后核任务范围，M2仍not_run。
+
+独审原文分类：before_write变体在健康A迭代首先失败，表现为B成功重放但A仍published=false，不称坏A分支实际红；非UUID变体首先缺少unknown告警，删除授权变化仅精确源码推导。正式变异工具A/B自带基线为runtime8，变异Test包含CLI/runtime；同源11针对性与完整945另列。再补相同正式package/filter/relative target环境的CLI/runtime11对照，不改写工具原baseline数量。
+
+三个治理门禁tests/skill/core-vocab当前候选实际全0；[补充CLI/runtime对照](evidence/completion-20261003/t56-exact-cli-runtime-control.json)同190源/正式package/filter/relative target、无binary覆盖，11/11通过48.640秒。原工具8项基线不改写。原始源码/失败探索/样本/正式变异与对照见[原文档案](evidence/completion-20261003/t56-g09-oracles.tar.gz)，[逐成员SHA回读](evidence/completion-20261003/t56-oracle-archive.json)全部一致。当前累计180/215动态、21/215限定静态、9/215结构验证，剩余G13五项继续T43；不称旧215原生全部执行、M2或产品完成。
+
+最终装配首次docs门禁因G09准备文档禁用措辞exit1；原准备字节及失败输出保留在档案，改为“使用root-scoped”后重核治理，不修改源码或已有运行。

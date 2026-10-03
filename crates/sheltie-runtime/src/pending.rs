@@ -1204,3 +1204,303 @@ mod locator_contract_tests {
         assert!(!home.store_path().as_path().exists());
     }
 }
+
+#[cfg(all(test, feature = "failpoint"))]
+mod pending_qualification_contract_tests {
+    use super::*;
+    use crate::fsx::owned_test_directory::OwnedTempDir;
+    use crate::store::{OpenMode, Store};
+    use std::os::unix::fs::MetadataExt as _;
+
+    fn fixture() -> (OwnedTempDir, Home) {
+        let directory = OwnedTempDir::new();
+        let home = Home::resolve(Some(directory.path().join("home").to_str().unwrap())).unwrap();
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/two-step")
+            .canonicalize()
+            .unwrap();
+        crate::WorkbookRepo::new(home.clone())
+            .add(
+                &sheltie_core::path::AbsPath::new(source.to_str().unwrap()).unwrap(),
+                Some("qualified-add".into()),
+            )
+            .unwrap();
+        (directory, home)
+    }
+
+    fn original_tree(
+        root: &std::path::Path,
+    ) -> BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)> {
+        fn visit(
+            base: &std::path::Path,
+            path: &std::path::Path,
+            result: &mut BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)>,
+        ) {
+            let meta = std::fs::symlink_metadata(path).unwrap();
+            let bytes = if meta.is_file() {
+                std::fs::read(path).unwrap()
+            } else if meta.file_type().is_symlink() {
+                std::fs::read_link(path)
+                    .unwrap()
+                    .as_os_str()
+                    .as_encoded_bytes()
+                    .to_vec()
+            } else {
+                Vec::new()
+            };
+            result.insert(
+                path.strip_prefix(base).unwrap().to_owned(),
+                (meta.dev(), meta.ino(), meta.mode(), meta.nlink(), bytes),
+            );
+            if meta.is_dir() {
+                for child in std::fs::read_dir(path).unwrap() {
+                    visit(base, &child.unwrap().path(), result);
+                }
+            }
+        }
+        let mut result = BTreeMap::new();
+        visit(root, root, &mut result);
+        result
+    }
+
+    fn persistent_rows(connection: &rusqlite::Connection) -> Vec<Vec<Vec<rusqlite::types::Value>>> {
+        ["workbooks", "works", "work_sequence", "requests", "audit"]
+            .into_iter()
+            .map(|table| {
+                let mut query = connection
+                    .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
+                    .unwrap();
+                let columns = query.column_count();
+                query
+                    .query_map([], |row| {
+                        (0..columns).map(|column| row.get(column)).collect()
+                    })
+                    .unwrap()
+                    .map(|row| row.unwrap())
+                    .collect()
+            })
+            .collect()
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn malformed_global_pending_paths_stop_cleanup_before_deleting_a_legitimate_uncommitted_original()
+     {
+        for shape in ["prefix", "leaf", "uuid", "extra", "short"] {
+            let (_directory, home) = fixture();
+            let lock = home.acquire_lock().unwrap();
+            let orphan = "0198f01a7f00700080000000000000bb";
+            crate::service::stage_pending(&home, &lock, orphan, "uncommitted-orphan", "start_work")
+                .unwrap();
+            let original = home
+                .rel(&format!("pending/{orphan}/payload/original"))
+                .unwrap();
+            std::fs::write(original.as_path(), b"legitimate orphan original").unwrap();
+            let before = std::fs::metadata(original.as_path()).unwrap();
+            let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+            let raw: String = connection
+                .query_row(
+                    "SELECT effects_json FROM requests WHERE request_id='qualified-add'",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let mut effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+            let publish = effects
+                .as_array_mut()
+                .unwrap()
+                .iter_mut()
+                .find(|effect| effect["kind"] == "publish_dir")
+                .unwrap();
+            let id = publish["pending"]
+                .as_str()
+                .unwrap()
+                .split('/')
+                .nth(1)
+                .unwrap()
+                .to_owned();
+            publish["pending"] = serde_json::json!(match shape {
+                "prefix" => format!("other/{id}/payload"),
+                "leaf" => format!("pending/{id}/other"),
+                "uuid" => "pending/not-a-uuid/payload".into(),
+                "extra" => format!("pending/{id}/payload/extra"),
+                _ => "pending".into(),
+            });
+            connection
+                .execute(
+                    "UPDATE requests SET effects_json=?1 WHERE request_id='qualified-add'",
+                    [effects.to_string()],
+                )
+                .unwrap();
+            let store = Store::open_for_home(&home, OpenMode::ReadWrite).unwrap();
+            let error = cleanup(&home, &store, &lock).unwrap_err();
+            assert!(
+                matches!(error, Error::StoreCorrupt { .. }),
+                "{shape}: {error:?}"
+            );
+            assert_eq!(
+                std::fs::read(original.as_path()).unwrap(),
+                b"legitimate orphan original"
+            );
+            let after = std::fs::metadata(original.as_path()).unwrap();
+            assert_eq!(
+                (after.dev(), after.ino(), after.mode(), after.nlink()),
+                (before.dev(), before.ino(), before.mode(), before.nlink())
+            );
+            let persisted: String = connection
+                .query_row(
+                    "SELECT effects_json FROM requests WHERE request_id='qualified-add'",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            assert_eq!(persisted, effects.to_string());
+        }
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn a_coupled_non_uuid_owner_and_container_is_unknown_instead_of_cleanup_authority() {
+        let (_directory, home) = fixture();
+        let lock = home.acquire_lock().unwrap();
+        let valid = "0198f01a7f00700080000000000000bb";
+        crate::service::stage_pending(&home, &lock, valid, "uncommitted-owner", "start_work")
+            .unwrap();
+        let source = home.rel(&format!("pending/{valid}")).unwrap();
+        let source_owner = home.rel(&format!("pending/{valid}.owner")).unwrap();
+        let content = std::fs::read(source_owner.as_path()).unwrap();
+        let mut owner: serde_json::Value = serde_json::from_slice(&content).unwrap();
+        owner["internal_id"] = serde_json::json!("not-a-uuid");
+        let invalid = home.rel("pending/not-a-uuid").unwrap();
+        let invalid_owner = home.rel("pending/not-a-uuid.owner").unwrap();
+        std::fs::rename(source.as_path(), invalid.as_path()).unwrap();
+        std::fs::rename(source_owner.as_path(), invalid_owner.as_path()).unwrap();
+        let mut new_content = serde_json::to_vec(&owner).unwrap();
+        new_content.push(b'\n');
+        std::fs::write(invalid_owner.as_path(), &new_content).unwrap();
+        let original = invalid.join_segment("payload").join_segment("original");
+        std::fs::write(original.as_path(), b"unknown original must stay").unwrap();
+        let before = std::fs::metadata(original.as_path()).unwrap();
+        let store = Store::open_for_home(&home, OpenMode::ReadWrite).unwrap();
+        let warnings = cleanup(&home, &store, &lock).unwrap();
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.contains("not-a-uuid"))
+        );
+        assert_eq!(
+            std::fs::read(original.as_path()).unwrap(),
+            b"unknown original must stay"
+        );
+        assert_eq!(std::fs::read(invalid_owner.as_path()).unwrap(), new_content);
+        let after = std::fs::metadata(original.as_path()).unwrap();
+        assert_eq!(
+            (after.dev(), after.ino(), after.mode(), after.nlink()),
+            (before.dev(), before.ino(), before.mode(), before.nlink())
+        );
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn cleanup_without_a_pending_root_warns_only_for_unpublished_registered_requests() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (directory, home) = fixture();
+        crate::failpoint::arm_sync_error(home.root().as_str(), "publish_source_parent_sync")
+            .unwrap();
+        let service = crate::WorkService::new(home.clone());
+        let error = service
+            .start(
+                crate::StartArgs {
+                    workbook_id: "two-step".into(),
+                    version: None,
+                    flow: "default".into(),
+                    name: None,
+                    inputs: BTreeMap::from([(
+                        "topic".into(),
+                        crate::request::InputValue::Literal {
+                            text: "unfinished source".into(),
+                        },
+                    )]),
+                },
+                Some("unpublished-start".into()),
+            )
+            .unwrap_err();
+        crate::failpoint::disarm_sync_error().unwrap();
+        assert!(matches!(
+            error,
+            Error::EffectPending {
+                committed: true,
+                ..
+            }
+        ));
+        let saved = directory.path().join("saved-pending");
+        std::fs::rename(home.pending_dir().as_path(), &saved).unwrap();
+        let before_saved = original_tree(&saved);
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let before_rows = persistent_rows(&connection);
+        let lock = home.acquire_lock().unwrap();
+        let store = Store::open_for_home(&home, OpenMode::ReadWrite).unwrap();
+        let warnings = cleanup(&home, &store, &lock).unwrap();
+        assert!(!warnings.is_empty());
+        assert!(
+            warnings
+                .iter()
+                .all(|warning| warning.contains("unpublished-start")
+                    && !warning.contains("qualified-add")),
+            "{warnings:?}"
+        );
+        assert_eq!(original_tree(&saved), before_saved);
+        assert_eq!(persistent_rows(&connection), before_rows);
+        assert!(saved.is_dir());
+        assert!(!home.pending_dir().as_path().exists());
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn a_cleaned_completed_delete_does_not_warn_for_a_marker_that_no_longer_exists() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (_directory, home) = fixture();
+        crate::WorkbookRepo::new(home.clone())
+            .remove("two-step", "1.0.0", Some("completed-delete".into()))
+            .unwrap();
+        let lock = home.acquire_lock().unwrap();
+        let store = Store::open_for_home(&home, OpenMode::ReadWrite).unwrap();
+        let raw: String = store
+            .connect()
+            .unwrap()
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='completed-delete'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let delete = effects
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|effect| effect["kind"] == "delete_dir")
+            .unwrap();
+        let id = delete["pending"]
+            .as_str()
+            .unwrap()
+            .split('/')
+            .nth(1)
+            .unwrap();
+        cleanup(&home, &store, &lock).unwrap();
+        assert!(
+            !home
+                .pending_dir()
+                .join_segment(&format!("{id}.deleted"))
+                .as_path()
+                .exists()
+        );
+        let warnings = cleanup(&home, &store, &lock).unwrap();
+        assert!(
+            !warnings
+                .iter()
+                .any(|warning| warning.contains("completed-delete") && warning.contains("marker")),
+            "{warnings:?}"
+        );
+    }
+}

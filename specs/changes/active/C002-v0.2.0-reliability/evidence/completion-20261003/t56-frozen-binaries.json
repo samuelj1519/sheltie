@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "cargo",
+    "build",
+    "-p",
+    "sheltie-cli",
+    "-p",
+    "sheltie-export",
+    "--all-features",
+    "--locked",
+    "--message-format=json"
+  ],
+  "exit_code": 0,
+  "base": "0c50d42d64ea3c292d086cec83d60de5c9da7bf2",
+  "artifacts": {
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t56-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967",
+      "cargo_reported_executable": true
+    },
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t56-frozen-binaries/sheltie",
+      "sha256": "f42dbb6dd9224dca0be63e796b441d7676e0854cf518f10c5afc6eb9a27759de",
+      "cargo_reported_executable": true
+    }
+  }
+}

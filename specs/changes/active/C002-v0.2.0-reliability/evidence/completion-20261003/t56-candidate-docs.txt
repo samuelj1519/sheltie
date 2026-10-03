@@ -1,0 +1,2 @@
+./specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/g09-oracle-directions.md:27:正例走三种实际 stage/请求，核 canonical owner 与 op、只有规定 payload。拒绝例控制该 parent-directory fsync 的外部 I/O 失败：原实现允许留下 exact owner，但在创建 container/payload、任何新业务/audit/request 登记之前返回 IO；整个 sync 函数→Ok 可以继续 staging。优先复用现有 root-scoped sync_error 设施，若当前无精确 hook，作者可加一个窄的真实必需 sync 边界，不添加新的平台框架。有效锁/目录的 primitive 正反例可补接口资格，但不能代替 stage 顺序判据。不要在父 fsync 之后注入错误，或把后续 mkdir 的另一 fsync当作前序义务等价；这里承诺是操作顺序，不把进程实验写成断电物理持久性证明。
+禁用措辞命中（见上）

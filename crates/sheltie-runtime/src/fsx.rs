@@ -981,7 +981,18 @@ impl ManagedFs {
         .map_err(|e| map_fs_error(&display, e))?;
         let mut file = std::fs::File::from(fd);
         let created_metadata = file.metadata().map_err(|e| Error::io(&display, e))?;
-        if let Err(error) = file.write_all(bytes).and_then(|()| file.sync_all()) {
+        if let Err(error) = file.write_all(bytes).and_then(|()| {
+            crate::failpoint::sync_error(self.root.as_str(), "managed_new_file_sync")?;
+            file.sync_all()
+        }) {
+            crate::failpoint::rendezvous("new_file_failure_before_cleanup", &display).map_err(
+                |observation| Error::RecoveryRequired {
+                    path: display.clone(),
+                    detail: format!(
+                        "新文件写入失败：{error}；清理前观察失败，保留创建对象：{observation}"
+                    ),
+                },
+            )?;
             return match unlink_created_at(&parent, &leaf, &display, &created_metadata) {
                 Ok(()) => Err(Error::io(&display, error)),
                 Err(cleanup) => Err(Error::RecoveryRequired {
@@ -1549,6 +1560,8 @@ impl ManagedFs {
     ) -> Result<()> {
         self.check_lock(lock)?;
         let dir = self.open_dir(Some(path))?;
+        crate::failpoint::sync_error(self.root.as_str(), "managed_directory_sync")
+            .map_err(|error| Error::io(self.display_path(path), error))?;
         fsync(&dir).map_err(|e| map_fs_error(&self.display_path(path), e))
     }
 
@@ -6244,6 +6257,239 @@ mod directory_binding_contract_tests {
                     original_meta.mode()
                 )
             );
+        }
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod failed_creation_contract_tests {
+    use super::controlled_object_tests::observe_change;
+    use super::owned_test_directory::OwnedTempDir;
+    use super::*;
+
+    fn fixture() -> (OwnedTempDir, crate::Home) {
+        let directory = OwnedTempDir::new();
+        let home =
+            crate::Home::resolve(Some(directory.path().join("home").to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn a_new_file_sync_failure_removes_only_its_own_created_object_and_returns_the_original_io_error()
+     {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (_directory, home) = fixture();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let healthy = ManagedRelPath::new("healthy").unwrap();
+        fs.write_new(&lock, &healthy, b"healthy exact bytes")
+            .unwrap();
+        assert_eq!(
+            std::fs::read(home.rel("healthy").unwrap().as_path()).unwrap(),
+            b"healthy exact bytes"
+        );
+        let path = ManagedRelPath::new("failed").unwrap();
+        crate::failpoint::arm_sync_error(home.root().as_str(), "managed_new_file_sync").unwrap();
+        let result = fs.write_new(&lock, &path, b"created but sync failed");
+        crate::failpoint::disarm_sync_error().unwrap();
+        let Error::Io {
+            path: reported,
+            source,
+        } = result.unwrap_err()
+        else {
+            panic!("successful compensation retains the original write/sync IO")
+        };
+        assert_eq!(reported, home.rel("failed").unwrap().as_str());
+        assert!(source.to_string().contains("managed_new_file_sync"));
+        assert!(!home.rel("failed").unwrap().as_path().exists());
+        assert_eq!(
+            std::fs::read(home.rel("healthy").unwrap().as_path()).unwrap(),
+            b"healthy exact bytes"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn failed_creation_cannot_unlink_a_same_device_different_inode_competitor() {
+        let (directory, home) = fixture();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("failed").unwrap();
+        let path = home.rel("failed").unwrap();
+        let retained = directory.path().join("retained-A");
+        let mut created = None;
+        let mut competitor = None;
+        crate::failpoint::arm_sync_error(home.root().as_str(), "managed_new_file_sync").unwrap();
+        let result = observe_change(
+            "new_file_failure_before_cleanup",
+            path.as_str(),
+            move || fs.write_new(&lock, &rel, b"created original A"),
+            || {
+                let metadata = std::fs::metadata(path.as_path()).unwrap();
+                created = Some(metadata);
+                std::fs::rename(path.as_path(), &retained).unwrap();
+                std::fs::write(path.as_path(), b"competitor original B").unwrap();
+                let replacement = std::fs::metadata(path.as_path()).unwrap();
+                assert_eq!(replacement.dev(), created.as_ref().unwrap().dev());
+                assert_ne!(replacement.ino(), created.as_ref().unwrap().ino());
+                competitor = Some(replacement);
+            },
+        );
+        crate::failpoint::disarm_sync_error().unwrap();
+        let Error::RecoveryRequired {
+            path: reported,
+            detail,
+        } = result.unwrap_err()
+        else {
+            panic!("uncertain failure compensation must preserve both objects")
+        };
+        assert_eq!(reported, path.as_str());
+        assert!(detail.contains("本次创建inode清理失败"), "{detail}");
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"competitor original B"
+        );
+        assert_eq!(std::fs::read(&retained).unwrap(), b"created original A");
+        let competitor_after = std::fs::metadata(path.as_path()).unwrap();
+        let competitor_before = competitor.unwrap();
+        assert_eq!(
+            (
+                competitor_after.dev(),
+                competitor_after.ino(),
+                competitor_after.mode(),
+                competitor_after.nlink()
+            ),
+            (
+                competitor_before.dev(),
+                competitor_before.ino(),
+                competitor_before.mode(),
+                competitor_before.nlink()
+            )
+        );
+        let created_after = std::fs::metadata(&retained).unwrap();
+        let created_before = created.unwrap();
+        assert_eq!(
+            (
+                created_after.dev(),
+                created_after.ino(),
+                created_after.mode(),
+                created_after.nlink()
+            ),
+            (
+                created_before.dev(),
+                created_before.ino(),
+                created_before.mode(),
+                created_before.nlink()
+            )
+        );
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn failed_creation_observation_errors_preserve_the_exact_created_original_for_recovery() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        let (directory, home) = fixture();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let rel = ManagedRelPath::new("failed").unwrap();
+        let path = home.rel("failed").unwrap();
+        let carrier = directory.path().join("invalid-sync-directory");
+        std::fs::write(&carrier, b"preserved carrier").unwrap();
+        crate::failpoint::arm_sync_error(home.root().as_str(), "managed_new_file_sync").unwrap();
+        crate::failpoint::arm_rendezvous(
+            "new_file_failure_before_cleanup",
+            path.as_str(),
+            &carrier,
+        )
+        .unwrap();
+        let result = fs.write_new(&lock, &rel, b"retained created original");
+        crate::failpoint::disarm_rendezvous().unwrap();
+        crate::failpoint::disarm_sync_error().unwrap();
+        let Error::RecoveryRequired {
+            path: reported,
+            detail,
+        } = result.unwrap_err()
+        else {
+            panic!("a failed cleanup observation must leave an exact recoverable original")
+        };
+        assert_eq!(reported, path.as_str());
+        assert!(detail.contains("清理前观察失败"));
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"retained created original"
+        );
+        let metadata = std::fs::metadata(path.as_path()).unwrap();
+        assert_eq!(metadata.nlink(), 1);
+        assert_eq!(metadata.mode() & 0o777, 0o600);
+        assert_eq!(std::fs::read(&carrier).unwrap(), b"preserved carrier");
+    }
+
+    // Task: C002-T56
+    #[test]
+    fn owner_parent_sync_failure_stops_before_creating_the_pending_container_or_payload() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        for op in ["add_workbook", "start_work", "remove_workbook"] {
+            let (_directory, home) = fixture();
+            let lock = home.acquire_lock().unwrap();
+            let id = "0198f01a7f0070008000000000000099";
+            crate::service::stage_pending(&home, &lock, id, "healthy-owner", op).unwrap();
+            let healthy_owner = home.rel(&format!("pending/{id}.owner")).unwrap();
+            let content = std::fs::read(healthy_owner.as_path()).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&content).unwrap()["op"],
+                op
+            );
+            assert!(
+                home.rel(&format!("pending/{id}"))
+                    .unwrap()
+                    .as_path()
+                    .is_dir()
+            );
+            assert_eq!(
+                home.rel(&format!("pending/{id}/payload"))
+                    .unwrap()
+                    .as_path()
+                    .exists(),
+                op != "remove_workbook"
+            );
+            let failed = "0198f01a7f00700080000000000000aa";
+            crate::failpoint::arm_sync_error(home.root().as_str(), "managed_directory_sync")
+                .unwrap();
+            let result = crate::service::stage_pending(&home, &lock, failed, "failed-owner", op);
+            crate::failpoint::disarm_sync_error().unwrap();
+            let Error::Io { path, source } = result.unwrap_err() else {
+                panic!("failed parent fsync must not advance to mkdir")
+            };
+            assert_eq!(path, home.pending_dir().as_str());
+            assert!(source.to_string().contains("managed_directory_sync"));
+            assert!(
+                !home
+                    .rel(&format!("pending/{failed}"))
+                    .unwrap()
+                    .as_path()
+                    .exists()
+            );
+            let owner = std::fs::read(
+                home.rel(&format!("pending/{failed}.owner"))
+                    .unwrap()
+                    .as_path(),
+            )
+            .unwrap();
+            let expected = serde_json::json!({
+                "format": "pending/v1",
+                "internal_id": failed,
+                "request_id": "failed-owner",
+                "op": op,
+            });
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&owner).unwrap(),
+                expected
+            );
+            assert_eq!(owner.last(), Some(&b'\n'));
+            assert!(!home.store_path().as_path().exists());
+            assert_eq!(std::fs::read(healthy_owner.as_path()).unwrap(), content);
         }
     }
 }

@@ -1,0 +1,232 @@
+{
+  "scope": "G09 independent read-only oracle preparation; no authoring/execution or dynamic PASS/full equivalence",
+  "head": "ed9b5da08efadac41e9e3f9ead1f3c4c2e00442c",
+  "platform": "aarch64-apple-darwin only",
+  "count": 15,
+  "groups": {
+    "W1_pending_reference_closure": [
+      {
+        "old_id": "crates/sheltie-runtime/src/effects.rs:1226:9: replace || with && in pending_internal_id",
+        "current_id": "crates/sheltie-runtime/src/effects.rs:1232:9: replace || with && in pending_internal_id",
+        "old_diff_sha256": "c0acd39fde00dec36a8f7eeb1b6622aa77d8b281df7c8be0e9de03401904233f",
+        "current_diff_sha256": "2e3c214d49453e26186c4e3f0b22a61092bdd3d17b3b0559c4f77f2be8f3b177",
+        "function": "pending_internal_id",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id",
+        "current_id": "crates/sheltie-runtime/src/effects.rs:1231:9: replace || with && in pending_internal_id",
+        "old_diff_sha256": "46f217156765e8f11a34fb3afe37c8060a28c32bee237524910121bacc5318ef",
+        "current_diff_sha256": "8d863ac79234fa710571988c47d7aa7fcfafb58e6d6f649637f9458616c37716",
+        "function": "pending_internal_id",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/effects.rs:1224:9: replace || with && in pending_internal_id",
+        "current_id": "crates/sheltie-runtime/src/effects.rs:1230:9: replace || with && in pending_internal_id",
+        "old_diff_sha256": "acf2fcad1cf9902e40d21ef342bc56fe98fa1d1873d5e74e72f2579e59b0f448",
+        "current_diff_sha256": "7d081785b2da901fd88c4476d7854452be0a2a33880ee62632e10a14f078da24",
+        "function": "pending_internal_id",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+        "old_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+        "current_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+        "function": "PendingReferenceIndex::from_rows",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "static_candidate_limited"
+      }
+    ],
+    "W2_owner_durability": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:1405:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:1493:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+        "old_diff_sha256": "481f75589bfbc77a799b3530ddbd5aaff5a277ab5300ba0465f5d2fc7709e921",
+        "current_diff_sha256": "9d61c841b3b507821ad559c67decc4bcc3a61d35feb7743cba7b09888b3cdebd",
+        "function": "ManagedFs::sync_dir_locked",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      }
+    ],
+    "W3_failed_create_cleanup": [
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:2502:5: replace unlink_created_at -> Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:2599:5: replace unlink_created_at -> Result<()> with Ok(())",
+        "old_diff_sha256": "2eda6c738ecf40403347261db3a86b9539f195d0c8080607b0b26fc6b861c975",
+        "current_diff_sha256": "f8ad9996626098f0c2af992056df014ce43a559476fbeffbf54cb6239028be78",
+        "function": "unlink_created_at",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:47: replace || with && in unlink_created_at",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:2603:47: replace || with && in unlink_created_at",
+        "old_diff_sha256": "5ba6fb33176706b19f9b8ed90038e664ad20149b0cfe499268396b7e3f7c589b",
+        "current_diff_sha256": "47a4b57ad45ac37aa695d86c81b7fca608cd3068b6716410c9f85f44592920de",
+        "function": "unlink_created_at",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:30: replace != with == in unlink_created_at",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:2603:30: replace != with == in unlink_created_at",
+        "old_diff_sha256": "d3b13c8cf0079ccf596dbc442ba9b9f36eea900899d18ac0f6bc7191577d460e",
+        "current_diff_sha256": "412412121b3eda729557d12a262f1ca08cd9ac7d3860ff666a4610f520d51d69",
+        "function": "unlink_created_at",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at",
+        "current_id": "crates/sheltie-runtime/src/fsx.rs:2603:72: replace != with == in unlink_created_at",
+        "old_diff_sha256": "9a471fdc6974f93c3e7e21724bd25d2a843d5a9ae8ff3202b4d3e2ec4d93e09d",
+        "current_diff_sha256": "6d6a7de7e915ea229f43f02933d3aca5423f4cf6a099416fcf4a960c5626881f",
+        "function": "unlink_created_at",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      }
+    ],
+    "W4_cleanup_authority_warning": [
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())",
+        "old_diff_sha256": "5eaaece9b9d758fbe7cc848dbf071d9086309422dbac46bd1c9abbb353a075c1",
+        "current_diff_sha256": "5eaaece9b9d758fbe7cc848dbf071d9086309422dbac46bd1c9abbb353a075c1",
+        "function": "prepare_new_request",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected",
+        "old_diff_sha256": "edbd0b2f6815c7f86d76782a86786b620f882ee0172d9a2147e91378e87a2bd2",
+        "current_diff_sha256": "edbd0b2f6815c7f86d76782a86786b620f882ee0172d9a2147e91378e87a2bd2",
+        "function": "cleanup_selected",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+        "old_diff_sha256": "4e3f33f6b378eb3111b93c67b96bb1a2a23963072d1ecbc2a487c93f64890706",
+        "current_diff_sha256": "4e3f33f6b378eb3111b93c67b96bb1a2a23963072d1ecbc2a487c93f64890706",
+        "function": "cleanup_selected",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "static_candidate_limited"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+        "old_diff_sha256": "251b35ee80939f435172325ed5d43ef3e021c52a2854f882fda0693c84aac41b",
+        "current_diff_sha256": "251b35ee80939f435172325ed5d43ef3e021c52a2854f882fda0693c84aac41b",
+        "function": "cleanup_selected",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      },
+      {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+        "old_diff_sha256": "98aa23934f16a6f7e5776b1f78ff2b011ce218de1c9f88788acbc765fd942efe",
+        "current_diff_sha256": "98aa23934f16a6f7e5776b1f78ff2b011ce218de1c9f88788acbc765fd942efe",
+        "function": "valid_internal_id",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      }
+    ],
+    "W5_recovery_dispatch": [
+      {
+        "old_id": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+        "current_id": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+        "old_diff_sha256": "2a3a3e721e02f832d2d1e558fc79d0fd317214b2976b31887f75ae8cd039fd8e",
+        "current_diff_sha256": "2a3a3e721e02f832d2d1e558fc79d0fd317214b2976b31887f75ae8cd039fd8e",
+        "function": "before_write",
+        "execution": "not_run_by_this_preparation",
+        "disposition": "open_pending_actual_consumer"
+      }
+    ]
+  },
+  "static_candidates": {
+    "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected": {
+      "scope": "unreachable branch under same local immutable owner_file/reference values",
+      "proof": [
+        "When reference=None and owner_file=None, immediately preceding owner_matches_reference match arm (None,None) sets false.",
+        "if !owner_matches_reference emits warning and continues before this branch.",
+        "Neither local Option is assigned or re-read between the checks. All cleanup and prepare_new_request callers use this same function."
+      ],
+      "limit": "Only this exact OR connector and dead branch; no proof for other cleanup predicates, filesystem facts or warnings."
+    },
+    "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows": {
+      "scope": "same rejection set, STORE_CORRUPT and no cleanup business IO, but changed diagnostic/order/cost",
+      "proof": [
+        "Only PublishDir/DeleteDir paths reach this gate; their preceding validate_publish_reference/validate_delete_reference each apply valid_digest=Sha256Hex::new(...).is_ok() on same String.",
+        "Thus digest-format error predicate is false here for all current producers. Duplicate internal ID mutant can pass and append another PendingReference.",
+        "At end of same pure from_rows invocation every references vector must have len==1; duplicate same key produces len>=2 and rejects.",
+        "Rows, effects and index are owned local values, with no Store/FS queries between these duplicate guards."
+      ],
+      "limit": "Duplicate diagnostic changes from within-request error to cross-effect/request index error; later malformed rows can change first reported cause. Cannot label complete protocol equivalence or equal early work budget. Global consumers receive no index on either rejection."
+    }
+  },
+  "source_sha256": {
+    "crates/sheltie-runtime/src/effects.rs": "7c8fad349738bdf64e883162ace75e753cc4489f6c01f16647920402a768ab9f",
+    "crates/sheltie-runtime/src/fsx.rs": "66ead1755a33fb14d8095ee463c89558022b829c5a5958345cf24fa2b6d5e191",
+    "crates/sheltie-runtime/src/pending.rs": "6d70b9b4488b8fe85ff1d11869a6d01473dc181a2876fb185cefad20213c7fc9",
+    "crates/sheltie-runtime/src/service.rs": "958101a3e60c1f9c8204ef3ae1106b65f7df636c2b7538f038fbf32a3dac58ea",
+    "crates/sheltie-runtime/src/recovery.rs": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43",
+    "crates/sheltie-runtime/src/workbook_repo.rs": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+    "crates/sheltie-runtime/src/failpoint.rs": "5a9268044be37aa05441aa81b66bc2ce6d4b1c708b19dd48b954615922e6889d",
+    "crates/sheltie-runtime/src/store/read.rs": "9e1c319a9b8bb67511fe7abe52ca4bd316f3459f80e0c9ec5855613f3bdcd3fc",
+    "crates/sheltie-cli/tests/reliability_crash.rs": "225c3b7ca3f6ff3f38ebb4f3bb3ae12e766c85f65425988d3d5be395e9d7895d",
+    "crates/sheltie-runtime/tests/effect_contracts.rs": "313fe8ce1b003a828ddcd7278c2fa1214af4d27b9eb154c9b73662ab2f303aa6",
+    "specs/contracts/storage.md": "145bed3eacce1266f1477152abaf787eae38204d92820ac067fcd2120a3d7020",
+    "specs/engineering.md": "553d92eb20e4fdcef340cf3fbd2342d2dde321af37d22d57feb0fd8282e41e5e"
+  },
+  "input_sha256": {
+    "remaining-mutation-plan.json": "bda556745e41dc73f33932a52852a01a0be8019aa4e13769ff715e1d2c6a10b0",
+    "independent-sk02-mapping.json": "2af2e37b4bd35f4de6b1a48b7306d9c6752c79bb72202faa4b0fd9450f4e7794",
+    "current-runtime-mutants.json": "5674f9b98aebdd5de592b86214cfd55705275f71882ce03e7c7afaec8c756b79"
+  },
+  "tracked_writes": false,
+  "oracle_execution": false,
+  "group_directions": {
+    "W1_pending_reference_closure": {
+      "consumer": "PendingReferenceIndex::from_rows→cleanup/list/verify/global index; separate effects delete_dir and WorkbookRepo::publication_for_row callers already check pending payload shape.",
+      "positive": "Actual add/remove pending path and singular internal-ID reference.",
+      "negative": "One persisted pending fact mutated across representations: wrong prefix, wrong leaf, invalid UUID, trailing segment, too-short pending path; cleanup must reject whole index before removing independent legitimate orphan.",
+      "window": "No race observer needed for owned row strings; current index caller precedes every pending deletion.",
+      "oracle": "STORE_CORRUPT without panic; independent Store rows/whole orphan bytes/modes unchanged. Prefix/leaf/UUID facts shared across three exact precedence variants, not mirror helper output."
+    },
+    "W2_owner_durability": {
+      "consumer": "Only production caller stage_pending in Work start/Workbook add/remove, owner file fsync then parent directory fsync then container/payload creation.",
+      "positive": "Actual valid pending owner persisted before payload; normal stage succeeds.",
+      "negative": "Parent directory sync failure must stop before container/payload/new request/audit. Separately wrong root lock/directory-kind primitive inputs reject.",
+      "window": "Existing pending_owner_synced_before_payload is after container creation and too late. Needed actual sync_dir_locked external-sync boundary, root-scoped existing sync_error facility if no existing exact hook.",
+      "oracle": "Owner exact canonical bytes may remain; no container/payload/commit; accurate IO and uncommitted identity. No assertion of physical power-loss persistence from process test."
+    },
+    "W3_failed_create_cleanup": {
+      "consumer": "Only write_new_observed_unlocked error arm after write_all or file.sync_all fails, using metadata captured from actual CREATE|EXCL FD.",
+      "positive": "Successful normal create keeps exact bytes; failed write on unchanged newly created object removes only own partial leaf and returns original IO.",
+      "negative": "On same real failure path move partial held A aside and create same-device single-link B at original leaf; cleanup must refuse and return RecoveryRequired, preserving B and held A. Guard AND can unlink B. Whole-function Ok leaks partial A; either !=→== rejects valid own cleanup and changes RecoveryRequired plus leftovers.",
+      "window": "new_file_before_identity_check is success-only. Need failure-arm rendezvous before unlink_created_at after actual failure/created metadata; cannot be replaced by post-success observer.",
+      "oracle": "Exact named inode/dev/nlink/bytes and saved A, partial-file existence, original IO vs RecoveryRequired, parent sync. External IO fault model only, no fabricated created metadata."
+    },
+    "W4_cleanup_authority_warning": {
+      "consumer": "prepare_new_request only before_write uncommitted request branch; cleanup_selected via prepare and cleanup_pending; CLI success maintenance warnings.",
+      "positive": "Valid precommit orphan same rid gets cleaned then request committed once; valid UUID orphan cleaned; completed delete with absent marker stays quiet.",
+      "negative": "Existing failed cleanup blocks same rid before registration; invalid UUID coupled owner/container preserved with warning; absent pending root warns only unpublished refs; completed delete with initial marker absent must not invoke cleanup-error/read marker branch.",
+      "window": "Reuse pending_owner_synced_before_payload/before_commit crash points and pending_cleanup_before_remove error. For marker classification/read race only a narrow post-record-capture point; pending_cleanup_after_empty_check needs actual container and cannot prove marker-none case.",
+      "oracle": "Original bytes kept, no extra containers/requests/audit on blocked preparation, warning attribution and exact known/unknown object, success JSON/exit unchanged by maintenance. Preserve independent filesystem/Store inventories."
+    },
+    "W5_recovery_dispatch": {
+      "consumer": "WorkService/WorkbookRepo recover_before_write→before_write: captured current request plus unpublished_request_ids ordered by audit seq, then finish_checked_request.",
+      "positive": "Same request only recovery returns same original, single commit/revision; completed B with healthy older A first finishes A then replays B.",
+      "negative": "Actual completed B, later A committed at after_commit_before_effects and made unrecoverable; replay B must fail committed=true/rid B/original B/pending rid A/pending_original A and not borrow B CheckedRequest for A.",
+      "window": "No new observer; actual sequential commit/crash artifacts establish consumer. If current B itself is unpublished and earlier A exists, cache misassignment may mark A using B effects; optional additional exact two-pending fixture only after independent provenance.",
+      "oracle": "Audit/request/revision identities, qualified original snapshots and endpoint bytes, A published stays zero on failure; mutant may silently return B success because cached B.published=true causes complete=false."
+    }
+  }
+}

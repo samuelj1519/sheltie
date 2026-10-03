@@ -1,0 +1,60 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+error[E0631]: type mismatch in function arguments
+    --> crates/sheltie-runtime/src/pending.rs:1279:26
+     |
+1279 |                     .map(Result::unwrap)
+     |                      --- ^^^^^^^^^^^^^^
+     |                      |   |
+     |                      |   expected due to this
+     |                      |   found signature defined here
+     |                      required by a bound introduced by this call
+     |
+     = note: expected function signature `fn(std::result::Result<_, rusqlite::Error>) -> _`
+                found function signature `fn(std::result::Result<_, error::Error>) -> _`
+note: required by a bound in `std::iter::Iterator::map`
+    --> /Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs:834:12
+     |
+ 831 |     fn map<B, F>(self, f: F) -> Map<Self, F>
+     |        --- required by a bound in this associated function
+...
+ 834 |         F: FnMut(Self::Item) -> B,
+     |            ^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Iterator::map`
+help: consider wrapping the function in a closure
+     |
+1279 |                     .map(|arg0| Result::unwrap(/* std::result::Result<_, error::Error> */))
+     |                          ++++++               ++++++++++++++++++++++++++++++++++++++++++++
+
+error[E0599]: the method `collect` exists for struct `Map<MappedRows<'_, {closure@...}>, ...>`, but its trait bounds were not satisfied
+    --> crates/sheltie-runtime/src/pending.rs:1280:22
+     |
+1274 | /                 query
+1275 | |                     .query_map([], |row| {
+1276 | |                         (0..columns).map(|column| row.get(column)).collect()
+1277 | |                     })
+1278 | |                     .unwrap()
+1279 | |                     .map(Result::unwrap)
+1280 | |                     .collect()
+     | |                     -^^^^^^^ method cannot be called on `Map<MappedRows<'_, {closure@...}>, ...>` due to unsatisfied trait bounds
+     | |_____________________|
+     |
+     |
+    ::: /Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/adapters/map.rs:61:1
+     |
+  61 |   pub struct Map<I, F> {
+     |   -------------------- doesn't satisfy `_: Iterator`
+     |
+     = note: the following trait bounds were not satisfied:
+             `<fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap} as FnOnce<(std::result::Result<_, rusqlite::Error>,)>>::Output = _`
+             which is required by `std::iter::Map<MappedRows<'_, {closure@crates/sheltie-runtime/src/pending.rs:1275:36: 1275:41}>, fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap}>: std::iter::Iterator`
+             `fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap}: FnMut<(std::result::Result<_, rusqlite::Error>,)>`
+             which is required by `std::iter::Map<MappedRows<'_, {closure@crates/sheltie-runtime/src/pending.rs:1275:36: 1275:41}>, fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap}>: std::iter::Iterator`
+             `std::iter::Map<MappedRows<'_, {closure@crates/sheltie-runtime/src/pending.rs:1275:36: 1275:41}>, fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap}>: std::iter::Iterator`
+             which is required by `&mut std::iter::Map<MappedRows<'_, {closure@crates/sheltie-runtime/src/pending.rs:1275:36: 1275:41}>, fn(std::result::Result<_, error::Error>) -> _ {std::result::Result::<_, error::Error>::unwrap}>: std::iter::Iterator`
+     = note: the full name for the type has been written to '/private/tmp/sheltie-c006-target/debug/deps/sheltie_runtime-e5a3d857b0f71381.long-type-5592744807312343465.txt'
+     = note: consider using `--verbose` to print the full type name to the console
+
+Some errors have detailed explanations: E0599, E0631.
+For more information about an error, try `rustc --explain E0599`.
+error: could not compile `sheltie-runtime` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --all-features --locked` exited with code 101

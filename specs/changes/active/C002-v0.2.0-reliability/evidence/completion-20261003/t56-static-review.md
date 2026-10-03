@@ -1,0 +1,9 @@
+# C002-T56 两项限定静态复核
+
+**通过，限定当前两准确connector的producer/caller与局部事实；最终ID/source绑定另核。** Reviewer只读未写G09oracle。精确旧/current ID与diff/SHA见JSON，动态not_run、Caught=false，不关闭15全组。
+
+cleanup_selected死分支：reference=None且owner_file=None时，上方对同一对immutable Option的match必置owner_matches_reference=false，紧接if!owner_matches_reference告警并continue；无赋值或重新读取能改变这两值，所以目标outer分支内OR/AND不可达。complete caller只有cleanup及prepare_new_request选择版，均同函数。不存在把真实FS下一次变化当不可变值；只有这两个局部Option不可变，不把证明扩到其他清理/告警。
+
+from_rows duplicate/digest OR：仅PublishDir/DeleteDir进入，前方各纯reference validator对同一个owned digest字符串valid_digest成功，故invalidDigest=false。duplicate时AND可推迟拒绝并多append同internalId引用，末尾同一次pure invocation每个Vec len!=1必拒；索引不返回，cleanup首个业务I/O尚未发生。只有load/store-all-rows和load_work_start/selected-rows两个private入口，全部consumer收到Err，没有中间Store/FS重查。两种普通accept/reject集合与StoreCorrupt不变，但detail从请求内duplicate变多引用，后面坏行可能变首个cause，clone/解析/append和成本也不同；不是完整JSON/CPU/RAM/OOM等价。
+
+static dispositions原stage1标签保留，未来改变canonical/末尾拒绝、validator或新caller需要重审。实际globalpath/ref映射反例仍由独立动态oracle验证，不用这个digest格式证明代替。

@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+────────────
+ Nextest run ID ba34a892-671f-476b-987d-9ab65d80aaa5 with nextest profile: default
+    Starting 10 tests across 60 binaries (935 tests skipped)
+        PASS [   0.070s] ( 1/10) sheltie-runtime fsx::failed_creation_contract_tests::failed_creation_observation_errors_preserve_the_exact_created_original_for_recovery
+        PASS [   0.074s] ( 2/10) sheltie-runtime fsx::failed_creation_contract_tests::a_new_file_sync_failure_removes_only_its_own_created_object_and_returns_the_original_io_error
+        PASS [   0.117s] ( 3/10) sheltie-runtime fsx::failed_creation_contract_tests::failed_creation_cannot_unlink_a_same_device_different_inode_competitor
+        PASS [   0.180s] ( 4/10) sheltie-runtime fsx::failed_creation_contract_tests::owner_parent_sync_failure_stops_before_creating_the_pending_container_or_payload
+        PASS [   0.360s] ( 5/10) sheltie-runtime pending::pending_qualification_contract_tests::a_coupled_non_uuid_owner_and_container_is_unknown_instead_of_cleanup_authority
+        PASS [   0.478s] ( 6/10) sheltie-runtime pending::pending_qualification_contract_tests::a_cleaned_completed_delete_does_not_warn_for_a_marker_that_no_longer_exists
+        PASS [   0.566s] ( 7/10) sheltie-runtime pending::pending_qualification_contract_tests::cleanup_without_a_pending_root_warns_only_for_unpublished_registered_requests
+        PASS [   1.047s] ( 8/10) sheltie-runtime pending::pending_qualification_contract_tests::malformed_global_pending_paths_stop_cleanup_before_deleting_a_legitimate_uncommitted_original
+        PASS [   3.414s] ( 9/10) sheltie-cli::reliability_crash replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning
+        PASS [   3.658s] (10/10) sheltie-cli::reliability_crash replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache
+────────────
+     Summary [   3.662s] 10 tests run: 10 passed, 935 skipped

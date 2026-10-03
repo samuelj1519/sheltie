@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "name": "msrv",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "check",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "output_sha256": "b004282bb76a839b79e3a33139377b83f6a81386244f46cc95486ec1f9d08bc5"
+    },
+    {
+      "name": "default-check",
+      "argv": [
+        "cargo",
+        "check",
+        "--all-targets",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "output_sha256": "5e4c1a74c4c530841f3fa7d459dd052336550a6676f8c6bed203dd7dc7035214"
+    },
+    {
+      "name": "precompletion-docs",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "0ec3a33b8f034d68178019d3128ad0f5d4963a3660ca9b3227db521360b7fa1d"
+    },
+    {
+      "name": "precompletion-specs",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "exit_code": 0,
+      "output_sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401"
+    }
+  ],
+  "phase": "before final task status and evidence assembly; no done gate claim"
+}

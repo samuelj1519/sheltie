@@ -1,0 +1,875 @@
+{
+  "counts": {
+    "dynamic_caught": 13,
+    "static_scoped_proved": 2
+  },
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1226:9: replace || with && in pending_internal_id",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1232:9: replace || with && in pending_internal_id",
+      "old_diff_sha256": "c0acd39fde00dec36a8f7eeb1b6622aa77d8b281df7c8be0e9de03401904233f",
+      "current_diff_sha256": "2e3c214d49453e26186c4e3f0b22a61092bdd3d17b3b0559c4f77f2be8f3b177",
+      "function": "pending_internal_id",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/effects.rs:1232:9: replace || with && in pending_internal_id",
+      "current_source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "group": "W1_pending_reference_closure",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__effects.rs_line_1232_col_9.log",
+      "log_sha256": "d176df4fbd5eeeb7ae74193d974be24b438f97e4fa0ea9f7c6a46b427c3d22c4",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 22.376000458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.560966584,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime pending::pending_qualification_contract_tests::malformed_global_pending_paths_stop_cleanup_before_deleting_a_legitimate_uncommitted_original"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1225:9: replace || with && in pending_internal_id",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1231:9: replace || with && in pending_internal_id",
+      "old_diff_sha256": "46f217156765e8f11a34fb3afe37c8060a28c32bee237524910121bacc5318ef",
+      "current_diff_sha256": "8d863ac79234fa710571988c47d7aa7fcfafb58e6d6f649637f9458616c37716",
+      "function": "pending_internal_id",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/effects.rs:1231:9: replace || with && in pending_internal_id",
+      "current_source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "group": "W1_pending_reference_closure",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__effects.rs_line_1231_col_9.log",
+      "log_sha256": "805b9eeda84100175a98b2c99ad8923e1650d1f8fb14bbb5ca803c35a8a0412d",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 22.610473208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.349663458,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime pending::pending_qualification_contract_tests::malformed_global_pending_paths_stop_cleanup_before_deleting_a_legitimate_uncommitted_original"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:1224:9: replace || with && in pending_internal_id",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:1230:9: replace || with && in pending_internal_id",
+      "old_diff_sha256": "acf2fcad1cf9902e40d21ef342bc56fe98fa1d1873d5e74e72f2579e59b0f448",
+      "current_diff_sha256": "7d081785b2da901fd88c4476d7854452be0a2a33880ee62632e10a14f078da24",
+      "function": "pending_internal_id",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/effects.rs:1230:9: replace || with && in pending_internal_id",
+      "current_source_sha256": "83edab45a9cfed090c0831ccedab1f89e178af0f15e3460ca20d97c81818e87c",
+      "group": "W1_pending_reference_closure",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__effects.rs_line_1230_col_9.log",
+      "log_sha256": "81eeec846952d5cda50537d4edc9736e4ba17eb9558d28e53642b7c5423ce143",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.893856042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.505726958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime pending::pending_qualification_contract_tests::malformed_global_pending_paths_stop_cleanup_before_deleting_a_legitimate_uncommitted_original"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "old_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+      "current_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+      "function": "PendingReferenceIndex::from_rows",
+      "execution": "not_run_by_static_review",
+      "disposition": "static_scoped_proved",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W1_pending_reference_closure",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "proof": {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:116:21: replace || with && in PendingReferenceIndex::from_rows",
+        "old_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+        "current_diff_sha256": "f1a2ae299882773b88e2373af2d5e1aba1386b853b2eca55b8240f4b73b3bf27",
+        "scope": "same ordinary accepted/rejected index set, StoreCorrupt and before cleanup businessIO; changed first diagnosis/work",
+        "proof": "onlyPublish/Delete reach; preceding validate_publish_reference/validate_delete_reference bothvalid_digest on sameowned String true, soinvalidDigest false. Mutated && mayappendduplicateinternalid to ownedVec; final same invocation iter rejects len!=1. PrivatefromRows not queriedStore/FS betweenguards and neverreturnsbadindex; all load/load_work_start global/read consumers receiveErr.",
+        "difference": "duplicatewithinRequest vs multipleeffects detail; later malformed rows maywinfirsterror; clone/parsing/extraindexappend work/allocation differs, not completeJSON/resource/OOM equality",
+        "execution": "not_run_by_static_review",
+        "caught": false,
+        "disposition": "static_scoped_proved",
+        "exact_inventory_verified": {
+          "function": "PendingReferenceIndex::from_rows",
+          "span": {
+            "end": {
+              "column": 23,
+              "line": 116
+            },
+            "start": {
+              "column": 21,
+              "line": 116
+            }
+          },
+          "genre": "BinaryOperator",
+          "replacement": "&&"
+        }
+      }
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:1405:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:1561:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+      "old_diff_sha256": "481f75589bfbc77a799b3530ddbd5aaff5a277ab5300ba0465f5d2fc7709e921",
+      "current_diff_sha256": "0e9c82949fd21aba9c228dd8af8338f78c89a2a56340d3c272be66982e70d7d9",
+      "function": "ManagedFs::sync_dir_locked",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:1493:9: replace ManagedFs::sync_dir_locked -> Result<()> with Ok(())",
+      "current_source_sha256": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+      "group": "W2_owner_durability",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_1561_col_9.log",
+      "log_sha256": "1e77db6fdf481c2bc7ad393d7a2cfc5696e5e92f9d964f6484d3cde170e1f04c",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.450604292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.043890542,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime fsx::failed_creation_contract_tests::owner_parent_sync_failure_stops_before_creating_the_pending_container_or_payload"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2502:5: replace unlink_created_at -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2680:5: replace unlink_created_at -> Result<()> with Ok(())",
+      "old_diff_sha256": "2eda6c738ecf40403347261db3a86b9539f195d0c8080607b0b26fc6b861c975",
+      "current_diff_sha256": "8206b40e331e8feb610e03466f5a0a97a226a74f43b9f24d67a4312499d10653",
+      "function": "unlink_created_at",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:2599:5: replace unlink_created_at -> Result<()> with Ok(())",
+      "current_source_sha256": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+      "group": "W3_failed_create_cleanup",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_2680_col_5.log",
+      "log_sha256": "9eaf15bd19c1d6b7f957718c020615ff307a37f5e78f2f6a97af1c767dd63f82",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.700013917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.254895667,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime fsx::failed_creation_contract_tests::a_new_file_sync_failure_removes_only_its_own_created_object_and_returns_the_original_io_error"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:47: replace || with && in unlink_created_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2684:47: replace || with && in unlink_created_at",
+      "old_diff_sha256": "5ba6fb33176706b19f9b8ed90038e664ad20149b0cfe499268396b7e3f7c589b",
+      "current_diff_sha256": "115a63742cd6882d4d8471098131457971eebe065a3d003d6d9d9bc043de02a0",
+      "function": "unlink_created_at",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:2603:47: replace || with && in unlink_created_at",
+      "current_source_sha256": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+      "group": "W3_failed_create_cleanup",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_2684_col_47.log",
+      "log_sha256": "232e6e6dfea0bf5aa0e0fe4992a09f2417227a57bcaa0a64f479d5a7376ac17a",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.534698875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.994707667,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime fsx::failed_creation_contract_tests::failed_creation_cannot_unlink_a_same_device_different_inode_competitor"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:30: replace != with == in unlink_created_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2684:30: replace != with == in unlink_created_at",
+      "old_diff_sha256": "d3b13c8cf0079ccf596dbc442ba9b9f36eea900899d18ac0f6bc7191577d460e",
+      "current_diff_sha256": "9a6d2040fc7ab042cff85356be8eb01e08d81cca027abe12a738292751c45550",
+      "function": "unlink_created_at",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:2603:30: replace != with == in unlink_created_at",
+      "current_source_sha256": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+      "group": "W3_failed_create_cleanup",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_2684_col_30.log",
+      "log_sha256": "e579d566d48e9b4a35e9269998a11982e5b14fede06f90969c4a76cd89740fc5",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.876466833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.944974333,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime fsx::failed_creation_contract_tests::a_new_file_sync_failure_removes_only_its_own_created_object_and_returns_the_original_io_error"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/fsx.rs:2506:72: replace != with == in unlink_created_at",
+      "current_id": "crates/sheltie-runtime/src/fsx.rs:2684:72: replace != with == in unlink_created_at",
+      "old_diff_sha256": "9a471fdc6974f93c3e7e21724bd25d2a843d5a9ae8ff3202b4d3e2ec4d93e09d",
+      "current_diff_sha256": "9085918ba65f9e96cfa0c9eac09f13822cbd207151a9b6fa16643b72101074ca",
+      "function": "unlink_created_at",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/fsx.rs:2603:72: replace != with == in unlink_created_at",
+      "current_source_sha256": "e3c93e0cf3e29c9de0b306169971b6ee643ddc0cff1fd5877e411db7a890b680",
+      "group": "W3_failed_create_cleanup",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__fsx.rs_line_2684_col_72.log",
+      "log_sha256": "f5f384a01ec61558f41005e84a833a167ba1fa52e38f24bb81807a3cca70f6f2",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 15.762133583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.67675075,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime fsx::failed_creation_contract_tests::a_new_file_sync_failure_removes_only_its_own_created_object_and_returns_the_original_io_error"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:291:5: replace prepare_new_request -> Result<()> with Ok(())",
+      "old_diff_sha256": "5eaaece9b9d758fbe7cc848dbf071d9086309422dbac46bd1c9abbb353a075c1",
+      "current_diff_sha256": "28c3128577d82f8dbb4f13bebc88ae6adedc4eb07567ac9015f0b8236089160c",
+      "function": "prepare_new_request",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:285:5: replace prepare_new_request -> Result<()> with Ok(())",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W4_cleanup_authority_warning",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "b",
+      "log": "mutation-g09-final-b/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_291_col_5.log",
+      "log_sha256": "82bfe1fb9241c3640113977bd00274fd9d862636983edb49bac14e9fe4fcdb56",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 23.517371584,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.143168583,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-cli::reliability_crash same_request_retry_stops_before_registration_if_its_uncommitted_original_cannot_be_cleaned"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:362:41: delete ! in cleanup_selected",
+      "old_diff_sha256": "edbd0b2f6815c7f86d76782a86786b620f882ee0172d9a2147e91378e87a2bd2",
+      "current_diff_sha256": "f7409c45d83917808ef8a6c9a274ac764f8c3ab3911f250e880305dd7d899f4e",
+      "function": "cleanup_selected",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:356:41: delete ! in cleanup_selected",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W4_cleanup_authority_warning",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_362_col_41.log",
+      "log_sha256": "432f7b0a0c07ad59db34227fd375ca9408a07b783ffc7211b26303d5fa1b092b",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 17.798579167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.69576825,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime pending::pending_qualification_contract_tests::cleanup_without_a_pending_root_warns_only_for_unpublished_registered_requests"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:475:43: replace || with && in cleanup_selected",
+      "old_diff_sha256": "4e3f33f6b378eb3111b93c67b96bb1a2a23963072d1ecbc2a487c93f64890706",
+      "current_diff_sha256": "4b5a4d5d060732752ddad24a4470450f4ae357595f27ce2e6082240609417b51",
+      "function": "cleanup_selected",
+      "execution": "not_run_by_static_review",
+      "disposition": "static_scoped_proved",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W4_cleanup_authority_warning",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": false,
+      "proof": {
+        "old_id": "crates/sheltie-runtime/src/pending.rs:469:43: replace || with && in cleanup_selected",
+        "current_id": "crates/sheltie-runtime/src/pending.rs:475:43: replace || with && in cleanup_selected",
+        "old_diff_sha256": "4e3f33f6b378eb3111b93c67b96bb1a2a23963072d1ecbc2a487c93f64890706",
+        "current_diff_sha256": "4b5a4d5d060732752ddad24a4470450f4ae357595f27ce2e6082240609417b51",
+        "scope": "this exact dead branch only current complete callers",
+        "proof": "target nestedunder referenceNone && ownerFileNone; prior matchon same local Options None,None sets owner_matches false; next if!falsewarns andcontinues. No reassignment/reread between. prepare_new_request selected path and cleanup general path onlycallers reach samefunction. Filesystem laterchanges do notchange local Option None.",
+        "difference": "no reachable change atthisconnector; no staticproof for othercleanupwarnings/metadata/time-of-observation predicates",
+        "execution": "not_run_by_static_review",
+        "caught": false,
+        "disposition": "static_scoped_proved",
+        "exact_inventory_verified": {
+          "function": "cleanup_selected",
+          "span": {
+            "end": {
+              "column": 45,
+              "line": 475
+            },
+            "start": {
+              "column": 43,
+              "line": 475
+            }
+          },
+          "genre": "BinaryOperator",
+          "replacement": "&&"
+        }
+      }
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:670:13: replace && with || in cleanup_selected",
+      "old_diff_sha256": "251b35ee80939f435172325ed5d43ef3e021c52a2854f882fda0693c84aac41b",
+      "current_diff_sha256": "b85e9f79bb1ef0d3deda8ad1f988c8cb2e1d596e20d8b18ca8342f370e9dbee4",
+      "function": "cleanup_selected",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:664:13: replace && with || in cleanup_selected",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W4_cleanup_authority_warning",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "b",
+      "log": "mutation-g09-final-b/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_670_col_13.log",
+      "log_sha256": "bc4ba282d4604981900fd9a019c9df574f4b34405fdfd5cff9550eb8561fa436",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 23.406247834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.8535932920000002,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-cli::reliability_crash replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:705:5: replace valid_internal_id -> bool with true",
+      "old_diff_sha256": "98aa23934f16a6f7e5776b1f78ff2b011ce218de1c9f88788acbc765fd942efe",
+      "current_diff_sha256": "e62a359db96c845935bf0c1bc8f27c6694b5aa0a4a13b8dc7aa50843fb01ef0b",
+      "function": "valid_internal_id",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/pending.rs:699:5: replace valid_internal_id -> bool with true",
+      "current_source_sha256": "ea17c4cb6b4a97b9f1e84ee0b76c842580ce6396be9923fabe6a881821d1328c",
+      "group": "W4_cleanup_authority_warning",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "a",
+      "log": "mutation-g09-final-a/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_705_col_5.log",
+      "log_sha256": "f6ca06ad20dff2efb015a1e6a11db054e9597f306b24e77e5d1837d97d39528e",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.963888042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.223806833,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-runtime pending::pending_qualification_contract_tests::a_coupled_non_uuid_owner_and_container_is_unknown_instead_of_cleanup_authority"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof",
+      "observed_failure": "coupled nonUUID original no longer produces required unknown warning; removal authority follows exact mutated source, not raw printed deletion"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+      "current_id": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+      "old_diff_sha256": "2a3a3e721e02f832d2d1e558fc79d0fd317214b2976b31887f75ae8cd039fd8e",
+      "current_diff_sha256": "2a3a3e721e02f832d2d1e558fc79d0fd317214b2976b31887f75ae8cd039fd8e",
+      "function": "before_write",
+      "execution": "final_frozen_candidate",
+      "disposition": "dynamic_caught",
+      "previous_current_id": "crates/sheltie-runtime/src/recovery.rs:121:36: replace == with != in before_write",
+      "current_source_sha256": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43",
+      "group": "W5_recovery_dispatch",
+      "mapping": "equal source-line block from 63b05ca; exact file/column/function/genre/replacement",
+      "old_stage1_formal_summary": "MissedMutant",
+      "caught": true,
+      "batch": "b",
+      "log": "mutation-g09-final-b/mutants.out/log/crates__sheltie-runtime__src__recovery.rs_line_121_col_36.log",
+      "log_sha256": "547fa1284018f2efcd122e84abbc19fa20cb683a441c7c73a82c74c0c2eb3421",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 8.95209775,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.066203541,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "-E",
+            "test(failed_creation_contract_tests) | test(pending_qualification_contract_tests) | test(replay_of_a_completed_request_restores) | test(replay_of_a_cleaned_delete) | test(same_request_retry_stops_before_registration)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "failing_tests": [
+        "sheltie-cli::reliability_crash replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache"
+      ],
+      "scope": "bounded real consumer and failure window; modelled sync errors are not power-loss or physical disk proof",
+      "observed_failure": "healthy completed B replay succeeds but earlier committed A remains published=false; the failing iteration is healthy A, not corrupt-A EFFECT_PENDING"
+    }
+  ],
+  "baseline_scope": "formal cargo-mutants A/B baseline runtime8; mutated tests CLI+runtime. Supplemental same-source exact package/filter/environment CLI+runtime11 recorded separately."
+}

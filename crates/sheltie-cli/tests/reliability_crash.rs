@@ -1799,3 +1799,128 @@ fn begin_snapshot_requires_match_the_frozen_node_even_when_reply_and_data_agree(
     assert_eq!(store_rows(&env), before_rows);
     assert_eq!(tree(&env.dir.path().join("works")), before_files);
 }
+
+// Task: C002-T56
+#[test]
+fn replay_of_a_completed_request_restores_earlier_pending_requests_instead_of_consuming_the_wrong_cache()
+ {
+    for healthy in [true, false] {
+        let env = Env::new();
+        let source = example_dir("two-step");
+        let b_args = [
+            "--request-id",
+            "cached-completed-B",
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        let original_b = env.ok(&b_args);
+        let a_args = [
+            "--request-id",
+            "pending-start-A",
+            "work",
+            "start",
+            "--workbook",
+            "two-step",
+            "--flow",
+            "default",
+            "--input",
+            "topic=registered source A",
+        ];
+        stop(
+            &env,
+            &a_args,
+            "after_commit_before_effects",
+            Termination::Exit70,
+        );
+        let root = container(&env, "pending-start-A");
+        let input = root.join("payload/start-inputs/topic");
+        assert!(input.is_file());
+        if !healthy {
+            std::fs::set_permissions(&input, std::os::unix::fs::PermissionsExt::from_mode(0o600))
+                .unwrap();
+            std::fs::write(&input, b"changed pending source A").unwrap();
+        }
+        let before_rows = store_rows(&env);
+        let before_tree = tree(&root);
+        let output = env.cmd(&b_args).output().unwrap();
+        let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
+        if healthy {
+            assert_eq!(output.status.code(), Some(0), "{output:?}");
+            let mut expected = original_b.clone();
+            expected["data"]["replayed"] = json!(true);
+            assert_eq!(envelope, expected);
+            assert!(record(&env, "pending-start-A").unwrap().published);
+            assert!(record(&env, "cached-completed-B").unwrap().published);
+            assert_eq!(
+                connection(&env)
+                    .query_row::<i64, _, _>(
+                        "SELECT count(*) FROM audit WHERE request_id='pending-start-A'",
+                        [],
+                        |row| row.get(0)
+                    )
+                    .unwrap(),
+                1
+            );
+        } else {
+            assert_eq!(output.status.code(), Some(1), "{output:?}");
+            assert_eq!(envelope["error"]["code"], "EFFECT_PENDING");
+            let details = &envelope["error"]["detail"];
+            assert_eq!(envelope["committed"], true);
+            assert_eq!(envelope["request_id"], "cached-completed-B");
+            assert_eq!(details["pending_request_id"], "pending-start-A");
+            assert_eq!(details["cause"], "STORE_CORRUPT");
+            assert_eq!(envelope["original"], original_b);
+            assert_eq!(details["pending_original"]["request_id"], "pending-start-A");
+            assert_eq!(store_rows(&env), before_rows);
+            assert_eq!(tree(&root), before_tree);
+            assert!(!record(&env, "pending-start-A").unwrap().published);
+        }
+    }
+}
+
+// Task: C002-T56
+#[test]
+fn replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning() {
+    let env = Env::new();
+    env.add_example("two-step");
+    let args = [
+        "--request-id",
+        "fully-cleaned-delete",
+        "workbook",
+        "remove",
+        "two-step@1.0.0",
+    ];
+    env.ok(&args);
+    env.ok(&args);
+    let row = record(&env, "fully-cleaned-delete").unwrap();
+    let pending = row
+        .effects
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|effect| effect["kind"] == "delete_dir")
+        .unwrap()["pending"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let id = pending.split('/').nth(1).unwrap();
+    let marker = env.dir.path().join("pending").join(format!("{id}.deleted"));
+    assert!(!marker.exists());
+    let before = store_rows(&env);
+    let output = env
+        .cmd(&args)
+        .env("SHELTIE_FAILPOINT", "pending_cleanup_before_remove")
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(envelope["ok"], true);
+    assert_eq!(envelope["data"]["replayed"], true);
+    let stderr = String::from_utf8(output.stderr).unwrap();
+    assert!(
+        !(stderr.contains(id) && stderr.contains("marker")),
+        "{stderr}"
+    );
+    assert_eq!(store_rows(&env), before);
+}

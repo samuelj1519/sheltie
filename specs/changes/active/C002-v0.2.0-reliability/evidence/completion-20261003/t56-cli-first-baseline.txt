@@ -1,0 +1,70 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-cli)
+error[E0308]: mismatched types
+    --> crates/sheltie-cli/tests/reliability_crash.rs:1844:38
+     |
+1844 |         let before_rows = store_rows(&connection(&env));
+     |                           ---------- ^^^^^^^^^^^^^^^^^ expected `&Env`, found `&Connection`
+     |                           |
+     |                           arguments to this function are incorrect
+     |
+     = note: expected reference `&common::Env`
+                found reference `&Connection`
+note: function defined here
+    --> crates/sheltie-cli/tests/common/store.rs:8:8
+     |
+   8 | pub fn store_rows(env: &Env) -> StoreRows {
+     |        ^^^^^^^^^^ ---------
+
+error[E0308]: mismatched types
+    --> crates/sheltie-cli/tests/reliability_crash.rs:1875:35
+     |
+1875 |             assert_eq!(store_rows(&connection(&env)), before_rows);
+     |                        ---------- ^^^^^^^^^^^^^^^^^ expected `&Env`, found `&Connection`
+     |                        |
+     |                        arguments to this function are incorrect
+     |
+     = note: expected reference `&common::Env`
+                found reference `&Connection`
+note: function defined here
+    --> crates/sheltie-cli/tests/common/store.rs:8:8
+     |
+   8 | pub fn store_rows(env: &Env) -> StoreRows {
+     |        ^^^^^^^^^^ ---------
+
+error[E0308]: mismatched types
+    --> crates/sheltie-cli/tests/reliability_crash.rs:1910:29
+     |
+1910 |     let before = store_rows(&connection(&env));
+     |                  ---------- ^^^^^^^^^^^^^^^^^ expected `&Env`, found `&Connection`
+     |                  |
+     |                  arguments to this function are incorrect
+     |
+     = note: expected reference `&common::Env`
+                found reference `&Connection`
+note: function defined here
+    --> crates/sheltie-cli/tests/common/store.rs:8:8
+     |
+   8 | pub fn store_rows(env: &Env) -> StoreRows {
+     |        ^^^^^^^^^^ ---------
+
+error[E0308]: mismatched types
+    --> crates/sheltie-cli/tests/reliability_crash.rs:1925:27
+     |
+1925 |     assert_eq!(store_rows(&connection(&env)), before);
+     |                ---------- ^^^^^^^^^^^^^^^^^ expected `&Env`, found `&Connection`
+     |                |
+     |                arguments to this function are incorrect
+     |
+     = note: expected reference `&common::Env`
+                found reference `&Connection`
+note: function defined here
+    --> crates/sheltie-cli/tests/common/store.rs:8:8
+     |
+   8 | pub fn store_rows(env: &Env) -> StoreRows {
+     |        ^^^^^^^^^^ ---------
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `sheltie-cli` (test "reliability_crash") due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package sheltie-cli --all-features --locked` exited with code 101
