@@ -1,0 +1,10 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.49s
+────────────
+ Nextest run ID 41532fb8-b8cb-4e63-8dce-c0a772813e48 with nextest profile: default
+    Starting 3 tests across 19 binaries (370 tests skipped)
+        PASS [   0.036s] (1/3) sheltie-runtime fsx::open_flag_contract_tests::actual_lock_created_file_and_external_read_descriptors_have_their_declared_kernel_flags
+        PASS [   0.036s] (2/3) sheltie-runtime fsx::open_flag_contract_tests::an_external_tree_read_rejects_a_symlink_back_to_the_same_observed_inode
+        PASS [   0.036s] (3/3) sheltie-runtime fsx::open_flag_contract_tests::an_existing_lock_rejects_a_symlink_back_to_the_same_observed_inode
+────────────
+     Summary [   0.037s] 3 tests run: 3 passed, 370 skipped

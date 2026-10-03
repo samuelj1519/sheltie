@@ -132,6 +132,12 @@ impl ManagedDir {
         let mut file = std::fs::File::from(fd);
         file.write_all(bytes).map_err(|e| Error::io(&display, e))?;
         file.sync_all().map_err(|e| Error::io(&display, e))?;
+        crate::failpoint::rendezvous("managed_write_after_file_sync", &display).map_err(
+            |error| Error::RecoveryRequired {
+                path: display.clone(),
+                detail: format!("新文件已同步但关闭句柄前被打断，保留原件：{error}"),
+            },
+        )?;
         fsync(&self.file).map_err(|e| map_fs_error(&display, e))
     }
 
@@ -425,6 +431,11 @@ impl ManagedFs {
                     )
                     .map_err(|error| Error::io(self.display_path(&rel), error))?;
                     fsync(&current).map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
+                    crate::failpoint::rendezvous(
+                        "ensure_new_directory_before_open",
+                        &self.display_path(&rel),
+                    )
+                    .map_err(|error| Error::io(self.display_path(&rel), error))?;
                     let fd = openat(
                         &current,
                         segment,
@@ -433,6 +444,11 @@ impl ManagedFs {
                     )
                     .map_err(|e| map_fs_error(&self.display_path(&rel), e))?;
                     current = std::fs::File::from(fd);
+                    crate::failpoint::rendezvous(
+                        "ensure_new_directory_after_open",
+                        &self.display_path(&rel),
+                    )
+                    .map_err(|error| Error::io(self.display_path(&rel), error))?;
                 }
                 Err(e) => return Err(map_fs_error(&self.display_path(&rel), e)),
             }
@@ -1045,6 +1061,12 @@ impl ManagedFs {
         let (parent, leaf) = self.open_parent(path)?;
         let display = self.display_path(path);
         let tmp = format!(".{leaf}.tmp-{}", uuid::Uuid::now_v7().simple());
+        let tmp_path = match path.parent() {
+            Some(parent) => format!("{}/{}/{tmp}", self.root, parent.as_str()),
+            None => format!("{}/{tmp}", self.root),
+        };
+        crate::failpoint::rendezvous_observed_path("atomic_write_before_open", &display, &tmp_path)
+            .map_err(|error| Error::io(&display, error))?;
         let fd = openat(
             &parent,
             &tmp,
@@ -1057,6 +1079,12 @@ impl ManagedFs {
             let _ = unlinkat(&parent, &tmp, AtFlags::empty());
             return Err(Error::io(&display, e));
         }
+        crate::failpoint::rendezvous("atomic_write_after_file_sync", &display).map_err(
+            |error| Error::RecoveryRequired {
+                path: tmp_path.clone(),
+                detail: format!("临时文件已同步但发布前被打断，保留原件：{error}"),
+            },
+        )?;
         drop(file);
         if let Err(e) = renameat_with(&parent, &tmp, &parent, &leaf, rename_flags) {
             let _ = unlinkat(&parent, &tmp, AtFlags::empty());
@@ -2556,6 +2584,8 @@ fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
             reason: format!("{display} 是特殊文件，拒绝删除"),
         });
     }
+    crate::failpoint::rendezvous("remove_directory_before_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let fd = openat(
         parent,
         leaf,
@@ -2570,6 +2600,8 @@ fn remove_at(parent: &std::fs::File, leaf: &str, display: &str) -> Result<()> {
             reason: format!("{display} 在删除期间被替换"),
         });
     }
+    crate::failpoint::rendezvous("remove_directory_after_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let entries = Dir::read_from(&dir).map_err(|e| map_fs_error(display, e))?;
     for entry in entries {
         let entry = match entry {
@@ -3209,6 +3241,8 @@ pub(crate) fn remove_tree_no_follow(
 }
 
 fn make_directories_writable(parent: &std::fs::File, name: &str, display: &str) -> Result<()> {
+    crate::failpoint::rendezvous("writable_directory_before_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let fd = openat(
         parent,
         name,
@@ -3217,6 +3251,8 @@ fn make_directories_writable(parent: &std::fs::File, name: &str, display: &str) 
     )
     .map_err(|e| map_fs_error(display, e))?;
     let directory = std::fs::File::from(fd);
+    crate::failpoint::rendezvous("writable_directory_after_open", display)
+        .map_err(|error| Error::io(display, error))?;
     let entries = Dir::read_from(&directory).map_err(|e| map_fs_error(display, e))?;
     let names = entries
         .map(|entry| {
@@ -3280,6 +3316,8 @@ fn set_dir_tree_mode(
             });
         }
         if file_type == FileType::Directory {
+            crate::failpoint::rendezvous("tree_mode_before_open", &child_display)
+                .map_err(|error| Error::io(&child_display, error))?;
             let fd = openat(
                 directory,
                 name,
@@ -3294,6 +3332,8 @@ fn set_dir_tree_mode(
                     reason: format!("{child_display} 在遍历期间被替换"),
                 });
             }
+            crate::failpoint::rendezvous("tree_mode_after_open", &child_display)
+                .map_err(|error| Error::io(&child_display, error))?;
             set_dir_tree_mode(&child, &child_display, root, file_mode, directory_mode)?;
             fchmod(&child, Mode::from_raw_mode(directory_mode as _))
                 .map_err(|e| map_fs_error(&child_display, e))?;
@@ -3308,6 +3348,8 @@ fn set_dir_tree_mode(
             fsync(&child).map_err(|e| map_fs_error(&child_display, e))?;
         } else if file_type == FileType::RegularFile {
             check_regular_stat(&child_display, &stat)?;
+            crate::failpoint::rendezvous("tree_mode_before_open", &child_display)
+                .map_err(|error| Error::io(&child_display, error))?;
             let fd = openat(
                 directory,
                 name,
@@ -3323,6 +3365,8 @@ fn set_dir_tree_mode(
                 });
             }
             let file = std::fs::File::from(fd);
+            crate::failpoint::rendezvous("tree_mode_after_open", &child_display)
+                .map_err(|error| Error::io(&child_display, error))?;
             fchmod(&file, Mode::from_raw_mode(file_mode as _))
                 .map_err(|e| map_fs_error(&child_display, e))?;
             if file_mode == 0o444 && directory_mode == 0o555 {
@@ -3439,6 +3483,15 @@ pub(crate) mod controlled_object_tests {
         operation: impl FnOnce() -> T + Send,
         change: impl FnOnce(),
     ) -> T {
+        observe_recorded_change(name, scope, operation, |_| change())
+    }
+
+    pub(crate) fn observe_recorded_change<T: Send>(
+        name: &str,
+        scope: &str,
+        operation: impl FnOnce() -> T + Send,
+        change: impl FnOnce(&std::path::Path),
+    ) -> T {
         let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
         let sync = tempfile::tempdir().unwrap();
         crate::failpoint::arm_rendezvous(name, scope, sync.path()).unwrap();
@@ -3463,7 +3516,7 @@ pub(crate) mod controlled_object_tests {
                 );
                 std::thread::sleep(std::time::Duration::from_millis(2));
             }
-            change();
+            change(sync.path());
             std::fs::write(sync.path().join("release"), b"release").unwrap();
             worker.join().unwrap()
         })
@@ -4117,6 +4170,816 @@ pub(crate) mod permission_test_support {
     impl Drop for PermissionRestore {
         fn drop(&mut self) {
             let _ = std::fs::set_permissions(&self.path, self.permissions.clone());
+        }
+    }
+}
+
+#[cfg(all(test, feature = "failpoint"))]
+mod open_flag_contract_tests {
+    use super::controlled_object_tests::{observe_change, observe_recorded_change};
+    use super::*;
+
+    fn temporary_home() -> (tempfile::TempDir, crate::Home) {
+        let directory = tempfile::tempdir().unwrap();
+        let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        (directory, home)
+    }
+
+    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32) {
+        (metadata.dev(), metadata.ino(), metadata.mode())
+    }
+
+    fn assert_descriptor(file: &std::fs::File, access: u32, nonblocking: bool) {
+        let descriptor = rustix::io::fcntl_getfd(file).unwrap();
+        assert!(descriptor.contains(rustix::io::FdFlags::CLOEXEC));
+        let status = rustix::fs::fcntl_getfl(file).unwrap();
+        assert_eq!(status.bits() & 3, access);
+        if nonblocking {
+            assert!(status.contains(OFlags::NONBLOCK));
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn actual_lock_created_file_and_external_read_descriptors_have_their_declared_kernel_flags() {
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let opened_lock = fs.open_lock_file().unwrap();
+        assert_descriptor(&opened_lock, 2, true);
+        assert_descriptor(&fs.open_existing_lock_file().unwrap().unwrap(), 2, true);
+        let created = fs
+            .write_new_observed(
+                &lock,
+                &ManagedRelPath::new("created.txt").unwrap(),
+                b"created exact bytes",
+            )
+            .unwrap();
+        assert_descriptor(&created.file, 2, false);
+        assert_eq!(
+            std::fs::read(home.rel("created.txt").unwrap().as_path()).unwrap(),
+            b"created exact bytes"
+        );
+        let source = tempfile::tempdir().unwrap();
+        std::fs::write(source.path().join("input.txt"), b"external exact bytes").unwrap();
+        let root = AbsPath::new(source.path().canonicalize().unwrap().to_str().unwrap()).unwrap();
+        let tree = ExternalReadTree::open(&root).unwrap();
+        let handle = tree.open_file(&tree.files()[0]).unwrap();
+        assert_descriptor(&handle.0, 0, true);
+        assert_eq!(
+            std::fs::read(root.join_segment("input.txt").as_path()).unwrap(),
+            b"external exact bytes"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn an_existing_lock_rejects_a_symlink_back_to_the_same_observed_inode() {
+        let (directory, home) = temporary_home();
+        drop(home.acquire_lock().unwrap());
+        let path = home.lock_path();
+        std::fs::write(path.as_path(), b"retain original lock").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let moved = directory.path().join("original-lock");
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let result = observe_change(
+            "existing_lock_after_stat",
+            path.as_str(),
+            move || fs.open_existing_lock_file(),
+            || {
+                std::fs::rename(path.as_path(), &moved).unwrap();
+                std::os::unix::fs::symlink(&moved, path.as_path()).unwrap();
+            },
+        );
+        let Error::Io {
+            path: error_path,
+            source,
+        } = result.err().unwrap()
+        else {
+            panic!("a renamed alias must remain an open error, not an accepted lock")
+        };
+        assert_eq!(error_path, path.as_str());
+        assert_eq!(
+            source.raw_os_error(),
+            Some(rustix::io::Errno::LOOP.raw_os_error())
+        );
+        let after = std::fs::metadata(&moved).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(std::fs::read(&moved).unwrap(), b"retain original lock");
+        assert_eq!(std::fs::read_link(path.as_path()).unwrap(), moved);
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn an_external_tree_read_rejects_a_symlink_back_to_the_same_observed_inode() {
+        let directory = tempfile::tempdir().unwrap();
+        let root =
+            AbsPath::new(directory.path().canonicalize().unwrap().to_str().unwrap()).unwrap();
+        let path = root.join_segment("input.txt");
+        std::fs::write(path.as_path(), b"retain source bytes").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let tree = ExternalReadTree::open(&root).unwrap();
+        let entry = tree.files()[0].clone();
+        let moved = directory.path().join("source-original");
+        let result = observe_change(
+            "external_tree_after_stat",
+            path.as_str(),
+            move || tree.open_file(&entry),
+            || {
+                std::fs::rename(path.as_path(), &moved).unwrap();
+                std::os::unix::fs::symlink(&moved, path.as_path()).unwrap();
+            },
+        );
+        let Error::Io {
+            path: error_path,
+            source,
+        } = result.err().unwrap()
+        else {
+            panic!("source alias must be refused before exposing its bytes")
+        };
+        assert_eq!(error_path, path.as_str());
+        assert_eq!(
+            source.raw_os_error(),
+            Some(rustix::io::Errno::LOOP.raw_os_error())
+        );
+        let after = std::fs::metadata(&moved).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(std::fs::read(&moved).unwrap(), b"retain source bytes");
+        assert_eq!(std::fs::read_link(path.as_path()).unwrap(), moved);
+    }
+
+    fn inherited_matching_objects(metadata: &std::fs::Metadata) -> Vec<u64> {
+        let script = "import os,json,sys\nwant=(int(sys.argv[1]),int(sys.argv[2]))\nseen=[]\nfor name in os.listdir('/dev/fd'):\n try:\n  fd=int(name); info=os.fstat(fd)\n  if (info.st_dev,info.st_ino)==want: seen.append(fd)\n except (ValueError,OSError): pass\nprint(json.dumps(seen))";
+        let output = std::process::Command::new("python3")
+            .args(["-S", "-c", script])
+            .arg(metadata.dev().to_string())
+            .arg(metadata.ino().to_string())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        serde_json::from_slice(&output.stdout).unwrap()
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn a_managed_new_file_cannot_leak_its_live_writer_into_a_real_exec() {
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let managed = fs
+            .ensure_dir(&lock, &ManagedRelPath::new("slot").unwrap())
+            .unwrap();
+        let path = home.rel("slot/created.txt").unwrap();
+        let mut inherited = None;
+        let result = observe_change(
+            "managed_write_after_file_sync",
+            "slot/created.txt",
+            move || managed.write_new(&lock, "created.txt", b"exact managed bytes"),
+            || {
+                let metadata = std::fs::metadata(path.as_path()).unwrap();
+                assert_eq!(
+                    std::fs::read(path.as_path()).unwrap(),
+                    b"exact managed bytes"
+                );
+                inherited = Some(inherited_matching_objects(&metadata));
+            },
+        );
+        result.unwrap();
+        assert_eq!(inherited.unwrap(), Vec::<u64>::new());
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"exact managed bytes"
+        );
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn an_atomic_temporary_writer_is_closed_on_exec_before_its_final_publication() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let final_path = home.rel("published.txt").unwrap();
+        let mut inherited = None;
+        let mut temporary = None;
+        let result = observe_change(
+            "atomic_write_after_file_sync",
+            final_path.as_str(),
+            move || {
+                fs.write_atomic(
+                    &lock,
+                    &ManagedRelPath::new("published.txt").unwrap(),
+                    b"atomic exact bytes",
+                )
+            },
+            || {
+                assert!(!final_path.as_path().exists());
+                let entries = std::fs::read_dir(directory.path())
+                    .unwrap()
+                    .map(|entry| entry.unwrap().path())
+                    .filter(|path| {
+                        path.file_name()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .starts_with(".published.txt.tmp-")
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(entries.len(), 1);
+                let metadata = std::fs::metadata(&entries[0]).unwrap();
+                assert_eq!(std::fs::read(&entries[0]).unwrap(), b"atomic exact bytes");
+                inherited = Some(inherited_matching_objects(&metadata));
+                temporary = Some(entries[0].clone());
+            },
+        );
+        result.unwrap();
+        assert_eq!(inherited.unwrap(), Vec::<u64>::new());
+        assert_eq!(
+            std::fs::read(final_path.as_path()).unwrap(),
+            b"atomic exact bytes"
+        );
+        assert!(!temporary.unwrap().exists());
+        assert!(!home.store_path().as_path().exists());
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn a_managed_exclusive_write_rejects_existing_files_and_preserves_exact_bytes() {
+        let (_directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        let managed = fs
+            .ensure_dir(&lock, &ManagedRelPath::new("slot").unwrap())
+            .unwrap();
+        managed
+            .write_new(&lock, "occupied.txt", b"original bytes beyond replacement")
+            .unwrap();
+        let path = home.rel("slot/occupied.txt").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        assert!(
+            managed
+                .write_new(&lock, "occupied.txt", b"replacement")
+                .is_err()
+        );
+        let after = std::fs::metadata(path.as_path()).unwrap();
+        assert_eq!(object_identity(&after), object_identity(&before));
+        assert_eq!(
+            std::fs::read(path.as_path()).unwrap(),
+            b"original bytes beyond replacement"
+        );
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn an_atomic_write_refuses_occupation_of_its_actual_generated_temporary_name() {
+        for alias in [false, true] {
+            let (_directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let final_path = home.rel("published.txt").unwrap();
+            let outside = tempfile::tempdir().unwrap();
+            let sentinel = outside.path().join("sentinel");
+            std::fs::write(&sentinel, b"original sentinel bytes beyond replacement").unwrap();
+            let sentinel_before = std::fs::metadata(&sentinel).unwrap();
+            let mut actual_tmp = None;
+            let mut occupied_before = None;
+            let result = observe_recorded_change(
+                "atomic_write_before_open",
+                final_path.as_str(),
+                move || {
+                    fs.write_atomic(
+                        &lock,
+                        &ManagedRelPath::new("published.txt").unwrap(),
+                        b"replacement",
+                    )
+                },
+                |sync| {
+                    let observed = std::fs::read_to_string(sync.join("reached")).unwrap();
+                    let path = std::path::PathBuf::from(observed);
+                    assert_eq!(path.parent().unwrap(), home.root().as_path().as_std_path());
+                    assert!(
+                        path.file_name()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .starts_with(".published.txt.tmp-")
+                    );
+                    assert!(!path.exists());
+                    if alias {
+                        std::os::unix::fs::symlink(&sentinel, &path).unwrap();
+                    } else {
+                        std::fs::write(&path, b"original occupied bytes beyond replacement")
+                            .unwrap();
+                    }
+                    occupied_before = Some(std::fs::symlink_metadata(&path).unwrap());
+                    actual_tmp = Some(path);
+                },
+            );
+            assert!(
+                result.is_err(),
+                "temporary collision must refuse publication"
+            );
+            assert!(!final_path.as_path().exists());
+            let actual_tmp = actual_tmp.unwrap();
+            assert_eq!(
+                object_identity(&std::fs::symlink_metadata(&actual_tmp).unwrap()),
+                object_identity(&occupied_before.unwrap())
+            );
+            if alias {
+                assert_eq!(std::fs::read_link(&actual_tmp).unwrap(), sentinel);
+            } else {
+                assert_eq!(
+                    std::fs::read(&actual_tmp).unwrap(),
+                    b"original occupied bytes beyond replacement"
+                );
+            }
+            let after = std::fs::metadata(&sentinel).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&sentinel_before));
+            assert_eq!(
+                std::fs::read(&sentinel).unwrap(),
+                b"original sentinel bytes beyond replacement"
+            );
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn a_new_directory_open_rejects_an_ordinary_file_and_a_same_inode_alias() {
+        for kind in ["file", "alias"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let path = home.rel("new-directory").unwrap();
+            let moved = directory.path().join("original-created-directory");
+            let result = observe_change(
+                "ensure_new_directory_before_open",
+                path.as_str(),
+                move || fs.ensure_dir(&lock, &ManagedRelPath::new("new-directory").unwrap()),
+                || {
+                    std::fs::rename(path.as_path(), &moved).unwrap();
+                    if kind == "file" {
+                        std::fs::write(path.as_path(), b"retain replacement").unwrap();
+                    } else {
+                        std::os::unix::fs::symlink(&moved, path.as_path()).unwrap();
+                    }
+                },
+            );
+            let Error::Io {
+                path: error_path,
+                source: _,
+            } = result.err().unwrap()
+            else {
+                panic!("{kind}: new-directory open must fail at the first constrained open")
+            };
+            assert_eq!(error_path, path.as_str());
+            assert!(moved.is_dir());
+            if kind == "file" {
+                assert_eq!(
+                    std::fs::read(path.as_path()).unwrap(),
+                    b"retain replacement"
+                );
+            } else {
+                assert_eq!(std::fs::read_link(path.as_path()).unwrap(), moved);
+            }
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn short_lived_directory_and_mode_handles_do_not_leak_into_exec() {
+        for operation in [
+            "new-directory",
+            "remove",
+            "writable",
+            "mode-directory",
+            "mode-file",
+        ] {
+            let (_directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let node = home.rel("node").unwrap();
+            let parent = fs.root_dir.try_clone().unwrap();
+            let (point, scope) = if operation == "new-directory" {
+                ("ensure_new_directory_after_open", node.to_string())
+            } else if operation == "remove" || operation == "writable" {
+                fs.ensure_dir(&lock, &ManagedRelPath::new("node").unwrap())
+                    .unwrap();
+                (
+                    if operation == "remove" {
+                        "remove_directory_after_open"
+                    } else {
+                        "writable_directory_after_open"
+                    },
+                    node.to_string(),
+                )
+            } else {
+                fs.ensure_dir(&lock, &ManagedRelPath::new("tree").unwrap())
+                    .unwrap();
+                if operation == "mode-directory" {
+                    std::fs::create_dir(home.rel("tree/child").unwrap().as_path()).unwrap();
+                } else {
+                    std::fs::write(
+                        home.rel("tree/child").unwrap().as_path(),
+                        b"exact child bytes",
+                    )
+                    .unwrap();
+                }
+                (
+                    "tree_mode_after_open",
+                    home.rel("tree/child").unwrap().to_string(),
+                )
+            };
+            let probe_path = AbsPath::new(scope.clone()).unwrap();
+            let worker_home = home.clone();
+            let kind = operation.to_owned();
+            let mut inherited = None;
+            let result = observe_change(
+                point,
+                &scope,
+                move || -> Result<()> {
+                    match kind.as_str() {
+                        "new-directory" => {
+                            fs.ensure_dir(&lock, &ManagedRelPath::new("node").unwrap())?;
+                        }
+                        "remove" => {
+                            remove_at(&parent, "node", node.as_str())?;
+                        }
+                        "writable" => {
+                            make_directories_writable(&parent, "node", node.as_str())?;
+                        }
+                        _ => {
+                            fs.set_tree_readonly(&lock, &ManagedRelPath::new("tree").unwrap())?;
+                        }
+                    }
+                    assert!(!worker_home.store_path().as_path().exists());
+                    Ok(())
+                },
+                || {
+                    inherited = Some(inherited_matching_objects(
+                        &std::fs::metadata(probe_path.as_path()).unwrap(),
+                    ));
+                },
+            );
+            result.unwrap();
+            assert_eq!(
+                inherited.unwrap(),
+                Vec::<u64>::new(),
+                "{operation}: live constrained FD leaked into exec"
+            );
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn tree_delete_and_permissions_reject_same_inode_symlink_aliases_before_side_effects() {
+        for operation in ["remove", "writable", "mode-directory", "mode-file"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let parent = fs.root_dir.try_clone().unwrap();
+            let (point, path) = if operation == "remove" || operation == "writable" {
+                fs.ensure_dir(&lock, &ManagedRelPath::new("node").unwrap())
+                    .unwrap();
+                std::fs::write(
+                    home.rel("node/sentinel").unwrap().as_path(),
+                    b"retain node sentinel",
+                )
+                .unwrap();
+                (
+                    if operation == "remove" {
+                        "remove_directory_before_open"
+                    } else {
+                        "writable_directory_before_open"
+                    },
+                    home.rel("node").unwrap(),
+                )
+            } else {
+                fs.ensure_dir(&lock, &ManagedRelPath::new("tree").unwrap())
+                    .unwrap();
+                if operation == "mode-directory" {
+                    std::fs::create_dir(home.rel("tree/child").unwrap().as_path()).unwrap();
+                    std::fs::write(
+                        home.rel("tree/child/sentinel").unwrap().as_path(),
+                        b"retain node sentinel",
+                    )
+                    .unwrap();
+                } else {
+                    std::fs::write(
+                        home.rel("tree/child").unwrap().as_path(),
+                        b"retain node sentinel",
+                    )
+                    .unwrap();
+                }
+                ("tree_mode_before_open", home.rel("tree/child").unwrap())
+            };
+            let before = std::fs::metadata(path.as_path()).unwrap();
+            let original = directory.path().join("original-retained");
+            let worker_path = path.clone();
+            let kind = operation.to_owned();
+            let result = observe_change(
+                point,
+                path.as_str(),
+                move || -> Result<()> {
+                    match kind.as_str() {
+                        "remove" => remove_at(&parent, "node", worker_path.as_str()),
+                        "writable" => {
+                            make_directories_writable(&parent, "node", worker_path.as_str())
+                        }
+                        _ => fs.set_tree_readonly(&lock, &ManagedRelPath::new("tree").unwrap()),
+                    }
+                },
+                || {
+                    std::fs::rename(path.as_path(), &original).unwrap();
+                    std::os::unix::fs::symlink(&original, path.as_path()).unwrap();
+                },
+            );
+            let Error::Io {
+                path: error_path, ..
+            } = result.err().unwrap()
+            else {
+                panic!("{operation}: constrained alias open must fail before deleting or chmod")
+            };
+            assert_eq!(error_path, path.as_str());
+            let after = std::fs::metadata(&original).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+            let sentinel = if after.is_dir() {
+                original.join("sentinel")
+            } else {
+                original.clone()
+            };
+            assert_eq!(std::fs::read(sentinel).unwrap(), b"retain node sentinel");
+            assert_eq!(std::fs::read_link(path.as_path()).unwrap(), original);
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn a_directory_open_reports_the_kernel_type_error_if_the_observed_name_became_a_file() {
+        for operation in ["open-directory", "remove"] {
+            let (directory, home) = temporary_home();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            fs.ensure_dir(&lock, &ManagedRelPath::new("node").unwrap())
+                .unwrap();
+            let path = home.rel("node").unwrap();
+            std::fs::write(
+                path.join_segment("sentinel").as_path(),
+                b"retain old directory material",
+            )
+            .unwrap();
+            let before = std::fs::metadata(path.as_path()).unwrap();
+            let moved = directory.path().join("original-directory");
+            let parent = fs.root_dir.try_clone().unwrap();
+            let worker_path = path.clone();
+            let kind = operation.to_owned();
+            let point = if operation == "open-directory" {
+                "directory_open_after_stat"
+            } else {
+                "remove_directory_before_open"
+            };
+            let result = observe_change(
+                point,
+                path.as_str(),
+                move || -> Result<()> {
+                    if kind == "open-directory" {
+                        open_directory_at(&parent, "node", worker_path.as_str())?;
+                        Ok(())
+                    } else {
+                        remove_at(&parent, "node", worker_path.as_str())
+                    }
+                },
+                || {
+                    std::fs::rename(path.as_path(), &moved).unwrap();
+                    std::fs::write(path.as_path(), b"retain replacement ordinary file").unwrap();
+                },
+            );
+            let Error::Io {
+                path: error_path,
+                source,
+            } = result.unwrap_err()
+            else {
+                panic!(
+                    "{operation}: original directory-only open must retain the kernel type error"
+                )
+            };
+            assert_eq!(error_path, path.as_str());
+            assert_eq!(
+                source.raw_os_error(),
+                Some(rustix::io::Errno::NOTDIR.raw_os_error())
+            );
+            let after = std::fs::metadata(&moved).unwrap();
+            assert_eq!(object_identity(&after), object_identity(&before));
+            assert_eq!(
+                std::fs::read(moved.join("sentinel")).unwrap(),
+                b"retain old directory material"
+            );
+            assert_eq!(
+                std::fs::read(path.as_path()).unwrap(),
+                b"retain replacement ordinary file"
+            );
+            assert!(!home.store_path().as_path().exists());
+        }
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn directory_permission_traversal_retains_the_kernel_type_error_at_its_constrained_open() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("tree").unwrap())
+            .unwrap();
+        std::fs::create_dir(home.rel("tree/child").unwrap().as_path()).unwrap();
+        let child = home.rel("tree/child").unwrap();
+        let before = std::fs::metadata(child.as_path()).unwrap();
+        let moved = directory.path().join("original-directory");
+        let result = observe_change(
+            "tree_mode_before_open",
+            child.as_str(),
+            move || fs.set_tree_readonly(&lock, &ManagedRelPath::new("tree").unwrap()),
+            || {
+                std::fs::rename(child.as_path(), &moved).unwrap();
+                std::fs::write(child.as_path(), b"retain replacement ordinary file").unwrap();
+            },
+        );
+        let Error::Io { path, source } = result.unwrap_err() else {
+            panic!("directory-only traversal must refuse at its original open")
+        };
+        assert_eq!(path, child.as_str());
+        assert_eq!(
+            source.raw_os_error(),
+            Some(rustix::io::Errno::NOTDIR.raw_os_error())
+        );
+        assert_eq!(
+            std::fs::read(child.as_path()).unwrap(),
+            b"retain replacement ordinary file"
+        );
+        assert!(moved.is_dir());
+        assert_eq!(
+            object_identity(&std::fs::metadata(&moved).unwrap()),
+            object_identity(&before)
+        );
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn making_a_directory_writable_refuses_a_fifo_before_opening_a_handle() {
+        let (directory, home) = temporary_home();
+        let lock = home.acquire_lock().unwrap();
+        let fs = ManagedFs::open_existing(&home).unwrap();
+        fs.ensure_dir(&lock, &ManagedRelPath::new("node").unwrap())
+            .unwrap();
+        let path = home.rel("node").unwrap();
+        let before = std::fs::metadata(path.as_path()).unwrap();
+        let moved = directory.path().join("original-directory");
+        let parent = fs.root_dir.try_clone().unwrap();
+        let after_open = tempfile::tempdir().unwrap();
+        std::fs::write(
+            after_open.path().join("release"),
+            b"do not block after-open observation",
+        )
+        .unwrap();
+        let mut rescue = None;
+        let worker_path = path.clone();
+        let result = observe_change(
+            "writable_directory_before_open",
+            path.as_str(),
+            move || make_directories_writable(&parent, "node", worker_path.as_str()),
+            || {
+                std::fs::rename(path.as_path(), &moved).unwrap();
+                assert!(
+                    std::process::Command::new("mkfifo")
+                        .arg(path.as_path())
+                        .status()
+                        .unwrap()
+                        .success()
+                );
+                match rustix::fs::open(
+                    path.as_path().as_std_path(),
+                    OFlags::RDWR | OFlags::NONBLOCK | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+                    Mode::empty(),
+                ) {
+                    Ok(fd) => rescue = Some(fd),
+                    Err(error) => {
+                        std::fs::remove_file(path.as_path()).unwrap();
+                        std::fs::rename(&moved, path.as_path()).unwrap();
+                        panic!(
+                            "FIFO fixture could not establish its nonblocking rescue endpoint: {error}"
+                        );
+                    }
+                }
+                crate::failpoint::arm_rendezvous(
+                    "writable_directory_after_open",
+                    path.as_str(),
+                    after_open.path(),
+                )
+                .unwrap();
+            },
+        );
+        let Error::Io {
+            path: error_path,
+            source,
+        } = result.unwrap_err()
+        else {
+            panic!("directory-only open must reject the FIFO")
+        };
+        assert_eq!(error_path, path.as_str());
+        assert_eq!(
+            source.raw_os_error(),
+            Some(rustix::io::Errno::NOTDIR.raw_os_error())
+        );
+        assert!(
+            !after_open.path().join("reached").exists(),
+            "directory traversal opened a FIFO; the later read_dir error does not make the open valid"
+        );
+        assert!(moved.is_dir());
+        assert_eq!(
+            object_identity(&std::fs::metadata(&moved).unwrap()),
+            object_identity(&before)
+        );
+        drop(rescue);
+        std::fs::remove_file(path.as_path()).unwrap();
+    }
+
+    // Task: C002-T51
+    #[test]
+    fn write_observation_failures_preserve_exact_committed_bytes_or_refuse_before_creation() {
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        for stage in ["managed-sync", "atomic-before", "atomic-sync"] {
+            let directory = tempfile::tempdir().unwrap();
+            let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+            let lock = home.acquire_lock().unwrap();
+            let fs = ManagedFs::open_existing(&home).unwrap();
+            let managed = fs
+                .ensure_dir(&lock, &ManagedRelPath::new("slot").unwrap())
+                .unwrap();
+            let carrier = tempfile::tempdir().unwrap();
+            let bad = carrier.path().join("non-directory");
+            std::fs::write(&bad, b"retain carrier").unwrap();
+            let final_path = home.rel("published.txt").unwrap();
+            let (name, scope) = match stage {
+                "managed-sync" => (
+                    "managed_write_after_file_sync",
+                    "slot/created.txt".to_owned(),
+                ),
+                "atomic-before" => ("atomic_write_before_open", final_path.to_string()),
+                _ => ("atomic_write_after_file_sync", final_path.to_string()),
+            };
+            crate::failpoint::arm_rendezvous(name, &scope, &bad).unwrap();
+            let result = if stage == "managed-sync" {
+                managed.write_new(&lock, "created.txt", b"exact retained bytes")
+            } else {
+                fs.write_atomic(
+                    &lock,
+                    &ManagedRelPath::new("published.txt").unwrap(),
+                    b"exact retained bytes",
+                )
+            };
+            crate::failpoint::disarm_rendezvous().unwrap();
+            let error = result.unwrap_err();
+            if stage == "atomic-before" {
+                assert!(matches!(error, Error::Io { .. }), "{error}");
+                assert!(!std::fs::read_dir(directory.path()).unwrap().any(|entry| {
+                    entry
+                        .unwrap()
+                        .file_name()
+                        .to_str()
+                        .unwrap()
+                        .starts_with(".published.txt.tmp-")
+                }));
+            } else {
+                let Error::RecoveryRequired { path, .. } = error else {
+                    panic!("{stage}: synchronized bytes must retain recovery ownership")
+                };
+                let retained = if stage == "managed-sync" {
+                    home.rel(&path).unwrap()
+                } else {
+                    AbsPath::new(path).unwrap()
+                };
+                assert_eq!(
+                    std::fs::read(retained.as_path()).unwrap(),
+                    b"exact retained bytes"
+                );
+                let metadata = std::fs::metadata(retained.as_path()).unwrap();
+                assert!(metadata.is_file());
+                assert_eq!(metadata.mode() & 0o777, 0o600);
+                assert_eq!(metadata.nlink(), 1);
+                assert_eq!(
+                    metadata.dev(),
+                    std::fs::metadata(home.root().as_path()).unwrap().dev()
+                );
+            }
+            assert!(!final_path.as_path().exists());
+            assert_eq!(std::fs::read(&bad).unwrap(), b"retain carrier");
+            assert!(!home.store_path().as_path().exists());
         }
     }
 }

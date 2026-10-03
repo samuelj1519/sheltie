@@ -1,0 +1,16 @@
+[
+  {
+    "name": "default-check",
+    "argv": [
+      "cargo",
+      "check",
+      "-p",
+      "sheltie-runtime",
+      "--no-default-features",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 11.53,
+    "output_sha256": "a8dbbdee25653caba51d467a0693c357efce9e35552734cd562b710e0ec3fa2b"
+  }
+]

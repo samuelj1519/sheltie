@@ -1,0 +1,6 @@
+{
+  "raw_exception": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t51-final-doctest.txt",
+  "sha256": "bf41dd97993e08c3943bd1f5eea26f52fdf2feeaca2e90184fd07c32a568fad4",
+  "reason": "cargo doc test exact stdout has a final blank line; retain original bytes and archived SHA",
+  "authored_source_and_docs_check": "git diff --cached --check excluding only this exact raw output"
+}

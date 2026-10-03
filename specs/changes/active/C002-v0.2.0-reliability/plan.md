@@ -337,7 +337,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T48 | done | Codex；独立 Reviewer | G01共享闭包oracle：同步合法形状的坏业务绑定与读顺序 |
 | C002-T49 | done | Codex；独立 Reviewer | G02精确47闭环：35动态捕获/12限定静态；863全回归、独审通过 |
 | C002-T50 | done | Codex；独立 Reviewer | G03精确26：25动态/1限定静态，880全回归及独审通过 |
-| C002-T51 | not_run | Codex；独立 Reviewer | G04 文件打开 flags 的真实内核事实与同 inode 别名；依赖 T50 |
+| C002-T51 | done | Codex；独立 Reviewer | G04 精确27全部动态检测；894全回归与独审通过 |
+| C002-T52 | not_run | Codex；独立 Reviewer | G05 文件交换、按原件删除与权限资格；T51 提交后实施 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -399,3 +400,14 @@ G04 共 27 个准确旧 ID。按独立当前 Darwin 位值拆清每项 `|→&` �
 仅在现有测试特性下增加确实缺失的观察点，禁止随机猜 tmp 名或概率 sleep。CLOEXEC/NONBLOCK 机制检测须记内核事实和采用合同边界，不扩大为全部并行 spawn 安全；CREATE+EXCL 只能覆盖具体维度，不把还丢 CLOEXEC 的整项称等价。FIFO 不阻塞握手、RAII 释放/回收、根外 sentinel 与源对象完整性先于扩大样本；timeout 或别处拒绝不当捕获。
 
 先非零合法基线与代表样本，再每批最多 12 项/600 秒，冻结源码/fixture/flags/二进制闭包。最终完整工程、MSRV、治理和未参与准备的独立 Reviewer 逐 ID 审定；源码观察点改变行号时同步精确映射并保留原 diff，原历史结果不改写。
+
+T51 的 atomic tmp 碰撞判据需要记录该次实际生成路径。在既有测试同步设施增加一个私有“观察路径作为 reached 内容”的入口，复用原 name/scope 精确匹配与释放机制；原 rendezvous 继续写原 name，不改默认行为，不新增业务状态、公开 FD getter 或通用 observer trait。仅在实际需要的生成后/open 前调用。
+
+
+### C002-T52 文件交换、按原件删除与权限资格
+
+G05 准确 16 旧 ID，以独立准备的实际消费者和完整原件关系为准。只在已有 failpoint 特性下补两端 pre-stat/候选资格完成后、EXCHANGE 前的观察点；不能用更早 selfmgmt observer 或后层失败代替该比较。合法交换须按交换前 A/B 的 bytes/dev/ino/mode/nlink 证明两端关系；替换单端点和硬链接异常须 RecoveryRequired，已经交换的两端及保留原件不回滚、不删除。
+
+根 epoch 资格采用真实 SafeFile：旧根改名，同一路径创建新根、新锁和 ManagedFs，将原文件实际移入新根保持同 inode；旧 handle origin 不变。以错误 epoch 拒绝和原件 bytes/mode/路径完整性区分 origin guard，不被后层身份拒绝掩盖。该有界 API 反例单列，不扩为真实 CLI/所有 cleanup caller。set_mode 的原 held FD 与之后 current name 比较用真实 A→保留、B→原位置；应拒绝且 B 不被 chmod。rename_new 的合法普通/目录、硬链接/符号链接/FIFO拒绝核全原件，不读 FIFO 或用 timeout 检测。
+
+先非零合法基线及代表样本，再最多12项/600秒冻结批次；观察点 marker 错误需写前不交换，RAII释放/join与根外保留对象先复核。最终精确映射、原日志、全工程/MSRV/治理和未参与准备的独立 Reviewer 完成后提交，不反写旧 Missed。

@@ -1,0 +1,14 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.55s
+────────────
+ Nextest run ID fee7a489-c6e0-4418-93de-cc7e2aba7ba6 with nextest profile: default
+    Starting 7 tests across 19 binaries (370 tests skipped)
+        PASS [   0.034s] (1/7) sheltie-runtime fsx::open_flag_contract_tests::an_external_tree_read_rejects_a_symlink_back_to_the_same_observed_inode
+        PASS [   0.042s] (2/7) sheltie-runtime fsx::open_flag_contract_tests::a_managed_exclusive_write_rejects_existing_files_and_preserves_exact_bytes
+        PASS [   0.049s] (3/7) sheltie-runtime fsx::open_flag_contract_tests::an_existing_lock_rejects_a_symlink_back_to_the_same_observed_inode
+        PASS [   0.049s] (4/7) sheltie-runtime fsx::open_flag_contract_tests::actual_lock_created_file_and_external_read_descriptors_have_their_declared_kernel_flags
+        PASS [   0.053s] (5/7) sheltie-runtime fsx::open_flag_contract_tests::an_atomic_write_refuses_occupation_of_its_actual_generated_temporary_name
+        PASS [   0.061s] (6/7) sheltie-runtime fsx::open_flag_contract_tests::a_managed_new_file_cannot_leak_its_live_writer_into_a_real_exec
+        PASS [   0.067s] (7/7) sheltie-runtime fsx::open_flag_contract_tests::an_atomic_temporary_writer_is_closed_on_exec_before_its_final_publication
+────────────
+     Summary [   0.068s] 7 tests run: 7 passed, 370 skipped

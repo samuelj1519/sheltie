@@ -1,0 +1,20 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.36s
+────────────
+ Nextest run ID 73943258-70bf-408a-ae1e-7a7c7b2246de with nextest profile: default
+    Starting 13 tests across 19 binaries (370 tests skipped)
+        PASS [   0.044s] ( 1/13) sheltie-runtime fsx::open_flag_contract_tests::an_existing_lock_rejects_a_symlink_back_to_the_same_observed_inode
+        PASS [   0.056s] ( 2/13) sheltie-runtime fsx::open_flag_contract_tests::a_managed_exclusive_write_rejects_existing_files_and_preserves_exact_bytes
+        PASS [   0.058s] ( 3/13) sheltie-runtime fsx::open_flag_contract_tests::making_a_directory_writable_refuses_a_fifo_before_opening_a_handle
+        PASS [   0.064s] ( 4/13) sheltie-runtime fsx::open_flag_contract_tests::actual_lock_created_file_and_external_read_descriptors_have_their_declared_kernel_flags
+        PASS [   0.065s] ( 5/13) sheltie-runtime fsx::open_flag_contract_tests::an_external_tree_read_rejects_a_symlink_back_to_the_same_observed_inode
+        PASS [   0.065s] ( 6/13) sheltie-runtime fsx::open_flag_contract_tests::an_atomic_temporary_writer_is_closed_on_exec_before_its_final_publication
+        PASS [   0.067s] ( 7/13) sheltie-runtime fsx::open_flag_contract_tests::directory_permission_traversal_retains_the_kernel_type_error_at_its_constrained_open
+        PASS [   0.071s] ( 8/13) sheltie-runtime fsx::open_flag_contract_tests::an_atomic_write_refuses_occupation_of_its_actual_generated_temporary_name
+        PASS [   0.071s] ( 9/13) sheltie-runtime fsx::open_flag_contract_tests::a_new_directory_open_rejects_an_ordinary_file_and_a_same_inode_alias
+        PASS [   0.073s] (10/13) sheltie-runtime fsx::open_flag_contract_tests::a_directory_open_reports_the_kernel_type_error_if_the_observed_name_became_a_file
+        PASS [   0.081s] (11/13) sheltie-runtime fsx::open_flag_contract_tests::tree_delete_and_permissions_reject_same_inode_symlink_aliases_before_side_effects
+        PASS [   0.083s] (12/13) sheltie-runtime fsx::open_flag_contract_tests::a_managed_new_file_cannot_leak_its_live_writer_into_a_real_exec
+        PASS [   0.161s] (13/13) sheltie-runtime fsx::open_flag_contract_tests::short_lived_directory_and_mode_handles_do_not_leak_into_exec
+────────────
+     Summary [   0.163s] 13 tests run: 13 passed, 370 skipped

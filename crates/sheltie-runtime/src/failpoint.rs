@@ -154,6 +154,18 @@ pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {
 
 /// 仅匹配指定测试名称与作用域，避免并行进程中的无关I/O进入同步点。
 pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
+    rendezvous_payload(name, request_id, name.as_bytes())
+}
+
+pub(crate) fn rendezvous_observed_path(
+    name: &str,
+    request_id: &str,
+    observed_path: &str,
+) -> std::io::Result<()> {
+    rendezvous_payload(name, request_id, observed_path.as_bytes())
+}
+
+fn rendezvous_payload(name: &str, request_id: &str, payload: &[u8]) -> std::io::Result<()> {
     #[cfg(feature = "failpoint")]
     {
         let state = RENDEZVOUS.get_or_init(|| std::sync::Mutex::new(None));
@@ -179,14 +191,14 @@ pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
         let temporary = configured
             .directory
             .join(format!("reached-{}.tmp", uuid::Uuid::now_v7().simple()));
-        std::fs::write(&temporary, name.as_bytes())?;
+        std::fs::write(&temporary, payload)?;
         std::fs::rename(&temporary, configured.directory.join("reached"))?;
         while !configured.directory.join("release").exists() {
             std::thread::sleep(std::time::Duration::from_millis(1));
         }
     }
     #[cfg(not(feature = "failpoint"))]
-    let _ = (name, request_id);
+    let _ = (name, request_id, payload);
     Ok(())
 }
 

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "task",
+    "argv": [
+      "scripts/task.sh",
+      "C002-T51"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.713,
+    "output_sha256": "e45386e6afd04c924d389da2b3bb97e5d43964a87ce18b7632e2beaed4643a2a"
+  },
+  {
+    "name": "check-task",
+    "argv": [
+      "scripts/check-task.sh",
+      "C002-T51"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 0.738,
+    "output_sha256": "fbc7ae157bc01dbc54c3b476a254009afc30e73b795fc06bcd4c822238b30fa8",
+    "output_file": "t51-precompletion-check-task.txt",
+    "disposition": "expected not-done guard before independent review; not a product test failure"
+  }
+]

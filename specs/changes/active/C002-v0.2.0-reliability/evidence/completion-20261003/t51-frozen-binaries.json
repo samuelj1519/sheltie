@@ -1,0 +1,52 @@
+{
+  "argv": [
+    "cargo",
+    "build",
+    "-p",
+    "sheltie-cli",
+    "-p",
+    "sheltie-export",
+    "--all-features",
+    "--locked"
+  ],
+  "base": "b5226d07a8abca1c2a1b7eaee4de71eb19cf770d",
+  "artifacts": {
+    "sheltie": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t51-frozen-binaries/sheltie",
+      "sha256": "3db78ac28705d3d5d458ee523b9d01a230bafa5a55a3d55f640169cc80f0485e"
+    },
+    "sheltie-export": {
+      "original": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+      "frozen": "/private/tmp/sheltie-completion-20261003/t51-frozen-binaries/sheltie-export",
+      "sha256": "5eae70f2a9c4ba145907ad736fd10a61511cd23ce842af864952fe821efe4967"
+    }
+  },
+  "cargo_artifact_resolution": {
+    "argv": [
+      "cargo",
+      "build",
+      "-p",
+      "sheltie-cli",
+      "-p",
+      "sheltie-export",
+      "--all-features",
+      "--locked",
+      "--message-format=json"
+    ],
+    "exit_code": 0,
+    "artifacts": {
+      "sheltie-export": {
+        "cargo_executable": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie-export",
+        "compiler_artifact_fresh": true,
+        "sha_matches_frozen": true
+      },
+      "sheltie": {
+        "cargo_executable": "/private/tmp/sheltie-c006-binary-tests-target/debug/sheltie",
+        "compiler_artifact_fresh": true,
+        "sha_matches_frozen": true
+      }
+    },
+    "scope": "cargo-returned paths agree with already frozen binaries; no frozen file rewritten"
+  }
+}

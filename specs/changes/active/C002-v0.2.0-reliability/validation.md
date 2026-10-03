@@ -522,3 +522,17 @@ T50 最终 A/B/C 为 12/12、12/12、1/1 Caught，exit0，source/fixture/config 
 Rust 1.85、默认特性编译及治理各自原文保留。原 from_mode 非八进制 Clippy101、purge 类型期望、缺 import、schema 控制潜在死锁均留在旧候选；后者在 mode 变体派发前修复，未以 timeout 记检测。Root 只新增六个测试特性观察点，不增产品判断/公开接口/业务状态。当前累计 92 项动态检测、13 项限定静态处分，110 项继续 T43；T50 通过不批准全 215 或 C002-M2。
 
 [最终独立审查](evidence/completion-20261003/t50-final-review.md) 逐 25 个原 log、当前 1 个静态 caller 闭包、精确 26 集合、190 输入、6 个默认行为观察点和固定 binary/env 闭包复核通过；[原文档案](evidence/completion-20261003/t50-g03-oracles.tar.gz) 与 [逐成员回读](evidence/completion-20261003/t50-oracle-archive.json) 一致。T50 当前范围收尾，不扩大其分类器、诊断、unlink FD 生命周期或 test-only 分支证据。
+
+
+## C002-T51 文件打开标志
+
+依据 [G04 独立准备](evidence/completion-20261003/g04-oracle-directions.md)，按 Darwin 实际位值与 `&` 的优先级核 27 个准确旧 ID。新增 14 项真实消费者测试；只在现有 failpoint 特性下补实际 open 前/持有 FD 时的观察点，并用私有 payload 记录该次真实 atomic tmp 路径。默认特性不增加 I/O、业务状态或公开 FD 接口。测试记录原件 bytes/dev/ino/mode、同 inode symlink 别名、真实内核 flags、实际 exec 继承、独占碰撞和准确 NOTDIR；不把后层拒绝当成前面的 open 合格。
+
+[Frozen 逐 ID 账本](evidence/completion-20261003/t51-g04-dispositions.json) 对应 A/B/C 的 12/12、12/12、3/3 Caught，exit0、输入不漂移，133.919/77.990/25.217 秒。经逐日志审查，分为 6 项实际 exec 继承机制、6 项内核 FD 配置、2 项独占创建拒绝、3 项同 inode 别名实际接受、8 项首次受限 open 错误诊断和 2 项实际 FIFO open 机制；仅覆盖本机有界消费者，不扩为全部并行 spawn 或其它平台。ensure_dir 的三项变体仍在后层拒绝，只区分最初 open 的拒绝阶段/类别，不称非法对象最终接受。
+
+早期 7/7 样本；扩大后的 12 项中 10 Caught/2 Missed，控制器报告路径拼写错误使下一批未派发；之后 10 项中 8 Caught/2 Missed。补齐准确目录类型诊断与 FIFO open 观察后，两个样本均 2/2 Caught。旧结果保留，不反写 Missed。FIFO 最终夹具用真实 RDWR|NONBLOCK 端点保证回收，并检查 after-open reached；不以 timeout 捕获，不保留早期 writer-thread 清理风险。新增三项 marker 错误支路核写后原件保留与写前不创建。
+
+[最终工程](evidence/completion-20261003/t51-final-gates.json) 固定当前 [二进制 SHA/env](evidence/completion-20261003/t51-frozen-binaries.json)，source_unchanged=true：run `720db473-4ee4-40e6-b620-866743570264` 为 894/894、零 skip/零 LEAK；5 compile-fail、fmt/check/Clippy 均通过。Rust 1.85 与默认特性检查通过；依赖/锁/deny 政策没有变化，不移植旧测试结果。[最终独立审查](evidence/completion-20261003/t51-final-review.md) 核完整 27 日志、190 变异输入与 134 工程输入、准确映射和固定 binary 闭包，当前范围通过。T51 标记 done 后再次核任务/治理和提交范围；C002-M2 保持 not_run。
+
+
+原样本、控制器错误、整理前源码、基线与最终日志见 [原文档案](evidence/completion-20261003/t51-g04-oracles.tar.gz)，[逐成员 SHA 回读](evidence/completion-20261003/t51-oracle-archive.json) 保真。累计 119/215 项动态检测、13/215 项限定静态处分，剩余 83 项继续 T43；不记为旧 M1、C002-M2 或全产品完成。
