@@ -1505,3 +1505,126 @@ mod seal_output_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod publication_contract_tests {
+    use super::*;
+
+    // Task: C002-T48
+    #[test]
+    fn committed_start_publication_binds_each_identity_and_pending_component() {
+        let directory = tempfile::tempdir().unwrap();
+        let home = Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/two-step")
+            .canonicalize()
+            .unwrap();
+        let repo = crate::WorkbookRepo::new(home.clone());
+        repo.add(&AbsPath::new(source.to_str().unwrap()).unwrap(), None)
+            .unwrap();
+        let service = crate::WorkService::new(home.clone());
+        let response = service
+            .start(
+                crate::StartArgs {
+                    workbook_id: "two-step".into(),
+                    version: None,
+                    flow: "default".into(),
+                    name: None,
+                    inputs: BTreeMap::from([(
+                        "topic".into(),
+                        crate::request::InputValue::Literal {
+                            text: "real source".into(),
+                        },
+                    )]),
+                },
+                Some("publication-contract".into()),
+            )
+            .unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let state_json: String = connection
+            .query_row("SELECT state_json FROM works", [], |row| row.get(0))
+            .unwrap();
+        let state: WorkState = serde_json::from_str(&state_json).unwrap();
+        let audit: String = connection
+            .query_row(
+                "SELECT command_json FROM audit WHERE request_id='publication-contract'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let command: Command = serde_json::from_str(&audit).unwrap();
+        let effects: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='publication-contract'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let operations = decode_effects(&effects).unwrap();
+        let loaded = repo.load("two-step", None).unwrap();
+        let graph = &loaded.flow("default").unwrap().1;
+        check_work_effects(
+            &home,
+            &response.request_id,
+            &state,
+            graph,
+            &command,
+            &response.reply,
+            operations.clone(),
+        )
+        .unwrap();
+        for field in [
+            "pending_prefix",
+            "pending_leaf",
+            "pending_uuid",
+            "command_work",
+            "final",
+            "owner",
+            "digest",
+        ] {
+            let mut altered = operations.clone();
+            let mut altered_command = command.clone();
+            let EffectOp::PublishDir {
+                pending,
+                final_path,
+                owner,
+                digest,
+                ..
+            } = &mut altered[0]
+            else {
+                panic!("real start omitted publication")
+            };
+            let parts = pending.split('/').map(str::to_owned).collect::<Vec<_>>();
+            match field {
+                "pending_prefix" => *pending = format!("other/{}/payload", parts[1]),
+                "pending_leaf" => *pending = format!("pending/{}/other", parts[1]),
+                "pending_uuid" => *pending = "pending/not-a-uuid/payload".into(),
+                "command_work" => {
+                    let Command::Start { work_id, .. } = &mut altered_command else {
+                        panic!("not start")
+                    };
+                    *work_id = sheltie_core::ids::WorkId::parse("2026-10-03-999-other").unwrap();
+                }
+                "final" => *final_path = "works/2026-10-03-999-other".into(),
+                "owner" => *owner = "work:2026-10-03-999-other".into(),
+                "digest" => *digest = "a".repeat(64),
+                _ => unreachable!(),
+            }
+            assert!(
+                matches!(
+                    check_work_effects(
+                        &home,
+                        &response.request_id,
+                        &state,
+                        graph,
+                        &altered_command,
+                        &response.reply,
+                        altered
+                    ),
+                    Err(Error::StoreCorrupt { .. })
+                ),
+                "{field}"
+            );
+        }
+    }
+}

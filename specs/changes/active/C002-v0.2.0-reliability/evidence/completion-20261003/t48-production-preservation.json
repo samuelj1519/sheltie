@@ -1,0 +1,23 @@
+{
+  "base": "d27816b",
+  "checks": [
+    {
+      "path": "crates/sheltie-runtime/src/effects.rs",
+      "production_prefix_sha256": "d9bebcb40abdf4c96c2972724789a8527fbafbd4c4ba63cdff1e527d08eecd43",
+      "only_trailing_whitespace_ignored": true,
+      "identical": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/load.rs",
+      "production_prefix_sha256": "c5ff63abb73b1b35d2bbc5e19a1430e79d86b3016b2b379facb309706dae40f0",
+      "only_trailing_whitespace_ignored": true,
+      "identical": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/read.rs",
+      "production_prefix_sha256": "da18ccd1c936f9d4f63555a89a5de94823189f9798096dea39c7d871f1282299",
+      "only_trailing_whitespace_ignored": true,
+      "identical": true
+    }
+  ]
+}

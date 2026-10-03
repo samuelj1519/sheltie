@@ -363,3 +363,106 @@ fn corrupt(work: &WorkId, detail: String) -> Error {
         detail: format!("Work {work} 的持久路径校验失败：{detail}"),
     }
 }
+
+#[cfg(test)]
+mod binding_contract_tests {
+    use super::*;
+    use crate::request::InputValue;
+    use sheltie_core::ids::{AttemptId, NodeId};
+
+    // Task: C002-T48
+    #[test]
+    fn genuine_attempts_keep_namespace_and_required_binding_checks_independent() {
+        let directory = tempfile::tempdir().unwrap();
+        let home = Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/two-step")
+            .canonicalize()
+            .unwrap();
+        let repo = crate::WorkbookRepo::new(home.clone());
+        repo.add(&AbsPath::new(source.to_str().unwrap()).unwrap(), None)
+            .unwrap();
+        let service = crate::WorkService::new(home.clone());
+        let started = service
+            .start(
+                crate::StartArgs {
+                    workbook_id: "two-step".into(),
+                    version: None,
+                    flow: "default".into(),
+                    name: None,
+                    inputs: BTreeMap::from([(
+                        "topic".into(),
+                        InputValue::Literal {
+                            text: "real topic".into(),
+                        },
+                    )]),
+                },
+                Some("binding-start".into()),
+            )
+            .unwrap();
+        let work = WorkId::parse(started.data["work_id"].as_str().unwrap()).unwrap();
+        let begun = service
+            .begin(
+                &work,
+                &NodeId::new("outline").unwrap(),
+                Some("binding-outline".into()),
+            )
+            .unwrap();
+        let output = begun.data["outputs"]["outline"].as_str().unwrap();
+        std::fs::write(output, b"actual outline\n").unwrap();
+        service
+            .submit(
+                &work,
+                &AttemptId::parse("outline#1.0").unwrap(),
+                &InputValue::Literal {
+                    text: "ready".into(),
+                },
+                Some("binding-submit".into()),
+            )
+            .unwrap();
+        service
+            .begin(
+                &work,
+                &NodeId::new("summary").unwrap(),
+                Some("binding-summary".into()),
+            )
+            .unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = connection
+            .query_row("SELECT state_json FROM works", [], |row| row.get(0))
+            .unwrap();
+        let state: WorkState = serde_json::from_str(&raw).unwrap();
+        let loaded = repo.load("two-step", None).unwrap();
+        let graph = &loaded.flow("default").unwrap().1;
+        validate_work_paths(&home, &state, graph, &BTreeMap::new()).unwrap();
+
+        let mut wrong_namespace = state.clone();
+        let alias = home.root().join_segment("other-topic");
+        wrong_namespace.inputs.get_mut("topic").unwrap().path = alias.clone();
+        wrong_namespace.attempts[0]
+            .inputs
+            .get_mut("topic")
+            .unwrap()
+            .as_mut()
+            .unwrap()
+            .path = alias;
+        assert!(matches!(
+            validate_work_paths(&home, &wrong_namespace, graph, &BTreeMap::new()),
+            Err(Error::StoreCorrupt { .. })
+        ));
+
+        let mut missing_required = state;
+        missing_required.attempts[0].outputs.clear();
+        missing_required.attempts[1]
+            .inputs
+            .insert("outline".into(), None);
+        assert!(matches!(
+            validate_work_paths(&home, &missing_required, graph, &BTreeMap::new()),
+            Err(Error::StoreCorrupt { .. })
+        ));
+        let after: String = connection
+            .query_row("SELECT state_json FROM works", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(after, raw);
+    }
+}

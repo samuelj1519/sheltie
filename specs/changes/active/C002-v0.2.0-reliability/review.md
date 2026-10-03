@@ -327,3 +327,7 @@ Reviewer `/root/oracle_review`，未参与设计/编写。初审需修改仅指�
 ## C002-T44 历史 Spec 审核执行完成
 
 独立正式补审已执行：旧e3eea89需修改，旧最终Spec批准仍false；三条当时合同缺口及后续修复列在 [历史原文](evidence/completion-20261003/independent-sk01-historical-final.md)。现行T39/T46修复的当前合同审查通过。审核执行完成和旧输入批准分开，不反写原暂停，也不将当前PASS当旧PASS。
+
+## C002-T48 独立增量
+
+Reviewer `/root/oracle_review` 未参与oracle设计/编写。初审要求完整文件byte/mode oracle；补齐后的最终19/19与853/853原文/134输入/hash全部核实，三个runtime生产前缀不变。纯检查与真实CLI消费者范围、旧17输入漂移和当前稳定19执行分别记录。限定PASS，无剩余T48finding；其他组、自动试用与M2仍各自验收。见 [正式增量](evidence/completion-20261003/independent-t48-review-after-files.md)。

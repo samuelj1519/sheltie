@@ -1,0 +1,16 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+error[E0533]: expected value, found struct variant `crate::request::InputValue::Literal`
+    --> crates/sheltie-runtime/src/effects.rs:1535:25
+     |
+1535 |                         crate::request::InputValue::Literal("real source".into()),
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not a value
+     |
+help: you might have meant to create a new value of the struct
+     |
+1535 -                         crate::request::InputValue::Literal("real source".into()),
+1535 +                         crate::request::InputValue::Literal { text: /* value */ },
+     |
+
+For more information about this error, try `rustc --explain E0533`.
+error: could not compile `sheltie-runtime` (lib test) due to 1 previous error
+error: command `/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package sheltie-runtime --lib --all-features --locked` exited with code 101

@@ -569,3 +569,57 @@ pub(crate) fn decode_row(
         })?;
     Ok(WorkRow { revision, state })
 }
+
+#[cfg(test)]
+mod consistency_tests {
+    use super::*;
+
+    // Task: C002-T48
+    #[test]
+    fn request_metadata_keeps_immutable_fields_bound_when_only_completion_rolls_over() {
+        let metadata = RequestMetadata {
+            intent_hash: "a".repeat(64),
+            reply_json: "{\"request_id\":\"committed\",\"revision\":1}".into(),
+            work_id: Some("2026-10-03-001-original".into()),
+            at: "2026-10-03T00:00:00Z".into(),
+        };
+        let row = RequestRow {
+            intent_hash: metadata.intent_hash.clone(),
+            reply_json: metadata.reply_json.clone(),
+            work_id: metadata.work_id.clone(),
+            at: metadata.at.clone(),
+            effects_json: "[]".into(),
+            published: false,
+        };
+        for published in [false, true] {
+            metadata
+                .check_row(
+                    "committed",
+                    &RequestRow {
+                        published,
+                        ..row.clone()
+                    },
+                )
+                .unwrap();
+        }
+        for field in ["intent", "reply", "work", "time"] {
+            let mut changed = row.clone();
+            match field {
+                "intent" => changed.intent_hash = "b".repeat(64),
+                "reply" => {
+                    changed.reply_json = "{\"request_id\":\"committed\",\"revision\":2}".into()
+                }
+                "work" => changed.work_id = Some("2026-10-03-002-other".into()),
+                "time" => changed.at = "2026-10-03T00:00:01Z".into(),
+                _ => unreachable!(),
+            }
+            assert!(
+                matches!(
+                    metadata.check_row("committed", &changed),
+                    Err(Error::StoreCorrupt { .. })
+                ),
+                "{field}"
+            );
+        }
+    }
+}

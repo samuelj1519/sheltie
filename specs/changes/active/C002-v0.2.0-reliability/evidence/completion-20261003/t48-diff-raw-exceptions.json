@@ -1,0 +1,14 @@
+{
+  "scope": "Exact immutable cargo final blank line; author files checked",
+  "raw_exceptions": [
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t48-final-doctest.txt",
+      "sha256": "df3c3fb71faa13e8ec577b3f528e1da97023a7fc509a3efafd74d25aa7b8ce97"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t48-binding-baseline.txt",
+      "sha256": "b23ed432e49f0ae6b6a4c89a394d0815f4e7527a0c87a105ec93fc42448ffa50",
+      "reason": "nextest cancellation-line trailing space"
+    }
+  ]
+}

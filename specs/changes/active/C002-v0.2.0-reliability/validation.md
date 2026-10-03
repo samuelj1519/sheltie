@@ -470,3 +470,13 @@ T42结束要求版本、编译、在线公告与实际计划的补验；其他�
 按本次恢复授权，独立 Reviewer `/root/completion_spec_review` 完成固定 `e3eea899877165f8573befee3774555598ec92bd` 的原T34最终Spec增量及原M1整体判断，见 [正式历史结论](evidence/completion-20261003/independent-sk01-historical-final.md)、[原合同/源码输入](evidence/completion-20261003/independent-sk01-historical-inputs.json)。`review_execution_complete=true`，但 `old_candidate_final_spec_approval=false`：旧候选需修改，重复Flow先COMMIT后拒而阻断、嵌套未知字段接受、24h tmp维护缺caller三条违反当时合同。旧R22/R23/R24条件自身静态成立，不足以批准其完整资格基础。
 
 这三项已由T39 `84bafa37` 后续修复，现行写重放顺序另由T46 `06e5a91` 修复；对应已提交原文与实际新版测试分别保存。当前关键合同审查/增量PASS明确属于修复后的输入，不给旧输入造批准。本轮没有重跑旧699或变异，不覆盖SK01原暂停；215项恢复在T43，发布历史仍绑定8455及其既有独审。T44结束的是原缺失审核执行及准确结论，不表示旧候选合格或全部方案完成。
+
+## C002-T48 G01共享oracle与冻结重验
+
+仅追加测试：两条真实CLI有效形状/坏业务绑定与读取先后，窄/完整请求metadata的一致性纯契约，真实Start生成的发布字段纯契约，以及真实开始/执行/提交状态的namespace与required输入纯契约。纯helper期望是手写的Namespace/字段/输入义务，不称全部当前callee已越过前序guard；CLI坏Attempt使用另一真实成功/失败且同历史status的事实，避免被状态拒绝抢先截获。所有合法控制实际通过；CLI比较五表SQLite原值及works/workbooks/pending全树type/mode/bytes（包括retained freeze），控制文件例外单列。
+
+原G01 94测试基线绿色，19对应体全部Missed。初次17体补测19之外load测试在仓库添加导致source_unchanged=false；冻结scratch原17捕获只按原局部输入保留，不作为整体现行PASS。文件oracle补齐、fixture纠正并冻结后，全部同19集合重新执行，19/19 Caught、0missed/timeout、exit0、source_unchanged=true；每项实际失败/argv/diff集中于 [G01档案](evidence/completion-20261003/t48-g01-oracles.tar.gz)，[逐成员回读](evidence/completion-20261003/t48-oracle-archive.json)。G02错误binary过滤exit94/0变异执行也保存，不记成功。
+
+Publication测试初次调用参数不符是编译错误；load首次可选producer绑定required consumer被规则5拒，是错误fixture，不算产品red。最终沿原合法必需Flow，从真实已提交状态造一致的坏绑定纯参数，两个load guard均实际捕获。独立初审/修后意见分别保留；[增量报告](evidence/completion-20261003/independent-t48-review-after-files.md)、[完整核验](evidence/completion-20261003/independent-t48-final-audit.json)限定PASS。
+
+三个runtime生产前缀相同，见 [字节核对](evidence/completion-20261003/t48-production-preservation.json)。完整fmt/check/Clippy/Nextest853/853、零skip/零LEAK，run `aec12b7c-fead-400c-a1e0-eaf665c12648`，5compile-fail均通过，[具体输入/命令](evidence/completion-20261003/t48-final-gates.json)。G01补齐19，加此前13，当前32/215有实际检测，183仍待T43，不改旧正式Missed、SK或全产品状态。本轮用户已明确自动推进/macARM-only，后续执行范围见plan，不等待人动作。

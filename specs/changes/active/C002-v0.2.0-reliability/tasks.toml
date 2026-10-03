@@ -284,3 +284,8 @@ allow_test_changes = true
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-runtime/src/store/tests.rs", "crates/sheltie-runtime/src/selfmgmt.rs"]
 allow_test_changes = true
+
+[C002-T48]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/snapshot_qualification.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/tests/effect_contracts.rs", "crates/sheltie-runtime/tests/node_inputs.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-runtime/src/load.rs"]
+allow_test_changes = true

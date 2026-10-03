@@ -323,7 +323,7 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 
 ## 恢复完整验收
 
-2026-10-03 用户明确要求逐一完成 C001–C008 所有跳过步骤。本轮依次补齐；原完成表保留各自授权范围，不反写旧结果。先执行 C002 的技术与审查闭环，再依次恢复 C004–C008 的真实使用义务。C001/C003 先核治理检查和原验收，当前未发现独立欠项。其他平台范围等待用户答复；发布保持独立权限。
+2026-10-03 用户明确要求逐一完成 C001–C008 所有跳过步骤。本轮依次补齐；原完成表保留各自授权范围，不反写旧结果。先执行 C002 的技术与审查闭环，再依次恢复 C004–C008 的真实使用义务。C001/C003 先核治理检查和原验收，当前未发现独立欠项。用户本次明确仅完成 macOS aarch64 全部验收；Linux/Intel维持排除，发布保持独立权限。
 
 | ID | 状态 | Owner | 任务与验收 |
 | --- | --- | --- | --- |
@@ -331,9 +331,10 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T42 | done | Codex；独立 Reviewer | 要求版本 nextest、当前完整工程与 doctest、在线公告、实际 dist plan；定位 LEAK 原因 |
 | C002-T43 | doing | Codex；独立 Reviewer | 从固定归档恢复 SK02 的 215 ID，核旧/新源码差异，按真实 consumer 补 oracle 并逐 ID 执行和处置 |
 | C002-T44 | done | 未参与源码的 Spec Reviewer | 补 SK01 最终审查，明确旧候选与当前候选差异和完整合同闭环 |
-| C002-T45 | not_run | Codex；平台执行者 | 恢复需补的平台及物理目录环境验证；范围待实际用户答复与载体 |
+| C002-T45 | not_run | Codex；平台执行者 | macOS aarch64原生验证及物理目录前检；其他平台按本次明确排除 |
 | C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
 | C002-T47 | done | Codex；独立 Reviewer | 补 G10/G11/G12 存活体的合同 oracle，保持生产行为 |
+| C002-T48 | done | Codex；独立 Reviewer | G01共享闭包oracle：同步合法形状的坏业务绑定与读顺序 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -357,3 +358,17 @@ C004 后续欠项见其 validation 和 experiments/readiness；C005 需真实撤
 T43当前G10/G11/G12基线分别25/40/40实际PASS，11个对应突变中10个存活；schema先前两旧ID另捕获。只补已存在合同：0持久revision在CAS前拒绝/非constraint SQLite错误不归WorkbookExists；资产名单段、保留点名与分隔符；stdout/stderr恰好限额的真实child关闭管道后仍未退出，不应被提前kill。用手写字段、字节和显式child释放事件作为独立期望，不复制guard表达式或引入生产观察配置。必要合法控制、完整SQL/文件变化与实际child回收单列；超时3秒保存失败并停止，任何panic前先释放自有子进程。Store.validate的真实consumer和副作用由独立审查明确，不能仅凭重复schema检查认等价。
 
 只允许修改store/tests.rs和selfmgmt.rs的cfg(test)区域，生产源码AST保持。测试先在现有正确候选通过，再用指定存活突变验证确能失败，正式Missed不反写。范围/源码变异映射按新tests闭包登记，受影响runtime/CLI和完整里程碑门禁及独立复核后提交。
+
+### 自动推进与平台范围
+
+用户于本轮明确“由你自动推进，无需人工确认”，并选择仅macOS aarch64全部验收。后续C004–C008真实使用采用当前真实未解决的项目任务、实际agent执行/交接与独立质量评审，事前冻结方法/初始副本/标准/预算；实际agent首次使用、复用和会话终止/新会话事实分别记录，不伪称真人动作或人工接受。所有原真人/成本/usage缺项保留其历史状态。需变更实验采用范围时在对应package重新激活后改其protocol/plan，不静默放宽已有结果。已有产品human gate不改成自动批准；实验使用明确无gate的同源方法，独立验收在方法外进行。
+
+不再扩大Linux/Intel CI，也不安装或启动Host虚拟机。原物理非UTF8目录在本机创建得errno92/EILSEQ，原件单列，不把不可构造路径当实际已执行fixture。跨设备条件在C006激活时以自有临时载体验证。
+
+T43 G01基线94项实际PASS，19个当前对应突变全Missed；G02过滤器引用不存在binary(request_id)，原命令exit94、0mutant执行。保留两项原文并停止后续派发；先构造缺失共享oracle、核实际测试binary/filter非零，再恢复批次。不以旧/新普通回归代替215额外条件。
+
+### C002-T48 G01 有效形状的业务绑定
+
+G01当前19项普通94消费者全部Missed，不继续照抄普通测试。补genuine commit后的共享caller：同时保持Reply/data严格形状与互相一致，只改已提交事实关联，核无可信original、准确cause、完整Store/业务文件不变；纯快照身份矛盾需在冻结读取前拒绝。请求窄/完整行一致性、发布字段、路径/optional输入按独立producer证明归组，受控观察副本与正式候选分列。不得伪造某条旧mutant各自触发平台提示。
+
+先运行未变异正反例并测辨别力，再补对应选择；短基线必须实际非零。生产修改仅因真实未变异缺陷，另明确任务。T48仅补真实CLI/schema2重放消费者与必要纯合同检查，Oracle不调用生产helper计算答案；原snapshot/effects/current状态字段按同一业务事实同步，保留拒绝前后行/字节。
