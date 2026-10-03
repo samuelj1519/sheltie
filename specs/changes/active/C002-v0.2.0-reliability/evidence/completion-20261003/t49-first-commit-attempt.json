@@ -1,0 +1,16 @@
+{
+  "kind": "structured record from actual tool output, not reconstructed raw stdout",
+  "git_commit_exit_code": 1,
+  "hooks": {
+    "end-of-file-fixer": "added final newline to g02-index-boundary-static.md",
+    "cargo-test": "863 tests passed but pre-commit detected validation.md changed by coordinator during the hook"
+  },
+  "nextest_run_id": "7789676d-622e-47bb-87b1-7aca7079ef55",
+  "tests": {
+    "run": 863,
+    "passed": 863,
+    "skipped": 0,
+    "leaky": 0
+  },
+  "correction": "freeze all tracked files before retry; write commit output only to private tmp"
+}

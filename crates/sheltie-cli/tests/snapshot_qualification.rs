@@ -252,3 +252,270 @@ fn start_snapshot_identity_mismatch_is_rejected_before_frozen_workbook_read() {
         assert!(retained.is_dir());
     }
 }
+
+// Task: C002-T49
+#[test]
+fn completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes() {
+    for field in [
+        "empty_flows",
+        "duplicate_flows",
+        "invalid_flow",
+        "empty_kind",
+        "empty_name",
+        "invalid_id",
+        "invalid_version",
+    ] {
+        let env = Env::new();
+        let source = example_dir("two-step");
+        let args = [
+            "--request-id",
+            "workbook-shape",
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        env.ok(&args);
+        assert_eq!(env.ok(&args)["data"]["replayed"], true);
+        let connection = Connection::open(env.dir.path().join("store.db")).unwrap();
+        let (raw, effects): (String, String) = connection
+            .query_row(
+                "SELECT reply_json,effects_json FROM requests WHERE request_id='workbook-shape'",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        let mut snapshot: Value = serde_json::from_str(&raw).unwrap();
+        let mut effects: Value = serde_json::from_str(&effects).unwrap();
+        match field {
+            "empty_flows" => snapshot["data"]["flows"] = json!([]),
+            "duplicate_flows" => snapshot["data"]["flows"] = json!(["default", "default"]),
+            "invalid_flow" => snapshot["data"]["flows"] = json!(["INVALID"]),
+            "empty_kind" => snapshot["data"]["requires"] = json!([":named"]),
+            "empty_name" => snapshot["data"]["requires"] = json!(["skill:"]),
+            "invalid_id" | "invalid_version" => {
+                let (id, version) = if field == "invalid_id" {
+                    ("INVALID", "1.0.0")
+                } else {
+                    ("two-step", ".")
+                };
+                snapshot["data"]["id"] = json!(id);
+                snapshot["data"]["version"] = json!(version);
+                effects[0]["final"] = json!(format!("workbooks/{id}/{version}"));
+                effects[0]["owner"] = json!(format!("workbook:{id}@{version}"));
+            }
+            _ => unreachable!(),
+        }
+        connection
+            .execute(
+                "UPDATE requests SET reply_json=?1,effects_json=?2 WHERE request_id='workbook-shape'",
+                rusqlite::params![snapshot.to_string(), effects.to_string()],
+            )
+            .unwrap();
+        let before = store_rows(&env);
+        let files = business_files(&env);
+        let (error, exit) = env.fail(&args);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "EFFECT_PENDING", "{field}: {error}");
+        assert_eq!(
+            error["error"]["detail"]["cause"], "STORE_CORRUPT",
+            "{field}: {error}"
+        );
+        assert!(error.get("original").is_none(), "{field}: {error}");
+        assert_eq!(error["committed"], true);
+        assert_eq!(error["request_id"], "workbook-shape");
+        assert_eq!(store_rows(&env), before);
+        assert_eq!(business_files(&env), files);
+    }
+}
+
+// Task: C002-T49
+#[test]
+fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
+    use std::os::unix::fs::MetadataExt;
+    for field in [
+        "snapshot_id",
+        "snapshot_version",
+        "audit_target",
+        "non_workbook_audit",
+        "request_work",
+        "row_time",
+        "row_digest",
+        "row_dir",
+        "effect_digest",
+        "effect_final",
+        "effect_owner",
+    ] {
+        let env = Env::new();
+        let source = example_dir("two-step");
+        let old_args = [
+            "--request-id",
+            "life-old",
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        let old = env.ok(&old_args);
+        let remove = [
+            "--request-id",
+            "life-remove",
+            "workbook",
+            "remove",
+            "two-step@1.0.0",
+        ];
+        env.ok(&remove);
+        let new_args = [
+            "--request-id",
+            "life-new",
+            "workbook",
+            "add",
+            source.to_str().unwrap(),
+        ];
+        let new = env.ok(&new_args);
+        assert_eq!(old["data"]["digest"], new["data"]["digest"]);
+        let connection = Connection::open(env.dir.path().join("store.db")).unwrap();
+        let at = "2026-10-03T00:00:00Z";
+        connection
+            .execute("UPDATE requests SET at=?1", [at])
+            .unwrap();
+        connection.execute("UPDATE audit SET at=?1", [at]).unwrap();
+        connection
+            .execute("UPDATE workbooks SET added_at=?1", [at])
+            .unwrap();
+        let installed = env.workbook_dir("two-step", "1.0.0");
+        let inode = std::fs::metadata(&installed).unwrap().ino();
+        let healthy_files = business_files(&env);
+        env.ok(&["workbook", "show", "two-step@1.0.0"]);
+        env.ok(&old_args);
+        env.ok(&remove);
+        assert_eq!(business_files(&env), healthy_files);
+        assert_eq!(std::fs::metadata(&installed).unwrap().ino(), inode);
+        match field {
+            "snapshot_id" | "snapshot_version" => {
+                let raw: String = connection
+                    .query_row(
+                        "SELECT reply_json FROM requests WHERE request_id='life-new'",
+                        [],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let mut snapshot: Value = serde_json::from_str(&raw).unwrap();
+                if field == "snapshot_id" {
+                    snapshot["data"]["id"] = json!("other");
+                } else {
+                    snapshot["data"]["version"] = json!("2.0.0");
+                }
+                connection
+                    .execute(
+                        "UPDATE requests SET reply_json=?1 WHERE request_id='life-new'",
+                        [snapshot.to_string()],
+                    )
+                    .unwrap();
+            }
+            "audit_target" => {
+                connection
+                    .execute(
+                        "UPDATE audit SET command_json=?1 WHERE request_id='life-new'",
+                        [json!({"intent":"remove_workbook", "target":"other@1.0.0"}).to_string()],
+                    )
+                    .unwrap();
+            }
+            "non_workbook_audit" => {
+                env.start("two-step", &[("topic", "real work audit")]);
+                let command: String = connection
+                    .query_row(
+                        "SELECT command_json FROM audit WHERE work_id <> '' ORDER BY seq LIMIT 1",
+                        [],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                connection
+                    .execute(
+                        "UPDATE audit SET command_json=?1 WHERE request_id='life-new'",
+                        [command],
+                    )
+                    .unwrap();
+            }
+            "request_work" => {
+                connection
+                    .execute(
+                        "UPDATE requests SET work_id='2026-10-03-999-other' WHERE request_id='life-new'",
+                        [],
+                    )
+                    .unwrap();
+            }
+            "row_time" => {
+                connection
+                    .execute("UPDATE workbooks SET added_at='2026-10-03T00:00:01Z'", [])
+                    .unwrap();
+            }
+            "row_digest" => {
+                connection
+                    .execute("UPDATE workbooks SET digest=?1", ["a".repeat(64)])
+                    .unwrap();
+            }
+            "row_dir" => {
+                connection
+                    .execute("UPDATE workbooks SET dir='workbooks/two-step/other'", [])
+                    .unwrap();
+            }
+            "effect_digest" | "effect_final" | "effect_owner" => {
+                let raw: String = connection
+                    .query_row(
+                        "SELECT effects_json FROM requests WHERE request_id='life-new'",
+                        [],
+                        |row| row.get(0),
+                    )
+                    .unwrap();
+                let mut effects: Value = serde_json::from_str(&raw).unwrap();
+                match field {
+                    "effect_digest" => effects[0]["digest"] = json!("a".repeat(64)),
+                    "effect_final" => effects[0]["final"] = json!("workbooks/other/1.0.0"),
+                    "effect_owner" => effects[0]["owner"] = json!("workbook:other@1.0.0"),
+                    _ => unreachable!(),
+                }
+                connection
+                    .execute(
+                        "UPDATE requests SET effects_json=?1 WHERE request_id='life-new'",
+                        [effects.to_string()],
+                    )
+                    .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        let before = store_rows(&env);
+        let files = business_files(&env);
+        let (error, exit) = env.fail(&["workbook", "show", "two-step@1.0.0"]);
+        assert_eq!(exit, 1);
+        assert_eq!(error["error"]["code"], "STORE_CORRUPT", "{field}: {error}");
+        if field == "snapshot_id" || field == "snapshot_version" {
+            assert!(
+                error["error"]["message"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Workbook snapshot的业务身份与效果登记不一致"),
+                "{field}: {error}"
+            );
+        }
+
+        if field == "audit_target" {
+            assert!(
+                error["error"]["message"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Workbook remove请求 life-new 的intent_hash与audit不一致"),
+                "{error}"
+            );
+        } else if field == "non_workbook_audit" {
+            assert!(
+                error["error"]["message"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Workbook audit life-new 命令解不开"),
+                "{error}"
+            );
+        }
+        assert_eq!(store_rows(&env), before);
+        assert_eq!(business_files(&env), files);
+        assert_eq!(std::fs::metadata(&installed).unwrap().ino(), inode);
+    }
+}

@@ -1,0 +1,17 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+────────────
+ Nextest run ID c9cd2d8a-21d1-4119-9b8c-4c1fbcf23000 with nextest profile: default
+    Starting 1 test across 19 binaries (345 tests skipped)
+     SIGTERM [  15.723s] (1/1) sheltie-runtime::workbook_txn readers_accept_real_publication_after_their_old_owner_observation
+  stdout ───
+
+    running 1 test
+
+    (test aborted with signal 15: SIGTERM)
+
+  Cancelling due to test failure: 
+────────────
+     Summary [  15.728s] 1 test run: 0 passed, 1 failed, 345 skipped
+     SIGTERM [  15.723s] (1/1) sheltie-runtime::workbook_txn readers_accept_real_publication_after_their_old_owner_observation
+error: test run failed

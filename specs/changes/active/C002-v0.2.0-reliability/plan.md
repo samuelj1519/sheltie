@@ -335,6 +335,8 @@ Owner：core/runtime实施者与CLI code-simplifier分别拥有各crate的测试
 | C002-T46 | done | Codex；独立 Reviewer | 修复 F-SPEC-01：历史 Command/data 纯严格解码先于冻结 Workbook 读取，保留合法效果错误 original |
 | C002-T47 | done | Codex；独立 Reviewer | 补 G10/G11/G12 存活体的合同 oracle，保持生产行为 |
 | C002-T48 | done | Codex；独立 Reviewer | G01共享闭包oracle：同步合法形状的坏业务绑定与读顺序 |
+| C002-T49 | done | Codex；独立 Reviewer | G02精确47闭环：35动态捕获/12限定静态；863全回归、独审通过 |
+| C002-T50 | not_run | Codex；独立 Reviewer | G03 根、锁、FD 与 Store 控制边界判据；依赖 T49 收尾 |
 | C002-M2 | not_run | 独立 Reviewer | 验收所有恢复义务及证据；缺失不转 done |
 
 ### 执行与停止
@@ -372,3 +374,18 @@ T43 G01基线94项实际PASS，19个当前对应突变全Missed；G02过滤器�
 G01当前19项普通94消费者全部Missed，不继续照抄普通测试。补genuine commit后的共享caller：同时保持Reply/data严格形状与互相一致，只改已提交事实关联，核无可信original、准确cause、完整Store/业务文件不变；纯快照身份矛盾需在冻结读取前拒绝。请求窄/完整行一致性、发布字段、路径/optional输入按独立producer证明归组，受控观察副本与正式候选分列。不得伪造某条旧mutant各自触发平台提示。
 
 先运行未变异正反例并测辨别力，再补对应选择；短基线必须实际非零。生产修改仅因真实未变异缺陷，另明确任务。T48仅补真实CLI/schema2重放消费者与必要纯合同检查，Oracle不调用生产helper计算答案；原snapshot/effects/current状态字段按同一业务事实同步，保留拒绝前后行/字节。
+
+### C002-T49 Workbook历史资格与生命周期
+
+依据storage §3.2/§5.2与protocol original资格；Owner Codex，独立Reviewer不参与oracle。真实add/replay、A→remove→B及实际发布清理竞态，校单侧空requires/空重复非法FlowId/非法身份完整闭包，必须在原响应资格前拒；闭包同步修改列明，不靠REQUEST_CONFLICT或前层摘要错误制造检测。五表与全业务tree原bytes/mode/inode独立oracle保留。loader在已捕获published=false的owner读取窗口等待真实writer完成后才释放，必须接受同元数据true；不是提前睡眠或直接写成功。
+
+只改测试区域，沿actualbinary/filter先非零基线/样本再扩大47。纯静态可达性单列精准producer/consumer证据，不能给||相似条件批量等价。若发现现行行为问题，先列真实未经变异反例另修。
+
+
+### C002-T50 根、锁和 Store 控制对象
+
+依据 constitution INV-3、storage 的路径/锁/原子初始化合同和独立 G03 准备，覆盖 26 个准确旧 ID。先检查实际消费者、API 和可达观察窗口；每组用一个真实合法 producer 与单条件错误，核错误路径/原因、完整行与原件 bytes/mode/dev/ino、线程/FD 回收。不能把同 FD 身份恒定扩大为 nlink 恒定；不能以较早 stat 代替较晚 stat，或以只读预检代替锁内复查。
+
+只在已有 failpoint 特性下补实际缺失观察点，默认产品行为保持；同步 hook 必须命中目标事实读取间隙，未到窗口、超时或前层拒绝不记检测。根/锁替换、持有 FD 期间硬链接、锁等待后出现孤儿 sidecar、schema 重验与 purge 最后复扫分别使用真实对象；不写宿主配置，不清理根外对象。纯静态处分须列完整当前 caller/producer 与诊断边界，交未参与准备的 Reviewer 复核。
+
+先非零基线与短样本，再按共享能力分批，每批不超过 12 项/600 秒。最终冻结输入、工程/MSRV/治理及独立审查；新增 observer 导致旧 ID 行号变化时，更新精确映射并保留原 diff/source SHA，不把历史结果移植成当前 PASS。发现真实未变异缺陷时另列修复任务，不为杀 mutant 改合同。

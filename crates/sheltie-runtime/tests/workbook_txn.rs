@@ -1781,3 +1781,874 @@ fn completed_final_views_ignore_preserved_abnormal_pending_metadata() {
         b"retain"
     );
 }
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn readers_accept_real_publication_after_their_old_owner_observation() {
+    for (reader_kind, change) in ["workbook", "stats", "list"]
+        .into_iter()
+        .flat_map(|reader| {
+            [
+                "none",
+                "unpublished",
+                "intent_hash",
+                "reply_json",
+                "effects_json",
+                "work_id",
+                "at",
+            ]
+            .into_iter()
+            .map(move |change| (reader, change))
+        })
+    {
+        let (_directory, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        let source = abs(&example_dir("two-step"));
+        let request = if reader_kind == "workbook" {
+            "owner-wb"
+        } else {
+            "owner-work"
+        };
+        repo.add(&source, Some("owner-method".into())).unwrap();
+        let service = sheltie_runtime::WorkService::new(home.clone());
+        let work = if reader_kind == "workbook" {
+            None
+        } else {
+            Some(work_id_of(
+                &service
+                    .start(
+                        two_step_args(&[("topic", "owner observation")]),
+                        Some(request.into()),
+                    )
+                    .unwrap(),
+            ))
+        };
+        if reader_kind == "workbook" {
+            repo.remove("two-step", "1.0.0", Some("owner-remove".into()))
+                .unwrap();
+            repo.add(&source, Some(request.into())).unwrap();
+        }
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id=?1",
+                [request],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let pending = effects[0]["pending"].as_str().unwrap();
+        let id = pending.split('/').nth(1).unwrap();
+        let owner = home.rel(&format!("pending/{id}.owner")).unwrap();
+        assert!(owner.as_path().is_file());
+        let expected_stats = work
+            .as_ref()
+            .map(|work| serde_json::to_value(service.stats(work).unwrap()).unwrap());
+        let expected_list = work
+            .as_ref()
+            .map(|_| serde_json::to_value(service.list().unwrap()).unwrap());
+        connection
+            .execute(
+                "UPDATE requests SET published=0 WHERE request_id=?1",
+                [request],
+            )
+            .unwrap();
+        let expected_book = repo.load("two-step", Some("1.0.0")).unwrap();
+        let expected_book_identity = (
+            expected_book.manifest.id().as_str().to_owned(),
+            expected_book.manifest.version().to_string(),
+            expected_book.digest.as_str().to_owned(),
+        );
+        let mut writer_rows = store_rows(&connection);
+        if change != "unpublished" {
+            let current = writer_rows[3]
+                .iter_mut()
+                .find(|row| row[0] == rusqlite::types::Value::Text(request.to_owned()))
+                .unwrap();
+            current[5] = rusqlite::types::Value::Integer(1);
+        }
+        let writer_files = final_publication_tree(&home);
+        let sync = tempfile::tempdir().unwrap();
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "regular_open_after_stat",
+            owner.as_str(),
+            sync.path(),
+        )
+        .unwrap();
+        let reader_repo = repo.clone();
+        let reader_service = service.clone();
+        let reader_work = work.clone();
+        let kind = reader_kind.to_owned();
+        let reader = std::thread::spawn(move || -> Result<(), Error> {
+            match kind.as_str() {
+                "workbook" => {
+                    let loaded = reader_repo.load("two-step", Some("1.0.0"))?;
+                    assert!(!loaded.pending_publish);
+                    assert_eq!(
+                        (
+                            loaded.manifest.id().as_str().to_owned(),
+                            loaded.manifest.version().to_string(),
+                            loaded.digest.as_str().to_owned()
+                        ),
+                        expected_book_identity
+                    );
+                }
+                "stats" => {
+                    let work = reader_work.unwrap();
+                    let stats = reader_service.stats(&work)?;
+                    assert_eq!(stats.1.work_id, work);
+                    assert_eq!(stats.1.status, sheltie_core::work::WorkStatus::Active);
+                    assert_eq!(
+                        (
+                            stats.1.total_seconds,
+                            stats.1.blocked_count,
+                            stats.1.approvals
+                        ),
+                        (0, 0, 0)
+                    );
+                    assert_eq!(
+                        stats
+                            .1
+                            .nodes
+                            .iter()
+                            .map(|node| (node.node.as_str(), node.visits, node.attempts))
+                            .collect::<Vec<_>>(),
+                        vec![("outline", 1, 0), ("summary", 0, 0)]
+                    );
+                    assert_eq!(
+                        serde_json::to_value(stats).unwrap(),
+                        expected_stats.unwrap()
+                    );
+                }
+                "list" => {
+                    let list = reader_service.list()?;
+                    assert_eq!(list.len(), 1);
+                    assert_eq!(list[0].work_id, reader_work.unwrap());
+                    assert_eq!(list[0].name, "default");
+                    assert_eq!(list[0].status, sheltie_core::work::WorkStatus::Active);
+                    assert_eq!(list[0].current, "outline#1");
+                    assert_eq!(serde_json::to_value(list).unwrap(), expected_list.unwrap());
+                }
+                _ => unreachable!(),
+            }
+            Ok(())
+        });
+        let mut worker = RendezvousWorker::single(reader, sync.path());
+        worker.wait("reader never captured the old unpublished owner");
+        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        if change == "unpublished" {
+            std::fs::remove_file(owner.as_path()).unwrap();
+        } else if let Some(work) = &work {
+            let replay = service
+                .start(
+                    two_step_args(&[("topic", "owner observation")]),
+                    Some(request.into()),
+                )
+                .unwrap();
+            assert!(replay.replayed);
+            assert_eq!(work_id_of(&replay), *work);
+        } else {
+            assert!(repo.add(&source, Some(request.into())).unwrap().replayed);
+        }
+        if change != "unpublished" {
+            repo.cleanup_pending().unwrap();
+        }
+        assert_eq!(
+            store_rows(&connection),
+            writer_rows,
+            "writer {reader_kind}/{change}"
+        );
+        assert_writer_tree_unchanged(&home, &writer_files, work.as_ref(), change != "unpublished");
+        match change {
+            "none" | "unpublished" => {}
+            "intent_hash" => {
+                connection
+                    .execute(
+                        "UPDATE requests SET intent_hash=?1 WHERE request_id=?2",
+                        ["a".repeat(64), request.to_owned()],
+                    )
+                    .unwrap();
+            }
+            "reply_json" | "effects_json" => {
+                connection
+                    .execute(
+                        &format!(
+                            "UPDATE requests SET {change}={change} || ' ' WHERE request_id=?1"
+                        ),
+                        [request],
+                    )
+                    .unwrap();
+            }
+            "work_id" => {
+                connection
+                    .execute(
+                        "UPDATE requests SET work_id='2026-10-03-999-other' WHERE request_id=?1",
+                        [request],
+                    )
+                    .unwrap();
+            }
+            "at" => {
+                connection
+                    .execute(
+                        "UPDATE requests SET at='2026-10-03T00:00:00Z' WHERE request_id=?1",
+                        [request],
+                    )
+                    .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        assert!(!owner.as_path().exists());
+        let rows = store_rows(&connection);
+        let files = publication_tree(&home);
+        std::fs::write(sync.path().join("release"), b"release").unwrap();
+        let outcome = worker.finish().unwrap();
+        if change == "none" {
+            outcome.unwrap();
+        } else {
+            let error = outcome.unwrap_err();
+            assert_eq!(
+                error.code(),
+                ErrorCode::StoreCorrupt,
+                "{reader_kind}/{change}: {error}"
+            );
+            assert!(
+                error.to_string().contains("owner"),
+                "{reader_kind}/{change}: {error}"
+            );
+        }
+        assert_eq!(store_rows(&connection), rows, "{reader_kind}/{change}");
+        assert_eq!(publication_tree(&home), files, "{reader_kind}/{change}");
+        let published: bool = connection
+            .query_row(
+                "SELECT published FROM requests WHERE request_id=?1",
+                [request],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(published, change != "unpublished");
+    }
+}
+
+#[cfg(feature = "failpoint")]
+type PublicationTree = std::collections::BTreeMap<std::path::PathBuf, (u32, u64, Option<Vec<u8>>)>;
+
+#[cfg(feature = "failpoint")]
+fn publication_tree(home: &sheltie_runtime::Home) -> PublicationTree {
+    use std::os::unix::fs::MetadataExt;
+    fn walk(path: &Path, out: &mut PublicationTree) {
+        let metadata = std::fs::symlink_metadata(path).unwrap();
+        assert!(metadata.is_dir() || metadata.is_file());
+        out.insert(
+            path.to_owned(),
+            (
+                metadata.mode(),
+                metadata.ino(),
+                metadata.is_file().then(|| std::fs::read(path).unwrap()),
+            ),
+        );
+        if metadata.is_dir() {
+            for entry in std::fs::read_dir(path).unwrap() {
+                walk(&entry.unwrap().path(), out);
+            }
+        }
+    }
+    let mut out = std::collections::BTreeMap::new();
+    for namespace in ["works", "workbooks", "pending"] {
+        let path = home.rel(namespace).unwrap();
+        if path.as_path().exists() {
+            walk(path.as_path().as_std_path(), &mut out);
+        }
+    }
+    out
+}
+
+#[cfg(feature = "failpoint")]
+fn final_publication_tree(home: &sheltie_runtime::Home) -> PublicationTree {
+    publication_tree(home)
+        .into_iter()
+        .filter(|(path, _)| !path.starts_with(home.pending_dir().as_path().as_std_path()))
+        .collect()
+}
+
+#[cfg(feature = "failpoint")]
+fn assert_writer_tree_unchanged(
+    home: &sheltie_runtime::Home,
+    expected_tree: &PublicationTree,
+    work: Option<&sheltie_core::ids::WorkId>,
+    published: bool,
+) {
+    let current_tree = final_publication_tree(home);
+    assert_eq!(
+        current_tree.keys().collect::<Vec<_>>(),
+        expected_tree.keys().collect::<Vec<_>>()
+    );
+    for (path, expected) in expected_tree {
+        let actual = &current_tree[path];
+        assert_eq!(
+            (&actual.0, &actual.2),
+            (&expected.0, &expected.2),
+            "writer {}",
+            path.display()
+        );
+        let refreshed_card = published
+            && work.is_some_and(|work| {
+                path == home
+                    .work_dir(work)
+                    .join_segment("status-card.md")
+                    .as_path()
+                    .as_std_path()
+            });
+        if !refreshed_card {
+            assert_eq!(actual.1, expected.1, "writer inode {}", path.display());
+        }
+    }
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn workbook_reader_rejects_audit_drift_after_qualifying_the_publisher() {
+    for field in ["work_id", "revision", "at"] {
+        let (_directory, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        repo.add(&abs(&example_dir("two-step")), Some("audit-drift".into()))
+            .unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='audit-drift'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let id = effects[0]["pending"]
+            .as_str()
+            .unwrap()
+            .split('/')
+            .nth(1)
+            .unwrap();
+        let owner = home.rel(&format!("pending/{id}.owner")).unwrap();
+        connection
+            .execute(
+                "UPDATE requests SET published=0 WHERE request_id='audit-drift'",
+                [],
+            )
+            .unwrap();
+        let sync = tempfile::tempdir().unwrap();
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "regular_open_after_stat",
+            owner.as_str(),
+            sync.path(),
+        )
+        .unwrap();
+        let reader_repo = repo.clone();
+        let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+        let mut worker = RendezvousWorker::single(reader, sync.path());
+        worker.wait("reader did not qualify the original audit before owner observation");
+        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        let change = match field {
+            "work_id" => "work_id='2026-10-03-999-other'",
+            "revision" => "revision=1",
+            "at" => "at='2026-10-03T00:00:00Z'",
+            _ => unreachable!(),
+        };
+        connection
+            .execute(
+                &format!("UPDATE audit SET {change} WHERE request_id='audit-drift'"),
+                [],
+            )
+            .unwrap();
+        let rows = store_rows(&connection);
+        let files = publication_tree(&home);
+        let error = worker.finish().unwrap().err().unwrap();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
+        assert!(
+            error.to_string().contains("当前add审计不一致"),
+            "{field}: {error}"
+        );
+        assert_eq!(store_rows(&connection), rows);
+        assert_eq!(publication_tree(&home), files);
+    }
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn readers_reject_start_and_workbook_effect_drift_after_their_reference_index() {
+    for field in [
+        "extra_effect",
+        "final",
+        "pending_prefix",
+        "pending_leaf",
+        "pending_uuid",
+        "older_publisher",
+    ] {
+        let (_directory, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        let source = abs(&example_dir("two-step"));
+        repo.add(&source, Some("index-old".into())).unwrap();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let old_raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='index-old'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let old_effects: serde_json::Value = serde_json::from_str(&old_raw).unwrap();
+        let service = sheltie_runtime::WorkService::new(home.clone());
+        let work = if field == "older_publisher" {
+            repo.remove("two-step", "1.0.0", Some("index-remove".into()))
+                .unwrap();
+            repo.add(&source, Some("index-current".into())).unwrap();
+            None
+        } else {
+            Some(work_id_of(
+                &service
+                    .start(
+                        two_step_args(&[("topic", "index observation")]),
+                        Some("index-current".into()),
+                    )
+                    .unwrap(),
+            ))
+        };
+        let other_work = if field == "final" {
+            Some(work_id_of(
+                &service
+                    .start(
+                        two_step_args(&[("topic", "other real frozen copy")]),
+                        Some("index-other".into()),
+                    )
+                    .unwrap(),
+            ))
+        } else {
+            None
+        };
+        let scope = work
+            .as_ref()
+            .map(|work| format!("works/{work}"))
+            .unwrap_or_else(|| "workbooks/two-step/1.0.0".into());
+        let sync = tempfile::tempdir().unwrap();
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "pending_after_reference_index",
+            &scope,
+            sync.path(),
+        )
+        .unwrap();
+        let reader_repo = repo.clone();
+        let reader_service = service.clone();
+        let reader_work = work.clone();
+        let reader = std::thread::spawn(move || -> Result<(), Error> {
+            if let Some(work) = reader_work {
+                reader_service.stats(&work)?;
+            } else {
+                reader_repo.load("two-step", Some("1.0.0"))?;
+            }
+            Ok(())
+        });
+        let mut worker = RendezvousWorker::single(reader, sync.path());
+        worker.wait("reader did not capture the original reference index");
+        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        let raw: String = connection
+            .query_row(
+                "SELECT effects_json FROM requests WHERE request_id='index-current'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let mut effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let pending = effects[0]["pending"].as_str().unwrap().to_owned();
+        let id = pending.split('/').nth(1).unwrap();
+        match field {
+            "extra_effect" => {
+                effects.as_array_mut().unwrap().push(serde_json::json!({
+                    "kind": "write_file",
+                    "path": format!("works/{}/unrequested.txt", work.as_ref().unwrap()),
+                    "content": "unrequested",
+                    "sha256": "a".repeat(64),
+                }));
+            }
+            "final" => {
+                effects[0]["final"] = serde_json::json!(format!("works/{}", other_work.unwrap()));
+            }
+            "pending_prefix" => {
+                effects[0]["pending"] = serde_json::json!(format!("other/{id}/payload"))
+            }
+            "pending_leaf" => {
+                effects[0]["pending"] = serde_json::json!(format!("pending/{id}/other"))
+            }
+            "pending_uuid" => {
+                effects[0]["pending"] = serde_json::json!("pending/not-a-uuid/payload")
+            }
+            "older_publisher" => effects[0]["pending"] = old_effects[0]["pending"].clone(),
+            _ => unreachable!(),
+        }
+        connection
+            .execute(
+                "UPDATE requests SET effects_json=?1 WHERE request_id='index-current'",
+                [effects.to_string()],
+            )
+            .unwrap();
+        let rows = store_rows(&connection);
+        let files = publication_tree(&home);
+        let error = worker.finish().unwrap().unwrap_err();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
+        let detail = if field == "older_publisher" {
+            "pending引用索引不一致"
+        } else if field.starts_with("pending_") {
+            "pending路径无效"
+        } else {
+            "Start效果归属不一致"
+        };
+        assert!(error.to_string().contains(detail), "{field}: {error}");
+        assert_eq!(store_rows(&connection), rows);
+        assert_eq!(publication_tree(&home), files);
+    }
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored() {
+    let (_directory, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), Some("index-restore".into()))
+        .unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let original: String = connection
+        .query_row(
+            "SELECT effects_json FROM requests WHERE request_id='index-restore'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut changed: serde_json::Value = serde_json::from_str(&original).unwrap();
+    assert_ne!(changed[0]["digest"], serde_json::json!("a".repeat(64)));
+    changed[0]["digest"] = serde_json::json!("a".repeat(64));
+    connection
+        .execute(
+            "UPDATE requests SET effects_json=?1 WHERE request_id='index-restore'",
+            [changed.to_string()],
+        )
+        .unwrap();
+    let sync = tempfile::tempdir().unwrap();
+    sheltie_runtime::failpoint::arm_rendezvous(
+        "pending_after_reference_index",
+        "workbooks/two-step/1.0.0",
+        sync.path(),
+    )
+    .unwrap();
+    let reader_repo = repo.clone();
+    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+    let mut worker = RendezvousWorker::single(reader, sync.path());
+    worker.wait("reader did not capture the independently altered index digest");
+    sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+    connection
+        .execute(
+            "UPDATE requests SET effects_json=?1 WHERE request_id='index-restore'",
+            [original],
+        )
+        .unwrap();
+    let rows = store_rows(&connection);
+    let files = publication_tree(&home);
+    let error = worker.finish().unwrap().err().unwrap();
+    assert_eq!(error.code(), ErrorCode::StoreCorrupt);
+    assert!(
+        error.to_string().contains("pending引用索引不一致"),
+        "{error}"
+    );
+    assert_eq!(store_rows(&connection), rows);
+    assert_eq!(publication_tree(&home), files);
+    assert!(repo.load("two-step", Some("1.0.0")).is_ok());
+}
+
+#[cfg(feature = "failpoint")]
+fn independent_workbook_digest(home: &sheltie_runtime::Home, directory: &Path) -> String {
+    use sha2::{Digest, Sha256};
+
+    let files = publication_tree(home)
+        .into_iter()
+        .filter_map(|(path, (_, _, bytes))| {
+            path.strip_prefix(directory).ok().and_then(|relative| {
+                bytes.map(|bytes| (relative.to_str().unwrap().as_bytes().to_vec(), bytes))
+            })
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
+    let mut digest = Sha256::new();
+    digest.update(b"sheltie-workbook-digest/v2\0");
+    digest.update((files.len() as u64).to_be_bytes());
+    for (path, bytes) in files {
+        digest.update((path.len() as u64).to_be_bytes());
+        digest.update(path);
+        digest.update((bytes.len() as u64).to_be_bytes());
+        digest.update(bytes);
+    }
+    format!("{:x}", digest.finalize())
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn installed_manifest_identity_is_bound_even_when_all_digest_records_match() {
+    for field in ["id", "version"] {
+        let (_directory, home) = temp_home();
+        let repo = WorkbookRepo::new(home.clone());
+        let response = repo
+            .add(
+                &abs(&example_dir("two-step")),
+                Some("manifest-binding".into()),
+            )
+            .unwrap();
+        let installed = home.workbook_dir("two-step", "1.0.0");
+        assert_eq!(
+            independent_workbook_digest(&home, installed.as_path().as_std_path()),
+            response.data["digest"].as_str().unwrap()
+        );
+        assert_eq!(
+            repo.load("two-step", Some("1.0.0"))
+                .unwrap()
+                .manifest
+                .id()
+                .as_str(),
+            "two-step"
+        );
+        let manifest = installed.join_segment("workbook.toml");
+        let original = std::fs::read_to_string(manifest.as_path()).unwrap();
+        let changed = if field == "id" {
+            original.replace("id = \"two-step\"", "id = \"other\"")
+        } else {
+            original.replace("version = \"1.0.0\"", "version = \"2.0.0\"")
+        };
+        assert_ne!(changed, original);
+        make_writable(manifest.as_path().as_std_path());
+        std::fs::write(manifest.as_path(), changed).unwrap();
+        let digest = independent_workbook_digest(&home, installed.as_path().as_std_path());
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let (reply, effects): (String, String) = connection
+            .query_row(
+                "SELECT reply_json,effects_json FROM requests WHERE request_id='manifest-binding'",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        let mut reply: serde_json::Value = serde_json::from_str(&reply).unwrap();
+        let mut effects: serde_json::Value = serde_json::from_str(&effects).unwrap();
+        reply["data"]["digest"] = serde_json::json!(digest);
+        effects[0]["digest"] = serde_json::json!(digest);
+        connection
+            .execute("UPDATE workbooks SET digest=?1", [&digest])
+            .unwrap();
+        connection
+            .execute(
+                "UPDATE requests SET reply_json=?1,effects_json=?2 WHERE request_id='manifest-binding'",
+                rusqlite::params![reply.to_string(), effects.to_string()],
+            )
+            .unwrap();
+        let rows = store_rows(&connection);
+        let files = publication_tree(&home);
+        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
+        assert!(
+            error.to_string().contains("manifest身份与Store行不一致"),
+            "{field}: {error}"
+        );
+        assert_eq!(store_rows(&connection), rows);
+        assert_eq!(publication_tree(&home), files);
+    }
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication() {
+    for published in [true, false] {
+        let (_directory, home, service) = home_with_example("two-step");
+        let response = service
+            .start(
+                two_step_args(&[("topic", "missing declaration")]),
+                Some("missing-manifest".into()),
+            )
+            .unwrap();
+        let work = work_id_of(&response);
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let root = if published {
+            home.work_dir(&work)
+        } else {
+            let raw: String = connection
+                .query_row(
+                    "SELECT effects_json FROM requests WHERE request_id='missing-manifest'",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let effects: serde_json::Value = serde_json::from_str(&raw).unwrap();
+            let pending = home.rel(effects[0]["pending"].as_str().unwrap()).unwrap();
+            std::fs::rename(home.work_dir(&work).as_path(), pending.as_path()).unwrap();
+            connection
+                .execute(
+                    "UPDATE requests SET published=0 WHERE request_id='missing-manifest'",
+                    [],
+                )
+                .unwrap();
+            pending
+        };
+        assert_eq!(service.stats(&work).unwrap().1.work_id, work);
+        let frozen = root.join_segment("workbook");
+        assert!(frozen.as_path().is_dir());
+        make_writable(frozen.as_path().as_std_path());
+        std::fs::remove_file(frozen.join_segment("workbook.toml").as_path()).unwrap();
+        let rows = store_rows(&connection);
+        let files = publication_tree(&home);
+        let error = service.stats(&work).unwrap_err();
+        assert_eq!(
+            error.code(),
+            ErrorCode::StoreCorrupt,
+            "published={published}: {error}"
+        );
+        let detail = if published {
+            "已发布冻结副本文件缺失"
+        } else {
+            "冻结副本缺失声明文件"
+        };
+        assert!(
+            error.to_string().contains(detail),
+            "published={published}: {error}"
+        );
+        assert_eq!(store_rows(&connection), rows);
+        assert_eq!(publication_tree(&home), files);
+    }
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified() {
+    let (_directory, home) = temp_home();
+    let repo = WorkbookRepo::new(home.clone());
+    repo.add(&abs(&example_dir("two-step")), Some("stale-add".into()))
+        .unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let registered = store_rows(&connection)[0][0].clone();
+    let removal = repo
+        .remove("two-step", "1.0.0", Some("stale-remove".into()))
+        .unwrap();
+    assert!(repo.list().unwrap().is_empty());
+    assert_eq!(removal.data["id"], "two-step");
+    connection
+        .execute(
+            "INSERT INTO workbooks (id,version,digest,dir,added_at) VALUES (?1,?2,?3,?4,?5)",
+            rusqlite::params_from_iter(registered),
+        )
+        .unwrap();
+    let raw: String = connection
+        .query_row(
+            "SELECT reply_json FROM requests WHERE request_id='stale-remove'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut changed: serde_json::Value = serde_json::from_str(&raw).unwrap();
+    changed["request_id"] = serde_json::json!("another-request");
+    connection
+        .execute(
+            "UPDATE requests SET reply_json=?1 WHERE request_id='stale-remove'",
+            [changed.to_string()],
+        )
+        .unwrap();
+    let rows = store_rows(&connection);
+    let files = publication_tree(&home);
+    let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+    assert_eq!(error.code(), ErrorCode::StoreCorrupt);
+    assert!(
+        error
+            .to_string()
+            .contains("Workbook remove请求 stale-remove snapshot身份无效"),
+        "{error}"
+    );
+    assert_eq!(store_rows(&connection), rows);
+    assert_eq!(publication_tree(&home), files);
+}
+
+// Task: C002-T49
+#[cfg(feature = "failpoint")]
+#[test]
+fn start_rechecks_manifest_identity_on_the_copy_it_will_freeze() {
+    use std::os::unix::fs::MetadataExt;
+    for field in ["id", "version"] {
+        let (_directory, home, service) = home_with_example("two-step");
+        let manifest = home
+            .workbook_dir("two-step", "1.0.0")
+            .join_segment("workbook.toml");
+        make_writable(manifest.as_path().as_std_path());
+        let original = std::fs::read_to_string(manifest.as_path()).unwrap();
+        let changed = if field == "id" {
+            original.replace("id = \"two-step\"", "id = \"new-step\"")
+        } else {
+            original.replace("version = \"1.0.0\"", "version = \"2.0.0\"")
+        };
+        assert_ne!(changed, original);
+        assert_eq!(changed.len(), original.len());
+        let source_inode = std::fs::metadata(manifest.as_path()).unwrap().ino();
+        let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+        let old_rows = store_rows(&connection);
+        let before = tempfile::tempdir().unwrap();
+        let after = tempfile::tempdir().unwrap();
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "pending_owner_synced_before_payload",
+            "pending_owner_synced_before_payload",
+            before.path(),
+        )
+        .unwrap();
+        let writer = std::thread::spawn(move || {
+            service.start(
+                two_step_args(&[("topic", "copy identity")]),
+                Some("copy-identity".into()),
+            )
+        });
+        let mut worker = RendezvousWorker::new(writer, before.path(), after.path());
+        worker.wait("start did not finish qualifying the registered workbook before staging");
+        sheltie_runtime::failpoint::arm_rendezvous(
+            "external_tree_after_stat",
+            manifest.as_str(),
+            after.path(),
+        )
+        .unwrap();
+        std::fs::write(before.path().join("release"), b"release").unwrap();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        while !after.path().join("reached").exists() {
+            assert!(
+                std::time::Instant::now() < deadline,
+                "start did not reach the source-copy observation"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(2));
+        }
+        sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
+        std::fs::write(manifest.as_path(), &changed).unwrap();
+        let error = worker.finish().unwrap().unwrap_err();
+        assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
+        assert!(
+            error.to_string().contains("冻结副本的 manifest 身份"),
+            "{field}: {error}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(manifest.as_path()).unwrap(),
+            changed
+        );
+        assert_eq!(
+            std::fs::metadata(manifest.as_path()).unwrap().ino(),
+            source_inode
+        );
+        let rows = store_rows(&connection);
+        for table in [0, 1, 3, 4] {
+            assert_eq!(rows[table], old_rows[table]);
+        }
+        assert!(
+            std::fs::read_dir(home.works_dir().as_path())
+                .unwrap()
+                .next()
+                .is_none()
+        );
+    }
+}

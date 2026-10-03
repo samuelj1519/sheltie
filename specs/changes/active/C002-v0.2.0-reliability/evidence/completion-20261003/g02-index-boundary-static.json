@@ -1,0 +1,133 @@
+{
+  "review": "Independent supplemental scoped index-boundary static review; no PASS or mutation relabeling",
+  "original_predicate": "A || B || C || D || E || F",
+  "predicate_definitions": {
+    "A": "reference.request_id != current request_id",
+    "B": "reference.pending != checked pending",
+    "C": "reference.final_path != checked final_path",
+    "D": "reference.owner != checked effect_owner",
+    "E": "reference.digest != checked digest",
+    "F": "reference.digest_root != checked digest_root"
+  },
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "4af8b022b6d9fe0070252d0b8a3cd71c86506f308c627744ca906708ef6d8095",
+      "current_diff_sha256": "4af8b022b6d9fe0070252d0b8a3cd71c86506f308c627744ca906708ef6d8095",
+      "formal_queue_summary": "no_completed_outcome",
+      "static_disposition": "成立_限定producer闭包同拒绝分支",
+      "parsed_predicate": "A || (B && C) || D || E || F",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [],
+      "diagnostic_difference": "none within proven current producer closure",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "5eb0a0e7a5d06d9e2c3e3575595800a74bb3a2b7195934cf92aa7bc30bf3d276",
+      "current_diff_sha256": "5eb0a0e7a5d06d9e2c3e3575595800a74bb3a2b7195934cf92aa7bc30bf3d276",
+      "formal_queue_summary": "no_completed_outcome",
+      "static_disposition": "成立_限定producer闭包同拒绝分支",
+      "parsed_predicate": "A || B || (C && D) || E || F",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [],
+      "diagnostic_difference": "none within proven current producer closure",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:787:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:787:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "e06147135b0b638aebdf4eef03a8bea9ccbdcb60047da3c4325bd88ff7e2865e",
+      "current_diff_sha256": "e06147135b0b638aebdf4eef03a8bea9ccbdcb60047da3c4325bd88ff7e2865e",
+      "formal_queue_summary": "no_completed_outcome",
+      "static_disposition": "open_独立digest被吞",
+      "parsed_predicate": "A || B || C || (D && E) || F",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [
+        {
+          "A": false,
+          "B": false,
+          "C": false,
+          "D": false,
+          "E": true,
+          "F": false,
+          "original_reject": true,
+          "mutant_reject": false
+        }
+      ],
+      "diagnostic_difference": "can turn indexed digest mismatch STORE_CORRUPT into an accepted mixed view; no rejection detail when swallowed",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:788:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:788:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "8d648e609596d7a33ac463b71337b198e29db2dd61609faf87b3cae58810836d",
+      "current_diff_sha256": "8d648e609596d7a33ac463b71337b198e29db2dd61609faf87b3cae58810836d",
+      "formal_queue_summary": "MissedMutant",
+      "static_disposition": "open_独立digest被吞",
+      "parsed_predicate": "A || B || C || D || (E && F)",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [
+        {
+          "A": false,
+          "B": false,
+          "C": false,
+          "D": false,
+          "E": false,
+          "F": true,
+          "original_reject": true,
+          "mutant_reject": false
+        },
+        {
+          "A": false,
+          "B": false,
+          "C": false,
+          "D": false,
+          "E": true,
+          "F": false,
+          "original_reject": true,
+          "mutant_reject": false
+        }
+      ],
+      "diagnostic_difference": "can turn indexed digest mismatch STORE_CORRUPT into an accepted mixed view; no rejection detail when swallowed",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review"
+    }
+  ],
+  "source_sha256": {
+    "crates/sheltie-runtime/src/workbook_repo.rs": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+    "crates/sheltie-runtime/src/pending.rs": "6d70b9b4488b8fe85ff1d11869a6d01473dc181a2876fb185cefad20213c7fc9",
+    "crates/sheltie-runtime/src/effects.rs": "7c8fad349738bdf64e883162ace75e753cc4489f6c01f16647920402a768ab9f",
+    "crates/sheltie-runtime/src/load.rs": "513907d5809a9ce7dd416cfffcf79797b95d1df0f6ae3443224833c0c72be8b8"
+  },
+  "counts": {
+    "supported_scoped": 2,
+    "open": 2
+  },
+  "formal_mutation_status_unchanged": true
+}

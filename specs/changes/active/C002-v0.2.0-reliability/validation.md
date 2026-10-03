@@ -480,3 +480,27 @@ T42结束要求版本、编译、在线公告与实际计划的补验；其他�
 Publication测试初次调用参数不符是编译错误；load首次可选producer绑定required consumer被规则5拒，是错误fixture，不算产品red。最终沿原合法必需Flow，从真实已提交状态造一致的坏绑定纯参数，两个load guard均实际捕获。独立初审/修后意见分别保留；[增量报告](evidence/completion-20261003/independent-t48-review-after-files.md)、[完整核验](evidence/completion-20261003/independent-t48-final-audit.json)限定PASS。
 
 三个runtime生产前缀相同，见 [字节核对](evidence/completion-20261003/t48-production-preservation.json)。完整fmt/check/Clippy/Nextest853/853、零skip/零LEAK，run `aec12b7c-fead-400c-a1e0-eaf665c12648`，5compile-fail均通过，[具体输入/命令](evidence/completion-20261003/t48-final-gates.json)。G01补齐19，加此前13，当前32/215有实际检测，183仍待T43，不改旧正式Missed、SK或全产品状态。本轮用户已明确自动推进/macARM-only，后续执行范围见plan，不等待人动作。
+
+
+## C002-T49 Workbook 资格与发布观察补验
+
+范围为 G02 的 47 个历史 ID，不改历史 `MissedMutant`。只新增 2 个 CLI、8 个 runtime 共享消费者测试，生产源码及原测试正文保持，见 [字节核对](evidence/completion-20261003/t49-production-preservation.json)。真实 add/replay、A→remove→B、Start、实体 manifest 与 owner/index/audit 观察窗口提供材料；五表、业务树 bytes/mode/inode、原响应资格分别判定。独立 digest/v2 帧来自 storage §5.1，不调用生产摘要 helper。
+
+首批整体 1200 秒预算截断，42 项完成（12 Caught、30 Missed），2 项仅完成 build、Test 未运行，3 项未派发；不是五个 mutation timeout。随后 13 项冻结短样本 exit2：11 Caught、2 Missed，source_unchanged=true。其中 3 项只检测错误诊断来源，8 项检测坏状态被实际接受。后续 oracle 增量及最终批次另记，不把旧 scratch 成果扩成新候选 PASS。
+
+独立准备者对 30 个 Missed 给出 10 项限定静态证明，4 项保留诊断差异；另对索引 785/786 给出 2 项 producer 闭包证明，787/788 仍需动态判据。[首批处分](evidence/completion-20261003/g02-static-disposition.md)、[索引补充](evidence/completion-20261003/g02-index-boundary-static.md) 不修改原 mutation 标签。最终 [精确选择](evidence/completion-20261003/g02-final-selection.json) 分为 35 动态、12 静态，尚待最终执行与未参与准备的 Reviewer 复核。
+
+owner 正例用 SQL 重构 published=false 的原已提交请求，再由真实 writer 重放发布和清理；只允许 published 转 true、pending 维护清理和实际 status-card 原子换 inode，卡的 bytes/mode 保持。false 未发布及五项 immutable 元数据漂移在同一 owner 窗口拒绝；reader 释放后全部五表和业务树不变。Start 复制竞态先在锁内 Workbook 资格之后等待，再在复制源文件句柄观察点同步改同 inode、同长度的 manifest；只允许序号消耗与自有 staging，旧 workbooks/works/requests/audit 和源新字节/inode 保留。没有把人工故障注入写成真实用户动作。
+
+[首次独审](evidence/completion-20261003/t49-independent-review.md) 发现 feature 门控、独立返回事实和同窗口负对照缺项，已修；[增量独审](evidence/completion-20261003/t49-independent-review-final.md) 与 [全部 oracle 独审](evidence/completion-20261003/t49-all-oracles-independent-review.md) 限定通过。冻结 10 测试基线 run `0ab9e52e-288f-4cab-8a1c-89b5967a934d` 全通过。早期 fixture 编译错误、误触同步点而终止自有测试、过早修改源命中 WorkbookTampered、错误 WriteFile 字段及 writer status-card inode 初始期望失败均保留原文，不算产品红。简化仅提取私有 helper、展开 SQL/JSON；helper 上的 Task 注释导致 check-tests 868/863 失败，已移除，863 测试/204 任务卡通过。precomment 完整 863/863、零 skip/LEAK 和 5 compile-fail 的结果绑定原输入；修正后最终工程闭包正在重验，不提前标 T49 done 或 M2 完成。
+
+
+T49 最终动态批次 A/B/C 分别 12/12、12/12、11/11 Caught，exit0，source/fixture/config 闭包均未漂移，耗时 259.252/179.984/162.935 秒。35 项全部为 Build 成功、目标 Test 失败；11 项为准确诊断来源检测，24 项为行为或原响应资格检测，未以编译失败或 timeout 代替。12 项静态处分单列，其中 4 项仅证明拒绝集合/停止边界，保留错误文本差异。[逐 ID 账本](evidence/completion-20261003/t49-g02-dispositions.json) 的 35+12 恰好覆盖原 G02 47 项，历史 stage1 Missed 原样保留。
+
+[最终工程](evidence/completion-20261003/t49-final-gates.json) source_unchanged=true：fmt/check/Clippy/Nextest/doctest 全部 exit0；run `d9c118ef-a227-4725-bd47-259128d33306` 为 863/863、零 skip/零 LEAK，5 项 compile-fail 通过。[Rust 1.85](evidence/completion-20261003/t49-final-msrv.txt)、[默认特性编译](evidence/completion-20261003/t49-final-default-check.txt)、[测试治理](evidence/completion-20261003/t49-final-check-tests.txt) 及 docs/specs/skill/core-vocab 均通过。依赖/deny 政策未变，T42 的 fresh 输入结论不扩大到新的 DB 时点。
+
+原始运行、失败、脚本、精确选择、diff/log、整理前与最终测试原文集中于 [G02 原文档案](evidence/completion-20261003/t49-g02-oracles.tar.gz)，[逐成员 SHA 与回读](evidence/completion-20261003/t49-oracle-archive.json) 全部一致。当前累计 67/215 项有动态检测、12/215 项有限定静态处分，剩余 136 项继续 T43；不得记成 79 Caught、旧 M1 通过或产品完成。G03 已有独立分组准备，T50 仅列下一任务，尚未实施。
+
+[最终独立验收](evidence/completion-20261003/t49-final-qualification-review.md) 逐原 log 复核全部 35 项目标失败及 12 项限定证明，核原旧 G02 精确集合、190 项 mutation 输入及其与工程输入的共同闭包、生产和旧测试字节及阶段边界，限定 T49/G02 通过；T49 收尾，不批准旧候选、其他组、全部 215 或 C002-M2。
+
+提交钩子首次补齐索引静态报告可读副本的末尾换行，原作者字节保存在档案；[格式化记录](evidence/completion-20261003/t49-review-formatting.json) 校验仅增加一个换行，不改正文或 runtime 输入。

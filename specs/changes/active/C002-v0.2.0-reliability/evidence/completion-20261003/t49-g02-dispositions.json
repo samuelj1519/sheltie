@@ -1,0 +1,1941 @@
+{
+  "scope": "47 G02 old IDs, current candidate only",
+  "counts": {
+    "dynamic_caught": 35,
+    "diagnostic_detection": 11,
+    "behavior_or_qualification_detection": 24,
+    "static_scoped": 12,
+    "remaining_g02": 0,
+    "old_formal_results_changed": false
+  },
+  "items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:508:57: replace || with && in check_workbook_effects",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:514:57: replace || with && in check_workbook_effects",
+      "current_diff_sha256": "4d6998060c511d67e18e3d02cd9205933a7e67a87eb2d0e8ac5df0c408bd234e",
+      "disposition": "static_scoped",
+      "proof": "成立_限定拒绝集与效果安全",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:595:5: replace validate_workbook_identity -> Result<()> with Ok(())",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:601:5: replace validate_workbook_identity -> Result<()> with Ok(())",
+      "current_diff_sha256": "386d9e1e77505ec40b50450068ea3b2db31145510474c72102b1f8053125ec8b",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__effects.rs_line_601_col_5.log",
+      "log_sha256": "3203f172bb1c882eeb74a827e49feaee52fb9d14802cf5529bd2b1d700b6dfe9",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.762526833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 32.00942675,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:389:21: replace || with && in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:389:21: replace || with && in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "40e07d352e608db0375fc7aea9e32af184f8832c7f2cb273c8136af40c2a17c5",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_389_col_21.log",
+      "log_sha256": "8df3095019dd3a07fe68c16b48ffa5ec0c8508532915b63e6199b41312542750",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 23.176019167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.898752958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:388:21: replace || with && in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:388:21: replace || with && in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "21b6870867bdea4573c46494084407ae1ea7c80ecfa4c07845fa4aef7caace2d",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_388_col_21.log",
+      "log_sha256": "0ede2966a2a1ca7e02d844cc0bf5438517b12fe052e4f02dce35edba8c2610cc",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 23.902766167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.539030041,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:396:72: replace || with && in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:396:72: replace || with && in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "0b3510659a5e5f51998e0d59212d5153694068c647a8f1eb37e5b7de42a12959",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_396_col_72.log",
+      "log_sha256": "f48d93cf7af95c09fe5f8a6b00806ea3e95b7e0773cc4ae1d7c8a886c9d99a52",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 27.154394583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.094096333,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "current_diff_sha256": "0be0ebd80a75875a02ed3a94964a447e6971eedbb528a38a2fb6c824293326db",
+      "disposition": "static_scoped",
+      "proof": "成立_当前调用闭包全观察相同",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:922:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "current_diff_sha256": "7e46df461c7357327df33c0c1f31259bbbeeb40794598e19492d438328cfd58b",
+      "disposition": "static_scoped",
+      "proof": "成立_限定拒绝集与文件读取前停止",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:702:13: replace || with && in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:944:13: replace || with && in WorkService::workbook_publication",
+      "current_diff_sha256": "12efba69ef51b678c45921df9bf27e4f3f0b028e1fb5362adb70c5de202d8fa7",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_944_col_13.log",
+      "log_sha256": "eecfd61236e349164d53dffb3f027ae5fb058eb0836ad455d6b0ecfeb18a306b",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 17.156844958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.34844475,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:714:13: replace || with && in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:956:13: replace || with && in WorkService::workbook_publication",
+      "current_diff_sha256": "810bbc1e5b29933349a8d1e2d3c8f6a945f48ca708063028d102dc60aa828079",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_956_col_13.log",
+      "log_sha256": "e4863c94b68d35f3678740ebb7b9456154d60288fad9563431962deb78390d71",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 16.652857958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.952196167,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:713:13: replace || with && in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:955:13: replace || with && in WorkService::workbook_publication",
+      "current_diff_sha256": "567bb2f1e00398baee3b8aa58577353c19ce119d5686df89dbcf9aef70365a65",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_955_col_13.log",
+      "log_sha256": "d12f64e184a16402b7e39600dcfa7bf8c3598f32ca224f105f55c6c9f0527e62",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.230215167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.086720709,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:712:13: replace || with && in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:954:13: replace || with && in WorkService::workbook_publication",
+      "current_diff_sha256": "14029310b9b4f6864a1a085784f53d5ca9957b6eec2a632875ef4f17d9b504c6",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_954_col_13.log",
+      "log_sha256": "f1cd13288a08e9644235d341202043f5a106d1693fea21095eea23b5af6a67ae",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.649827417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.7620492500000005,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]",
+      "current_diff_sha256": "748d5a0f3214a8a45cb713a6c2682f8abfcd2cca1726422be5b33f8e7487d1d9",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_182_col_9.log",
+      "log_sha256": "88eb8b01d9366787ba3ee769020d2e285277a8031a8dd3d45eab615a9b5ce2ec",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 33.703036459,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 33.165276708,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_diff_sha256": "31117cdda9ec66dda66951ab777937119e1ece332c1802282e0b37283010ec7c",
+      "disposition": "static_scoped",
+      "proof": "成立_当前调用闭包全观察相同",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_diff_sha256": "31c1f1a0de24991bc3a77f859d0d8cd467f9310f0494f8b9f505d30060c6b834",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_185_col_49.log",
+      "log_sha256": "49e709324607f0686fc56f8824ab6bbc91b6d579f5344790c446333c3a12c4bd",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 24.07032075,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 25.417271083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_diff_sha256": "5aef74c9ab5b2cfa57e0dfd245a49a3e44d0e634d2a2da4d1a79e46ff4e64d83",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_185_col_82.log",
+      "log_sha256": "1aca9f43ab7d9e932171ce8424f76b38bb9cf7e39fae72631fee8e8a2cc206fe",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 19.663131042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.651739625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:656:34: replace && with || in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:656:34: replace && with || in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "1289e6cacce066de880e77e9396596b0876d7b9bc0626f51543ab937144d3bb3",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_656_col_34.log",
+      "log_sha256": "3088d16a50f2f449c0496e693c1fd1a94c66695d7a45728d383ec614e3998014",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 27.835256625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.996319917,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:692:29: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:692:29: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "df83c07da5cfde67f3ea3158354d187880d076eaa982bbf19682779964603288",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_692_col_29.log",
+      "log_sha256": "8ed56c867b1cb726b702373c17e2d0f7b325a88aa2e2109c304f9a19f5ff32fd",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 23.174417083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.342447042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:698:25: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:698:25: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "6e4d1fa3daf4395cf5c90c47334e2ae75d907e5d7b2eeeef1726c7e55722e3a1",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_698_col_25.log",
+      "log_sha256": "8133d812831435f73e5c28b43d6296f9d3a0241c4bdbdd8445771a6c05d93f97",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 21.753530417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 6.884985625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:708:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:708:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "1d3adcaebbc99fcc5595b8b16cb25ff2db6deff9778ff9c1e198ec3f65c828e5",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_708_col_17.log",
+      "log_sha256": "1a1c44beaac6c1ffeabc38befdb920c219dbccec975214cbe3724fc2f69c6f7a",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 28.042863,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.718071625,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:271:13: replace || with && in WorkService::start",
+      "current_id": "crates/sheltie-runtime/src/service.rs:273:13: replace || with && in WorkService::start",
+      "current_diff_sha256": "ae692435562a1f8d370a6447dc02dcb6013de7583a44bb46f0ce6f05eaeec3e5",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_273_col_13.log",
+      "log_sha256": "29159eb58fc65556830050e893902f5f89629610dfe3fbf636f332567ded79bd",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 8.424214,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 9.039999042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:834:52: replace || with && in WorkbookRepo::load_row_from_directory",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:834:52: replace || with && in WorkbookRepo::load_row_from_directory",
+      "current_diff_sha256": "a507ed4bc13d8f5674d7e7b0e4f1be22027ee936a4261c798c595e75a09765e4",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_834_col_52.log",
+      "log_sha256": "8fb745217f6f6254490646273cac824a7ad716ebe74046a682b18bcad52fd151",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 28.681168875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.756202291,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with true in WorkService::load_row",
+      "current_id": "crates/sheltie-runtime/src/service.rs:843:51: replace match guard !location.pending_publish with true in WorkService::load_row_at",
+      "current_diff_sha256": "c8fa03104e1a95afe2cd24da020e43654792b1eb729d5a9c045be65658edcb84",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51.log",
+      "log_sha256": "26f0b6a6dc78f12486450191f3e42e1eccce6ce96b36b62462c9b6ae1cbef46d",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 19.017497084,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 9.880672,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:601:51: replace match guard !location.pending_publish with false in WorkService::load_row",
+      "current_id": "crates/sheltie-runtime/src/service.rs:843:51: replace match guard !location.pending_publish with false in WorkService::load_row_at",
+      "current_diff_sha256": "f7d8d842fb7d7012ec822d0f795f3bf00904c5162c286ef96f8abe6888f81546",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51_001.log",
+      "log_sha256": "988e9696f49a9e5f75dc7c5389c78ee5db814064e6a87fcf9555dca764172d29",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 12.479878625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 9.854654208,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:601:51: delete ! in WorkService::load_row",
+      "current_id": "crates/sheltie-runtime/src/service.rs:843:51: delete ! in WorkService::load_row_at",
+      "current_diff_sha256": "ec4bb858a5b698ae1aba28a25a67fc07791a9588e1ebedbc04b655735e49b2aa",
+      "disposition": "dynamic_caught",
+      "detection_kind": "diagnostic",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51_002.log",
+      "log_sha256": "a0fc0136b03796572f3627a8d6495ca530c9ec54b16772ada97368d6b219a533",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 10.986297,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.194495334,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:768:56: replace == with != in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:1010:56: replace == with != in WorkService::workbook_publication",
+      "current_diff_sha256": "087735655301a0b70bb2cb1292868bbe03510d1eddeb291f8c72e6751152a08a",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1010_col_56.log",
+      "log_sha256": "2b85ec269a08321b8f6db5d076507c3743556fdcdbebf347dd16f9e5ebb26c14",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 15.175879208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 6.880363125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:769:55: replace == with != in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:1011:55: replace == with != in WorkService::workbook_publication",
+      "current_diff_sha256": "d9113bdf3a9eb3345051c82c0b33b22d96178f24ca9f038771c3532cbb7c9d13",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1011_col_55.log",
+      "log_sha256": "f08895f0ca60f41f3816ee5d4951e15be60a45cd79f0e0ffa28a6573d5173f7e",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 11.95249025,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 9.693881125,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:770:57: replace == with != in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:1012:57: replace == with != in WorkService::workbook_publication",
+      "current_diff_sha256": "02559057c22204a3851d87c6956dfccc7406f6eb552c8c67385941abc3ca4c31",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1012_col_57.log",
+      "log_sha256": "4ec6e90a3b419ccbe1a526e0a8a3901e9099d0d60505248704dc4673f47b2697",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.30898775,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.714674083,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:771:52: replace == with != in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:1013:52: replace == with != in WorkService::workbook_publication",
+      "current_diff_sha256": "787551b634aadb8ddad27ba2e85d2e35854f6a6cda52a6ea43c6d8b7f5f33fad",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1013_col_52.log",
+      "log_sha256": "9b9721f7aa1755cb5bda12ecc8a6aaac163b94c76e2a35652356270d88a764c2",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 14.617020208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 6.3825545,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:772:47: replace == with != in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:1014:47: replace == with != in WorkService::workbook_publication",
+      "current_diff_sha256": "596b33e5b3312c54bcabff706cc6e5dc7d5f05bbcde724ecd243d5a12f67ae30",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1014_col_47.log",
+      "log_sha256": "fbfeb668de509eabe7906ec2f92ce6233e0128a607d86173e2fa390048e39152",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 8.814509167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.080996042,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:565:36: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:565:36: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "d2594e0cd6b24d1bc76cf5f2d04ef31d78c969a28a6346de772d48efd50251b9",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_565_col_36.log",
+      "log_sha256": "2fc9cd34f03c333c1a738eb7c7c020358b59421d2f5eab3c4b41056999a6bf8f",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 17.613812416000002,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 6.960717916,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:566:60: replace == with != in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:566:60: replace == with != in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "44264cae0e4dd0349350fac47abe0825ec60e67fa17f2c6ffd4ff94f40dd799f",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_566_col_60.log",
+      "log_sha256": "e3c20a69a3d937f24d16023823a1e833a15697d1489cc3011d1db55f68f136c9",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 11.353722625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.682068292,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:567:59: replace == with != in WorkbookRepo::load_checked_request",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:567:59: replace == with != in WorkbookRepo::load_checked_request",
+      "current_diff_sha256": "a4ebedb0cf05ab04a2c9bcd9fb37d8aaa07728ba9a78ec3d40fab41853bb5682",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_567_col_59.log",
+      "log_sha256": "15ff5c8c61f34037147834bfac268561916cccd459fb486b34e5452bab1b8bad",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 9.535239958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.0035595,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:730:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:730:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "8be1017d5f46d230ee1e914c1230c919738a154398c4781afdcc764a434b75d0",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_730_col_13.log",
+      "log_sha256": "5700ac327e53f8562713b4e4bd029c15fdf294ebe95423b158f03bad0054dc84",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 15.537181583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 7.297674583,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "1da53d3ebe2ec4bca8ab9c3a48541752e0eabff319b5a709b590da278dd511f1",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_729_col_13.log",
+      "log_sha256": "c45c51ad416b3d62ee41c749b45fc5298680348fb8724b64a963bd916b807110",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 11.550888583999999,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.328450958,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:728:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:728:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "27731fedcb243681261b2e9628116c3f3568d2ef30aab933a194b201bc189de0",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_728_col_13.log",
+      "log_sha256": "17ac9a0247c5aadddcd0aa8df97b112bb8bd96caaeeb154c1bcc4a5ffc44d00c",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 19.343372584,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.4121265,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:727:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:727:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "bf5283859f28a7d003774941a517baf5f3d4186c2ac957374c2a756a08026dd6",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_727_col_13.log",
+      "log_sha256": "686b62b313ff1dcab7ff1d9892a1b1b5d141f284942a49c21e7ecabd0e410d9b",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 15.350413041,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.552556208,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "28098c23ad9f572ca3b0f377bc04d8433397d8df23c3dde40bf9206fcf676ede",
+      "disposition": "static_scoped",
+      "proof": "成立_同一不可变已核原值",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "4cfa3e55362a48634e58af01ba7574970c2ae7eaa81f52b84bd7775e1ec03926",
+      "disposition": "static_scoped",
+      "proof": "成立_限定拒绝集与文件读取前停止",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "2355c276e34b3e32bc05d32c75b8d86bc670b8495852ec369ddbc459149b6692",
+      "disposition": "static_scoped",
+      "proof": "成立_限定拒绝集与文件读取前停止",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "105e208716ceac0cde213712d5b98a5eac05ad82130ce6e99cc5a489a36c4065",
+      "disposition": "static_scoped",
+      "proof": "成立_同一不可变已核原值",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "fd32badfb00fb16c2429e3b832ef19ed874daf4ee91c5b08aec725eb87d11fea",
+      "disposition": "static_scoped",
+      "proof": "成立_同一不可变已核原值",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "80a47ee07ed39db39a1796140dfa6ec7f796355b0bcd72ec93b957db1fa4a4ca",
+      "disposition": "static_scoped",
+      "proof": "成立_同一不可变已核原值",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:788:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:788:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "8d648e609596d7a33ac463b71337b198e29db2dd61609faf87b3cae58810836d",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_788_col_13.log",
+      "log_sha256": "648c1a7c12df7a7796fb11f8241a88a3afff1f555852347a6249afec839fc0e2",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.570006625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 8.199890917,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:787:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:787:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "e06147135b0b638aebdf4eef03a8bea9ccbdcb60047da3c4325bd88ff7e2865e",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_787_col_13.log",
+      "log_sha256": "d104a1146dca09ade5b40b2f4087914291966426ddcf14dd6fe1e98b30d773ff",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 18.799726667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.477524791,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "5eb0a0e7a5d06d9e2c3e3575595800a74bb3a2b7195934cf92aa7bc30bf3d276",
+      "disposition": "static_scoped",
+      "proof": "成立_限定producer闭包同拒绝分支",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "no_completed_outcome"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "4af8b022b6d9fe0070252d0b8a3cd71c86506f308c627744ca906708ef6d8095",
+      "disposition": "static_scoped",
+      "proof": "成立_限定producer闭包同拒绝分支",
+      "old_stage1_formal_summary": "MissedMutant",
+      "prior_current_queue_summary": "no_completed_outcome"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:784:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:784:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_diff_sha256": "042d2e14851a0f9ec1f80856056870039d0afb4c758fcf05fa021999e6945d4e",
+      "disposition": "dynamic_caught",
+      "detection_kind": "behavior_or_response_qualification",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "log": "mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_784_col_13.log",
+      "log_sha256": "05f805ec5c32a641420ac7d9d42436e21ddffd7a15f43085620cdc302c137df5",
+      "phases": [
+        {
+          "phase": "Build",
+          "duration": 20.365091583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--no-run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.961917459,
+          "process_status": {
+            "Failure": 100
+          },
+          "argv": [
+            "/Users/shushu/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+            "nextest",
+            "run",
+            "--verbose",
+            "--package=sheltie-cli@0.3.0-rc.1",
+            "--package=sheltie-runtime@0.3.0-rc.1",
+            "--all-features",
+            "--locked",
+            "--package=sheltie-cli",
+            "-E",
+            "test(completed_workbook_add_replay) | test(current_workbook_lifecycle) | test(readers_accept_real_publication) | test(workbook_reader_rejects_audit_drift) | test(readers_reject_start_and_workbook_effect_drift) | test(workbook_reader_rejects_an_old_index) | test(installed_manifest_identity_is_bound) | test(work_stats_distinguishes_a_missing) | test(a_stale_workbook_row) | test(start_rechecks_manifest_identity)",
+            "--test-threads=4"
+          ]
+        }
+      ],
+      "old_stage1_formal_summary": "MissedMutant"
+    }
+  ]
+}

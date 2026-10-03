@@ -1,0 +1,1572 @@
+{
+  "verdict": "PASS_scoped_T49_G02_qualification",
+  "reviewer": "Codex /root/oracle_review; no oracle or implementation authorship",
+  "base": "63b05ca8c4b6977677b01db957b550f83393926a",
+  "static_items": [
+    {
+      "old_id": "crates/sheltie-runtime/src/effects.rs:508:57: replace || with && in check_workbook_effects",
+      "current_id": "crates/sheltie-runtime/src/effects.rs:514:57: replace || with && in check_workbook_effects",
+      "old_diff_sha256": "2c1bb6aa2169b970c83300b603cb675586699889865752ebbb58f871d61a0305",
+      "current_raw_diff_sha256": "4d6998060c511d67e18e3d02cd9205933a7e67a87eb2d0e8ac5df0c408bd234e",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S01",
+      "static_disposition": "成立_限定拒绝集与效果安全",
+      "caller": "WorkbookRepo::load_checked_request→check_workbook_effects；effects.rs唯一生产caller。",
+      "producer_or_prior_check": "load_checked_request先对同一audit局部值拒work_id非空/revision非0，随后把该audit字段按值/借用传入；变体只改变ops.len连接符。",
+      "rejection_set_or_counterexample": "合法效果len=1不变；len≠1时下一纯check_workbook_snapshot_target严格要求[PublishDir]/[DeleteDir]，不可能执行ops[0]或效果动作；二者均拒STORE_CORRUPT且保留已核original。",
+      "observable_diagnostic_difference": "坏len时detail由audit归属/效果数量改成snapshot业务身份与效果登记不一致；完整错误JSON不等价。",
+      "scope_and_stop": "没有SQL/文件I/O位于两个pure guard之间。只证明当前真实caller的拒绝集合/效果停止与原响应资格，不计caught。",
+      "raw_log_sha256": "87c3d74cdf884da7cb55d0238f9ab389dbae2b7acac0fca29aa78a4b6e5962a3",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "rejection_and_side_effect_boundary_with_diagnostic_difference"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:173:66: replace && with || in PendingReferenceIndex::publish_references_for_work",
+      "old_diff_sha256": "0be0ebd80a75875a02ed3a94964a447e6971eedbb528a38a2fb6c824293326db",
+      "current_raw_diff_sha256": "0be0ebd80a75875a02ed3a94964a447e6971eedbb528a38a2fb6c824293326db",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S02",
+      "static_disposition": "成立_当前调用闭包全观察相同",
+      "caller": "WorkService::workbook_publication→PendingReferenceIndex::load_work_start→publish_references_for_work。",
+      "producer_or_prior_check": "SQL只选r.work_id=W、a.revision=1；from_rows对Work Publish owner与requests.work_id相同、拒Work上的Workbook Publish/Delete。Index仅保存publish/delete目录ref。",
+      "rejection_set_or_counterexample": "能进入此Index的每个ref恒为operation=publish、owner=work:W；&&与||返回相同顺序/成员，空或重复Start仍由同一后层拒绝。",
+      "observable_diagnostic_difference": "无诊断差异；未改变producer检查。",
+      "scope_and_stop": "不能扩大到一般未校验Index或未来caller。字段只是纯String比较。",
+      "raw_log_sha256": "a0b1f1a2f1a262cc5f17a36ae6b24de75e3b8fca4ec4de47cb652f4208578952",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "current_id": "crates/sheltie-runtime/src/pending.rs:185:58: replace && with || in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "old_diff_sha256": "31117cdda9ec66dda66951ab777937119e1ece332c1802282e0b37283010ec7c",
+      "current_raw_diff_sha256": "31117cdda9ec66dda66951ab777937119e1ece332c1802282e0b37283010ec7c",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S03",
+      "static_disposition": "成立_当前调用闭包全观察相同",
+      "caller": "WorkbookRepo::load_row先validate_workbook_row→publication_for_row→lifecycle_references_for_workbook。",
+      "producer_or_prior_check": "row.dir严格等于workbooks/id/version；producer validate_publish_reference/validate_delete_reference把Workbook owner与final一一绑定，id/version不含分隔符；Work命名域不同。",
+      "rejection_set_or_counterexample": "对每个合法Index ref，owner==当前owner当且仅当final==当前final，&&/||返回逐项相同；Work ref两项均假。",
+      "observable_diagnostic_difference": "无诊断差异，短路比较无副作用。",
+      "scope_and_stop": "仅此&&→||；vec![]及两个==→!=不成立。",
+      "raw_log_sha256": "21deb0b76b0811148d51e46c51276a288ea08e98cb71f51f5d184ebcdd2b5a9e",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/service.rs:680:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "current_id": "crates/sheltie-runtime/src/service.rs:922:18: replace match guard owner == &format!(\"work:{work}\") with true in WorkService::workbook_publication",
+      "old_diff_sha256": "0e200d60cac52801a82b371b3e4369d763aabcc2edcbac27ea2e5c2317398a7f",
+      "current_raw_diff_sha256": "7e46df461c7357327df33c0c1f31259bbbeeb40794598e19492d438328cfd58b",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S04",
+      "static_disposition": "成立_限定拒绝集与文件读取前停止",
+      "caller": "WorkService::stats/list、锁内load→workbook_publication。",
+      "producer_or_prior_check": "ops来自同一完整解码局部Vec；owner guard变true后，紧接的pure闭包guard仍要求单一Publish、指定RefreshCard、final=works/W、owner=work:W、digest/root。",
+      "rejection_set_or_counterexample": "错误owner单一Publish在后层拒；多Publish也因数量拒；只有原来会找到的唯一正确owner Publish可通过。无增加成功输入或业务文件读取。",
+      "observable_diagnostic_difference": "没有正确owner时原detail为引用索引与Start效果不一致，变体可能为未发布Start效果归属不一致；不是全错误JSON等价。",
+      "scope_and_stop": "此证明用单个mutant且后层owner/数量guard保持；不套给944的||→&&。",
+      "raw_log_sha256": "a9558829def2a5e8fe576f016690855f96ed808417b21468be3002680b758ec5",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "rejection_and_side_effect_boundary_with_diagnostic_difference"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:740:46: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "28098c23ad9f572ca3b0f377bc04d8433397d8df23c3dde40bf9206fcf676ede",
+      "current_raw_diff_sha256": "28098c23ad9f572ca3b0f377bc04d8433397d8df23c3dde40bf9206fcf676ede",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S05",
+      "static_disposition": "成立_同一不可变已核原值",
+      "caller": "Repo.load/list/verify→publication_for_row→checked_effects_for→load_checked_request。",
+      "producer_or_prior_check": "返回CheckedRequest.row.reply_json已经在load_checked_request完整解析并核request_id准确、replayed=false；metadata.check_row保证效果row与原metadata同reply_json，cleanup fallback仅接受完全相同metadata。调用者复解析同一局部String。",
+      "rejection_set_or_counterexample": "原两个谓词恒假，||/&&结果均假；成功、拒绝、I/O及响应均无变化。",
+      "observable_diagnostic_difference": "无诊断差异。",
+      "scope_and_stop": "publication_for_row随后读取audit_rows是新的查询，但不改变已经返回的row.reply_json局部值。仅证明740，不把新audit/index当不可变。",
+      "raw_log_sha256": "12a5ba1658a881cabdf6757c689f31914a50b42338321f39b97d379a818056f0",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:61: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "4cfa3e55362a48634e58af01ba7574970c2ae7eaa81f52b84bd7775e1ec03926",
+      "current_raw_diff_sha256": "4cfa3e55362a48634e58af01ba7574970c2ae7eaa81f52b84bd7775e1ec03926",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S06",
+      "static_disposition": "成立_限定拒绝集与文件读取前停止",
+      "caller": "同749:30的消费者与闭包。",
+      "producer_or_prior_check": "data与CheckedEffects均来自同一被完整检查的返回值；后层owner/final/digest是当前row的独立约束。",
+      "rejection_set_or_counterexample": "||→&&漏过version/digest单条件时后层effect-vs-row仍必拒，且未开始业务文件读取。",
+      "observable_diagnostic_difference": "同749:30，诊断层次可能不同，非全观察等价。",
+      "scope_and_stop": "不把另一次audit/index读取套成此证明。",
+      "raw_log_sha256": "c6cafa5659e49e64758b567fadecb8623a0eb6074e9c6ce04a495a8f02ffd267",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "rejection_and_side_effect_boundary_with_diagnostic_difference"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:749:30: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "2355c276e34b3e32bc05d32c75b8d86bc670b8495852ec369ddbc459149b6692",
+      "current_raw_diff_sha256": "2355c276e34b3e32bc05d32c75b8d86bc670b8495852ec369ddbc459149b6692",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S06",
+      "static_disposition": "成立_限定拒绝集与文件读取前停止",
+      "caller": "Repo.load/list/verify→publication_for_row；load_row已验证当前row规范身份/path。",
+      "producer_or_prior_check": "同一个Returned row.reply_json产生data；同一个CheckedEffects在load_checked_request已按该data身份严格绑定PublishDir final/owner/digest，未在此阶段重读。目标data guard后仍有完整effect-vs-row guard。",
+      "rejection_set_or_counterexample": "如果被弱化data guard漏过id/version，后层规范owner/final对当前row仍拒；漏过digest则后层digest仍拒。两层均pure，before load_row_from_publish_location，故成功输入与业务读取拒绝集合不变。",
+      "observable_diagnostic_difference": "部分身份不符由响应身份/摘要不一致变成effect与当前workbooks行不一致；完整错误JSON不等价。",
+      "scope_and_stop": "需要id/version规范编码使owner/final映射单射；该条件由完整资格和validate_workbook_row实际保证。不能同时移除后层guard。",
+      "raw_log_sha256": "0b2729137adde008fd5cc92f335753cc175c2da80d05f0ef2c1f266e78807b6e",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "rejection_and_side_effect_boundary_with_diagnostic_difference"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:771:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "105e208716ceac0cde213712d5b98a5eac05ad82130ce6e99cc5a489a36c4065",
+      "current_raw_diff_sha256": "105e208716ceac0cde213712d5b98a5eac05ad82130ce6e99cc5a489a36c4065",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S07",
+      "static_disposition": "成立_同一不可变已核原值",
+      "caller": "同769:13。",
+      "producer_or_prior_check": "同一已核CheckedEffects强制root为空，data=当前row；owner/final/digest也均匹配。",
+      "rejection_set_or_counterexample": "全部谓词恒假，||/&&结果不变。",
+      "observable_diagnostic_difference": "无可达诊断差异。",
+      "scope_and_stop": "不在一般未校验参数上声称等价。",
+      "raw_log_sha256": "d962b0fe717805e5e38782e501aa9d353d651f4f57abbca83b884e62f9fb9904",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:770:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "fd32badfb00fb16c2429e3b832ef19ed874daf4ee91c5b08aec725eb87d11fea",
+      "current_raw_diff_sha256": "fd32badfb00fb16c2429e3b832ef19ed874daf4ee91c5b08aec725eb87d11fea",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S07",
+      "static_disposition": "成立_同一不可变已核原值",
+      "caller": "同769:13。",
+      "producer_or_prior_check": "同一data/CheckedEffects/row与749保证四谓词全部恒假。",
+      "rejection_set_or_counterexample": "结果、成功/拒绝集合、I/O无变化。",
+      "observable_diagnostic_difference": "无可达诊断差异。",
+      "scope_and_stop": "不扩大到index或新audit数据。",
+      "raw_log_sha256": "fd1443f74744c8de87e727a74eb16be03331b82a29dfcb5db928b4aee70ad422",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:769:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "80a47ee07ed39db39a1796140dfa6ec7f796355b0bcd72ec93b957db1fa4a4ca",
+      "current_raw_diff_sha256": "80a47ee07ed39db39a1796140dfa6ec7f796355b0bcd72ec93b957db1fa4a4ca",
+      "formal_mutation_summary": "MissedMutant",
+      "formal_build_and_test": "Success/Success",
+      "group": "S07",
+      "static_disposition": "成立_同一不可变已核原值",
+      "caller": "Repo.load/list/verify→publication_for_row。",
+      "producer_or_prior_check": "未突变的749已经核data.id/version/digest=当前row；CheckedEffects先前按同一个data绑定final/owner/digest，并强制digest_root为空；row.dir已规范；局部Vec不会随SQLite后续编辑改变。",
+      "rejection_set_or_counterexample": "769–771三个||→&&作用的owner/final/digest/root谓词在该位置全部恒假，原和变体均不进入错误分支。",
+      "observable_diagnostic_difference": "无可达诊断差异。",
+      "scope_and_stop": "单mutation范围，前层data/checked效果与row规范检查保持。",
+      "raw_log_sha256": "8a3eb79fe9b52f8d3d47f9b45bd60c0182679ab09cc17aa309163fcdb780959b",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:785:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "4af8b022b6d9fe0070252d0b8a3cd71c86506f308c627744ca906708ef6d8095",
+      "current_diff_sha256": "4af8b022b6d9fe0070252d0b8a3cd71c86506f308c627744ca906708ef6d8095",
+      "formal_queue_summary": "no_completed_outcome",
+      "static_disposition": "成立_限定producer闭包同拒绝分支",
+      "parsed_predicate": "A || (B && C) || D || E || F",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [],
+      "diagnostic_difference": "none within proven current producer closure",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    },
+    {
+      "old_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "current_id": "crates/sheltie-runtime/src/workbook_repo.rs:786:13: replace || with && in WorkbookRepo::publication_for_row",
+      "old_diff_sha256": "5eb0a0e7a5d06d9e2c3e3575595800a74bb3a2b7195934cf92aa7bc30bf3d276",
+      "current_diff_sha256": "5eb0a0e7a5d06d9e2c3e3575595800a74bb3a2b7195934cf92aa7bc30bf3d276",
+      "formal_queue_summary": "no_completed_outcome",
+      "static_disposition": "成立_限定producer闭包同拒绝分支",
+      "parsed_predicate": "A || B || (C && D) || E || F",
+      "constraints": [
+        "B=false by exact raw internal_id lookup and canonical pending prefix/leaf",
+        "C iff D by valid producer owner/final bijection and checked Workbook target",
+        "E independent from captured Index to fresh CheckedEffects"
+      ],
+      "truth_table_cases": 16,
+      "truth_table_counterexamples": [],
+      "diagnostic_difference": "none within proven current producer closure",
+      "scope": "single-mutant, strict producers and other guards unchanged; old Index and fresh values need not be the same snapshot",
+      "execution": "not_run_by_this_review",
+      "independent_verdict": "supported_scoped_static",
+      "scope_class": "same_observation_within_current_producer_and_caller"
+    }
+  ],
+  "dynamic_items": [
+    {
+      "name": "crates/sheltie-runtime/src/effects.rs:601:5: replace validate_workbook_identity -> Result<()> with Ok(())",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "expected_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes' (62178755) panicked at crates/sheltie-cli/tests/common/mod.rs:64:9:\n    命令意外成功：[\"--request-id\", \"workbook-shape\", \"workbook\", \"add\", \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-codex-TsP996.tmp/examples/two-step\"]\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__effects.rs_line_601_col_5.log",
+      "log_sha256": "3203f172bb1c882eeb74a827e49feaee52fb9d14802cf5529bd2b1d700b6dfe9",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__effects.rs_line_601_col_5.diff",
+      "diff_sha256": "386d9e1e77505ec40b50450068ea3b2db31145510474c72102b1f8053125ec8b"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/pending.rs:182:9: replace PendingReferenceIndex::lifecycle_references_for_workbook -> Vec<&PendingReference> with vec![]",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62194470) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:491:13:\n    snapshot_id: {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_182_col_9.log",
+      "log_sha256": "88eb8b01d9366787ba3ee769020d2e285277a8031a8dd3d45eab615a9b5ce2ec",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__pending.rs_line_182_col_9.diff",
+      "diff_sha256": "748d5a0f3214a8a45cb713a6c2682f8abfcd2cca1726422be5b33f8e7487d1d9"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/pending.rs:185:49: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62216141) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:491:13:\n    snapshot_id: {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_185_col_49.log",
+      "log_sha256": "49e709324607f0686fc56f8824ab6bbc91b6d579f5344790c446333c3a12c4bd",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__pending.rs_line_185_col_49.diff",
+      "diff_sha256": "31c1f1a0de24991bc3a77f859d0d8cd467f9310f0494f8b9f505d30060c6b834"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/pending.rs:185:82: replace == with != in PendingReferenceIndex::lifecycle_references_for_workbook",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62222502) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:491:13:\n    snapshot_id: {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__pending.rs_line_185_col_82.log",
+      "log_sha256": "1aca9f43ab7d9e932171ce8424f76b38bb9cf7e39fae72631fee8e8a2cc206fe",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__pending.rs_line_185_col_82.diff",
+      "diff_sha256": "5aef74c9ab5b2cfa57e0dfd245a49a3e44d0e634d2a2da4d1a79e46ff4e64d83"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:944:13: replace || with && in WorkService::workbook_publication",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "expected_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_reject_start_and_workbook_effect_drift_after_their_reference_index' (62243440) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2296:46:\n    called `Result::unwrap_err()` on an `Ok` value: ()\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_944_col_13.log",
+      "log_sha256": "eecfd61236e349164d53dffb3f027ae5fb058eb0836ad455d6b0ecfeb18a306b",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_944_col_13.diff",
+      "diff_sha256": "12efba69ef51b678c45921df9bf27e4f3f0b028e1fb5362adb70c5de202d8fa7"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:956:13: replace || with && in WorkService::workbook_publication",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "expected_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_reject_start_and_workbook_effect_drift_after_their_reference_index' (62243900) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2296:46:\n    called `Result::unwrap_err()` on an `Ok` value: ()\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_956_col_13.log",
+      "log_sha256": "e4863c94b68d35f3678740ebb7b9456154d60288fad9563431962deb78390d71",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_956_col_13.diff",
+      "diff_sha256": "810bbc1e5b29933349a8d1e2d3c8f6a945f48ca708063028d102dc60aa828079"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:955:13: replace || with && in WorkService::workbook_publication",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "expected_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_reject_start_and_workbook_effect_drift_after_their_reference_index' (62263070) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2296:46:\n    called `Result::unwrap_err()` on an `Ok` value: ()\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_955_col_13.log",
+      "log_sha256": "d12f64e184a16402b7e39600dcfa7bf8c3598f32ca224f105f55c6c9f0527e62",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_955_col_13.diff",
+      "diff_sha256": "567bb2f1e00398baee3b8aa58577353c19ce119d5686df89dbcf9aef70365a65"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:954:13: replace || with && in WorkService::workbook_publication",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "expected_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_reject_start_and_workbook_effect_drift_after_their_reference_index' (62263497) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2296:46:\n    called `Result::unwrap_err()` on an `Ok` value: ()\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_954_col_13.log",
+      "log_sha256": "f1cd13288a08e9644235d341202043f5a106d1693fea21095eea23b5af6a67ae",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_954_col_13.diff",
+      "diff_sha256": "14029310b9b4f6864a1a085784f53d5ca9957b6eec2a632875ef4f17d9b504c6"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:389:21: replace || with && in WorkbookRepo::load_checked_request",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "expected_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes' (62282757) panicked at crates/sheltie-cli/tests/common/mod.rs:64:9:\n    命令意外成功：[\"--request-id\", \"workbook-shape\", \"workbook\", \"add\", \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-codex-TsP996.tmp/examples/two-step\"]\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_389_col_21.log",
+      "log_sha256": "8df3095019dd3a07fe68c16b48ffa5ec0c8508532915b63e6199b41312542750",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_389_col_21.diff",
+      "diff_sha256": "40e07d352e608db0375fc7aea9e32af184f8832c7f2cb273c8136af40c2a17c5"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:388:21: replace || with && in WorkbookRepo::load_checked_request",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "expected_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes' (62283181) panicked at crates/sheltie-cli/tests/common/mod.rs:64:9:\n    命令意外成功：[\"--request-id\", \"workbook-shape\", \"workbook\", \"add\", \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-codex-zyczHY.tmp/examples/two-step\"]\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_388_col_21.log",
+      "log_sha256": "0ede2966a2a1ca7e02d844cc0bf5438517b12fe052e4f02dce35edba8c2610cc",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_388_col_21.diff",
+      "diff_sha256": "21b6870867bdea4573c46494084407ae1ea7c80ecfa4c07845fa4aef7caace2d"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:396:72: replace || with && in WorkbookRepo::load_checked_request",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "expected_test": "completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'completed_workbook_add_replay_rejects_invalid_flow_requirement_and_identity_shapes' (62302257) panicked at crates/sheltie-cli/tests/common/mod.rs:64:9:\n    命令意外成功：[\"--request-id\", \"workbook-shape\", \"workbook\", \"add\", \"/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/cargo-mutants-codex-TsP996.tmp/examples/two-step\"]\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_396_col_72.log",
+      "log_sha256": "f48d93cf7af95c09fe5f8a6b00806ea3e95b7e0773cc4ae1d7c8a886c9d99a52",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_396_col_72.diff",
+      "diff_sha256": "0b3510659a5e5f51998e0d59212d5153694068c647a8f1eb37e5b7de42a12959"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:656:34: replace && with || in WorkbookRepo::publication_for_row",
+      "batch": "A",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62302696) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:509:13:\n    {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_656_col_34.log",
+      "log_sha256": "3088d16a50f2f449c0496e693c1fd1a94c66695d7a45728d383ec614e3998014",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/A/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_656_col_34.diff",
+      "diff_sha256": "1289e6cacce066de880e77e9396596b0876d7b9bc0626f51543ab937144d3bb3"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:273:13: replace || with && in WorkService::start",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "start_rechecks_manifest_identity_on_the_copy_it_will_freeze",
+      "expected_test": "start_rechecks_manifest_identity_on_the_copy_it_will_freeze",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'start_rechecks_manifest_identity_on_the_copy_it_will_freeze' (62327599) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2631:9:\n    id: 数据库内容损坏：冻结副本摘要与登记不符（复制期间源目录变化）\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_273_col_13.log",
+      "log_sha256": "29159eb58fc65556830050e893902f5f89629610dfe3fbf636f332567ded79bd",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_273_col_13.diff",
+      "diff_sha256": "ae692435562a1f8d370a6447dc02dcb6013de7583a44bb46f0ce6f05eaeec3e5"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:843:51: replace match guard !location.pending_publish with true in WorkService::load_row_at",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "expected_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication' (62346105) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2515:9:\n    published=false: 数据库内容损坏：Work 2026-10-03-001-default 的已发布冻结副本文件缺失\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51.log",
+      "log_sha256": "26f0b6a6dc78f12486450191f3e42e1eccce6ce96b36b62462c9b6ae1cbef46d",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_843_col_51.diff",
+      "diff_sha256": "c8fa03104e1a95afe2cd24da020e43654792b1eb729d5a9c045be65658edcb84"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:843:51: replace match guard !location.pending_publish with false in WorkService::load_row_at",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "expected_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication' (62355718) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2515:9:\n    published=true: 数据库内容损坏：Work 2026-10-03-001-default 的冻结副本缺失声明文件\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51_001.log",
+      "log_sha256": "988e9696f49a9e5f75dc7c5389c78ee5db814064e6a87fcf9555dca764172d29",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_843_col_51_001.diff",
+      "diff_sha256": "f7d8d842fb7d7012ec822d0f795f3bf00904c5162c286ef96f8abe6888f81546"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:843:51: delete ! in WorkService::load_row_at",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "expected_test": "work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publication' (62361067) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2515:9:\n    published=true: 数据库内容损坏：Work 2026-10-03-001-default 的冻结副本缺失声明文件\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_843_col_51_002.log",
+      "log_sha256": "a0fc0136b03796572f3627a8d6495ca530c9ec54b16772ada97368d6b219a533",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_843_col_51_002.diff",
+      "diff_sha256": "ec4bb858a5b698ae1aba28a25a67fc07791a9588e1ebedbc04b655735e49b2aa"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:1010:56: replace == with != in WorkService::workbook_publication",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62374862) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a10090c05b73b4baa7abc36f26890a.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpOnZiyO/pending/01a10090c05b73b4baa7abc36f26890a.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1010_col_56.log",
+      "log_sha256": "2b85ec269a08321b8f6db5d076507c3743556fdcdbebf347dd16f9e5ebb26c14",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_1010_col_56.diff",
+      "diff_sha256": "087735655301a0b70bb2cb1292868bbe03510d1eddeb291f8c72e6751152a08a"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:1011:55: replace == with != in WorkService::workbook_publication",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62375935) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a10090e9f8706b8ce7391c24bb952b.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpHHAGeZ/pending/01a10090e9f8706b8ce7391c24bb952b.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1011_col_55.log",
+      "log_sha256": "f08895f0ca60f41f3816ee5d4951e15be60a45cd79f0e0ffa28a6573d5173f7e",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_1011_col_55.diff",
+      "diff_sha256": "d9113bdf3a9eb3345051c82c0b33b22d96178f24ca9f038771c3532cbb7c9d13"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:1012:57: replace == with != in WorkService::workbook_publication",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62394405) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a10091282e7002933fc8c9cec0566e.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpm8Guxd/pending/01a10091282e7002933fc8c9cec0566e.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1012_col_57.log",
+      "log_sha256": "4ec6e90a3b419ccbe1a526e0a8a3901e9099d0d60505248704dc4673f47b2697",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_1012_col_57.diff",
+      "diff_sha256": "02559057c22204a3851d87c6956dfccc7406f6eb552c8c67385941abc3ca4c31"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:1013:52: replace == with != in WorkService::workbook_publication",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62395083) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a100913c5b732f9a7d29464386ef6b.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpSl68qZ/pending/01a100913c5b732f9a7d29464386ef6b.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1013_col_52.log",
+      "log_sha256": "9b9721f7aa1755cb5bda12ecc8a6aaac163b94c76e2a35652356270d88a764c2",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_1013_col_52.diff",
+      "diff_sha256": "787551b634aadb8ddad27ba2e85d2e35854f6a6cda52a6ea43c6d8b7f5f33fad"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:692:29: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62413955) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:491:13:\n    snapshot_id: {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_692_col_29.log",
+      "log_sha256": "8ed56c867b1cb726b702373c17e2d0f7b325a88aa2e2109c304f9a19f5ff32fd",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_692_col_29.diff",
+      "diff_sha256": "df83c07da5cfde67f3ea3158354d187880d076eaa982bbf19682779964603288"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:698:25: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "expected_test": "current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher' (62414353) panicked at crates/sheltie-cli/tests/snapshot_qualification.rs:501:13:\n    {\"error\":{\"code\":\"STORE_CORRUPT\",\"detail\":{\"detail\":\"Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"message\":\"数据库内容损坏：Workbook workbook:two-step@1.0.0 的最新生命周期是remove，但workbooks行仍存在\"},\"next\":[],\"ok\":false}\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_698_col_25.log",
+      "log_sha256": "8133d812831435f73e5c28b43d6296f9d3a0241c4bdbdd8445771a6c05d93f97",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_698_col_25.diff",
+      "diff_sha256": "6e4d1fa3daf4395cf5c90c47334e2ae75d907e5d7b2eeeef1726c7e55722e3a1"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:708:17: delete match arm Some((_, request_id, false)) in WorkbookRepo::publication_for_row",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "diagnostic_or_qualification_origin_detection",
+      "observed_test": "a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified",
+      "expected_test": "a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified' (62433169) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2564:5:\n    数据库内容损坏：Workbook workbook:two-step@1.0.0 缺少对应成功add请求\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_708_col_17.log",
+      "log_sha256": "1a1c44beaac6c1ffeabc38befdb920c219dbccec975214cbe3724fc2f69c6f7a",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_708_col_17.diff",
+      "diff_sha256": "1d3adcaebbc99fcc5595b8b16cb25ff2db6deff9778ff9c1e198ec3f65c828e5"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:834:52: replace || with && in WorkbookRepo::load_row_from_directory",
+      "batch": "B",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "installed_manifest_identity_is_bound_even_when_all_digest_records_match",
+      "expected_test": "installed_manifest_identity_is_bound_even_when_all_digest_records_match",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'installed_manifest_identity_is_bound_even_when_all_digest_records_match' (62433593) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2451:64:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_834_col_52.log",
+      "log_sha256": "8fb745217f6f6254490646273cac824a7ad716ebe74046a682b18bcad52fd151",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/B/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_834_col_52.diff",
+      "diff_sha256": "a507ed4bc13d8f5674d7e7b0e4f1be22027ee936a4261c798c595e75a09765e4"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/service.rs:1014:47: replace == with != in WorkService::workbook_publication",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62458621) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a10092d23a77d4b2879739788f8eda.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpxfLEmH/pending/01a10092d23a77d4b2879739788f8eda.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__service.rs_line_1014_col_47.log",
+      "log_sha256": "fbfeb668de509eabe7906ec2f92ce6233e0128a607d86173e2fa390048e39152",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__service.rs_line_1014_col_47.diff",
+      "diff_sha256": "596b33e5b3312c54bcabff706cc6e5dc7d5f05bbcde724ecd243d5a12f67ae30"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:565:36: replace match guard current.published && current.intent_hash == row.intent_hash && current.reply_json == row.reply_json && current.effects_json == row.effects_json && current.work_id == row.work_id && current.at == row.at with false in WorkbookRepo::load_checked_request",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62471265) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a10092e8e4770c83f6dde42efe9521.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpBmeab2/pending/01a10092e8e4770c83f6dde42efe9521.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_565_col_36.log",
+      "log_sha256": "2fc9cd34f03c333c1a738eb7c7c020358b59421d2f5eab3c4b41056999a6bf8f",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_565_col_36.diff",
+      "diff_sha256": "d2594e0cd6b24d1bc76cf5f2d04ef31d78c969a28a6346de772d48efd50251b9"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:566:60: replace == with != in WorkbookRepo::load_checked_request",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62483919) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a100930d5475d2b41267b70e42d1c3.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpOCQoMs/pending/01a100930d5475d2b41267b70e42d1c3.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_566_col_60.log",
+      "log_sha256": "e3c20a69a3d937f24d16023823a1e833a15697d1489cc3011d1db55f68f136c9",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_566_col_60.diff",
+      "diff_sha256": "44264cae0e4dd0349350fac47abe0825ec60e67fa17f2c6ffd4ff94f40dd799f"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:567:59: replace == with != in WorkbookRepo::load_checked_request",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "valid_publication_rejected",
+      "observed_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "expected_test": "readers_accept_real_publication_after_their_old_owner_observation",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_accept_real_publication_after_their_old_owner_observation' (62489059) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2007:21:\n    called `Result::unwrap()` on an `Err` value: StoreCorrupt { detail: \"pending/01a1009328f07360b8fab1ae6692d760.owner缺失或无效：/private/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/.tmpHWY49F/pending/01a1009328f07360b8fab1ae6692d760.owner 不存在\" }\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_567_col_59.log",
+      "log_sha256": "15ff5c8c61f34037147834bfac268561916cccd459fb486b34e5452bab1b8bad",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_567_col_59.diff",
+      "diff_sha256": "a4ebedb0cf05ab04a2c9bcd9fb37d8aaa07728ba9a78ec3d40fab41853bb5682"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:730:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "expected_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_audit_drift_after_qualifying_the_publisher' (62505213) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2165:52:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_730_col_13.log",
+      "log_sha256": "5700ac327e53f8562713b4e4bd029c15fdf294ebe95423b158f03bad0054dc84",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_730_col_13.diff",
+      "diff_sha256": "8be1017d5f46d230ee1e914c1230c919738a154398c4781afdcc764a434b75d0"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:729:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "expected_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_audit_drift_after_qualifying_the_publisher' (62506296) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2165:52:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_729_col_13.log",
+      "log_sha256": "c45c51ad416b3d62ee41c749b45fc5298680348fb8724b64a963bd916b807110",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_729_col_13.diff",
+      "diff_sha256": "1da53d3ebe2ec4bca8ab9c3a48541752e0eabff319b5a709b590da278dd511f1"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:728:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "expected_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_audit_drift_after_qualifying_the_publisher' (62524647) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2165:52:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_728_col_13.log",
+      "log_sha256": "17ac9a0247c5aadddcd0aa8df97b112bb8bd96caaeeb154c1bcc4a5ffc44d00c",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_728_col_13.diff",
+      "diff_sha256": "27731fedcb243681261b2e9628116c3f3568d2ef30aab933a194b201bc189de0"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:727:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "expected_test": "workbook_reader_rejects_audit_drift_after_qualifying_the_publisher",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_audit_drift_after_qualifying_the_publisher' (62525881) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2165:52:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_727_col_13.log",
+      "log_sha256": "686b62b313ff1dcab7ff1d9892a1b1b5d141f284942a49c21e7ecabd0e410d9b",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_727_col_13.diff",
+      "diff_sha256": "bf5283859f28a7d003774941a517baf5f3d4186c2ac957374c2a756a08026dd6"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:788:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored",
+      "expected_test": "workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored' (62548156) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2356:48:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_788_col_13.log",
+      "log_sha256": "648c1a7c12df7a7796fb11f8241a88a3afff1f555852347a6249afec839fc0e2",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_788_col_13.diff",
+      "diff_sha256": "8d648e609596d7a33ac463b71337b198e29db2dd61609faf87b3cae58810836d"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:787:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored",
+      "expected_test": "workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored' (62549062) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2356:48:\n    called `Option::unwrap()` on a `None` value\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_787_col_13.log",
+      "log_sha256": "d104a1146dca09ade5b40b2f4087914291966426ddcf14dd6fe1e98b30d773ff",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_787_col_13.diff",
+      "diff_sha256": "e06147135b0b638aebdf4eef03a8bea9ccbdcb60047da3c4325bd88ff7e2865e"
+    },
+    {
+      "name": "crates/sheltie-runtime/src/workbook_repo.rs:784:13: replace || with && in WorkbookRepo::publication_for_row",
+      "batch": "C",
+      "formal_summary": "CaughtMutant",
+      "classification": "invalid_state_accepted",
+      "observed_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "expected_test": "readers_reject_start_and_workbook_effect_drift_after_their_reference_index",
+      "target_assertion_matches": true,
+      "build_success": true,
+      "test_failure_100": true,
+      "panic_excerpt": "    thread 'readers_reject_start_and_workbook_effect_drift_after_their_reference_index' (62558831) panicked at crates/sheltie-runtime/tests/workbook_txn.rs:2296:46:\n    called `Result::unwrap_err()` on an `Ok` value: ()\n    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "log_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/log/crates__sheltie-runtime__src__workbook_repo.rs_line_784_col_13.log",
+      "log_sha256": "05f805ec5c32a641420ac7d9d42436e21ddffd7a15f43085620cdc302c137df5",
+      "diff_path": "/private/tmp/sheltie-completion-20261003/mutation-g02-final/C/mutants.out/diff/crates__sheltie-runtime__src__workbook_repo.rs_line_784_col_13.diff",
+      "diff_sha256": "042d2e14851a0f9ec1f80856056870039d0afb4c758fcf05fa021999e6945d4e"
+    }
+  ],
+  "dynamic_classification_counts": {
+    "invalid_state_accepted": 16,
+    "diagnostic_or_qualification_origin_detection": 11,
+    "valid_publication_rejected": 8
+  },
+  "batches": [
+    {
+      "batch": "A",
+      "result_sha256": "d22f13d11ff2f0a5c02dcb67c3b90c161ba129fef6dedd883708f37a5c8688d4",
+      "selection_sha256": "3df99c20bb2198353951b6937bc299b184d9c37d0c663a29f3e4366d921d882c",
+      "outcomes_sha256": "9caee91296eb71861a2308a35a19424714c35e7f209d7095b8ac7b5fd6f2bc71",
+      "input_count": 190,
+      "input_mismatches": [],
+      "end_time": "2026-10-03T06:59:30.636119Z",
+      "nonzero_baseline_10_tests": true,
+      "baseline_summary": "Success",
+      "counts": {
+        "caught": 12,
+        "missed": 0,
+        "timeout": 0,
+        "unviable": 0
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 259.252,
+      "source_unchanged": true
+    },
+    {
+      "batch": "B",
+      "result_sha256": "c149f05cc37687641e89b20203f0bac790854ffe5494ed836195be91ec57e071",
+      "selection_sha256": "8ee670a78daa6d847c52ffcecf764e59e83c226fc093a51589693c913bc54c04",
+      "outcomes_sha256": "2c0fc9b0bce32b3a9a6a6510a7fe404c4f09738df43987fdfa5802285535f626",
+      "input_count": 190,
+      "input_mismatches": [],
+      "end_time": "2026-10-03T07:02:30.698354Z",
+      "nonzero_baseline_10_tests": true,
+      "baseline_summary": "Success",
+      "counts": {
+        "caught": 12,
+        "missed": 0,
+        "timeout": 0,
+        "unviable": 0
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 179.984,
+      "source_unchanged": true
+    },
+    {
+      "batch": "C",
+      "result_sha256": "4993ef4f78ecc70a7c3e78f8d7c26ab8edbc465b5337b0fab90978cdb213bffb",
+      "selection_sha256": "a2f9e9cd085419a12d21cb19c7856ad5db925a3b6e77972ff98a9a302c85270f",
+      "outcomes_sha256": "41a7bf189bc007020110f73de0efe6674a4438d5a9574f13fca34bdf4e8e2f30",
+      "input_count": 190,
+      "input_mismatches": [],
+      "end_time": "2026-10-03T07:05:13.722664Z",
+      "nonzero_baseline_10_tests": true,
+      "baseline_summary": "Success",
+      "counts": {
+        "caught": 11,
+        "missed": 0,
+        "timeout": 0,
+        "unviable": 0
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 162.935,
+      "source_unchanged": true
+    }
+  ],
+  "coverage": {
+    "catalog_count": 47,
+    "catalog_unique": 47,
+    "dynamic_count": 35,
+    "dynamic_unique": 35,
+    "static_count": 12,
+    "static_unique": 12,
+    "overlap": [],
+    "missing": [],
+    "extra": [],
+    "archive_old_G02_count": 47,
+    "old_id_catalog_exact_archive_match": true
+  },
+  "closure": {
+    "identical_190_input_maps_between_A_B_C": true,
+    "current_input_mismatches": [],
+    "static_source_hash_mismatches": [],
+    "gate_input_mismatches": [],
+    "gate_inputs_agree_with_mutation_closure": true,
+    "gate_source_unchanged": true,
+    "source_sha256": {
+      "crates/sheltie-runtime/tests/workbook_txn.rs": "b514c1411f632f1ec09efdb5c024c31d51ecd5c0e70ebef6e49f0a9cf90b37b4",
+      "crates/sheltie-cli/tests/snapshot_qualification.rs": "0f78ee613a5677a855a3d84dd993ffa463462e11cc0ee8be5db459335fc3d268"
+    }
+  },
+  "gates": [
+    {
+      "name": "fmt",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.494,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-fmt.txt",
+      "hash_matches": true
+    },
+    {
+      "name": "check",
+      "argv": [
+        "cargo",
+        "check",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.654,
+      "output_sha256": "bb7e990478896eb5601b12639187bfbe789d71b3d293738063b22fefc9d6b27e",
+      "output_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-check.txt",
+      "hash_matches": true
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--all-targets",
+        "--all-features",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.596,
+      "output_sha256": "c67deaafa3bc88b24ab4c62244de59b7d26ceaaa1bcdde38ea813a833201a8c5",
+      "output_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-clippy.txt",
+      "hash_matches": true
+    },
+    {
+      "name": "nextest",
+      "argv": [
+        "cargo",
+        "nextest",
+        "run",
+        "--all-features",
+        "--locked",
+        "--no-tests=fail",
+        "--no-fail-fast"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 187.326,
+      "output_sha256": "16ba69be4bcd9dcbd4262cd0495420d10636623077886e4dab68376544685682",
+      "output_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-nextest.txt",
+      "hash_matches": true
+    },
+    {
+      "name": "doctest",
+      "argv": [
+        "cargo",
+        "test",
+        "--doc",
+        "--all-features",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.53,
+      "output_sha256": "e31ec72cbeef06629867004c8b675303f198b10257a7849da55af8dacde9e1bd",
+      "output_path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-doctest.txt",
+      "hash_matches": true
+    }
+  ],
+  "governance": [
+    {
+      "name": "docs",
+      "path": "/private/tmp/sheltie-completion-20261003/t49-final-check-docs.txt",
+      "sha256": "c6eb71b74de47a14a3e11507514569d805b217bcddcfab4a517912824177da02",
+      "output": "check-docs: OK (182 个文件)"
+    },
+    {
+      "name": "specs",
+      "path": "/private/tmp/sheltie-completion-20261003/t49-final-check-specs.txt",
+      "sha256": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401",
+      "output": "check-specs: OK (8 个 change，1 个 active)"
+    },
+    {
+      "name": "tests",
+      "path": "/private/tmp/sheltie-completion-20261003/t49-final-check-tests.txt",
+      "sha256": "311bfefa9a814f357974f42eeeaf0a27854a4e31f5c5c9bbd76db13fd693ba62",
+      "output": "check-tests: OK (863 个测试，任务卡 204 条)"
+    },
+    {
+      "name": "core-vocab",
+      "path": "/private/tmp/sheltie-completion-20261003/t49-final-check-core-vocab.txt",
+      "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f",
+      "output": "check-core-vocab: OK"
+    },
+    {
+      "name": "skill",
+      "path": "/private/tmp/sheltie-completion-20261003/t49-final-check-skill.txt",
+      "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec",
+      "output": "check-skill: OK"
+    }
+  ],
+  "production": [
+    {
+      "path": "crates/sheltie-runtime/src/workbook_repo.rs",
+      "sha256": "2588020821335bed785257afbc9d3246664dfa23d53e3da6355ae7f98ed6558c",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/request.rs",
+      "sha256": "2f115182e4d2a45300f295d297cfb3d720ec29e4b9b8c5ce2cd0a13c1a88ad93",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/session.rs",
+      "sha256": "766c70955ee5f8dfb774da70e347b5ea2740fe1f5387ebef18053b866d3ce17e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/pending.rs",
+      "sha256": "6d70b9b4488b8fe85ff1d11869a6d01473dc181a2876fb185cefad20213c7fc9",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/failpoint.rs",
+      "sha256": "072ddf24becbb7e054cff6776a805015774df0e8c81e03096d05af2147c51f19",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/fsx.rs",
+      "sha256": "09a7bb139a86fa6750c5c115d55d67defe5988bc19cf1cb932d7a49fa2a2678f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/home.rs",
+      "sha256": "ceb85d8c5ea3ebac066b7288070f88dfcadfc626512268d77c034b2c6027cd3e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/error.rs",
+      "sha256": "c21ae1c1854c31cd4ca9c154217797bf866d0163bc0742f5505b352c7b7dbab4",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/recovery.rs",
+      "sha256": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/lib.rs",
+      "sha256": "9ceda63032cfb2b4aeedb8a7f80a8c6cdec08b5a1bb6ea4625961547a136561d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/effects.rs",
+      "sha256": "7c8fad349738bdf64e883162ace75e753cc4489f6c01f16647920402a768ab9f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/service.rs",
+      "sha256": "958101a3e60c1f9c8204ef3ae1106b65f7df636c2b7538f038fbf32a3dac58ea",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/snapshot.rs",
+      "sha256": "8a2553796056b041a4959a7b234e8e9cdb4e297770f5e44c99bb0d90036c5186",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/load.rs",
+      "sha256": "513907d5809a9ce7dd416cfffcf79797b95d1df0f6ae3443224833c0c72be8b8",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/workbook_digest.rs",
+      "sha256": "ef839379763a5fda80f9570259b482fd4d009ec75472ecad0fb84e1ab8c89560",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/result.rs",
+      "sha256": "e19c66682bae8e3ca7d31ce1d42794c1544d073a8df7e0960367750765a2fda0",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/selfmgmt.rs",
+      "sha256": "b79de47dd76d1e40e54cbb489942e46ff3da0702b47cc40096c8f2a0e292b08a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/observe.rs",
+      "sha256": "d0e6eff7de2fa5aa642e21989a7812833af3b7e0add818ddc69bd2586274f4c0",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/commit.rs",
+      "sha256": "6cb4cc8e25ec42f0d9634306a89f382423d8397dd6ec3724cd99ede689c606f4",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/mod.rs",
+      "sha256": "5db6b4eded73d2fa3ea8ab6dc278e6e464f162f7a10df222d4b377824cc3e46a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/read.rs",
+      "sha256": "9e1c319a9b8bb67511fe7abe52ca4bd316f3459f80e0c9ec5855613f3bdcd3fc",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/schema.rs",
+      "sha256": "2ca35f4b87adc5c9bb3fdec012b7da7680d3491f9beb88c150934d6c26698b5d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/tests.rs",
+      "sha256": "f490e8b9b26a1da059d71d99e905ae4433df0d8d3e5ae6b155d1a77804f28d99",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/failpoint.rs",
+      "sha256": "69e50b35b082f2195da9a55b6bd3bed728ab04f983f630e3e0d4c451abdf8a4e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/export.rs",
+      "sha256": "e520047488ed36cc69b84e154392faaf66a0d37508dd394dc239edb01f585698",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/error.rs",
+      "sha256": "74fb9acdd465616679155c7c4a06e0920a74340266a293ac5cbf90da5a30218a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/lib.rs",
+      "sha256": "bfa0a11f53873532f6f1a93dfb4c7218fde0408e67972bc8923eb350dcca64a3",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/source.rs",
+      "sha256": "2a089d242b879b1902eab7cfd33bcd65a6e70726e5d84cc0bedfa01bfe6675ed",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/output.rs",
+      "sha256": "dc4a841bcbecc8c80de4987e5db3e39039c8b8483db50dc0169146a1f61d91d8",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/main.rs",
+      "sha256": "64f2b93a6e6ecb43eccb00c1985f1e553ef049043cfc7fd1703602fc080af942",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/target.rs",
+      "sha256": "99bdb42946c23db9b9442c018410c5baacd93562b384de1af4ec187cf7cf4a10",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-export/src/model.rs",
+      "sha256": "d7cdc41384f201875edd31ad4e4c7de2de6b202178ee7b29f1c140844ca161ee",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/testkit.rs",
+      "sha256": "8835c5b43435e56f49d29b30c5b98ecd55974ad4a1d20516780132e076c41423",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/error.rs",
+      "sha256": "1671b9c66f719226725080f7dacc4316087b05ca9515c7d62b0426ae62c69e3d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/lib.rs",
+      "sha256": "7a05f2e7fc5e34ef14b073d53877abc44c87ddbbdd5694f93a46f119bc195209",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/digest.rs",
+      "sha256": "721c516ac8cb67cd5ca0d03091aa7960eed66f528cb93fb77e16d2939912c724",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/path.rs",
+      "sha256": "7e0475fcc2aabdc08ea0d7e4c4c45cedf691daabc73d171637d8ee2c14651e01",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/ids.rs",
+      "sha256": "47c223971620df1f1e139ca36550556f96adec7a8bf6e50d9f417fbe88ce7533",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/text.rs",
+      "sha256": "10ab8fab98247fa2a99107dadd6be822903408285b90749dda1ec17f3a5df6ac",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/start.rs",
+      "sha256": "e2a88f7f95efad220089bed95471fac14066907dd638838b9e7a08330b81403f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/layout.rs",
+      "sha256": "8e43352518e65cbb947062e4c48038c58cb3a672ea08505658ae64574e37a7c8",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/command.rs",
+      "sha256": "f7c5ad9532deca4d0619769af68396c2764c53bf6c9354a448153a6e469fef6b",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/render.rs",
+      "sha256": "565118e4b183d869c6811754b482d25e31cc76875232044387b5baec42162f12",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/mod.rs",
+      "sha256": "a0ee26d7edfae55b0a8c26dfec33310c589f2811814b751acc0b73fe3de9555d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/next.rs",
+      "sha256": "c260e627f3112f9475897717d8ca0452ce57fc6e105e3ca25cbb32a575592675",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/state.rs",
+      "sha256": "414e0036f274c3afaac95df4d1fc0c5b39fc518910dac05ab4283f6f6408f9d7",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/decide.rs",
+      "sha256": "6a69c108efa7e5ba447b0e4b01aed0f071b04eac14f63cae6f40426065959531",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/work/result.rs",
+      "sha256": "f05076efcc44545df673c6c0e571aad5438b74ce380987b4340c3702a361f72b",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/workbook/manifest.rs",
+      "sha256": "2b80af7b3e9eb25abe6d821f1cdb37d963c29d960d96d41b623a5f8e07168a1d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/workbook/mod.rs",
+      "sha256": "21c21e638ac92d50f253c6c0f61579845343c42ecfe2c4de43f9acce735cf136",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/flow/graph.rs",
+      "sha256": "0ae0ef4accc37a1e9b4afc336260b5a187436e590ed4ea7b5c5994b980de826f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/flow/def.rs",
+      "sha256": "1168af461f8124f3ec0666371b7fbfe7b23a93d19446f6d01d220cb794fe5913",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/flow/mod.rs",
+      "sha256": "af9b352ea4666e0a63c7c37deaf76d030839938f403b5726c6937fe74fdb1400",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/flow/parse.rs",
+      "sha256": "1d0997d4d35cc342c256fba0b266804a4413b9354ca8221035f71c71d23b897d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-core/src/flow/compile.rs",
+      "sha256": "c1e008571ee87047c812fedb2e63f28583d61a361e97a7ba7b4cd778b9ab4e97",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/output.rs",
+      "sha256": "4e6fcbcbd074b4054e6d89446206ebb35333c257880f6ba8a52f67facc0a835f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/error_map.rs",
+      "sha256": "667b0e115f89c08d623108a59c1975c009a32191c4e44e5209d244d6c4e92304",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/main.rs",
+      "sha256": "f4d7d209f6cf30f2a06b09bdb037a71be8f2c583b3d6d5b2e7d461f7cfed743e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/cli.rs",
+      "sha256": "42e7d24ff4d178671424d45e4a4b5b93c10495aef6d74f43dad1386d9ad7e20f",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/attempt.rs",
+      "sha256": "1cea040805dcc39fbc189564841bdc86ee2a682a50eb0fa3c061215a281b8538",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/self_cmd.rs",
+      "sha256": "cc8aec2f940fd7f2af309cbdd0ea61b926e381be493a73a937deb287e9742cb0",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/workbook.rs",
+      "sha256": "e426b204f6635cd8ed8e8414d01cd3d2403d12e62244b0cc895303319d89686c",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/mod.rs",
+      "sha256": "f04f635d71dfdd375f9fb62c3e11a3cd3e0c738eef6b5ab963680859b63263f6",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/gate.rs",
+      "sha256": "72eda824e531423658fa1971cc6b57be4862d01f7912e87ee921b55cc0d806c9",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/work.rs",
+      "sha256": "ec95e4531ecd58173709a7dfb2f95f360213cbbd953e32a80352e8dde89727f0",
+      "byte_identical_to_base": true
+    }
+  ],
+  "precedence_785_786_truth_table": [
+    {
+      "predicates": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "original": false,
+      "785": false,
+      "786": false
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    },
+    {
+      "predicates": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "original": true,
+      "785": true,
+      "786": true
+    }
+  ],
+  "supporting_outputs": {
+    "t49-final-msrv.txt": {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-msrv.txt",
+      "sha256": "24c88fb9369d71c243f1e5964ecc0b2b40164076f109216b331a010e8718263e"
+    },
+    "t49-final-default-check.txt": {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-final-default-check.txt",
+      "sha256": "42f29d310a6336dabbed723a6b80232fadb85fd8ca8244cfda09d19a6fc38aec"
+    },
+    "t49-production-preservation.json": {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-production-preservation.json",
+      "sha256": "1bb3b4a375cf752116508c827d2d5811f2cc148f37ea73dfd491f5fa6432588f"
+    },
+    "t49-precomment-gates.json": {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/evidence/completion-20261003/t49-precomment-gates.json",
+      "sha256": "35111069eae7cf6b84eb02d442968fdca4f37f557649f509564d6e1d9e3feaee"
+    }
+  },
+  "boundaries": [
+    "Original Missed/cancelled/timeout labels unchanged",
+    "35 Caught includes 11 diagnostic/qualification-origin detections, not 35 invalid-state acceptances",
+    "12 static includes 4 diagnostic differences; not dynamic caught or full-error equality",
+    "T49/G02 only; remaining SK02 groups and M2 outside scope",
+    "macOS aarch64 scope only"
+  ],
+  "derived_ledger_check": {
+    "sha256": "496396a839cbca1b59d02a6649f8dd6cd5174075c50877aaef818e2919dec26e",
+    "old_summary_all_preserved": true,
+    "unique_47_exact_current_set": true,
+    "counts": {
+      "dynamic_caught": 35,
+      "diagnostic_detection": 11,
+      "behavior_or_qualification_detection": 24,
+      "static_scoped": 12,
+      "remaining_g02": 0,
+      "old_formal_results_changed": false
+    }
+  }
+}

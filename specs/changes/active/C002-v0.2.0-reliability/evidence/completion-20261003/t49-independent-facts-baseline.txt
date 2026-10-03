@@ -1,0 +1,9 @@
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.75s
+────────────
+ Nextest run ID 71131632-f8ed-48a2-b156-59fc04fdcc97 with nextest profile: default
+    Starting 2 tests across 19 binaries (347 tests skipped)
+        PASS [   0.173s] (1/2) sheltie-runtime::workbook_txn workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored
+        PASS [   3.674s] (2/2) sheltie-runtime::workbook_txn readers_accept_real_publication_after_their_old_owner_observation
+────────────
+     Summary [   3.675s] 2 tests run: 2 passed, 347 skipped

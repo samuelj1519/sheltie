@@ -289,3 +289,13 @@ allow_test_changes = true
 files = ["specs/changes/active/C002-v0.2.0-reliability"]
 test_files = ["crates/sheltie-cli/tests/snapshot_qualification.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/tests/effect_contracts.rs", "crates/sheltie-runtime/tests/node_inputs.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-runtime/src/load.rs"]
 allow_test_changes = true
+
+[C002-T49]
+files = ["specs/changes/active/C002-v0.2.0-reliability"]
+test_files = ["crates/sheltie-cli/tests/snapshot_qualification.rs", "crates/sheltie-runtime/tests/workbook_txn.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-runtime/src/pending.rs", "crates/sheltie-runtime/src/workbook_repo.rs"]
+allow_test_changes = true
+
+[C002-T50]
+files = ["specs/changes/active/C002-v0.2.0-reliability", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/home.rs", "crates/sheltie-runtime/src/store/mod.rs"]
+test_files = ["crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/home.rs", "crates/sheltie-runtime/src/store/tests.rs", "crates/sheltie-runtime/tests/fs_boundary.rs", "crates/sheltie-runtime/tests/home_observe.rs", "crates/sheltie-runtime/tests/selfmgmt.rs"]
+allow_test_changes = true
