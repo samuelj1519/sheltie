@@ -1,6 +1,6 @@
 # C008 实施计划
 
-状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
+状态：`active`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 每个任务和审查的范围基准都是本任务开工完整提交；提交前加 `--staged`，提交后用同一完整提交再核，不采用 README 总基线或随意 HEAD。准备/操作任务无 Rust 所属测试时不调用 task.sh。
 
@@ -102,3 +102,16 @@ fixture PASS、静态审查或退出 0 不替真实收益。缺项保留 not_run
 ### C008-T04：保真归档与本轮关闭
 
 按用户顺序授权完成所有可执行方案交付后，归档C008本轮前检/缺项范围；原probe未采用和真实义务not_run保留。仅当前索引/链接/作者状态说明与本package归档，所有evidence和声明source字节不改。root开发目标0.3.0/未发布RC保持，无active不发明方案或发布tag。独立核原件保真、README/plan/spec/design/review/validation状态一致和明确限定结果；docs/spec/tests/diff/范围检查通过再提交。未变源码/原832/842/CLI等原run不重跑。
+
+## 2026-10-04 当前恢复
+
+基线：`5e68ebf5c97468ef09e4652ea7676e7de30b0c0f`。用户已授权自动推进，仅 macOS aarch64。独立 Reviewer 按工程 §5 核当前声明、自然事件和结论边界。历史 T00–T04 原义务和原证据保持，恢复任务不创建宿主资源目标。
+
+| ID | 状态 | Owner | 交付 | 依赖 |
+| --- | --- | --- | --- | --- |
+| C008-T05 | done | root；独立 Reviewer | 当前七份 Workbook 声明、C007 自然事件和采用条件；原件保真 | C007-M3 |
+| C008-M3 | pending | root；独立 Reviewer | 当前条件结论及 C001–C008 总交接、归档 | T05 独审 |
+
+T05 只读 examples、workbooks、C007 两份已确认方法及其六次实际运行分析/独审；保存逐文件 SHA、声明字段和原件比较。TOML 盘点不替引擎编译。无明确必需 kind:name 时不读取宿主目录，不建立 probe/config/fixtures/tests。以真实采用条件逐条判定，成本缺失保留 unknown。所有读前后字节须相同。反馈预算 10 分钟；该预算只限条件复核，不能作为未采用真实探针的收益阈值。
+
+T05 和 M3 跑 docs/specs/tests/skill/core-vocab、TOML 和 git diff/任务范围检查。编译输入未变时引用原生与 MSRV 同源 951 结果，不重跑无关 Rust。M3 核已归档包入口、源输入和发布边界，完成只限当前可执行义务；原 human/code/严格公平/真实撤销/探针价值不授 PASS。一个任务一个提交，分别使用本任务开工完整 HEAD。

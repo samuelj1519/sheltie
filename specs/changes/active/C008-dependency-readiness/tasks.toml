@@ -36,3 +36,13 @@ allow_test_changes = true
 files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C008-dependency-readiness", "specs/changes/completed/C008-dependency-readiness", "specs/changes/completed/C004-verifiable-delegation", "specs/changes/completed/C005-executor-continuity", "specs/changes/completed/C006-result-delivery", "specs/changes/completed/C007-pre-run-workbook-generation"]
 test_files = []
 allow_test_changes = false
+
+[C008-T05]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C008-dependency-readiness", "specs/changes/completed/C008-dependency-readiness"]
+test_files = []
+allow_test_changes = false
+
+[C008-M3]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/active/C008-dependency-readiness", "specs/changes/completed/C008-dependency-readiness"]
+test_files = []
+allow_test_changes = false

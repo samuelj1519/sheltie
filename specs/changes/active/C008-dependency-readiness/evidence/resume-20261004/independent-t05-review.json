@@ -1,0 +1,615 @@
+{
+  "reviewer": "/root/c008_current_review",
+  "reviewed_utc": "2026-10-03T22:13:28.397377+00:00",
+  "source_head": "5e68ebf5c97468ef09e4652ea7676e7de30b0c0f",
+  "conclusion": "通过",
+  "scope": "C008-T05 current conditions/declaration inventory/natural events/original-byte preservation; no host/probe/readiness/value acceptance",
+  "failures": [],
+  "declaration_counts": {
+    "manifest_copies": 7,
+    "flows": 7,
+    "nodes": 27,
+    "requires_items": 0,
+    "resource_input_bindings": 15
+  },
+  "per_manifest": [
+    {
+      "manifest": "examples/article-review/workbook.toml",
+      "nodes": 3
+    },
+    {
+      "manifest": "examples/code-change/workbook.toml",
+      "nodes": 3
+    },
+    {
+      "manifest": "examples/gated-release/workbook.toml",
+      "nodes": 2
+    },
+    {
+      "manifest": "examples/two-step/workbook.toml",
+      "nodes": 2
+    },
+    {
+      "manifest": "workbooks/spec-dev/workbook.toml",
+      "nodes": 11
+    },
+    {
+      "manifest": "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/workbook.toml",
+      "nodes": 3
+    },
+    {
+      "manifest": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/workbook.toml",
+      "nodes": 3
+    }
+  ],
+  "method_directory_files": 57,
+  "additional_inputs": [
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/analysis.json",
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/analysis.md",
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/execution-audit.json"
+  ],
+  "inputs_count": 60,
+  "input_bytes_match": true,
+  "read_before_after_identical": true,
+  "input_sha256": {
+    "examples/article-review/flows/default.toml": {
+      "bytes": 1209,
+      "sha256": "70a7d8b0be0dd37872d9e557263e2440a7c4e5b3be247bc86f999b56aa607b78"
+    },
+    "examples/article-review/instructions/draft.md": {
+      "bytes": 705,
+      "sha256": "fdb36ea7d5d33d1a090d6a2702da72980ef1a6f780c862946ed2a30763260263"
+    },
+    "examples/article-review/instructions/review.md": {
+      "bytes": 425,
+      "sha256": "4657867eec574249c2f586ea9bfeec5297460d9b27f34b8fea8b1562115e667f"
+    },
+    "examples/article-review/resources/review-checklist.md": {
+      "bytes": 284,
+      "sha256": "887d65108d23a71b86f691183d2f9de26b8e45f864fc44e24c5e76ffbe96ed6a"
+    },
+    "examples/article-review/workbook.toml": {
+      "bytes": 237,
+      "sha256": "f1e06cacacefe7a43f4cc6fcebf72cb7edb7ebf56e50344533987bbde9f26470"
+    },
+    "examples/code-change/README.md": {
+      "bytes": 4821,
+      "sha256": "28e7dea7402418794716e15cf28d5669d196b925092cf93257945cbf57a0e213"
+    },
+    "examples/code-change/flows/default.toml": {
+      "bytes": 1454,
+      "sha256": "6d508fa5ada0bb0fa62642c0751314cb7fc8e9f5184c01695a2db42dfbe0ee84"
+    },
+    "examples/code-change/instructions/deliver.md": {
+      "bytes": 754,
+      "sha256": "d99f73603489ee826079a54b2148dec5fcdbabf090f7dc2eb00b93a97f805a0f"
+    },
+    "examples/code-change/instructions/implement.md": {
+      "bytes": 839,
+      "sha256": "53683f15585754175005c982d149047671006a3e4212aee17fbce597e26e0387"
+    },
+    "examples/code-change/instructions/review.md": {
+      "bytes": 646,
+      "sha256": "b5c6d88a022bcfb8c4ac6d6b1a80a361ade58e204f13f80eec96318fb88cc009"
+    },
+    "examples/code-change/workbook.toml": {
+      "bytes": 211,
+      "sha256": "849f96c8b12f2e84d02917ddfc080d45443646efecb0ad1c278fd80107bb3c78"
+    },
+    "examples/gated-release/flows/default.toml": {
+      "bytes": 603,
+      "sha256": "e0978848e4b5208865110a295704fa0b177417d085b628083071e9c1853c42ad"
+    },
+    "examples/gated-release/instructions/archive.md": {
+      "bytes": 221,
+      "sha256": "7837c679a50355abe6fadaf479f9e868f97ed82061a3c1a382c56381f02df74b"
+    },
+    "examples/gated-release/instructions/notes.md": {
+      "bytes": 407,
+      "sha256": "f2f405621cc8ef6d394da32bea485fc3e2ffdc99fb7160cf2b8f574e9e208fbd"
+    },
+    "examples/gated-release/workbook.toml": {
+      "bytes": 230,
+      "sha256": "6bbe6c02ed0401e0fbacc347f89588a32da32213e783a700d3b2d7a61a56f876"
+    },
+    "examples/two-step/flows/default.toml": {
+      "bytes": 608,
+      "sha256": "62370321ceaa3c4e4ffc62c7869001e17ae51517881c9e31d3fb54fa08d80002"
+    },
+    "examples/two-step/instructions/outline.md": {
+      "bytes": 344,
+      "sha256": "1c1e0089fe8579b6bfe92fd8f81487e3e6982eb97de566e4e0f7412c689fa432"
+    },
+    "examples/two-step/instructions/summary.md": {
+      "bytes": 290,
+      "sha256": "ded0a18c2a92e2c20f5bbd95a81d3ff17da363eac56482de6dafd825aaa038c1"
+    },
+    "examples/two-step/workbook.toml": {
+      "bytes": 221,
+      "sha256": "2bc0a4d76d792c0fe32169a9bbfdba99489da7ce10d3236b62200b9dfd7fc211"
+    },
+    "workbooks/spec-dev/README.md": {
+      "bytes": 12637,
+      "sha256": "5d009717d0ed1a541a0cf598d9c9d649820cd8d1d648dc72cabf373b619cf537"
+    },
+    "workbooks/spec-dev/flows/default.toml": {
+      "bytes": 10769,
+      "sha256": "f4751a0d0401cc04232bad38d3288dc317804b1be765a572457976f26b977163"
+    },
+    "workbooks/spec-dev/instructions/deliver.md": {
+      "bytes": 1867,
+      "sha256": "47740b39c1338eb16a55437d536b8073e42fac454f4dec1ba7a03e8536008106"
+    },
+    "workbooks/spec-dev/instructions/escalate.md": {
+      "bytes": 2986,
+      "sha256": "008d9468e9e2cb67c9a5f75501b30b76b8d4a13f2bdcbd8a0cb515e3caecb6d1"
+    },
+    "workbooks/spec-dev/instructions/fix.md": {
+      "bytes": 3628,
+      "sha256": "2afbd9d7bc5a02325025d309a4da55bec977f5a9c24bea6f86b4a623c84cc3fb"
+    },
+    "workbooks/spec-dev/instructions/implement.md": {
+      "bytes": 6031,
+      "sha256": "2b2ac0cfc56b734f9d56deed4ada236564bbd5be1f0c88cadc17a4e13f1e2aaa"
+    },
+    "workbooks/spec-dev/instructions/plan-review.md": {
+      "bytes": 2843,
+      "sha256": "581a8fa07fff07bba9cac7d35d2ce79d163617140edba44dc52b02bdc259ed73"
+    },
+    "workbooks/spec-dev/instructions/plan.md": {
+      "bytes": 5809,
+      "sha256": "b359e800ee98480a2c8162a3f6c2f02558e4a8a3884586e61d543f11f4521249"
+    },
+    "workbooks/spec-dev/instructions/retro.md": {
+      "bytes": 2507,
+      "sha256": "93ef254551b35aace9602d6bbc14db8666ac6fd8354be7b01012b9e42fd4b0b7"
+    },
+    "workbooks/spec-dev/instructions/review.md": {
+      "bytes": 3234,
+      "sha256": "56cd0541626ecd614370267855124d3f2ec744beee6a09fc57ed9842acd177b9"
+    },
+    "workbooks/spec-dev/instructions/scaffold.md": {
+      "bytes": 5069,
+      "sha256": "317300d8e16229022e3fd3c0967a0c95a66beb83cd0fd87d34d410c05312fdcf"
+    },
+    "workbooks/spec-dev/instructions/spec.md": {
+      "bytes": 1833,
+      "sha256": "7e4523a1e7397201b329e59b2dbe3438eefe5d941cc66b469e94197f550eef57"
+    },
+    "workbooks/spec-dev/instructions/verify.md": {
+      "bytes": 6610,
+      "sha256": "68df52cddb953153c0ba63253f9d00039d85915160f78012b4012b9320c16125"
+    },
+    "workbooks/spec-dev/resources/checklists/implementer-rules.md": {
+      "bytes": 2320,
+      "sha256": "8134de2dbc39d65ad2de9ca9e0efc5c22d0d9543eb550e05403a173e8ac82a90"
+    },
+    "workbooks/spec-dev/resources/checklists/retro-rules.md": {
+      "bytes": 1608,
+      "sha256": "db702327dde7f7b95660dc9ddbd78faf95fa1763b79a788944ae1e9f00937081"
+    },
+    "workbooks/spec-dev/resources/checklists/review-checklist.md": {
+      "bytes": 1177,
+      "sha256": "bdac26d4839e0e853d55717b43be7381d42667c13a99e22872ef629cc002164b"
+    },
+    "workbooks/spec-dev/resources/checklists/scaffold-rules.md": {
+      "bytes": 2681,
+      "sha256": "306d0f50d136b59038a195897002ee90e4495e05559f5f2f0e413dbec1702fdb"
+    },
+    "workbooks/spec-dev/resources/checklists/spec-checklist.md": {
+      "bytes": 764,
+      "sha256": "0bdc7e6ebc0ddeee8059f0ec85afe933e7c9278766340769d3ac8b22743b2251"
+    },
+    "workbooks/spec-dev/resources/checklists/task-rules.md": {
+      "bytes": 1304,
+      "sha256": "5d2faa7c3f57ee3a030badb56f950d5721420654f567cbf61f050417f9b34e38"
+    },
+    "workbooks/spec-dev/resources/templates/lessons.md": {
+      "bytes": 735,
+      "sha256": "7f53d1eed7d46a490318e487589a590c008189691c59bd144a7e3c0344953ee6"
+    },
+    "workbooks/spec-dev/resources/templates/plan.md": {
+      "bytes": 987,
+      "sha256": "4baf748d85a9295bb73f61a4095616adc96450dddb8ec572bbfb2b9d9350a6be"
+    },
+    "workbooks/spec-dev/resources/templates/report.md": {
+      "bytes": 1388,
+      "sha256": "a9c5e72fdc69e6b53f788478d1087a3ac3af566e95a929742f38cfcb98c92551"
+    },
+    "workbooks/spec-dev/resources/templates/scaffold.md": {
+      "bytes": 789,
+      "sha256": "16c4ff81f11b37c72d604312082a61186d5af6762a03470092d63b6a9a3e79e6"
+    },
+    "workbooks/spec-dev/resources/templates/spec.md": {
+      "bytes": 360,
+      "sha256": "d6987fc17a535342253d5579ced7ac5f88a32f52b01f19073058d04f1010b423"
+    },
+    "workbooks/spec-dev/resources/templates/tasks.md": {
+      "bytes": 957,
+      "sha256": "c7df4f8e17ec84c0c7a7377466985305e9676968a15bb46b73a3bca1705383cd"
+    },
+    "workbooks/spec-dev/workbook.toml": {
+      "bytes": 318,
+      "sha256": "d17b0c5489d01e11134e76aeb300a4f112e0ea73079a96f175801374441c2978"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/README.md": {
+      "bytes": 1781,
+      "sha256": "c74b3e7e70b4eeb6a6cfbb0bebed1ef91e06ab2e88afc3054f572b7db9244bd9"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/flows/default.toml": {
+      "bytes": 1751,
+      "sha256": "e1bd76e9dd23f365668aad21eba8622af0be4847011f96c9c16b54b273b12c41"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/instructions/deliver.md": {
+      "bytes": 4321,
+      "sha256": "edeb471207b37a0ced065fbe4ee7c8487059442288ccb6d3579b6d9772b084ca"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/instructions/implement.md": {
+      "bytes": 4060,
+      "sha256": "67757622df1985ed0517362eef6ee2bf91f25b40f5e94255e6b645f6553e0fe2"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/instructions/review.md": {
+      "bytes": 3792,
+      "sha256": "74ba6783b27591baf35c2c8c17555cf8a88806de0d1487ffea86e9f46c2cac3b"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input/workbook.toml": {
+      "bytes": 298,
+      "sha256": "18b28ad4991b7bc57a8cbbcfb6ad9d4e427f210ab34d075735a1944096a81362"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/README.md": {
+      "bytes": 1781,
+      "sha256": "c74b3e7e70b4eeb6a6cfbb0bebed1ef91e06ab2e88afc3054f572b7db9244bd9"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/flows/default.toml": {
+      "bytes": 1751,
+      "sha256": "e1bd76e9dd23f365668aad21eba8622af0be4847011f96c9c16b54b273b12c41"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/instructions/deliver.md": {
+      "bytes": 4321,
+      "sha256": "edeb471207b37a0ced065fbe4ee7c8487059442288ccb6d3579b6d9772b084ca"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/instructions/implement.md": {
+      "bytes": 4060,
+      "sha256": "67757622df1985ed0517362eef6ee2bf91f25b40f5e94255e6b645f6553e0fe2"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/instructions/review.md": {
+      "bytes": 3792,
+      "sha256": "74ba6783b27591baf35c2c8c17555cf8a88806de0d1487ffea86e9f46c2cac3b"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/confirmed-input/workbook.toml": {
+      "bytes": 298,
+      "sha256": "18b28ad4991b7bc57a8cbbcfb6ad9d4e427f210ab34d075735a1944096a81362"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/analysis.json": {
+      "bytes": 8436,
+      "sha256": "4d724251f2c83db7f0264a1a59f765d0556dae6cfea3ad9f5e304ddcc30f762a"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/execution-audit.json": {
+      "bytes": 28477,
+      "sha256": "b5c268d52a3d9be2d85ebaf2f60083adaa66ea7618bb380bf11545d1575bdd17"
+    },
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/analysis.md": {
+      "bytes": 4435,
+      "sha256": "2db013e4e5a4a2316950802bd21e87d313a26f4dbce72124142de1cdb67a76c4"
+    }
+  },
+  "original_file_count": 23,
+  "immutable_originals_same_count": 17,
+  "original_comparison": [
+    {
+      "path": "adoption.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "6f228510e3aeca0c0bdccaccf2f91ed6b616f6c828d096e4681fe560deff8432",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "validation.md",
+      "manifest_equals_git": true,
+      "current_equals_original": false,
+      "allowed_author_index": true,
+      "current_sha256": "23c04681522d6b5ca3835997e2f4a8c5c4bef354f15c72af904ec7ecfeb698e7",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "tasks.toml",
+      "manifest_equals_git": true,
+      "current_equals_original": false,
+      "allowed_author_index": true,
+      "current_sha256": "621afe76f08297fc760607fcbfcbd443b77f46b9c65b7fe1e0c63e1c4981f1cd",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "progress.md",
+      "manifest_equals_git": true,
+      "current_equals_original": false,
+      "allowed_author_index": true,
+      "current_sha256": "9bc89f5214119529ea530e14f48912b8b373867f81361f39e95d83bb113fde59",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "README.md",
+      "manifest_equals_git": true,
+      "current_equals_original": false,
+      "allowed_author_index": true,
+      "current_sha256": "6f45d2fdc92b2a6022750d32588d21bfe9065d847caa798749460f63fc25a53c",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "plan.md",
+      "manifest_equals_git": true,
+      "current_equals_original": false,
+      "allowed_author_index": true,
+      "current_sha256": "55e5179363fcdb79e1de7696df08e5c4e1f517854aea7c757f46e8da7dae89aa",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "spec.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "013b47cf54acb7a8ebef5f070fcb78304b42e9798cefa75a0fd64938a204bf8e",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "design.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "14fe969c6657e60e94f7a377687d75603de6cfa63fc2f67fd9a253d59ea74555",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "review.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": true,
+      "current_sha256": "79440203835c5115d538cad1345762ad3f7d725619838320e70a733d45e36294",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "evidence/final-archive-preservation.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "197af2a0ee1f9c3ed8dd3d1641b6b08195da9b6e1973a3b85f532ea4efa165d8",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "evidence/archive-c007-raw-preservation.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "9f1994c582c0b795631ae6128e40c8322f3e0e20659ce60342ffd3e2a68ddda0",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/report.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "7c2cb1ced5dfd795926b5092272154f036e1ce20a87efb4edae3076ba146361b",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/host-rule.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "21f457cdd5460edfd161a9a3105c9e5c6eaebbec70f66155933f523a68cfdf49",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/runbook.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "851e28512494e1a3d9175f576173e8fe65ae4c5a3790c844d1e5ae992c189b83",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/protocol.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "8746c3b3c482b1267d16de4627c015e1a8a1ab9fa620da1f95cfc6dbead39d6e",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/real/README.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "09ccd6163b4e42576252dda8eff2448a5a69acddaf1b9a364a4ee8733136eb44",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/byte-manifest.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "a74757a024355f76ad47f150cdfb3be789905387041c82e13c7fbcf98ede78ac",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/README.md",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "e2272532997dce5535ed3638aa702e5093fc607d8d6a593250c4f3a880aa631b",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/historical-index.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "d7fa4fc42eed1750e30f24008acfed9dd6d50dec99c847f684edc79b8b95f4fa",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/inventory.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "edfe2ef241785683b1b4078f6e392d39f4b024170770458ba1cb9931fffff61e",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/preflight.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "e5c2d29335a4eb3bcd5c98dbd8659dedc1628c007cac190c469b0c52b625646e",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/historical/before-eof-normalization.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "645bebaf5eb23c0322698664efa4146d6b80a8ff1fd339f3cdac93a92b917b26",
+      "preservation_status_matches_current": true
+    },
+    {
+      "path": "experiment/evidence/target/historical/after-eof-normalization-active-c007.json",
+      "manifest_equals_git": true,
+      "current_equals_original": true,
+      "allowed_author_index": false,
+      "current_sha256": "c81d9a0c4c579b9556bdda620f5980379816fffb07bbf300f282e91f6afce23d",
+      "preservation_status_matches_current": true
+    }
+  ],
+  "natural_source": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/resume-20261004/study/execution-audit.json",
+  "natural_source_sha256": "b5c268d52a3d9be2d85ebaf2f60083adaa66ea7618bb380bf11545d1575bdd17",
+  "natural_deviations_exact": true,
+  "natural_diagnostics_exact": true,
+  "outcomes": [
+    [
+      1,
+      "stopped"
+    ],
+    [
+      2,
+      "completed"
+    ],
+    [
+      3,
+      "failed"
+    ],
+    [
+      4,
+      "completed"
+    ],
+    [
+      5,
+      "completed"
+    ],
+    [
+      6,
+      "completed"
+    ]
+  ],
+  "adoption_conditions": [
+    "missing author-confirmed required kind:name",
+    "inspected records do not establish repeated same-host dependency friction; hidden/future friction unknown",
+    "no selected target/host/version/identity/rules/authorized roots",
+    "no preparation/maintenance/real observation/retention budget; 10-minute review budget is separate"
+  ],
+  "decision": "not_adopted/no_declared_target_in_inspected_scope",
+  "probe_mechanism": "not_run",
+  "actual_host_observation": "not_run",
+  "readiness": "unknown",
+  "real_value": "not_run",
+  "host_reads_by_reviewer": 0,
+  "probe_assets_created": false,
+  "active_directories": [
+    "specs/changes/active/C008-dependency-readiness"
+  ],
+  "task_scope_outside": [],
+  "source192_literal_symlink_sha_errors": [],
+  "new_rust_execution": false,
+  "governance_commands": [
+    {
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "returncode": 0,
+      "stdout": "check-docs: OK (283 个文件)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "returncode": 0,
+      "stdout": "check-specs: OK (8 个 change，1 个 active)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "returncode": 0,
+      "stdout": "check-tests: OK (951 个测试，任务卡 204 条)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "returncode": 0,
+      "stdout": "check-skill: OK\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "returncode": 0,
+      "stdout": "check-core-vocab: OK\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "reviewed_artifact_sha256": {
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/source-qualification.json": "39ee7a47f3722b62c9a2126844003ea394fe96bc3538ba22de333fc46a491d63",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/conclusion.md": "53c7f64e84d5841ea3a60336a7d2719b86968e0186c1e2b3c009e7d7eaf13dcc",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-core-vocab.sh.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-tests.sh.stdout.txt": "be673a92ed63d81e38257ddec80e8791f1cc008904f787fe67f48a9a13a3354b",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-specs.sh.stdout.txt": "27479956bc6777a2e4df9730da8ad1a2dfcba9d0b1eb2b94b9338156eebc8401",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/adoption.md": "9a7eb87659f7395e3854bcf6813141503304b93e9f5db653b2374099ec577aae",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/natural-events.json": "b7f8acb834402345b38b699c923b9c1e52c658522f56f8ad8de9e7d2c3c655f5",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/git.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-skill.sh.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/preservation.json": "4a007432263ace4fc86d28acab3843dd876e3e79f69b9f8d28d533882fe893a2",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-docs.sh.stdout.txt": "330ee8cf65982acf25442b39a7df065cd3bce8d51518269890b5d81eba06bffb",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/original-files.json": "e2bd5b84bf9e7684673b367422a247b97e09730ad04e99d5ca0d29bf2fda19a4",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-core-vocab.sh.stdout.txt": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-specs.sh.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-tests.sh.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/inventory.json": "1c377a3547785caeb0a386915f7420142651d31ec5c66d4d586eb8fc6eecfaab",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-skill.sh.stdout.txt": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/git.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/preflight.json": "0e1203d9d4b843afa804139aef27b1bb6538fe6617570c157c692e40c04e36f4",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/t05-checks.json": "e6eb2abefeec00b2912d8a3e01b9c3db8478775e91f482bcb6efdf6f9f5e3010",
+    "specs/changes/active/C008-dependency-readiness/evidence/resume-20261004/check-docs.sh.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "inspection_exceptions": [
+    "Initial cat included nonexistent proposal.md, exit 1; README/adoption/spec/design supplied actual authority instead.",
+    "Exploratory unquoted source192* had no zsh match, exit 1; actual source192_inputs read from freeze.json.",
+    "Initial trial prefixed symlink literal with symlink:, producing three mismatches; freeze convention is SHA256 of exact readlink bytes, then all 192 matched.",
+    "First preservation read had stale same=true for validation/progress after author updates; author refreshed, current all 23 statuses match."
+  ],
+  "commit_check": "not_run: T05 author commit and done transition follow independent review; precommit task checker remains author gate"
+}

@@ -117,3 +117,7 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## C008-T04 本轮关闭
 
 基准d7e2dfd25c15a1e9f42d3f4e0227e4552f89203d。本轮前检限定归档，当前active为空，开发目标0.3/源码未发布RC保持。全部原package/experiment evidence逐字节保真，见evidence/final-archive-preservation.json；29源文件未改。原probe/实际观察not_run、C007原六trial和其他各包缺项明确保留，未改源码/格式/宿主，未安装/发行/push/merge。
+
+## 2026-10-04 当前条件复核
+
+当前 [声明盘点](evidence/resume-20261004/inventory.json)、[自然事件](evidence/resume-20261004/natural-events.json)、[条件结论](evidence/resume-20261004/conclusion.md) 和 [原件保真](evidence/resume-20261004/preservation.json) 分列。无真实目标，机制与价值不授 PASS。独立复核及实际治理检查另记；本次未改编译输入，不重跑无关 Rust。

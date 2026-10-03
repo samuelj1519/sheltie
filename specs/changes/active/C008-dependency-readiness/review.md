@@ -47,3 +47,7 @@ probe未采用；原配置/脚本/fixtures/no-write/机制M1/实际paired/覆盖
 ## C008-T04 本轮关闭独审
 
 结论：`PASS`。独立Reviewer从M2 d7e2dfd不可变git复取9份原evidence，与归档路径逐字节9/9相等、0缺/0改。active/proposed无C包，当前入口一致无active、Root开发目标0.3/RC保持，六状态首部为completed限定前检；原probe未采用与所有原机制/真实价值not_run及各包不同完成范围分开。源码/29声明/Cargo/scripts/host无改，未tag/发行。没有剩余必改，无未变产品重跑。
+
+## C008-T05 独立当前复核
+
+[独立审查](evidence/resume-20261004/independent-t05-review.md)：通过。七份副本/七 Flow/27 Node/0 requires/15 resource 绑定、60 输入与17不可变原件核实。四采用条件未满足，探针/host/value 不授 PASS。刷新作者索引保真截点后复核一致，无必改项。
