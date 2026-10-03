@@ -1,3 +1,3 @@
-# Active changes
+# Active change
 
-无。本轮C004–C008可执行实现/准备/前检与授权延期交接均已归档。真实实验、条件probe及其他未执行义务见各completed package，不当全范围完成。没有active时不从proposed自行选择方案。
+无。C002与C004当前采用恢复验收已归档，后续C005–C008依次恢复；真实实验、条件probe和历史not_run/unknown仍见各completed package，不从目录位置推断全部范围通过。进度以唯一active package plan为准，没有active时不得自行选择未采用方案。

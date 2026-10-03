@@ -192,3 +192,13 @@ T09提交62f0d49后派新fork-none /root/c004_actual_consumer。实际status/res
 消费者由refs实际读三成果算bytes/SHA，读开工包/审查/交付并按首动作实际读原validation/preflight，自写[准备判断](evidence/resume-20261004/consumer-report.md)。不是引擎新Node，不写Home/C005；七真实撤销前提仍null，当前只有普通文档接续，拒绝造replace样本。84SHA无漂移，11tool输入/响应均有对应完成记录，18:15:59Z task_complete、原始source_line/session见consumer-actual-records-manifest.json，停写仅自己命令和completed turn，不扩为全宿主。
 
 该新实际观察结合原running窗口补当前只读能力与真消费，原B两次逐查询快照仍未发生，不把原run改成每条已观测。原真人/费用/净收益、C005撤销/旧LEAK等不变。所有补取证/门禁/审核投入从17:41:37连续计，T10报告18:15:45时为2048.650s，不作为最终总成本。独立Reviewer已逐原session的11/11工具和消费者内容/实际查询增量核通过，F02当前能力闭合，旧B偏差永久留原；docs/specs/tests/skill/core-vocab治理均exit0，任务范围/提交读回随后完成。
+
+## C004-M3 当前采用范围收尾
+
+独立Reviewer最终[执行范围报告](evidence/resume-20261004/m3-final-execution-review.md)及JSON固定ddf4837a：自动agent/macOS aarch64执行闭包PASS。实际开工包质量、A/B同Attempt冷接续、具体终点三refs、running/terminal每窗口保全、新真实消费者每查询完整观察及实际准备判断已核。F01恢复21原raw tracking，F02新能力补验闭合；旧B取证偏差永久留原，不称原run每条观测。无新Rust输入，当前192实际域与consumer84同SHA，C002同源951原run424c/0.9.145与freshdeny范围仅当前工程资格，不追溯旧日志原因。
+
+根active/README旧“无active”遗漏已更正，最终归档入口同步；所有现存原件按tracked与物理完整清单移动，尤其21日志精确force-add。归档只表示当前已采用agent验收，不授原真人/paired收益、C005撤销、费用、宿主重开/永久无LEAK或发布PASS。原实体路径/请求/时间/产物bytes保持原样，冻结JSON中的旧active绝对位置是当时运行地址，不结果后重写成新来源；历史重跑应从规程另作新的冻结，不直接运行旧self路径脚本。
+
+当前纯文档收尾按docs/specs/tests/skill/core-vocab/任务范围与原字节index核，最终提交后再逐package blob读回核完整集合，原日志空白例外单列。原run连续60min包括等待/审阅/补修/治理/归档，最终实际总值在收尾原件记录，不折算人工/付费。没有push/merge/release，C005须本收尾提交完成以后另任务恢复。
+
+M3首次提交e7998e8实际全部hooks通过，274文件（含21日志）全commit blob/physical集合与272基准manifest逐SHA读回同值；连续投入到该读回为2622.074秒（43.701分钟），在原60min内。原件m3-postcommit-first-audit.json保留此真实时点；追加原件采用同M3 amend，不追改首次提交时点。最终amend后的完整集合另实际读回，后续投入继续计入，不把43.701分钟冒充追加后最终值。

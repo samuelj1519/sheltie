@@ -2,7 +2,7 @@
 
 状态：`accepted`
 日期：2026-10-03
-关联 change：[C004](../changes/active/C004-verifiable-delegation/README.md)
+关联 change：[C004](../changes/completed/C004-verifiable-delegation/README.md)
 
 ## 背景
 
