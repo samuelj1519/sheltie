@@ -1,0 +1,130 @@
+{
+  "candidate": "e3eea899877165f8573befee3774555598ec92bd",
+  "review_execution_complete": true,
+  "old_candidate_spec_verdict": "needs_changes",
+  "old_candidate_final_spec_approval": false,
+  "historic_699_or_mutation_rerun": false,
+  "reviewer": "/root/completion_spec_review",
+  "inputs": [
+    {
+      "path": "specs/constitution.md",
+      "git_blob": "e8090fd6be8478af1a31fff05b4d1bf9f02e3ca7",
+      "bytes": 5106,
+      "sha256": "103fbf722fa9bd1c692deea04f63aff80c14d3f6e56ea9a383bbef34ca950b0f"
+    },
+    {
+      "path": "specs/spec.md",
+      "git_blob": "fcddc440f1556587d1f4ea3875b8200613015a98",
+      "bytes": 18305,
+      "sha256": "ba43bb1c4f3b899d574f16cfd07e7d2a03f5519353dbf24579005283f044bca8"
+    },
+    {
+      "path": "specs/architecture.md",
+      "git_blob": "c1de67a4d910d6a5bec111f23d61c5cc0ef2e900",
+      "bytes": 19588,
+      "sha256": "1b62d740607a32ac7e74c0f004091b778c7ef89aa4f2a51ffac11c4cf5c05068"
+    },
+    {
+      "path": "specs/contracts/workbook.md",
+      "git_blob": "5e900c29a730578609fba07e988f5dd2cf06cad2",
+      "bytes": 13319,
+      "sha256": "1ecf376b75f9af688f3f83a17d466a09d8a7b62016737f0eb048cfac80ab2763"
+    },
+    {
+      "path": "specs/contracts/storage.md",
+      "git_blob": "9d5095708e9ca8a888b129a2fcad5ed4445ebca9",
+      "bytes": 31944,
+      "sha256": "f07ff0c1c9d77853b5a1a24ee816bea7b44034b23bf3873fc597e0e93f6662a3"
+    },
+    {
+      "path": "specs/contracts/protocol.md",
+      "git_blob": "45fd32c646398e4196066e4938cb2a0b015240ed",
+      "bytes": 29629,
+      "sha256": "c3af086f0af2955cac866fd17d158d359d27cd0f07e3b34391966b3b46c00909"
+    },
+    {
+      "path": "specs/engineering.md",
+      "git_blob": "6d8306d55a8ceba2e511e902850b0267b5373455",
+      "bytes": 12694,
+      "sha256": "9e22d38228b5ead1cb0da1b35d00923485787a51c6cae0ce85e6356fb69f10a2"
+    },
+    {
+      "path": "specs/changes/active/C002-v0.2.0-reliability/plan.md",
+      "git_blob": "a4b1af34d136f9eaf761611131e192f05fb589ce",
+      "bytes": 35908,
+      "sha256": "084f83c98e16933b4b7f932eace0f872f39db74c35f9465c4f674abfbd72089f"
+    },
+    {
+      "path": "crates/sheltie-core/src/ids.rs",
+      "git_blob": "a74c08287c24d182c32b0b900d00c316b9f3a0f6",
+      "bytes": 18459,
+      "sha256": "e7992bf73f15dffa1a377ed44debcd4230cee4130be274cd827837d04835a3e3"
+    },
+    {
+      "path": "crates/sheltie-core/src/work/state.rs",
+      "git_blob": "ab0ae462f88436b673ff1bfb35f641bd02b83ee9",
+      "bytes": 23117,
+      "sha256": "f06111ddf5d320ee7512a8fa0cc15ae69fbed0c5f2f1a1f60d910504feb8cb4d"
+    },
+    {
+      "path": "crates/sheltie-core/src/work/decide.rs",
+      "git_blob": "13cb4b34f52eea19d4f54cf31383527546cc4195",
+      "bytes": 58360,
+      "sha256": "cc41baffbe656ce1c7d0093eb6b97a0863c334a7782697a2408efef3be5076a4"
+    },
+    {
+      "path": "crates/sheltie-core/src/work/command.rs",
+      "git_blob": "f10fc71c88beb232bc360e651f4e33a4b4282870",
+      "bytes": 4728,
+      "sha256": "d86f747a744d2342c59570b3e84b7fe2dba7c5c1a22e8e88545218d25dfece38"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/workbook_repo.rs",
+      "git_blob": "152c407e6bbe6b2c22f40ce17e128fb3054b99b9",
+      "bytes": 52419,
+      "sha256": "956d938fc94adf4d338d2ee7b54a1d83db0915b5ba52046e06e18f5096c1b3ad"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/service.rs",
+      "git_blob": "21ce333c5eef7d60baa46286c549149066e6f4e3",
+      "bytes": 66137,
+      "sha256": "09b539f004a48f05ebff7aad8f2db3a69f441058eed260bd46731de7ad56fd92"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/snapshot.rs",
+      "git_blob": "357739a4ec36bd5dc7e15ef5d5f3a0510fcfff5f",
+      "bytes": 7411,
+      "sha256": "b8eda1e31551291f9e3a788e7f0ecfd9ca2cf3277d0440cbb1b3434ca3894a21"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/recovery.rs",
+      "git_blob": "7f90d6d161fd96182b9455ab692c27287f358a44",
+      "bytes": 9736,
+      "sha256": "7355d038739f150ee0ccd4faf7d845fbfb664160853cb7751e4cb67e2a2d0c43"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/effects.rs",
+      "git_blob": "0e1aea0000c140189a1bb1bb9faacdde7893b01b",
+      "bytes": 60211,
+      "sha256": "3ad5d88480d843c1b9f8ea5fdab341c53c328bebf2ea3cc133af6ad54018516e"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/selfmgmt.rs",
+      "git_blob": "480f1b434e908e4384468dc354066bf3893421a8",
+      "bytes": 37372,
+      "sha256": "b25938c2fa818a4dde66d410cd1be6702050dfca67944b9317fc04e92392c13d"
+    },
+    {
+      "path": "crates/sheltie-runtime/src/store/read.rs",
+      "git_blob": "189c4eaeed6addfea4d60030060afcae10f921f3",
+      "bytes": 16148,
+      "sha256": "c5b463a30dbe8fbb6cf2dacb585f4a3fa79386003c45276b1e5df6556f9fca82"
+    },
+    {
+      "path": "crates/sheltie-cli/src/commands/mod.rs",
+      "git_blob": "e9bc7996a27f30093f9bd612bfad0be45d39c3a8",
+      "bytes": 2645,
+      "sha256": "c02ad62d536a3dbe45b6bb51c992db307282e30583972a85119ee667e24ef0d6"
+    }
+  ]
+}

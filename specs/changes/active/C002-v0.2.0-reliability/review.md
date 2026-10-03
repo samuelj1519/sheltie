@@ -323,3 +323,7 @@ Reviewer `/root/oracle_review`，未参与设计/编写。初审需修改仅指�
 ## C002-T42 环境独立验收
 
 限定PASS：官方tool/asset digest、实际dist六资产无exporter、fresh政策/DB/current图、现行默认版本完整工程与已复现执行器问题的边界准确。原MSRV来源缺项已补，原缺项意见保留。见 [环境原文](evidence/completion-20261003/independent-environment-review.md)。不把4096诊断fixture算产品测试，不追溯关闭旧每次LEAK，不推断平台或真实价值。
+
+## C002-T44 历史 Spec 审核执行完成
+
+独立正式补审已执行：旧e3eea89需修改，旧最终Spec批准仍false；三条当时合同缺口及后续修复列在 [历史原文](evidence/completion-20261003/independent-sk01-historical-final.md)。现行T39/T46修复的当前合同审查通过。审核执行完成和旧输入批准分开，不反写原暂停，也不将当前PASS当旧PASS。

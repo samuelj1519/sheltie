@@ -464,3 +464,9 @@ T42 的当前完整工程与在线公告仍是独立补验任务；T44 已发现
 [执行器对照](evidence/completion-20261003/runner-pipe-comparison.json)与 [可恢复原文](evidence/completion-20261003/runner-pipe-probe.tar.gz)：同一4096个纯测试、同target/source、64线程，旧0.9.140出现3leaky，新0.9.145为0leaky，均4096PASS/0skip。该结果复现官方修复的Apple并发捕获管道继承问题，只用于执行器诊断，不加入产品测试数。历史Sheltie每次LEAK因果仍不追溯造证，原unknown/FAIL保持。
 
 T42结束要求版本、编译、在线公告与实际计划的补验；其他平台/跨设备/真实actor/215项属于各自任务，不随本结论关闭。
+
+## C002-T44 SK01 历史最终补审与现行结论
+
+按本次恢复授权，独立 Reviewer `/root/completion_spec_review` 完成固定 `e3eea899877165f8573befee3774555598ec92bd` 的原T34最终Spec增量及原M1整体判断，见 [正式历史结论](evidence/completion-20261003/independent-sk01-historical-final.md)、[原合同/源码输入](evidence/completion-20261003/independent-sk01-historical-inputs.json)。`review_execution_complete=true`，但 `old_candidate_final_spec_approval=false`：旧候选需修改，重复Flow先COMMIT后拒而阻断、嵌套未知字段接受、24h tmp维护缺caller三条违反当时合同。旧R22/R23/R24条件自身静态成立，不足以批准其完整资格基础。
+
+这三项已由T39 `84bafa37` 后续修复，现行写重放顺序另由T46 `06e5a91` 修复；对应已提交原文与实际新版测试分别保存。当前关键合同审查/增量PASS明确属于修复后的输入，不给旧输入造批准。本轮没有重跑旧699或变异，不覆盖SK01原暂停；215项恢复在T43，发布历史仍绑定8455及其既有独审。T44结束的是原缺失审核执行及准确结论，不表示旧候选合格或全部方案完成。
