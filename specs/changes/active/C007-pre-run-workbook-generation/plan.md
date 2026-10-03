@@ -1,6 +1,6 @@
 # C007 实施计划
 
-状态：`completed`；用户已采用可执行技术准备与缺项交接。原正式实验未执行。当前进度只看本表。
+状态：`active`（2026-10-04恢复当前agent试用；原代码真人协议留原）；用户已采用可执行技术准备与缺项交接。原正式实验未执行。当前进度只看本表。
 
 每个任务和审查的范围基准都是本任务开工完整提交；提交前加 `--staged`，提交后用同一完整提交再核，不采用 README 总基线或随意 HEAD。准备/操作任务无 Rust 所属测试时不调用 task.sh。
 
@@ -99,3 +99,43 @@ M1 只批准该实验准备是否可以进入实际试用，不宣布真实收�
 基线 `6614e42ceed5b46ea7143a343441f6c3e5e33617`。用户已授权顺序执行并记录跳过不能执行的操作。本轮完成私有方法/共同说明/协议/模板/合法拒绝CLI准备，独立审材料和真实准入缺项；六个正式run、参与者历史、关闭重开、自然返工、用户接受、质量和成本不伪造。原正式实验标准和门槛保留；缺实际任务/actor/host/budget不开始正式试用，原M1正式准入及M2真实结果保持not_run。当前任务done仅指可执行资产与明确跳过/补验交接完成。
 
 为避免把缺样本变成编造工作，T01准备方法和待填准入字段；M1审资产/缺项及补验步骤，不能批准正式六run；T02记录六个规划槽位not_run而不创建虚构run_id；T03如实报告无法估算价值；M2核本轮记录保真。人后续提供真实输入再冻结正式协议、通过真实准入审阅并补原义务。技术CLI单命令30秒、资产准备20分钟墙钟反馈预算；不是人工实验预算。原实验预算仍待提供。
+
+## 2026-10-04 新自动agent协议
+
+| ID | 状态 | Owner | 依赖 | 当前真实结果 |
+| --- | --- | --- | --- | --- |
+| C007-T04 | done | Root；独立准入Reviewer | C006-M3 00e010 | 三真实文档任务/独立副本/相同方法/actor与顺序/质量成本预算冻结 |
+| C007-T05 | not_run | 新连续coordinator与实际worker；独立质量Reviewer | T04提交与准入 | 六实际配对run、一次同阶段两arm冷agent接续、五成果/完整patch/独立质量/代理接受 |
+| C007-T06 | not_run | Root分析者；独立Reviewer | T05 | 实际历史与完整自动agent投入复算、方向与当前可用文档选择 |
+| C007-T07 | not_run | Root；独立Reviewer | T06 | 已质量达标的三真实文档patch实际应用到本产品，绝不复制实验流水为根spec |
+| C007-M3 | not_run | 未写标准/方法/产物/分析的Reviewer | T07 | 新协议完整试用与实际交付限定验收，原代码/真人not_run留原 |
+
+### C007-T04 准备并准入当前真实agent配对
+
+基线00e010。原34文件移动同SHA/全tracking，旧13CLI/六not_run slots和原预算/真人缺项不改。新协议在evidence/resume-20261004/study/下，与原experiments/protocol分开；任务是三个现缺的真实产品文档patch，不虚构Rust bug/feature。由需求Owner Root冻结 task1 source-quick-start、task2 continuity-choices、task3 current-acceptance-handoff和精确文件/质量/现有检查（文案不跑镜像/Rust套件）。初始两个owned git clone及patch验证clone均固定00e010与完整文件tree，authoring不先解样本；固定task/project对两arm同bytes，project含both path映射，由外部binding指定当前arm。
+
+一份原confirmed method完整复制并SHA冻结，Native拿相同三instruction/策略/报告/计数，允许认真现成宿主持久stage日志；Sheltie只多同方法CLI状态/封存。默认gatefalse/no requires。用一个新fork-none协调actor连续六run（两arm各3）；Root已准备原方法不是该actor，localprior0/globalunknown，首次读者worker另记。固定顺序sample1 N→S、sample2 S→N、sample3 N→S，不结果后改。sample2 implement阶段先实际workerpartial并结束turn，新fork-none只读本arm自然持久资料继续；Root/coordinator不代正文、不replace/fail，不称原App关闭。
+
+资产准备从C006最终读回19:21:13连续90min；每run20min含其全部writer/review/deliver/输出核/patch应用及代理接受，六run+最终独立盲审/分析/应用总体180min（从首次正式run起），子CLI60s/检查120s。预算缺省费用/人工活动null；P_current/S_arm/M/R/E记录实际UTC/墙钟/工具角色，公共P在arm比较同口径/experiment只计一次，旧P未知不填0；每次本actor prior/history从实际使用复算。质量全必需项、无重大缺陷才合格；预先有意义改进为同质量下三次累计自动agent墙钟含本轮公共P和setup相对Native至少15%下降且第3次无额外解释/重做增加；未知/顺序/助手差异使无法判断时结论“不足判定”，不为阈值造可比数据。
+
+方案/质量/初始副本/工具/成本/消息/patch生成应用已先完备，独立M审不写标准。未发生正式配对前先T04提交，原正式代码真人准入不由新scoped PASS授予。没有必要重复无关Rust、新收集平台或解析Flow/Store；重复CLI与原件只用轻量已知公开调用。
+
+### C007-T05 六实际运行与独立质量
+
+由新实际coordinator按已冻first-use与顺序，每arm3任务；节点executoragent派worker，全部同model/工具/权限，Root不把实现代办隐藏在coordinator成功。Native不用引擎但同阶段/上限/材料/原报告/认真持久日志，Sheltie显式専用Home/JSON与先UUID，next/brief/path全部从实际response。不直写Store或管理metadata，不用代批准human gate。
+
+每run真实repo文档patch与5成果引用，candidate full tree/sha/dirty闭包、每既有检查argv/stdoutstderr/exit和完整patch（含新增）在独立基线副本apply后tree逐same，不能用漏新增的git diff。正常review若自然缺陷走back最多方法限3，不造返工，执行失败才fail。两arm同sample2stage真实partialworker结束、新冷worker查持久资料接原任务；同一run不增加uses，换helper影响单列。
+
+全部原始记录 append-only、失败/请求帮助/未知/超时成本保留；格式沿design，自动agentactivity不伪成人工minutes。workflow日常审不同于最终独立质量，中性编号盲审材料保patch/task/candidate/必要raw不改字节；盲审若可由metadata猜arm披露，不骗完全blind。真实代理接受与独立quality分开记录。任何源/标准变化或未预期失败停止该run交Owner，不重复凑绿；规范内自然返工保原文。run真实ID仅独立准入且开始之后生成。
+
+### C007-T06 复算与选择
+
+只据六实际run、真实actor×arm次序、助手/冷续、独立quality和原始各桶P/S/M/R/E与费用null计算；旧准备未知不补。样本顺序效应/assistants独立角色差异/自动agent标量局限明确，未达阈值或不确定就保持当前产品，无新机制。质效合格的真实文档为用户交付可选择，Root分析不代盲审。不重写原协议/标准/原run，不当原代码真人实验已执行。
+
+### C007-T07 应用已独审真实文档交付
+
+只按事前每sample文件表选择一个合格arm的实际patch，预冻结选择规则：均合格选Native以免质量择优偏实验收益、仅单臂合格选合格臂、两臂不合格该资料不应用/另任务修。三样本都固定同base，修改范围互不覆盖（guide index由Root最终按确切新文档链接更新），Root只应用原patch不代改产物求绿。当前Root因active package metadata与基线不同，检查patch只授权paths可干净apply并tree等于选定specimen对应文件，源代码/已冻标准不受污染。run报告流水留本package，新的操作文档只放已选guide/README限定入口，不把实验日志追加rootspec。实际文档/规格/skill/check-tests与范围提交、独立firstreader应用核后M3。
+
+## C007-M3 当前agent协议限定完整验收
+
+独立未写方法/任务/产物/分析的人核六真run/五成果/patch/candidate/raw/公平条件/历史/首读/两arm冷agent续/实际质量/代理接受与完整投入，公式可复算。原代码类别/真人会话/人工活动/接受/净收益not_run/unknown不消失。新负结果允许停止增量，但没有真实材料或quality不能用“无价值”糊弄。全blob/原件/入口归档后再C008实际条件判断，no release/install。

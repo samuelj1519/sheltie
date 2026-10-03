@@ -140,3 +140,15 @@ C007-M1本轮限定PASS，candidate53ceed8d完整SHA；原正式准入与六run�
 ## C007-M2 本轮限定结论
 
 独立审定candidate `45bf9feaf56a38a15e551a4a884b8e8cb833375f`，技术准备/真实缺项/授权跳过交接PASS，无必改。53ceed8d到candidate的方法/模板/protocol/oracle/13原件完全无diff；六slot及分析没有造ID/使用次数/质量/成本，没有省时或无价值推断。仅收口E措辞为实验整体开销，未知值未变。原formalM1/six trial/formalM2真实结果不改not_run，不授权新机制或发布。
+
+## 2026-10-04 C007-T04 当前agent真实文档试用准入
+
+C006当前收口00e010全209blob读回后开始当前准备，原34资产逐SHA移动同值，原13技术CLI/六not_run槽/代码真人原协议不改。新protocol agent-doc-delivery-20261004独立采用三现缺guide真实交付任务，源码快速开始、接续选择、当前验收交接；Root没有先写解答。基线00e010完整tar建立六独立样本和六patch检查repo，fullGit tree80ea3046同源；初gitadd忽略21tracked log的准备错误在任何trial前force精确原路径修，原identity名单保留，不伪初次tree相同。
+
+同原method6字节及digest0d66bee339...，same task/project/materials/中文现有skill/模型与权限，实际新coordinator session gpt-6.1-sol/high为未写方法首次读者，localNative/Sheltie0、globalhistoryunknown，准备阅读不算求解。交替六序、同阶段两arm worker停写和新fork-none冷续、所有助手/跨arm熟悉偏差/partialblind、外部代理接受与独立quality分离、完整candidate/patch应用/新增文件、all-required门槛和15%方向阈值/90minprepare/20minrun/180min全试验预算已在结果前冻结。P-current/S/M/R/E唯一桶，历史P/人工费用unknown不置0，不把agent指标当真人活动。
+
+真实capture探针0/1/重复拒绝/过期不启动/label不逃逸原输入与返回、六raw文件archive已逐byte保全；四技术add/show/verify/singleunknown拒绝实际0/0/0/1且不发表非法方法、无workstart/正式ID，不算actor方法使用或formal试用。首次命令表/探针缺原件准入needschanges在trial前修复，capture只格式改前后AST7740642同值，currentD05b SHA与freeze一致；全部原错误保留。
+
+独立Reviewer /root/c007_admission_review未写标准/方法/工具，最后窄审PASS冻SHA f2caa6c5836283ecb4001d0914b330eec028abd8d8f36548e2016ee7d35ffc98，实际全部final消息与工具source_line见t04-admission-reviews/records。只授当前准备，先单T04提交与读回才T05六run；原code/humanM1/M2/真人关闭/人工ROI仍not_run，不由此准入抹去。当前无Rust改变，不跑空task.sh/无关wholeSuite，docs/spec/skill/tests/scope另核。
+
+首次T04commit typos发现continuity任务标准的英文拼写错误，原旧词在JSON诊断保留，task/oracle同一词统一为Occurrence，含义/质量/范围不变，原失败保留；没有正式run。独立窄审全部38资产SHA与拼写反向对照PASS，新finalfreeze55af1d5362952bf7ac21df26316cb36781194f7b2ebb1bcdfca710f20ef6ff53，旧f2准入保历史，不拿旧SHA代表新闭包。随后单任务提交/读回该确切新freeze。

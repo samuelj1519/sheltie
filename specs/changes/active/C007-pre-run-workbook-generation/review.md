@@ -43,3 +43,7 @@ Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`。
 结论：`PASS`，仅技术资产/未执行规划槽位/边界报告与补验交接。独立Reviewer未参与准备/分析，核方法及13原件未变，六位无虚构ID/actor/history，P/S/M/R与整体E、真实质量/接受/重开/自然返工/usage/cost unknown/null，不推收益或无价值。
 
 原正式M1准入、六trial和M2真实结果全部not_run。当前task done表示本轮可执行资产和授权延期交接完成，原正式实验未完成；将来补真实数据按原标准另行准入与补验，不把本轮PASS借给真实价值。
+
+## C007-T04 新agent协议独立准入
+
+Reviewer /root/c007_admission_review原完整first-use/探针原件缺口needschanges保留，修后PASS，再capture格式AST等价与finalfreeze窄增量PASS，无必修。真实任务/同输入/初始同tree/模型权限/actor历史/预算阈值/冷agent续及质量/成本口径可执行，exact实际消息/source_line在本evidence。原代码/真人协议不同，不授原准入/质量/收益，正式samples尚未开始，Root必须提交后才运行。

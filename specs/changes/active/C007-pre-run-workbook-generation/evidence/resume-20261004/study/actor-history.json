@@ -1,0 +1,22 @@
+{
+  "coordinator": {
+    "id": "/root/c007_study_coordinator",
+    "cold_fork": "none",
+    "initial_local_prior_uses": {
+      "native": 0,
+      "sheltie": 0
+    },
+    "preparation_read_not_method_use": true,
+    "global_model_or_human_history": null
+  },
+  "model_host_permissions": {
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "source": "actual coordinator turn_context; no perarm override; recheck everyworker",
+    "approval_policy": "on-request",
+    "sandbox": "workspace-write/networkfalse"
+  },
+  "uses": [],
+  "local_first_reader": "freshcoordinator and newnodeworkers not authors; nodehelper not fullcontinuoususer",
+  "all_assistants_recorded": true
+}

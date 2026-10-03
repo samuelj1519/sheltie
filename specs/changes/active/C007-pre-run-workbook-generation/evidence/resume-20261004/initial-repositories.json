@@ -1,0 +1,87 @@
+{
+  "source_commit": "00e010ba8466b6ffc78ba603f5c923174b3d12af",
+  "source_archive_SHA": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+  "created_start_utc": "2026-10-03T19:28:37.923080+00:00",
+  "created_end_utc": "2026-10-03T19:28:46.164298+00:00",
+  "identities": {
+    "source-start": {
+      "native": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/native",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/native"
+      },
+      "sheltie": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/source-start/sheltie",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/source-start/sheltie"
+      }
+    },
+    "continuity": {
+      "native": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/native",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/native"
+      },
+      "sheltie": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/continuity/sheltie",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/continuity/sheltie"
+      }
+    },
+    "acceptance-handoff": {
+      "native": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/native",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/native"
+      },
+      "sheltie": {
+        "repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/repos/acceptance-handoff/sheltie",
+        "initial_head": "351feb7ac22c21317a686693b732d5ae0c4b4bcc",
+        "initial_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+        "source_archive_sha256": "0100e0db4bac3e560e93f1f47f02b79e5226112444d8348ceb1a217a9c23dd82",
+        "patch_check_repo": "/private/tmp/sheltie-completion-20261003/c007-agent-paired-study/patch-check/acceptance-handoff/sheltie"
+      }
+    }
+  },
+  "snapshot_git_history": "owned independent init commits with identical fulltree and fixed metadata; not linkedworktree/no shared writableGitstate",
+  "authority": "C007 new adopted task cards authorize sample replicas; no feature chosen fromproposed",
+  "preflight_correction": {
+    "original_git_add_all_ignored_source_tracked_files": [
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/debug.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/baseline.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_326_col_5.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_350_col_16.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_353_col_16.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_356_col_16.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/compile/mutants.out/log/crates__sheltie-core__src__flow__compile.rs_line_359_col_16.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/debug.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/baseline.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_45.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_64.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/resource/mutants.out/log/crates__sheltie-runtime__src__load.rs_line_164_col_83.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/debug.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result/mutants.out/log/baseline.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/debug.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/baseline.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_116_col_8.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_67_col_21.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_73_col_8.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_81_col_51.log",
+      "specs/changes/completed/C004-verifiable-delegation/evidence/20261003-M2-mutation/result_with_cli_baseline/mutants.out/log/crates__sheltie-core__src__work__result.rs_line_83_col_24.log"
+    ],
+    "explicit_force_source_tracked_path_list_added": true,
+    "all_six_full_git_trees_now_exact_source_tree": "80ea3046b1b3575f07e68313444c051ee7c5b7db",
+    "no_trial_started": true,
+    "corrected_utc": "2026-10-03T19:29:30.194418+00:00"
+  }
+}

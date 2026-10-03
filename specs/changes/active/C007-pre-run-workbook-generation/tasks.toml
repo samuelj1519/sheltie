@@ -31,3 +31,28 @@ allow_test_changes = true
 files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/runs/README.md", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]
 test_files = []
 allow_test_changes = true
+
+[C007-T04]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/completed/C004-verifiable-delegation/README.md", "specs/changes/completed/C004-verifiable-delegation/experiments/readiness.md", "specs/changes/completed/C004-verifiable-delegation/validation.md", "specs/changes/completed/C004-verifiable-delegation/stage-1.md", "specs/changes/completed/C005-executor-continuity/README.md", "specs/changes/completed/C006-result-delivery/README.md", "specs/changes/completed/C007-pre-run-workbook-generation", "specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false
+
+[C007-T05]
+files = ["specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false
+
+[C007-T06]
+files = ["specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false
+
+[C007-T07]
+files = ["README.md", "specs/guides/README.md", "specs/guides/source-quick-start.md", "specs/guides/continuity-choices.md", "specs/guides/current-acceptance-handoff.md", "specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false
+
+[C007-M3]
+files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "specs/changes/active/README.md", "specs/changes/completed/C004-verifiable-delegation/README.md", "specs/changes/completed/C004-verifiable-delegation/experiments/readiness.md", "specs/changes/completed/C004-verifiable-delegation/validation.md", "specs/changes/completed/C004-verifiable-delegation/stage-1.md", "specs/changes/completed/C005-executor-continuity/README.md", "specs/changes/completed/C006-result-delivery/README.md", "specs/changes/completed/C007-pre-run-workbook-generation", "specs/changes/active/C007-pre-run-workbook-generation"]
+test_files = []
+allow_test_changes = false

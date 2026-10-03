@@ -1,9 +1,9 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[`C007 当前自动agent配对试用`](active/C007-pre-run-workbook-generation/README.md)
 
-C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，后续依次恢复C007–C008。
+C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，当前恢复C007，后续C008恢复。
 
 只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
 
@@ -16,7 +16,9 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-无。
+| Change | 范围 | 入口 |
+| --- | --- | --- |
+| C007 | 三个真实仓库文档任务的agent配对/接续/独立质量与实际交付，原正式代码真人义务留原 | [README](active/C007-pre-run-workbook-generation/README.md) |
 
 ## Completed
 
@@ -27,7 +29,6 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 | C004 | 当前agent实际质量/同Attempt冷接续/三refs与新消费者逐查询和实际使用通过；旧真人/成本/取证偏差留原 | [README](completed/C004-verifiable-delegation/README.md) |
 | C002 | 当前采用恢复义务完整Spec/工程scoped PASS；macOS aarch64/APFS可构造输入，215处分与旧未执行限制分列 | [README](completed/C002-v0.2.0-reliability/README.md) |
 | C008 | 真实条件前检/规则/延期交接限定完成；probe未采用，原机制/观察/value not_run | [README](completed/C008-dependency-readiness/README.md) |
-| C007 | 技术资产/同源方法与缺项交接通过；原正式准入、六trial与真实价值not_run | [README](completed/C007-pre-run-workbook-generation/README.md) |
 | C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
 | C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
 

@@ -1,0 +1,128 @@
+{
+  "scope": "technical admission only; no formalrun/no workstart/no actor_method_use",
+  "records": [
+    {
+      "label": "add",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/preparation/cli/add.json",
+      "reply": {
+        "data": {
+          "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+          "flows": [
+            "default"
+          ],
+          "id": "code-task-study",
+          "replayed": false,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true,
+        "request_id": "257b56b3-27fc-4465-a3c8-0dbd632e0ad9"
+      }
+    },
+    {
+      "label": "show",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/preparation/cli/show.json",
+      "reply": {
+        "data": {
+          "description": "同一目标、检查与有限返工方法；交付明确候选、完整patch和原始检查，内容判断由协调者与独立审阅者负责。",
+          "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+          "flows": [
+            {
+              "edges": [
+                {
+                  "from": "implement",
+                  "kind": "main",
+                  "to": "review"
+                },
+                {
+                  "from": "review",
+                  "kind": "back",
+                  "to": "implement"
+                },
+                {
+                  "from": "review",
+                  "kind": "main",
+                  "to": "deliver"
+                }
+              ],
+              "entry": "implement",
+              "id": "default",
+              "nodes": [
+                {
+                  "executor": "agent",
+                  "gate": false,
+                  "id": "implement",
+                  "title": "实现与检查"
+                },
+                {
+                  "executor": "agent",
+                  "gate": false,
+                  "id": "review",
+                  "title": "独立审查候选"
+                },
+                {
+                  "executor": "agent",
+                  "gate": false,
+                  "id": "deliver",
+                  "title": "整理完整交付"
+                }
+              ],
+              "start_inputs": [
+                "task",
+                "project"
+              ]
+            }
+          ],
+          "id": "code-task-study",
+          "name": "代码任务体验实验方法",
+          "pending_publish": false,
+          "requires": [],
+          "version": "1.0.0"
+        },
+        "next": [],
+        "ok": true
+      }
+    },
+    {
+      "label": "verify",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/preparation/cli/verify.json",
+      "reply": {
+        "data": {
+          "results": [
+            {
+              "id": "code-task-study",
+              "pending_publish": false,
+              "status": "ok",
+              "version": "1.0.0"
+            }
+          ]
+        },
+        "next": [],
+        "ok": true
+      }
+    },
+    {
+      "label": "single-unknown-reject",
+      "record_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/active/C007-pre-run-workbook-generation/evidence/resume-20261004/study/preparation/cli/single-unknown-reject.json",
+      "reply": {
+        "error": {
+          "code": "WORKBOOK_INVALID",
+          "detail": {
+            "path": "toml",
+            "reason": "TOML parse error at line 8, column 1\n  |\n8 | unknown_study_field = true\n  | ^^^^^^^^^^^^^^^^^^^\nunknown field `unknown_study_field`, expected one of `schema`, `id`, `version`, `name`, `description`, `flows`, `requires`\n"
+          },
+          "message": "workbook.toml 的 toml 不合规：TOML parse error at line 8, column 1\n  |\n8 | unknown_study_field = true\n  | ^^^^^^^^^^^^^^^^^^^\nunknown field `unknown_study_field`, expected one of `schema`, `id`, `version`, `name`, `description`, `flows`, `requires`\n"
+        },
+        "next": [],
+        "ok": false
+      }
+    }
+  ],
+  "method_exact6_before_after": true,
+  "identity": "code-task-study@1.0.0",
+  "actual_digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+  "bad_singlecondition_no_publication": true,
+  "binary_SHA": "7c961834888b085c1bd54a0302b83354c11eed480ee0941e5866b665f273e88c",
+  "all_real_exits_expected": true
+}
