@@ -4,7 +4,7 @@
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 开发目标：`v0.3.0`
-Active change：无
+Active change：[`C010 局部精简与方法交付`](changes/active/C010-local-simplification/README.md)
 
 C002与C004当前采用恢复义务已按限定范围独审完成；C005当前技术与需求负前检也已完成，C006当前实际副本与APFS载体验收已完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
 Completed：[`C009 实现与测试精简`](changes/completed/C009-project-simplification/README.md)（行为保持、948测试/5doc/独立审查通过），[`C007 当前真实agent观察与三文档交付`](changes/completed/C007-pre-run-workbook-generation/README.md)（4质量过/2交付阻断，严格公平与15%条件未满足，原code/human未执行）、[`C006 当前真实agent副本与跨APFS验收`](changes/completed/C006-result-delivery/README.md)（原真人/费用/物理外置盘/其他OS/旧LEAK因果留原）、[`C005 当前原生/MSRV技术与负前检`](changes/completed/C005-executor-continuity/README.md)（原真实撤销、真人/费用及旧LEAK因果未执行/未知留原）、[`C004 当前自动agent交付与冷接续验收`](changes/completed/C004-verifiable-delegation/README.md)（原真人/净收益/费用/旧取证偏差留原）、[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)

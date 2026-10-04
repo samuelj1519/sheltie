@@ -1,0 +1,25 @@
+{
+  "name": "t01-specs",
+  "argv": [
+    "scripts/check-specs.sh"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit": 0,
+  "elapsed_seconds": 0.6432640552520752,
+  "target": "/private/tmp/sheltie-c010-target",
+  "rustc_wrapper": "",
+  "offline": true,
+  "nextest_path": "/private/tmp/sheltie-completion-20261003/tools/nextest",
+  "streams": {
+    "stdout": {
+      "file": "t01-specs.stdout.gz",
+      "bytes": 47,
+      "sha256": "1d8e366f29a85662182c4191b69259a1f9a1008a63a6ba179406c05b4c5ddf20"
+    },
+    "stderr": {
+      "file": "t01-specs.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -226,6 +226,6 @@ kind = "back"
 | `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
 | `examples/code-change/` | implement → review → deliver 和显式返工边；task/project 冻结输入，终点选择 change/review/delivery |
 
-另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十五条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。它不是测试 fixture，但 T11 的编译测试同样覆盖它，保证合同改动不会让它失效。
+另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十五条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。0.2.2 的 scaffold、implement、verify 显式绑定共享审批规则；终点 retro 选择 delivery 输入和 lessons 输出，门槛批准后通过 work result 取得这两份成果。已有 Work 保留原冻结版本。它不是测试 fixture，但编译与真实 CLI 场景覆盖它，保证合同改动不会让它失效。
 
 样例文件的字节由测试固定。实现与样例不一致时，先改合同与样例再改实现，不能改期望迎合实现。

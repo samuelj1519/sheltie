@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[`C010 局部精简与方法交付`](active/C010-local-simplification/README.md)
 
 C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
 
@@ -16,7 +16,7 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-无。
+[C010](active/C010-local-simplification/README.md)：用户采用本轮局部精简、测试后继与 spec-dev 0.2.2 规则/成果交付；进度只看 [plan](active/C010-local-simplification/plan.md)。
 
 ## Completed
 
