@@ -1,0 +1,119 @@
+{
+  "dragObserved": {
+    "left": 0,
+    "top": 0
+  },
+  "keyboardObserved": {
+    "focusedLabel": "连线标签：人工决策：卡住、反复失败或需要授权 → 写交付说明 · 分支",
+    "focusedTag": "g",
+    "left": 0,
+    "top": 0
+  },
+  "selectionChecks": [
+    {
+      "method": "scroll-fixed native drag then path click",
+      "expected": {
+        "from": "spec",
+        "index": 0,
+        "labelName": "连线标签：写需求规格 → 写技术方案与任务清单 · 继续",
+        "labelPoint": {
+          "x": 441.49903869628906,
+          "y": 381.4732360839844
+        },
+        "pathLabel": "spec 到 plan，main",
+        "point": {
+          "margin": 47.06562684317368,
+          "ownDistance": 0.6269185115384062,
+          "x": 393,
+          "y": 397
+        },
+        "to": "plan"
+      },
+      "actual": {
+        "activeIndex": "0",
+        "endpoints": [
+          "plan",
+          "spec"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "spec",
+        "summaryTo": "plan",
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed keyboard-focus scroll then path click",
+      "expected": {
+        "from": "plan",
+        "index": 1,
+        "labelName": "连线标签：写技术方案与任务清单 → 人工审核规格与方案 · 继续",
+        "labelPoint": {
+          "x": 416.1820831298828,
+          "y": 230.8062744140625
+        },
+        "pathLabel": "plan 到 plan-review，main",
+        "point": {
+          "margin": 114.85496118164065,
+          "ownDistance": 0.8062781982421825,
+          "x": 372,
+          "y": 230
+        },
+        "to": "plan-review"
+      },
+      "actual": {
+        "activeIndex": "1",
+        "endpoints": [
+          "plan",
+          "plan-review"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "plan",
+        "summaryTo": "plan-review",
+        "values": [
+          "plan",
+          "plan-review",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed zoom then path click",
+      "expected": {
+        "from": "plan",
+        "index": 1,
+        "labelName": "连线标签：写技术方案与任务清单 → 人工审核规格与方案 · 继续",
+        "labelPoint": {
+          "x": 312.4844055175781,
+          "y": 166.5022201538086
+        },
+        "pathLabel": "plan 到 plan-review，main",
+        "point": {
+          "margin": 132.9332009277344,
+          "ownDistance": 0.5022218017577984,
+          "x": 262,
+          "y": 166
+        },
+        "to": "plan-review"
+      },
+      "actual": {
+        "activeIndex": "1",
+        "endpoints": [
+          "plan",
+          "plan-review"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "plan",
+        "summaryTo": "plan-review",
+        "values": [
+          "plan",
+          "plan-review",
+          "main"
+        ]
+      }
+    }
+  ]
+}

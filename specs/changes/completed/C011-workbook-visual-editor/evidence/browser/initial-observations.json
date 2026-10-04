@@ -1,0 +1,80 @@
+{
+  "recorded_utc": "2026-10-04T08:03:48.796649+00:00",
+  "executed_by": "Root actual Chrome browser UI",
+  "browser_id": "1",
+  "tab_id": "682934293",
+  "url": "http://127.0.0.1:4311",
+  "source_tree": "4250480fddcc7fdaff9d65b79e14e84586a1800a",
+  "completed": [
+    "New draft, actual native keyboard ID/name edit, add second node/main edge, real CLI structure success",
+    "Delete edge→real FLOW_INVALID rule3 nodes[1].id",
+    "Actual Save ZIP, exact expected file /Users/shushu/Downloads/browser-confirmed-1.0.0.zip located and decoded",
+    "Native name change while expanded TOML preview leaves old text; screenshot/AX saved",
+    "Error UI generic + full process/escaped stdout; screenshot/AX saved"
+  ],
+  "driver_failures_not_product_failures": [
+    "First browser request-header policy loading failed; explicit retry succeeded",
+    "Playwright fill/press did not reliably dispatch change; actual native keyboard changes verified",
+    "Horizontal SVG path bounding box has height0; locator click failed, actual stroke coordinate click selected edge",
+    "download event wait exceeded CUAREPL deadline/reset; exact expected downloaded file independently found and decoded"
+  ],
+  "human_actions": "not_run",
+  "layout_bytes_preservation": "not_yet_verified",
+  "files": [
+    {
+      "file": "01-initial.jpg",
+      "bytes": 132886,
+      "sha256": "e6323e1a966179bc6d19bdba1c9b1c36398e7707094e6bf9a11c4d5992062d29"
+    },
+    {
+      "file": "02-browser-confirmed.zip",
+      "bytes": 599,
+      "sha256": "d0a4584cb17758b1a9895d2511570ec30823abfd2d359102a25e91f274916a41"
+    },
+    {
+      "file": "02-download-readback.json",
+      "bytes": 949,
+      "sha256": "bd81b7f183057be6466a7280e8968ab88cbbc15040d6c68e805c67de07ad91a7"
+    },
+    {
+      "file": "03-stale-preview.ax.txt",
+      "bytes": 3203,
+      "sha256": "7fc04a9abc5bc8d0162d4c12aa1d3b24bf1cf23b8c2bdd77a38660f2687dece5"
+    },
+    {
+      "file": "03-stale-preview.jpg",
+      "bytes": 143916,
+      "sha256": "21e6c628d04d1682341be02b68214d420ccc545b81418cf1be578bafb379886b"
+    },
+    {
+      "file": "04-technical-error.ax.txt",
+      "bytes": 3703,
+      "sha256": "a3ab9276eb7c198a3d5f9959be158d0773b380a06fbf3688db3423c9a734c433"
+    },
+    {
+      "file": "04-technical-error.jpg",
+      "bytes": 135253,
+      "sha256": "931587b51ea522692e06d2b893fac0aed97356019a9f916d55066c96c7831ed6"
+    },
+    {
+      "file": "runtime-inputs-7158d46020afe29f1dc57898045c54f2ed102ac1fe78893d778f74fbb25e9e8f.json",
+      "bytes": 3081,
+      "sha256": "7158d46020afe29f1dc57898045c54f2ed102ac1fe78893d778f74fbb25e9e8f"
+    },
+    {
+      "file": "server-owner-01-sandbox.json",
+      "bytes": 755,
+      "sha256": "1eb9069179fabe6441947a9e75a782cca18e13cac55783471dc661cdf2f150c2"
+    },
+    {
+      "file": "server-owner-02-host.json",
+      "bytes": 698,
+      "sha256": "363fb53b51a9b3f84b10f23497285989246b1facc87c3aaf3db4bf3dfb6e996d"
+    },
+    {
+      "file": "server-start-01-failure.json",
+      "bytes": 312,
+      "sha256": "45e6ca8fecfdc4fbaaad8fac07fc2ae2b4763f23295bb06b2ac2ecd9807fc3ba"
+    }
+  ]
+}

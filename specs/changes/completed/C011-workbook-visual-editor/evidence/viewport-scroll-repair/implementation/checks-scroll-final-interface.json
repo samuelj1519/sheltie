@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "test/usability.test.mjs",
+    "test/layout.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-viewport-scroll-repair-20261004/tools/workbook-editor",
+  "exit_code": 0,
+  "reason": "remove obsolete viewport/view arguments from tests to match final two-input production interface; expected values unchanged",
+  "streams": {
+    "stdout": "b2356d75574d3efa084d53034eb2fb02d427c32d204253f37cc035c5cec99176",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

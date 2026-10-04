@@ -1,0 +1,1 @@
+Root真实native独立红绿已确认：初稿修改checklist名称后不Tab直接点plan_tpl，名称提交但editor仍旧项；red在Root direct-row-click-red.json。原因changed重建列表破坏mousedown目标。本轮仅复用当前pane group/row DOM，未变化结构仅原位更新名称/摘要/状态，变动分组/搜索才调整相应节点；editor原输入保留，无定时hack、Model副本或持久注册表。Root修后实际plan_tpl→方案模板、不Tab直接click tasks_tpl一次切换并保原名称，direct-row-click-final.json。最终app语法/diff0；source/model消费者与48通过输入依赖同源，未为DOM消费者重全工程或图75。

@@ -1,0 +1,755 @@
+{
+  "scale": 1,
+  "visibleSamples": [
+    {
+      "expected": "plan 到 plan-review，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 765.5722500000002,
+      "y": 212.92187500000003
+    },
+    {
+      "expected": "plan 到 plan-review，main",
+      "hitIsExpected": false,
+      "hitLabel": "plan 到 spec，main",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 212.921875
+    },
+    {
+      "expected": "plan 到 plan-review，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 786.7402500000001,
+      "y": 212.921875
+    },
+    {
+      "expected": "plan-review 到 scaffold，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1038.7194500000005,
+      "y": 231.8019375
+    },
+    {
+      "expected": "plan-review 到 scaffold，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 637.0625,
+      "y": 303.69140625
+    },
+    {
+      "expected": "plan-review 到 scaffold，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 235.40554999999995,
+      "y": 375.580875
+    },
+    {
+      "expected": "plan-review 到 spec，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1038.7954500000003,
+      "y": 212.826
+    },
+    {
+      "expected": "plan-review 到 spec，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "写技术方案与任务清单",
+      "t": 0.5,
+      "x": 635.5781250000001,
+      "y": 212.4609375
+    },
+    {
+      "expected": "plan-review 到 spec，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 232.3608,
+      "y": 212.095875
+    },
+    {
+      "expected": "plan-review 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1031.5978500000003,
+      "y": 212.92187500000003
+    },
+    {
+      "expected": "plan-review 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": "plan 到 spec，main",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 212.921875
+    },
+    {
+      "expected": "plan-review 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 520.71465,
+      "y": 212.921875
+    },
+    {
+      "expected": "scaffold 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 487.1962500000001,
+      "y": 394.82087500000006
+    },
+    {
+      "expected": "scaffold 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": "verify 到 implement，main",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 497.0625,
+      "y": 396.19140625
+    },
+    {
+      "expected": "scaffold 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 506.92875,
+      "y": 397.5619375
+    },
+    {
+      "expected": "implement 到 verify，main",
+      "hitIsExpected": false,
+      "hitLabel": "fix 到 verify，re_review",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 765.5722500000002,
+      "y": 397.92187500000006
+    },
+    {
+      "expected": "implement 到 verify，main",
+      "hitIsExpected": false,
+      "hitLabel": "fix 到 verify，re_review",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 397.921875
+    },
+    {
+      "expected": "implement 到 verify，main",
+      "hitIsExpected": false,
+      "hitLabel": "fix 到 verify，re_review",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 786.7402500000001,
+      "y": 397.921875
+    },
+    {
+      "expected": "verify 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1031.5978500000003,
+      "y": 397.92187500000006
+    },
+    {
+      "expected": "verify 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": "fix 到 verify，re_review",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 397.921875
+    },
+    {
+      "expected": "verify 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": "escalate 到 implement，main",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 520.71465,
+      "y": 397.921875
+    },
+    {
+      "expected": "verify 到 review，main",
+      "hitIsExpected": false,
+      "hitLabel": "verify 到 escalate，branch",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1024.4298500000004,
+      "y": 417.16187500000007
+    },
+    {
+      "expected": "verify 到 review，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 916.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "verify 到 review，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 807.88265,
+      "y": 563.681875
+    },
+    {
+      "expected": "verify 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": "verify 到 escalate，branch",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1038.7658500000002,
+      "y": 417.16187500000007
+    },
+    {
+      "expected": "verify 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "verify 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 233.54665,
+      "y": 563.681875
+    },
+    {
+      "expected": "fix 到 verify，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "人工决策：卡住、反复失败或需要授权",
+      "t": 0.2,
+      "x": 541.8506500000001,
+      "y": 563.6818750000001
+    },
+    {
+      "expected": "fix 到 verify，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "fix 到 verify，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "实现一个任务",
+      "t": 0.8,
+      "x": 730.46185,
+      "y": 417.161875
+    },
+    {
+      "expected": "review 到 deliver，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1038.7658500000002,
+      "y": 602.1618750000001
+    },
+    {
+      "expected": "review 到 deliver，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 675.421875
+    },
+    {
+      "expected": "review 到 deliver，main",
+      "hitIsExpected": false,
+      "hitLabel": "escalate 到 deliver，branch",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 233.54665,
+      "y": 748.681875
+    },
+    {
+      "expected": "deliver 到 retro，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 485.57225000000005,
+      "y": 767.9218750000001
+    },
+    {
+      "expected": "deliver 到 retro，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 496.15625,
+      "y": 767.921875
+    },
+    {
+      "expected": "deliver 到 retro，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 506.74025,
+      "y": 767.921875
+    },
+    {
+      "expected": "review 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1038.7658500000002,
+      "y": 582.9218750000001
+    },
+    {
+      "expected": "review 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "人工决策：卡住、反复失败或需要授权",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 582.921875
+    },
+    {
+      "expected": "review 到 fix，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 233.54665,
+      "y": 582.921875
+    },
+    {
+      "expected": "fix 到 review，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "人工决策：卡住、反复失败或需要授权",
+      "t": 0.2,
+      "x": 541.8506500000001,
+      "y": 582.9218750000001
+    },
+    {
+      "expected": "fix 到 review，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "人工决策：卡住、反复失败或需要授权",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 582.921875
+    },
+    {
+      "expected": "fix 到 review，re_review",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "人工决策：卡住、反复失败或需要授权",
+      "t": 0.8,
+      "x": 730.46185,
+      "y": 582.921875
+    },
+    {
+      "expected": "scaffold 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 487.1962500000001,
+      "y": 414.06087500000007
+    },
+    {
+      "expected": "scaffold 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 497.0625,
+      "y": 488.69140625
+    },
+    {
+      "expected": "scaffold 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": "verify 到 escalate，branch",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 506.92875,
+      "y": 563.3219375
+    },
+    {
+      "expected": "implement 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 744.4298500000002,
+      "y": 417.16187500000007
+    },
+    {
+      "expected": "implement 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "implement 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": "verify 到 escalate，branch",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 527.88265,
+      "y": 563.681875
+    },
+    {
+      "expected": "fix 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 485.57225000000005,
+      "y": 582.9218750000001
+    },
+    {
+      "expected": "fix 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 496.15625,
+      "y": 582.921875
+    },
+    {
+      "expected": "fix 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 506.74025,
+      "y": 582.921875
+    },
+    {
+      "expected": "verify 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 1031.5978500000003,
+      "y": 417.16187500000007
+    },
+    {
+      "expected": "verify 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "verify 到 escalate，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 520.71465,
+      "y": 563.681875
+    },
+    {
+      "expected": "escalate 到 scaffold，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 751.5514500000002,
+      "y": 563.3219375000001
+    },
+    {
+      "expected": "escalate 到 scaffold，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 497.0625,
+      "y": 488.69140625
+    },
+    {
+      "expected": "escalate 到 scaffold，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 242.57355,
+      "y": 414.060875
+    },
+    {
+      "expected": "escalate 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": "escalate 到 plan，back",
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 744.4298500000002,
+      "y": 563.6818750000001
+    },
+    {
+      "expected": "escalate 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "escalate 到 implement，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 527.88265,
+      "y": 417.161875
+    },
+    {
+      "expected": "escalate 到 fix，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 751.5978500000001,
+      "y": 582.9218750000001
+    },
+    {
+      "expected": "escalate 到 fix，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 496.15625000000006,
+      "y": 582.921875
+    },
+    {
+      "expected": "escalate 到 fix，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 240.71464999999995,
+      "y": 582.921875
+    },
+    {
+      "expected": "escalate 到 verify，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 765.5722500000002,
+      "y": 563.6818750000001
+    },
+    {
+      "expected": "escalate 到 verify，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 776.15625,
+      "y": 490.421875
+    },
+    {
+      "expected": "escalate 到 verify，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 786.7402500000001,
+      "y": 417.161875
+    },
+    {
+      "expected": "escalate 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 744.4298500000002,
+      "y": 544.4418750000001
+    },
+    {
+      "expected": "escalate 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "SPAN",
+      "hitText": "实现一个任务",
+      "t": 0.5,
+      "x": 636.15625,
+      "y": 397.921875
+    },
+    {
+      "expected": "escalate 到 plan，back",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 527.88265,
+      "y": 251.401875
+    },
+    {
+      "expected": "escalate 到 deliver，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 751.5978500000001,
+      "y": 602.1618750000001
+    },
+    {
+      "expected": "escalate 到 deliver，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 496.15625000000006,
+      "y": 675.421875
+    },
+    {
+      "expected": "escalate 到 deliver，branch",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 240.71464999999995,
+      "y": 748.681875
+    },
+    {
+      "expected": "plan 到 spec，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.2,
+      "x": 751.62745,
+      "y": 212.826
+    },
+    {
+      "expected": "plan 到 spec，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.5,
+      "x": 495.578125,
+      "y": 212.4609375
+    },
+    {
+      "expected": "plan 到 spec，main",
+      "hitIsExpected": false,
+      "hitLabel": null,
+      "hitTag": "path",
+      "hitText": "",
+      "t": 0.8,
+      "x": 239.52879999999996,
+      "y": 212.095875
+    }
+  ]
+}

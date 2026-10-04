@@ -1,0 +1,41 @@
+# 稳定候选恢复卡
+
+更新提醒：用户又提出输入/输出列表整理与已有勾选缺陷，最新Work为007-workbook-compact-properties，implement#1.0运行中。先查询007当前status并读compact-node-properties/task/project/design/preparation-review；当前代码写者未结束，暂不按下面006稳定卡做宿主关闭或提交。006原卡保留历史候选，不能代007材料。
+
+本卡保存当前状态，不证明用户已经关闭并重开宿主。只在用户实际执行该动作后记录观察。
+
+## 当前入口
+
+仓库：`/Users/shushu/orca/workspaces/sheltie/codex`。先读AGENTS、CONTEXT、specs入口和active C011 plan，然后查询：
+
+```bash
+/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie \
+  --home /private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home \
+  --json work status 2026-10-04-006-workbook-clear-graph-view
+```
+
+记录时为review#2.0 running；一律以新查询的status/resume/next为准。不要按旧001–005卡推进，不为重开begin/fail/replace。可信binary SHA为04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8，schema4/0.3.0-rc.1；保持同一Home，不回落PATH或默认Home。
+
+## 候选与草稿
+
+候选tree：`6e6c25c46e6382797865d9a36810899417e987b0`。独立源码副本：`/private/tmp/sheltie-c011-clear-graph-view-20261004`，baseline HEAD ca19387def1f9718ec996f8eda4e7ddf8fbc8a00。完整累计增量patch为`/private/tmp/sheltie-c011-clear-graph-frozen-02-wvvt796i/change.patch`，280485字节，SHA192b6bd5829c8e52300415fba493e4033f0f6c653586f5e83ac7fc5b56da7962。
+
+review#2草稿7081字节，SHAc810f48630264a611466a8a4aed47b322b1c5e6fc3617c087c90f812cdd1213d，建议交付仅限工程范围；从新的resume取实际路径，核字节后再决定当前合法下一步。原S1拒绝与implement1/review1封存原件保留，不改写。当前未提交review2，便于真实用户反馈；Work result尚非final，不猜最近文件当成果。
+
+Root以无index patch整合73路径，逐byte/mode同候选，原HEAD/refs/index保持；独立新副本重建精确tree并核全部3646 tracked文件字节/mode。证据在[evidence/clear-graph-view](evidence/clear-graph-view/)；代码和报告写者已结束。Root上游文档、此前C007/C008/C010验收改动保持，不清理或回退。
+
+## 实际验证与边界
+
+独立Standards/Spec复审通过，S1关闭。最终新几何35相关消费者通过；原完整host60为59成功/1旧held-stream时序失败，同源隔离1实际成功，按不同输入闭包组合资格，不称全65单跑绿，原失败原因仍未证实。
+
+Root新候选实际25路径/25标签/25列表75次选择通过，Code实际拖动反例、缩放/平移/原生scroll x160 y668后选择及fit/arrange清scroll共12通过；Spec27与Code6 ZIP逐路径原字节一致。统一框多选、中文名、三个固定自定义引用、改名不改资源、位置编辑COW与旧资源原字节保留已实际保存核验；其7文件输入闭包保持。人工界面接受、实际个人分钟/费用与真正宿主关闭重开尚未确认。目录自动重开因Chrome扩展file URL权限受阻，用户正常系统选择器仍待本版复测，不改扩展权限。
+
+## 页面与进程
+
+唯一当前页面：[127.0.0.1:4311](http://127.0.0.1:4311/)，页头有「清晰视图」。Chrome browser1/tab682934293，Root owned server PID19053/session47700；归属和最终public hashes见evidence/clear-graph-view/server-owner.json。旧4311 PID59837/session40629、旧4312 PID60019/session93944均只按已核归属停止并观察exit0；旧4312 agent试验页已关闭。旧用户试点27文件完整备份为old-trial-before-canonical.zip。
+
+若旧宿主关闭导致服务停止，先核端口/进程归属，再按tools/workbook-editor/README.md用显式可信binary重启，优先使用已整合Root源码。不得按进程名杀未知服务或恢复旧renderer。真正重开后新协调者核相同Attempt、冻结输入、草稿hash、候选和用户观察；不可将口头close/open升级为独立宿主隔离证明。
+
+## 原始目标
+
+原目标仍是完成剩余验收并引导人工操作。本轮先C011可视化作者工具，用户只判断可用性，不判断省时收益。后继两项尚未实施：翻译`/Users/shushu/.agents`英文Markdown为同级`.zh-CN.*`（已有译文核对/修前备份），dsh简易跨平台Mac客户端（仅本机aarch64 macOS验收）。每项预算与未知费用按原记录保持，一次只有一个active change。Task2原候选73/已有中文5；Task3本地source0.1.0-rc.5与安装runtime0.1.0-rc.7不能混认。此前公平对照、费用、物理载体和旧取证限制不由本次可用性关闭。没有push/merge/release或替换用户安装授权。

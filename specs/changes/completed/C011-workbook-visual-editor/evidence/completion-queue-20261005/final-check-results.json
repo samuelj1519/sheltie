@@ -1,0 +1,13 @@
+{
+  "root_dependency_install": "same lock, same file bytes copied from already verified independent candidate",
+  "sandbox_npm_test": "failed: localhost listen EPERM, raw preserved",
+  "host_npm_test": {
+    "exit": 0,
+    "tests": 72,
+    "passed": 72,
+    "failed": 0,
+    "skipped": 0
+  },
+  "old_held_stream_failure": "preserved; previous cause unknown; current full run does not erase previous failure",
+  "rust": "not rerun: no changed Rust inputs"
+}

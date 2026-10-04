@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "test/usability.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-viewport-scroll-repair-20261004/tools/workbook-editor",
+  "exit_code": 1,
+  "production_baseline": "existing viewportRect + view conversion extracted and consumed by actual app; ignores native scroll",
+  "streams": {
+    "stdout": "121c4d7013430b6f240012cf079dcf8979c73f9d9d373e5e81a8ed9fe768f3d0",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

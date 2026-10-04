@@ -1,0 +1,159 @@
+{
+  "candidate": "6e6c25c46e6382797865d9a36810899417e987b0",
+  "sourceClosure": "browser-source-before-04.json",
+  "main": {
+    "count": "显示 8 / 共 25 条连线",
+    "paths": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      8,
+      11,
+      12
+    ],
+    "positions": [
+      {
+        "id": "spec",
+        "x": "0px",
+        "y": "0px"
+      },
+      {
+        "id": "plan",
+        "x": "320px",
+        "y": "0px"
+      },
+      {
+        "id": "plan-review",
+        "x": "640px",
+        "y": "0px"
+      },
+      {
+        "id": "scaffold",
+        "x": "640px",
+        "y": "216px"
+      },
+      {
+        "id": "implement",
+        "x": "320px",
+        "y": "216px"
+      },
+      {
+        "id": "verify",
+        "x": "0px",
+        "y": "216px"
+      },
+      {
+        "id": "fix",
+        "x": "960px",
+        "y": "216px"
+      },
+      {
+        "id": "escalate",
+        "x": "960px",
+        "y": "0px"
+      },
+      {
+        "id": "review",
+        "x": "0px",
+        "y": "432px"
+      },
+      {
+        "id": "deliver",
+        "x": "320px",
+        "y": "432px"
+      },
+      {
+        "id": "retro",
+        "x": "640px",
+        "y": "432px"
+      }
+    ]
+  },
+  "focus": "显示 10 / 共 25 条连线",
+  "reveal": {
+    "index": 3,
+    "mode": "candidate2 hidden list reveal",
+    "pass": true,
+    "seen": {
+      "active": [
+        {
+          "index": 3,
+          "sameD": true
+        }
+      ],
+      "endpoints": [
+        "plan-review",
+        "spec"
+      ],
+      "summary": {
+        "edgeFrom": "plan-review",
+        "edgeTo": "spec"
+      },
+      "values": [
+        "plan-review",
+        "spec",
+        "back"
+      ],
+      "visibleLabels": 1
+    }
+  },
+  "positions": [
+    {
+      "id": "spec",
+      "x": "0px",
+      "y": "0px"
+    },
+    {
+      "id": "plan",
+      "x": "320px",
+      "y": "0px"
+    },
+    {
+      "id": "plan-review",
+      "x": "640px",
+      "y": "0px"
+    },
+    {
+      "id": "scaffold",
+      "x": "640px",
+      "y": "216px"
+    },
+    {
+      "id": "implement",
+      "x": "320px",
+      "y": "216px"
+    },
+    {
+      "id": "verify",
+      "x": "0px",
+      "y": "216px"
+    },
+    {
+      "id": "fix",
+      "x": "960px",
+      "y": "216px"
+    },
+    {
+      "id": "escalate",
+      "x": "960px",
+      "y": "0px"
+    },
+    {
+      "id": "review",
+      "x": "0px",
+      "y": "432px"
+    },
+    {
+      "id": "deliver",
+      "x": "320px",
+      "y": "432px"
+    },
+    {
+      "id": "retro",
+      "x": "640px",
+      "y": "432px"
+    }
+  ]
+}

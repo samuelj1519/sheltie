@@ -1,0 +1,189 @@
+{
+  "actor": "/root/c011_navigation_spec",
+  "same_actor_review_and_delivery": true,
+  "not_implementation_actor": true,
+  "repo": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+  "source_repo": "/private/tmp/sheltie-c011-navigation-repair-20261004",
+  "baseline_head": "7be100d1a74271ffb99484a4c8c863ae6f2d5600",
+  "baseline_tree": "300eec431c4859c738b9e4d6482e47783dcc79fe",
+  "candidate_tree": "cf9f5f69173043049f425b1dc921fa06938c7f06",
+  "applied_tree": "cf9f5f69173043049f425b1dc921fa06938c7f06",
+  "patch_path": "/private/tmp/sheltie-c011-navigation-artifacts-20261004/change.patch",
+  "patch_bytes": 24237,
+  "patch_sha256": "887b8556b9d45be2c960747b7f254da291fa631f213c1802b59f118fd5e57238",
+  "inputs": {
+    "task": "e4d014bd7cd989244e8b7c9f98a46b917ca076d796b02e71fb3bfe27b1922933",
+    "change": "092388290bbca55caef32e83c29a41b2344b787b67b8b8db0c5698d345f41cc1",
+    "checks": "f444bc8c66e460e68484cf4601a3c40d0ac4f20d309454674cf6b2199122fcc9",
+    "review": "e25324c5ca5b8a5ffdc7f12d0fab956529cbf8d6f0668c100ff735cf6d738c83"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "clone",
+        "--shared",
+        "--no-checkout",
+        "/private/tmp/sheltie-c011-navigation-repair-20261004",
+        "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0",
+      "started_utc": "2026-10-04T10:34:23.906587+00:00",
+      "finished_utc": "2026-10-04T10:34:23.935340+00:00",
+      "exit_code": 0,
+      "stdout": "01-stdout.bin",
+      "stderr": "01-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "checkout",
+        "--detach",
+        "7be100d1a74271ffb99484a4c8c863ae6f2d5600"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:23.935355+00:00",
+      "finished_utc": "2026-10-04T10:34:24.337824+00:00",
+      "exit_code": 0,
+      "stdout": "02-stdout.bin",
+      "stderr": "02-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.337839+00:00",
+      "finished_utc": "2026-10-04T10:34:24.345401+00:00",
+      "exit_code": 0,
+      "stdout": "03-stdout.bin",
+      "stderr": "03-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.345440+00:00",
+      "finished_utc": "2026-10-04T10:34:24.512154+00:00",
+      "exit_code": 0,
+      "stdout": "04-stdout.bin",
+      "stderr": "04-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/private/tmp/sheltie-c011-navigation-artifacts-20261004/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.512191+00:00",
+      "finished_utc": "2026-10-04T10:34:24.519595+00:00",
+      "exit_code": 0,
+      "stdout": "05-stdout.bin",
+      "stderr": "05-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--index",
+        "/private/tmp/sheltie-c011-navigation-artifacts-20261004/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.519620+00:00",
+      "finished_utc": "2026-10-04T10:34:24.684373+00:00",
+      "exit_code": 0,
+      "stdout": "06-stdout.bin",
+      "stderr": "06-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.684401+00:00",
+      "finished_utc": "2026-10-04T10:34:24.862499+00:00",
+      "exit_code": 0,
+      "stdout": "07-stdout.bin",
+      "stderr": "07-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-r",
+        "-z",
+        "cf9f5f69173043049f425b1dc921fa06938c7f06"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:24.862532+00:00",
+      "finished_utc": "2026-10-04T10:34:24.873884+00:00",
+      "exit_code": 0,
+      "stdout": "08-stdout.bin",
+      "stderr": "08-stderr.bin"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z",
+        "7be100d1a74271ffb99484a4c8c863ae6f2d5600"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+      "started_utc": "2026-10-04T10:34:25.172567+00:00",
+      "finished_utc": "2026-10-04T10:34:25.181121+00:00",
+      "exit_code": 0,
+      "stdout": "09-stdout.bin",
+      "stderr": "09-stderr.bin"
+    }
+  ],
+  "git_cat_file_batch": {
+    "argv": [
+      "git",
+      "cat-file",
+      "--batch"
+    ],
+    "cwd": "/private/tmp/sheltie-c011-navigation-delivery-20261004-j2j_0bp0/apply-check",
+    "exit_code": 0,
+    "stdout_consumed": "exact binary blob payloads compared for each tracked file; per-file SHA stored all-tracked-files.json",
+    "stderr": "cat-file-batch-stderr.bin"
+  },
+  "actual_changed_count": 14,
+  "all_tracked_count": 3480,
+  "all_tracked_bytes_and_mode_equal": true,
+  "source_before": {
+    "head": "7be100d1a74271ffb99484a4c8c863ae6f2d5600",
+    "index_sha256": "c7e71059db6bfd0db6784807e5960bd37003eedda1b1d8c8d9ca4b508e77f40d"
+  },
+  "source_after": {
+    "head": "7be100d1a74271ffb99484a4c8c863ae6f2d5600",
+    "index_sha256": "c7e71059db6bfd0db6784807e5960bd37003eedda1b1d8c8d9ca4b508e77f40d"
+  },
+  "source_index_or_refs_modified": false,
+  "environment": {
+    "platform": "Darwin",
+    "machine": "arm64",
+    "git_version": "git version 2.55.0",
+    "environment_overrides": null
+  },
+  "not_run": [
+    "browser replay",
+    "32 Node tests",
+    "948 Rust tests",
+    "human retest",
+    "overall acceptance",
+    "actual host close-reopen"
+  ],
+  "usage": "unknown",
+  "cost": "unknown",
+  "human_active_minutes": "unknown"
+}

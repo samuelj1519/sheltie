@@ -1,0 +1,414 @@
+{
+  "sourceClosure": "browser-source-before-04.json",
+  "checks": [
+    {
+      "index": 0,
+      "mode": "s1 path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "implement",
+          "edgeTo": "review"
+        },
+        "values": [
+          "implement",
+          "review",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 0,
+      "mode": "s1 label",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "implement",
+          "edgeTo": "review"
+        },
+        "values": [
+          "implement",
+          "review",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 0,
+      "mode": "s1 list",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "implement",
+          "edgeTo": "review"
+        },
+        "values": [
+          "implement",
+          "review",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 1,
+      "mode": "s1 path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 1,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "implement"
+        },
+        "values": [
+          "review",
+          "implement",
+          "back"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 1,
+      "mode": "s1 label",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 1,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "implement"
+        },
+        "values": [
+          "review",
+          "implement",
+          "back"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 1,
+      "mode": "s1 list",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 1,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "implement"
+        },
+        "values": [
+          "review",
+          "implement",
+          "back"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 2,
+      "mode": "s1 path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 2,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "deliver",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "deliver"
+        },
+        "values": [
+          "review",
+          "deliver",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 2,
+      "mode": "s1 label",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 2,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "deliver",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "deliver"
+        },
+        "values": [
+          "review",
+          "deliver",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 2,
+      "mode": "s1 list",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 2,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "deliver",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "deliver"
+        },
+        "values": [
+          "review",
+          "deliver",
+          "main"
+        ],
+        "zoom": "100%"
+      }
+    },
+    {
+      "index": 1,
+      "mode": "s1 zoom then path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 1,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "implement",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "implement"
+        },
+        "values": [
+          "review",
+          "implement",
+          "back"
+        ],
+        "zoom": "115%"
+      }
+    },
+    {
+      "index": 2,
+      "mode": "native x160/y668 then path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 2,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "deliver",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 160,
+          "y": 668
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "deliver"
+        },
+        "values": [
+          "review",
+          "deliver",
+          "main"
+        ],
+        "zoom": "115%"
+      }
+    },
+    {
+      "index": 2,
+      "mode": "native pan then path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 2,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "deliver",
+          "review"
+        ],
+        "labels": 1,
+        "scroll": {
+          "x": 0,
+          "y": 0
+        },
+        "summary": {
+          "edgeFrom": "review",
+          "edgeTo": "deliver"
+        },
+        "values": [
+          "review",
+          "deliver",
+          "main"
+        ],
+        "zoom": "95%"
+      }
+    }
+  ],
+  "arrangeReset": {
+    "nodes": [
+      {
+        "id": "implement",
+        "x": "0px",
+        "y": "0px"
+      },
+      {
+        "id": "review",
+        "x": "320px",
+        "y": "0px"
+      },
+      {
+        "id": "deliver",
+        "x": "640px",
+        "y": "0px"
+      }
+    ],
+    "x": 0,
+    "y": 0
+  },
+  "actualNativeScroll": {
+    "x": 160,
+    "y": 668
+  }
+}

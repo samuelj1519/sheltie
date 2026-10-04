@@ -1,0 +1,749 @@
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/brief-input-scope-check.json b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/brief-input-scope-check.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..dc6103c638815c863e7b85573d4bf0ace7e0a88e
+--- /dev/null
++++ b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/brief-input-scope-check.json
+@@ -0,0 +1,26 @@
++{
++  "inputs": [
++    {
++      "name": "task",
++      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/start-inputs/task",
++      "sha256": "8eb0edb7920b8a6ece8b1a08e60a00ac9e124a02d1671d9a154520c909faf089"
++    },
++    {
++      "name": "project",
++      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/start-inputs/project",
++      "sha256": "3e981480bd4839d439683507b164947b7dae0f16e2216609c6cf59da9bd0c34e"
++    },
++    {
++      "name": "previous-review",
++      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/attempts/review/occurrence-002/attempt-000/outputs/review.md",
++      "sha256": "ccf0b33175f96ab848793c4cdf948c55ea79f45f1fe6ee30fe850cf2b82d16a8"
++    }
++  ],
++  "previous_tree": "edb3ba01b31c9a946c3a5857b431b853f952ce9b",
++  "only_changed_existing_files": [
++    "tools/workbook-editor/public/app.mjs",
++    "tools/workbook-editor/public/geometry.mjs",
++    "tools/workbook-editor/test/usability.test.mjs"
++  ],
++  "formal_app_debug_prefix_absent": true
++}
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-return-03.json b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-return-03.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..2eeb54afed0ddcc1df6f3ea1a650acb31ea2bf33
+--- /dev/null
++++ b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-return-03.json
+@@ -0,0 +1,315 @@
++[
++  {
++    "name": "edge-nearest-green",
++    "argv": [
++      "node",
++      "--test",
++      "test/usability.test.mjs",
++      "test/layout.test.mjs"
++    ],
++    "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004/tools/workbook-editor",
++    "exit_code": 0,
++    "input_before": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "input_after": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "streams": {
++      "stdout": {
++        "gzip_path": "edge-nearest-green.stdout.gz",
++        "sha256": "bf607c75a64f18c2f3ebe5fd7a5e13877f61b1b02a784c542f5265f1d4451a43",
++        "bytes": 1778
++      },
++      "stderr": {
++        "gzip_path": "edge-nearest-green.stderr.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      }
++    }
++  },
++  {
++    "name": "edge-syntax-app",
++    "argv": [
++      "node",
++      "--check",
++      "tools/workbook-editor/public/app.mjs"
++    ],
++    "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004",
++    "exit_code": 0,
++    "input_before": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "input_after": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "streams": {
++      "stdout": {
++        "gzip_path": "edge-syntax-app.stdout.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      },
++      "stderr": {
++        "gzip_path": "edge-syntax-app.stderr.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      }
++    }
++  },
++  {
++    "name": "edge-syntax-geometry",
++    "argv": [
++      "node",
++      "--check",
++      "tools/workbook-editor/public/geometry.mjs"
++    ],
++    "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004",
++    "exit_code": 0,
++    "input_before": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "input_after": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "streams": {
++      "stdout": {
++        "gzip_path": "edge-syntax-geometry.stdout.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      },
++      "stderr": {
++        "gzip_path": "edge-syntax-geometry.stderr.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      }
++    }
++  },
++  {
++    "name": "edge-diff-check",
++    "argv": [
++      "git",
++      "diff",
++      "--check"
++    ],
++    "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004",
++    "exit_code": 0,
++    "input_before": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "input_after": {
++      "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++      "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++      "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++      "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++      "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++      "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++      "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++      "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++      "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++      "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++      "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++      "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++      "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++      "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++      "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++      "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++      "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++      "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++      "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++      "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++      "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++      "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++      "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++      "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++      "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++      "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++    },
++    "streams": {
++      "stdout": {
++        "gzip_path": "edge-diff-check.stdout.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      },
++      "stderr": {
++        "gzip_path": "edge-diff-check.stderr.gz",
++        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "bytes": 0
++      }
++    }
++  }
++]
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-static-http.json b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-static-http.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..66f47ada430470325d075bc4336bd1d0fb95b499
+--- /dev/null
++++ b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/checks-edge-static-http.json
+@@ -0,0 +1,81 @@
++{
++  "argv": [
++    "node",
++    "--test",
++    "--test-name-pattern=真实 HTTP Host/Origin/token 拒绝矩阵，固定静态路由和样例",
++    "test/http.test.mjs"
++  ],
++  "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004/tools/workbook-editor",
++  "exit_code": 0,
++  "environment": {
++    "SHELTIE_EDITOR_ENGINE": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie"
++  },
++  "input_before": {
++    "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++    "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++    "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++    "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++    "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++    "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++    "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++    "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++    "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++    "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++    "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++    "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++    "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++    "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++    "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++    "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++    "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++    "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++    "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++    "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++    "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++    "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++    "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++    "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++    "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++    "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++  },
++  "input_after": {
++    "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
++    "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
++    "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
++    "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
++    "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
++    "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
++    "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
++    "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
++    "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
++    "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
++    "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
++    "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
++    "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
++    "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
++    "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
++    "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
++    "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
++    "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
++    "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
++    "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
++    "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
++    "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
++    "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
++    "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
++    "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
++    "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
++  },
++  "streams": {
++    "stdout": {
++      "gzip_path": "edge-static-http.stdout.gz",
++      "sha256": "1a3ac29ee13e7e594600f4ac8a3a76a3210b6d6a7e6b4fbc9b09d27636798c27",
++      "bytes": 393
++    },
++    "stderr": {
++      "gzip_path": "edge-static-http.stderr.gz",
++      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++      "bytes": 0
++    }
++  }
++}
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-diff-check.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-diff-check.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-diff-check.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-diff-check.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-green.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-green.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-green.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-green.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..8aaf002616c200dc72ffea6ff2d06222318bfee3
+GIT binary patch
+literal 1151
+zcmV-_1c3V=iwFP!00002|7BH6S0YCg-p{XKlXE5;X`aF&o9wd4$ui3v2HFWhg#hkb
+zM+D^2L;-oKI3OzW8g+zjg#R+>Th+btFXUDiFqvf6)kWX$ald={(kNPJ;{pcfzDNWT
+zV@>J7<O7T){doxULz3?5tt`ou;rPZ1(+ApBt#o!vigT+W9e`4_LcaoX847ulmPjN0
+zYd9Ku7Y>I=IjO0iA%6k=GyV8Lo8&;QSl+reTyC#p)3p=({>_&)G)JVfQ!GYu7toZg
+zM)RCJl%QE4mr4DqM=~c=ZE6$6P%HYNt#^;0K7XBMS>2=R3e@se*s#0p_H}t}qLQb5
+zdXpj9G>6*p1$SY5K<-;4e?rqKtO4^onjfN&Ha(b9HAVVY_?8hUji`EPv=mTe_9mHw
+zc8-)DY2k>r1~8~GJdf997rZM#L@=reG4Ni5;Zz^Dth6@-`J<J)X+<%#KZin=-<sf(
+zz9=#oi7{0c>`haKS&0^J@TK1Bpm|7(Avrd^PM2qev=xj)HUWhmw9DGOYe+R?{}fKL
+z9O89Wk3_|YFDhz_CM{KY2f3Yi$3?&(iw{5hBL8cXXTxg~?7|uh>UG-9k!FV|1^Q`@
+z>Ph7iMu%K3d>oNV9^_+4+!!BjzKsA=lueM#eN>Ev_o99=rl}p|%pGC6oHmEe?OrEh
+zrto@yOZ%KVQp0B+2%|W_XVSQ%7ahi0n&EFqc3)54VL!BKnrDJ$8=NfD+PGsvQ-w&-
+z9}=T@OXPy4v>CL`iH<r~&_=I9m992P6NH}Re+<6=X*a$!2AMQ2ma)KGw!0V(eSQjw
+z4v(fTF<d=`eeAHxg2yd*9IMKl43TAhF(St$cp0-!t%w;?nq+PnvEmfr$l!^YCRa%P
+zk$=dp9?xj?B`W^87mSL5AGUnkF_EOoODD$XMCzJ?1i|jL{VV?Ze5yY`u*Bn!(-{l_
+zjxdWtAy4a%`r=%h)#&Yl-ru8c$hBxXNzPc)^rsO|7R}t#UWVt3t3;Zi;BH_k)BSba
+zAl1adLJr^Y0p$V3e8Y2x7ehMBA<!nr@O*93YcjddpKyEd72x;nh*2MN$Rw=2<mk(Q
+zxqE#?>t$2s=BDTC65%HC_Tp3<)i&-T=1IR}+_hh4HB5(&dkynq4i>4*X<J!GMw=Az
+zilx<z8<JUfhDV9@IjNYqHmBgUuW?QD*|1xfAFTd)1`0Xa9r09RGmYjI&nd`5eRu?^
+z9#5z~#H0GlyFWyKoPTKA=@h)S&2N_@jwoi$m|dc8+zMP~q=9SWFIKa=k81-H#Cy$)
+z8#S4*<~9sT#!31;7^k&Es#YNNnQt=;7i77Uc9+}zA4D7uwh8-bYz=;n(@xbYpKXw;
+zh{a=IG^@Cc@yN1NT%z;;2>us=Glc68OJN;)twNHmO;e`ZyX@ZK)DjnC@tDQtG7qu6
+zAf7FPd5HL8>x(U4aC`aM@7wi@+uLGbd5(pGk;wWK4+p}_$G~3H7Y~Maf7^*!T#gNg
+R(~Yz7<{y(N7W(oA008YBI$i((
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.json b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..2434a0ce9e2d5d2d0f1c3785caf35455b59f7833
+--- /dev/null
++++ b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.json
+@@ -0,0 +1,18 @@
++{
++  "argv": [
++    "node",
++    "--test",
++    "test/usability.test.mjs"
++  ],
++  "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004/tools/workbook-editor",
++  "exit_code": 1,
++  "production_baseline": "path selection extracted equivalent last-painted transparent 10px world hit; existing production calls helper, label/list remain direct object",
++  "expected_failures": [
++    "integer click picks farther last-painted back instead of nearest main",
++    "equal crossing silently picks last instead of explicit ambiguity"
++  ],
++  "streams": {
++    "stdout": "7cb2f27416a61687a09f66669f86c3524c00d81b399f0e5707be01e139c1cf46",
++    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
++  }
++}
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-nearest-red.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..37be13939d79ffe6a98adbb6d7046458f02016ca
+GIT binary patch
+literal 1815
+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
+F000(vq0ImQ
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-static-http.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-static-http.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-static-http.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-static-http.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..b01db192c104390b5cd49654229e11e967fba950
+GIT binary patch
+literal 337
+zcmV-X0j~ZZiwFP!00002|2>dRPr@)9#_xQJe|FLcj4r|$pMaYlxSMV**s!%r+eOfr
+zXyOe{go7_AUcF#E7~)I(FvKxA`4ub^O)t;y*C*+do>;y}IKi@SH7rSSSUS`?wu+XJ
+zti!mGYi`&!a@=yo9Mq^)oGLPn2y4lDrr|+bNS_fxIr!9M3g(VVhC_CYH50rDb)Y?_
+zG~*pm+PDCAz%dR7y5#pYg;)xb1nV+HCWTa)Mw|600fnPDq(#_;gm<|(;vhw$sj^NB
+zi^&+W$uynaL9^A`ho(^4-pi-kT6E2z<zSS(-DcB=)#dZ|`!KzEO=s7u+pFc-`Pck0
+z8$YF^;qrd|`7wYk2bEF1=6Wbn+l9r&3z$c=0+eT!FoRIZA;#*@w=oMhHo!cfVQ41*
+jvg)!p{wFPn*hG@Z{9g_t1#Y$MdS2lN+=TDai2(or{A{L~
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-app.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-app.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-app.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-app.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-geometry.stderr.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-geometry.stderr.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-geometry.stdout.gz b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/edge-syntax-geometry.stdout.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e43ea3218b5890302b754bbf8927f94e79f7ee
+GIT binary patch
+literal 20
+Tcmb2|=3oE;rvJ=f8bkm97>oh8
+
+literal 0
+HcmV?d00001
+
+diff --git a/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/simplification-readonly.md b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/simplification-readonly.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9eee3c212acceaa7cf1c2e6d14550b16de1e427
+--- /dev/null
++++ b/specs/changes/active/C011-workbook-visual-editor/evidence/usability-refinement/implementation/return-03/simplification-readonly.md
+@@ -0,0 +1 @@
++只读自查：本轮仅共享折线距离与选边调用，不更改路线/Map。真实clientXY转换集中在生产调用，纯函数仅接收已渲染routes与变换；标签/列表/键盘各保留明确对象。等距不给默认对象，状态显示候选编号并引导明确选择。没有额外状态模型、命中索引缓存或debug日志进入正式源码。原code-simplifier委派线程上限记录保持，自查不称独立审查。
+diff --git a/tools/workbook-editor/public/app.mjs b/tools/workbook-editor/public/app.mjs
+index c252e2a7fe4f453d04bf67e173035b95ec954a72..9c4043e3242b599858d202efa24b2ef4f69b50c5 100644
+--- a/tools/workbook-editor/public/app.mjs
++++ b/tools/workbook-editor/public/app.mjs
+@@ -1,7 +1,7 @@
+ import { WorkbookModel, newWorkbook } from './model.mjs';
+ import { readDirectory, toWire } from './files.mjs';
+ import { CanvasView } from './layout.mjs';
+-import { CARD_WIDTH, CARD_HEIGHT, routeEdges, edgeKindLabel } from './geometry.mjs';
++import { CARD_WIDTH, CARD_HEIGHT, routeEdges, edgeKindLabel, pickRouteAtPoint } from './geometry.mjs';
+ import { sourceChoices, describeSource, composeSource, declarationBoolean, declarationBytes } from './sources.mjs';
+ import { syncTextPreviews, describeFailure } from './presentation.mjs';
+ const $ = id => document.getElementById(id);
+@@ -113,13 +113,21 @@ function renderCanvas() {
+   let current; try { current = flow(); } catch (error) { status(`${flowPath}：${error.message}`, true); return; }
+   const defs = svg('defs'), marker = svg('marker', { id: 'arrow', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }); marker.append(svg('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill: '#7994b6' })); defs.append(marker); $('edges').append(defs);
+   view.prepare(current);
+-  for (const route of routeEdges(current, view.positions)) {
++  const routes = routeEdges(current, view.positions);
++  for (const route of routes) {
+     const { edge, index, d, label } = route;
+     const active = selection.edge === edge, related = selection.node && (edge.from === selection.node.id || edge.to === selection.node.id);
+     const group = svg('g', { 'data-edge-index': index, 'data-from': edge.from, 'data-to': edge.to });
+     const hit = svg('path', { d, class: 'edge-hit', tabindex: 0, role: 'button', 'aria-label': `${edge.from} 到 ${edge.to}，${edge.kind}` });
+     group.addEventListener('pointerdown', event => event.stopPropagation());
+-    group.addEventListener('click', event => { event.stopPropagation(); if (!suppressClick) selectEdge(edge); });
++    group.addEventListener('click', event => {
++      event.stopPropagation(); if (suppressClick) return;
++      if (event.target.closest('.edge-label')) { selectEdge(edge); return; }
++      const rect = $('viewport').getBoundingClientRect();
++      const picked = pickRouteAtPoint(routes, { x: event.clientX, y: event.clientY }, { x: rect.left + view.x, y: rect.top + view.y, scale: view.scale });
++      if (picked.ambiguous.length) status(`此处多条连线交汇（${picked.ambiguous.map(r => r.index + 1).join('、')}），请点击编号标签或左侧“全部连线”选择。`);
++      else if (picked.route) selectEdge(picked.route.edge);
++    });
+     group.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectEdge(edge); } });
+     group.append(hit, svg('path', { d, class: `edge kind-${edge.kind} ${active ? 'active' : related ? 'related' : ''}`, 'marker-end': 'url(#arrow)' }));
+     const caption = `${index + 1} ${edgeKindLabel(edge.kind)}`, width = route.labelWidth;
+diff --git a/tools/workbook-editor/public/geometry.mjs b/tools/workbook-editor/public/geometry.mjs
+index d31d561a7d6038bdde9715d22b130abb5a70df63..ee48ba3128740d6f39963f2ebd7090dd58735831 100644
+--- a/tools/workbook-editor/public/geometry.mjs
++++ b/tools/workbook-editor/public/geometry.mjs
+@@ -62,3 +62,16 @@ export function graphBounds(flow, positions) {
+   return { minX: Math.min(0, ...points.map(p => p.x)), minY: Math.min(0, ...points.map(p => p.y)), maxX: Math.max(CARD_WIDTH, ...points.map(p => p.x)), maxY: Math.max(CARD_HEIGHT, ...points.map(p => p.y)) };
+ }
+ 
++
++function segmentDistance(point, a, b) {
++  const dx = b.x - a.x, dy = b.y - a.y, length = dx * dx + dy * dy;
++  const fraction = length ? Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / length)) : 0;
++  return Math.hypot(point.x - a.x - fraction * dx, point.y - a.y - fraction * dy);
++}
++export function pickRouteAtPoint(routes, screenPoint, transform) {
++  const point = { x: (screenPoint.x - transform.x) / transform.scale, y: (screenPoint.y - transform.y) / transform.scale };
++  const distances = routes.map(route => ({ route, distance: Math.min(...route.points.slice(1).map((p, i) => segmentDistance(point, route.points[i], p))) * transform.scale }));
++  const nearest = Math.min(...distances.map(item => item.distance));
++  const closest = distances.filter(item => Math.abs(item.distance - nearest) <= 1e-6).map(item => item.route);
++  return { route: closest.length === 1 ? closest[0] : undefined, ambiguous: closest.length > 1 ? closest : [] };
++}
+diff --git a/tools/workbook-editor/test/usability.test.mjs b/tools/workbook-editor/test/usability.test.mjs
+index ab822d91aa6210a0b813c1e3c07d7b473ceeb24d..27fa35136ae94c24d20465bfc694609157a9ff61 100644
+--- a/tools/workbook-editor/test/usability.test.mjs
++++ b/tools/workbook-editor/test/usability.test.mjs
+@@ -1,7 +1,7 @@
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+ import { fileURLToPath } from 'node:url';
+-import { graphPositions, routeEdges, graphBounds, CARD_WIDTH, CARD_HEIGHT, edgeKindLabel } from '../public/geometry.mjs';
++import { graphPositions, routeEdges, graphBounds, CARD_WIDTH, CARD_HEIGHT, edgeKindLabel, pickRouteAtPoint } from '../public/geometry.mjs';
+ import { sourceChoices, describeSource, composeSource, declarationBoolean, declarationBytes } from '../public/sources.mjs';
+ import { CanvasView } from '../public/layout.mjs';
+ import { WorkbookModel } from '../public/model.mjs';
+@@ -94,3 +94,23 @@ test('未知edge kind原型名称保持字面原值可识别，不误读Object
+   assert.equal(edgeKindLabel('toString'), '原类型：toString');
+   assert.equal(edgeKindLabel('main'), '继续');
+ });
++
++test('真实整数鼠标位置按最近可见线选主边，不随更远透明hit的绘制顺序变化', () => {
++  const main = { index: 0, edge: { from: 'spec', to: 'plan', kind: 'main' }, points: [{ x: 240, y: 85 }, { x: 295, y: 85 }, { x: 295, y: 62.5 }, { x: 350, y: 62.5 }] };
++  const back = { index: 23, edge: { from: 'escalate', to: 'plan', kind: 'back' }, points: [{ x: 334, y: -300 }, { x: 334, y: 200 }] };
++  const transform = { x: 300.13555, y: 331.13235, scale: .546994885 };
++  const picked = pickRouteAtPoint([main, back], { x: 485, y: 365 }, transform);
++  assert.equal(picked.route, main); assert.deepEqual(picked.ambiguous, []);
++  assert.equal(pickRouteAtPoint([back, main], { x: 485, y: 365 }, transform).route, main);
++  assert.equal(pickRouteAtPoint([main, back], { x: 485.566821, y: 365.319534 }, transform).route, main);
++});
++test('真实交点等距明确给全部候选而不静默选后画边，平移缩放与端点距离准确', () => {
++  const horizontal = { index: 1, edge: { id: 'horizontal' }, points: [{ x: 0, y: 10 }, { x: 20, y: 10 }] };
++  const vertical = { index: 2, edge: { id: 'vertical' }, points: [{ x: 15, y: 0 }, { x: 15, y: 20 }] };
++  const tied = pickRouteAtPoint([horizontal, vertical], { x: 40, y: 40 }, { x: 10, y: 20, scale: 2 });
++  assert.equal(tied.route, undefined); assert.deepEqual(tied.ambiguous, [horizontal, vertical]);
++  assert.equal(pickRouteAtPoint([horizontal, vertical], { x: 36, y: 40 }, { x: 10, y: 20, scale: 2 }).route, horizontal);
++  assert.equal(pickRouteAtPoint([horizontal, vertical], { x: 40, y: 34 }, { x: 10, y: 20, scale: 2 }).route, vertical);
++  assert.equal(pickRouteAtPoint([horizontal, vertical], { x: 60, y: 40 }, { x: 10, y: 20, scale: 2 }).route, horizontal);
++  assert.deepEqual(pickRouteAtPoint([], { x: 1, y: 2 }, { x: 0, y: 0, scale: 1 }), { route: undefined, ambiguous: [] });
++});

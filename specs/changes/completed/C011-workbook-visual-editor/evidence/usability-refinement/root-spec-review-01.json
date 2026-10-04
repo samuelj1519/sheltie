@@ -1,0 +1,27 @@
+{
+  "reviewer": "Root did not implement source",
+  "candidate_tree": "60c4578c273db7e4608fdef0a786fc662e598cb7",
+  "scope": "Spec and actual browser, independent of Standards agent",
+  "finding": {
+    "id": "U1",
+    "required": "contracts/workbook.md §3.2: source node exists and is not self; source picker says another step",
+    "actual": "review input change picker offers review, output review; commits review.review, real CLI rejects FLOW_INVALID rule5 nodes[1].inputs[2].from 来源节点不得是自己",
+    "required_fix": "pass owning-node context to source choices/compose/describe; exclude self from normal step options; existing self ref stays custom exact original; incomplete selections preserve previous from",
+    "source_files": [
+      "public/sources.mjs",
+      "public/app.mjs"
+    ]
+  },
+  "passed": {
+    "code_change_3_edges_mouse_path_label_list": 9,
+    "property_summary_endpoint_and_kind_and_highlight": "all match actual object",
+    "view_only_zip": "6 files exact original fixture after selections+arrange",
+    "camera_no_cache_return_visible": "passed100% screenshot"
+  },
+  "pending": {
+    "specdev25_native_mouse": "not_run yet",
+    "human_acceptance": "not_run",
+    "current_old_dirty_draft_full_disk_map": "not backed up; old live page intact"
+  },
+  "conclusion": "需修改"
+}

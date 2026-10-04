@@ -1,0 +1,81 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "--test-name-pattern=真实 HTTP Host/Origin/token 拒绝矩阵，固定静态路由和样例",
+    "test/http.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004/tools/workbook-editor",
+  "exit_code": 0,
+  "environment": {
+    "SHELTIE_EDITOR_ENGINE": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie"
+  },
+  "input_before": {
+    "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+    "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
+    "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
+    "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
+    "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
+    "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
+    "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
+    "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
+    "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
+    "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
+    "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
+    "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
+    "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
+    "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
+    "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
+    "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
+    "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
+    "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
+    "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
+    "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
+    "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
+    "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
+    "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
+    "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
+    "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
+    "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
+  },
+  "input_after": {
+    "tools/workbook-editor/.gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+    "tools/workbook-editor/README.md": "53a671bd9f6aeebe3e362eb14aae7c71abead1106d6c84d170cf4c7ba002fda1",
+    "tools/workbook-editor/lib/engine.mjs": "88089d5970b0a6a39127be71c5c774846d4f4d0c54be8ca800003d4d83c34d13",
+    "tools/workbook-editor/lib/files.mjs": "9a78ef5e989d6a142753e6cc77f5b8b3ce12b3d4e014b7fbc725e5c26a1ac629",
+    "tools/workbook-editor/package-lock.json": "973efa7bbea64c28242735b9198f27c3cffb8504353a135af9148973dc583553",
+    "tools/workbook-editor/package.json": "3dab3d03d199a392024a9b23f18ef7ccdfdbbdd4cc27ada34e3ce07493a96e91",
+    "tools/workbook-editor/public/app.mjs": "4a7a74e62df19f81086abc03493222085170db2614c1cd38bad2b8cedb7b003e",
+    "tools/workbook-editor/public/files.mjs": "0e4155fac85b3e3ce244a255d69fdc100580a033ba86ade3131c9add4de43563",
+    "tools/workbook-editor/public/geometry.mjs": "e998fdcacf857f7dffc326aa6d18a1cbeec7351fcc615f8b383f699e049b0e30",
+    "tools/workbook-editor/public/index.html": "db0bf8b6ff5c0f192a8f1b6c5f03d2afcdbdf0c9ba531db36842cf3b8b063f3e",
+    "tools/workbook-editor/public/layout.mjs": "ae25e72f94991e351369547988f471ae5ec30f34381a24dfc956a3859133c225",
+    "tools/workbook-editor/public/model.mjs": "c20bf4a006ba63526fc5c71388755a31d7ae1693893a33c5985ab8a34965d313",
+    "tools/workbook-editor/public/presentation.mjs": "f13318c35e481b85d2d9dc34172e23e5ecec22c5c1c5e1da320a8112665c6268",
+    "tools/workbook-editor/public/sources.mjs": "f05ab125c10f02f6ab79e49dcc2d880a2ef52fac849b222b8c28589afbb4a4d7",
+    "tools/workbook-editor/public/style.css": "0790e5181ec37dfcfd838a6ed3b106148df8350b221ae91c9ebff35e07ba1b9d",
+    "tools/workbook-editor/public/toml.mjs": "ac456cd3231478ed6e9a7db227cac026efb9b043454cd7a4fc6be870321c027c",
+    "tools/workbook-editor/scripts/record.py": "f7101cf17815bdf5ab098b57fbaf624604e31655977fe313b7cb39301e8011fc",
+    "tools/workbook-editor/scripts/smoke.mjs": "afd02de8544e09a75e1e5d0981c8d28dfd73d66aa8f21de03ff89e2fec5955b7",
+    "tools/workbook-editor/server.mjs": "509744a90536cda4d0804c802127a1ec3939d18855c89544908279064e70c16b",
+    "tools/workbook-editor/test/engine.test.mjs": "ab6bbce8859a4748232e1977b6a1b899a206343bf5665b5fe4af89018535930b",
+    "tools/workbook-editor/test/files.test.mjs": "85143fd5aa0068b684eb760bae92fab1d4eb59bdb817ede6a0a899477917c701",
+    "tools/workbook-editor/test/http.test.mjs": "54a17fd0cc75c98e8ec90071f35ed21371e3f74924804130bff3904db47d4c36",
+    "tools/workbook-editor/test/layout.test.mjs": "98626774ab5df710d2182b5787344b1b374c1418922b116651e506fe2c3385c6",
+    "tools/workbook-editor/test/model.test.mjs": "51c7a6bb959a9cd003d0ed116a72eb4405956fdcaf467642a85051ef18be7920",
+    "tools/workbook-editor/test/presentation.test.mjs": "ac1aca548cde396abc4ccbd27cd143b85da5577558f7438ff11f8ec8e019bc5d",
+    "tools/workbook-editor/test/usability.test.mjs": "89bc5f7ced949e90d86a164c0f37f8b523e199fbf49a1c77d2ed7f6449f5803e"
+  },
+  "streams": {
+    "stdout": {
+      "gzip_path": "edge-static-http.stdout.gz",
+      "sha256": "1a3ac29ee13e7e594600f4ac8a3a76a3210b6d6a7e6b4fbc9b09d27636798c27",
+      "bytes": 393
+    },
+    "stderr": {
+      "gzip_path": "edge-static-http.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "--test-name-pattern=\u76f4\u63a5child\u9000\u51fa\u800c\u6d41\u672a\u5173\u95ed\u65f6\u51c6\u786e\u5931\u8d25\u4fdd\u7559\u81ea\u6709\u6839\uff0c\u5b9e\u9645close\u4e4b\u540e\u624d\u80fd\u6e05\u7406",
+    "test/engine.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-clear-graph-view-20261004/tools/workbook-editor",
+  "exit_code": 0,
+  "source_unchanged": true,
+  "diagnosis": "single exact existing case, isolate timeout assumption; original full-run process result not logged before assertion so causal detail remains unknown",
+  "streams": {
+    "stdout": "d28c526b171c0c936315d66ec69d7aa7b64f63711c52faa2f2ca81739ca30e65",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

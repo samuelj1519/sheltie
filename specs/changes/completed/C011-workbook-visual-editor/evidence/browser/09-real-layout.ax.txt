@@ -1,0 +1,96 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+1 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	2 container
+		3 text Sheltie
+		4 text Workbook 作者工具
+		5 button 新建方法, ID: new
+		6 button 打开目录, ID: open
+		7 button 检查结构, ID: check
+		8 button 保存新副本 ZIP, ID: save
+		62 container Description: 方法与 Flow, ID: navigation
+			63 text 方法与 Flow
+			131 button 修后浏览器验收
+			132 button flows/default.toml Flow default
+				133 text flows/default.toml
+				134 text Flow default
+			68 button ＋ 增加 Flow, ID: add-flow
+			69 text 当前节点
+			70 container node-list
+				135 button 编写初稿
+				136 button 步骤 2
+			73 container
+				74 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					75 text 从现有样例开始
+			76 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		77 button Description: 展开或折叠导航, ID: toggle-nav
+		137 text flows/default.toml
+		79 button ＋ 节点, ID: add-node
+		80 button ＋ 显式边, ID: add-edge
+		81 button Description: 缩小画布, ID: zoom-out
+		189 text 100%
+		83 button Description: 放大画布, ID: zoom-in
+		84 button 适应画布, ID: reset-view
+		85 button 属性, ID: toggle-props
+		86 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			87 container world
+				88 image Description: 显式边, ID: edges
+					190 container
+						191 button step-1 到 step-2，main
+						192 text main
+				92 container nodes
+					193 button step-1 入口 编写初稿 agent · 0 输入 / 0 输出
+						194 text step-1
+						195 text 入口
+						196 text 编写初稿
+						197 text agent · 0 输入 / 0 输出
+					198 button step-2 步骤 2 agent · 0 输入 / 0 输出
+						199 text step-2
+						200 text 步骤 2
+						201 text agent · 0 输入 / 0 输出
+			102 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		103 container Description: 属性, ID: properties
+			151 text 节点属性
+			105 container property-content
+				152 container
+					153 text 节点 ID
+					154 text field (settable) 节点 ID 改 ID 后需手动更新入口、边和输入引用；检查会定位遗留引用。, Value: step-1
+					155 text 改 ID 后需手动更新入口、边和输入引用；检查会定位遗留引用。
+				156 container
+					157 text 标题
+					158 text field (settable) 标题, Value: 编写初稿
+				159 container
+					160 text 执行者 executor
+					161 pop up button (collapsed, settable) 执行者 executor, Value: agent, Secondary Actions: Expand
+						162 menu
+							163 (selected) agent
+							164 人工 human
+				165 button 设为入口
+				166 heading 说明, Value: 3
+					167 text 说明
+				168 container
+					169 text 说明方式
+					170 pop up button (collapsed, settable) 说明方式, Value: 内嵌文本 text, Secondary Actions: Expand
+						171 menu
+							172 (selected) 内嵌文本 text
+							173 说明文件 file
+				174 container
+					175 text 说明文本
+					176 text entry area (settable) 说明文本, Value: 读取主题，编写简体中文初稿。这里只编辑方法说明，不执行模型。
+
+				177 heading 输入, Value: 3
+					178 text 输入
+				179 button ＋ 添加
+				180 text 输入来源独立于显式边；修改绑定不会自动连线。
+				181 heading 输出, Value: 3
+					182 text 输出
+				183 button ＋ 添加
+				184 button (collapsed) 高级设置, Secondary Actions: Expand
+					185 text 高级设置
+				186 button 删除节点，保留引用供检查
+				187 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					188 text 查看当前 TOML 原文
+		130 text 完整新副本已下载。解压后选择目录重新打开；原目录未写入。
+		60 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			61 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 84 button 适应画布, ID: reset-view

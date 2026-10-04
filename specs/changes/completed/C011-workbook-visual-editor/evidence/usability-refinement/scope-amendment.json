@@ -1,0 +1,16 @@
+{
+  "work_id": "2026-10-04-004-workbook-usability-refinement",
+  "attempt": "implement#1.0",
+  "authority": "Root coordinator within adopted C011/user-authorized usability repair; frozen project explicitly says necessary server change first report Root reason",
+  "frozen_project_sha256": "3e981480bd4839d439683507b164947b7dae0f16e2216609c6cf59da9bd0c34e",
+  "frozen_task_sha256": "8eb0edb7920b8a6ece8b1a08e60a00ac9e124a02d1671d9a154520c909faf089",
+  "reported_reason": "new production geometry/sources pure modules cannot load because server has fixed static asset allowlist",
+  "approved_extra_scope": {
+    "path": "tools/workbook-editor/server.mjs",
+    "change": "only add two fixed static map entries geometry.mjs and sources.mjs",
+    "tests": "actual static resource GET/import consumer checks plus affected HTTP group"
+  },
+  "boundary": "fixed allowlist stays fixed; no wildcard, route, path, Origin, Host, token, engine, dependency or format changes",
+  "test_qualification": "retain 40 full-run raw, reuse unchanged nonserver consumers, rerun affected HTTP group and GET consumers; source edits outside closure require corresponding checks",
+  "human_permission_question": "not necessary for this routine authorized implementation dependency"
+}

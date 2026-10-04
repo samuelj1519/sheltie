@@ -1,0 +1,691 @@
+schema = "flow/v1"
+id = "default"
+entry = "spec"
+
+[[nodes]]
+id = "spec"
+title = "写需求规格"
+executor = "agent"
+tier = "strong"
+max_visits = 3
+
+[nodes.instruction]
+file = "instructions/spec.md"
+
+[[nodes.inputs]]
+name = "request"
+from = "start.request"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "template"
+from = "resource.resources/templates/spec.md"
+
+[[nodes.inputs]]
+name = "checklist"
+from = "resource.resources/checklists/spec-checklist.md"
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+required = false
+
+[[nodes.outputs]]
+name = "spec"
+path = "spec.md"
+max_bytes = 65536
+
+[[nodes]]
+id = "plan"
+title = "写技术方案与任务清单"
+executor = "agent"
+tier = "strong"
+max_visits = 4
+
+[nodes.instruction]
+file = "instructions/plan.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "plan_tpl"
+from = "resource.resources/templates/plan.md"
+
+[[nodes.inputs]]
+name = "tasks_tpl"
+from = "resource.resources/templates/tasks.md"
+
+[[nodes.inputs]]
+name = "task_rules"
+from = "resource.resources/checklists/task-rules.md"
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+required = false
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.inputs]]
+name = "previous_plan"
+from = "plan-review.reviewed-plan"
+required = false
+
+[[nodes.inputs]]
+name = "previous_tasks"
+from = "plan-review.reviewed-tasks"
+required = false
+
+[[nodes.inputs]]
+name = "previous_verification"
+from = "verify.report"
+required = false
+
+[[nodes.inputs]]
+name = "previous_change"
+from = "implement.change"
+required = false
+
+[[nodes.inputs]]
+name = "previous_fix_change"
+from = "fix.change"
+required = false
+
+[[nodes.outputs]]
+name = "plan"
+path = "plan.md"
+max_bytes = 65536
+
+[[nodes.outputs]]
+name = "tasks"
+path = "tasks.md"
+max_bytes = 65536
+
+[[nodes]]
+id = "plan-review"
+title = "人工审核规格与方案"
+executor = "human"
+max_visits = 4
+
+[nodes.instruction]
+file = "instructions/plan-review.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.outputs]]
+name = "decision"
+path = "decision.md"
+max_bytes = 16384
+
+[[nodes.outputs]]
+name = "reviewed-plan"
+path = "reviewed-plan.md"
+max_bytes = 65536
+
+[[nodes.outputs]]
+name = "reviewed-tasks"
+path = "reviewed-tasks.md"
+max_bytes = 65536
+
+[[nodes]]
+id = "scaffold"
+title = "搭骨架：类型、签名、禁用的测试"
+executor = "agent"
+tier = "strong"
+max_visits = 4
+max_retries = 1
+
+[nodes.instruction]
+file = "instructions/scaffold.md"
+
+[[nodes.inputs]]
+name = "approval_rules"
+from = "resource.resources/checklists/approval-rules.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "rules"
+from = "resource.resources/checklists/scaffold-rules.md"
+
+[[nodes.inputs]]
+name = "template"
+from = "resource.resources/templates/scaffold.md"
+
+[[nodes.outputs]]
+name = "scaffold"
+path = "scaffold.md"
+max_bytes = 65536
+
+[[nodes]]
+id = "implement"
+title = "实现一个任务"
+executor = "agent"
+tier = "standard"
+max_visits = 24
+max_retries = 1
+
+[nodes.instruction]
+file = "instructions/implement.md"
+
+[[nodes.inputs]]
+name = "approval_rules"
+from = "resource.resources/checklists/approval-rules.md"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "scaffold"
+from = "scaffold.scaffold"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "rules"
+from = "resource.resources/checklists/implementer-rules.md"
+
+[[nodes.inputs]]
+name = "report"
+from = "verify.report"
+required = false
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.outputs]]
+name = "change"
+path = "change.md"
+max_bytes = 32768
+
+[[nodes]]
+id = "verify"
+title = "验证本任务"
+executor = "agent"
+tier = "standard"
+max_visits = 32
+
+[nodes.instruction]
+file = "instructions/verify.md"
+
+[[nodes.inputs]]
+name = "approval_rules"
+from = "resource.resources/checklists/approval-rules.md"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "scaffold"
+from = "scaffold.scaffold"
+
+[[nodes.inputs]]
+name = "change"
+from = "implement.change"
+
+[[nodes.inputs]]
+name = "fix_change"
+from = "fix.change"
+required = false
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "template"
+from = "resource.resources/templates/report.md"
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.outputs]]
+name = "report"
+path = "report.md"
+max_bytes = 32768
+
+[[nodes]]
+id = "fix"
+title = "修复验证或审查发现的问题"
+executor = "agent"
+tier = "standard"
+max_visits = 16
+max_retries = 1
+
+[nodes.instruction]
+file = "instructions/fix.md"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "scaffold"
+from = "scaffold.scaffold"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "rules"
+from = "resource.resources/checklists/implementer-rules.md"
+
+[[nodes.inputs]]
+name = "verify_report"
+from = "verify.report"
+required = false
+
+[[nodes.inputs]]
+name = "review_report"
+from = "review.report"
+required = false
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.outputs]]
+name = "change"
+path = "change.md"
+max_bytes = 32768
+
+[[nodes]]
+id = "escalate"
+title = "人工决策：卡住、反复失败或需要授权"
+executor = "human"
+max_visits = 6
+
+[nodes.instruction]
+file = "instructions/escalate.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "approval"
+from = "plan-review.decision"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "scaffold_report"
+from = "scaffold.scaffold"
+required = false
+
+[[nodes.inputs]]
+name = "implement_change"
+from = "implement.change"
+required = false
+
+[[nodes.inputs]]
+name = "fix_change"
+from = "fix.change"
+required = false
+
+[[nodes.inputs]]
+name = "verify_report"
+from = "verify.report"
+required = false
+
+[[nodes.outputs]]
+name = "decision"
+path = "decision.md"
+max_bytes = 16384
+
+[[nodes]]
+id = "review"
+title = "审查整体改动"
+executor = "agent"
+tier = "strong"
+max_visits = 4
+
+[nodes.instruction]
+file = "instructions/review.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "scaffold"
+from = "scaffold.scaffold"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "fix_change"
+from = "fix.change"
+required = false
+
+[[nodes.inputs]]
+name = "checklist"
+from = "resource.resources/checklists/review-checklist.md"
+
+[[nodes.inputs]]
+name = "template"
+from = "resource.resources/templates/report.md"
+
+[[nodes.outputs]]
+name = "report"
+path = "report.md"
+max_bytes = 32768
+
+[[nodes]]
+id = "deliver"
+title = "写交付说明"
+executor = "agent"
+tier = "standard"
+
+[nodes.instruction]
+file = "instructions/deliver.md"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "tasks"
+from = "plan.tasks"
+
+[[nodes.inputs]]
+name = "project"
+from = "start.project"
+
+[[nodes.inputs]]
+name = "report"
+from = "review.report"
+required = false
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.outputs]]
+name = "delivery"
+path = "delivery.md"
+max_bytes = 32768
+
+[[nodes]]
+id = "retro"
+title = "反思：这次流程哪里该改"
+executor = "agent"
+tier = "standard"
+gate = true
+
+[nodes.instruction]
+file = "instructions/retro.md"
+
+[[nodes.inputs]]
+name = "stats"
+from = "engine.stats"
+
+[[nodes.inputs]]
+name = "spec"
+from = "spec.spec"
+
+[[nodes.inputs]]
+name = "plan"
+from = "plan.plan"
+
+[[nodes.inputs]]
+name = "delivery"
+from = "deliver.delivery"
+result = true
+
+[[nodes.inputs]]
+name = "decision"
+from = "plan-review.decision"
+
+[[nodes.inputs]]
+name = "escalation"
+from = "escalate.decision"
+required = false
+
+[[nodes.inputs]]
+name = "review"
+from = "review.report"
+required = false
+
+[[nodes.inputs]]
+name = "template"
+from = "resource.resources/templates/lessons.md"
+
+[[nodes.inputs]]
+name = "rules"
+from = "resource.resources/checklists/retro-rules.md"
+
+[[nodes.outputs]]
+name = "lessons"
+path = "lessons.md"
+result = true
+max_bytes = 32768
+
+[[edges]]
+from = "plan"
+to = "plan-review"
+kind = "main"
+
+[[edges]]
+from = "plan-review"
+to = "scaffold"
+kind = "main"
+
+[[edges]]
+from = "plan-review"
+to = "spec"
+kind = "back"
+
+[[edges]]
+from = "plan-review"
+to = "plan"
+kind = "back"
+
+[[edges]]
+from = "scaffold"
+to = "implement"
+kind = "main"
+
+[[edges]]
+from = "implement"
+to = "verify"
+kind = "main"
+
+[[edges]]
+from = "verify"
+to = "implement"
+kind = "main"
+
+[[edges]]
+from = "verify"
+to = "review"
+kind = "main"
+
+[[edges]]
+from = "verify"
+to = "fix"
+kind = "branch"
+
+[[edges]]
+from = "fix"
+to = "verify"
+kind = "re_review"
+
+[[edges]]
+from = "review"
+to = "deliver"
+kind = "main"
+
+[[edges]]
+from = "deliver"
+to = "retro"
+kind = "main"
+
+[[edges]]
+from = "review"
+to = "fix"
+kind = "branch"
+
+[[edges]]
+from = "fix"
+to = "review"
+kind = "re_review"
+
+[[edges]]
+from = "scaffold"
+to = "escalate"
+kind = "branch"
+
+[[edges]]
+from = "implement"
+to = "escalate"
+kind = "branch"
+
+[[edges]]
+from = "fix"
+to = "escalate"
+kind = "branch"
+
+[[edges]]
+from = "verify"
+to = "escalate"
+kind = "branch"
+
+[[edges]]
+from = "escalate"
+to = "scaffold"
+kind = "back"
+
+[[edges]]
+from = "escalate"
+to = "implement"
+kind = "main"
+
+[[edges]]
+from = "escalate"
+to = "fix"
+kind = "back"
+
+[[edges]]
+from = "escalate"
+to = "verify"
+kind = "back"
+
+[[edges]]
+from = "escalate"
+to = "plan"
+kind = "back"
+
+[[edges]]
+from = "escalate"
+to = "deliver"
+kind = "branch"
+
+[[edges]]
+from = "plan"
+to = "spec"
+kind = "main"

@@ -1,0 +1,70 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	1 container
+		2 text Sheltie
+		3 text Workbook 作者工具
+		4 button 新建方法, ID: new
+		5 button 打开目录, ID: open
+		6 button 检查结构, ID: check
+		7 button 保存新副本 ZIP, ID: save
+		8 container Description: 方法与 Flow, ID: navigation
+			9 text 方法与 Flow
+			132 button 我的两步方法
+			133 button flows/default.toml Flow default
+				134 text flows/default.toml
+				135 text Flow default
+			14 button ＋ 增加 Flow, ID: add-flow
+			15 text 当前节点
+			16 container node-list
+				136 button 第一步
+				137 button 步骤 2
+			19 container
+				20 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					21 text 从现有样例开始
+			22 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		23 button Description: 展开或折叠导航, ID: toggle-nav
+		138 text flows/default.toml
+		25 button ＋ 节点, ID: add-node
+		26 button ＋ 显式边, ID: add-edge
+		27 button Description: 缩小画布, ID: zoom-out
+		139 text 100%
+		29 button Description: 放大画布, ID: zoom-in
+		30 button 适应画布, ID: reset-view
+		31 button 属性, ID: toggle-props
+		32 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			33 container world
+				34 image Description: 显式边, ID: edges
+					140 container
+						141 button step-1 到 step-2，main
+						142 text main
+				71 container nodes
+					143 button step-1 入口 第一步 agent · 0 输入 / 0 输出
+						144 text step-1
+						145 text 入口
+						146 text 第一步
+						147 text agent · 0 输入 / 0 输出
+					148 button step-2 步骤 2 agent · 0 输入 / 0 输出
+						149 text step-2
+						150 text 步骤 2
+						151 text agent · 0 输入 / 0 输出
+			81 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		82 container Description: 属性, ID: properties
+			152 text Flow 属性
+			84 container property-content
+				153 container
+					154 text Flow ID
+					155 text field (settable) Flow ID, Value: default
+				156 container
+					157 text 入口节点 entry
+					158 pop up button (collapsed, settable) 入口节点 entry, Value: step-1 · 第一步, Secondary Actions: Expand
+						159 menu
+							160 (selected) step-1 · 第一步
+							161 step-2 · 步骤 2
+				162 text 选中画布节点编辑说明、输入与输出。选中连线编辑显式边。
+				163 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					164 text 查看当前 TOML 原文
+		165 text 草稿已修改。检查结构后保存新副本。
+		130 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			131 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/

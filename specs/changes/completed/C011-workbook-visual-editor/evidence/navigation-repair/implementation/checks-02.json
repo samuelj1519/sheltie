@@ -1,0 +1,51 @@
+{
+  "reason_for_new_check": "Root observed actual wide-window Grid auto-placement zero-width main; added explicit grid columns/row for each workspace child. First check record preserved.",
+  "baseline_head": "7be100d1a74271ffb99484a4c8c863ae6f2d5600",
+  "node_version": "v26.5.0",
+  "source_before": {
+    "tools/workbook-editor/public/app.mjs": "398890e01c12f073f4e877e8b80faec87d5c3e8847de87ab52c116adbe97602c",
+    "tools/workbook-editor/public/index.html": "ed85aaace5d8a509055da9dc09add48189e8d41d19ef0310161b95c4d1308d07",
+    "tools/workbook-editor/public/style.css": "ad78d0ca7c43290e3eba6fac95ed9c35aa751b866173f0816e1e3a959089ac09"
+  },
+  "source_after": {
+    "tools/workbook-editor/public/app.mjs": "398890e01c12f073f4e877e8b80faec87d5c3e8847de87ab52c116adbe97602c",
+    "tools/workbook-editor/public/index.html": "ed85aaace5d8a509055da9dc09add48189e8d41d19ef0310161b95c4d1308d07",
+    "tools/workbook-editor/public/style.css": "ad78d0ca7c43290e3eba6fac95ed9c35aa751b866173f0816e1e3a959089ac09"
+  },
+  "source_changed_during_checks": false,
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--check",
+        "tools/workbook-editor/public/app.mjs"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-repair-20261004",
+      "started_utc": "2026-10-04T10:27:50.820009+00:00",
+      "finished_utc": "2026-10-04T10:27:50.867127+00:00",
+      "exit_code": 0,
+      "stdout": "03-stdout.txt",
+      "stderr": "03-stderr.txt"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-navigation-repair-20261004",
+      "started_utc": "2026-10-04T10:27:50.867135+00:00",
+      "finished_utc": "2026-10-04T10:27:50.877698+00:00",
+      "exit_code": 0,
+      "stdout": "04-stdout.txt",
+      "stderr": "04-stderr.txt"
+    }
+  ],
+  "actual_browser_check": "not_run by implementer; Root owns actual browser checks",
+  "user_acceptance": "not_run",
+  "unknowns": [
+    "usage",
+    "cost",
+    "human active minutes"
+  ]
+}

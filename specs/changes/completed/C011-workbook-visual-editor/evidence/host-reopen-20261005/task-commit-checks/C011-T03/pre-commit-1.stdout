@@ -1,0 +1,30 @@
+fix utf-8 byte order marker..............................................Passed
+check for case conflicts.................................................Passed
+check for merge conflicts................................................Passed
+check for broken symlinks............................(no files to check)Skipped
+check yaml...........................................(no files to check)Skipped
+check toml...............................................................Passed
+fix end of files.........................................................Passed
+mixed line ending........................................................Passed
+trim trailing whitespace.................................................Passed
+typos....................................................................Failed
+- hook id: typos
+- exit code: 2
+- files were modified by this hook
+
+error: `ba` should be `by`, `be`
+   ╭▸ specs/changes/completed/C011-workbook-visual-editor/progress.md:47:148
+   │
+47 │ …0；U1和unknown-kind own-key修，old23f707/60c457原件保持。最新edb3ba01b31c9a946c3a5857b431b853f952ce9b累计patch238122/SHA43ce82fcb3f3d…
+   ╰╴                                                                  ━━
+
+check docs...............................................................Passed
+check specs governance...................................................Passed
+check sheltie skill..................................(no files to check)Skipped
+check engine vocabulary..............................(no files to check)Skipped
+check test names and owners..............................................Passed
+cargo fmt............................................(no files to check)Skipped
+cargo check..........................................(no files to check)Skipped
+cargo clippy.........................................(no files to check)Skipped
+cargo deny check.....................................(no files to check)Skipped
+cargo nextest........................................(no files to check)Skipped

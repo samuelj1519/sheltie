@@ -1,0 +1,18 @@
+{
+  "recorded_utc": "2026-10-04T10:21:56.231083+00:00",
+  "source": "user report in conversation",
+  "message": "复测通过",
+  "guided_steps": [
+    "连续点击3次＋显式边，预期只有一条并提示已存在",
+    "检查结构"
+  ],
+  "reported_result": "passed",
+  "candidate_tree": "300eec431c4859c738b9e4d6482e47783dcc79fe",
+  "qualification": "真人按指导复测通过；没有独立记录点击次数、shell退出或人工耗时",
+  "defect": "重复新增同端点边",
+  "disposition": "fixed and user retest passed",
+  "overall_usability_acceptance": null,
+  "personal_minutes": "unknown",
+  "host_close_reopen": "not_run",
+  "benefit_comparison": "not_evaluable"
+}

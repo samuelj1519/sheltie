@@ -1,0 +1,119 @@
+{
+  "checked_at": "2026-10-04T07:59:28.406337+00:00",
+  "reviewer": "Spec subagent /root/c011_spec_review, did not implement",
+  "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor",
+  "inputs": {
+    "task": {
+      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/start-inputs/task",
+      "sha256": "738958b85f082c17594d9271a202de567d268d90f9f98e82153d0b81924f170b"
+    },
+    "project": {
+      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/start-inputs/project",
+      "sha256": "ddad68d362d727081a868edbdd555aa89ad204caf0a3453db6c48eb4b983de1c"
+    },
+    "change": {
+      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+      "sha256": "0d9d2b17370985ae462c37ef21ed802836906a427bf5f1469d2a3bdd5bbb6dd4"
+    },
+    "checks": {
+      "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+      "sha256": "7927e0c582e4286ae64597e1bdd101c25d13fbbcb7dfad9bc02b53489b450005"
+    }
+  },
+  "HEAD": "5837de68c257f49c970d54254dfcc12bd7fe210d",
+  "tree": "4250480fddcc7fdaff9d65b79e14e84586a1800a",
+  "tool_closure_files": 19,
+  "tool_closure_drift": [],
+  "patch": {
+    "path": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/implementation-encoding-change.patch",
+    "bytes": 7721970,
+    "sha256": "52c58c7c6c922be3a1b6ce0ed25b82ec40053966cf7794399f870fdf03476037"
+  },
+  "checked_original_logs": [
+    {
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor/tools/workbook-editor",
+      "started": "2026-10-04T07:40:15.263832+00:00",
+      "ended": "2026-10-04T07:40:19.185134+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    },
+    {
+      "argv": [
+        "node",
+        "scripts/smoke.mjs"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor/tools/workbook-editor",
+      "started": "2026-10-04T07:39:27.619888+00:00",
+      "ended": "2026-10-04T07:39:27.903163+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    },
+    {
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor",
+      "started": "2026-10-04T07:45:24.738995+00:00",
+      "ended": "2026-10-04T07:45:26.370238+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    },
+    {
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor",
+      "started": "2026-10-04T07:45:24.738998+00:00",
+      "ended": "2026-10-04T07:45:25.455577+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor",
+      "started": "2026-10-04T07:45:53.181428+00:00",
+      "ended": "2026-10-04T07:45:53.195146+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor",
+      "started": "2026-10-04T07:45:53.409562+00:00",
+      "ended": "2026-10-04T07:45:53.420099+00:00",
+      "exit_code": 0,
+      "head": "5837de68c257f49c970d54254dfcc12bd7fe210d"
+    }
+  ],
+  "implementation_proof_keys": [
+    "phase",
+    "old_tree",
+    "old_patch_bytes",
+    "old_patch_sha256",
+    "new_tree",
+    "check_copy_tree",
+    "baseline_head",
+    "patch",
+    "patch_bytes",
+    "patch_sha256",
+    "limit_bytes",
+    "records",
+    "changed_files_actual_sha256",
+    "all_changed_files_original_index_work_and_check_copy_equal",
+    "runtime_inputs_changed"
+  ],
+  "checks_independently_rerun": "missing-edge consumer only; npm test/smoke/docs/specs/diff original records inspected, not rerun"
+}

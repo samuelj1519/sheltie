@@ -1,0 +1,16 @@
+{
+  "source": "tool chunk cbf9f8",
+  "argv": [
+    "node",
+    "--test",
+    "tools/workbook-editor/test/route-obstacles.test.mjs"
+  ],
+  "exit_code": 1,
+  "counts": {
+    "tests": 4,
+    "pass": 3,
+    "fail": 1
+  },
+  "failure": "four-card local detour already passed every no-card-intersection assertion; exact preferred-lane assertion omitted earlier c→d main external route slot and expected -245 instead of independently derived -275",
+  "classification": "new test oracle indexing error, not product RED; expected preferred slot revised from top -200 minus45 minus30 after one prior external main"
+}

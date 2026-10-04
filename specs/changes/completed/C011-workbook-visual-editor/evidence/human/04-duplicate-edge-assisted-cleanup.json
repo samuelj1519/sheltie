@@ -1,0 +1,30 @@
+{
+  "recorded_utc": "2026-10-04T10:01:00.867900+00:00",
+  "evidence_source": "Actual Chrome UI observed then agent mechanical cleanup, not user action",
+  "before": {
+    "step1_to_step2_main": 11,
+    "step2_to_step1_main": 1
+  },
+  "guided_intended_graph": "two nodes, entry step1, exactly one step1→step2 main edge",
+  "actions": [
+    "Read-only AX/count and screenshot before any edit",
+    "Used supported SVG Enter selection and 删除显式边 to remove10 duplicate forward edges",
+    "Removed the single reverse edge to restore intended terminal step2"
+  ],
+  "after": {
+    "step1_to_step2_main": 1,
+    "step2_to_step1_main": 0
+  },
+  "source_files_directly_written": false,
+  "assistance_disclosed_to_user": true,
+  "structure_recheck": "pending user action",
+  "node_fields_were_not_edited_by_cleanup": true,
+  "ui_usability_gap": "Duplicate edges can be repeatedly created and overlap without adequate add feedback; actual click count/cause unknown",
+  "acceptance": "pending, do not infer new method complete",
+  "before_ax": "04-duplicate-edge-before.ax.txt",
+  "before_screenshot": "04-duplicate-edge-before.jpg",
+  "after_ax": "04-duplicate-edge-after.ax.txt",
+  "after_screenshot": "04-duplicate-edge-after.jpg",
+  "active_minutes": null,
+  "method_use_index": 1
+}

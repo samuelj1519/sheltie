@@ -1,0 +1,137 @@
+{
+  "checked_utc": "2026-10-04T09:04:48.039774+00:00",
+  "argv": [
+    "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+    "--home",
+    "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+    "--json",
+    "work",
+    "status",
+    "2026-10-04-001-workbook-visual-editor"
+  ],
+  "exit": 0,
+  "response": {
+    "data": {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-visual-editor",
+      "next": [
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "delivery": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "patch": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 7828,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "c90077ede12db1b8782e625066212effd7424a36de18dc0886449a6b922afc94"
+          },
+          "checks": {
+            "bytes": 9373,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "46793e0a901cc3cf013c4955c6a2bba99cdddd2e66ced46ab2e9e1d819190258"
+          },
+          "review": {
+            "bytes": 10572,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+            "sha256": "50dc046357c541c8cd38317eae509ef9137b3f5329f7750001db3527c7f13d36"
+          },
+          "task": {
+            "bytes": 2691,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/start-inputs/task",
+            "sha256": "738958b85f082c17594d9271a202de567d268d90f9f98e82153d0b81924f170b"
+          }
+        }
+      },
+      "revision": 10,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-04-001-workbook-visual-editor",
+      "workbook": "code-task-study@1.0.0"
+    },
+    "next": [
+      {
+        "args": {
+          "attempt": "deliver#1.0",
+          "work": "2026-10-04-001-workbook-visual-editor"
+        },
+        "op": "attempt submit"
+      },
+      {
+        "args": {
+          "attempt": "deliver#1.0",
+          "work": "2026-10-04-001-workbook-visual-editor"
+        },
+        "op": "attempt fail"
+      },
+      {
+        "args": {
+          "attempt": "deliver#1.0",
+          "work": "2026-10-04-001-workbook-visual-editor"
+        },
+        "op": "attempt replace"
+      },
+      {
+        "args": {
+          "work": "2026-10-04-001-workbook-visual-editor"
+        },
+        "op": "work cancel"
+      }
+    ],
+    "ok": true
+  }
+}

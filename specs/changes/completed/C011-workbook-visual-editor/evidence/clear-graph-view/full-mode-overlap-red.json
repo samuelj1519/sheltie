@@ -1,0 +1,280 @@
+{
+  "observation": {
+    "count": "显示 25 / 共 25 条连线",
+    "mode": "全部连线 ▾",
+    "routes": [
+      {
+        "d": "M240,78 L280,78 L280,69 L320,69",
+        "from": "spec",
+        "index": 0,
+        "to": "plan"
+      },
+      {
+        "d": "M560,78 L600,78 L600,78 L640,78",
+        "from": "plan",
+        "index": 1,
+        "to": "plan-review"
+      },
+      {
+        "d": "M751,156 L751,186 L755.5,186 L755.5,216",
+        "from": "plan-review",
+        "index": 2,
+        "to": "scaffold"
+      },
+      {
+        "d": "M640,78 L599,78 L599,-45 L281,-45 L281,78 L240,78",
+        "from": "plan-review",
+        "index": 3,
+        "to": "spec"
+      },
+      {
+        "d": "M640,87 L592,87 L592,-75 L608,-75 L608,78 L560,78",
+        "from": "plan-review",
+        "index": 4,
+        "to": "plan"
+      },
+      {
+        "d": "M640,289.5 L600,289.5 L600,285 L560,285",
+        "from": "scaffold",
+        "index": 5,
+        "to": "implement"
+      },
+      {
+        "d": "M320,289.5 L280,289.5 L280,285 L240,285",
+        "from": "implement",
+        "index": 6,
+        "to": "verify"
+      },
+      {
+        "d": "M240,280.5 L274,280.5 L274,-105 L286,-105 L286,294 L320,294",
+        "from": "verify",
+        "index": 7,
+        "to": "implement"
+      },
+      {
+        "d": "M115.5,372 L115.5,402 L115.5,402 L115.5,432",
+        "from": "verify",
+        "index": 8,
+        "to": "review"
+      },
+      {
+        "d": "M240,298.5 L288,298.5 L288,633 L912,633 L912,285 L960,285",
+        "from": "verify",
+        "index": 9,
+        "to": "fix"
+      },
+      {
+        "d": "M960,285 L940,285 L940,663 L260,663 L260,294 L240,294",
+        "from": "fix",
+        "index": 10,
+        "to": "verify"
+      },
+      {
+        "d": "M240,505.5 L280,505.5 L280,505.5 L320,505.5",
+        "from": "review",
+        "index": 11,
+        "to": "deliver"
+      },
+      {
+        "d": "M560,510 L600,510 L600,510 L640,510",
+        "from": "deliver",
+        "index": 12,
+        "to": "retro"
+      },
+      {
+        "d": "M240,514.5 L281,514.5 L281,693 L919,693 L919,294 L960,294",
+        "from": "review",
+        "index": 13,
+        "to": "fix"
+      },
+      {
+        "d": "M960,294 L912,294 L912,723 L288,723 L288,514.5 L240,514.5",
+        "from": "fix",
+        "index": 14,
+        "to": "review"
+      },
+      {
+        "d": "M880,298.5 L900,298.5 L900,753 L940,753 L940,64.5 L960,64.5",
+        "from": "scaffold",
+        "index": 15,
+        "to": "escalate"
+      },
+      {
+        "d": "M560,298.5 L587,298.5 L587,783 L933,783 L933,73.5 L960,73.5",
+        "from": "implement",
+        "index": 16,
+        "to": "escalate"
+      },
+      {
+        "d": "M1200,303 L1234,303 L1234,813 L926,813 L926,82.5 L960,82.5",
+        "from": "fix",
+        "index": 17,
+        "to": "escalate"
+      },
+      {
+        "d": "M240,307.5 L281,307.5 L281,843 L919,843 L919,91.5 L960,91.5",
+        "from": "verify",
+        "index": 18,
+        "to": "escalate"
+      },
+      {
+        "d": "M960,55.5 L912,55.5 L912,-135 L928,-135 L928,298.5 L880,298.5",
+        "from": "escalate",
+        "index": 19,
+        "to": "scaffold"
+      },
+      {
+        "d": "M960,64.5 L940,64.5 L940,-165 L580,-165 L580,303 L560,303",
+        "from": "escalate",
+        "index": 20,
+        "to": "implement"
+      },
+      {
+        "d": "M1200,73.5 L1227,73.5 L1227,-195 L933,-195 L933,303 L960,303",
+        "from": "escalate",
+        "index": 21,
+        "to": "fix"
+      },
+      {
+        "d": "M960,82.5 L926,82.5 L926,-225 L274,-225 L274,303 L240,303",
+        "from": "escalate",
+        "index": 22,
+        "to": "verify"
+      },
+      {
+        "d": "M960,91.5 L919,91.5 L919,-255 L601,-255 L601,87 L560,87",
+        "from": "escalate",
+        "index": 23,
+        "to": "plan"
+      },
+      {
+        "d": "M960,100.5 L912,100.5 L912,873 L608,873 L608,514.5 L560,514.5",
+        "from": "escalate",
+        "index": 24,
+        "to": "deliver"
+      }
+    ],
+    "world": {
+      "bottom": 4855.615997314453,
+      "height": 4472.517578125,
+      "left": 252,
+      "right": 4724.517578125,
+      "top": 383.0984191894531,
+      "width": 4472.517578125,
+      "x": 252,
+      "y": 383.0984191894531
+    }
+  },
+  "checks": [
+    {
+      "index": 0,
+      "mode": "path",
+      "pass": false,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "spec",
+          "plan"
+        ],
+        "summary": {
+          "edgeFrom": "spec",
+          "edgeTo": "plan"
+        },
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ],
+        "visibleLabels": 1
+      },
+      "qualification": "Root oracle used wrong DOM dataset key; selected actual edge0, not product failure"
+    },
+    {
+      "index": 0,
+      "mode": "path",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "plan",
+          "spec"
+        ],
+        "summary": {
+          "edgeFrom": "spec",
+          "edgeTo": "plan"
+        },
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ],
+        "visibleLabels": 1
+      }
+    },
+    {
+      "index": 0,
+      "mode": "label",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "plan",
+          "spec"
+        ],
+        "summary": {
+          "edgeFrom": "spec",
+          "edgeTo": "plan"
+        },
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ],
+        "visibleLabels": 1
+      }
+    },
+    {
+      "index": 0,
+      "mode": "list",
+      "pass": true,
+      "seen": {
+        "active": [
+          {
+            "index": 0,
+            "sameD": true
+          }
+        ],
+        "endpoints": [
+          "plan",
+          "spec"
+        ],
+        "summary": {
+          "edgeFrom": "spec",
+          "edgeTo": "plan"
+        },
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ],
+        "visibleLabels": 1
+      }
+    }
+  ],
+  "reason": "edge1 fully overlapped by opposite direction return segments; no unique path-click point"
+}

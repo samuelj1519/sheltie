@@ -1,0 +1,35 @@
+{
+  "task": "C011-T01",
+  "tree": "85b1b6b72aa41c6c49b6fec457f5253ce406671e",
+  "checks": [
+    {
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "cwd": "/private/tmp/c011-c011-t01-xwr13uo0/snapshot",
+      "exit": 0,
+      "stdout": "/private/tmp/c011-c011-t01-xwr13uo0/check-docs.sh.stdout",
+      "stderr": "/private/tmp/c011-c011-t01-xwr13uo0/check-docs.sh.stderr"
+    },
+    {
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "cwd": "/private/tmp/c011-c011-t01-xwr13uo0/snapshot",
+      "exit": 0,
+      "stdout": "/private/tmp/c011-c011-t01-xwr13uo0/check-specs.sh.stdout",
+      "stderr": "/private/tmp/c011-c011-t01-xwr13uo0/check-specs.sh.stderr"
+    },
+    {
+      "argv": [
+        "scripts/check-task.sh",
+        "C011-T01",
+        "--staged"
+      ],
+      "cwd": "/private/tmp/c011-c011-t01-xwr13uo0/snapshot",
+      "exit": 0,
+      "stdout": "/private/tmp/c011-c011-t01-xwr13uo0/check-task.sh.stdout",
+      "stderr": "/private/tmp/c011-c011-t01-xwr13uo0/check-task.sh.stderr"
+    }
+  ]
+}

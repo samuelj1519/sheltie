@@ -1,0 +1,495 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	1 container
+		2 text Sheltie
+		3 text Workbook 作者工具
+		4 button 新建方法, ID: new
+		5 button 打开目录, ID: open
+		6 button 检查结构, ID: check
+		7 button 保存新副本 ZIP, ID: save
+		8 container Description: 方法与 Flow, ID: navigation
+			9 container
+				10 text 方法与 Flow
+				11 button Description: 关闭导航, ID: close-nav
+			12 button 规格驱动的软件开发
+			13 button flows/default.toml Flow default
+				14 text flows/default.toml
+				15 text Flow default
+			16 button ＋ 增加 Flow, ID: add-flow
+			17 text 当前节点
+			18 container node-list
+				19 button 写需求规格
+				20 button 写技术方案与任务清单
+				21 button 人工审核规格与方案
+				22 button 搭骨架：类型、签名、禁用的测试
+				23 button 实现一个任务
+				24 button 验证本任务
+				25 button 修复验证或审查发现的问题
+				26 button 人工决策：卡住、反复失败或需要授权
+				27 button 审查整体改动
+				28 button 写交付说明
+				29 button 反思：这次流程哪里该改
+			30 container
+				31 button (expanded) 从现有样例开始, Secondary Actions: Collapse
+					32 text 从现有样例开始
+				33 button
+				34 button
+			35 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		36 button (expanded) Description: 展开或折叠导航, ID: toggle-nav, Secondary Actions: Collapse
+		37 text flows/default.toml
+		38 button ＋ 节点, ID: add-node
+		39 button ＋ 显式边, ID: add-edge
+		40 button Description: 缩小画布, ID: zoom-out
+		41 text 100%
+		42 button Description: 放大画布, ID: zoom-in
+		43 button 适应画布, ID: reset-view
+		44 button (expanded) 属性, ID: toggle-props, Secondary Actions: Collapse
+		45 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			46 container world
+				47 image Description: 显式边, ID: edges
+					48 container
+						49 button plan 到 plan-review，main
+						50 text main
+					51 container
+						52 button plan-review 到 scaffold，main
+						53 text main
+					54 container
+						55 button plan-review 到 spec，back
+						56 text back
+					57 container
+						58 button plan-review 到 plan，back
+						59 text back
+					60 container
+						61 button scaffold 到 implement，main
+						62 text main
+					63 container
+						64 button implement 到 verify，main
+						65 text main
+					66 container
+						67 button verify 到 implement，main
+						68 text main
+					69 container
+						70 button verify 到 review，main
+						71 text main
+					72 container
+						73 button verify 到 fix，branch
+						74 text branch
+					75 container
+						76 button fix 到 verify，re_review
+						77 text re_review
+					78 container
+						79 button review 到 deliver，main
+						80 text main
+					81 container
+						82 button deliver 到 retro，main
+						83 text main
+					84 container
+						85 button review 到 fix，branch
+						86 text branch
+					87 container
+						88 button fix 到 review，re_review
+						89 text re_review
+					90 container
+						91 button scaffold 到 escalate，branch
+						92 text branch
+					93 container
+						94 button implement 到 escalate，branch
+						95 text branch
+					96 container
+						97 button fix 到 escalate，branch
+						98 text branch
+					99 container
+						100 button verify 到 escalate，branch
+						101 text branch
+					102 container
+						103 button escalate 到 scaffold，back
+						104 text back
+					105 container
+						106 button escalate 到 implement，main
+						107 text main
+					108 container
+						109 button escalate 到 fix，back
+						110 text back
+					111 container
+						112 button escalate 到 verify，back
+						113 text back
+					114 container
+						115 button escalate 到 plan，back
+						116 text back
+					117 container
+						118 button escalate 到 deliver，branch
+						119 text branch
+					120 container
+						121 button plan 到 spec，main
+						122 text main
+				123 container nodes
+					124 button spec 入口 写需求规格 agent · 5 输入 / 1 输出
+						125 text spec
+						126 text 入口
+						127 text 写需求规格
+						128 text agent · 5 输入 / 1 输出
+					129 button plan 写技术方案与任务清单 agent · 12 输入 / 2 输出
+						130 text plan
+						131 text 写技术方案与任务清单
+						132 text agent · 12 输入 / 2 输出
+					133 button plan-review 人工审核规格与方案 人工 · 3 输入 / 3 输出
+						134 text plan-review
+						135 text 人工审核规格与方案
+						136 text 人工 · 3 输入 / 3 输出
+					137 button scaffold 搭骨架：类型、签名、禁用的测试 agent · 9 输入 / 1 输出
+						138 text scaffold
+						139 text 搭骨架：类型、签名、禁用的测试
+						140 text agent · 9 输入 / 1 输出
+					141 button implement 实现一个任务 agent · 10 输入 / 1 输出
+						142 text implement
+						143 text 实现一个任务
+						144 text agent · 10 输入 / 1 输出
+					145 button verify 验证本任务 agent · 11 输入 / 1 输出
+						146 text verify
+						147 text 验证本任务
+						148 text agent · 11 输入 / 1 输出
+					149 button fix 修复验证或审查发现的问题 agent · 8 输入 / 1 输出
+						150 text fix
+						151 text 修复验证或审查发现的问题
+						152 text agent · 8 输入 / 1 输出
+					153 button escalate 人工决策：卡住、反复失败或需要授权 人工 · 8 输入 / 1 输出
+						154 text escalate
+						155 text 人工决策：卡住、反复失败或需要授权
+						156 text 人工 · 8 输入 / 1 输出
+					157 button review 审查整体改动 agent · 8 输入 / 1 输出
+						158 text review
+						159 text 审查整体改动
+						160 text agent · 8 输入 / 1 输出
+					161 button deliver 写交付说明 agent · 6 输入 / 1 输出
+						162 text deliver
+						163 text 写交付说明
+						164 text agent · 6 输入 / 1 输出
+					165 button retro 反思：这次流程哪里该改 agent · 门槛 · 9 输入 / 1 输出
+						166 text retro
+						167 text 反思：这次流程哪里该改
+						168 text agent · 门槛 · 9 输入 / 1 输出
+			169 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		170 container Description: 属性, ID: properties
+			171 container
+				172 text 节点属性
+				173 button Description: 关闭属性, ID: close-props
+			174 container property-content
+				175 container
+					176 text 节点 ID
+					177 text field (settable) 节点 ID 改 ID 后需手动更新入口、边和输入引用；检查会定位遗留引用。, Value: fix
+					178 text 改 ID 后需手动更新入口、边和输入引用；检查会定位遗留引用。
+				179 container
+					180 text 标题
+					181 text field (settable) 标题, Value: 修复验证或审查发现的问题
+				182 container
+					183 text 执行者 executor
+					184 pop up button (collapsed, settable) 执行者 executor, Value: agent, Secondary Actions: Expand
+						185 menu
+							186 (selected) agent
+							187 人工 human
+				188 button 设为入口
+				189 heading 说明, Value: 3
+					190 text 说明
+				191 container
+					192 text 说明方式
+					193 pop up button (collapsed, settable) 说明方式, Value: 说明文件 file, Secondary Actions: Expand
+						194 menu
+							195 内嵌文本 text
+							196 (selected) 说明文件 file
+				197 container
+					198 text 说明文件路径
+					199 text field (settable) 说明文件路径, Value: instructions/fix.md
+				200 container
+					201 text 说明文件原文
+					202 text entry area (settable) 说明文件原文 仅修改草稿中的此文件；共用该文件的节点也会看到修改。, Value: 你要修掉一份报告里列出的问题。只修报告里的，不做别的。`rules` 里的硬规则同样适用：不改签名、不改测试、不改快照、不加依赖、不新建文件。
+
+## 读什么
+
+先看任务书开头的「来自」一行：
+
+| 来自 | 修什么 |
+| --- | --- |
+| `verify` | `verify_report` 里的发现 |
+| `review` | `review_report` 里的发现 |
+| `escalate` | 读 `escalation` 的意见与授权，再修它针对的那份报告里的发现（备注里会说是验证还是审查） |
+
+来自别处的那份报告可能过期，忽略。
+
+然后读：
+
+1. 按上表确定的报告。「发现」一节每条就是一个待修项。报告里的 `修复轮次: N` 记下来，你这轮写 `N + 1`；来自 `escalate` 时轮次重新从 1 算。报告里的 `基线: <哈希>` 是这个任务的任务基线，原样抄进你的 `change.md`；针对审查报告时写方案「基线」的原始基线。
+2. `tasks`、`plan`、`scaffold`：只在需要理解上下文时查对应任务、「门禁」一节与单任务测试命令。
+3. `project`：项目根目录。进入这个目录。
+
+## 保留累计交接
+
+修复报告决定本轮要改什么；累计已验证事实仍从 verify_report 或当前 plan 的继承表取得，即使本轮针对的是 review_report。记录整体原始基线与实际继承来源，核前缀一致后原样复制到 change。不能删掉已有任务行，也不能把本轮修复候选追加为已验证；由后续独立 verify 追加。字段或来源缺失时停止并说明缺口。
+
+修复针对的 change 或 verify_report 有人工审批更正时，原样携带 `审批更正来源`（verify_report 中为实际 `审批来源`）及 `原审批来源` 到本轮 change；不因当前 escalation 不同而丢失更正。缺引用时停止。
+
+## 怎么做
+
+1. `git status` 确认工作区干净。
+2. 逐条修「发现」里的问题。每条修完，如果有对应的测试就跑它。
+3. 一条发现如果你认为不该修（比如它其实是正确行为），不要改代码，在「备注」里写明理由。验证者或审查者会再看。
+4. 发现要求「改测试」或「改签名」时，不改，按卡住处理。测试与签名只有骨架步骤和人能改。
+5. 运行「门禁」全部命令，修到全过。
+6. 一次提交。格式见 `rules` 末尾「提交信息」，`type` 用 `fix`；`Task` 取报告针对的任务编号，审查报告没有任务编号时写 `Task: review`。
+
+## 什么时候算卡住
+
+和实现那一步一样：缺只有人知道的信息、需要人授权的高风险动作、环境坏了。另外一种：报告里的发现你看不懂，或者互相矛盾。卡住就恢复工作区、不提交、写报告。
+
+## 写到哪
+
+写 `change.md` 到 `change` 对应路径。**第一行只写 `修复完成` 或 `卡住`**，然后：
+
+```
+针对: 验证报告 | 审查报告
+任务: T<编号> | review
+基线: <任务基线哈希，原样抄；卡住时写 无>
+提交: <哈希，卡住时写 无>
+原始基线: <plan的整体原始基线，永不重设>
+继承来源: <最新验证报告或当前方案的实际路径>
+修复轮次: <N + 1>
+改动文件:
+- ...
+门禁:
+- <命令>: 通过 | 失败
+备注: 每条发现的处理：已修 / 未修加理由；卡住时写原因
+```
+
+元数据之后写「已验证任务」六列表，字段与 plan/report 相同，原样复制继承行。只保存证据引用，change 不超过 32768 字节。
+
+## 怎么回复协调者
+
+一句话：第一行的内容，加上「针对」是哪份报告。协调者据此把你送回验证、审查，或找人。
+
+					203 text 仅修改草稿中的此文件；共用该文件的节点也会看到修改。
+				204 heading 输入, Value: 3
+					205 text 输入
+				206 button ＋ 添加
+				207 text 输入来源独立于显式边；修改绑定不会自动连线。
+				208 container
+					209 text 名称 name
+					210 text field (settable) 名称 name, Value: tasks
+				211 container
+					212 text 来源 from
+					213 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: plan.tasks
+					214 text start.task、resource.resources/file、engine.stats 或 node.output。
+				215 container
+					216 text 必需 required（默认是）
+					217 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						218 menu
+							219 (selected) 未声明（使用默认值）
+							220 是
+							221 否
+				222 container
+					223 text 选为最终成果 result（默认否）
+					224 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						225 menu
+							226 (selected) 未声明（使用默认值）
+							227 是
+							228 否
+					229 text 只允许终点的必需项。
+				230 button 删除此声明
+				231 container
+					232 text 名称 name
+					233 text field (settable) 名称 name, Value: plan
+				234 container
+					235 text 来源 from
+					236 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: plan.plan
+					237 text start.task、resource.resources/file、engine.stats 或 node.output。
+				238 container
+					239 text 必需 required（默认是）
+					240 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						241 menu
+							242 (selected) 未声明（使用默认值）
+							243 是
+							244 否
+				245 container
+					246 text 选为最终成果 result（默认否）
+					247 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						248 menu
+							249 (selected) 未声明（使用默认值）
+							250 是
+							251 否
+					252 text 只允许终点的必需项。
+				253 button 删除此声明
+				254 container
+					255 text 名称 name
+					256 text field (settable) 名称 name, Value: scaffold
+				257 container
+					258 text 来源 from
+					259 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: scaffold.scaffold
+					260 text start.task、resource.resources/file、engine.stats 或 node.output。
+				261 container
+					262 text 必需 required（默认是）
+					263 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						264 menu
+							265 (selected) 未声明（使用默认值）
+							266 是
+							267 否
+				268 container
+					269 text 选为最终成果 result（默认否）
+					270 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						271 menu
+							272 (selected) 未声明（使用默认值）
+							273 是
+							274 否
+					275 text 只允许终点的必需项。
+				276 button 删除此声明
+				277 container
+					278 text 名称 name
+					279 text field (settable) 名称 name, Value: project
+				280 container
+					281 text 来源 from
+					282 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: start.project
+					283 text start.task、resource.resources/file、engine.stats 或 node.output。
+				284 container
+					285 text 必需 required（默认是）
+					286 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						287 menu
+							288 (selected) 未声明（使用默认值）
+							289 是
+							290 否
+				291 container
+					292 text 选为最终成果 result（默认否）
+					293 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						294 menu
+							295 (selected) 未声明（使用默认值）
+							296 是
+							297 否
+					298 text 只允许终点的必需项。
+				299 button 删除此声明
+				300 container
+					301 text 名称 name
+					302 text field (settable) 名称 name, Value: rules
+				303 container
+					304 text 来源 from
+					305 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: resource.resources/checklists/implementer-rules.md
+					306 text start.task、resource.resources/file、engine.stats 或 node.output。
+				307 container
+					308 text 必需 required（默认是）
+					309 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						310 menu
+							311 (selected) 未声明（使用默认值）
+							312 是
+							313 否
+				314 container
+					315 text 选为最终成果 result（默认否）
+					316 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						317 menu
+							318 (selected) 未声明（使用默认值）
+							319 是
+							320 否
+					321 text 只允许终点的必需项。
+				322 button 删除此声明
+				323 container
+					324 text 名称 name
+					325 text field (settable) 名称 name, Value: verify_report
+				326 container
+					327 text 来源 from
+					328 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: verify.report
+					329 text start.task、resource.resources/file、engine.stats 或 node.output。
+				330 container
+					331 text 必需 required（默认是）
+					332 pop up button (collapsed, settable) 必需 required（默认是）, Value: 否, Secondary Actions: Expand
+						333 menu
+							334 未声明（使用默认值）
+							335 是
+							336 (selected) 否
+				337 container
+					338 text 选为最终成果 result（默认否）
+					339 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						340 menu
+							341 (selected) 未声明（使用默认值）
+							342 是
+							343 否
+					344 text 只允许终点的必需项。
+				345 button 删除此声明
+				346 container
+					347 text 名称 name
+					348 text field (settable) 名称 name, Value: review_report
+				349 container
+					350 text 来源 from
+					351 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: review.report
+					352 text start.task、resource.resources/file、engine.stats 或 node.output。
+				353 container
+					354 text 必需 required（默认是）
+					355 pop up button (collapsed, settable) 必需 required（默认是）, Value: 否, Secondary Actions: Expand
+						356 menu
+							357 未声明（使用默认值）
+							358 是
+							359 (selected) 否
+				360 container
+					361 text 选为最终成果 result（默认否）
+					362 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						363 menu
+							364 (selected) 未声明（使用默认值）
+							365 是
+							366 否
+					367 text 只允许终点的必需项。
+				368 button 删除此声明
+				369 container
+					370 text 名称 name
+					371 text field (settable) 名称 name, Value: escalation
+				372 container
+					373 text 来源 from
+					374 text field (settable) 来源 from start.task、resource.resources/file、engine.stats 或 node.output。, Value: escalate.decision
+					375 text start.task、resource.resources/file、engine.stats 或 node.output。
+				376 container
+					377 text 必需 required（默认是）
+					378 pop up button (collapsed, settable) 必需 required（默认是）, Value: 否, Secondary Actions: Expand
+						379 menu
+							380 未声明（使用默认值）
+							381 是
+							382 (selected) 否
+				383 container
+					384 text 选为最终成果 result（默认否）
+					385 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						386 menu
+							387 (selected) 未声明（使用默认值）
+							388 是
+							389 否
+					390 text 只允许终点的必需项。
+				391 button 删除此声明
+				392 heading 输出, Value: 3
+					393 text 输出
+				394 button ＋ 添加
+				395 container
+					396 text 名称 name
+					397 text field (settable) 名称 name, Value: change
+				398 container
+					399 text 输出路径 path
+					400 text field (settable) 输出路径 path 相对 outputs/；例如 report.md。, Value: change.md
+					401 text 相对 outputs/；例如 report.md。
+				402 container
+					403 text 必需 required（默认是）
+					404 pop up button (collapsed, settable) 必需 required（默认是）, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						405 menu
+							406 (selected) 未声明（使用默认值）
+							407 是
+							408 否
+				409 container
+					410 text 最大字节 max_bytes（默认 1048576）
+					411 stepper (settable, integer) 最大字节 max_bytes（默认 1048576）, Value: 32768
+				412 container
+					413 text 选为最终成果 result（默认否）
+					414 pop up button (collapsed, settable) 选为最终成果 result（默认否） 只允许终点的必需项。, Value: 未声明（使用默认值）, Secondary Actions: Expand
+						415 menu
+							416 (selected) 未声明（使用默认值）
+							417 是
+							418 否
+					419 text 只允许终点的必需项。
+				420 button 删除此声明
+				421 button (collapsed) 高级设置, Secondary Actions: Expand
+					422 text 高级设置
+				423 button 删除节点，保留引用供检查
+				424 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					425 text 查看当前 TOML 原文
+		426 text 草稿已修改。检查结构后保存新副本。
+		427 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			428 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 43 button 适应画布, ID: reset-view

@@ -1,0 +1,26 @@
+{
+  "candidate": "edb3ba01b31c9a946c3a5857b431b853f952ce9b",
+  "isolated_debug_copy": "/private/tmp/sheltie-c011-edge-diagnostic-1u454fx1",
+  "only_change": "tagged group click console diagnostic, frozen candidate unchanged",
+  "requested_point": {
+    "x": 485.5668210449219,
+    "y": 365.3195343017578
+  },
+  "DOM_float_hit": "0 spec→plan main",
+  "actual_trusted_mouse_event": {
+    "clientX": 485,
+    "clientY": 365,
+    "targetOwner": "23",
+    "groupIndex": 23,
+    "from": "escalate",
+    "to": "plan",
+    "kind": "back",
+    "elementFromPointOwner": "23",
+    "suppressClick": false,
+    "scale": 0.546994884910486
+  },
+  "falsified": "edge object/event closure mismatch; same-browser fresh binding did not change result",
+  "root_cause": "transparent hit stroke overlap at crossing plus integer mouse-coordinate truncation; later hit area captures a click nearer to the visible main line",
+  "required_fix": "resolve actual click to nearest rendered route, with explicit ambiguity guidance/choice for ties; label and list retain direct actual edge selection",
+  "same_method_state": "review#2 content finding, normal back to implement#3 needed before source change"
+}

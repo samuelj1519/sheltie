@@ -1,0 +1,32 @@
+{
+  "chips": [
+    "写需求规格 · checklist\n资料名称\n移除选择"
+  ],
+  "options": [
+    {
+      "checked": true,
+      "disabled": true,
+      "text": "写需求规格 · request\n已使用 · 本步骤：project"
+    },
+    {
+      "checked": true,
+      "disabled": false,
+      "text": "写需求规格 · checklist"
+    }
+  ],
+  "afterCancel": {
+    "chips": 0,
+    "options": [
+      {
+        "checked": true,
+        "disabled": true,
+        "text": "写需求规格 · request\n已使用 · 本步骤：project"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "text": "写需求规格 · checklist"
+      }
+    ]
+  }
+}

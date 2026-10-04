@@ -1,0 +1,69 @@
+{
+  "source": "/Users/shushu/Downloads/code-change-1.0.0 (4).zip",
+  "bytes": 6675,
+  "sha256": "15332c83de2fbfd21d7955dcbeeb8acf51c692ceabef8cebc6a8716b959eb46f",
+  "files": 9,
+  "review_inputs": [
+    {
+      "name": "task",
+      "from": "start.task"
+    },
+    {
+      "name": "project",
+      "from": "start.project"
+    },
+    {
+      "name": "change",
+      "from": "implement.change"
+    },
+    {
+      "name": "变更资料",
+      "from": "implement.change"
+    },
+    {
+      "name": "任务说明",
+      "from": "start.task"
+    },
+    {
+      "name": "reference",
+      "from": "resource.resources/sheltie-editor-ref-47a02f03-94c1-4de8-82d8-178a36bc98ba.txt"
+    },
+    {
+      "name": "reference-2",
+      "from": "resource.resources/sheltie-editor-ref-ac1ccd22-9369-42fe-8a3c-f06ef2b4ed2d.txt"
+    },
+    {
+      "name": "reference-3",
+      "from": "resource.resources/sheltie-editor-ref-bf008c3c-d697-44f3-aac3-fe17204f647c.txt"
+    }
+  ],
+  "references": {
+    "resources/sheltie-editor-ref-47a02f03-94c1-4de8-82d8-178a36bc98ba.txt": {
+      "schema": "sheltie-editor-reference/v1",
+      "id": "47a02f03-94c1-4de8-82d8-178a36bc98ba",
+      "owner": {
+        "flow": "flows/default.toml",
+        "node": "review"
+      },
+      "location": "/tmp/sheltie-demo/需求.md"
+    },
+    "resources/sheltie-editor-ref-ac1ccd22-9369-42fe-8a3c-f06ef2b4ed2d.txt": {
+      "schema": "sheltie-editor-reference/v1",
+      "id": "ac1ccd22-9369-42fe-8a3c-f06ef2b4ed2d",
+      "owner": {
+        "flow": "flows/default.toml",
+        "node": "review"
+      },
+      "location": "docs/需求.md"
+    },
+    "resources/sheltie-editor-ref-bf008c3c-d697-44f3-aac3-fe17204f647c.txt": {
+      "schema": "sheltie-editor-reference/v1",
+      "id": "bf008c3c-d697-44f3-aac3-fe17204f647c",
+      "owner": {
+        "flow": "flows/default.toml",
+        "node": "review"
+      },
+      "location": "https://example.com/reference"
+    }
+  }
+}

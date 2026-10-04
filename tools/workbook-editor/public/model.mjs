@@ -56,7 +56,15 @@ export class WorkbookModel {
     this.files.set(path, encode.encode(stringify(this.document(path), { numbersAsFloat: true })));
   }
   edit(path, target, key, value) {
-    if (path !== 'workbook.toml') this.flow(path); else this.document(path);
+    if (path !== 'workbook.toml') {
+      const flow = this.flow(path);
+      if (flow.edges?.includes(target) && (key === 'from' || key === 'to')) {
+        const from = key === 'from' ? value : target.from;
+        const to = key === 'to' ? value : target.to;
+        if (from === to) throw new Error('显式边不能连接节点自身（自环）；原端点已保留。');
+        if (flow.edges.some(edge => edge !== target && edge.from === from && edge.to === to)) throw new Error('同一组起点和终点已有显式边，不能重复；原端点已保留。');
+      }
+    } else this.document(path);
     if (value === undefined) delete target[key]; else target[key] = value;
     this.commit(path);
   }
@@ -77,6 +85,9 @@ export class WorkbookModel {
   }
   addEdge(path, from, to, kind = 'main') {
     const flow = this.flow(path);
+    const existing = flow.edges?.find(edge => edge.from === from && edge.to === to);
+    if (existing) return existing;
+    if (from === to) throw new Error('显式边不能连接节点自身（自环）。');
     flow.edges ??= [];
     const edge = { from, to, kind };
     flow.edges.push(edge);

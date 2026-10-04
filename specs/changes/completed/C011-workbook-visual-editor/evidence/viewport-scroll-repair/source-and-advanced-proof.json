@@ -1,0 +1,25 @@
+{
+  "observed_sources": [
+    {
+      "file": "self-custom-flow.toml",
+      "from": "review.review",
+      "all_other_declarations_equal_original": true
+    },
+    {
+      "file": "stats-source-flow.toml",
+      "from": "engine.stats",
+      "all_other_declarations_equal_original": true
+    },
+    {
+      "file": "resource-source-flow.toml",
+      "from": "resource.instructions/implement.md",
+      "all_other_declarations_equal_original": true
+    }
+  ],
+  "start_sources": "actual original start.task/start.project rendered as task-start picker",
+  "self_source_offered": false,
+  "self_custom_reopen": "raw review.review kept custom after node switches; real CLI rule5 rejects as expected",
+  "incomplete_source": "original implement.change kept, entire parsed Flow equals original",
+  "advanced": "expansion/collapse and source edits preserved all other required/result/max_bytes declarations; no projection",
+  "literal_fixture_numbers": "original fixture integers/booleans checked; broader float/bigint/unknown proof is separate inherited actual regressions"
+}

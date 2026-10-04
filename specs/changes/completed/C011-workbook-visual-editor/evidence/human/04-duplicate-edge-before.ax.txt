@@ -1,0 +1,135 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	1 container
+		2 text Sheltie
+		3 text Workbook 作者工具
+		4 button 新建方法, ID: new
+		5 button 打开目录, ID: open
+		6 button 检查结构, ID: check
+		7 button 保存新副本 ZIP, ID: save
+		8 container Description: 方法与 Flow, ID: navigation
+			9 text 方法与 Flow
+			10 button 我的两步方法
+			11 button flows/default.toml Flow default
+				12 text flows/default.toml
+				13 text Flow default
+			14 button ＋ 增加 Flow, ID: add-flow
+			15 text 当前节点
+			16 container node-list
+				17 button 第一步
+				18 button 步骤 2
+			19 container
+				20 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					21 text 从现有样例开始
+			22 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		23 button Description: 展开或折叠导航, ID: toggle-nav
+		24 text flows/default.toml
+		25 button ＋ 节点, ID: add-node
+		26 button ＋ 显式边, ID: add-edge
+		27 button Description: 缩小画布, ID: zoom-out
+		28 text 100%
+		29 button Description: 放大画布, ID: zoom-in
+		30 button 适应画布, ID: reset-view
+		31 button 属性, ID: toggle-props
+		32 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			33 container world
+				34 image Description: 显式边, ID: edges
+					35 container
+						36 button step-1 到 step-2，main
+						37 text main
+					38 container
+						39 button step-1 到 step-2，main
+						40 text main
+					41 container
+						42 button step-1 到 step-2，main
+						43 text main
+					44 container
+						45 button step-1 到 step-2，main
+						46 text main
+					47 container
+						48 button step-1 到 step-2，main
+						49 text main
+					50 container
+						51 button step-1 到 step-2，main
+						52 text main
+					53 container
+						54 button step-1 到 step-2，main
+						55 text main
+					56 container
+						57 button step-1 到 step-2，main
+						58 text main
+					59 container
+						60 button step-2 到 step-1，main
+						61 text main
+					62 container
+						63 button step-1 到 step-2，main
+						64 text main
+					65 container
+						66 button step-1 到 step-2，main
+						67 text main
+					68 container
+						69 button step-1 到 step-2，main
+						70 text main
+				71 container nodes
+					72 button step-1 入口 第一步 agent · 0 输入 / 0 输出
+						73 text step-1
+						74 text 入口
+						75 text 第一步
+						76 text agent · 0 输入 / 0 输出
+					77 button step-2 步骤 2 agent · 0 输入 / 0 输出
+						78 text step-2
+						79 text 步骤 2
+						80 text agent · 0 输入 / 0 输出
+			81 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		82 container Description: 属性, ID: properties
+			83 text 显式边属性
+			84 container property-content
+				85 container
+					86 text 起点 from
+					87 pop up button (collapsed, settable) 起点 from, Value: step-1 · 第一步, Secondary Actions: Expand
+						88 menu
+							89 (selected) step-1 · 第一步
+							90 step-2 · 步骤 2
+				91 container
+					92 text 终点 to
+					93 pop up button (collapsed, settable) 终点 to, Value: step-2 · 步骤 2, Secondary Actions: Expand
+						94 menu
+							95 step-1 · 第一步
+							96 (selected) step-2 · 步骤 2
+				97 container
+					98 text 边类型 kind
+					99 pop up button (collapsed, settable) 边类型 kind, Value: main, Secondary Actions: Expand
+						100 menu
+							101 (selected) main
+							102 back
+							103 branch
+							104 re_review
+				105 text 显式边只表示可走的下一步，不自动创建输入绑定。
+				106 button 删除显式边
+				107 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					108 text 查看当前 TOML 原文
+		109 text 检查失败：Flow 不合规（规则 2，edges[1]）：同一条 (from, to) 出现多次
+		110 container Description: 结构错误定位, ID: error-summary
+			111 text Flow 不合规（规则 2，edges[1]）：同一条 (from, to) 出现多次
+			112 definition list error-fields
+				113 container 错误码
+					114 text 错误码
+				115 text FLOW_INVALID
+				116 container 规则
+					117 text 规则
+				118 text 2
+				119 container 字段
+					120 text 字段
+				121 text edges[1]
+				122 container 原因
+					123 text 原因
+				124 text 同一条 (from, to) 出现多次
+			125 text 下一步：检查显式边的两端节点，移除自环或重复边。
+			126 text 引擎未提供准确文件。下面列出当前定义文件候选，请打开后核对上述字段。
+			127 container error-links
+				128 button 打开候选 workbook.toml
+				129 button 打开候选 flows/default.toml
+		130 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			131 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/

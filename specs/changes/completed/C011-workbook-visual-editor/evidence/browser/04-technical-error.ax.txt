@@ -1,0 +1,92 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	1 container
+		2 text Sheltie
+		3 text Workbook 作者工具
+		4 button 新建方法, ID: new
+		5 button 打开目录, ID: open
+		6 button 检查结构, ID: check
+		7 button 保存新副本 ZIP, ID: save
+		8 container Description: 方法与 Flow, ID: navigation
+			9 text 方法与 Flow
+			52 button 预览同步检查
+			53 button flows/default.toml Flow default
+				54 text flows/default.toml
+				55 text Flow default
+			14 button ＋ 增加 Flow, ID: add-flow
+			15 text 当前节点
+			16 container node-list
+				56 button 第一步
+				57 button 步骤 2
+			19 container
+				20 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					21 text 从现有样例开始
+			22 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		23 button Description: 展开或折叠导航, ID: toggle-nav
+		58 text flows/default.toml
+		25 button ＋ 节点, ID: add-node
+		26 button ＋ 显式边, ID: add-edge
+		27 button Description: 缩小画布, ID: zoom-out
+		59 text 100%
+		29 button Description: 放大画布, ID: zoom-in
+		30 button 适应画布, ID: reset-view
+		31 button 属性, ID: toggle-props
+		32 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			33 container world
+				34 image Description: 显式边, ID: edges
+				38 container nodes
+					60 button step-1 入口 第一步 agent · 0 输入 / 0 输出
+						61 text step-1
+						62 text 入口
+						63 text 第一步
+						64 text agent · 0 输入 / 0 输出
+					65 button step-2 步骤 2 agent · 0 输入 / 0 输出
+						66 text step-2
+						67 text 步骤 2
+						68 text agent · 0 输入 / 0 输出
+			48 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		49 container Description: 属性, ID: properties
+			69 text Flow 属性
+			51 container property-content
+				70 container
+					71 text Flow ID
+					72 text field (settable) Flow ID, Value: default
+				73 container
+					74 text 入口节点 entry
+					75 pop up button (collapsed, settable) 入口节点 entry, Value: step-1 · 第一步, Secondary Actions: Expand
+						76 menu
+							77 (selected) step-1 · 第一步
+							78 step-2 · 步骤 2
+				79 text 选中画布节点编辑说明、输入与输出。选中连线编辑显式边。
+				80 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					81 text 查看当前 TOML 原文
+		82 text 检查失败：引擎拒绝 Workbook。展开详情定位文件与字段。
+		83 container error-details
+			84 button (expanded) 检查详情与错误定位, Secondary Actions: Collapse
+				85 text 检查详情与错误定位
+			86 container error-links
+				87 button 查看 workbook.toml
+				88 button 查看 flows/default.toml
+			89 text {
+  "ok": false,
+  "error": "引擎拒绝 Workbook",
+  "process": {
+    "argv": [
+      "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+      "--json",
+      "workbook",
+      "add",
+      "/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-lE7P9b/workbook"
+    ],
+    "pid": 4699,
+    "code": 1,
+    "signal": null,
+    "reason": null,
+    "exited": true,
+    "closed": true,
+    "stdout": "{\"error\":{\"code\":\"FLOW_INVALID\",\"detail\":{\"path\":\"nodes[1].id\",\"reason\":\"从入口 step-1 到不了 step-2\",\"rule\":\"3\"},\"message\":\"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2\"},\"next\":[],\"ok\":false}\n",
+    "stderr": ""
+  }
+}
+
+The focused UI element is 0 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/

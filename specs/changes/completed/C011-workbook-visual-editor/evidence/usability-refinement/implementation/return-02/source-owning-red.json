@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "test/usability.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004/tools/workbook-editor",
+  "exit_code": 1,
+  "expected_failures": [
+    "self owner candidate still listed",
+    "unknown kind constructor inherits function"
+  ],
+  "streams": {
+    "stdout": "8431b9ebe97a9771db568b41ffc208a57e9554835f4f0081ccc95f5f0afe960f",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

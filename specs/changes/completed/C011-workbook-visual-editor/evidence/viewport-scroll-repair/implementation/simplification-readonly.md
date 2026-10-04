@@ -1,0 +1,1 @@
+只读自查：渲染坐标只有实际worldRect/offsetWidth两个输入；不保留无效viewport+view兼容参数。缩放只把native scroll纳入现有anchor换算，零滚动旧消费者保持。整理/适应共享同一清native scroll和fit函数，不增状态。来源、高级字段、完整Map与旧候选未改。此自查不代替Root独审；此前code-simplifier线程上限fallback记录保持。

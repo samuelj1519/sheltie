@@ -89,3 +89,62 @@ test('完整未知对象保留整数/float区别与大整数；编辑普通标�
   const legal = newWorkbook(); const legalNode = legal.flow('flows/default.toml').nodes[0]; legal.edit('flows/default.toml', legalNode, 'max_visits', 3n); legal.edit('flows/default.toml', legalNode, 'max_retries', 0n); legal.edit('flows/default.toml', legalNode, 'outputs', [{ name: 'report', path: 'report.md', max_bytes: 1234n, result: true }]);
   const accepted = await checkWorkbook(legal.snapshot(), engine); assert.equal(accepted.ok, true); console.log(JSON.stringify({ boundary: 'real-cli-integer-preservation', rejected: checked, accepted }));
 });
+
+test('重复新增同端点跨 kind 返回原边，保留未知对象和完整文件字节', () => {
+  const model = newWorkbook(), path = 'flows/default.toml', first = model.flow(path).nodes[0], second = model.addNode(path);
+  const edge = model.addEdge(path, first.id, second.id, 'main');
+  model.edit(path, edge, 'unknown', { keep: ['original', 7n] });
+  const before = model.snapshot();
+  for (const kind of ['main', 'back', 'branch', 're_review']) {
+    assert.equal(model.addEdge(path, first.id, second.id, kind), edge);
+    assert.equal(edge.kind, 'main');
+    assert.deepEqual(edge.unknown, { keep: ['original', 7n] });
+    assert.deepEqual(model.snapshot(), before);
+  }
+  assert.equal(model.flow(path).edges.length, 1);
+  assert.deepEqual(second.inputs, []);
+});
+test('编辑端点拒绝跨 kind 重复和自环，保留原端点和全部字节', () => {
+  const model = newWorkbook(), path = 'flows/default.toml', first = model.flow(path).nodes[0], second = model.addNode(path), third = model.addNode(path);
+  model.addEdge(path, first.id, second.id, 'branch');
+  const edge = model.addEdge(path, first.id, third.id, 'main');
+  const reverse = model.addEdge(path, second.id, first.id, 'back');
+  const before = model.snapshot();
+  assert.throws(() => model.edit(path, edge, 'to', second.id), /重复/);
+  assert.equal(edge.to, third.id); assert.deepEqual(model.snapshot(), before);
+  assert.throws(() => model.edit(path, edge, 'to', first.id), /自环/);
+  assert.equal(edge.to, third.id); assert.deepEqual(model.snapshot(), before);
+  assert.throws(() => model.edit(path, reverse, 'from', first.id), /自环/);
+  assert.equal(reverse.from, second.id); assert.deepEqual(model.snapshot(), before);
+  model.edit(path, edge, 'from', second.id);
+  assert.equal(edge.from, second.id); assert.equal(edge.to, third.id);
+});
+test('导入已有重复或自环保持原字节，重复新增不自动清理，真实 CLI 仍拒绝', async () => {
+  for (const extra of ['[[edges]]\nfrom="step-1"\nto="step-2"\nkind="branch"\n', '[[edges]]\nfrom="step-1"\nto="step-1"\nkind="main"\n']) {
+    const model = newWorkbook(), path = 'flows/default.toml'; model.addNode(path); model.addEdge(path, 'step-1', 'step-2');
+    const files = model.snapshot(); files.set(path, text(model.text(path) + '\n' + extra));
+    const imported = new WorkbookModel(files), before = imported.snapshot(), edges = imported.flow(path).edges;
+    assert.equal(edges.length, 2);
+    assert.equal(imported.addEdge(path, 'step-1', 'step-2', 'back'), edges[0]);
+    assert.deepEqual(imported.snapshot(), before); assert.equal(edges.length, 2);
+    const checked = await checkWorkbook(imported.snapshot(), engine);
+    assert.equal(checked.ok, false); assert.match(checked.process.stdout, /FLOW_INVALID/);
+    console.log(JSON.stringify({ boundary: 'real-cli-imported-invalid-edge', extra, checked }));
+  }
+});
+test('多次新增同端点后真实 CLI 通过；反向 back 边合法且不增加输入', async () => {
+  const model = newWorkbook(), path = 'flows/default.toml', first = model.flow(path).nodes[0], second = model.addNode(path);
+  const edge = model.addEdge(path, first.id, second.id);
+  const before = model.snapshot();
+  for (let i = 0; i < 12; i++) assert.equal(model.addEdge(path, first.id, second.id), edge);
+  assert.deepEqual(model.snapshot(), before);
+  const checked = await checkWorkbook(model.snapshot(), engine);
+  assert.equal(checked.ok, true);
+  model.edit(path, first, 'max_visits', 2n); model.edit(path, second, 'max_visits', 2n);
+  const terminal = model.addNode(path); model.addEdge(path, second.id, terminal.id);
+  const reverse = model.addEdge(path, second.id, first.id, 'back');
+  assert.notEqual(reverse, edge); assert.equal(model.flow(path).edges.length, 3); assert.deepEqual(second.inputs, []);
+  const reversed = await checkWorkbook(model.snapshot(), engine);
+  assert.equal(reversed.ok, true);
+  console.log(JSON.stringify({ boundary: 'real-cli-repeat-and-reverse-edge', checked, reversed }));
+});

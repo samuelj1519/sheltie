@@ -1,0 +1,26 @@
+{
+  "checked_utc": "2026-10-04T08:00:17.060280+00:00",
+  "browser_download_path": "/Users/shushu/Downloads/browser-confirmed-1.0.0.zip",
+  "source": "Actual GUI Save ZIP action; browser download event tool timed out/reset but page reported completion and this exact expected file is present",
+  "bytes": 599,
+  "sha256": "d0a4584cb17758b1a9895d2511570ec30823abfd2d359102a25e91f274916a41",
+  "files": [
+    {
+      "path": "workbook.toml",
+      "bytes": 130,
+      "sha256": "924f794dc639593d0fef247cfd036af9446f4134eb5b030a9b39f2ee3b04b5db"
+    },
+    {
+      "path": "flows/default.toml",
+      "bytes": 446,
+      "sha256": "f8b723e135f648fdbad3b1d6572fed6f787791aa526bfd3db080310d6d1ebb29"
+    }
+  ],
+  "manifest": [
+    [
+      "workbook.toml",
+      "schema = \"workbook/v1\"\nid = \"browser-confirmed\"\nversion = \"1.0.0\"\nname = \"浏览器验收方法\"\nflows = [ \"flows/default.toml\" ]\n"
+    ]
+  ],
+  "human_acceptance": "not_run"
+}

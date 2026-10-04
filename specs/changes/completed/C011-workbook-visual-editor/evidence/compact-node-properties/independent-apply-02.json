@@ -1,0 +1,350 @@
+{
+  "status": "PASS",
+  "verifier": "/root/c011_navigation_standards",
+  "identity_boundary": "Previously reviewed compact preparation read-only; not formal Standards axis or Home review writer. Independent of implementation and patch production.",
+  "owned_copy": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+  "baseline": "602d8ea1dbf136a5e962bfaef48bf7493646eb2c",
+  "baseline_tree": "6e6c25c46e6382797865d9a36810899417e987b0",
+  "candidate_tree": "011ec67375aed79e6bf17aab60c9607471982d57",
+  "actual_applied_tree": "011ec67375aed79e6bf17aab60c9607471982d57",
+  "patch": "/private/tmp/sheltie-c011-compact-frozen-02-_ko1erjt/change.patch",
+  "patch_bytes": 189457,
+  "patch_sha256": "6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6",
+  "manifest_paths": 49,
+  "all_tracked_files": 3691,
+  "all_tracked_bytes_modes_equal": true,
+  "physical_files_match_exactly": true,
+  "default_index_before": "eee9a381601e738e968398678ef191987f6e1a8559f4c1270fdaa6b3082331e2",
+  "default_index_after": "eee9a381601e738e968398678ef191987f6e1a8559f4c1270fdaa6b3082331e2",
+  "default_index_unchanged": true,
+  "refs_unchanged": true,
+  "hooks": "all git invocations core.hooksPath=/dev/null",
+  "tests": "not_run",
+  "CLI_service_publish": "not_run",
+  "all_tracked_proof": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/all-tracked-byte-mode-proof.json.gz",
+  "all_tracked_proof_gzip_sha256": "27a2477432a38d67d1971f15cdef5e66762066d7c0481d775ee4d0b890c0b2aa",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "clone",
+        "--no-hardlinks",
+        "--no-checkout",
+        "/private/tmp/sheltie-c011-compact-properties-20261004",
+        "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.467339+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/01-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/01-stderr.gz",
+          "bytes": 93,
+          "sha256": "e09700bf32290e5105a17a08051c79af5ad1745dadd3403a3e5698e9403b4499"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "checkout",
+        "--detach",
+        "602d8ea1dbf136a5e962bfaef48bf7493646eb2c"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.811243+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/02-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/02-stderr.gz",
+          "bytes": 61,
+          "sha256": "10df7643c2458f128b9f50eb27522cd21525a13da9d8505b4ac64d1d20f55409"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.818238+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/03-stdout.gz",
+          "bytes": 41,
+          "sha256": "33c065392aba264625ff2619401e69ed7c8f8662bd38abbcfa1a38455239b49e"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/03-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "show-ref"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.824931+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/04-stdout.gz",
+          "bytes": 189,
+          "sha256": "5d88d9adb8e8d062ea7759b93d7dd60a6bd301f1b4d672c97f535a994e83c6ad"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/04-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "apply",
+        "--check",
+        "/private/tmp/sheltie-c011-compact-frozen-02-_ko1erjt/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.832486+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/05-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/05-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "apply",
+        "/private/tmp/sheltie-c011-compact-frozen-02-_ko1erjt/change.patch"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:42.843621+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/06-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/06-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "read-tree",
+        "602d8ea1dbf136a5e962bfaef48bf7493646eb2c"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/candidate.index"
+      },
+      "timestamp_utc": "2026-10-04T15:46:42.853282+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/07-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/07-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "add",
+        "-A"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/candidate.index"
+      },
+      "timestamp_utc": "2026-10-04T15:46:43.090035+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/08-stdout.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/08-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "write-tree"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/candidate.index"
+      },
+      "timestamp_utc": "2026-10-04T15:46:43.101125+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/09-stdout.gz",
+          "bytes": 41,
+          "sha256": "6c3f4aa0535b9dfe5c7e40b1054eec228f73cf7b620c9aaa68c882535b9bdedc"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/09-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "ls-tree",
+        "-r",
+        "-z",
+        "011ec67375aed79e6bf17aab60c9607471982d57"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-properties-20261004",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:43.115409+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/10-stdout.gz",
+          "bytes": 665201,
+          "sha256": "e055ae9acec0bb94b6d7cfed06f02c11d2170386ca84c49123bb51b00521437c"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/10-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "cat-file",
+        "--batch"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-properties-20261004",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:44.528021+00:00",
+      "stdin_sha256": "d3dc0a690666e9f236395bfbc3f6c20bddc2e7b2565d25f5b58b88ec510d3d61",
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/11-stdout.gz",
+          "bytes": 82459549,
+          "sha256": "9aab2ea15599ebb92295c5967b152451883369c24f75165d8d9f32a36bbcdbdf"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/11-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "show-ref"
+      ],
+      "cwd": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/repo",
+      "environment_overrides": {},
+      "timestamp_utc": "2026-10-04T15:46:44.715821+00:00",
+      "stdin_sha256": null,
+      "exit_code": 0,
+      "streams": {
+        "stdout": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/12-stdout.gz",
+          "bytes": 189,
+          "sha256": "5d88d9adb8e8d062ea7759b93d7dd60a6bd301f1b4d672c97f535a994e83c6ad"
+        },
+        "stderr": {
+          "gzip_path": "/private/tmp/sheltie-c011-compact-independent-apply-02-0jz810la/commands/12-stderr.gz",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

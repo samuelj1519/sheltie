@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "node",
+    "--test",
+    "tools/workbook-editor/test/usability.test.mjs"
+  ],
+  "cwd": "/private/tmp/sheltie-c011-usability-refinement-20261004",
+  "exit_code": 1,
+  "source": "exec tool merged output, chunk 3fad52; stream split unavailable",
+  "cause": "new test used process cwd for fixture; direct root invocation differs from npm tool cwd; fixed to import.meta URL",
+  "classification": "test fixture locator failure, not product RED"
+}

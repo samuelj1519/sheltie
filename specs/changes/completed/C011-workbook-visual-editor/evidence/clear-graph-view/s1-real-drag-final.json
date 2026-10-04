@@ -1,0 +1,44 @@
+{
+  "sourceClosure": "browser-source-before-04.json",
+  "preparationError": "DOM read scope has no parseFloat; corrected to Number on px string, not product regression",
+  "cards": [
+    {
+      "id": "implement",
+      "x": 640,
+      "y": 0
+    },
+    {
+      "id": "review",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "deliver",
+      "x": 250,
+      "y": -200
+    }
+  ],
+  "routes": [
+    {
+      "collisions": [],
+      "d": "M640,73.5 L440,73.5 L440,69 L240,69",
+      "from": "implement",
+      "index": 0,
+      "to": "review"
+    },
+    {
+      "collisions": [],
+      "d": "M240,78 L250,78 L250,-245 L632,-245 L632,82.5 L640,82.5",
+      "from": "review",
+      "index": 1,
+      "to": "implement"
+    },
+    {
+      "collisions": [],
+      "d": "M240,87 L245,87 L245,-122 L250,-122",
+      "from": "review",
+      "index": 2,
+      "to": "deliver"
+    }
+  ]
+}

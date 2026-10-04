@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "implement",
+      "x": "640px",
+      "y": "0px"
+    },
+    {
+      "id": "review",
+      "x": "0px",
+      "y": "0px"
+    },
+    {
+      "id": "deliver",
+      "x": "250px",
+      "y": "-200px"
+    }
+  ],
+  "routes": [
+    {
+      "d": "M640,73.5 L440,73.5 L440,69 L240,69",
+      "from": "implement",
+      "index": "0",
+      "to": "review"
+    },
+    {
+      "d": "M240,78 L267,78 L267,-245 L613,-245 L613,82.5 L640,82.5",
+      "from": "review",
+      "index": "1",
+      "to": "implement"
+    },
+    {
+      "d": "M240,87 L245,87 L245,-122 L250,-122",
+      "from": "review",
+      "index": "2",
+      "to": "deliver"
+    }
+  ]
+}

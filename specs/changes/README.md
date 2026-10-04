@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：[`C011 Workbook可视化作者工具`](active/C011-workbook-visual-editor/README.md)
+Active change：无
 
 C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
 
@@ -16,12 +16,13 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-[C011 Workbook可视化作者工具](active/C011-workbook-visual-editor/README.md)。用户提出真实开发任务并限定本轮可用性验收；一次只执行此package，其他真实任务随后处理。
+无。
 
 ## Completed
 
 | Change | 结果 | 入口 |
 | --- | --- | --- |
+| C011 | 本地作者工具与真实 CLI/ZIP/浏览器可用性闭环；72/72 工具测试、独审、真人接受及同 Attempt 宿主重开通过，费用/分钟未知 | [README](completed/C011-workbook-visual-editor/README.md) |
 | C010 | 收敛局部实现与完整测试后继，spec-dev 0.2.2 共享规则/明确成果；948/5doc及限定独审通过 | [README](completed/C010-local-simplification/README.md) |
 | C009 | 收敛重复投影/交付/响应与测试支持；948/948、5doc、MSRV及限定独审通过 | [README](completed/C009-project-simplification/README.md) |
 | C008 | 当前七副本/27 Node/0 requires 与实际自然事件负前检完成；probe未采用，原机制/host/value not_run | [README](completed/C008-dependency-readiness/README.md) |

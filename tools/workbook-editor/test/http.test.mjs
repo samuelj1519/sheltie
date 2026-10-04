@@ -36,9 +36,16 @@ test('真实 HTTP Host/Origin/token 拒绝矩阵，固定静态路由和样例',
     ]) assert.equal((await request(editor, item)).status, item.omit?.includes('Host') ? 400 : 403, JSON.stringify(item));
     assert.equal(roots.length, 0);
     for (const path of ['/', '/app.mjs', '/model.mjs', '/layout.mjs', '/presentation.mjs', '/toml.mjs', '/vendor/smol-toml/date.js', '/vendor/smol-toml/struct.js']) assert.equal((await request(editor, { path, method: 'GET' })).status, 200, path);
+    for (const name of ['geometry', 'sources']) {
+      const served = await request(editor, { path: `/${name}.mjs`, method: 'GET' });
+      assert.equal(served.status, 200); assert.match(served.headers['content-type'], /^text\/javascript/);
+      assert.deepEqual(served.bytes, await readFile(new URL(`../public/${name}.mjs`, import.meta.url)));
+    }
+    const servedApp = await request(editor, { path: '/app.mjs', method: 'GET' });
+    assert.match(servedApp.bytes.toString(), /from '\.\/geometry\.mjs'/); assert.match(servedApp.bytes.toString(), /from '\.\/sources\.mjs'/);
     for (const path of ['/../../etc/passwd', '/api/sample/../../etc/passwd', '/vendor/smol-toml/../../package.json', '/api/arbitrary']) assert.equal((await request(editor, { path, method: 'GET' })).status, 404);
     const sample = await request(editor, { path: '/api/sample/code-change', method: 'GET' }); assert.equal(sample.status, 200); const entries = JSON.parse(sample.bytes); assert.ok(entries.some(([p]) => p === 'flows/default.toml'));
-    console.log(JSON.stringify({ boundary: 'real-http', origin: editor.origin, matrix: '9 forbidden before materialization, 8 static + fixed sample, 4 unknown routes' }));
+    console.log(JSON.stringify({ boundary: 'real-http', origin: editor.origin, matrix: '9 forbidden before materialization, 8 existing static + 2 exact-byte production modules + fixed sample, 4 unknown routes' }));
   } finally { await editor.close(); }
 });
 test('真实 HTTP 逐项路径/base64/数量/16MiB 与24MiB流式限额；所有前检不物化', async () => {

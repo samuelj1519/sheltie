@@ -1,0 +1,38 @@
+{
+  "axis": "Spec",
+  "reviewer": "Root, did not edit implementation source",
+  "baseline": "dfe3846db852e31501b74f277025d4f9020c8919",
+  "candidate_tree": "300eec431c4859c738b9e4d6482e47783dcc79fe",
+  "sources": [
+    "specs/spec.md GF-34",
+    "specs/contracts/workbook.md author tool",
+    "active C011 plan T03 defect repair",
+    "actual user repeated add-edge report"
+  ],
+  "findings": [],
+  "browser": {
+    "six_add_clicks_total_edges": 1,
+    "existing_edge_selection_tip": "该连线已存在，已选中 step-1 → step-2。",
+    "self_loop_endpoint_edit": "rejected; dropdown restored step-2",
+    "real_cli_check": "passed my-first-workbook@1.0.0",
+    "export": "download visibly completed",
+    "per_file_original_user_cleaned_equality": [
+      {
+        "path": "workbook.toml",
+        "sha256": "9e78677ab62c4978a17b220934419c40cd18d5148a88f3a3ed1100e1a00b1b47"
+      },
+      {
+        "path": "flows/default.toml",
+        "sha256": "f8b723e135f648fdbad3b1d6572fed6f787791aa526bfd3db080310d6d1ebb29"
+      }
+    ]
+  },
+  "model_coverage": "4 specific regressions, first red4 then full npm32/32; from/to duplicate rejection/crosskind/unknown/invalid import/reverse/no implicit input",
+  "limitations": {
+    "actual_user_retest": "not_run",
+    "acceptance": "not yet granted",
+    "host_close_reopen": "not_run",
+    "browser_other_endpoint_duplicate": "model tested; browser not_run"
+  },
+  "source_mutation_by_reviewer": false
+}

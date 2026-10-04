@@ -1,0 +1,122 @@
+{
+  "reviewer": "/root/c011_navigation_spec",
+  "recorded_utc": "2026-10-04T10:30:50.899241+00:00",
+  "repo": "/private/tmp/sheltie-c011-navigation-repair-20261004",
+  "baseline_head": "7be100d1a74271ffb99484a4c8c863ae6f2d5600",
+  "candidate_tree": "cf9f5f69173043049f425b1dc921fa06938c7f06",
+  "patch_sha256": "887b8556b9d45be2c960747b7f254da291fa631f213c1802b59f118fd5e57238",
+  "changed_files_verification": [
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/01-stderr.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/01-stdout.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/02-stderr.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/02-stdout.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/03-stderr.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/03-stdout.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/04-stderr.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/04-stdout.txt",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 0
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/checks-02.json",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 2013
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/checks.json",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 2002
+    },
+    {
+      "path": "specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/simplifier-readonly.json",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 828
+    },
+    {
+      "path": "tools/workbook-editor/public/app.mjs",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 28267
+    },
+    {
+      "path": "tools/workbook-editor/public/index.html",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 2842
+    },
+    {
+      "path": "tools/workbook-editor/public/style.css",
+      "manifest_sha256_ok": true,
+      "frozen_byte_match": true,
+      "bytes": 7481
+    }
+  ],
+  "checks_current_raws": [
+    {
+      "path": "/private/tmp/sheltie-c011-navigation-repair-20261004/specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/03-stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/sheltie-c011-navigation-repair-20261004/specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/03-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/sheltie-c011-navigation-repair-20261004/specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/04-stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/sheltie-c011-navigation-repair-20261004/specs/changes/active/C011-workbook-visual-editor/evidence/navigation-repair/implementation/04-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "node_tests_rerun": "not_run",
+  "rust_tests_rerun": "not_run",
+  "browser_by_reviewer": "not_run; Root owns actual browser checks",
+  "source_or_index_mutated": false,
+  "reviews_read": "Standards only; no old review read",
+  "human_acceptance": "not_run"
+}

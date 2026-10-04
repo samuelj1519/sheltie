@@ -1,0 +1,3 @@
+# 修复真实滚动画布坐标
+
+同一编辑器可用性任务最后调用者缺口：Root实际drag spec卡后viewport scrollTop251，viewportTop115+viewY216而worldRect.top80；event到world换算漏scroll，可见spec→plan点击却选esc→plan。修基于实际渲染worldRect或完整scroll，鼠标/pan/zoom/keyboard focus后的scroll都一致；显式整理/适应重置意外native scroll。不改方法Map/来源/高级字段/Node位置缓存，不新依赖。Root已证拖前25path+25labels+25list及U2原误选点；修后实际native拖后点线、缩放/平移后点线、原27ZIPbyte同、SourceSelfcustom与advanced不回退。004实现访问额3已用尽，原封报告/候选保持不取消/改图或伪造FAIL，新窄Work继承当前完整候选。

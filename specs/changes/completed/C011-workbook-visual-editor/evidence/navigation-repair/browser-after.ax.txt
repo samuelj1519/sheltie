@@ -1,0 +1,86 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+1 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	2 container
+		3 text Sheltie
+		4 text Workbook 作者工具
+		5 button 新建方法, ID: new
+		6 button 打开目录, ID: open
+		7 button 检查结构, ID: check
+		8 button 保存新副本 ZIP, ID: save
+		66 container Description: 方法与 Flow, ID: navigation
+			67 container
+				68 text 方法与 Flow
+				69 button Description: 关闭导航, ID: close-nav
+			70 button 我的两步方法
+			71 button flows/default.toml Flow default
+				72 text flows/default.toml
+				73 text Flow default
+			74 button ＋ 增加 Flow, ID: add-flow
+			75 text 当前节点
+			76 container node-list
+				77 button 第一步
+				78 button 步骤 2
+			79 container
+				80 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					81 text 从现有样例开始
+			82 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		83 button (expanded) Description: 展开或折叠导航, ID: toggle-nav, Secondary Actions: Collapse
+		84 text flows/default.toml
+		85 button ＋ 节点, ID: add-node
+		86 button ＋ 显式边, ID: add-edge
+		87 button Description: 缩小画布, ID: zoom-out
+		88 text 100%
+		89 button Description: 放大画布, ID: zoom-in
+		90 button 适应画布, ID: reset-view
+		91 button (expanded) 属性, ID: toggle-props, Secondary Actions: Collapse
+		92 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			93 container world
+				94 image Description: 显式边, ID: edges
+					95 container
+						96 button step-1 到 step-2，main
+						97 text main
+				98 container nodes
+					99 button step-1 入口 第一步 agent · 0 输入 / 0 输出
+						100 text step-1
+						101 text 入口
+						102 text 第一步
+						103 text agent · 0 输入 / 0 输出
+					104 button step-2 步骤 2 agent · 0 输入 / 0 输出
+						105 text step-2
+						106 text 步骤 2
+						107 text agent · 0 输入 / 0 输出
+			108 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		109 container Description: 属性, ID: properties
+			110 container
+				111 text 显式边属性
+				112 button Description: 关闭属性, ID: close-props
+			113 container property-content
+				114 container
+					115 text 起点 from
+					116 pop up button (collapsed, settable) 起点 from, Value: step-1 · 第一步, Secondary Actions: Expand
+						117 menu
+							118 (selected) step-1 · 第一步
+							119 step-2 · 步骤 2
+				120 container
+					121 text 终点 to
+					122 pop up button (collapsed, settable) 终点 to, Value: step-2 · 步骤 2, Secondary Actions: Expand
+						123 menu
+							124 step-1 · 第一步
+							125 (selected) step-2 · 步骤 2
+				126 container
+					127 text 边类型 kind
+					128 pop up button (collapsed, settable) 边类型 kind, Value: main, Secondary Actions: Expand
+						129 menu
+							130 (selected) main
+							131 back
+							132 branch
+							133 re_review
+				134 text 显式边只表示可走的下一步，不自动创建输入绑定。
+				135 button 删除显式边
+				136 button (collapsed) 查看当前 TOML 原文, Secondary Actions: Expand
+					137 text 查看当前 TOML 原文
+		138 text 完整新副本已下载。解压后选择目录重新打开；原目录未写入。
+		64 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			65 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 1 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/

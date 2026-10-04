@@ -1,0 +1,25 @@
+{
+  "recorded_utc": "2026-10-04T09:41:12.867999+00:00",
+  "step": "01_manual_directory_open",
+  "actor_id": "current-conversation-user",
+  "source": "user replied 已打开 after guided directory selection",
+  "guided_action": {
+    "url": "http://127.0.0.1:4311",
+    "control": "打开目录",
+    "directory": "/Users/shushu/orca/workspaces/sheltie/codex/examples/code-change",
+    "expected_method": "code-change@1.0.0",
+    "expected_nodes": [
+      "implement",
+      "review",
+      "deliver"
+    ]
+  },
+  "user_reply": "已打开",
+  "assessment": "User reported completion of manual directory selection; not independent screen capture or full product acceptance",
+  "active_minutes": null,
+  "cost": null,
+  "human_acceptance": null,
+  "real_host_close_reopen": "not_run",
+  "work_id": "2026-10-04-001-workbook-visual-editor",
+  "method_use_index": 1
+}

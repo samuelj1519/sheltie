@@ -1,0 +1,84 @@
+{
+  "closure": "browser-source-before-03.json; app/sources/model/files/toml input consumer unchanged by pending geometry-only S1 repair",
+  "selfCandidateDisabled": true,
+  "batch": {
+    "names": [
+      "task",
+      "project",
+      "change",
+      "变更资料",
+      "任务说明"
+    ],
+    "rows": [
+      {
+        "from": "start.task",
+        "text": "任务开始时提供：task"
+      },
+      {
+        "from": "start.project",
+        "text": "任务开始时提供：project"
+      },
+      {
+        "from": "implement.change",
+        "text": "实现代码变更 · change"
+      },
+      {
+        "from": "implement.change",
+        "text": "实现代码变更 · change"
+      },
+      {
+        "from": "start.task",
+        "text": "任务开始时提供：task"
+      }
+    ],
+    "status": "已添加 2 份资料。"
+  },
+  "external": {
+    "names": [
+      "reference",
+      "reference-2",
+      "reference-3"
+    ],
+    "rows": [
+      {
+        "from": "resource.resources/sheltie-editor-ref-47a02f03-94c1-4de8-82d8-178a36bc98ba.txt",
+        "location": "/tmp/sheltie-demo/需求.md"
+      },
+      {
+        "from": "resource.resources/sheltie-editor-ref-ac1ccd22-9369-42fe-8a3c-f06ef2b4ed2d.txt",
+        "location": "docs/需求.md"
+      },
+      {
+        "from": "resource.resources/sheltie-editor-ref-bf008c3c-d697-44f3-aac3-fe17204f647c.txt",
+        "location": "https://example.com/reference"
+      }
+    ]
+  },
+  "check": "结构检查通过：code-change@1.0.0。保存时会重新校验。",
+  "cow": {
+    "names": [
+      "task",
+      "project",
+      "change",
+      "变更资料",
+      "任务说明",
+      "固定文件",
+      "reference-2",
+      "reference-3"
+    ],
+    "rows": [
+      {
+        "from": "resource.resources/sheltie-editor-ref-47a02f03-94c1-4de8-82d8-178a36bc98ba.txt",
+        "location": "/tmp/sheltie-demo/需求.md"
+      },
+      {
+        "from": "resource.resources/sheltie-editor-ref-eed5fef0-e0f2-4b20-90c0-118828fd8e8f.txt",
+        "location": "docs/需求-修订.md"
+      },
+      {
+        "from": "resource.resources/sheltie-editor-ref-bf008c3c-d697-44f3-aac3-fe17204f647c.txt",
+        "location": "https://example.com/reference"
+      }
+    ]
+  }
+}

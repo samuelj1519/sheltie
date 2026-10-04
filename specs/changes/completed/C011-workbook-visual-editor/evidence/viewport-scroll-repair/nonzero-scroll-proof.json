@@ -1,0 +1,191 @@
+{
+  "offscreenNodeScroll": {
+    "left": 601,
+    "top": 0
+  },
+  "labelFocusScroll": {
+    "left": 0,
+    "top": 667
+  },
+  "selectionChecks": [
+    {
+      "method": "scroll-fixed native drag then path click",
+      "expected": {
+        "from": "spec",
+        "index": 0,
+        "labelName": "连线标签：写需求规格 → 写技术方案与任务清单 · 继续",
+        "labelPoint": {
+          "x": 441.49903869628906,
+          "y": 381.4732360839844
+        },
+        "pathLabel": "spec 到 plan，main",
+        "point": {
+          "margin": 47.06562684317368,
+          "ownDistance": 0.6269185115384062,
+          "x": 393,
+          "y": 397
+        },
+        "to": "plan"
+      },
+      "actual": {
+        "activeIndex": "0",
+        "endpoints": [
+          "plan",
+          "spec"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "spec",
+        "summaryTo": "plan",
+        "values": [
+          "spec",
+          "plan",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed keyboard-focus scroll then path click",
+      "expected": {
+        "from": "plan",
+        "index": 1,
+        "labelName": "连线标签：写技术方案与任务清单 → 人工审核规格与方案 · 继续",
+        "labelPoint": {
+          "x": 416.1820831298828,
+          "y": 230.8062744140625
+        },
+        "pathLabel": "plan 到 plan-review，main",
+        "point": {
+          "margin": 114.85496118164065,
+          "ownDistance": 0.8062781982421825,
+          "x": 372,
+          "y": 230
+        },
+        "to": "plan-review"
+      },
+      "actual": {
+        "activeIndex": "1",
+        "endpoints": [
+          "plan",
+          "plan-review"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "plan",
+        "summaryTo": "plan-review",
+        "values": [
+          "plan",
+          "plan-review",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed zoom then path click",
+      "expected": {
+        "from": "plan",
+        "index": 1,
+        "labelName": "连线标签：写技术方案与任务清单 → 人工审核规格与方案 · 继续",
+        "labelPoint": {
+          "x": 312.4844055175781,
+          "y": 166.5022201538086
+        },
+        "pathLabel": "plan 到 plan-review，main",
+        "point": {
+          "margin": 132.9332009277344,
+          "ownDistance": 0.5022218017577984,
+          "x": 262,
+          "y": 166
+        },
+        "to": "plan-review"
+      },
+      "actual": {
+        "activeIndex": "1",
+        "endpoints": [
+          "plan",
+          "plan-review"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "plan",
+        "summaryTo": "plan-review",
+        "values": [
+          "plan",
+          "plan-review",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed real offscreen-node focus then visible path",
+      "expected": {
+        "from": "scaffold",
+        "index": 5,
+        "labelName": "连线标签：搭骨架：类型、签名、禁用的测试 → 实现一个任务 · 继续",
+        "labelPoint": {
+          "x": 381.1726684570313,
+          "y": 148.56414031982422
+        },
+        "pathLabel": "scaffold 到 implement，main",
+        "point": {
+          "margin": 28.700923828125013,
+          "ownDistance": 0.1517598876953059,
+          "x": 331,
+          "y": 152
+        },
+        "to": "implement"
+      },
+      "actual": {
+        "activeIndex": "5",
+        "endpoints": [
+          "implement",
+          "scaffold"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "scaffold",
+        "summaryTo": "implement",
+        "values": [
+          "scaffold",
+          "implement",
+          "main"
+        ]
+      }
+    },
+    {
+      "method": "scroll-fixed real horizontal-and-vertical scroll then path",
+      "expected": {
+        "from": "fix",
+        "index": 10,
+        "labelName": "连线标签：修复验证或审查发现的问题 → 验证本任务 · 重新检查",
+        "labelPoint": {
+          "x": 407.63665771484375,
+          "y": 171.01300048828125
+        },
+        "pathLabel": "fix 到 verify，re_review",
+        "point": {
+          "margin": 61.08482382812508,
+          "ownDistance": 0.012949023437386131,
+          "x": 713,
+          "y": 171
+        },
+        "to": "verify"
+      },
+      "actual": {
+        "activeIndex": "10",
+        "endpoints": [
+          "fix",
+          "verify"
+        ],
+        "propertyTitle": "显式边属性",
+        "summaryFrom": "fix",
+        "summaryTo": "verify",
+        "values": [
+          "fix",
+          "verify",
+          "re_review"
+        ]
+      }
+    }
+  ],
+  "fitReset": {
+    "left": 0,
+    "top": 0
+  }
+}

@@ -1,0 +1,73 @@
+Browser tab: 682934293, Title: "Workbook 作者工具 · Sheltie", URL: "http://127.0.0.1:4311/".
+1 AXWebArea Workbook 作者工具 · Sheltie, URL: 127.0.0.1:4311/
+	2 container
+		3 text Sheltie
+		4 text Workbook 作者工具
+		5 button 新建方法, ID: new
+		6 button 打开目录, ID: open
+		7 button 检查结构, ID: check
+		8 button 保存新副本 ZIP, ID: save
+		9 container Description: 方法与 Flow, ID: navigation
+			10 text 方法与 Flow
+			83 button 修后浏览器验收
+			84 button flows/default.toml Flow default
+				85 text flows/default.toml
+				86 text Flow default
+			15 button ＋ 增加 Flow, ID: add-flow
+			16 text 当前节点
+			87 button 第一步
+			67 container
+				68 button (collapsed) 从现有样例开始, Secondary Actions: Expand
+					69 text 从现有样例开始
+			20 text 目录限 16 MiB / 1024 文件。下载 ZIP 后解压，再打开目录。
+		21 button Description: 展开或折叠导航, ID: toggle-nav
+		88 text flows/default.toml
+		23 button ＋ 节点, ID: add-node
+		24 button ＋ 显式边, ID: add-edge
+		25 button Description: 缩小画布, ID: zoom-out
+		89 text 100%
+		27 button Description: 放大画布, ID: zoom-in
+		28 button 适应画布, ID: reset-view
+		29 button 属性, ID: toggle-props
+		30 container Description: 节点画布，拖动空白平移，滚轮缩放, ID: viewport
+			31 container world
+				32 image Description: 显式边, ID: edges
+				90 button step-1 入口 第一步 agent · 0 输入 / 0 输出
+					91 text step-1
+					92 text 入口
+					93 text 第一步
+					94 text agent · 0 输入 / 0 输出
+			38 text 拖动节点编排视图 · 拖动空白平移 · 滚轮缩放
+		39 container Description: 属性, ID: properties
+			40 text 方法属性
+			41 container property-content
+				42 container
+					43 text 方法 ID
+					44 text field (settable) 方法 ID, Value: browser-r2-probe
+				45 container
+					46 text 版本
+					47 text field (settable) 版本, Value: 1.0.0
+				48 container
+					49 text 名称
+					50 text field (settable) 名称, Value: 修后浏览器验收
+				51 container
+					52 text 描述
+					53 text entry area (settable) 描述
+				54 text 2 个文件。未编辑 Flow、说明与资源保留原字节。
+				77 container
+					78 button (collapsed) 高级：宿主资源声明 requires, Secondary Actions: Expand
+						79 text 高级：宿主资源声明 requires
+				80 container
+					81 button (expanded) 查看当前 TOML 原文, Secondary Actions: Collapse
+						82 text 查看当前 TOML 原文
+					95 text schema = "workbook/v1"
+id = "browser-r2-probe"
+version = "1.0.0"
+name = "修后浏览器验收"
+flows = [ "flows/default.toml" ]
+
+		96 text 草稿已修改。检查结构后保存新副本。
+		60 button (collapsed) 技术诊断（原始命令、输出与异常）, Secondary Actions: Expand
+			61 text 技术诊断（原始命令、输出与异常）
+
+The focused UI element is 53 text entry area (settable) 描述

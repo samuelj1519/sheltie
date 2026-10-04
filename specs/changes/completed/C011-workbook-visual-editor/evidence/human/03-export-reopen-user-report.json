@@ -1,0 +1,28 @@
+{
+  "recorded_utc": "2026-10-04T09:46:51.937914+00:00",
+  "step": "03_export_extract_reopen",
+  "actor_id": "current-conversation-user",
+  "evidence_source": "user replied 修改已保留 after guided Save ZIP, Finder extraction, Open directory, title comparison",
+  "guided_action": {
+    "source_workbook": "code-change@1.0.0",
+    "edited_node": "implement",
+    "edited_title": "编写代码",
+    "steps": [
+      "保存新副本 ZIP",
+      "Finder双击解压",
+      "打开解压后含workbook.toml的目录",
+      "核入口节点标题仍编写代码"
+    ]
+  },
+  "user_reply": "修改已保留",
+  "assessment": "User-reported persistence across actual GUI export/extraction/reopen; exact downloaded path and bytes were not independently supplied",
+  "download_path": null,
+  "extracted_directory": null,
+  "active_minutes": null,
+  "usage_cost": null,
+  "human_acceptance": null,
+  "new_workbook_creation": "not_run",
+  "real_host_close_reopen": "not_run",
+  "work_id": "2026-10-04-001-workbook-visual-editor",
+  "method_use_index": 1
+}
