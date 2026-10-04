@@ -1,6 +1,6 @@
 # C010 验证
 
-Candidate: `SELF`
+Candidate: `d744bd77180e8baeb6b31d07d844b62b9810e002`
 
 ## T01 采用范围
 
@@ -40,3 +40,9 @@ Candidate: `SELF`
 ## 完成范围
 
 本轮只证明采用的实现收敛、完整测试后继和方法机械交付。新方法用例使用模拟阶段产物，不能证明真实 agent 遵从、真人接受、净收益或发布。磁盘卡、删除引用保护、原方法强度及替换语义保持。原 C002–C008 的未执行、未知与历史因果边界不变。
+
+## T03 提交与归档读回
+
+T02 本地提交为 Candidate 所列完整 SHA，正常提交钩子通过，未推送或安装。其 [完整原件](evidence/t02-commit.json) 另记录提交输入与 input_drift=false；[原文和实现读回](evidence/t03-original-readback.json) 核每份 stdout/stderr 的解压 SHA，并确认实现输入仍与正式运行一致。归档只移动本 package、更新进度/报告和两个当前路由；实际治理与真实 release_governance 消费者另记录，不复用旧文档输入。
+
+归档后 [docs](evidence/t03-docs.json)、[specs](evidence/t03-specs.json)、[tests](evidence/t03-tests.json) 均 exit 0；实际 10 个 completed、0 active，948 静态测试与 196 条历史卡。真实 [release_governance](evidence/t03-governance.json) run 97c47f41-e913-49ab-a5d0-87addeb49edb 执行 30/30、0 skip；新执行闭包均无漂移。Reviewer 增量核 75 份旧 evidence 与 Git 原提交逐字一致，最终独审 PASS。最终范围门禁原件为 [t03-scope](evidence/t03-scope.json)。

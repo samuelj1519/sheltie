@@ -4,7 +4,7 @@
 | --- | --- | --- | --- | --- |
 | C010-T01 | done | Root；独立 Reviewer | 用户采用 | 范围、合同和测试后继独立短审通过 |
 | C010-T02 | done | Root；code-simplifier | T01 | 局部实现、完整测试后继与新方法工程闭包通过 |
-| C010-T03 | todo | Root；独立 Reviewer | T02 | 固定候选、完整验证、独审与归档 |
+| C010-T03 | done | Root；独立 Reviewer | T02 | d744bd7 内容独审通过；归档路由与原件增量核实 |
 
 ### C010-T01 固定范围与方法目标
 

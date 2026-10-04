@@ -1,6 +1,6 @@
 # C010：收敛局部冗余与方法交付
 
-状态：`active`
+状态：`completed`
 目标版本：`v0.3.0`
 兼容性：引擎行为、CLI 与 Store 格式保持；spec-dev 发布新 Workbook 版本，已有冻结副本不变
 基线：`53b51e703403d9355cb324a61cae84e0099646a7`
@@ -24,3 +24,7 @@ Owner：`Codex /root；code-simplifier；独立 Reviewer`
 具体实现、后继与验证见 [plan.md](plan.md)、[test-disposition.md](test-disposition.md)、[validation.md](validation.md) 与 [review.md](review.md)。负责人完成这些耦合小改动，沿用既有独立 oracle，不搭占位或新框架。
 
 本轮保留磁盘状态卡的强制刷新、Workbook 非终态引用保护、spec-dev 图/累计交接/门禁强度及 C005 替换语义。前两项外部消费者未确认，后两项缺同质量成本或真实撤销证据；本轮结论是保留现合同，后续由有实际输入的独立方案重新采用。共享规则只减少重复定义，不增加自然语言检查器。可信读取大范围统一、跨请求缓存与测试框架不采用。
+
+## 已采用结果
+
+生产局部重复收敛，完整测试后继保留，spec-dev 0.2.2 的共享规则和明确成果已接通。源码候选 d744bd77180e8baeb6b31d07d844b62b9810e002 的完整 948/948、5 doctest、MSRV 编译及工程治理通过，独立审查 PASS。一个旧测试合并、一个方法闭环新增，数量保持 948；数量本身不作质量或收益指标。实际边界与初始失败见 validation，当前进度只看 plan。

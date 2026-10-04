@@ -1,0 +1,32 @@
+{
+  "name": "t02-commit",
+  "argv": [
+    "git",
+    "commit",
+    "-F",
+    "/private/tmp/sheltie-c010-t02-message.txt"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit": 0,
+  "elapsed_seconds": 151.4356598854065,
+  "target": "/private/tmp/sheltie-c010-target",
+  "rustc_wrapper": "",
+  "offline": true,
+  "nextest_path": "/private/tmp/sheltie-completion-20261003/tools/nextest",
+  "input_closure": "input-9b8db9f003f83af497ffa1758ad8d112938efc190f35ada4ab72cecd98c8bbc5.json",
+  "input_closure_sha256": "9b8db9f003f83af497ffa1758ad8d112938efc190f35ada4ab72cecd98c8bbc5",
+  "input_count": 378,
+  "input_drift": false,
+  "streams": {
+    "stdout": {
+      "file": "t02-commit.stdout.gz",
+      "bytes": 6380,
+      "sha256": "73c0bb50839c3e856703a6ef02c97802a74eb5d9efbdf01a5772ef98cb288589"
+    },
+    "stderr": {
+      "file": "t02-commit.stderr.gz",
+      "bytes": 1600,
+      "sha256": "dfe94fc2eaffa3e0665ebbc14a2b09cb241c5a228e82367fa106ed18f43ce5d4"
+    }
+  }
+}
