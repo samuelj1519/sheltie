@@ -1,0 +1,47 @@
+[
+  {
+    "name": "docs",
+    "argv": [
+      "scripts/check-docs.sh"
+    ],
+    "exit": 0,
+    "output": "t03-docs.log"
+  },
+  {
+    "name": "specs",
+    "argv": [
+      "scripts/check-specs.sh"
+    ],
+    "exit": 0,
+    "output": "t03-specs.log"
+  },
+  {
+    "name": "tests",
+    "argv": [
+      "scripts/check-tests.sh"
+    ],
+    "exit": 0,
+    "output": "t03-tests.log"
+  },
+  {
+    "name": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "output": "t03-diff.log"
+  },
+  {
+    "name": "scope",
+    "argv": [
+      "scripts/check-task.sh",
+      "C009-T03",
+      "2ce3967f4932bc5f64adccc76198d827679703dc",
+      "--staged"
+    ],
+    "exit": 0,
+    "output": "t03-scope.log"
+  }
+]
