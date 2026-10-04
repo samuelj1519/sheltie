@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file. See [conven
 - 同一Occurrence可显式替换当前执行者一次，保留superseded历史并继承冻结输入；真正失败的重试额度独立计算。
 - 以同一结果revision/key读取原字节；未发布外围sheltie-export核全体成果后生成可编辑新副本，不覆盖已有对象，准确保留暂存与发布后未确认状态。
 
+### Changed
+
+- spec-dev 0.2.2 共享审批更正规则，最终批准后通过 work result 取得交付说明与反思报告；已有 Work 保留原方法版本。
+
 ### Breaking Changes
 
 - 开发候选为 `0.3.0-rc.1`，Store schema 4，公开合同 `cli-result/v4`。Attempt创建序号为number，superseded记录替换理由。旧 schema 1/2/3 原件保留并整体拒绝，不自动迁移或清空。

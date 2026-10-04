@@ -51,7 +51,6 @@ fn decode_added_snapshot(request_id: &str, reply_json: &str) -> Result<AddedSnap
             detail: format!("Workbook add请求 {request_id} 的历史snapshot身份无效"),
         });
     }
-    s.request_id = request_id.to_string();
     s.replayed = true;
     Ok(s)
 }
@@ -66,7 +65,6 @@ fn decode_removed_snapshot(request_id: &str, reply_json: &str) -> Result<Removed
             detail: format!("Workbook remove请求 {request_id} 的历史snapshot身份无效"),
         });
     }
-    s.request_id = request_id.to_string();
     s.replayed = true;
     Ok(s)
 }
@@ -156,9 +154,10 @@ impl WorkbookRepo {
         let intent = RequestIntent::AddWorkbook {
             source: lexical_abs(dir.as_str())?,
         };
+        let intent_hash = intent.hash();
         let command_json = match &intent {
             RequestIntent::AddWorkbook { .. } => {
-                serde_json::json!({"intent": "add_workbook", "source": intent.hash().as_str()})
+                serde_json::json!({"intent": "add_workbook", "source": intent_hash.as_str()})
                     .to_string()
             }
             _ => unreachable!("AddWorkbook方法必构造AddWorkbook intent"),
@@ -168,7 +167,7 @@ impl WorkbookRepo {
         {
             Ok(ro) => {
                 if let Some(hash) = ro.lookup_request_hash(&request_id)? {
-                    if hash != intent.hash().as_str() {
+                    if hash != intent_hash.as_str() {
                         return Err(Error::RequestConflict {
                             request_id: request_id.clone(),
                         });
@@ -198,9 +197,9 @@ impl WorkbookRepo {
         let session = crate::session::WriteSession::open_or_create(&self.home)?;
         let lock = session.lock;
         let repo = Self::with_store(self.home.clone(), session.store.clone());
-        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
+        repo.recover_before_write(&lock, &request_id, intent_hash.as_str())?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
-            if row.intent_hash != intent.hash().as_str() {
+            if row.intent_hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
@@ -260,7 +259,7 @@ impl WorkbookRepo {
             expected_revision: None,
             state: None,
             request_id: request_id.clone(),
-            intent_hash: intent.hash().as_str().to_string(),
+            intent_hash: intent_hash.as_str().to_string(),
             reply_json: serde_json::to_string(&snapshot).unwrap_or_default(),
             effects_json: encode_effects(&[EffectOp::PublishDir {
                 pending: self.home.to_rel(&payload)?,
@@ -1022,6 +1021,7 @@ impl WorkbookRepo {
             id: id.to_string(),
             version: version.to_string(),
         };
+        let intent_hash = intent.hash();
         let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly).map_err(
             |error| match error {
                 Error::NotFound { .. } => Error::NotFound {
@@ -1031,7 +1031,7 @@ impl WorkbookRepo {
             },
         )?;
         let replay_exists = if let Some(hash) = ro.lookup_request_hash(&request_id)? {
-            if hash != intent.hash().as_str() {
+            if hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
@@ -1044,9 +1044,9 @@ impl WorkbookRepo {
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let lock = session.lock;
         let repo = Self::with_store(self.home.clone(), session.store.clone());
-        repo.recover_before_write(&lock, &request_id, intent.hash().as_str())?;
+        repo.recover_before_write(&lock, &request_id, intent_hash.as_str())?;
         if let Some(row) = repo.store.inspect_request(&request_id)? {
-            if row.intent_hash != intent.hash().as_str() {
+            if row.intent_hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
@@ -1136,7 +1136,7 @@ impl WorkbookRepo {
             expected_revision: None,
             state: None,
             request_id: request_id.clone(),
-            intent_hash: intent.hash().as_str().to_string(),
+            intent_hash: intent_hash.as_str().to_string(),
             reply_json: serde_json::to_string(&snapshot).unwrap_or_default(),
             effects_json: encode_effects(&[EffectOp::DeleteDir {
                 pending: self.home.to_rel(&payload)?,

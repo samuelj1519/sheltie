@@ -37,11 +37,4 @@ impl Error {
             Self::PublicationUnconfirmed { .. } => "PUBLICATION_UNCONFIRMED",
         }
     }
-    pub fn exit_code(&self) -> i32 {
-        match self {
-            Self::Rejected { .. } => 2,
-            Self::PublicationUnconfirmed { .. } => 3,
-            Self::Source { .. } | Self::Io { .. } | Self::Integrity { .. } => 1,
-        }
-    }
 }

@@ -18,6 +18,131 @@ use serde_json::Value;
 mod replan;
 use replan::verified_table;
 
+// Task: C010-T02
+#[test]
+fn spec_dev_final_results_are_frozen_and_wait_for_gate_approval() {
+    let env = Env::new();
+    let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../workbooks/spec-dev");
+    env.ok(&["workbook", "add", source.to_str().unwrap()]);
+    let work = env.start(
+        "spec-dev",
+        &[("request", "检查方法交付"), ("project", &env.home())],
+    );
+    let mut next = env.status(&work);
+    let mut rule_bindings = Vec::new();
+    for node in [
+        "spec",
+        "plan",
+        "plan-review",
+        "scaffold",
+        "implement",
+        "verify",
+        "review",
+    ] {
+        let begun = env.follow_begin(&next, node);
+        if matches!(node, "scaffold" | "implement" | "verify") {
+            rule_bindings.push(begun.clone());
+        }
+        next = env.submit_all(&work, &begun, "完成当前阶段");
+    }
+    let delivery = env.follow_begin(&next, "deliver");
+    let delivery_path = delivery["data"]["outputs"]["delivery"].as_str().unwrap();
+    std::fs::write(delivery_path, b"delivered result\n").unwrap();
+    next = env.ok(&[
+        "attempt",
+        "submit",
+        &work,
+        "--attempt",
+        "deliver#1.0",
+        "--summary",
+        "交付说明完成",
+    ]);
+    let retro = env.follow_begin(&next, "retro");
+    let lessons_path = retro["data"]["outputs"]["lessons"].as_str().unwrap();
+    std::fs::write(lessons_path, b"observed method\n").unwrap();
+    env.ok(&[
+        "attempt",
+        "submit",
+        &work,
+        "--attempt",
+        "retro#1.0",
+        "--summary",
+        "反思完成，等待批准",
+    ]);
+    let blocked = env.ok(&["work", "result", &work]);
+    assert_eq!(blocked["data"]["status"]["kind"], "blocked");
+    assert_eq!(blocked["data"]["status"]["reason"], "gate");
+    assert_eq!(blocked["data"]["final"], false);
+    assert!(blocked["data"]["artifacts"].as_array().unwrap().is_empty());
+    env.ok(&["gate", "approve", &work, "--node", "retro"]);
+    let result = env.ok(&["work", "result", &work]);
+    assert_eq!(result["data"]["final"], true);
+    assert_eq!(result["data"]["effects_pending"], false);
+    let artifacts = result["data"]["artifacts"].as_array().unwrap();
+    assert_eq!(artifacts.len(), 2, "方法必须明确选择两份最终成果");
+    assert_eq!(result["data"]["workbook"]["version"], "0.2.2");
+    let revision = result["data"]["revision"].as_u64().unwrap().to_string();
+    let before = env.status(&work);
+    for (artifact, key, kind, path, bytes, digest) in [
+        (
+            &artifacts[0],
+            "delivery",
+            "input",
+            delivery_path,
+            b"delivered result\n".as_slice(),
+            "500eb64777c6d890644470f0f028b9e0b4bb815ec24574f7951fb6925f0b8e2f",
+        ),
+        (
+            &artifacts[1],
+            "lessons",
+            "output",
+            lessons_path,
+            b"observed method\n".as_slice(),
+            "a1f7f94b33bff77f023b089fc115b0d2321fab18b6587dc5e904d916919639d1",
+        ),
+    ] {
+        assert_eq!(artifact["key"], key);
+        assert_eq!(artifact["path"], path);
+        assert_eq!(artifact["sha256"], digest);
+        assert_eq!(artifact["bytes"], bytes.len());
+        assert_eq!(artifact["source"]["attempt"], "retro#1.0");
+        assert_eq!(artifact["source"]["kind"], kind);
+        assert_eq!(artifact["source"]["name"], key);
+        let raw = env
+            .cmd_text(&[
+                "work",
+                "result",
+                &work,
+                "--artifact",
+                key,
+                "--revision",
+                &revision,
+            ])
+            .output()
+            .unwrap();
+        assert!(raw.status.success(), "{:?}", raw.stderr);
+        assert_eq!(raw.stdout, bytes);
+        assert!(raw.stderr.is_empty());
+    }
+    assert_eq!(env.status(&work), before);
+    let rules = env
+        .work_dir(&work)
+        .canonicalize()
+        .unwrap()
+        .join("workbook/resources/checklists/approval-rules.md");
+    for begun in rule_bindings {
+        assert_eq!(
+            begun["data"]["inputs"]["approval_rules"],
+            rules.to_str().unwrap()
+        );
+        assert!(brief_text(&begun).contains(rules.to_str().unwrap()));
+    }
+    assert_eq!(
+        std::fs::read(&rules).unwrap(),
+        std::fs::read(source.join("resources/checklists/approval-rules.md")).unwrap()
+    );
+}
+
 // ── 独立临时 Git 仓库 ─────────────────────────────────────────────────────
 
 struct Proj {

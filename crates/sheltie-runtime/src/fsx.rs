@@ -1363,11 +1363,8 @@ impl ManagedFs {
         fsync(&parent).map_err(|error| map_fs_error(&self.display_path(path), error))
     }
 
-    /// Purge explicitly requested data while retaining the management root and its lock inode.
-    pub fn purge_contents(&self, lock: &crate::home::HomeLock) -> Result<()> {
-        self.check_lock(lock)?;
-        let locked_ident = lock.locked_identity();
-        let mut names = directory_entry_names(&self.root_dir, self.root.as_str())?
+    fn purge_entry_names(&self, locked_ident: (u64, u64)) -> Result<Vec<String>> {
+        directory_entry_names(&self.root_dir, self.root.as_str())?
             .into_iter()
             .filter(|name| name != "." && name != "..")
             .filter_map(
@@ -1377,7 +1374,14 @@ impl ManagedFs {
                     Err(error) => Some(Err(map_fs_error(&format!("{}/{name}", self.root), error))),
                 },
             )
-            .collect::<Result<Vec<_>>>()?;
+            .collect()
+    }
+
+    /// Purge explicitly requested data while retaining the management root and its lock inode.
+    pub fn purge_contents(&self, lock: &crate::home::HomeLock) -> Result<()> {
+        self.check_lock(lock)?;
+        let locked_ident = lock.locked_identity();
+        let mut names = self.purge_entry_names(locked_ident)?;
         names.sort_by(|a, b| {
             purge_priority(a)
                 .cmp(&purge_priority(b))
@@ -1440,20 +1444,8 @@ impl ManagedFs {
         // after the initial listing, so re-scan once the main Store was removed. No other new
         // root entry is expected; preserve it and report a partial purge instead of guessing.
         for _ in 0..3 {
-            let extras = directory_entry_names(&self.root_dir, self.root.as_str())
-                .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?
-                .into_iter()
-                .filter(|name| name != "." && name != "..")
-                .filter_map(
-                    |name| match statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW) {
-                        Ok(stat) if (stat.st_dev as u64, stat.st_ino) == locked_ident => None,
-                        Ok(_) => Some(Ok(name)),
-                        Err(error) => {
-                            Some(Err(map_fs_error(&format!("{}/{name}", self.root), error)))
-                        }
-                    },
-                )
-                .collect::<Result<Vec<_>>>()
+            let extras = self
+                .purge_entry_names(locked_ident)
                 .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?;
             if extras.is_empty() {
                 break;
@@ -1516,18 +1508,8 @@ impl ManagedFs {
                 )
             },
         )?;
-        let remaining = directory_entry_names(&self.root_dir, self.root.as_str())
-            .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?
-            .into_iter()
-            .filter(|name| name != "." && name != "..")
-            .filter_map(
-                |name| match statat(&self.root_dir, &name, AtFlags::SYMLINK_NOFOLLOW) {
-                    Ok(stat) if (stat.st_dev as u64, stat.st_ino) == locked_ident => None,
-                    Ok(_) => Some(Ok(name)),
-                    Err(error) => Some(Err(map_fs_error(&format!("{}/{name}", self.root), error))),
-                },
-            )
-            .collect::<Result<Vec<_>>>()
+        let remaining = self
+            .purge_entry_names(locked_ident)
             .map_err(|error| partial_purge_error(&self.root, ".", &removed_roots, error))?;
         self.check_lock(lock)
             .map_err(|error| partial_purge_error(&self.root, ".lock", &removed_roots, error))?;

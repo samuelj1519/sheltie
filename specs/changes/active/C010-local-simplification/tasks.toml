@@ -5,7 +5,7 @@ allow_test_changes = false
 
 [C010-T02]
 files = ["specs/changes/active/C010-local-simplification", "specs/contracts/workbook.md", "specs/releases/v0.1.0/plan.md", "CHANGELOG.md", "workbooks/spec-dev/workbook.toml", "workbooks/spec-dev/flows/default.toml", "workbooks/spec-dev/README.md", "workbooks/spec-dev/instructions/scaffold.md", "workbooks/spec-dev/instructions/implement.md", "workbooks/spec-dev/instructions/verify.md", "workbooks/spec-dev/resources/checklists/approval-rules.md", "crates/sheltie-runtime/src/load.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/effects.rs", "crates/sheltie-export/src/error.rs"]
-test_files = ["crates/sheltie-cli/tests/scenario_spec_dev.rs", "crates/sheltie-runtime/tests/selfmgmt.rs"]
+test_files = ["crates/sheltie-core/src/testkit.rs", "crates/sheltie-cli/tests/scenario_spec_dev.rs", "crates/sheltie-runtime/tests/selfmgmt.rs"]
 allow_test_changes = true
 
 [C010-T03]

@@ -1,8 +1,8 @@
 # Current handoff
 
-Candidate: `53b51e703403d9355cb324a61cae84e0099646a7`
-Current task: `C010-T01`
-Last verified: `本轮验证 not_run`
-Next: `独立范围审查与治理检查`
+Candidate: `3fd442ffa7e7f590f1094f47c800f5e1d17d454d + 固定实现输入 a50864348de2`
+Current task: `C010-T02`
+Last verified: `完整 948/948、5 doctest、MSRV check 与工程治理 PASS；独立静态审查 PASS`
+Next: `暂存范围门禁与完整证据独审后提交`
 Blocked: `none`
-Dirty worktree: `C010 采用文档与当前路由`
+Dirty worktree: `C010-T02 采用实现、方法、测试与证据`

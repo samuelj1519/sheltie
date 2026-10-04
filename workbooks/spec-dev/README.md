@@ -22,6 +22,8 @@ spec ─▶ plan ─▶ plan-review(人) ─▶ scaffold ─▶ implement ─▶
 
 十一个节点、二十五条边。人必经两处：`plan-review` 与 `retro` 的门槛（同时看交付说明与反思）；另有 `escalate` 一处，只在卡住时。
 
+scaffold、implement、verify 从任务书的 `approval_rules` 输入读取共享审批更正规则，随本 Work 冻结。普通批准核对的位置仍在各节点开工前。
+
 | 步骤 | 谁 | 产出 | 一句话 |
 | --- | --- | --- | --- |
 | `spec` | 强模型 | `spec.md` | 把需求写成可验收的规格；问题先给推荐答案 |
@@ -117,10 +119,15 @@ sheltie work start --workbook spec-dev --flow default \
 - **门禁由方案写死。** 命令从项目里抄，不由每个实现者现场猜。
 - **一切走文件。** 规格、方案、任务、报告都是文件，任务书只给路径。没有任何一步需要把上一步的全文贴进对话。
 
+## 明确成果
+
+最终门槛批准后运行 `sheltie work result <work> --json`，取得终点 retro 明确选择的 `delivery` 和 `lessons`。delivery 引用 retro 开工时冻结的交付说明输入，lessons 引用该 Attempt 封存的反思输出；门槛未批准时成果集合为空。取得文件不代表已执行交付说明中的对外动作。
+
 ## 修订记录
 
 每次采纳 `retro` 的建议出新版本，在这里记一行：版本、采纳了哪些 `Ln`、否决了哪些与原因。`retro` 下次运行会读这一节核对效果。
 
+- 0.2.2 共享审批更正规则由三个实际 Node 输入绑定；终点选择 delivery 与 lessons，批准后通过 work result 取得。已有 Work 的 0.2.1 冻结副本不变。
 - 0.1.0 初版。
 - 0.2.1 修 C002 真实宿主回归发现的反思报告定位：按当前 WorkLayout 的 `occurrence-<NNN>/attempt-<NNN>/outputs/` 读取历史报告，Occurrence 和 retry 分别补三位零。已运行 Work 的冻结副本保留原字节。
 - 0.2.0 修 C002 审查确认的三处交付闭环缺口（O09/O10/N08）：任务验证改按「任务基线..候选」核对，占位体带任务编号、只查本任务；`plan-review` 决定写批准版本摘要并交给 `scaffold`/`implement`/`verify` 逐条核对；整体审查固定用 Work 原始基线，改方案不再重设。这一版不是 `retro` 建议，记在这里是为了版本可追溯。

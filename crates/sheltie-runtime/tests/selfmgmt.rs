@@ -515,25 +515,6 @@ fn install_replaces_divergent_binary_instead_of_short_circuit() {
 
 // Task: T20
 #[test]
-fn update_version_flag_mismatch_is_unavailable() {
-    let (d, home) = temp_home();
-    selfmgmt::install(&home).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9");
-    assert!(matches!(
-        selfmgmt::update(&home, &src, Some("8.8.8")),
-        Err(Error::UpdateUnavailable { .. })
-    ));
-    let out = selfmgmt::update(&home, &src, Some("9.9.9")).unwrap();
-    assert_eq!(out.to, "9.9.9");
-    // 下载来的资产是普通文件，装上后必须可执行。
-    use std::os::unix::fs::PermissionsExt as _;
-    let bin = std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie");
-    let mode = std::fs::metadata(&bin).unwrap().permissions().mode();
-    assert!(mode & 0o111 != 0, "bin/sheltie 不可执行（mode {mode:o}）");
-}
-
-// Task: T20
-#[test]
 fn update_unpacks_tarball_asset_and_keeps_executable_bit() {
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
@@ -828,7 +809,7 @@ fn update_rejects_path_like_version_argument() {
 
 // Task: C002-T15
 #[test]
-fn update_missing_tag_directory_reports_missing_tag() {
+fn update_missing_tag_preserves_binary_and_allows_pinned_retry() {
     // 只有 latest/ 与 v9.9.9/：固定到 v5.5.5 后清单取不到，
     // 诊断要点名缺的是哪个 tag，二进制不动、tmp 不留。
     let (d, home) = temp_home();
@@ -848,6 +829,14 @@ fn update_missing_tag_directory_reports_missing_tag() {
         "失败窗口换了二进制"
     );
     assert_tmp_clean(&home);
+    let out = selfmgmt::update(&home, &release_source(&dir), Some("9.9.9")).unwrap();
+    assert_eq!(out.to, "9.9.9");
+    use std::os::unix::fs::PermissionsExt as _;
+    let mode = std::fs::metadata(bin_path(&home))
+        .unwrap()
+        .permissions()
+        .mode();
+    assert!(mode & 0o111 != 0, "bin/sheltie 不可执行（mode {mode:o}）");
 }
 
 // Task: C002-T15

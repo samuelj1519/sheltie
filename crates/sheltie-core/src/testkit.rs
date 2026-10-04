@@ -145,6 +145,10 @@ pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
                 include_str!("../../../workbooks/spec-dev/resources/templates/lessons.md"),
             ),
             (
+                "resources/checklists/approval-rules.md",
+                include_str!("../../../workbooks/spec-dev/resources/checklists/approval-rules.md"),
+            ),
+            (
                 "resources/checklists/spec-checklist.md",
                 include_str!("../../../workbooks/spec-dev/resources/checklists/spec-checklist.md"),
             ),

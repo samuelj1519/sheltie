@@ -1,0 +1,29 @@
+{
+  "name": "t02-skill",
+  "argv": [
+    "scripts/check-skill.sh"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit": 0,
+  "elapsed_seconds": 0.793781042098999,
+  "target": "/private/tmp/sheltie-c010-target",
+  "rustc_wrapper": "",
+  "offline": true,
+  "nextest_path": "/private/tmp/sheltie-completion-20261003/tools/nextest",
+  "input_closure": "input-a50864348de2c6361d3e0aac542717de3886f47eb2ee0f4fdb82f275e35f3a5d.json",
+  "input_closure_sha256": "a50864348de2c6361d3e0aac542717de3886f47eb2ee0f4fdb82f275e35f3a5d",
+  "input_count": 378,
+  "input_drift": false,
+  "streams": {
+    "stdout": {
+      "file": "t02-skill.stdout.gz",
+      "bytes": 16,
+      "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+    },
+    "stderr": {
+      "file": "t02-skill.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

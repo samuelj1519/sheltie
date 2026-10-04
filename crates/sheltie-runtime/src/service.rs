@@ -185,6 +185,7 @@ impl WorkService {
             name: args.name.clone(),
             inputs: args.inputs.clone(),
         };
+        let intent_hash = intent.hash();
 
         // ── 无锁预检：只读识别已有 Store，查可重放请求 ──
         let mut inputs: Option<BTreeMap<String, String>> = None;
@@ -193,7 +194,7 @@ impl WorkService {
             match Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly) {
                 Ok(ro) => {
                     if let Some(hash) = ro.lookup_request_hash(&request_id)? {
-                        if hash != intent.hash().as_str() {
+                        if hash != intent_hash.as_str() {
                             return Err(Error::RequestConflict {
                                 request_id: request_id.clone(),
                             });
@@ -231,10 +232,10 @@ impl WorkService {
         // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
-        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
+        svc.recover_before_write(&session.lock, &request_id, intent_hash.as_str())?;
         // 锁内重核请求表（预检后可能有并发写者）。
         if let Some(row) = svc.store.inspect_request(&request_id)? {
-            if row.intent_hash != intent.hash().as_str() {
+            if row.intent_hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
@@ -353,7 +354,7 @@ impl WorkService {
             decision,
             &frozen_flow.1,
             &request_id,
-            intent.hash().as_str().to_string(),
+            intent_hash.as_str().to_string(),
             None,
             effects,
             &ctx,
@@ -1055,12 +1056,13 @@ impl WorkService {
         request_id: String,
         build: &dyn Fn(&Loaded, &crate::home::HomeLock) -> Result<PreparedCommand>,
     ) -> Result<Response> {
+        let intent_hash = intent.hash();
         // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
         // 前缀；效果未完成的请求不在这里恢复，交给写路径。
         {
             let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly)?;
             if let Some(hash) = ro.lookup_request_hash(&request_id)? {
-                if hash != intent.hash().as_str() {
+                if hash != intent_hash.as_str() {
                     return Err(Error::RequestConflict {
                         request_id: request_id.clone(),
                     });
@@ -1072,9 +1074,9 @@ impl WorkService {
         // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
-        svc.recover_before_write(&session.lock, &request_id, intent.hash().as_str())?;
+        svc.recover_before_write(&session.lock, &request_id, intent_hash.as_str())?;
         if let Some(row) = svc.store.inspect_request(&request_id)? {
-            if row.intent_hash != intent.hash().as_str() {
+            if row.intent_hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
                     request_id: request_id.clone(),
                 });
@@ -1095,7 +1097,7 @@ impl WorkService {
             decision,
             &loaded.graph,
             &request_id,
-            intent.hash().as_str().to_string(),
+            intent_hash.as_str().to_string(),
             Some(loaded.revision),
             effects,
             &ctx,

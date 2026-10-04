@@ -63,14 +63,6 @@ pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPa
         state.workbook.id, state.workbook.version
     ))
     .map_err(|error| corrupt(&state.work_id, format!("workbook身份路径无效：{error}")))?;
-    let expected_frozen = expected.join_segment("workbook");
-    let stored_frozen = state.workbook_dir();
-    if stored_frozen != expected_frozen {
-        return Err(corrupt(
-            &state.work_id,
-            format!("冻结副本路径 {stored_frozen} 与Work路径不一致"),
-        ));
-    }
     Ok(expected)
 }
 
@@ -271,14 +263,9 @@ pub(crate) fn validate_workbook_row(
     home: &Home,
     row: &crate::store::WorkbookRow,
 ) -> Result<AbsPath> {
-    let id = WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {
+    WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {
         detail: format!("workbooks行id不合法：{error}"),
     })?;
-    if id.as_str() != row.id {
-        return Err(Error::StoreCorrupt {
-            detail: "workbooks行id不是规范表示".to_string(),
-        });
-    }
     if !valid_workbook_version(&row.version) {
         return Err(Error::StoreCorrupt {
             detail: format!("workbooks行version {:?} 不符合Workbook合同", row.version),

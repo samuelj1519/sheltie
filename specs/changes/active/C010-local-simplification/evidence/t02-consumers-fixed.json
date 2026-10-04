@@ -1,0 +1,31 @@
+{
+  "name": "t02-consumers-fixed",
+  "argv": [
+    "cargo",
+    "nextest",
+    "run",
+    "--all-features",
+    "--no-tests=fail",
+    "-E",
+    "package(sheltie-runtime) | (package(sheltie-core) & binary(examples)) | (package(sheltie-cli) & (binary(scenario_spec_dev) | binary(work_result) | binary(result_artifact))) | package(sheltie-export)"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit": 0,
+  "elapsed_seconds": 123.55350708961487,
+  "target": "/private/tmp/sheltie-c010-target",
+  "rustc_wrapper": "",
+  "offline": true,
+  "nextest_path": "/private/tmp/sheltie-completion-20261003/tools/nextest",
+  "streams": {
+    "stdout": {
+      "file": "t02-consumers-fixed.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "file": "t02-consumers-fixed.stderr.gz",
+      "bytes": 69286,
+      "sha256": "e3b773245d3663a5209dc4054f00aa0b1fc0f51e781fd34ae7f02748dc5fa277"
+    }
+  }
+}

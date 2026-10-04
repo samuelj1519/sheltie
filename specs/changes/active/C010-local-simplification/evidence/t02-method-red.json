@@ -1,0 +1,31 @@
+{
+  "name": "t02-method-red",
+  "argv": [
+    "cargo",
+    "nextest",
+    "run",
+    "--all-features",
+    "--no-tests=fail",
+    "-E",
+    "test(/^spec_dev_final_results_are_frozen_and_wait_for_gate_approval$/)"
+  ],
+  "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+  "exit": 100,
+  "elapsed_seconds": 18.71708106994629,
+  "target": "/private/tmp/sheltie-c010-target",
+  "rustc_wrapper": "",
+  "offline": true,
+  "nextest_path": "/private/tmp/sheltie-completion-20261003/tools/nextest",
+  "streams": {
+    "stdout": {
+      "file": "t02-method-red.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "file": "t02-method-red.stderr.gz",
+      "bytes": 4898,
+      "sha256": "d271a7a74a31ad5d762a2c9a28a9f5fd35a0710628e089dc15927222dd215ea7"
+    }
+  }
+}

@@ -946,22 +946,15 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
             verify_publish_object(home, &final_verify, owner, digest)?;
             verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
             fsx::sync_publish_final_root(home, lock, final_path)?;
-            // 只读化只属于 Workbook 目录（合同 §5.2：目录含根 0555、文件 0444）。
-            // Work 目录要保持可写——状态卡与 Attempt 目录随后还要写入；冻结副本
-            // `workbook/` 子树已在提交前置只读（§5.4）。
-            if owner.starts_with("workbook:") {
-                fsx::set_tree_readonly_confined(home, lock, &dst)?;
-            } else {
-                let workbook = dst.join_segment("workbook");
-                fsx::set_tree_readonly_confined(home, lock, &workbook)?;
-            }
-            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
-                integrity_error(format!("readonly后原件 {final_path} 身份复核失败"), error)
-            })?;
-            verify_publish_object(home, &final_verify, owner, digest)?;
-            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
-            verify_publish_final_state(home, lock, pending, final_path, &tree)?;
-            Ok(())
+            finish_publication(
+                home,
+                lock,
+                &spec,
+                &tree,
+                &dst,
+                &final_verify,
+                "readonly后原件",
+            )
         }
         (false, true) => {
             // 仅最终对象在：核最终对象的归属与摘要后视为完成（恢复语义 §3.1）；
@@ -985,19 +978,7 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
             })?;
             fsx::sync_publish_parents(home, lock, pending, final_path)?;
             fsx::sync_publish_final_root(home, lock, final_path)?;
-            if owner.starts_with("workbook:") {
-                fsx::set_tree_readonly_confined(home, lock, &dst)?;
-            } else {
-                let workbook = dst.join_segment("workbook");
-                fsx::set_tree_readonly_confined(home, lock, &workbook)?;
-            }
-            fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
-                integrity_error(format!("已发布原件 {final_path} 身份复核失败"), error)
-            })?;
-            verify_publish_object(home, &final_verify, owner, digest)?;
-            verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
-            verify_publish_final_state(home, lock, pending, final_path, &tree)?;
-            Ok(())
+            finish_publication(home, lock, &spec, &tree, &dst, &final_verify, "已发布原件")
         }
         (false, false) => Err(Error::StoreCorrupt {
             detail: format!("发布对象 {final_path} 与原件 {pending} 都不存在"),
@@ -1006,6 +987,41 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
             detail: format!("发布对象 {final_path} 已存在且原件 {pending} 仍在，不能覆盖"),
         }),
     }
+}
+
+fn finish_publication(
+    home: &Home,
+    lock: &crate::home::HomeLock,
+    spec: &PublishSpec<'_>,
+    tree: &fsx::ManagedTree,
+    destination: &AbsPath,
+    verify_at: &AbsPath,
+    identity_context: &str,
+) -> Result<()> {
+    // 只读化只属于 Workbook 目录（合同 §5.2：目录含根 0555、文件 0444）。
+    // Work 目录要保持可写——状态卡与 Attempt 目录随后还要写入；冻结副本
+    // `workbook/` 子树已在提交前置只读（§5.4）。
+    if spec.owner.starts_with("workbook:") {
+        fsx::set_tree_readonly_confined(home, lock, destination)?;
+    } else {
+        let workbook = destination.join_segment("workbook");
+        fsx::set_tree_readonly_confined(home, lock, &workbook)?;
+    }
+    fsx::verify_managed_tree_at(home, tree, spec.final_path).map_err(|error| {
+        integrity_error(
+            format!("{identity_context} {} 身份复核失败", spec.final_path),
+            error,
+        )
+    })?;
+    verify_publish_object(home, verify_at, spec.owner, spec.digest)?;
+    verify_start_input_references(
+        home,
+        spec.final_path,
+        spec.final_path,
+        spec.owner,
+        spec.start_inputs,
+    )?;
+    verify_publish_final_state(home, lock, spec.pending, spec.final_path, tree)
 }
 
 fn verify_publish_final_state(

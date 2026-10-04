@@ -73,6 +73,7 @@ executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/scaffold.md" }
 inputs = [
+  { name = "approval_rules", from = "resource.resources/checklists/approval-rules.md" },
   { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
   { name = "tasks",      from = "plan.tasks" },
@@ -95,6 +96,7 @@ executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/implement.md" }
 inputs = [
+  { name = "approval_rules", from = "resource.resources/checklists/approval-rules.md" },
   { name = "tasks",      from = "plan.tasks" },
   { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
@@ -116,6 +118,7 @@ executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/verify.md" }
 inputs = [
+  { name = "approval_rules", from = "resource.resources/checklists/approval-rules.md" },
   { name = "tasks",      from = "plan.tasks" },
   { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
@@ -215,14 +218,14 @@ inputs = [
   { name = "stats",      from = "engine.stats" },
   { name = "spec",       from = "spec.spec" },
   { name = "plan",       from = "plan.plan" },
-  { name = "delivery",   from = "deliver.delivery" },
+  { name = "delivery",   from = "deliver.delivery", result = true },
   { name = "decision",   from = "plan-review.decision" },
   { name = "escalation", from = "escalate.decision", required = false },
   { name = "review",     from = "review.report",     required = false },
   { name = "template",   from = "resource.resources/templates/lessons.md" },
   { name = "rules",      from = "resource.resources/checklists/retro-rules.md" },
 ]
-outputs = [{ name = "lessons", path = "lessons.md", max_bytes = 32768 }]
+outputs = [{ name = "lessons", path = "lessons.md", result = true, max_bytes = 32768 }]
 gate = true
 
 # ── 边 ───────────────────────────────────────────────────────
