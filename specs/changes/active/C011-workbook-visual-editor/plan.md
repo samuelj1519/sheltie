@@ -3,7 +3,7 @@
 | ID | 状态 | Owner | 依赖 | 结果 |
 | --- | --- | --- | --- | --- |
 | C011-T01 | done | 协调者；独立Reviewer | 用户需求/预算 | 独立准备审查修订后PASS；真实CLI/限额/路径/结束顺序/未知字段拒绝冻结 |
-| C011-T02 | doing | 工作agent；独立Reviewer | T01 | 正在准备实际Work输入与独立实现副本；尚无实现PASS |
+| C011-T02 | done | 工作agent；独立Reviewer | T01 | 4bc46候选28测试/真实CLI与ZIP/双轴修后通过；Root浏览器/布局同bytes和完整patch整合核验 |
 | C011-T03 | todo | 实际用户；协调者；独立Reviewer | T02 | 真人新建/编辑/关闭重开、结果接受与工程交付 |
 
 ## C011-T01 固定范围和实际验证入口

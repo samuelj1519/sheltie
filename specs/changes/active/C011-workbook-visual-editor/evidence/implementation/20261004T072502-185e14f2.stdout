@@ -1,0 +1,56 @@
+{"boundary":"real-cli","checked":{"ok":false,"error":"引擎未返回完整成功结果","process":{"argv":["/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-emMifc/workbook"],"pid":56039,"code":0,"signal":null,"reason":null,"exited":true,"closed":true,"stdout":"{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a105cd-4d88-7718-8e02-59eaf3b6c1a1\"}\n","stderr":""}}}
+✖ 真实 CLI 装入两步和现有 code-change/spec-dev，非法入口/未知字段拒绝 (80.959083ms)
+{"boundary":"real-cli-advanced","checked":{"ok":false,"error":"引擎未返回完整成功结果","process":{"argv":["/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-EFGQNY/workbook"],"pid":56040,"code":0,"signal":null,"reason":null,"exited":true,"closed":true,"stdout":"{\"data\":{\"digest\":\"fa030a28264a7cc84c0a4ee6f53ad130d78848b9ad4e7e55c18a51bc14da5080\",\"flows\":[\"default\"],\"id\":\"code-change\",\"replayed\":false,\"requires\":[\"skill:sample\"],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a105cd-4dd8-73d9-8340-38182b0993aa\"}\n","stderr":""}}}
+✖ 合法高级声明、门槛/额度/requires/结果/回环通过真实 CLI (86.404042ms)
+{"boundary":"fake-child-timeout","checked":{"ok":false,"error":"CLI 超时","process":{"argv":["/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/editor-child-test-xmfoq0/fake","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-JtsBpn/workbook"],"pid":56041,"code":null,"signal":"SIGKILL","reason":"CLI 超时","exited":true,"closed":true,"stdout":"","stderr":""}},"root":"/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-JtsBpn"}
+✔ CLI 失败和 TERM→KILL 超时观察退出/close 后清自有根；外部哨兵不改 (1135.335875ms)
+✔ 各输出流超限/取消均终止直接 child (63.873458ms)
+✔ 数量/总大小恰好上限接受，多一个拒绝 (2.609709ms)
+✔ 路径逃逸、重复、ASCII/NFC/目录别名和前缀冲突均拒绝 (0.40225ms)
+✔ 严格 base64 与逐项数组；解码前拒绝大小和同名 (0.678667ms)
+✔ 浏览器文件清单超限时从不读取；真实读取后大小再次核对 (0.266ms)
+✔ 物化独占创建并核实际文件集合和原字节 (7.016125ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 7
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1412.307541
+
+✖ failing tests:
+
+test at test/engine.test.mjs:17:1
+✖ 真实 CLI 装入两步和现有 code-change/spec-dev，非法入口/未知字段拒绝 (80.959083ms)
+  AssertionError [ERR_ASSERTION]: examples/two-step: {"ok":false,"error":"引擎未返回完整成功结果","process":{"argv":["/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-emMifc/workbook"],"pid":56039,"code":0,"signal":null,"reason":null,"exited":true,"closed":true,"stdout":"{\"data\":{\"digest\":\"db5f4a7f7dd9e26e3fc387a603173ddbbe45dae8df7fbea8468f5144d1f5a549\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.0\"},\"next\":[],\"ok\":true,\"request_id\":\"01a105cd-4d88-7718-8e02-59eaf3b6c1a1\"}\n","stderr":""}}
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor/tools/workbook-editor/test/engine.test.mjs:21:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/engine.test.mjs:29:1
+✖ 合法高级声明、门槛/额度/requires/结果/回环通过真实 CLI (86.404042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///private/tmp/sheltie-usability-20261004.qvx4gv7v/workbook-editor/tools/workbook-editor/test/engine.test.mjs:36:146)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

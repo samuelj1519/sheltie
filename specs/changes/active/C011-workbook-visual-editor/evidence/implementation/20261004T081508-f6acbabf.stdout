@@ -1,0 +1,10 @@
+{"boundary":"real-cli-disconnected-error","result":{"ok":false,"error":"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2","process":{"argv":["/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-xJAicJ/workbook"],"pid":19144,"code":1,"signal":null,"reason":null,"exited":true,"closed":true,"stdout":"{\"error\":{\"code\":\"FLOW_INVALID\",\"detail\":{\"path\":\"nodes[1].id\",\"reason\":\"从入口 step-1 到不了 step-2\",\"rule\":\"3\"},\"message\":\"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2\"},\"next\":[],\"ok\":false}\n","stderr":""},"engineError":{"code":"FLOW_INVALID","detail":{"path":"nodes[1].id","reason":"从入口 step-1 到不了 step-2","rule":"3"},"message":"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2"}}}
+✔ 真实不连通CLI的结构错误可直接用于用户定位，保留原始技术流 (43.314084ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.412625

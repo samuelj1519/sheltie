@@ -1,0 +1,14 @@
+✔ 真实app共享布局路径执行拖动/平移/缩放/适应/存取后所有Workbook文件原字节不变 (4.772042ms)
+✔ 真实布局缓存损坏/非法坐标被拒绝为默认视图，不写Workbook (0.272667ms)
+{"boundary":"real-cli-disconnected-error","result":{"ok":false,"error":"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2","process":{"argv":["/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie","--json","workbook","add","/var/folders/41/jg31h24j12nbqh334m6yzkh40000gn/T/sheltie-editor-OeWzCT/workbook"],"pid":19680,"code":1,"signal":null,"reason":null,"exited":true,"closed":true,"stdout":"{\"error\":{\"code\":\"FLOW_INVALID\",\"detail\":{\"path\":\"nodes[1].id\",\"reason\":\"从入口 step-1 到不了 step-2\",\"rule\":\"3\"},\"message\":\"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2\"},\"next\":[],\"ok\":false}\n","stderr":""},"engineError":{"code":"FLOW_INVALID","detail":{"path":"nodes[1].id","reason":"从入口 step-1 到不了 step-2","rule":"3"},"message":"Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2"}}}
+✔ 真实不连通CLI的结构错误可直接用于用户定位，保留原始技术流 (41.717083ms)
+✔ 当前名称/标题/说明提交后仅同步真实文件字节预览，保留已有DOM对象 (0.376583ms)
+✔ 结构错误展示只用明确code/rule/path，列候选而不猜准确Flow；技术字段不混入主文案 (0.165958ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.702834

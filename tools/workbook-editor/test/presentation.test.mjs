@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { checkWorkbook } from '../lib/engine.mjs';
+import { newWorkbook } from '../public/model.mjs';
+const engine = process.env.SHELTIE_EDITOR_ENGINE;
+if (!engine) throw new Error('需要真实可信引擎');
+test('真实不连通CLI的结构错误可直接用于用户定位，保留原始技术流', async () => {
+  const model = newWorkbook(); model.addNode('flows/default.toml');
+  const result = await checkWorkbook(model.snapshot(), engine);
+  console.log(JSON.stringify({ boundary: 'real-cli-disconnected-error', result }));
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.engineError, { code: 'FLOW_INVALID', detail: { path: 'nodes[1].id', reason: '从入口 step-1 到不了 step-2', rule: '3' }, message: 'Flow 不合规（规则 3，nodes[1].id）：从入口 step-1 到不了 step-2' });
+  assert.equal(result.error, result.engineError.message);
+  assert.equal(result.process.code, 1); assert.equal(result.process.closed, true); assert.match(result.process.stdout, /FLOW_INVALID/);
+});
+import { syncTextPreviews, describeFailure } from '../public/presentation.mjs';
+import { parse } from 'smol-toml';
+test('当前名称/标题/说明提交后仅同步真实文件字节预览，保留已有DOM对象', () => {
+  const model = newWorkbook();
+  const makePre = path => ({ dataset: { previewPath: path }, textContent: new TextDecoder().decode(model.snapshot().get(path)) });
+  const manifestPre = makePre('workbook.toml'), flowPre = makePre('flows/default.toml');
+  const focusedInput = { value: '正在输入' }, expandedDetails = { open: true };
+  const container = { focusedInput, expandedDetails, querySelectorAll: selector => { assert.equal(selector, '[data-preview-path]'); return [manifestPre, flowPre]; }, replaceChildren: () => { throw new Error('不能重建属性面板'); } };
+  model.edit('workbook.toml', model.manifest, 'name', '预览同步检查');
+  const node = model.flow('flows/default.toml').nodes[0]; model.edit('flows/default.toml', node, 'title', '当前标题'); model.edit('flows/default.toml', node.instruction, 'text', '<img onerror=alert(1)>当前说明');
+  syncTextPreviews(model, container);
+  const actualBytes = model.snapshot();
+  assert.equal(manifestPre.textContent, new TextDecoder().decode(actualBytes.get('workbook.toml')));
+  assert.equal(flowPre.textContent, new TextDecoder().decode(actualBytes.get('flows/default.toml')));
+  assert.equal(parse(manifestPre.textContent).name, '预览同步检查'); assert.equal(parse(flowPre.textContent).nodes[0].title, '当前标题'); assert.equal(parse(flowPre.textContent).nodes[0].instruction.text, '<img onerror=alert(1)>当前说明');
+  assert.equal(container.focusedInput, focusedInput); assert.equal(focusedInput.value, '正在输入'); assert.equal(container.expandedDetails, expandedDetails); assert.equal(expandedDetails.open, true);
+});
+test('结构错误展示只用明确code/rule/path，列候选而不猜准确Flow；技术字段不混入主文案', () => {
+  const result = { error: 'fallback', engineError: { code: 'FLOW_INVALID', message: 'Flow 不合规', detail: { rule: '3', path: 'nodes[1].id', reason: '从入口 step-1 到不了 step-2' } }, process: { stdout: 'technical escaped JSON', argv: ['/private/binary'] } };
+  const issue = describeFailure(result, ['flows/default.toml', 'flows/other.toml']);
+  assert.deepEqual(issue, { message: 'Flow 不合规', code: 'FLOW_INVALID', rule: '3', path: 'nodes[1].id', reason: '从入口 step-1 到不了 step-2', next: '检查入口和显式边，使所有节点都能从入口到达；连线不会自动增加输入绑定。', fileNote: '引擎未提供准确文件。下面列出当前定义文件候选，请打开后核对上述字段。', candidates: ['workbook.toml', 'flows/default.toml', 'flows/other.toml'] });
+  assert.doesNotMatch(JSON.stringify(issue), /private\/binary|technical escaped/);
+  const unknown = describeFailure({ engineError: { code: 'UNKNOWN', message: '字面 <script>', detail: { path: 'unknown', reason: 'nodes[1].id 并不授权推断规则3' } } }, ['flows/default.toml']);
+  assert.equal(unknown.rule, ''); assert.equal(unknown.next, '按上述字段和原因核对当前文件，修改后重新检查。'); assert.equal(unknown.message, '字面 <script>');
+  const explicit = describeFailure({ engineError: { code: 'FLOW_INVALID', message: '拒绝', detail: { file: 'flows/other.toml', rule: '1' } } }, ['flows/default.toml', 'flows/other.toml']); assert.deepEqual(explicit.candidates, ['flows/other.toml']); assert.equal(explicit.fileNote, '引擎给出的文件：flows/other.toml');
+});

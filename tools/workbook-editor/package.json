@@ -1,0 +1,6 @@
+{
+  "name": "sheltie-workbook-editor", "version": "0.1.0", "private": true, "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": { "start": "node server.mjs", "test": "node --test test/*.test.mjs" },
+  "dependencies": { "smol-toml": "1.7.1", "fflate": "0.8.2" }
+}
