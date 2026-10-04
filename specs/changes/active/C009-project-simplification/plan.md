@@ -3,8 +3,8 @@
 | ID | 状态 | Owner | 依赖 | 结果 |
 | --- | --- | --- | --- | --- |
 | C009-T01 | done | Root；独立 Reviewer | 用户采用 | 范围、测试后继和当前文档语义明确 |
-| C009-T02 | todo | Root；code-simplifier；测试实现者 | T01 | 重复实现与测试收敛，消费者行为保持 |
-| C009-T03 | todo | Root；未参与实现的 Reviewer | T02 | 固定候选、完整验证、独立审查与归档 |
+| C009-T02 | done | Root；code-simplifier；测试实现者 | T01 | 重复实现与测试收敛，消费者行为保持 |
+| C009-T03 | doing | Root；未参与实现的 Reviewer | T02 | 固定候选、完整验证、独立审查与归档 |
 
 ### C009-T01 固定范围与修正文档
 
@@ -30,7 +30,9 @@
 
 **验证。** 先运行受影响消费者与任务测试，再固定输入运行 fmt/check/clippy、全 features nextest、doctest、deny 与 docs/specs/skill/tests/core-vocab；nextest 至少 0.9.145，不越过版本检查。所有构建清空 RUSTC_WRAPPER 并使用明确可写 target。
 
-**提交。** `refactor: 收敛重复投影与测试支持`，scope 按最终主要改动确定。
+**测试。** `two_step_via_cli_reaches_succeeded`、`commit_workbook_on_readonly_store_preserves_sqlite_error_and_rows`、`handwritten_current_schema_control_accepts_both_open_modes`、`open_creates_schema_with_current_user_version`、`external_file_rejects_symlink_directory_and_missing`、`external_file_sha256_matches_known_vector`、`concurrent_initialization_fixture_joins_the_waiting_writer_after_failure`。其余消费者和迁移用例按 validation 的实际 inventory 核对。
+
+**提交。** `refactor(runtime): 收敛重复投影与测试支持`。
 
 ### C009-T03 独立审查与收尾
 

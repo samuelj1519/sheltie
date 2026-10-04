@@ -2210,6 +2210,33 @@ fn canonical_external_root(root: &AbsPath) -> Result<AbsPath> {
 mod tree_tests {
     use super::*;
 
+    // Task: T12
+    #[test]
+    fn resource_index_marks_non_utf8() {
+        let (directory, _home) = super::init_test_support::temporary_home();
+        std::fs::create_dir_all(directory.path().join("sub")).unwrap();
+        std::fs::write(directory.path().join("a.md"), "文字").unwrap();
+        std::fs::write(directory.path().join("sub/b.bin"), [0xff, 0xfe, 0x00]).unwrap();
+        let root = AbsPath::new(directory.path().to_str().unwrap()).unwrap();
+        let tree = ExternalReadTree::open(&root).unwrap();
+        let (_, index, _) =
+            crate::workbook_digest::inspect_tree_v2(&tree, &std::collections::BTreeMap::new())
+                .unwrap();
+        assert!(
+            index
+                .get(&sheltie_core::path::RelPath::new("a.md").unwrap())
+                .unwrap()
+                .is_utf8
+        );
+        assert!(
+            !index
+                .get(&sheltie_core::path::RelPath::new("sub/b.bin").unwrap())
+                .unwrap()
+                .is_utf8
+        );
+        assert_eq!(index.files.len(), 2);
+    }
+
     // Task: C002-T21
     #[test]
     fn directory_reader_rejects_non_utf8_entry_names() {
@@ -3497,15 +3524,8 @@ pub(crate) mod controlled_object_tests {
     use super::permission_test_support::PermissionRestore;
     use super::*;
 
-    fn temporary_home() -> (tempfile::TempDir, crate::Home) {
-        let directory = tempfile::tempdir().unwrap();
-        let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
-        (directory, home)
-    }
-
-    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32) {
-        (metadata.dev(), metadata.ino(), metadata.mode())
-    }
+    use super::init_test_support::temporary_home;
+    use super::snapshot_test_support::identity_mode as object_identity;
 
     pub(crate) fn observe_change<T: Send>(
         name: &str,
@@ -4209,15 +4229,8 @@ mod open_flag_contract_tests {
     use super::controlled_object_tests::{observe_change, observe_recorded_change};
     use super::*;
 
-    fn temporary_home() -> (tempfile::TempDir, crate::Home) {
-        let directory = tempfile::tempdir().unwrap();
-        let home = crate::Home::resolve(Some(directory.path().to_str().unwrap())).unwrap();
-        (directory, home)
-    }
-
-    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32) {
-        (metadata.dev(), metadata.ino(), metadata.mode())
-    }
+    use super::init_test_support::temporary_home;
+    use super::snapshot_test_support::identity_mode as object_identity;
 
     fn assert_descriptor(file: &std::fs::File, access: u32, nonblocking: bool) {
         let descriptor = rustix::io::fcntl_getfd(file).unwrap();
@@ -5452,14 +5465,7 @@ mod external_read_contract_tests {
         AbsPath::new(path.to_str().unwrap().to_owned()).unwrap()
     }
 
-    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32, u64) {
-        (
-            metadata.dev(),
-            metadata.ino(),
-            metadata.mode(),
-            metadata.nlink(),
-        )
-    }
+    use super::snapshot_test_support::identity_mode_links as object_identity;
 
     fn independent_file_sha256(reader: &mut std::fs::File) -> String {
         use sha2::Digest as _;
@@ -5687,14 +5693,7 @@ mod external_read_contract_tests {
 mod synchronization_origin_contract_tests {
     use super::*;
 
-    fn object_identity(metadata: &std::fs::Metadata) -> (u64, u64, u32, u64) {
-        (
-            metadata.dev(),
-            metadata.ino(),
-            metadata.mode(),
-            metadata.nlink(),
-        )
-    }
+    use super::snapshot_test_support::identity_mode_links as object_identity;
 
     // Task: C002-T54
     #[test]
@@ -5802,6 +5801,16 @@ mod synchronization_origin_contract_tests {
 }
 
 #[cfg(test)]
+#[path = "../tests/common/snapshot.rs"]
+pub(crate) mod snapshot_test_support;
+
+#[cfg(test)]
+use crate as runtime;
+#[cfg(test)]
+#[path = "../tests/common/init.rs"]
+pub(crate) mod init_test_support;
+
+#[cfg(test)]
 #[path = "../tests/common/owned_tempdir.rs"]
 pub(crate) mod owned_test_directory;
 
@@ -5813,42 +5822,13 @@ mod directory_binding_contract_tests {
     use std::collections::BTreeMap;
     use std::os::unix::fs::PermissionsExt as _;
 
-    type TreeSnapshot = BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)>;
+    use super::snapshot_test_support::tree_snapshot;
 
     fn temporary_home() -> (OwnedTempDir, crate::Home) {
         let directory = OwnedTempDir::new();
         let root = directory.path().join("home");
         let home = crate::Home::resolve(Some(root.to_str().unwrap())).unwrap();
         (directory, home)
-    }
-
-    fn tree_snapshot(root: &std::path::Path) -> TreeSnapshot {
-        fn visit(base: &std::path::Path, path: &std::path::Path, out: &mut TreeSnapshot) {
-            let meta = std::fs::symlink_metadata(path).unwrap();
-            let bytes = if meta.is_file() {
-                std::fs::read(path).unwrap()
-            } else if meta.file_type().is_symlink() {
-                std::fs::read_link(path)
-                    .unwrap()
-                    .as_os_str()
-                    .as_encoded_bytes()
-                    .to_vec()
-            } else {
-                Vec::new()
-            };
-            out.insert(
-                path.strip_prefix(base).unwrap().to_owned(),
-                (meta.dev(), meta.ino(), meta.mode(), meta.nlink(), bytes),
-            );
-            if meta.is_dir() {
-                for child in std::fs::read_dir(path).unwrap() {
-                    visit(base, &child.unwrap().path(), out);
-                }
-            }
-        }
-        let mut out = BTreeMap::new();
-        visit(root, root, &mut out);
-        out
     }
 
     // Task: C002-T55

@@ -1,0 +1,21 @@
+{
+  "baseline": "01613652687c349c485c0e349257f89ad9e504ee",
+  "rust_files_before": 127,
+  "rust_files_after": 129,
+  "rust_lines_before": 62387,
+  "rust_lines_after": 62195,
+  "rust_line_delta": -192,
+  "tests_before": 951,
+  "retired_tests": [
+    "attempt_begin_returns_brief_path_that_exists",
+    "verify_detects_the_edit",
+    "brief_shows_entered_from_line_or_entry",
+    "update_replaces_binary_and_keeps_prev"
+  ],
+  "added_tests": [
+    "concurrent_initialization_fixture_joins_the_waiting_writer_after_failure"
+  ],
+  "tests_after": 948,
+  "count_boundary": "Static source/ownership inventory; not execution or performance evidence",
+  "reviewed_rust_closure_sha256": "798a869b674eda683d3661ce4bf3a1cce6a78bd9849eb7fa57c7807c13850068"
+}

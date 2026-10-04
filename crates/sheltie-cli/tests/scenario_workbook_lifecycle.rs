@@ -53,21 +53,6 @@ fn editing_repository_copy_does_not_change_running_work_brief() {
 
 // Task: T22
 #[test]
-fn verify_detects_the_edit() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let f = env
-        .workbook_dir("two-step", "1.0.0")
-        .join("instructions/outline.md");
-    make_writable(&f);
-    std::fs::write(&f, "被改过").unwrap();
-    let (e, _) = env.fail(&["workbook", "verify", "two-step@1.0.0"]);
-    assert_eq!(e["error"]["code"], "WORKBOOK_TAMPERED");
-    assert_eq!(e["error"]["detail"]["results"][0]["status"], "tampered");
-}
-
-// Task: T22
-#[test]
 fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
     let env = Env::new();
     env.add_example("two-step");

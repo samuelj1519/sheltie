@@ -10,8 +10,7 @@ use sheltie_core::ids::{AttemptId, NodeId, WorkId, WorkName};
 use sheltie_core::path::AbsPath;
 use sheltie_core::work::{
     Command, Context, Decision, Effect, NextOp, ObservedFile, Reply, StatsJson, StatusCardJson,
-    WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_stats, render_stats_json,
-    render_status_card, status_card_json,
+    WorkState, WorkStatus, WorkbookRef, decide, legal_next, render_stats_json,
 };
 
 use crate::effects::{
@@ -48,6 +47,19 @@ pub struct Response {
     #[serde(default)]
     pub data: serde_json::Value,
     pub next: Vec<NextOp>,
+}
+
+impl From<crate::snapshot::PersistedResponse> for Response {
+    fn from(snapshot: crate::snapshot::PersistedResponse) -> Self {
+        Self {
+            request_id: snapshot.request_id,
+            revision: snapshot.revision,
+            replayed: snapshot.replayed,
+            reply: snapshot.reply,
+            data: snapshot.data,
+            next: snapshot.next,
+        }
+    }
 }
 
 /// `work list` 一行。
@@ -540,13 +552,14 @@ impl WorkService {
 
     fn status_projection(&self, work: &WorkId) -> Result<(String, crate::StatusReadView)> {
         let (loaded, effects_pending) = self.load_read_context(work)?;
+        let card = sheltie_core::work::render::status_view(&loaded.state, &loaded.graph);
+        let text = card.render();
         let view = crate::StatusReadView {
-            card: status_card_json(&loaded.state, &loaded.graph),
+            card: card.into_json(),
             revision: loaded.revision,
             effects_pending,
             pending_publish: loaded.pending_publish,
         };
-        let text = render_status_card(&loaded.state, &loaded.graph);
         Ok((text, view))
     }
 
@@ -609,9 +622,10 @@ impl WorkService {
         let loaded = self.load(work)?;
         crate::failpoint::rendezvous("stats_after_load", work.as_str())
             .map_err(|error| Error::io(loaded.state.work_dir.as_str(), error))?;
+        let stats = render_stats_json(&loaded.state, &loaded.graph);
         Ok((
-            render_stats(&loaded.state, &loaded.graph),
-            render_stats_json(&loaded.state, &loaded.graph),
+            stats.render(),
+            stats,
             legal_next(&loaded.state, &loaded.graph)
                 .iter()
                 .map(|operation| sheltie_core::work::render::next_item_json(work, operation))
@@ -1200,14 +1214,7 @@ impl WorkService {
             }
             .into());
         }
-        let snapshot = Response {
-            request_id: persisted.request_id,
-            revision: persisted.revision,
-            replayed: persisted.replayed,
-            reply: persisted.reply,
-            data: persisted.data,
-            next: persisted.next,
-        };
+        let snapshot = Response::from(persisted);
         let command: Command =
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
@@ -1403,7 +1410,9 @@ impl crate::recovery::RecoveryAccess for WorkService {
             self.load_checked_request(request_id, metadata)
                 .map(|(request, _)| request)
         } else {
-            self.repo().load_checked_request(request_id, metadata)
+            self.repo()
+                .load_checked_request(request_id, metadata)
+                .map(|(request, _)| request)
         }
     }
 
@@ -1446,14 +1455,7 @@ fn decode_read_request(
             }
         })?;
     }
-    let response = Response {
-        request_id: persisted.request_id,
-        revision: persisted.revision,
-        replayed: persisted.replayed,
-        reply: persisted.reply,
-        data: persisted.data,
-        next: persisted.next,
-    };
+    let response = Response::from(persisted);
     let data = crate::snapshot::check_data(&response.reply, &response.data, work)?;
     validate_audit_snapshot(&request.request_id, &request.audit, &data)?;
     Ok(ReadRequestPayload {

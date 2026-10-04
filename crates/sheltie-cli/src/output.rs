@@ -3,7 +3,6 @@
 use serde::Serialize;
 use sheltie_core::ErrorCode;
 use sheltie_core::ids::WorkId;
-use sheltie_core::work::NextOp;
 use sheltie_runtime::Response;
 
 /// 成功响应封装。
@@ -15,7 +14,7 @@ pub struct OkEnvelope<T: Serialize> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub revision: Option<u64>,
     pub data: T,
-    pub next: Vec<NextOp>,
+    pub next: Vec<serde_json::Value>,
 }
 
 /// 一次命令的输出，由命令模块构造，`dispatch` 决定怎么打印。
@@ -28,14 +27,13 @@ pub struct Outcome {
     pub exit_code: i32,
 }
 
-/// 把成功结果包成两种形式。`text` 由调用方渲染。`next` 为空的命令用一个；
-/// Work 写操作用 [`ok_response`]，只读操作用 [`ok_work_next`]。
+/// `text` 由调用方渲染；`next` 使用 core 生成的协议形状。
 pub fn ok<T: Serialize>(
     text: String,
     request_id: Option<String>,
     revision: Option<u64>,
     data: T,
-    next: Vec<NextOp>,
+    next: Vec<serde_json::Value>,
 ) -> Outcome {
     let json = to_value_lossy(OkEnvelope {
         ok: true,
@@ -58,7 +56,7 @@ pub(crate) fn ok_response(text: String, response: Response, work: &WorkId) -> Ou
         .iter()
         .map(|op| sheltie_core::work::render::next_item_json(work, op))
         .collect();
-    ok_work_next(
+    ok(
         text,
         Some(response.request_id),
         Some(response.revision),
@@ -74,39 +72,8 @@ pub(crate) fn replayed_data(mut data: serde_json::Value, replayed: bool) -> serd
     data
 }
 
-/// `next` 已是协议 §5 形状（core `next_item_json` 生成），
-/// 与状态卡 `data.next` 完全同形（O13），不再重复组装。
-pub(crate) fn ok_work_next(
-    text: String,
-    request_id: Option<String>,
-    revision: Option<u64>,
-    data: serde_json::Value,
-    next: Vec<serde_json::Value>,
-) -> Outcome {
-    let mut root = serde_json::Map::new();
-    root.insert("ok".to_string(), serde_json::Value::Bool(true));
-    if let Some(id) = request_id {
-        root.insert("request_id".to_string(), serde_json::json!(id));
-    }
-    if let Some(rev) = revision {
-        root.insert("revision".to_string(), serde_json::json!(rev));
-    }
-    root.insert("data".to_string(), data);
-    root.insert("next".to_string(), serde_json::Value::Array(next));
-    Outcome {
-        text,
-        json: serde_json::Value::Object(root),
-        exit_code: 0,
-    }
-}
-
 /// 把错误包成两种形式。退出码 1。
-pub fn err(
-    code: ErrorCode,
-    message: String,
-    detail: Option<serde_json::Value>,
-    next: Vec<NextOp>,
-) -> Outcome {
+pub fn err(code: ErrorCode, message: String, detail: Option<serde_json::Value>) -> Outcome {
     let mut error = serde_json::Map::new();
     error.insert("code".to_string(), to_value_lossy(code));
     error.insert("message".to_string(), serde_json::json!(message));
@@ -116,7 +83,7 @@ pub fn err(
     let json = serde_json::json!({
         "ok": false,
         "error": serde_json::Value::Object(error),
-        "next": to_value_lossy(next),
+        "next": [],
     });
     Outcome {
         text: format!("{message}\n"),
@@ -127,7 +94,7 @@ pub fn err(
 
 /// 参数格式错误的统一出口：`INVALID_REQUEST` 封装、退出码 2（协议 §5「参数解析错误 2」）。
 pub(crate) fn param_error(message: String) -> Outcome {
-    let mut out = err(ErrorCode::InvalidRequest, message, None, Vec::new());
+    let mut out = err(ErrorCode::InvalidRequest, message, None);
     out.exit_code = 2;
     out
 }

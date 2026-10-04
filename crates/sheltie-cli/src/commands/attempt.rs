@@ -9,8 +9,6 @@ use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
 use crate::output::{self, Outcome};
 
 /// `--summary` 与 `--reason` 经 `cli::parse_text_arg`；`--attempt` 经 `AttemptId::parse`。
-/// `begin` 已随 T18 一并实现（`work cancel` 的测试要走它验证 `WORK_TERMINAL`，见 plan.md T18 任务卡）；
-/// `submit` 与 `fail` 归 T19。
 pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
     match cmd {
         AttemptCmd::Begin { work, node } => begin(ctx, &work, &node),
@@ -54,7 +52,7 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
             brief_path,
             output_dir,
             ..
-        } => (attempt.clone(), brief_path.clone(), output_dir.clone()),
+        } => (attempt, brief_path, output_dir),
         other => return reply_mismatch("AttemptBegun", other),
     };
     let text = next_lines(
@@ -85,11 +83,11 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     let (attempt, outputs) = match &resp.reply {
-        Reply::AttemptSubmitted { attempt, outputs } => (attempt.clone(), outputs.clone()),
+        Reply::AttemptSubmitted { attempt, outputs } => (attempt, outputs),
         other => return reply_mismatch("AttemptSubmitted", other),
     };
     let mut text = format!("已提交 {attempt}\n");
-    for (name, r) in &outputs {
+    for (name, r) in outputs {
         text.push_str(&format!(
             "  {name} → {} (sha256 {})\n",
             r.path,
@@ -120,7 +118,7 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     let attempt = match &resp.reply {
-        Reply::AttemptFailed { attempt } => attempt.clone(),
+        Reply::AttemptFailed { attempt } => attempt,
         other => return reply_mismatch("AttemptFailed", other),
     };
     let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);

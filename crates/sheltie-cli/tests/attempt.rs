@@ -7,7 +7,7 @@ use std::path::Path;
 
 use common::*;
 
-// Task: T19
+// Task: C009-T02
 #[test]
 fn two_step_via_cli_reaches_succeeded() {
     let env = Env::new();
@@ -25,25 +25,19 @@ fn two_step_via_cli_reaches_succeeded() {
     let wid = started["data"]["work_id"].as_str().unwrap().to_string();
     // 每一步只从上一步响应的 next 里取命令。
     let b1 = env.follow_begin(&started, "outline");
+    let brief = Path::new(b1["data"]["brief_path"].as_str().unwrap());
+    assert!(brief.exists());
+    assert!(
+        std::fs::read_to_string(brief)
+            .unwrap()
+            .starts_with("# 任务书：列提纲")
+    );
+    assert_eq!(b1["data"]["attempt"], "outline#1.0");
     let s1 = env.submit_all(&wid, &b1, "提纲好了");
     let b2 = env.follow_begin(&s1, "summary");
     let s2 = env.submit_all(&wid, &b2, "摘要好了");
     assert_eq!(s2["data"]["work_status"]["kind"], "succeeded");
     assert!(s2["next"].as_array().unwrap().is_empty());
-}
-
-// Task: T19
-#[test]
-fn attempt_begin_returns_brief_path_that_exists() {
-    let env = Env::new();
-    env.add_example("two-step");
-    let wid = env.start("two-step", &[("topic", "x")]);
-    let b = env.begin(&wid, "outline");
-    let brief = Path::new(b["data"]["brief_path"].as_str().unwrap());
-    assert!(brief.exists());
-    let text = std::fs::read_to_string(brief).unwrap();
-    assert!(text.starts_with("# 任务书：列提纲"));
-    assert_eq!(b["data"]["attempt"], "outline#1.0");
 }
 
 // Task: C002-T25

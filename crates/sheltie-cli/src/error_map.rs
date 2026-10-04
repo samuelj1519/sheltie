@@ -10,7 +10,7 @@ pub fn to_outcome(err: &Error) -> Outcome {
     let code = err.code();
     let message = err.to_string();
     let detail = detail_of(err);
-    let mut outcome = crate::output::err(code, message, detail, Vec::new());
+    let mut outcome = crate::output::err(code, message, detail);
     match err {
         Error::InputFileInvalid { .. } => outcome.exit_code = 2,
         Error::EffectPending {

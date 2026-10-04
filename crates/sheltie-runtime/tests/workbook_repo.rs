@@ -96,7 +96,7 @@ fn add_failure_leaves_no_staging_and_no_row() {
     let src = copy_example("two-step", d.path());
     std::fs::write(src.join("workbook.toml"), "schema = \"workbook/v9\"\n").unwrap();
     assert!(repo.add(&abs(&src), None).is_err());
-    let staging = std::path::PathBuf::from(home.staging_dir().as_str());
+    let staging = std::path::PathBuf::from(home.workbooks_dir().join_segment(".staging").as_str());
     assert!(!staging.exists() || std::fs::read_dir(staging).unwrap().next().is_none());
     assert_eq!(repo.list().unwrap().len(), before_rows, "失败不得插入新行");
 }
@@ -111,7 +111,13 @@ fn invalid_source_structure_on_new_home_does_not_create_store_or_lock() {
     assert!(repo(&home).add(&abs(&source), None).is_err());
     assert!(!home.store_path().as_path().exists());
     assert!(!home.lock_path().as_path().exists());
-    assert!(!home.staging_dir().as_path().exists());
+    assert!(
+        !home
+            .workbooks_dir()
+            .join_segment(".staging")
+            .as_path()
+            .exists()
+    );
 }
 
 // Task: C002-T31

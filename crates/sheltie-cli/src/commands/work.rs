@@ -129,7 +129,7 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Err(e) => return crate::error_map::to_outcome(&e),
     };
     // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
-    output::ok_work_next(text, None, None, json!(view), view.card.next.clone())
+    output::ok(text, None, None, json!(view), view.card.next.clone())
 }
 
 fn result(ctx: &Ctx, work: &str) -> Outcome {
@@ -147,7 +147,7 @@ fn result(ctx: &Ctx, work: &str) -> Outcome {
         .map(|operation| sheltie_core::work::render::next_item_json(&view.work_id, operation))
         .collect();
     let text = sheltie_core::work::result::render_result(&view);
-    output::ok_work_next(text, None, None, json!(view), next)
+    output::ok(text, None, None, json!(view), next)
 }
 
 /// `work stats`：runtime返回同一次装入的事实视图与next。
@@ -162,7 +162,7 @@ fn stats(ctx: &Ctx, work: &str) -> Outcome {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    output::ok_work_next(text, None, None, json!(stats), ops)
+    output::ok(text, None, None, json!(stats), ops)
 }
 
 /// `work cancel`。
@@ -205,6 +205,5 @@ pub(crate) fn reply_mismatch(expected: &str, got: &Reply) -> Outcome {
         sheltie_core::ErrorCode::StoreCorrupt,
         format!("响应与命令不匹配（期望 {expected}，实际 {got:?}）"),
         None,
-        Vec::new(),
     )
 }

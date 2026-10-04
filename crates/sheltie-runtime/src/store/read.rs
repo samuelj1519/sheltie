@@ -290,29 +290,6 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
-    /// 插入一行 Workbook。主键冲突报 `WorkbookExists`。独立事务（Workbook 入库不经 `commit`）。
-    #[cfg(test)]
-    pub fn insert_workbook(&self, row: &WorkbookRow) -> Result<()> {
-        let conn = self.connect()?;
-        conn.execute(
-            "INSERT INTO workbooks (id, version, digest, dir, added_at)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
-            rusqlite::params![row.id, row.version, row.digest, row.dir, row.added_at],
-        )
-        .map_err(|e| match &e {
-            rusqlite::Error::SqliteFailure(code, _)
-                if code.code == rusqlite::ErrorCode::ConstraintViolation =>
-            {
-                Error::WorkbookExists {
-                    id: row.id.clone(),
-                    version: row.version.clone(),
-                }
-            }
-            _ => e.into(),
-        })?;
-        Ok(())
-    }
-
     /// Read only the idempotency identity. A malformed reply payload must not hide the fact
     /// that the request was already committed or bypass REQUEST_CONFLICT precedence.
     pub(crate) fn lookup_request_hash(&self, request_id: &str) -> Result<Option<String>> {

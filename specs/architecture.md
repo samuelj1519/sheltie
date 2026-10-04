@@ -236,7 +236,7 @@ Work 持有 Workbook 的冻结副本，`runtime.load(work_id)` 从 `works/<id>/w
 | `INV-1` `INV-2` `INV-5` | `sheltie-core` 里禁用词 lint：`Verdict`、`Pass`、`Fail`、`Review`、`approve_by_content` 等不得用作类型或变体名。`scripts/check-core-vocab.sh` 在 CI 跑 |
 | `INV-3` | `sheltie-runtime` 只写 `SHELTIE_HOME` 之下；路径进入 runtime 前经 `confine()` 检查。集成测试用只读的假 `$HOME` 证明引擎从不写它 |
 | `INV-4` | 同一 lint 禁 `PackageId`、`PackageCatalog` |
-| `INV-6` | `SubmitAttempt` 的摘要字段类型是 `ObservedFile`，构造函数标 `#[doc(hidden)]`，只有 runtime 的 `observe_file` 调用；CLI 参数里没有任何摘要字段 |
+| `INV-6` | `SubmitAttempt` 的文件观察使用 `ObservedFile`；生产观察由 runtime 的受管文件读取与 Workbook 加载取得，摘要由同一文件句柄计算；CLI 不接受文件摘要参数 |
 | `INV-7` | 只有 `store.commit` 能写 `works` 表；状态卡渲染函数只读 `WorkState` |
 | 纯 core | `sheltie-core/Cargo.toml` 不依赖 `rusqlite`、`tokio`、`rand`、`chrono` 的时钟特性；`#![forbid(unsafe_code)]`；clippy 禁 `std::fs` 路径 |
 

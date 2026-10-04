@@ -9,37 +9,10 @@ use serde_json::{Value, json};
 fn business_files(
     env: &Env,
 ) -> std::collections::BTreeMap<std::path::PathBuf, (u32, Option<Vec<u8>>)> {
-    use std::os::unix::fs::PermissionsExt;
-    fn walk(
-        root: &std::path::Path,
-        path: &std::path::Path,
-        out: &mut std::collections::BTreeMap<std::path::PathBuf, (u32, Option<Vec<u8>>)>,
-    ) {
-        let metadata = std::fs::symlink_metadata(path).unwrap();
-        let bytes = if metadata.is_file() {
-            Some(std::fs::read(path).unwrap())
-        } else {
-            assert!(metadata.is_dir());
-            None
-        };
-        out.insert(
-            path.strip_prefix(root).unwrap().to_owned(),
-            (metadata.permissions().mode(), bytes),
-        );
-        if metadata.is_dir() {
-            for entry in std::fs::read_dir(path).unwrap() {
-                walk(root, &entry.unwrap().path(), out);
-            }
-        }
-    }
-    let mut out = std::collections::BTreeMap::new();
-    for name in ["works", "workbooks", "pending"] {
-        let path = env.dir.path().join(name);
-        if path.exists() {
-            walk(env.dir.path(), &path, &mut out);
-        }
-    }
-    out
+    tree_objects(env.dir.path(), &["works", "workbooks", "pending"])
+        .into_iter()
+        .map(|(path, object)| (path, (object.mode, object.bytes)))
+        .collect()
 }
 
 // Task: C002-T48
@@ -569,50 +542,8 @@ fn completed_approval_fixture() -> (Env, String, Vec<String>, Value) {
     (env, work, args, original)
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct AuditFixtureObject {
-    device: u64,
-    inode: u64,
-    mode: u32,
-    links: u64,
-    bytes: Option<Vec<u8>>,
-}
-
-fn audit_fixture_objects(
-    env: &Env,
-) -> std::collections::BTreeMap<std::path::PathBuf, AuditFixtureObject> {
-    use std::os::unix::fs::MetadataExt;
-    fn visit(
-        root: &std::path::Path,
-        path: &std::path::Path,
-        out: &mut std::collections::BTreeMap<std::path::PathBuf, AuditFixtureObject>,
-    ) {
-        let meta = std::fs::symlink_metadata(path).unwrap();
-        assert!(meta.is_file() || meta.is_dir());
-        out.insert(
-            path.strip_prefix(root).unwrap().to_owned(),
-            AuditFixtureObject {
-                device: meta.dev(),
-                inode: meta.ino(),
-                mode: meta.mode(),
-                links: meta.nlink(),
-                bytes: meta.is_file().then(|| std::fs::read(path).unwrap()),
-            },
-        );
-        if meta.is_dir() {
-            for child in std::fs::read_dir(path).unwrap() {
-                visit(root, &child.unwrap().path(), out);
-            }
-        }
-    }
-    let mut out = std::collections::BTreeMap::new();
-    for name in ["works", "workbooks", "pending"] {
-        let path = env.dir.path().join(name);
-        if path.exists() {
-            visit(env.dir.path(), &path, &mut out);
-        }
-    }
-    out
+fn audit_fixture_objects(env: &Env) -> std::collections::BTreeMap<std::path::PathBuf, TreeObject> {
+    tree_objects(env.dir.path(), &["works", "workbooks", "pending"])
 }
 
 // Task: C002-T58

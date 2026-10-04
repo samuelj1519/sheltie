@@ -131,17 +131,7 @@ mod tests {
     #[cfg(feature = "failpoint")]
     #[test]
     fn concurrent_store_initializer_waits_for_schema_before_preflight_rejection() {
-        use std::time::{Duration, Instant};
-
-        struct FailpointGuard;
-        impl Drop for FailpointGuard {
-            fn drop(&mut self) {
-                crate::failpoint::disarm_rendezvous().unwrap();
-            }
-        }
-
         let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
-        let _guard = FailpointGuard;
         let directory = tempfile::tempdir().unwrap();
         let home_root = directory.path().join("home");
         std::fs::create_dir(&home_root).unwrap();
@@ -150,64 +140,51 @@ mod tests {
         ))
         .unwrap();
 
-        let first_sync = tempfile::tempdir().unwrap();
-        crate::failpoint::arm_rendezvous(
-            "write_session_after_store_create",
-            home.root().as_str(),
-            first_sync.path(),
-        )
-        .unwrap();
-        let first_home = home.clone();
-        let first = std::thread::spawn(move || {
-            let result = WriteSession::open_or_create(&first_home);
-            drop(result?);
-            Ok::<(), Error>(())
-        });
-
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !first_sync.path().join("reached").exists() && Instant::now() < deadline {
-            std::thread::sleep(Duration::from_millis(2));
-        }
-        if !first_sync.path().join("reached").exists() {
-            let _ = std::fs::write(first_sync.path().join("release"), b"release");
-            let _ = first.join();
-            panic!("首个Store初始化未停在创建后同步点");
-        }
-
-        crate::failpoint::disarm_rendezvous().unwrap();
-        let second_sync = tempfile::tempdir().unwrap();
-        crate::failpoint::arm_rendezvous(
-            "home_lock_waiting",
-            home.lock_path().as_str(),
-            second_sync.path(),
-        )
-        .unwrap();
-        let second_home = home.clone();
-        let second = std::thread::spawn(move || {
-            let result = WriteSession::open_or_create(&second_home);
-            drop(result?);
-            Ok::<(), Error>(())
-        });
-
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !second_sync.path().join("reached").exists() && Instant::now() < deadline {
-            std::thread::sleep(Duration::from_millis(2));
-        }
-        if !second_sync.path().join("reached").exists() {
-            let _ = std::fs::write(first_sync.path().join("release"), b"release");
-            let _ = std::fs::write(second_sync.path().join("release"), b"release");
-            let _ = first.join();
-            let _ = second.join();
-            panic!("第二个Store初始化没有等待同一根锁");
-        }
-
-        std::fs::write(first_sync.path().join("release"), b"release").unwrap();
-        first.join().unwrap().unwrap();
-        std::fs::write(second_sync.path().join("release"), b"release").unwrap();
-        second.join().unwrap().unwrap();
+        crate::fsx::init_test_support::concurrent_store_init(
+            &home,
+            |home| WriteSession::open_or_create(&home).map(drop),
+            |home| WriteSession::open_or_create(&home).map(drop),
+        );
 
         let store = Store::open_for_home(&home, OpenMode::ReadOnly).unwrap();
         assert!(store.list_workbooks().unwrap().is_empty());
-        crate::failpoint::disarm_rendezvous().unwrap();
+    }
+
+    // Task: C009-T02
+    #[cfg(feature = "failpoint")]
+    #[test]
+    fn concurrent_initialization_fixture_joins_the_waiting_writer_after_failure() {
+        use std::sync::Arc;
+        use std::sync::atomic::{AtomicBool, Ordering};
+
+        let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
+        for panic_in_first in [false, true] {
+            let (_directory, home) = crate::fsx::init_test_support::temporary_home();
+            let finished = Arc::new(AtomicBool::new(false));
+            let second_finished = finished.clone();
+            let failure = std::panic::catch_unwind(|| {
+                crate::fsx::init_test_support::concurrent_store_init(
+                    &home,
+                    move |home| {
+                        drop(WriteSession::open_or_create(&home)?);
+                        if panic_in_first {
+                            panic!("初始化后的受控线程失败");
+                        }
+                        Err(Error::InvalidRequest {
+                            reason: "初始化后的受控错误".into(),
+                        })
+                    },
+                    move |home| {
+                        drop(WriteSession::open_or_create(&home)?);
+                        second_finished.store(true, Ordering::SeqCst);
+                        Ok(())
+                    },
+                );
+            });
+            assert!(failure.is_err());
+            assert!(finished.load(Ordering::SeqCst));
+            let store = Store::open_for_home(&home, OpenMode::ReadOnly).unwrap();
+            assert!(store.list_workbooks().unwrap().is_empty());
+        }
     }
 }

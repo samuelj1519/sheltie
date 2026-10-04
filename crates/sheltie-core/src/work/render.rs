@@ -215,116 +215,122 @@ fn human_size(bytes: u64) -> String {
 /// `blocked` 行的说明：`gate: <occ> 需要 gate approve`；`retries_exhausted: <occ>`；
 /// `no_legal_edge: <occ> 的全部出边目标已达 max_visits`。
 pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
-    let view = status_view(state, graph);
-    let mut out = String::new();
-    out.push_str(&format!("# Work {}（{}）\n\n", view.work_id, view.name));
-    out.push_str(&format!(
-        "workbook: {}   flow: {}   status: {}\n",
-        view.workbook, view.flow, view.status
-    ));
-    out.push_str(&format!("current: {}\n", view.current));
+    status_view(state, graph).render()
+}
 
-    out.push_str(&format!(
-        "done: {}\n",
-        if view.done.is_empty() {
-            "无".to_string()
-        } else {
-            view.done.join(", ")
-        }
-    ));
-    out.push_str(&format!(
-        "pending: {}\n",
-        if view.pending.is_empty() {
-            "无".to_string()
-        } else {
-            view.pending.join(", ")
-        }
-    ));
-    let visits = view
-        .visits
-        .iter()
-        .map(|(n, m)| format!("{n} {m}"))
-        .collect::<Vec<_>>()
-        .join(", ");
-    out.push_str(&format!("visits: {visits}\n"));
-    if let Some(line) = &view.blocked {
-        out.push_str(&format!("blocked: {line}\n"));
-    }
+impl StatusView {
+    /// 同一事实视图的文本渲染。
+    pub fn render(&self) -> String {
+        let mut out = String::new();
+        out.push_str(&format!("# Work {}（{}）\n\n", self.work_id, self.name));
+        out.push_str(&format!(
+            "workbook: {}   flow: {}   status: {}\n",
+            self.workbook, self.flow, self.status
+        ));
+        out.push_str(&format!("current: {}\n", self.current));
 
-    out.push_str("\n## 当前任务\n\n");
-    match &view.resume {
-        None => out.push_str("无\n"),
-        Some(resume) => {
-            out.push_str(&format!(
-                "attempt: {}\nbrief_path: {}\n",
-                resume.attempt, resume.brief_path
-            ));
-            out.push_str("inputs:\n");
-            for (name, reference) in &resume.inputs {
-                match reference {
-                    Some(reference) => out.push_str(&format!(
-                        "  {} → {} (sha256 {}, {} B)\n",
-                        name, reference.path, reference.sha256, reference.bytes,
-                    )),
-                    None => out.push_str(&format!("  {name} → 尚无\n")),
-                }
+        out.push_str(&format!(
+            "done: {}\n",
+            if self.done.is_empty() {
+                "无".to_string()
+            } else {
+                self.done.join(", ")
             }
-            if !resume.draft_outputs.is_empty() {
-                out.push_str("draft_outputs:\n");
-                for (name, path) in &resume.draft_outputs {
-                    out.push_str(&format!("  {name} → {path}\n"));
-                }
+        ));
+        out.push_str(&format!(
+            "pending: {}\n",
+            if self.pending.is_empty() {
+                "无".to_string()
+            } else {
+                self.pending.join(", ")
             }
+        ));
+        let visits = self
+            .visits
+            .iter()
+            .map(|(n, m)| format!("{n} {m}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        out.push_str(&format!("visits: {visits}\n"));
+        if let Some(line) = &self.blocked {
+            out.push_str(&format!("blocked: {line}\n"));
         }
-    }
 
-    out.push_str("\n## 最近一次尝试\n\n");
-    match &view.last_attempt {
-        None => out.push_str("无\n"),
-        Some(a) => {
-            out.push_str(&format!("{} {}\n", a.attempt, a.status.as_str()));
-            match a.status {
-                AttemptStatus::Succeeded => {
-                    if let Some(s) = &a.summary {
-                        out.push_str(&format!("summary: {s}\n"));
+        out.push_str("\n## 当前任务\n\n");
+        match &self.resume {
+            None => out.push_str("无\n"),
+            Some(resume) => {
+                out.push_str(&format!(
+                    "attempt: {}\nbrief_path: {}\n",
+                    resume.attempt, resume.brief_path
+                ));
+                out.push_str("inputs:\n");
+                for (name, reference) in &resume.inputs {
+                    match reference {
+                        Some(reference) => out.push_str(&format!(
+                            "  {} → {} (sha256 {}, {} B)\n",
+                            name, reference.path, reference.sha256, reference.bytes,
+                        )),
+                        None => out.push_str(&format!("  {name} → 尚无\n")),
                     }
-                    if !a.outputs.is_empty() {
-                        out.push_str("outputs:\n");
-                        for (name, r) in &a.outputs {
-                            out.push_str(&format!(
-                                "  {} → {} (sha256 {}, {})\n",
-                                name,
-                                r.path,
-                                r.sha256.as_str(),
-                                human_size(r.bytes)
-                            ));
+                }
+                if !resume.draft_outputs.is_empty() {
+                    out.push_str("draft_outputs:\n");
+                    for (name, path) in &resume.draft_outputs {
+                        out.push_str(&format!("  {name} → {path}\n"));
+                    }
+                }
+            }
+        }
+
+        out.push_str("\n## 最近一次尝试\n\n");
+        match &self.last_attempt {
+            None => out.push_str("无\n"),
+            Some(a) => {
+                out.push_str(&format!("{} {}\n", a.attempt, a.status.as_str()));
+                match a.status {
+                    AttemptStatus::Succeeded => {
+                        if let Some(s) = &a.summary {
+                            out.push_str(&format!("summary: {s}\n"));
+                        }
+                        if !a.outputs.is_empty() {
+                            out.push_str("outputs:\n");
+                            for (name, r) in &a.outputs {
+                                out.push_str(&format!(
+                                    "  {} → {} (sha256 {}, {})\n",
+                                    name,
+                                    r.path,
+                                    r.sha256.as_str(),
+                                    human_size(r.bytes)
+                                ));
+                            }
                         }
                     }
-                }
-                AttemptStatus::Failed => {
-                    if let Some(s) = &a.reason {
-                        out.push_str(&format!("reason: {s}\n"));
+                    AttemptStatus::Failed => {
+                        if let Some(s) = &a.reason {
+                            out.push_str(&format!("reason: {s}\n"));
+                        }
                     }
-                }
-                AttemptStatus::Superseded => {
-                    if let Some(s) = &a.reason {
-                        out.push_str(&format!("reason: {s}\n"));
+                    AttemptStatus::Superseded => {
+                        if let Some(s) = &a.reason {
+                            out.push_str(&format!("reason: {s}\n"));
+                        }
                     }
+                    AttemptStatus::Running => {}
                 }
-                AttemptStatus::Running => {}
             }
         }
-    }
 
-    out.push_str("\n## 合法下一步\n\n");
-    if view.next.is_empty() {
-        out.push_str("- 无\n");
-    } else {
-        for op in &view.next {
-            out.push_str(&format!("- {}\n", op.to_command_line(&view.work_id)));
+        out.push_str("\n## 合法下一步\n\n");
+        if self.next.is_empty() {
+            out.push_str("- 无\n");
+        } else {
+            for op in &self.next {
+                out.push_str(&format!("- {}\n", op.to_command_line(&self.work_id)));
+            }
         }
+        out
     }
-    out
 }
 
 /// 事实视图（GF-10/GF-29）：文本卡与 JSON 是**同一份事实**的两种渲染，失败原因、
@@ -453,44 +459,51 @@ pub struct ArtifactRefJson {
 
 /// 状态卡的结构化形式。字段与文本卡一致。
 pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
-    let view = status_view(state, graph);
-    StatusCardJson {
-        work_id: view.work_id,
-        name: view.name,
-        workbook: view.workbook,
-        flow: view.flow,
-        status: view.status,
-        current: view.current,
-        done: view.done,
-        pending: view.pending,
-        visits: view.visits.into_iter().collect(),
-        blocked: view.blocked,
-        last_attempt: view.last_attempt.map(|a| LastAttemptJson {
-            attempt: a.attempt,
-            status: a.status.as_str().to_string(),
-            summary: a.summary,
-            reason: a.reason,
-            outputs: a
-                .outputs
-                .iter()
-                .map(|(name, r)| {
-                    (
-                        name.clone(),
-                        ArtifactRefJson {
-                            path: r.path.to_string(),
-                            sha256: r.sha256.as_str().to_string(),
-                            bytes: r.bytes,
-                        },
-                    )
-                })
-                .collect(),
-        }),
-        resume: view.resume,
-        next: view
+    status_view(state, graph).into_json()
+}
+
+impl StatusView {
+    /// 同一事实视图的协议 JSON 载荷。
+    pub fn into_json(self) -> StatusCardJson {
+        let next = self
             .next
             .iter()
-            .map(|op| next_item_json(&state.work_id, op))
-            .collect(),
+            .map(|op| next_item_json(&self.work_id, op))
+            .collect();
+        StatusCardJson {
+            work_id: self.work_id,
+            name: self.name,
+            workbook: self.workbook,
+            flow: self.flow,
+            status: self.status,
+            current: self.current,
+            done: self.done,
+            pending: self.pending,
+            visits: self.visits.into_iter().collect(),
+            blocked: self.blocked,
+            last_attempt: self.last_attempt.map(|a| LastAttemptJson {
+                attempt: a.attempt,
+                status: a.status.as_str().to_string(),
+                summary: a.summary,
+                reason: a.reason,
+                outputs: a
+                    .outputs
+                    .iter()
+                    .map(|(name, r)| {
+                        (
+                            name.clone(),
+                            ArtifactRefJson {
+                                path: r.path.to_string(),
+                                sha256: r.sha256.as_str().to_string(),
+                                bytes: r.bytes,
+                            },
+                        )
+                    })
+                    .collect(),
+            }),
+            resume: self.resume,
+            next,
+        }
     }
 }
 
@@ -742,29 +755,35 @@ fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
 /// | draft | 2/3 | 2 | 0 | 0s | entry×1, review×1 |
 /// ```
 pub fn render_stats(state: &WorkState, graph: &Graph) -> String {
-    let s = render_stats_json(state, graph);
-    let mut out = String::new();
-    out.push_str(&format!("# Stats {}\n\n", s.work_id));
-    out.push_str(&format!(
-        "status: {}   total: {}s   blocked: {}   approvals: {}\n\n",
-        s.status, s.total_seconds, s.blocked_count, s.approvals
-    ));
-    out.push_str("| node | visits | attempts | failed | superseded | avg | entered_via |\n");
-    out.push_str("| --- | --- | --- | --- | --- | --- | --- |\n");
-    for n in &s.nodes {
+    render_stats_json(state, graph).render()
+}
+
+impl StatsJson {
+    /// 已组装统计的文本表，不重新统计状态。
+    pub fn render(&self) -> String {
+        let mut out = String::new();
+        out.push_str(&format!("# Stats {}\n\n", self.work_id));
         out.push_str(&format!(
-            "| {} | {}/{} | {} | {} | {} | {}s | {} |\n",
-            n.node,
-            n.visits,
-            n.max_visits,
-            n.attempts,
-            n.failed,
-            n.superseded,
-            n.avg_seconds,
-            n.entered_via.join(", ")
+            "status: {}   total: {}s   blocked: {}   approvals: {}\n\n",
+            self.status, self.total_seconds, self.blocked_count, self.approvals
         ));
+        out.push_str("| node | visits | attempts | failed | superseded | avg | entered_via |\n");
+        out.push_str("| --- | --- | --- | --- | --- | --- | --- |\n");
+        for n in &self.nodes {
+            out.push_str(&format!(
+                "| {} | {}/{} | {} | {} | {} | {}s | {} |\n",
+                n.node,
+                n.visits,
+                n.max_visits,
+                n.attempts,
+                n.failed,
+                n.superseded,
+                n.avg_seconds,
+                n.entered_via.join(", ")
+            ));
+        }
+        out
     }
-    out
 }
 
 #[cfg(test)]
@@ -888,6 +907,7 @@ mod tests {
         let a = fx.state().latest_attempt_of_current().unwrap();
         let text = render_brief(fx.state(), &fx.graph, a, "写初稿。");
         assert!(!text.contains("需要的宿主资源"));
+        assert!(text.contains("来自: 入口"));
     }
 
     // ── M1 复核 O3：版本列来自 Workbook 的 requires 声明，没声明版本写 `-` ─────
@@ -957,20 +977,6 @@ mod tests {
             "brief_for_human_executor_ends_with_submit_command",
             render_brief(fx.state(), &fx.graph, a, "确认可以发布。")
         );
-    }
-
-    // Task: T10
-    #[test]
-    fn brief_shows_entered_from_line_or_entry() {
-        let mut fx = Fixture::article_review().started();
-        fx.begin("draft").unwrap();
-        let entry = render_brief(
-            fx.state(),
-            &fx.graph,
-            fx.state().latest_attempt_of_current().unwrap(),
-            "x",
-        );
-        assert!(entry.contains("来自: 入口"));
     }
 
     // Task: C005-T02

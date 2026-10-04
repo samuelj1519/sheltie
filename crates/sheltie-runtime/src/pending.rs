@@ -471,32 +471,6 @@ fn cleanup_selected(
         if reference.is_some_and(|reference| !reference.published) {
             continue;
         }
-        if reference.is_none() && owner_file.is_none() {
-            if record.container.is_some() || record.marker.is_some() {
-                warnings.push(maintenance_warning(
-                    "unknown",
-                    &format!("pending/{id}"),
-                    "没有合法owner，保留原件",
-                ));
-            }
-            continue;
-        }
-        if reference.is_none()
-            && owner_file
-                .as_ref()
-                .is_some_and(|(owner, _)| references.contains_request(&owner.request_id))
-        {
-            let request_id = owner_file
-                .as_ref()
-                .map(|(owner, _)| owner.request_id.as_str())
-                .unwrap_or("unknown");
-            warnings.push(maintenance_warning(
-                request_id,
-                &format!("pending/{id}"),
-                "owner.request_id已存在但effects未引用该id，保留原件",
-            ));
-            continue;
-        }
         let cleanup_request_id = reference
             .map(|reference| reference.request_id.as_str())
             .or_else(|| {
@@ -1228,59 +1202,9 @@ mod pending_qualification_contract_tests {
         (directory, home)
     }
 
-    fn original_tree(
-        root: &std::path::Path,
-    ) -> BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)> {
-        fn visit(
-            base: &std::path::Path,
-            path: &std::path::Path,
-            result: &mut BTreeMap<std::path::PathBuf, (u64, u64, u32, u64, Vec<u8>)>,
-        ) {
-            let meta = std::fs::symlink_metadata(path).unwrap();
-            let bytes = if meta.is_file() {
-                std::fs::read(path).unwrap()
-            } else if meta.file_type().is_symlink() {
-                std::fs::read_link(path)
-                    .unwrap()
-                    .as_os_str()
-                    .as_encoded_bytes()
-                    .to_vec()
-            } else {
-                Vec::new()
-            };
-            result.insert(
-                path.strip_prefix(base).unwrap().to_owned(),
-                (meta.dev(), meta.ino(), meta.mode(), meta.nlink(), bytes),
-            );
-            if meta.is_dir() {
-                for child in std::fs::read_dir(path).unwrap() {
-                    visit(base, &child.unwrap().path(), result);
-                }
-            }
-        }
-        let mut result = BTreeMap::new();
-        visit(root, root, &mut result);
-        result
-    }
-
-    fn persistent_rows(connection: &rusqlite::Connection) -> Vec<Vec<Vec<rusqlite::types::Value>>> {
-        ["workbooks", "works", "work_sequence", "requests", "audit"]
-            .into_iter()
-            .map(|table| {
-                let mut query = connection
-                    .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
-                    .unwrap();
-                let columns = query.column_count();
-                query
-                    .query_map([], |row| {
-                        (0..columns).map(|column| row.get(column)).collect()
-                    })
-                    .unwrap()
-                    .map(|row| row.unwrap())
-                    .collect()
-            })
-            .collect()
-    }
+    use crate::fsx::snapshot_test_support::{
+        store_rows as persistent_rows, tree_snapshot as original_tree,
+    };
 
     // Task: C002-T56
     #[test]

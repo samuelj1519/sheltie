@@ -16,11 +16,6 @@ use crate::service::stage_pending;
 use crate::store::{CommitOutcome, Store, WorkbookRow};
 use sheltie_core::work::Context;
 
-/// 单文件上限 32 MiB。
-pub const MAX_FILE_BYTES: u64 = 33_554_432;
-/// 目录总量上限 256 MiB。
-pub const MAX_TOTAL_BYTES: u64 = 268_435_456;
-
 /// `workbook add` 的提交时快照（GF-15）。
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -300,13 +295,12 @@ impl WorkbookRepo {
         }
     }
 
-    /// 锁内恢复未完成的 Workbook 效果（先于新命令，存储合同 §3.2）。
-    pub(crate) fn checked_effects_for(
+    fn checked_request_for(
         &self,
         request_id: &str,
     ) -> Result<(
-        crate::store::read::RequestRow,
-        crate::effects::CheckedEffects,
+        crate::recovery::CheckedRequest,
+        Option<crate::recovery::AddedSnapshotData>,
     )> {
         let metadata = self
             .store
@@ -314,17 +308,18 @@ impl WorkbookRepo {
             .ok_or_else(|| Error::StoreCorrupt {
                 detail: format!("缺少Workbook请求 {request_id} 的持久记录"),
             })?;
-        let request = self
-            .load_checked_request(request_id, &metadata)
-            .map_err(crate::recovery::RequestLoadError::into_error)?;
-        Ok((request.row, request.effects))
+        self.load_checked_request(request_id, &metadata)
+            .map_err(crate::recovery::RequestLoadError::into_error)
     }
 
     pub(crate) fn load_checked_request(
         &self,
         request_id: &str,
         metadata: &crate::store::read::RequestMetadata,
-    ) -> crate::recovery::RequestLoadResult<crate::recovery::CheckedRequest> {
+    ) -> crate::recovery::RequestLoadResult<(
+        crate::recovery::CheckedRequest,
+        Option<crate::recovery::AddedSnapshotData>,
+    )> {
         let row = metadata;
         if row.work_id.is_some() {
             return Err(Error::StoreCorrupt {
@@ -358,7 +353,7 @@ impl WorkbookRepo {
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
                 detail: format!("Workbook请求 {request_id} 的audit命令不符合合同：{error}"),
             })?;
-        let (identity, response_data) = match command {
+        let (identity, response_data, added_data) = match command {
             WorkbookAuditCommand::AddWorkbook { source } => {
                 if Sha256Hex::new(source.clone()).is_err() || row.intent_hash != source {
                     return Err(Error::StoreCorrupt {
@@ -407,11 +402,12 @@ impl WorkbookRepo {
                 })?;
                 (
                     crate::effects::WorkbookEffectIdentity::Add {
-                        id: data.id,
-                        version: data.version,
-                        digest: data.digest,
+                        id: data.id.clone(),
+                        version: data.version.clone(),
+                        digest: data.digest.clone(),
                     },
                     response_data,
+                    Some(data),
                 )
             }
             WorkbookAuditCommand::RemoveWorkbook { target } => {
@@ -462,6 +458,7 @@ impl WorkbookRepo {
                         version: version.to_string(),
                     },
                     response_data,
+                    None,
                 )
             }
         };
@@ -580,11 +577,14 @@ impl WorkbookRepo {
         let (row, effects) = effects_result.map_err(|cause| {
             crate::recovery::RequestLoadError::with_original(cause, original.clone())
         })?;
-        Ok(crate::recovery::CheckedRequest {
-            row,
-            original,
-            effects,
-        })
+        Ok((
+            crate::recovery::CheckedRequest {
+                row,
+                original,
+                effects,
+            },
+            added_data,
+        ))
     }
 
     fn recover_before_write(
@@ -708,7 +708,7 @@ impl WorkbookRepo {
                 Some((_, request_id, false)) => {
                     // Validate the latest removal's own persisted closure before rejecting a row
                     // that claims the removed lifecycle still exists.
-                    self.checked_effects_for(&request_id)?;
+                    self.checked_request_for(&request_id)?;
                     format!("Workbook {owner} 的最新生命周期是remove，但workbooks行仍存在")
                 }
                 _ => format!("Workbook {owner} 缺少对应成功add请求"),
@@ -716,7 +716,9 @@ impl WorkbookRepo {
             return Err(Error::StoreCorrupt { detail });
         };
 
-        let (request, checked) = self.checked_effects_for(&request_id)?;
+        let (checked_request, added_data) = self.checked_request_for(&request_id)?;
+        let request = &checked_request.row;
+        let checked = &checked_request.effects;
         let audits = self.store.audit_rows(&request_id)?;
         let [audit] = audits.as_slice() else {
             return Err(Error::StoreCorrupt {
@@ -733,19 +735,9 @@ impl WorkbookRepo {
                 detail: format!("Workbook {owner} 的workbooks.added_at与当前add审计不一致"),
             });
         }
-        let snapshot: AddedSnapshot =
-            serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("Workbook add请求 {request_id} snapshot解不开：{error}"),
-            })?;
-        if snapshot.request_id != request_id || snapshot.replayed {
-            return Err(Error::StoreCorrupt {
-                detail: format!("Workbook add请求 {request_id} snapshot身份无效"),
-            });
-        }
-        let data: crate::recovery::AddedSnapshotData = serde_json::from_value(snapshot.data)
-            .map_err(|error| Error::StoreCorrupt {
-                detail: format!("Workbook add请求 {request_id} snapshot.data解不开：{error}"),
-            })?;
+        let data = added_data.ok_or_else(|| Error::StoreCorrupt {
+            detail: format!("Workbook add请求 {request_id} 的已核载荷缺少add身份"),
+        })?;
         if data.id != row.id || data.version != row.version || data.digest != row.digest {
             return Err(Error::StoreCorrupt {
                 detail: format!("Workbook {owner} 与当前add响应身份/摘要不一致"),
@@ -1249,6 +1241,7 @@ impl crate::recovery::RecoveryAccess for WorkbookRepo {
                 .map(|(request, _)| request)
         } else {
             self.load_checked_request(request_id, metadata)
+                .map(|(request, _)| request)
         }
     }
 

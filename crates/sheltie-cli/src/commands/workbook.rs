@@ -252,7 +252,6 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
             sheltie_core::ErrorCode::WorkbookTampered,
             "已装 Workbook 与记录不符".to_string(),
             Some(json!({ "results": rows })),
-            Vec::new(),
         );
         out.text = text;
         out

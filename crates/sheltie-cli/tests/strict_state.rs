@@ -4,7 +4,7 @@
 mod common;
 
 use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use common::store::{StoreRows, store_rows};
 use common::*;
@@ -23,26 +23,10 @@ fn connection(env: &Env) -> Connection {
 
 fn persisted(env: &Env) -> Persisted {
     let rows = store_rows(env);
-    fn record(root: &Path, path: &Path, files: &mut BTreeMap<PathBuf, Option<Vec<u8>>>) {
-        let metadata = std::fs::symlink_metadata(path).unwrap();
-        let relative = path.strip_prefix(root).unwrap().to_path_buf();
-        if metadata.is_dir() {
-            files.insert(relative, None);
-            for entry in std::fs::read_dir(path).unwrap() {
-                record(root, &entry.unwrap().path(), files);
-            }
-        } else {
-            assert!(metadata.is_file(), "unexpected fixture object: {path:?}");
-            files.insert(relative, Some(std::fs::read(path).unwrap()));
-        }
-    }
-    let mut files = BTreeMap::new();
-    for name in ["works", "workbooks", "pending"] {
-        let path = env.dir.path().join(name);
-        if path.exists() {
-            record(env.dir.path(), &path, &mut files);
-        }
-    }
+    let files = tree_objects(env.dir.path(), &["works", "workbooks", "pending"])
+        .into_iter()
+        .map(|(path, object)| (path, object.bytes))
+        .collect();
     Persisted { rows, files }
 }
 

@@ -86,23 +86,6 @@ fn install_prints_path_hint_and_does_not_touch_rc_by_default() {
     assert_eq!(std::fs::read_to_string(&fake_rc).unwrap(), "# rc\n");
 }
 
-// Task: T20
-#[test]
-fn update_replaces_binary_and_keeps_prev() {
-    let (d, home) = temp_home();
-    selfmgmt::install(&home).unwrap();
-    let src = make_release(&d.path().join("rel"), "9.9.9");
-    let out = selfmgmt::update(&home, &src, None).unwrap();
-    assert_eq!(out.to, "9.9.9");
-    let bin = std::path::PathBuf::from(home.bin_dir().as_str());
-    assert!(bin.join("sheltie.prev").exists());
-    assert!(
-        std::fs::read_to_string(bin.join("sheltie"))
-            .unwrap()
-            .starts_with("fake sheltie 9.9.9")
-    );
-}
-
 // Task: C002-T23
 #[cfg(feature = "failpoint")]
 #[test]

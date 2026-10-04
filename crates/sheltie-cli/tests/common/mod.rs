@@ -151,6 +151,56 @@ pub fn copy_dir(src: &Path, dst: &Path) {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct TreeObject {
+    pub device: u64,
+    pub inode: u64,
+    pub mode: u32,
+    pub links: u64,
+    pub bytes: Option<Vec<u8>>,
+}
+
+pub fn tree_objects(
+    root: &Path,
+    scopes: &[&str],
+) -> std::collections::BTreeMap<PathBuf, TreeObject> {
+    use std::os::unix::fs::MetadataExt;
+    fn visit(
+        root: &Path,
+        path: &Path,
+        objects: &mut std::collections::BTreeMap<PathBuf, TreeObject>,
+    ) {
+        let metadata = std::fs::symlink_metadata(path).unwrap();
+        assert!(
+            metadata.is_file() || metadata.is_dir(),
+            "unexpected fixture object: {path:?}"
+        );
+        objects.insert(
+            path.strip_prefix(root).unwrap().to_owned(),
+            TreeObject {
+                device: metadata.dev(),
+                inode: metadata.ino(),
+                mode: metadata.mode(),
+                links: metadata.nlink(),
+                bytes: metadata.is_file().then(|| std::fs::read(path).unwrap()),
+            },
+        );
+        if metadata.is_dir() {
+            for child in std::fs::read_dir(path).unwrap() {
+                visit(root, &child.unwrap().path(), objects);
+            }
+        }
+    }
+    let mut objects = std::collections::BTreeMap::new();
+    for scope in scopes {
+        let path = root.join(scope);
+        if path.exists() {
+            visit(root, &path, &mut objects);
+        }
+    }
+    objects
+}
+
 pub fn make_writable(p: &Path) {
     std::fs::set_permissions(p, std::os::unix::fs::PermissionsExt::from_mode(0o644)).unwrap();
 }

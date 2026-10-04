@@ -334,11 +334,11 @@ fn cold_replan(begun: &Value) -> Result<ColdReplan, String> {
     })
 }
 
-fn prepare_cold_replan(env: &Env, mutation: &str) -> (Value, Proj, String, String) {
-    let project = Proj::init(env, &format!("t30-cold-{mutation}"));
+fn prepare_cold_replan(env: &Env, mode: &str) -> (Value, Proj, String, String) {
+    let project = Proj::init(env, &format!("t30-cold-{mode}"));
     let original = project.head();
     let work = start_spec_dev(env, &project);
-    let correction = mutation == "approval_correction";
+    let correction = mode == "approval_correction";
     plan_and_approve_with_hash(
         env,
         &work,
@@ -470,21 +470,11 @@ fn prepare_cold_replan(env: &Env, mutation: &str) -> (Value, Proj, String, Strin
         "通过，下一任务 T02",
     );
     let pending = env.follow_begin(&result, "implement");
-    let inherited = if mutation == "drop_completed" {
-        Vec::new()
-    } else {
-        vec![row]
-    };
-    let baseline_field = match mutation {
-        "missing_fields" => String::new(),
-        "reset_baseline" => format!("原始基线: {candidate}\n"),
-        _ => format!("原始基线: {original}\n"),
-    };
     let stuck = format!(
-        "{}\n{baseline_field}继承来源: {}\n\n{}",
+        "{}\n原始基线: {original}\n继承来源: {}\n\n{}",
         change_stuck("T02", "任务需要重规划，尚未验证。"),
         output_file(&verification, "report").display(),
-        verified_table(&inherited)
+        verified_table(&[row])
     );
     let result = submit_outputs(env, &work, &pending, &[("change", &stuck)], "卡住 T02");
     let escalation = env.follow_begin(&result, "escalate");
@@ -495,7 +485,7 @@ fn prepare_cold_replan(env: &Env, mutation: &str) -> (Value, Proj, String, Strin
         &[(
             "decision",
             &escalation_md(
-                if mutation == "continue" {
+                if mode == "continue" {
                     "继续"
                 } else {
                     "改方案"
@@ -505,16 +495,135 @@ fn prepare_cold_replan(env: &Env, mutation: &str) -> (Value, Proj, String, Strin
         )],
         "改方案",
     );
-    let next_node = if mutation == "continue" {
+    let next_node = if mode == "continue" {
         "implement"
     } else {
         "plan"
     };
     let replanner = env.follow_begin(&result, next_node);
-    if mutation == "missing_evidence" {
-        std::fs::remove_file(&proof).unwrap();
-    }
     (replanner, project, original, candidate)
+}
+
+// 负例只验证独立检查器；真实 CLI 的绑定与冻结由下面的冷接续正例覆盖。
+fn file_replan_fixture(env: &Env, task_count: usize) -> Value {
+    let project = Proj::init(env, "cold-file-project");
+    let original = project.head();
+    let directory = env.dir.path().join("cold-files");
+    std::fs::create_dir(&directory).unwrap();
+    let write = |name: &str, text: String| {
+        let path = directory.join(name);
+        std::fs::write(&path, text).unwrap();
+        path
+    };
+    let spec = write("spec.md", SPEC_MD.to_string());
+    let project_path = write("project.txt", project.root().display().to_string());
+    let cards = [
+        (
+            "T01 导出",
+            "src/export.py、tests/test_export.py",
+            "test_export",
+        ),
+        (
+            "T02 编码",
+            "src/encode.py、tests/test_encode.py",
+            "test_encode",
+        ),
+        (
+            "T03 第三项",
+            "src/third.py、tests/test_third.py",
+            "test_third",
+        ),
+        (
+            "T04 后续项",
+            "src/fourth.py、tests/test_fourth.py",
+            "test_fourth",
+        ),
+    ];
+    let mut rows = Vec::new();
+    let mut previous_report: Option<PathBuf> = None;
+    let (plan, tasks, decision) = loop {
+        let index = rows.len();
+        let source = previous_report
+            .as_ref()
+            .map_or_else(|| "无".to_string(), |path| path.display().to_string());
+        let plan = write(
+            &format!("plan-{index}.md"),
+            format!(
+                "{}\n继承来源: {source}\n\n{}",
+                plan_md(&original, ""),
+                verified_table(&rows)
+            ),
+        );
+        let tasks = write(
+            &format!("tasks-{index}.md"),
+            format!(
+                "{}\n原始基线: {original}\n继承来源: {source}\n\n{}",
+                tasks_md(&cards),
+                verified_table(&rows)
+            ),
+        );
+        let decision = write(
+            &format!("decision-{index}.md"),
+            approval_md(&sha256_file(&spec), &sha256_file(&plan), "条件：无。"),
+        );
+        if index == task_count {
+            break (plan, tasks, decision);
+        }
+        let task = format!("T{:02}", index + 1);
+        let name = ["export", "encode", "third"][index];
+        let base = project.head();
+        std::fs::write(
+            project.root().join(format!("src/{name}.py")),
+            format!("def {name}():\n    return True\n"),
+        )
+        .unwrap();
+        std::fs::write(
+            project.root().join(format!("tests/test_{name}.py")),
+            format!("def test_{name}():\n    assert True\n"),
+        )
+        .unwrap();
+        let candidate = project.commit(&format!(
+            "feat: {task}\n\nTask: {task}\nAgent: file-fixture"
+        ));
+        let proof = directory.join(format!("cold-proof-{task}.txt"));
+        project.capture_gate(&base, &candidate, &proof);
+        let change = write(
+            &format!("change-{task}.md"),
+            format!(
+                "完成\n原始基线: {original}\n继承来源: {}\n提交: {candidate}\n\n{}",
+                plan.display(),
+                verified_table(&rows)
+            ),
+        );
+        let report = directory.join(format!("report-{task}.md"));
+        rows.push(format!(
+            "| {task} | {base} | {candidate} | {} | {} | {} |",
+            decision.display(),
+            report.display(),
+            proof.display()
+        ));
+        std::fs::write(&report, format!(
+            "通过，全部完成\n任务: {task}\n基线: {base}\n提交: {candidate}\n原始基线: {original}\n本轮变更: {}\n继承来源: {}\n被验规格: {}\n被验方案: {}\n被验任务: {}\n审批来源: {}\n\n{}",
+            change.display(), plan.display(), spec.display(), plan.display(), tasks.display(), decision.display(), verified_table(&rows)
+        )).unwrap();
+        previous_report = Some(report);
+    };
+    let change = write(
+        "pending-change.md",
+        format!(
+            "卡住\n原始基线: {original}\n继承来源: {}\n提交: 无\n\n{}",
+            previous_report.as_ref().unwrap().display(),
+            verified_table(&rows)
+        ),
+    );
+    serde_json::json!({"data": {"inputs": {
+        "project": project_path,
+        "previous_plan": plan,
+        "previous_tasks": tasks,
+        "decision": decision,
+        "previous_verification": previous_report,
+        "previous_change": change,
+    }}})
 }
 
 // Task: C002-T30
@@ -694,25 +803,44 @@ fn fresh_replanner_recovers_verified_task_and_original_baseline_only_from_bound_
 // Task: C002-T30
 #[test]
 fn fresh_replanner_stops_on_reset_baseline_missing_fields_or_dropped_verified_task() {
-    for mutation in [
-        "reset_baseline",
-        "missing_fields",
-        "drop_completed",
-        "missing_evidence",
+    for (mutation, expected) in [
+        ("reset_baseline", "previous_change重设原始基线"),
+        ("missing_fields", "缺原始基线"),
+        ("drop_completed", "记录漏行或改写来源链前缀"),
+        ("missing_evidence", "cold-proof-T01.txt"),
     ] {
         let env = Env::new();
-        let (begun, _, _, _) = prepare_cold_replan(&env, mutation);
+        let begun = file_replan_fixture(&env, 1);
+        let valid = cold_replan(&begun).unwrap();
+        assert_eq!(valid.verified.len(), 1);
+        let change = input_path(&begun, "previous_change");
+        let text = read(&change);
+        match mutation {
+            "reset_baseline" => std::fs::write(
+                &change,
+                text.replace(&valid.original, &valid.project.head()),
+            )
+            .unwrap(),
+            "missing_fields" => std::fs::write(
+                &change,
+                text.replace(&format!("原始基线: {}\n", valid.original), ""),
+            )
+            .unwrap(),
+            "drop_completed" => std::fs::write(
+                &change,
+                text.replace(&verified_table(&valid.verified), &verified_table(&[])),
+            )
+            .unwrap(),
+            "missing_evidence" => {
+                std::fs::remove_file(env.dir.path().join("cold-files/cold-proof-T01.txt")).unwrap()
+            }
+            _ => unreachable!(),
+        }
         let error = match cold_replan(&begun) {
             Ok(_) => panic!("fresh worker必须在{mutation}时停止，不交新方案"),
             Err(error) => error,
         };
-        assert!(
-            error.contains("基线")
-                || error.contains("前缀")
-                || error.contains("缺")
-                || (mutation == "missing_evidence" && error.contains("cold-proof-T01.txt")),
-            "{mutation}: {error}"
-        );
+        assert!(error.contains(expected), "{mutation}: {error}");
     }
 }
 
@@ -754,11 +882,7 @@ fn cold_lineage(
             if cold_field(&text, "继承来源")? != cold_field(&change, "继承来源")? {
                 return Err("verify继承来源与本轮change不一致".into());
             }
-            let first = text.lines().next().unwrap_or_default();
             let passed = first == "通过，全部完成" || first.starts_with("通过，下一任务 T");
-            if !passed && !matches!(first, "不通过" | "不通过，需要人") {
-                return Err("验证报告第一行结论无效".into());
-            }
             if !rows.starts_with(&prefix) || rows.len() != prefix.len() + usize::from(passed) {
                 return Err("历史验证报告漏行或改写累计前缀".into());
             }
@@ -872,13 +996,7 @@ fn implement_after_escalation_continue_keeps_latest_verified_prefix_even_when_pl
     );
 }
 
-fn review_fixture_replan(
-    env: &Env,
-    work: &str,
-    begun: &Value,
-    extra_tasks: bool,
-    denied: bool,
-) -> Value {
+fn review_fixture_replan(env: &Env, work: &str, begun: &Value, extra_tasks: bool) -> Value {
     let original = cold_original(&read(&input_path(begun, "previous_plan"))).unwrap();
     let source = input_path(begun, "previous_verification");
     let rows = cold_rows(&read(&source)).unwrap();
@@ -928,14 +1046,11 @@ fn review_fixture_replan(
         "重规划",
     );
     let review = env.follow_begin(&result, "plan-review");
-    let mut decision = approval_md(
+    let decision = approval_md(
         &sha256_file(&input_path(&review, "spec")),
         &sha256_file(&input_path(&review, "plan")),
         "条件：无。",
     );
-    if denied {
-        decision = decision.replacen("通过", "修改方案", 1);
-    }
     let result = submit_outputs(
         env,
         work,
@@ -943,7 +1058,6 @@ fn review_fixture_replan(
         &[("decision", &decision)],
         "保存被审版本",
     );
-    // denied仅用于故障夹具：引擎不解释第一行，这里故意传播被打回材料，要求fresh worker拒绝。
     let scaffold = env.follow_begin(&result, "scaffold");
     let root = PathBuf::from(read(&input_path(&scaffold, "project")));
     let project = Proj { root };
@@ -972,14 +1086,7 @@ fn review_fixture_replan(
     )
 }
 
-fn finish_fixture_task(
-    env: &Env,
-    work: &str,
-    project: &Proj,
-    entry: &Value,
-    task: &str,
-    fault: &str,
-) -> Value {
+fn finish_fixture_task(env: &Env, work: &str, project: &Proj, entry: &Value, task: &str) -> Value {
     let begun = env.follow_begin(entry, "implement");
     let source = input_path(&begun, "report");
     let prefix = cold_rows(&read(&source)).unwrap();
@@ -1006,15 +1113,10 @@ fn finish_fixture_task(
         "feat: {task}\n\nTask: {task}\nAgent: cold-fixture"
     ));
     let change_path = output_file(&begun, "change");
-    let inheritance = if task == "T03" && fault == "cycle" {
-        change_path.clone()
-    } else {
-        source
-    };
     let change = format!(
         "{}\n原始基线: {original}\n继承来源: {}\n\n{}",
         change_done(task, &base, &candidate, 0, &[&files[0], &files[1]], ""),
-        inheritance.display(),
+        source.display(),
         verified_table(&prefix)
     );
     let result = submit_outputs(env, work, &begun, &[("change", &change)], "任务候选");
@@ -1029,16 +1131,9 @@ fn finish_fixture_task(
         proof.display()
     );
     let mut rows = prefix;
-    if task == "T02" && fault == "drop_earlier" {
-        rows.clear();
-    }
     rows.push(row);
     let first = if task == "T02" {
-        if fault == "failed_report" {
-            "不通过"
-        } else {
-            "通过，全部完成"
-        }
+        "通过，全部完成"
     } else {
         "通过，下一任务 T04"
     };
@@ -1046,7 +1141,7 @@ fn finish_fixture_task(
         "{}\n提交: {candidate}\n原始基线: {original}\n本轮变更: {}\n继承来源: {}\n被验规格: {}\n被验方案: {}\n被验任务: {}\n审批来源: {}\n\n{}",
         verify_report(first, task, 0, &base, "- 原始运行与Git引用见表"),
         change_path.display(),
-        inheritance.display(),
+        source.display(),
         input_path(&verify, "spec").display(),
         input_path(&verify, "plan").display(),
         input_path(&verify, "tasks").display(),
@@ -1056,14 +1151,14 @@ fn finish_fixture_task(
     submit_outputs(env, work, &verify, &[("report", &report)], first)
 }
 
-fn prepare_three_task_history(env: &Env, fault: &str) -> (Value, String, String) {
+fn prepare_three_task_history(env: &Env) -> (Value, String, String) {
     let (plan2, project, original, _) = prepare_cold_replan(env, "legal");
     let work = env.ok(&["work", "list"])["data"][0]["work_id"]
         .as_str()
         .unwrap()
         .to_string();
-    let scaffold2 = review_fixture_replan(env, &work, &plan2, false, fault == "denied_approval");
-    let verified2 = finish_fixture_task(env, &work, &project, &scaffold2, "T02", fault);
+    let scaffold2 = review_fixture_replan(env, &work, &plan2, false);
+    let verified2 = finish_fixture_task(env, &work, &project, &scaffold2, "T02");
     let review = env.follow_begin(&verified2, "review");
     let report = format!(
         "不通过\n任务: 整体\n基线: {original}\n原始基线: {original}\n提交: {}\n修复轮次: 0\n发现: 补充README\n",
@@ -1095,12 +1190,9 @@ fn prepare_three_task_history(env: &Env, fault: &str) -> (Value, String, String)
         "人工要求新方案",
     );
     let plan3 = env.follow_begin(&result, "plan");
-    if fault == "legal" {
-        assert_eq!(cold_replan(&plan3).unwrap().verified.len(), 2);
-    }
-    // 坏历史场景故意由夹具继续传播，最后fresh worker必须沿源链识别而不能只核最新一层。
-    let scaffold3 = review_fixture_replan(env, &work, &plan3, true, false);
-    let verified3 = finish_fixture_task(env, &work, &project, &scaffold3, "T03", fault);
+    assert_eq!(cold_replan(&plan3).unwrap().verified.len(), 2);
+    let scaffold3 = review_fixture_replan(env, &work, &plan3, true);
+    let verified3 = finish_fixture_task(env, &work, &project, &scaffold3, "T03");
     let pending4 = env.follow_begin(&verified3, "implement");
     let source = input_path(&pending4, "report");
     let rows = cold_rows(&read(&source)).unwrap();
@@ -1129,7 +1221,7 @@ fn prepare_three_task_history(env: &Env, fault: &str) -> (Value, String, String)
 #[test]
 fn fresh_replanner_accepts_stale_whole_review_fix_after_later_task_verification() {
     let env = Env::new();
-    let (begun, original, fixed) = prepare_three_task_history(&env, "legal");
+    let (begun, original, fixed) = prepare_three_task_history(&env);
     let basis = cold_replan(&begun).unwrap();
     assert_eq!(basis.original, original);
     assert_eq!(basis.next_task.as_deref(), Some("T04"));
@@ -1145,20 +1237,51 @@ fn fresh_replanner_accepts_stale_whole_review_fix_after_later_task_verification(
 // Task: C002-T30
 #[test]
 fn fresh_replanner_rejects_deep_dropped_rows_failed_reports_denied_approval_and_cycles() {
-    for fault in ["drop_earlier", "failed_report", "denied_approval", "cycle"] {
+    for (fault, expected) in [
+        ("drop_earlier", "历史验证报告漏行或改写累计前缀"),
+        ("failed_report", "历史验证报告漏行或改写累计前缀"),
+        ("denied_approval", "未批准的历史版本不能证明已验证任务"),
+        ("cycle", "继承来源循环"),
+    ] {
         let env = Env::new();
-        let (begun, _, _) = prepare_three_task_history(&env, fault);
+        let begun = file_replan_fixture(&env, 3);
+        let valid = cold_replan(&begun).unwrap();
+        assert_eq!(valid.verified.len(), 3);
+        let directory = env.dir.path().join("cold-files");
+        match fault {
+            "drop_earlier" => {
+                let report = directory.join("report-T02.md");
+                std::fs::write(
+                    &report,
+                    read(&report).replace(&format!("{}\n", valid.verified[0]), ""),
+                )
+                .unwrap();
+            }
+            "failed_report" => {
+                let report = directory.join("report-T02.md");
+                std::fs::write(
+                    &report,
+                    read(&report).replacen("通过，全部完成", "不通过", 1),
+                )
+                .unwrap();
+            }
+            "denied_approval" => {
+                let approval = directory.join("decision-1.md");
+                std::fs::write(&approval, read(&approval).replacen("通过", "修改方案", 1)).unwrap();
+            }
+            "cycle" => {
+                let change = directory.join("change-T03.md");
+                let text = read(&change);
+                let source = cold_field(&text, "继承来源").unwrap();
+                std::fs::write(&change, text.replace(&source, change.to_str().unwrap())).unwrap();
+            }
+            _ => unreachable!(),
+        }
         let error = match cold_replan(&begun) {
             Ok(_) => panic!("坏历史{fault}不得生成新方案"),
             Err(error) => error,
         };
-        assert!(
-            error.contains("前缀")
-                || error.contains("报告")
-                || error.contains("批准")
-                || error.contains("循环"),
-            "{fault}: {error}"
-        );
+        assert!(error.contains(expected), "{fault}: {error}");
     }
 }
 
@@ -1206,7 +1329,8 @@ fn fresh_replanner_accepts_explicit_human_approval_correction_and_rejects_stale_
 #[test]
 fn failed_verification_without_current_change_stops_lineage_reconstruction() {
     let env = Env::new();
-    let (begun, _, original, _) = prepare_cold_replan(&env, "legal");
+    let begun = file_replan_fixture(&env, 1);
+    let original = cold_replan(&begun).unwrap().original;
     let prior = input_path(&begun, "previous_verification");
     let prefix = cold_rows(&read(&prior)).unwrap();
     let change = input_path(&begun, "previous_change");

@@ -5,75 +5,10 @@ mod common;
 
 use common::{abs, example_dir, home_with_example, start_two_step, temp_home, work_id_of};
 use sheltie_runtime::request::InputValue;
-use sheltie_runtime::{Error, Home, StartArgs, WorkService, WorkbookRepo};
+use sheltie_runtime::{Error, StartArgs, WorkService, WorkbookRepo};
 
 #[cfg(feature = "failpoint")]
 static SESSION_INIT_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
-#[cfg(feature = "failpoint")]
-fn concurrent_store_init(
-    first_action: impl FnOnce(Home) -> std::result::Result<(), Error> + Send + 'static,
-    second_action: impl FnOnce(Home) -> std::result::Result<(), Error> + Send + 'static,
-) {
-    use std::time::{Duration, Instant};
-
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        }
-    }
-
-    let (_directory, home) = temp_home();
-    let first_sync = tempfile::tempdir().unwrap();
-    sheltie_runtime::failpoint::arm_rendezvous(
-        "write_session_after_store_create",
-        home.root().as_str(),
-        first_sync.path(),
-    )
-    .unwrap();
-    let _guard = Guard;
-    let first_home = home.clone();
-    let first = std::thread::spawn(move || first_action(first_home));
-
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !first_sync.path().join("reached").exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !first_sync.path().join("reached").exists() {
-        let _ = std::fs::write(first_sync.path().join("release"), b"release");
-        let _ = first.join();
-        panic!("首个真实写入口未停在Store初始化窗口");
-    }
-
-    sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-    let second_sync = tempfile::tempdir().unwrap();
-    sheltie_runtime::failpoint::arm_rendezvous(
-        "home_lock_waiting",
-        home.lock_path().as_str(),
-        second_sync.path(),
-    )
-    .unwrap();
-    let second_home = home.clone();
-    let second = std::thread::spawn(move || second_action(second_home));
-
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !second_sync.path().join("reached").exists() && Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if !second_sync.path().join("reached").exists() {
-        let _ = std::fs::write(first_sync.path().join("release"), b"release");
-        let _ = std::fs::write(second_sync.path().join("release"), b"release");
-        let _ = first.join();
-        let _ = second.join();
-        panic!("第二个真实写入口没有等待初始化者持有的同一把锁");
-    }
-
-    std::fs::write(first_sync.path().join("release"), b"release").unwrap();
-    first.join().unwrap().unwrap();
-    std::fs::write(second_sync.path().join("release"), b"release").unwrap();
-    second.join().unwrap().unwrap();
-}
 
 // Task: C002-T24
 #[test]
@@ -359,7 +294,9 @@ fn old_work_waiting_behind_purge_does_not_recreate_the_removed_store() {
 fn real_install_waits_for_a_concurrent_workbook_add_store_initializer() {
     let _serial = SESSION_INIT_LOCK.lock().unwrap();
     let source = abs(&example_dir("two-step"));
-    concurrent_store_init(
+    let (_directory, home) = temp_home();
+    common::init::concurrent_store_init(
+        &home,
         move |home| WorkbookRepo::new(home).add(&source, None).map(|_| ()),
         |home| sheltie_runtime::selfmgmt::install(&home).map(|_| ()),
     );
@@ -371,7 +308,9 @@ fn real_install_waits_for_a_concurrent_workbook_add_store_initializer() {
 fn real_workbook_add_waits_for_a_concurrent_install_store_initializer() {
     let _serial = SESSION_INIT_LOCK.lock().unwrap();
     let source = abs(&example_dir("two-step"));
-    concurrent_store_init(
+    let (_directory, home) = temp_home();
+    common::init::concurrent_store_init(
+        &home,
         |home| sheltie_runtime::selfmgmt::install(&home).map(|_| ()),
         move |home| WorkbookRepo::new(home).add(&source, None).map(|_| ()),
     );

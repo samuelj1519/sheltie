@@ -157,7 +157,14 @@ fn assert_whole_copy(fixture: &Fixture, target: &Path) {
     }
 }
 
-fn killed_at(point: &str, published: bool) {
+enum Scene {
+    Staging,
+    Published,
+    BeforeManifest,
+    PartialManifest,
+}
+
+fn killed_at(point: &str, expected: Scene) {
     let fixture = Fixture::complete();
     let before = ok(&fixture.home, &["work", "status", &fixture.work]);
     let rendezvous = fixture
@@ -179,14 +186,39 @@ fn killed_at(point: &str, published: bool) {
     child.wait_at(&rendezvous.join("reached"), point);
     let scene = only_scene(&fixture.parent);
     let name = scene.file_name().unwrap().to_str().unwrap();
+    let published = matches!(expected, Scene::Published);
     assert_eq!(name.starts_with(".sheltie-export-"), !published);
-    if published {
-        assert_whole_copy(&fixture, &scene);
+    match expected {
+        Scene::Published => assert_whole_copy(&fixture, &scene),
+        Scene::Staging => {}
+        Scene::BeforeManifest | Scene::PartialManifest => {
+            for (index, leaf, bytes) in [
+                ("0001", "final.bin", fixture.binary.as_slice()),
+                ("0002", "empty.bin", &[]),
+                ("0003", "task", "原目标".as_bytes()),
+            ] {
+                assert_eq!(
+                    std::fs::read(scene.join("artifacts").join(index).join(leaf)).unwrap(),
+                    bytes
+                );
+            }
+            if matches!(expected, Scene::PartialManifest) {
+                let bytes = std::fs::read(scene.join("manifest.json")).unwrap();
+                assert!(!bytes.is_empty());
+                assert!(
+                    serde_json::from_slice::<Value>(&bytes).is_err(),
+                    "本窗口必须仍是不完整清单"
+                );
+            } else {
+                assert!(!scene.join("manifest.json").exists());
+            }
+        }
     }
     let retained_bytes = bytes_in_tree(&scene);
     let output = child.kill_and_wait();
     assert_eq!(output.status.signal(), Some(9));
     assert!(output.stdout.is_empty(), "被杀前不得输出完成响应");
+    assert_eq!(std::fs::read_dir(&fixture.parent).unwrap().count(), 1);
     assert_eq!(
         ok(&fixture.home, &["work", "status", &fixture.work]),
         before
@@ -218,49 +250,49 @@ fn killed_at(point: &str, published: bool) {
 // Task: C006-T02
 #[test]
 fn kill_after_staging_creation_preserves_owned_scene_without_a_published_copy() {
-    killed_at("staging_created", false);
+    killed_at("staging_created", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_during_actual_receive_preserves_partial_scene_without_a_published_copy() {
-    killed_at("during_receive", false);
+    killed_at("during_receive", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_file_sync_preserves_owned_scene_without_a_published_copy() {
-    killed_at("after_file_sync", false);
+    killed_at("after_file_sync", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_independent_readback_preserves_owned_scene_without_a_published_copy() {
-    killed_at("after_readback", false);
+    killed_at("after_readback", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_manifest_write_preserves_owned_scene_without_a_published_copy() {
-    killed_at("after_manifest_write", false);
+    killed_at("after_manifest_write", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_tree_sync_before_rename_preserves_staging_without_a_published_copy() {
-    killed_at("before_rename", false);
+    killed_at("before_rename", Scene::Staging);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_rename_before_parent_sync_leaves_a_whole_visible_copy_without_a_response() {
-    killed_at("after_rename_before_parent_sync", true);
+    killed_at("after_rename_before_parent_sync", Scene::Published);
 }
 
 // Task: C006-T02
 #[test]
 fn kill_after_parent_sync_before_response_leaves_a_whole_copy_and_rerun_creates_another() {
-    killed_at("after_parent_sync", true);
+    killed_at("after_parent_sync", Scene::Published);
 }
 
 // Task: C006-T02
@@ -389,95 +421,14 @@ fn boundary_rejects_bytes_from_another_checkpoint() {
     assert!(message.contains("收到不同同步点的通知"), "{message}");
 }
 
-fn killed_before_manifest_completion(point: &str, partial_manifest: bool) {
-    let fixture = Fixture::complete();
-    let before = ok(&fixture.home, &["work", "status", &fixture.work]);
-    let rendezvous = fixture
-        .dir
-        .path()
-        .canonicalize()
-        .unwrap()
-        .join("rendezvous");
-    std::fs::create_dir(&rendezvous).unwrap();
-    let mut child = ExportChild(Some(
-        command(&fixture)
-            .env("SHELTIE_EXPORT_TEST_POINT", point)
-            .env("SHELTIE_EXPORT_TEST_DIRECTORY", &rendezvous)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .unwrap(),
-    ));
-    child.wait_at(&rendezvous.join("reached"), point);
-    let scene = only_scene(&fixture.parent);
-    assert!(
-        scene
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .starts_with(".sheltie-export-")
-    );
-    for (index, leaf, expected) in [
-        ("0001", "final.bin", fixture.binary.as_slice()),
-        ("0002", "empty.bin", &[]),
-        ("0003", "task", "原目标".as_bytes()),
-    ] {
-        assert_eq!(
-            std::fs::read(scene.join("artifacts").join(index).join(leaf)).unwrap(),
-            expected
-        );
-    }
-    if partial_manifest {
-        let bytes = std::fs::read(scene.join("manifest.json")).unwrap();
-        assert!(!bytes.is_empty());
-        assert!(
-            serde_json::from_slice::<Value>(&bytes).is_err(),
-            "本窗口必须仍是不完整清单"
-        );
-    } else {
-        assert!(!scene.join("manifest.json").exists());
-    }
-    let retained = bytes_in_tree(&scene);
-    let output = child.kill_and_wait();
-    assert_eq!(output.status.signal(), Some(9));
-    assert!(output.stdout.is_empty());
-    assert_eq!(std::fs::read_dir(&fixture.parent).unwrap().count(), 1);
-    assert_eq!(bytes_in_tree(&scene), retained);
-    assert_eq!(
-        ok(&fixture.home, &["work", "status", &fixture.work]),
-        before
-    );
-    assert_eq!(
-        ok(&fixture.home, &["work", "result", &fixture.work])["data"],
-        fixture.result
-    );
-    let rerun = fixture.export();
-    assert!(
-        rerun.status.success(),
-        "{}",
-        String::from_utf8_lossy(&rerun.stderr)
-    );
-    let response: Value = serde_json::from_slice(&rerun.stdout).unwrap();
-    let target = Path::new(response["target_path"].as_str().unwrap());
-    assert_ne!(target, scene);
-    assert_whole_copy(&fixture, target);
-    assert_eq!(std::fs::read_dir(&fixture.parent).unwrap().count(), 2);
-    assert_eq!(bytes_in_tree(&scene), retained);
-    assert_eq!(
-        ok(&fixture.home, &["work", "status", &fixture.work]),
-        before
-    );
-}
-
 // Task: C006-T06
 #[test]
 fn kill_before_independent_readback_preserves_artifacts_without_publication() {
-    killed_before_manifest_completion("before_readback", false);
+    killed_at("before_readback", Scene::BeforeManifest);
 }
 
 // Task: C006-T06
 #[test]
 fn kill_during_manifest_write_preserves_partial_manifest_without_publication() {
-    killed_before_manifest_completion("during_manifest_write", true);
+    killed_at("during_manifest_write", Scene::PartialManifest);
 }

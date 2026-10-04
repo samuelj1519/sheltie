@@ -2,20 +2,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use super::Store;
+use crate::fsx::init_test_support::temporary_home as temp_home;
+use crate::fsx::snapshot_test_support::store_rows as persisted_rows;
 use crate::store::{CommitInput, CommitOutcome, OpenMode, SCHEMA_VERSION};
 use crate::{Error, Home};
-use sheltie_core::path::AbsPath;
 use sheltie_core::testkit::{self, Fixture};
 use sheltie_core::work::{Principal, Timestamp};
-
-fn temp_home() -> (tempfile::TempDir, Home) {
-    let dir = tempfile::tempdir().unwrap();
-    let home = Home::resolve(Some(
-        (AbsPath::new(dir.path().to_string_lossy().into_owned()).unwrap()).as_str(),
-    ))
-    .unwrap();
-    (dir, home)
-}
 
 fn open_rw(home: &Home) -> Store {
     Store::open(&home.store_path(), OpenMode::ReadWrite).unwrap()
@@ -53,7 +45,7 @@ fn input(
     }
 }
 
-// 手写当前schema 3合同；不使用production TABLES/create_script作为自己的期望。
+// 手写当前 schema 4 合同；不使用生产建表脚本生成期望。
 const HANDWRITTEN_WORKS: &str = "CREATE TABLE works (
   work_id     TEXT PRIMARY KEY,
   revision    INTEGER NOT NULL,
@@ -112,9 +104,9 @@ fn assert_current_schema_shape_rejected(works: String) {
     }
 }
 
-// Task: C002-T40
+// Task: C009-T02
 #[test]
-fn handwritten_schema2_control_accepts_both_open_modes() {
+fn handwritten_current_schema_control_accepts_both_open_modes() {
     let (_dir, home) = handwritten_current_schema(HANDWRITTEN_WORKS);
     for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
         let store = Store::open(&home.store_path(), mode).unwrap();
@@ -131,9 +123,9 @@ fn handwritten_schema2_control_accepts_both_open_modes() {
     }
 }
 
-// Task: T13
+// Task: C009-T02
 #[test]
-fn open_creates_schema_with_user_version_1() {
+fn open_creates_schema_with_current_user_version() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
     let conn = rusqlite::Connection::open(store.path().as_str()).unwrap();
@@ -162,7 +154,7 @@ fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    // schema 3 是当前版本：模拟 schema 1 旧库（拒绝且文件字节不变）。
+    // 模拟 schema 1 旧库，确认当前 Store 拒绝打开。
     conn.pragma_update(None, "user_version", 1).unwrap();
     drop(conn);
     assert!(matches!(
@@ -287,22 +279,42 @@ fn open_rejects_same_whitespace_different_column_type() {
     );
 }
 
-// Task: T13
+// Task: C009-T02
 #[test]
-fn insert_workbook_on_readonly_store_is_not_workbook_exists() {
-    // 只读连接上插入失败是 SQLITE_READONLY，不得被归成 WorkbookExists。
-    let (_d, home) = temp_home();
-    open_rw(&home);
-    let ro = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
-    let row = crate::WorkbookRow {
+fn commit_workbook_on_readonly_store_preserves_sqlite_error_and_rows() {
+    let (_directory, home) = temp_home();
+    let store = open_rw(&home);
+    let state = state_fixture();
+    store
+        .commit(input(&state, "existing-work", "start", None))
+        .unwrap();
+    let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
+    let before = persisted_rows(&connection);
+    let readonly = Store::open(&home.store_path(), OpenMode::ReadOnly).unwrap();
+    let mut request = input(&state, "readonly-add", "add", None);
+    request.work_id = None;
+    request.state = None;
+    request.workbook_insert = Some(crate::WorkbookRow {
         id: "x".into(),
         version: "1.0.0".into(),
         digest: "0".repeat(64),
         dir: "workbooks/x/1.0.0".into(),
         added_at: "2026-09-25T00:00:00Z".into(),
+    });
+    let error = readonly.commit(request).unwrap_err();
+    let Error::Io { source, .. } = &error else {
+        panic!("只读 SQLite 错误不得被归为 WorkbookExists：{error}");
     };
-    let err = ro.insert_workbook(&row).unwrap_err();
-    assert!(!matches!(err, Error::WorkbookExists { .. }), "{err}");
+    let sqlite = source
+        .get_ref()
+        .unwrap()
+        .downcast_ref::<rusqlite::Error>()
+        .unwrap();
+    assert_eq!(
+        sqlite.sqlite_error_code(),
+        Some(rusqlite::ErrorCode::ReadOnly)
+    );
+    assert_eq!(persisted_rows(&connection), before);
 }
 
 // Task: T13
@@ -677,23 +689,6 @@ fn store_accepts_real_running_and_failed_attempt_states() {
     let row = store.load_work(&fixture.state().work_id).unwrap();
     assert_eq!(row.revision, 3);
     assert_eq!(&row.state, fixture.state());
-}
-
-fn persisted_rows(connection: &rusqlite::Connection) -> Vec<Vec<Vec<rusqlite::types::Value>>> {
-    ["workbooks", "works", "work_sequence", "requests", "audit"]
-        .into_iter()
-        .map(|table| {
-            let mut statement = connection
-                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
-                .unwrap();
-            let columns = statement.column_count();
-            statement
-                .query_map([], |row| (0..columns).map(|index| row.get(index)).collect())
-                .unwrap()
-                .collect::<rusqlite::Result<Vec<_>>>()
-                .unwrap()
-        })
-        .collect()
 }
 
 // Task: C002-T47

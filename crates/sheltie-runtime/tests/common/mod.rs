@@ -7,6 +7,14 @@ use sheltie_core::path::AbsPath;
 use sheltie_runtime::{Error, Home, WorkService, WorkbookRepo};
 mod owned_tempdir;
 pub use owned_tempdir::OwnedTempDir;
+mod snapshot;
+#[allow(unused_imports)]
+pub use snapshot::{StoreRows, store_rows};
+
+#[cfg(feature = "failpoint")]
+use sheltie_runtime as runtime;
+#[cfg(feature = "failpoint")]
+pub mod init;
 
 pub fn assert_effect_pending(
     error: Error,
@@ -136,25 +144,6 @@ pub fn snapshot(path: &Path) -> (Vec<u8>, u32) {
         std::fs::read(path).unwrap(),
         std::fs::metadata(path).unwrap().permissions().mode(),
     )
-}
-
-pub type StoreRows = Vec<Vec<Vec<rusqlite::types::Value>>>;
-
-pub fn store_rows(conn: &rusqlite::Connection) -> StoreRows {
-    ["workbooks", "works", "work_sequence", "requests", "audit"]
-        .into_iter()
-        .map(|table| {
-            let mut query = conn
-                .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
-                .unwrap();
-            let columns = query.column_count();
-            query
-                .query_map([], |row| (0..columns).map(|i| row.get(i)).collect())
-                .unwrap()
-                .map(Result::unwrap)
-                .collect()
-        })
-        .collect()
 }
 
 /// 装好一个样例并返回服务。

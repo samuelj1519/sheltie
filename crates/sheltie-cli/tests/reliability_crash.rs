@@ -84,24 +84,11 @@ fn record(env: &Env, id: &str) -> Option<Record> {
         .unwrap()
 }
 fn tree(path: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
-    fn visit(root: &Path, path: &Path, files: &mut BTreeMap<PathBuf, Vec<u8>>) {
-        for entry in std::fs::read_dir(path).unwrap() {
-            let entry = entry.unwrap();
-            let kind = entry.file_type().unwrap();
-            if kind.is_dir() {
-                visit(root, &entry.path(), files);
-            } else {
-                assert!(kind.is_file(), "原件不能含链接/特殊文件");
-                files.insert(
-                    entry.path().strip_prefix(root).unwrap().to_path_buf(),
-                    std::fs::read(entry.path()).unwrap(),
-                );
-            }
-        }
-    }
-    let mut files = BTreeMap::new();
-    visit(path, path, &mut files);
-    files
+    assert!(path.is_dir());
+    tree_objects(path, &[""])
+        .into_iter()
+        .filter_map(|(path, object)| object.bytes.map(|bytes| (path, bytes)))
+        .collect()
 }
 fn same_files(path: &Path, expected: &BTreeMap<PathBuf, Vec<u8>>) {
     for (relative, bytes) in expected {

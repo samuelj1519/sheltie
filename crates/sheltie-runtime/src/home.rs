@@ -100,10 +100,6 @@ impl Home {
         self.root.join_segment("workbooks")
     }
 
-    pub fn staging_dir(&self) -> AbsPath {
-        self.workbooks_dir().join_segment(".staging")
-    }
-
     pub fn works_dir(&self) -> AbsPath {
         self.root.join_segment("works")
     }

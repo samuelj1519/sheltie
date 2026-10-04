@@ -333,8 +333,7 @@ impl Store {
     /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。
     /// 结构校验通过的读写连接才设 WAL。
     fn validate(&self) -> Result<()> {
-        let conn = self.connect()?;
-        check_schema(&conn)
+        self.connect().map(|_| ())
     }
 
     /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。

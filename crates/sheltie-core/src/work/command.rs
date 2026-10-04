@@ -12,7 +12,7 @@ use crate::workbook::HostRequire;
 
 /// runtime 对一个文件的只读观察。core 拿它对照合同，不自己读文件。
 ///
-/// 只有 runtime 的 `observe_file` 会构造它；这是 `INV-6` 的落点：摘要不由模型报。
+/// 生产观察由 runtime 的受管读取构造；这是 `INV-6` 的落点：摘要不由模型报。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ObservedFile {

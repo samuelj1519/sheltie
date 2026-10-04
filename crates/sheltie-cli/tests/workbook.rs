@@ -107,17 +107,22 @@ fn workbook_remove_then_list_is_empty() {
 // Task: T17
 #[test]
 fn workbook_verify_exits_1_after_tamper() {
-    let env = Env::new();
-    env.add_example("two-step");
-    env.ok(&["workbook", "verify"]);
-    let f = env
-        .workbook_dir("two-step", "1.0.0")
-        .join("instructions/outline.md");
-    make_writable(&f);
-    std::fs::write(&f, "改了").unwrap();
-    let (v, code) = env.fail(&["workbook", "verify"]);
-    assert_eq!(code, 1);
-    assert_eq!(v["error"]["code"], "WORKBOOK_TAMPERED");
+    for selector in [None, Some("two-step@1.0.0")] {
+        let env = Env::new();
+        env.add_example("two-step");
+        let mut args = vec!["workbook", "verify"];
+        args.extend(selector);
+        env.ok(&args);
+        let file = env
+            .workbook_dir("two-step", "1.0.0")
+            .join("instructions/outline.md");
+        make_writable(&file);
+        std::fs::write(&file, "改了").unwrap();
+        let (error, code) = env.fail(&args);
+        assert_eq!(code, 1, "{selector:?}");
+        assert_eq!(error["error"]["code"], "WORKBOOK_TAMPERED");
+        assert_eq!(error["error"]["detail"]["results"][0]["status"], "tampered");
+    }
 }
 
 // Task: C002-T02

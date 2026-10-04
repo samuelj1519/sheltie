@@ -5,38 +5,27 @@
 //! 安装与校验都发生在临时目录，绝不触碰真实宿主配置。
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+mod common;
+
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 use assert_cmd::Command as Bin;
+use common::copy_dir;
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn copy_tree(src: &Path, dst: &Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            fs::copy(&from, &to).unwrap();
-        }
-    }
-}
-
 /// 在独立源码树替身里跑脚本：scripts + skills + specs/contracts 与仓库同构。
 fn temp_source_tree(base: &Path) -> PathBuf {
     let tree = base.join("src");
-    copy_tree(&repo_root().join("scripts"), &tree.join("scripts"));
-    copy_tree(&repo_root().join("skills"), &tree.join("skills"));
+    copy_dir(&repo_root().join("scripts"), &tree.join("scripts"));
+    copy_dir(&repo_root().join("skills"), &tree.join("skills"));
     fs::create_dir_all(tree.join("specs")).unwrap();
-    copy_tree(
+    copy_dir(
         &repo_root().join("specs/contracts"),
         &tree.join("specs/contracts"),
     );
@@ -266,7 +255,7 @@ fn assert_delivery_resolves(dir: &Path) {
 
 fn install_copy(from: &Path, host: &Path) -> PathBuf {
     let installed = host.join("skills").join("sheltie");
-    copy_tree(from, &installed);
+    copy_dir(from, &installed);
     installed
 }
 

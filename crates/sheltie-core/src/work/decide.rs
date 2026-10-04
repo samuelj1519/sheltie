@@ -12,10 +12,11 @@ use super::state::{
 };
 use crate::digest::Sha256Hex;
 use crate::error::{Error, Result};
-use crate::flow::{Graph, InputSource};
+use crate::flow::{Graph, InputSource, NodeDef};
 use crate::ids::{AttemptId, NodeId};
 use crate::path::AbsPath;
 use crate::text::Summary;
+use crate::workbook::HostRequire;
 
 /// 对一个 Work 应用一个命令。
 ///
@@ -206,14 +207,13 @@ fn decide_begin(
     };
     let attempt_id = AttemptId::new(node.clone(), occ_n, number);
 
-    let (mut bound, wants_stats) = bind_inputs(state, graph, node, observed_inputs)?;
+    let bound = bind_inputs(state, graph, node, observed_inputs)?;
 
-    let mut effects = Vec::new();
     let attempt = Attempt {
         id: attempt_id.clone(),
         status: AttemptStatus::Running,
         entered_from,
-        inputs: bound.clone(),
+        inputs: bound,
         outputs: BTreeMap::new(),
         summary: None,
         fail_reason: None,
@@ -224,65 +224,18 @@ fn decide_begin(
     new_state.attempts.push(attempt);
     new_state.updated_at = ctx.now.clone();
 
-    if wants_stats {
-        // stats.json 的口径含本次 Attempt（D-29）：用提交后的完整状态算，
-        // 崩溃后的重放才能从库里那份状态逐字节重建同一份文件。
-        // stats 只计数，不序列化 `inputs`，所以可以先推进状态再回填绑定。
-        let (artifact, content) = engine_stats_artifact(&new_state, graph, &attempt_id)?;
-        for decl in def
-            .inputs
-            .iter()
-            .filter(|d| matches!(d.from, InputSource::EngineStats))
-        {
-            bound.insert(decl.name.clone(), Some(artifact.clone()));
-        }
-        let idx = new_state.attempts.len() - 1;
-        new_state.attempts[idx].inputs = bound.clone();
-        // 一次 begin 只写一个 stats.json（多个 engine.stats 输入共享同一份内容）。
-        effects.push(Effect::WriteFile {
-            path: artifact.path,
-            content,
-        });
-    }
-    let attempt = &new_state.attempts[new_state.attempts.len() - 1];
-
-    let attempt_dir = new_state.attempt_dir(&attempt_id);
-    let brief_path = attempt_dir.join_segment("brief.md");
-    effects.push(Effect::WriteBrief {
-        path: brief_path.clone(),
-        content: render_brief(&new_state, graph, attempt, instruction_text),
-    });
-    effects.push(Effect::RefreshStatusCard);
-
-    let inputs = bound
-        .iter()
-        .map(|(k, v)| (k.clone(), v.as_ref().map(|r| r.path.clone())))
-        .collect();
-    let mut outputs = BTreeMap::new();
-    for decl in &def.outputs {
-        // 声明路径挂在 Attempt 目录的 outputs/ 之下（WorkLayout，O12）。
-        outputs.insert(
-            decl.name.clone(),
-            crate::work::layout::output_path(&attempt_dir, &decl.path),
-        );
-    }
-    let requires = graph
-        .node_requires(node)
-        .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {node} 不在图里"),
-        })?;
-
+    let delivery =
+        prepare_attempt_delivery(&mut new_state, graph, def, &attempt_id, instruction_text)?;
     Ok(Decision {
         state: new_state,
-        effects,
+        effects: delivery.effects,
         reply: Reply::AttemptBegun {
             attempt: attempt_id,
-            brief_path,
-            // 输出目录是 Attempt 目录下的 outputs/（协议 §3 attempt begin 第 5 步）。
-            output_dir: crate::work::layout::outputs_dir(&attempt_dir),
-            inputs,
-            outputs,
-            requires,
+            brief_path: delivery.brief_path,
+            output_dir: delivery.output_dir,
+            inputs: delivery.inputs,
+            outputs: delivery.outputs,
+            requires: delivery.requires,
         },
     })
 }
@@ -448,20 +401,54 @@ fn decide_replace(
         ended_at: None,
     });
     new_state.updated_at = ctx.now.clone();
+    let delivery =
+        prepare_attempt_delivery(&mut new_state, graph, node, &new_id, instruction_text)?;
+    Ok(Decision {
+        state: new_state,
+        effects: delivery.effects,
+        reply: Reply::AttemptReplaced {
+            replaced_attempt: attempt.clone(),
+            attempt: new_id,
+            brief_path: delivery.brief_path,
+            output_dir: delivery.output_dir,
+            inputs: delivery.inputs,
+            outputs: delivery.outputs,
+            requires: delivery.requires,
+        },
+    })
+}
+
+struct AttemptDelivery {
+    effects: Vec<Effect>,
+    brief_path: AbsPath,
+    output_dir: AbsPath,
+    inputs: BTreeMap<String, Option<AbsPath>>,
+    outputs: BTreeMap<String, AbsPath>,
+    requires: Vec<HostRequire>,
+}
+
+fn prepare_attempt_delivery(
+    state: &mut WorkState,
+    graph: &Graph,
+    node: &NodeDef,
+    attempt_id: &AttemptId,
+    instruction_text: &str,
+) -> Result<AttemptDelivery> {
+    let index = state.attempts.len() - 1;
     let mut effects = Vec::new();
     if node
         .inputs()
         .iter()
         .any(|input| matches!(input.source(), InputSource::EngineStats))
     {
-        let (reference, content) = engine_stats_artifact(&new_state, graph, &new_id)?;
-        let index = new_state.attempts.len() - 1;
+        // 统计包含刚创建的 Attempt；多个 stats 槽共享同一份精确字节。
+        let (reference, content) = engine_stats_artifact(state, graph, attempt_id)?;
         for declaration in node
             .inputs()
             .iter()
             .filter(|input| matches!(input.source(), InputSource::EngineStats))
         {
-            new_state.attempts[index]
+            state.attempts[index]
                 .inputs
                 .insert(declaration.name().to_string(), Some(reference.clone()));
         }
@@ -470,15 +457,15 @@ fn decide_replace(
             content,
         });
     }
-    let new = &new_state.attempts[new_state.attempts.len() - 1];
-    let directory = new_state.attempt_dir(&new_id);
+    let attempt = &state.attempts[index];
+    let directory = state.attempt_dir(attempt_id);
     let brief_path = crate::work::layout::brief_path(&directory);
     effects.push(Effect::WriteBrief {
         path: brief_path.clone(),
-        content: render_brief(&new_state, graph, new, instruction_text),
+        content: render_brief(state, graph, attempt, instruction_text),
     });
     effects.push(Effect::RefreshStatusCard);
-    let inputs = new
+    let inputs = attempt
         .inputs
         .iter()
         .map(|(name, reference)| {
@@ -499,22 +486,17 @@ fn decide_replace(
         })
         .collect();
     let requires = graph
-        .node_requires(&attempt.node)
+        .node_requires(node.id())
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", attempt.node),
+            reason: format!("节点 {} 不在图里", node.id()),
         })?;
-    Ok(Decision {
-        state: new_state,
+    Ok(AttemptDelivery {
         effects,
-        reply: Reply::AttemptReplaced {
-            replaced_attempt: attempt.clone(),
-            attempt: new_id,
-            brief_path,
-            output_dir: crate::work::layout::outputs_dir(&directory),
-            inputs,
-            outputs,
-            requires,
-        },
+        brief_path,
+        output_dir: crate::work::layout::outputs_dir(&directory),
+        inputs,
+        outputs,
+        requires,
     })
 }
 
@@ -522,13 +504,13 @@ fn decide_replace(
 ///
 /// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
 /// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
-/// - `EngineStats`：不看观察，这里只记下「要」，绑定由 `decide_begin` 在推进状态后用
-///   `engine_stats_artifact` 回填并追加 `Effect::WriteFile`（口径含本次 Attempt，D-29）。
+/// - `EngineStats`：不看观察，先绑 `None`；创建 Attempt 后由
+///   `prepare_attempt_delivery` 按含本次 Attempt 的状态生成统计并回填。
 /// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
 ///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
 ///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
 ///
-/// 返回逐条绑定（`EngineStats` 条目为占位 `None`）与「是否有 engine.stats 输入」。
+/// 返回逐条绑定（`EngineStats` 条目为占位 `None`）。
 type BoundInputs = BTreeMap<String, Option<ArtifactRef>>;
 
 fn bind_inputs(
@@ -536,13 +518,11 @@ fn bind_inputs(
     graph: &Graph,
     node: &NodeId,
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
-) -> Result<(BoundInputs, bool)> {
+) -> Result<BoundInputs> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
         reason: format!("节点 {node} 不在图里"),
     })?;
     let mut bound = BTreeMap::new();
-    // 是否有 engine.stats 输入。它的绑定由 `decide_begin` 在推进状态后回填（口径含本次 Attempt）。
-    let mut wants_stats = false;
     for decl in &def.inputs {
         let observed = observed_inputs.get(&decl.name).and_then(|o| o.as_ref());
         let artifact = match &decl.from {
@@ -565,11 +545,7 @@ fn bind_inputs(
                     bytes: obs.bytes,
                 })
             }
-            InputSource::EngineStats => {
-                // 占位，由 decide_begin 在推进状态后统一回填。
-                wants_stats = true;
-                None
-            }
+            InputSource::EngineStats => None,
             InputSource::Node { node: src, output } => match state
                 .latest_succeeded_of(src)
                 .and_then(|a| a.outputs.get(output))
@@ -588,7 +564,7 @@ fn bind_inputs(
         };
         bound.insert(decl.name.clone(), artifact);
     }
-    Ok((bound, wants_stats))
+    Ok(bound)
 }
 
 fn bind_frozen_input(

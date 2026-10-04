@@ -5,26 +5,15 @@
 //! 期望值（诊断措辞、门禁条件）由本文件写死，不调用 check-specs 的解析逻辑。
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+mod common;
+
+use common::copy_dir;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            fs::copy(&from, &to).unwrap();
-        }
-    }
 }
 
 fn write_fixture_file(root: &Path, name: &str, text: &str) {
@@ -155,7 +144,7 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
 fn copy_governance_tree(base: &Path) -> PathBuf {
     let tree = base.join("gov");
     for name in ["scripts", ".github"] {
-        copy_tree(&repo_root().join(name), &tree.join(name));
+        copy_dir(&repo_root().join(name), &tree.join(name));
     }
     fs::create_dir_all(&tree).unwrap();
     for name in [".pre-commit-config.yaml", "AGENTS.md", "Cargo.toml"] {
