@@ -107,6 +107,8 @@ Sheltie 把这批机械活固定下来。人把做事方法写成一份 **Workbo
 
 ### 5.5 Workbook 与宿主接入
 
+`GF-34` **可视化作者工具。** 未发布外围网页工具用于新建/编辑Workbook源码副本。用户选择目录后，在节点画布编辑显式Flow与说明/输入/输出；高级声明保持。画布布局只属于视图，不写入Workbook格式或Work状态。最终结构校验通过可信公开CLI在工具自有临时Home装入同一字节集合；保存产生新的完整ZIP副本，解压后可重新打开，不直接覆盖作者源、已装版本或Work冻结副本。工具本地监听、读取用户选择的文件，超限/未知格式/不完整校验清楚拒绝；引擎CLI/Store及workbook/v1、flow/v1保持。
+
 `GF-17` **Workbook 独立发布与本机生命周期。** Workbook 是一个目录：`workbook.toml` 加若干 Flow、说明文件与可选的 `resources/`。可在任何仓库编写。`sheltie workbook add <dir>` 先复制到私有暂存，再只依据最终副本校验并登记身份与摘要；不执行脚本、不调模型、不联网。源目录在复制期间变化导致副本不合规时拒绝；若最终副本仍完整且合法，则登记它的实际字节，不声称能识别已恢复原样的瞬时源变化。`workbook remove` 删一个版本，有未结束的 Work 引用时拒绝；`workbook verify` 发现有人改过已装目录。升级就是装新版本，旧版本留到手工删除。每个 Work 在开始时拿走一份 Workbook 副本，复制后重新核验，之后只读副本，删除与升级不影响已开始的 Work。`workbook add` 与 `remove` 同样支持 `request_id` 重放语义。
 
 `GF-27` **自我安装与升级。** `self`只写`~/.sheltie`，不写shell配置。升级按固定tag核资产、校验后替换并保留回滚版本。默认uninstall保留Store/Workbook/Work；确认purge删除全部用户数据和binary，但保留空管理根与原`.lock`。`self`不支持request_id。

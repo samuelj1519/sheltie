@@ -20,6 +20,8 @@
 
 引擎三个 crate，依赖单向向下：`sheltie-cli → sheltie-runtime → sheltie-core`。
 
+外围作者工具 `tools/workbook-editor/` 是独立Node本地网页，不进入引擎crate或发布资产。浏览器文件map用于编辑和ZIP副本；服务端只在本次自有临时目录物化草稿，再用可信公开CLI与新临时Home作最终结构校验。它不直接访问Store、作者源目录或运行冻结副本；状态仍只由引擎负责。布局留在浏览器，常用字段/高级声明按Workbook合同保真。
+
 | crate | 职责 | 禁止 |
 | --- | --- | --- |
 | `sheltie-core` | 类型、TOML 解析、图编译、`decide` 状态机、`legal_next`、状态卡渲染 | 任何 I/O。不出现 `std::fs`、`std::time::SystemTime::now`、随机数、SQLite。时间与 ID 从参数传进来 |

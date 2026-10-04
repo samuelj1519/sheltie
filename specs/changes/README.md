@@ -1,7 +1,7 @@
 # Change 索引
 
 当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
-Active change：无
+Active change：[`C011 Workbook可视化作者工具`](active/C011-workbook-visual-editor/README.md)
 
 C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
 
@@ -16,7 +16,7 @@ C002与C004当前恢复采用范围已完成，C005当前技术及负前检已�
 
 ## Active
 
-无。
+[C011 Workbook可视化作者工具](active/C011-workbook-visual-editor/README.md)。用户提出真实开发任务并限定本轮可用性验收；一次只执行此package，其他真实任务随后处理。
 
 ## Completed
 

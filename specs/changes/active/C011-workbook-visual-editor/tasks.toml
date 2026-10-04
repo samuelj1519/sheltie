@@ -1,0 +1,14 @@
+[C011-T01]
+files = ["specs/changes/active/C011-workbook-visual-editor", "specs/README.md", "specs/changes/README.md", "specs/spec.md", "specs/architecture.md", "specs/contracts/workbook.md"]
+test_files = []
+allow_test_changes = false
+
+[C011-T02]
+files = ["specs/changes/active/C011-workbook-visual-editor", "tools/workbook-editor"]
+test_files = ["tools/workbook-editor/tests"]
+allow_test_changes = true
+
+[C011-T03]
+files = ["specs/changes/active/C011-workbook-visual-editor", "specs/changes/completed/C011-workbook-visual-editor", "specs/README.md", "specs/changes/README.md"]
+test_files = []
+allow_test_changes = false
