@@ -1,0 +1,14 @@
+[C009-T01]
+files = ["specs/changes/active/C009-project-simplification", "specs/README.md", "specs/changes/README.md", "specs/spec.md", "specs/changes/completed/C006-result-delivery/README.md", "specs/changes/completed/C007-pre-run-workbook-generation/README.md"]
+test_files = []
+allow_test_changes = false
+
+[C009-T02]
+files = ["specs/changes/active/C009-project-simplification", "specs/releases/v0.1.0/plan.md", "crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/store/mod.rs", "crates/sheltie-runtime/src/pending.rs", "crates/sheltie-runtime/src/workbook_repo.rs", "crates/sheltie-runtime/src/home.rs", "crates/sheltie-runtime/src/observe.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-cli/src/output.rs", "crates/sheltie-cli/src/commands/attempt.rs"]
+test_files = ["crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/decide.rs", "crates/sheltie-runtime/src/store/tests.rs", "crates/sheltie-runtime/src/fsx.rs", "crates/sheltie-runtime/src/pending.rs", "crates/sheltie-runtime/src/session.rs", "crates/sheltie-runtime/tests/common/mod.rs", "crates/sheltie-runtime/tests/common/snapshot.rs", "crates/sheltie-runtime/tests/common/init.rs", "crates/sheltie-runtime/tests/home_observe.rs", "crates/sheltie-runtime/tests/workbook_repo.rs", "crates/sheltie-runtime/tests/selfmgmt.rs", "crates/sheltie-runtime/tests/write_session.rs", "crates/sheltie-cli/tests/attempt.rs", "crates/sheltie-cli/tests/workbook.rs", "crates/sheltie-cli/tests/scenario_workbook_lifecycle.rs", "crates/sheltie-cli/tests/release_governance.rs", "crates/sheltie-cli/tests/skill_delivery.rs", "crates/sheltie-cli/tests/common/mod.rs", "crates/sheltie-cli/tests/common/spec_dev_replan.rs", "crates/sheltie-cli/tests/scenario_spec_dev.rs", "crates/sheltie-cli/tests/strict_state.rs", "crates/sheltie-cli/tests/snapshot_qualification.rs", "crates/sheltie-cli/tests/reliability_crash.rs", "crates/sheltie-export/tests/crash.rs", "crates/sheltie-export/tests/common/mod.rs"]
+allow_test_changes = true
+
+[C009-T03]
+files = ["specs/changes/active/C009-project-simplification", "specs/changes/completed/C009-project-simplification", "specs/README.md", "specs/changes/README.md"]
+test_files = []
+allow_test_changes = false

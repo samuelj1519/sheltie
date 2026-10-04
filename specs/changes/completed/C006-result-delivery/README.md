@@ -23,7 +23,7 @@ Owner：`Codex /root`
 2. [C007 共同体验实验](../../completed/C007-pre-run-workbook-generation/README.md)或真实使用证明用户需要文件副本，且人工复制和核对有值得消除的成本。仅需要结果指针或 commit 引用时不采用。
 3. 人指定 Owner、独立 Reviewer 与支持平台。首个支持平台为当前发布平台 `aarch64-apple-darwin`，必须实测整目录原子不替换发布。
 
-本方案不依赖 C005 或 C008。已移入 `active/`，T01 先同步上游合同；实现和真实使用按 plan/validation。开发授权不代表已发生真实复制摩擦。
+本方案不依赖 C005 或 C008。实现与当前限定验收已完成并归档；具体范围见 plan/validation。开发授权不代表已发生真实复制摩擦。
 
 ## 成功判据
 
