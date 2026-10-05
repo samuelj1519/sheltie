@@ -1,8 +1,6 @@
 # Sheltie product specification
 
-English | [简体中文](spec.zh-CN.md)
-
-This is the sole source of product semantics; architecture, contracts, and plans derive from it. See [constitution](constitution.md), [architecture](architecture.md), and [roadmap](roadmap.md). Must states the adopted target, not implementation completion. Current release/change/progress entry points are in the [map](README.md); MVP history is in [v0.1.0 archive](../docs/reference/releases/v0.1.0/README.md).
+This is the sole source of product semantics; architecture, contracts, and plans derive from it. See [constitution](constitution.md), [architecture](architecture.md), and [roadmap](roadmap.md). Must states the adopted target, not implementation completion. Current release/change/progress entry points are in the [map](README.md); MVP history is in [v0.1.0 archive](../docs/en/reference/releases/v0.1.0/README.md).
 
 ## 1. Problem
 
@@ -16,7 +14,7 @@ Assess product value through total investment and final quality during method re
 
 Current commitments/acceptance cover adopted local macOS aarch64/APFS scenarios, including representable names/paths, legal Han names, Workbooks, and exported copies. Other platforms/filesystems and external physical-device qualification require separately adopted demand.
 
-Non-UTF-8 names APFS cannot create are not mandatory live inputs. Preserve accurate invalid argument/name/path rejection contracts/tests. External physical-drive tests do not block local APFS delivery. Scope restrictions neither convert unrun tests into passes nor introduce runtime filesystem admission. Adopt explicit scope/real environments before extending verification ([D-044](../docs/explanation/decisions/D-044-macos-apfs-product-scope.md)).
+Non-UTF-8 names APFS cannot create are not mandatory live inputs. Preserve accurate invalid argument/name/path rejection contracts/tests. External physical-drive tests do not block local APFS delivery. Scope restrictions neither convert unrun tests into passes nor introduce runtime filesystem admission. Adopt explicit scope/real environments before extending verification ([D-044](../docs/en/explanation/decisions/D-044-macos-apfs-product-scope.md)).
 
 ## 2. Success
 
@@ -65,7 +63,7 @@ The engine never interprets document contents. It knows execution finished, file
 
 ## 5. Capability requirements
 
-GF identifiers connect architecture/contracts/tests. These requirements are adopted unless marked roadmap. See [implementation](../docs/reference/implementation.md) and [acceptance](../docs/reference/acceptance.md) for actual evidence/scope.
+GF identifiers connect architecture/contracts/tests. These requirements are adopted unless marked roadmap. See [implementation](../docs/en/reference/implementation.md) and [acceptance](../docs/en/reference/acceptance.md) for actual evidence/scope.
 
 ### 5.1 General engine
 

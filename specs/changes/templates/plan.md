@@ -1,7 +1,5 @@
 # Cnnn implementation plan
 
-English | [简体中文](plan.zh-CN.md)
-
 Use only todo/doing/blocked/done. Done requires candidate-bound validation with the current input closure; design PASS or an existing commit is not completion.
 
 | ID | Status | Owner | Dependencies | Result |

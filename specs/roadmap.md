@@ -1,8 +1,6 @@
 # Product roadmap
 
-English | [简体中文](roadmap.zh-CN.md)
-
-This document defines unadopted directions, demand conditions, and priorities. Current behavior comes from [specification](spec.md), [contracts](contracts), and [releases](../docs/reference/releases/README.md); candidate entry points are in [changes](changes/README.md).
+This document defines unadopted directions, demand conditions, and priorities. Current behavior comes from [specification](spec.md), [contracts](contracts), and [releases](../docs/en/reference/releases/README.md); candidate entry points are in [changes](changes/README.md).
 
 ## 1. Product goal and first users
 
@@ -22,7 +20,7 @@ Graphs express stable stages; agents independently investigate/subdivide within 
 
 The development line has explicit results, reliable resume, administrative revocation, exported copies, and local visual authoring. Specifications/contracts define behavior; [changes](changes/README.md) locate design/evidence. These are not collectively released as v0.3.0.
 
-Choose next work from actual friction/quality: first-use/reuse value, real revocation incidents, sustained copy-editing savings, and authoring costs. Usability facts are not complete cost/fair-comparison/net-benefit evidence. See [limitations](../docs/reference/limitations.md) and [evaluation](../docs/how-to/evaluate-workflows.md).
+Choose next work from actual friction/quality: first-use/reuse value, real revocation incidents, sustained copy-editing savings, and authoring costs. Usability facts are not complete cost/fair-comparison/net-benefit evidence. See [limitations](../docs/en/reference/limitations.md) and [evaluation](../docs/en/how-to/evaluate-workflows.md).
 
 Read-only host preflight is unadopted. Build one bounded probe only when genuine requires, stable host rules, and repetitive checking costs justify it. Otherwise retain manual checks rather than create a resource platform. People adopt one active package at a time.
 

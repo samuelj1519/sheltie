@@ -41,10 +41,10 @@ fn final_validation(result: &str) -> String {
 }
 
 fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
-    write_fixture_file(root, "docs/explanation/decisions/mvp.md", "# MVP\n");
+    write_fixture_file(root, "docs/en/explanation/decisions/mvp.md", "# MVP\n");
     write_fixture_file(
         root,
-        "docs/history/changes/README.md",
+        "docs/en/history/changes/README.md",
         "# Historical changes\n",
     );
     for state in ["proposed", "active", "completed", "rejected"] {
@@ -98,7 +98,7 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
     );
     write_fixture_file(
         root,
-        "docs/explanation/decisions/README.md",
+        "docs/en/explanation/decisions/README.md",
         "# ADR index\n",
     );
     write_fixture_file(
@@ -132,7 +132,7 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
         Lifecycle::CompletedC002 => &["0.1.0", "0.2.0"][..],
     };
     for version in versions {
-        let release = format!("docs/reference/releases/v{version}");
+        let release = format!("docs/en/reference/releases/v{version}");
         write_fixture_file(
             root,
             &format!("{release}/README.md"),
@@ -148,7 +148,7 @@ fn setup_lifecycle(root: &Path, lifecycle: Lifecycle) {
         }
         release_index.push_str(&format!("\n[v{version}](v{version}/README.md)\n"));
     }
-    write_fixture_file(root, "docs/reference/releases/README.md", &release_index);
+    write_fixture_file(root, "docs/en/reference/releases/README.md", &release_index);
 }
 
 fn copy_governance_tree(base: &Path) -> PathBuf {
@@ -284,7 +284,7 @@ fn rewrite_commits(text: &str, to: &str) -> String {
 }
 
 fn rewrite_release_commits(root: &Path, to: &str) {
-    for entry in fs::read_dir(root.join("docs/reference/releases")).unwrap() {
+    for entry in fs::read_dir(root.join("docs/en/reference/releases")).unwrap() {
         let readme = entry.unwrap().path().join("README.md");
         if !readme.is_file() {
             continue;
@@ -763,11 +763,13 @@ fn compact_completed(fx: &Fixture, snapshot: &str) {
     for file in ["plan.md", "validation.md", "review.md", "tasks.toml"] {
         fs::remove_file(package.join(file)).unwrap();
     }
-    let archive = fx.root.join("docs/history/changes/C002-v0.2.0-reliability");
+    let archive = fx
+        .root
+        .join("docs/en/history/changes/C002-v0.2.0-reliability");
     fs::rename(package, archive).unwrap();
     write_fixture_file(
         &fx.root,
-        "docs/history/changes/README.md",
+        "docs/en/history/changes/README.md",
         "# Historical changes\n\n[C002](C002-v0.2.0-reliability/README.md)\n",
     );
 }

@@ -1,7 +1,5 @@
 # Cnnn validation
 
-English | [简体中文](validation.zh-CN.md)
-
 Candidate: `<hash | none>`
 
 | Requirement / risk | Mode | Input closure | Command / raw run ID | Result | Evidence |

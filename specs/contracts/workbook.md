@@ -1,7 +1,5 @@
 # Workbook and Flow formats
 
-English | [简体中文](workbook.zh-CN.md)
-
 This contract defines Workbook directories, `workbook.toml`, Flow files, and loading validation. Initial format versions are `workbook/v1` and `flow/v1`. **Every object rejects unknown fields.**
 
 ## 1. Directory

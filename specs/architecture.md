@@ -1,8 +1,6 @@
 # Implementation architecture constraints
 
-English | [简体中文](architecture.zh-CN.md)
-
-This document defines mandatory layering, state, reading, and file-effect boundaries. The [specification](spec.md) defines semantics; [contracts](contracts/README.md) define exact fields and ordering. See [architecture explanation](../docs/explanation/architecture.md), [source tour](../docs/explanation/source-tour.md), and [data model](../docs/reference/data-model.md) for rationale and locations.
+This document defines mandatory layering, state, reading, and file-effect boundaries. The [specification](spec.md) defines semantics; [contracts](contracts/README.md) define exact fields and ordering. See [architecture explanation](../docs/en/explanation/architecture.md), [source tour](../docs/en/explanation/source-tour.md), and [data model](../docs/en/reference/data-model.md) for rationale and locations.
 
 ## 1. Layers and write boundaries
 
@@ -50,4 +48,4 @@ External export first strictly validates one final selection, receives each orig
 
 ## 6. Verification obligations
 
-Engineering rules, core-vocab, and actual layer tests verify invariants and vocabulary boundaries. Identity, bytes, concurrent reads, pre/postcommit recovery, and successor consumers are separate obligations; simplification must retain their independent oracles. See [implementation baseline](../docs/reference/implementation.md) and [acceptance boundaries](../docs/reference/acceptance.md).
+Engineering rules, core-vocab, and actual layer tests verify invariants and vocabulary boundaries. Identity, bytes, concurrent reads, pre/postcommit recovery, and successor consumers are separate obligations; simplification must retain their independent oracles. See [implementation baseline](../docs/en/reference/implementation.md) and [acceptance boundaries](../docs/en/reference/acceptance.md).

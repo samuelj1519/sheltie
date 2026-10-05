@@ -1,7 +1,5 @@
 # Public operations, status cards, and errors
 
-English | [简体中文](protocol.zh-CN.md)
-
 This contract defines every engine operation available to coordinators and people. MVP exposes CLI only; a future MCP interface is a thin wrapper over the same operations ([roadmap](../roadmap.md)). Response format is `cli-result/v4`: every Work/Workbook write-response field comes from its commit-time snapshot; CLI must not reread postcommit state to assemble data.
 
 ## 1. Global conventions
@@ -52,7 +50,7 @@ Work accepts a full ID (2026-09-24-001-article) or unique prefix (2026-09-24-001
 
 ### `self` group
 
-Install copies std::env::current_exe() to bin/sheltie, creating root/parents before store.db. Identical existing bytes return data.already_installed=true ([storage §9](storage.md); [MVP D-31](../../docs/explanation/decisions/mvp.md)). Print one hint to add ~/.sheltie/bin to PATH; never write shell configuration (INV-3).
+Install copies std::env::current_exe() to bin/sheltie, creating root/parents before store.db. Identical existing bytes return data.already_installed=true ([storage §9](storage.md); [MVP D-31](../../docs/en/explanation/decisions/mvp.md)). Print one hint to add ~/.sheltie/bin to PATH; never write shell configuration (INV-3).
 
 Update fixes release identity first: omitted version selects latest; explicit version pins tag v<v>; manifest/assets come from that same tag. Follow storage §9: download to tmp/, verify sha256, move sheltie to sheltie.prev, rename new file into place. Missing platform/version release returns UPDATE_UNAVAILABLE. Digest mismatch returns UPDATE_CHECKSUM_MISMATCH and deletes download. Success returns {from,to}; already latest returns data.up_to_date=true.
 

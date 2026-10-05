@@ -223,16 +223,10 @@ fn assert_delivery_resolves(dir: &Path) {
         ("SKILL.md", "references/protocol.md"),
         ("SKILL.md", "references/workbook.md"),
         ("SKILL.zh-CN.md", "SKILL.md"),
-        ("SKILL.zh-CN.md", "references/protocol.zh-CN.md"),
-        ("SKILL.zh-CN.md", "references/workbook.zh-CN.md"),
-        ("references/protocol.md", "protocol.zh-CN.md"),
+        ("SKILL.zh-CN.md", "references/protocol.md"),
+        ("SKILL.zh-CN.md", "references/workbook.md"),
         ("references/protocol.md", "workbook.md"),
-        ("references/protocol.zh-CN.md", "protocol.md"),
-        ("references/protocol.zh-CN.md", "workbook.zh-CN.md"),
-        ("references/workbook.md", "workbook.zh-CN.md"),
         ("references/workbook.md", "protocol.md"),
-        ("references/workbook.zh-CN.md", "workbook.md"),
-        ("references/workbook.zh-CN.md", "protocol.zh-CN.md"),
     ]
     .into_iter()
     .map(|(from, to)| (from.to_string(), to.to_string()))
@@ -241,7 +235,7 @@ fn assert_delivery_resolves(dir: &Path) {
 
     for (skill_file, protocol_file) in [
         ("SKILL.md", "protocol.md"),
-        ("SKILL.zh-CN.md", "protocol.zh-CN.md"),
+        ("SKILL.zh-CN.md", "protocol.md"),
     ] {
         let skill = fs::read_to_string(dir.join(skill_file)).unwrap();
         let protocol = fs::read_to_string(dir.join("references").join(protocol_file)).unwrap();
@@ -290,12 +284,7 @@ fn generated_reference_keeps_authority_prose_verbatim() {
     let tmp = tempfile::tempdir().unwrap();
     let tree = temp_source_tree(tmp.path());
     let dist = pack_in_tree(&tree);
-    for name in [
-        "protocol.md",
-        "protocol.zh-CN.md",
-        "workbook.md",
-        "workbook.zh-CN.md",
-    ] {
+    for name in ["protocol.md", "workbook.md"] {
         let authority = fs::read_to_string(tree.join("specs/contracts").join(name)).unwrap();
         let generated = fs::read_to_string(dist.join("references").join(name)).unwrap();
         assert_eq!(
@@ -318,15 +307,13 @@ fn installed_delivery_stays_self_contained_after_source_tree_is_removed() {
     );
     assert!(out.status.success(), "{}", out_text(&out));
 
-    // Handwritten closure: both skill languages and four generated contract references
+    // Handwritten closure: both skill languages share the two English authority contracts.
     let files = file_set(&dist);
     let expected: BTreeSet<String> = [
         "SKILL.md".to_string(),
         "SKILL.zh-CN.md".to_string(),
         "references/protocol.md".to_string(),
-        "references/protocol.zh-CN.md".to_string(),
         "references/workbook.md".to_string(),
-        "references/workbook.zh-CN.md".to_string(),
     ]
     .into_iter()
     .collect();
@@ -373,9 +360,7 @@ fn release_tarball_matches_readme_install_shape() {
             "sheltie/SKILL.md",
             "sheltie/SKILL.zh-CN.md",
             "sheltie/references/protocol.md",
-            "sheltie/references/protocol.zh-CN.md",
             "sheltie/references/workbook.md",
-            "sheltie/references/workbook.zh-CN.md"
         ]
     );
 

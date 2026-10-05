@@ -1,7 +1,5 @@
 # Sheltie domain vocabulary
 
-English | [简体中文](CONTEXT.zh-CN.md)
-
 Shared language for the repository. Each concept has one name, used consistently in documentation and code.
 
 ## Naming

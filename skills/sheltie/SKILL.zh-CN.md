@@ -128,4 +128,4 @@ Sheltie 是本地工作流引擎：它记状态、发任务书、限定合法下
 
 ## 细节
 
-每条命令的参数、任务书格式、错误码见 [协议合同](../../specs/contracts/protocol.zh-CN.md)；Workbook 怎么写见 [Workbook 合同](../../specs/contracts/workbook.zh-CN.md)。
+每条命令的参数、任务书格式、错误码见 [协议合同](../../specs/contracts/protocol.md)；Workbook 怎么写见 [Workbook 合同](../../specs/contracts/workbook.md)。

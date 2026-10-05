@@ -1,7 +1,5 @@
 # Storage, transactions, and recovery
 
-English | [简体中文](storage.zh-CN.md)
-
 This contract defines persistence and writes under ~/.sheltie. SQLite is the sole state authority (INV-7); directories contain projections or artifacts. Schema version is 4. Reject schema1/2/3 stores completely without migration or clearing (D-033).
 
 ## 1. SQLite
@@ -80,7 +78,7 @@ Store::read_work_bundle for status/result obtains WorkRow and complete requests/
 
 Locate frozen original from Start snapshot/publication registration in that bundle; validate Workbook identity, graph, gates, paths, historical responses, and effects. Never combine newer state from another connection. After concurrent publication, a verified final original may be read while preserving snapshot effect facts. A snapshot-unpublished Start requires owner validation whether reading pending or final; completed-cleanup exceptions cannot bypass it. If concurrent publication and owner cleanup finish, boundedly refetch the complete bundle and strictly reload; never splice versions. Result projections take explicit state/graph/revision/effects_pending parameters, adding no state source.
 
-Schema4 has number/superseded/replacement_reason and one strict new-response payload. Preserve/reject old schema1/2/3 without migration. Result/resume adoption remains D-040; replacement format is [D-041](../../docs/explanation/decisions/D-041-attempt-number-and-replacement.md). Directory digests and existing write/effect formats remain unchanged.
+Schema4 has number/superseded/replacement_reason and one strict new-response payload. Preserve/reject old schema1/2/3 without migration. Result/resume adoption remains D-040; replacement format is [D-041](../../docs/en/explanation/decisions/D-041-attempt-number-and-replacement.md). Directory digests and existing write/effect formats remain unchanged.
 
 ## 2. Writes and locking
 

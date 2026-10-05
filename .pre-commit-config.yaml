@@ -36,7 +36,7 @@ repos:
         description: Change lifecycle, ADR, release, and agent entry stay consistent.
         entry: scripts/check-specs.sh
         language: script
-        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*|docs/(history|reference/releases|explanation/decisions)/.*)
+        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*|docs/(en|zh-CN)/(history|reference/releases|explanation/decisions)/.*)
         pass_filenames: false
       - id: check-skill
         name: check sheltie skill
@@ -51,6 +51,12 @@ repos:
         entry: python3 scripts/check-language.py
         language: system
         files: (\.md|\.rs|\.toml|\.mjs|\.html|\.css|\.sh|\.py|\.ya?ml|\.snap|scripts/language-exceptions\.json)$
+        pass_filenames: false
+      - id: check-wiki
+        name: check bilingual Wiki source and exporter
+        entry: bash -c 'python3 scripts/wiki.py check && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/tests -p test_wiki.py'
+        language: system
+        files: (docs/.*|specs/.*\.md|README(\.zh-CN)?\.md|scripts/(wiki\.py|tests/test_wiki\.py))$
         pass_filenames: false
       - id: check-core-vocab
         name: check engine vocabulary

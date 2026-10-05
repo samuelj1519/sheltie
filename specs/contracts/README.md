@@ -1,7 +1,5 @@
 # Exact contracts
 
-English | [简体中文](README.zh-CN.md)
-
 Method authors, CLI consumers, and source maintainers use this directory for fields, formats, commands, and rejection conditions. See the [specification](../spec.md) for product targets, [architecture](../architecture.md) for layers, and [CONTEXT](../../CONTEXT.md) for terminology.
 
 | Contract | Lookup | Main consumers |

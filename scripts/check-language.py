@@ -28,22 +28,38 @@ def main():
         path = ROOT / name
         if not path.is_file() or path.is_symlink() or path.suffix not in SOURCE_SUFFIXES:
             continue
-        if any(part.endswith("-zh-CN") for part in path.parts) or ".zh-CN." in path.name:
+        if name.startswith("docs/zh-CN/"):
+            counterpart = ROOT / "docs/en" / path.relative_to(ROOT / "docs/zh-CN")
+            if path.suffix == ".md" and not counterpart.is_file():
+                errors.append(f"{name}: missing English source document")
             continue
-        if "/C012-english-default/" in name and (
-            name.endswith("/inventory.md") or "/evidence/" in name
+        relative_parts = Path(name).parts
+        if (
+            relative_parts[0] in {"examples", "workbooks"}
+            and len(relative_parts) > 1
+            and relative_parts[1].endswith("-zh-CN")
         ):
             continue
+        if ".zh-CN." in path.name:
+            if name not in {"README.zh-CN.md", "skills/sheltie/SKILL.zh-CN.md"}:
+                errors.append(f"{name}: Chinese reader documents belong in docs/zh-CN")
+            continue
+        historical_inventory = name == "docs/en/history/changes/C012-english-default/inventory.md"
         text = path.read_text()
         for number, line in enumerate(text.splitlines(), 1):
-            if not HAN.search(line.replace("\u7b80\u4f53\u4e2d\u6587", "")):
+            if historical_inventory or not HAN.search(line.replace("\u7b80\u4f53\u4e2d\u6587", "")):
                 continue
             key = (name, line.strip())
             if key in exceptions:
                 seen.add(key)
             else:
                 errors.append(f"{name}:{number}: undeclared non-English source text")
-        localized = path.with_name(path.stem + ".zh-CN" + path.suffix)
+        if name.startswith("docs/en/") and path.suffix == ".md":
+            localized = ROOT / "docs/zh-CN" / path.relative_to(ROOT / "docs/en")
+            if not localized.is_file():
+                errors.append(f"{name}: missing Chinese reader document")
+        else:
+            localized = path.with_name(path.stem + ".zh-CN" + path.suffix)
         if path.suffix == ".md" and localized.exists() and path.name != "CLAUDE.md":
             counterpart = localized.read_text()
             english = re.findall(r"\[English\]\(([^)]+)\)", counterpart)

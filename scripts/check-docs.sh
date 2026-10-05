@@ -35,7 +35,7 @@ if grep -nE "$blacklist" $files; then
 fi
 
 # 3. Decision IDs must be unique so D-nn references are unambiguous.
-dup=$(grep -oE '^## D-[0-9]+' docs/explanation/decisions/mvp.md | sort | uniq -d || true)
+dup=$(grep -oE '^## D-[0-9]+' docs/en/explanation/decisions/mvp.md | sort | uniq -d || true)
 if [ -n "$dup" ]; then
 	echo "Duplicate decision IDs: ${dup}"
 	status=1

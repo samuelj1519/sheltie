@@ -1,7 +1,5 @@
 # Engineering rules
 
-English | [简体中文](engineering.zh-CN.md)
-
 For people and agents writing code or documentation, or reviewing this repository. Readers know Rust but may be new to Sheltie. This document defines how to work; product semantics are in the [specification](spec.md), and mechanisms in the [architecture](architecture.md) and [contracts](contracts).
 
 ## 1. Specifications before code
@@ -11,13 +9,13 @@ For people and agents writing code or documentation, or reviewing this repositor
 3. Specifications describe the target, not execution progress. Only the active plan's task states and Git history describe implementation progress. When no change is active, do not independently implement proposed packages. Do not present planned capabilities as supported.
 4. Define each fact once and link to it elsewhere. `scripts/check-docs.sh` checks links and prohibited wording.
 
-An unreleased Cargo candidate's base version comes only from the `Development target` field on the first screen of the [specification index](README.md). Numeric active product targets must match it. Completed changes, non-product experiments, and the absence of an active change do not turn a candidate into a release. Verify released versions against the release/tag/history and CHANGELOG; see [D-043](../docs/explanation/decisions/D-043-development-target-authority.md).
+An unreleased Cargo candidate's base version comes only from the `Development target` field on the first screen of the [specification index](README.md). Numeric active product targets must match it. Completed changes, non-product experiments, and the absence of an active change do not turn a candidate into a release. Verify released versions against the release/tag/history and CHANGELOG; see [D-043](../docs/en/explanation/decisions/D-043-development-target-authority.md).
 
 ## 2. Rust conventions
 
 ### 2.1 Workspace
 
-See [implementation entry points](../docs/reference/implementation.md) for directories and sources. Manage dependencies in `[workspace.dependencies]`; release configuration is in root Cargo.toml, and changes must verify actual distribution consumers.
+See [implementation entry points](../docs/en/reference/implementation.md) for directories and sources. Manage dependencies in `[workspace.dependencies]`; release configuration is in root Cargo.toml, and changes must verify actual distribution consumers.
 
 Engine dependencies flow only downward: `cli → runtime → core`. The exporter may depend on pure core and shared safety libraries, not runtime. `sheltie-core`'s Cargo.toml must not contain `rusqlite`, `tokio`, `rand`, or filesystem/clock libraries.
 
@@ -58,7 +56,7 @@ Also available: `cargo deny check` (dependency licenses and advisories), `script
 
 ### 3.1 Cycle
 
-Follow [complete behavior implementation](../docs/how-to/implement-change.md) to prepare interfaces, independent expectations, and real consumers. A capable model or equivalently experienced author prepares high-risk primitives and necessary tests; implementers complete bounded work on frozen interfaces; a Reviewer who did not prepare or implement them checks the resulting behavior.
+Follow [complete behavior implementation](../docs/en/how-to/implement-change.md) to prepare interfaces, independent expectations, and real consumers. A capable model or equivalently experienced author prepares high-risk primitives and necessary tests; implementers complete bounded work on frozen interfaces; a Reviewer who did not prepare or implement them checks the resulting behavior.
 
 Reproduce a defect first, or establish the expected failure for new behavior, then implement and verify. Compilation failure, environment denial, and zero tests do not establish a behavioral red result.
 
@@ -132,12 +130,12 @@ Conclusions: PASS, changes required (each finding and authority), or BLOCKED (mi
 
 Wording cleanup must not silently change frozen tests. Necessary changes require independent verification against contracts and baselines, then refreezing under the task plan. MVP tNN-review applies only to historical tasks.
 
-The plan defines task/milestone review scope. Store final review, candidate hash, and input closure in package review/validation. After completion, follow [documentation maintenance](../docs/how-to/maintain-docs.md); original qualification remains verifiable.
+The plan defines task/milestone review scope. Store final review, candidate hash, and input closure in package review/validation. After completion, follow [documentation maintenance](../docs/en/how-to/maintain-docs.md); original qualification remains verifiable.
 
 ## 6. Documentation
 
-- English is the default. Use short sentences, one idea per paragraph, and [CONTEXT.md](../CONTEXT.md) terminology. Retain Chinese translations of user documentation, specifications, and methods through explicit language navigation.
-- Paired Markdown documents use `name.md` and `name.zh-CN.md`. The English document is the default authority; translations must preserve every requirement, limit, exclusion, and evidence status. For current semantic changes, update both variants. Original historical evidence remains verbatim.
+- English is the default. Use short sentences, one idea per paragraph, and [CONTEXT.md](../CONTEXT.md) terminology. Maintain Chinese reader versions only in docs and the root README. Specifications, repository instructions, changelogs, and tool guides elsewhere have one English version. Retain explicit Chinese Workbook and skill instructions; keep method resources actually consumed by agents, including the Chinese spec-dev README revision history.
+- Reader docs use matching `docs/en/<path>.md` and `docs/zh-CN/<path>.md` files; the root README uses `README.md` and `README.zh-CN.md`. Provide reciprocal language navigation. The English document is the default authority; translations must preserve every requirement, limit, exclusion, and evidence status. For semantic changes to a maintained reader pair, update both variants. Original historical evidence remains verbatim.
 - Commands, paths, fields, and error codes use code formatting and actual symbols, without paraphrased identifiers.
 - Tables compare parallel items; numbered lists describe sequential steps.
 - Must and must not express requirements/prohibitions; may expresses an option. Avoid approximate requirements.

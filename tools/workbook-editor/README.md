@@ -1,7 +1,5 @@
 # Workbook editor
 
-English | [简体中文](README.zh-CN.md)
-
 An unreleased local web tool for creating Workbooks, opening directories, editing Flows/nodes, and downloading complete new ZIP copies. Requires Node.js 22 or later and a trusted `sheltie` binary from the current development source.
 
 ## Start

@@ -1,7 +1,5 @@
 # Sheltie constitution
 
-English | [简体中文](constitution.zh-CN.md)
-
 This is the shortest and most stable authority. It defines why Sheltie exists and which rules no version may break. It takes precedence over conflicting documents. Amend this document before changing rules elsewhere.
 
 ## 1. One sentence

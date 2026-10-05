@@ -1,7 +1,5 @@
 # Cnnn: <title>
 
-English | [简体中文](change-readme.zh-CN.md)
-
 Status: `proposed`
 Target version: `undecided`
 Compatibility: `patch | minor | breaking | none`

@@ -1,7 +1,5 @@
 # Cnnn independent review
 
-English | [简体中文](review.zh-CN.md)
-
 Conclusion: `PASS | FAIL | BLOCKED`
 Reviewer: `<person or agent who did not implement>`
 Candidate: `<hash | SELF>`

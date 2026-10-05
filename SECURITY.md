@@ -4,7 +4,7 @@ Sheltie's file confinement, frozen artifacts, request replay, persistence, and r
 
 ## Versions and environment
 
-The latest documented release is v0.2.0 for macOS aarch64. The current `0.3.0-rc.1` source is an unreleased candidate. See [release records](docs/reference/releases/README.md) and [limitations](docs/reference/limitations.md) for precise scope; the project does not promise a maintenance period or response SLA.
+The latest documented release is v0.2.0 for macOS aarch64. The current `0.3.0-rc.1` source is an unreleased candidate. See [release records](docs/en/reference/releases/README.md) and [limitations](docs/en/reference/limitations.md) for precise scope; the project does not promise a maintenance period or response SLA.
 
 ## Report a vulnerability
 

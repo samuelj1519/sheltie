@@ -29,11 +29,11 @@ for path in \
 	specs/changes/active \
 	specs/changes/completed \
 	specs/changes/rejected \
-	docs/explanation/decisions/README.md \
-	docs/reference/releases/README.md \
-	docs/reference/releases/v0.1.0/README.md \
-	docs/explanation/decisions/mvp.md \
-	docs/history/changes/README.md; do
+	docs/en/explanation/decisions/README.md \
+	docs/en/reference/releases/README.md \
+	docs/en/reference/releases/v0.1.0/README.md \
+	docs/en/explanation/decisions/mvp.md \
+	docs/en/history/changes/README.md; do
 	[ -e "$path" ] || fail "missing $path"
 done
 
@@ -47,7 +47,7 @@ if [ -n "$outdated_release_refs" ]; then
 	fail "documentation still references obsolete release-record paths"
 fi
 
-packages="$(find specs/changes/proposed specs/changes/active specs/changes/completed specs/changes/rejected docs/history/changes \
+packages="$(find specs/changes/proposed specs/changes/active specs/changes/completed specs/changes/rejected docs/en/history/changes \
 	-mindepth 1 -maxdepth 1 -type d -name 'C*' | sort)"
 
 ids=""
@@ -57,7 +57,7 @@ while IFS= read -r package; do
 	state="$(basename "$(dirname "$package")")"
 	index="specs/changes/README.md"
 	case "$package" in
-	docs/history/changes/*) state=completed; index="docs/history/changes/README.md" ;;
+	docs/en/history/changes/*) state=completed; index="docs/en/history/changes/README.md" ;;
 	esac
 	case "$name" in
 	C[0-9][0-9][0-9]-*) ;;
@@ -101,12 +101,12 @@ else
 	grep -q "$active_name" specs/changes/README.md || fail "change index does not link active package $active_name"
 fi
 
-for package in specs/changes/completed/C* docs/history/changes/C*; do
+for package in specs/changes/completed/C* docs/en/history/changes/C*; do
 	[ -d "$package" ] || continue
 	qualification="$package"
 	source_package="$package"
 	case "$package" in
-	docs/history/changes/*) source_package="specs/changes/completed/$(basename "$package")" ;;
+	docs/en/history/changes/*) source_package="specs/changes/completed/$(basename "$package")" ;;
 	esac
 	if grep -q '^Record form: `reference`$' "$package/README.md"; then
 		for section in "Changes and rationale" "Validation and limits" References; do
@@ -215,27 +215,27 @@ for package in specs/changes/rejected/C*; do
 	' "$package/README.md" | grep -Eq '\]\(|^none[.]?$' || fail "$package/README.md alternatives must link a replacement or state none"
 done
 
-adr_dups="$(find docs/explanation/decisions -maxdepth 1 -type f -name 'D-[0-9][0-9][0-9]-*.md' ! -name '*.zh-CN.md' \
+adr_dups="$(find docs/en/explanation/decisions -maxdepth 1 -type f -name 'D-[0-9][0-9][0-9]-*.md' ! -name '*.zh-CN.md' \
 	-exec basename {} \; | cut -d- -f1-2 | sort | uniq -d)"
 [ -z "$adr_dups" ] || fail "duplicate ADR IDs: $(printf '%s' "$adr_dups" | tr '\n' ' ')"
 
-for adr in docs/explanation/decisions/D-[0-9][0-9][0-9]-*.md; do
+for adr in docs/en/explanation/decisions/D-[0-9][0-9][0-9]-*.md; do
 	case "$adr" in *.zh-CN.md) continue ;; esac
 	[ -f "$adr" ] || continue
 	grep -Eq '^Status: `(proposed|accepted|rejected|deprecated|superseded by D-[0-9]{3})`' "$adr" ||
 		fail "$adr has an invalid status"
-	grep -qF "$(basename "$adr")" docs/explanation/decisions/README.md || fail "$adr is not listed in decisions/README.md"
+	grep -qF "$(basename "$adr")" docs/en/explanation/decisions/README.md || fail "$adr is not listed in decisions/README.md"
 	superseded="$(sed -n 's/^Status: `superseded by \(D-[0-9][0-9][0-9]\)`.*/\1/p' "$adr")"
-	if [ -n "$superseded" ] && ! find docs/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" ! -name "*.zh-CN.md" | grep -q .; then
+	if [ -n "$superseded" ] && ! find docs/en/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" ! -name "*.zh-CN.md" | grep -q .; then
 		fail "$adr references nonexistent $superseded"
 	elif [ -n "$superseded" ]; then
-		target="$(find docs/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" ! -name "*.zh-CN.md" | head -1)"
+		target="$(find docs/en/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" ! -name "*.zh-CN.md" | head -1)"
 		current="$(basename "$adr" | cut -d- -f1-2)"
 		grep -q "$current" "$target" || fail "$target does not link back to $current"
 	fi
 done
 
-for release in docs/reference/releases/v*/README.md; do
+for release in docs/en/reference/releases/v*/README.md; do
 	[ -f "$release" ] || continue
 	release_name="$(basename "$(dirname "$release")")"
 	tag="$(sed -n 's/^Git tag: `\([^`]*\)`.*/\1/p' "$release")"
@@ -247,7 +247,7 @@ for release in docs/reference/releases/v*/README.md; do
 	elif [ -n "$release_commit" ] && [ "$(git rev-list -n 1 "$tag")" != "$release_commit" ]; then
 		fail "$release Release commit does not match tag $tag"
 	fi
-	grep -qF "${release_name}/README.md" docs/reference/releases/README.md || fail "$release is not listed in releases/README.md"
+	grep -qF "${release_name}/README.md" docs/en/reference/releases/README.md || fail "$release is not listed in releases/README.md"
 	grep -Eq '^Release commit: `[0-9a-f]{40}`' "$release" || fail "$release is missing Release commit"
 	grep -Eq '^.+closure: `[0-9a-f]{40}`' "$release" || fail "$release is missing an acceptance-closure commit"
 	grep -q '^## Acceptance' "$release" || fail "$release is missing acceptance evidence"
@@ -283,7 +283,7 @@ if [ -z "$version" ]; then
 fi
 
 # The index defines the development target; active plans define progress, not version authority.
-current_release="docs/reference/releases/v${version}/README.md"
+current_release="docs/en/reference/releases/v${version}/README.md"
 development_target=""
 authority_valid=""
 base_pattern='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'

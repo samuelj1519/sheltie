@@ -2,83 +2,101 @@
 
 [English](README.md) | 简体中文
 
-当前源码开发候选为 `0.3.0-rc.1`，本开发线使用 schema 4，当前功能与限定验收见[实现基线](docs/reference/implementation.zh-CN.md)；尚未发布。下述远端安装是已发布的 v0.2.0；开发功能使用从当前源码构建的二进制与新的显式管理根，参见 [当前实施入口](specs/README.zh-CN.md)。
+**给协调者 agent 用的本地工作流引擎，支持中断后续接。**
 
-v0.2.0 的发布范围为 macOS aarch64；其余平台按用户决定排除，以后有需求再增加，历史 v0.1.0 Linux 资产保持原样。
+人把做事方法写成 **Workbook**：TOML 图加自然语言说明。一次运行称为 **Work**。Sheltie 明确记录状态、任务书、输入、输出和合法下一步，协调者负责派发任务并判断成果。
 
-本地运行的工作流引擎，给协调者 agent 用。人把做事方法写成 Workbook（TOML 图加自然语言说明），协调者 agent 按图派活，引擎记状态、发任务书、限定合法下一步、守门槛。引擎不判断内容好坏。
+[文档](docs/zh-CN/README.md) · [快速开始](#快速开始) · [参与贡献](CONTRIBUTING.md) · [发布版本](https://github.com/samuelj1519/sheltie/releases)
 
-学习、操作与源码解释见 [docs](docs/README.zh-CN.md)；行为、合同与验收依据见 [specs](specs/README.zh-CN.md)；统一词汇见 [CONTEXT](CONTEXT.zh-CN.md)，agent 入口见 [AGENTS.md](AGENTS.zh-CN.md)。
+## Sheltie 提供什么
+
+- **可复用的方法：** 在 Workbook 中声明步骤、执行者、输入、输出、审查回环和批准门槛。
+- **具体的任务书：** 每个 Attempt 获得冻结输入的路径和声明的输出要求。
+- **本地持久进度：** 查看状态卡，中断后从已记录状态续接。
+- **明确的控制流程：** 按 CLI 返回的合法下一步操作，支持文本和 JSON 输出。
+
+引擎是一个 Rust 二进制，使用本地 SQLite 保存状态。引擎不调用模型、不判断自然语言内容、不安装宿主资源，也不自动发布成果。这些职责由协调者承担。详见[支持范围与限制](docs/zh-CN/reference/limitations.md)。
+
+## 选择版本
+
+当前产品环境为 **Apple Silicon Mac（`aarch64`），使用 APFS 文件系统**。
+
+| 版本类型 | 版本 | 从哪里开始 |
+| --- | --- | --- |
+| 最新有记录的发布版本 | **v0.2.0** | [发布记录](docs/zh-CN/reference/releases/v0.2.0/README.md)，或使用下方安装命令 |
+| 当前源码候选 | **0.3.0-rc.1**，尚未发布 | [从源码构建](docs/zh-CN/how-to/build-from-source.md)，再运行[第一个 Work](docs/zh-CN/tutorials/first-work.md) |
+
+当前源码以英文为默认语言，并提供 [code-change](docs/zh-CN/how-to/run-code-change.md)、[明确成果导出](docs/zh-CN/how-to/export-results.md)等新增能力。v0.2.0 二进制不包含这些能力。仓库文档说明当前源码；发布版本保留各自的 CLI 文案和行为。
+
+v0.2.0 使用 Store schema 2，当前源码使用 schema 4。两个版本应使用独立管理根，Store 格式不会自动迁移。安装、升级、回滚和卸载的完整步骤见[安装管理指南](docs/zh-CN/how-to/manage-installation.md)。
 
 ## 快速开始
 
-使用当前开发源码，第一次学习先读[第一个 Work 教程](docs/tutorials/first-work.zh-CN.md)；已有实际仓库任务时使用 [code-change 指南](docs/how-to/run-code-change.zh-CN.md)。二者均从源码构建，并使用新的显式管理根。
+### 安装已发布引擎
 
-装引擎（本版本 macOS aarch64）：
+在 Apple Silicon Mac 上执行：
 
 ```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-cli-installer.sh | sh
-export PATH="$HOME/.sheltie/bin:$PATH"    # 安装器也会提示 source ~/.sheltie/bin/env，效果相同
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/sheltie-cli-installer.sh | sh
+export PATH="$HOME/.sheltie/bin:$PATH"
+```
+
+演示使用新建的临时管理根。后续命令在同一个 shell 中执行；`self version` 显示选定的管理根和二进制版本。
+
+```bash
+export SHELTIE_HOME="$(mktemp -d /private/tmp/sheltie-demo.XXXXXX)"
 sheltie self version
-```
-
-默认示例使用英文；下面显式选择中文版 Workbook 并装进来（`workbook add` 的相对路径在克隆的父目录里执行）：
-
-```bash
 git clone --depth 1 https://github.com/samuelj1519/sheltie.git
-sheltie workbook add sheltie/examples/two-step-zh-CN
+cd sheltie
+sheltie workbook add examples/two-step
+sheltie work start --workbook two-step --flow default --input 'topic=Introduce Sheltie to a newcomer'
 ```
 
-开一个 Work 并走完它。`work start` 的响应给出 `work_id`，之后用它的唯一前缀即可（下面写作 `<work>`）：
+### 运行两步方法
+
+将 `<work>` 替换为返回的 `work_id` 或其唯一前缀，领取第一个任务：
 
 ```bash
-sheltie work start --workbook two-step-zh-cn --flow default --input topic="给新人介绍 Sheltie"
 sheltie attempt begin <work> --node outline
 ```
 
-`attempt begin` 的响应给出 `brief_path`（任务书）与输出目录。读任务书，按它把提纲写到输出目录里的 `outline.md`，然后提交：
+读取返回的 `brief_path`，把 `outline.md` 写到声明的输出位置，再提交并领取下一项任务：
 
 ```bash
-sheltie attempt submit <work> --attempt outline#1.0 --summary "三段提纲：是什么、怎么用、边界"
+sheltie attempt submit <work> --attempt outline#1.0 --summary 'Outline written'
 sheltie attempt begin <work> --node summary
 ```
 
-同样读任务书、写 `summary.md`、提交：
+读取新任务书及其绑定的提纲，把 `summary.md` 写到声明的输出位置，再完成运行：
 
 ```bash
-sheltie attempt submit <work> --attempt summary#1.0 --summary "按提纲写完摘要"
-sheltie work status <work>          # status: succeeded
+sheltie attempt submit <work> --attempt summary#1.0 --summary 'Summary follows the outline'
+sheltie work status <work>
 ```
 
-不知道下一步做什么，就看每次响应里的下一步列表（当前源码的文本模式下是「Legal next actions」，已发布版本按自身格式显示，JSON 模式下是 `next` 数组，每项都是可直接执行的命令），或读 `sheltie work status <work>` 的状态卡。升级用 `sheltie self update`，出问题 `sheltie self rollback`。注意 rollback 只换回旧二进制，不降级 Store：schema 是 2，旧数据留在旧管理根，查旧记录要旧二进制配旧管理根。
+预期状态为 `succeeded`，合法下一步为空。提交检查文件合同，协调者仍需判断输出内容。使用当前源码时，[完整教程](docs/zh-CN/tutorials/first-work.md)提供逐步命令、输出示例和成果选择说明。
 
-`sheltie self uninstall` 默认只删除 `bin/`，保留 Store、Workbook 和 Work。`sheltie self uninstall --purge --yes` 清除管理数据与安装二进制，但保留原管理根和同一个 `.lock`；失败响应会列出已完成清理的顶层目录及出错位置，修复原因后可重复执行。
+## 从 agent 使用 Sheltie
 
-在 Claude Code 里可以输入 `/sheltie` 让协调者代劳。装 skill 取发布资产 `sheltie-skill.tar.gz`（发布流程随每版挂出的自包含交付，解压即用，不依赖保留源码目录）：
+Claude Code 使用 `/sheltie` 调用协调者 skill。发布版本附带可独立使用的 skill 资产：
 
 ```bash
 mkdir -p ~/.claude/skills
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/latest/download/sheltie-skill.tar.gz | tar xz -C ~/.claude/skills/
 ```
 
-开发候选还提供 [最小代码变更方法](examples/code-change/README.md)：准备 task/project，按固定实现、独立审查、成果整理阶段运行，重开先读当前指针，终点选择明确报告。此方法与结果命令尚未纳入上面的 v0.2.0 远端安装产物。
+CLI 工作流程见当前[协调者指令](skills/sheltie/SKILL.zh-CN.md)。中文版指令和 Workbook 通过明确的语言链接与方法 ID 选择。引擎不负责安装或配置宿主 skill。
 
-项目以英文为默认语言，中文资料通过语言链接与独立方法 ID 选择；代码注释、产品提示和今后的提交信息使用英文。
+## 文档与贡献
 
-## 开发
+- **学习使用：** [第一个 Work](docs/zh-CN/tutorials/first-work.md)、[门槛与成果](docs/zh-CN/tutorials/gate-and-result.md)。
+- **执行实际任务：** [code-change](docs/zh-CN/how-to/run-code-change.md)、[spec-dev](docs/zh-CN/how-to/run-spec-dev.md)、[续接 Work](docs/zh-CN/how-to/resume-work.md)。
+- **编写方法：** [编写 Workbook](docs/zh-CN/how-to/write-workbook.md)、[编辑 Workbook](docs/zh-CN/how-to/edit-workbook.md)。
+- **查阅行为：** [CLI 参考](docs/zh-CN/reference/cli.md)、[规格](specs/README.md)、[领域词汇](CONTEXT.md)。
+- **参与贡献或获取帮助：** [贡献指南](CONTRIBUTING.md)、[agent 指令](AGENTS.md)、[支持](SUPPORT.md)、[安全问题报告](SECURITY.md)、[行为准则](CODE_OF_CONDUCT.md)。
 
-```bash
-cargo check --all-targets --all-features
-cargo clippy --all-targets --all-features -- -D warnings
-cargo nextest run --all-features --no-tests=pass
-cargo deny check
-scripts/check-docs.sh
-scripts/check-specs.sh
-python3 scripts/check-language.py
-```
-
-工具链由 `rust-toolchain.toml` 固定为 stable（edition 2024，MSRV 1.85）。
+双语文档可从 [GitHub Wiki](https://github.com/samuelj1519/sheltie/wiki) 或上方仓库文档链接阅读。项目以英文为默认语言，保留中文使用文档和方法指令，并保留有实际用途的 Unicode 测试数据与历史原始证据。
 
 ## 许可
 
-Sheltie 以 [MIT](LICENSE) 许可发布。仓库中单独标注许可的第三方文件仍遵循各自的声明。
+[MIT](LICENSE)。单独标注许可的第三方文件仍遵循各自的声明。

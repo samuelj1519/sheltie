@@ -1,7 +1,5 @@
 # Run the minimal code-change method
 
-English | [简体中文](../code-change-zh-CN/README.md)
-
 For authorized local repository changes with clear acceptance/check commands. Fixed stages/frozen reports do not replace actual code in the project; workers/reviewers verify reported commit/patch/tool references.
 
 Current candidate0.3.0-rc.1 is unreleased. Build current sheltie and use a new explicit root, retaining old binaries/roots unchanged. Default method code-change@1.0.1 is English; code-change-zh-cn@1.0.0 is the maintained Chinese variant. Neither has a default gate or grants deployment/merge/publication authority.
