@@ -318,7 +318,7 @@ fn replay_decodes_command_and_data_before_reading_the_frozen_workbook() {
         }
         let frozen = env.dir.path().join("works").join(&work).join("workbook");
         let retained = frozen.with_file_name("retained-workbook");
-        std::fs::rename(&frozen, &retained).unwrap();
+        retain_frozen_copy(&frozen, &retained);
         let before = persisted(&env);
         let new_args = [
             "--request-id",

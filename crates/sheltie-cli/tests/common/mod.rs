@@ -154,6 +154,38 @@ pub fn copy_dir(src: &Path, dst: &Path) {
     }
 }
 
+/// Remove a frozen lookup while retaining the original directory and its permissions.
+pub fn retain_frozen_copy(frozen: &Path, retained: &Path) {
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+    let parent = frozen.parent().unwrap();
+    assert_eq!(retained.parent(), Some(parent));
+    let parent_permissions = std::fs::metadata(parent).unwrap().permissions();
+    let parent_mode = parent_permissions.mode();
+    let original = std::fs::metadata(frozen).unwrap();
+    let frozen_permissions = original.permissions();
+    let frozen_mode = frozen_permissions.mode();
+    std::fs::set_permissions(parent, std::fs::Permissions::from_mode(parent_mode | 0o700)).unwrap();
+    // The macOS 14 CI fixture move needs write access to this source directory.
+    std::fs::set_permissions(frozen, std::fs::Permissions::from_mode(frozen_mode | 0o200)).unwrap();
+    let moved = std::fs::rename(frozen, retained);
+    let restore_path = if moved.is_ok() { retained } else { frozen };
+    std::fs::set_permissions(restore_path, frozen_permissions).unwrap();
+    std::fs::set_permissions(parent, parent_permissions).unwrap();
+    assert_eq!(
+        std::fs::metadata(parent).unwrap().permissions().mode(),
+        parent_mode
+    );
+    let restored = std::fs::metadata(restore_path).unwrap();
+    assert_eq!(restored.permissions().mode(), frozen_mode);
+    assert_eq!(
+        (restored.dev(), restored.ino()),
+        (original.dev(), original.ino())
+    );
+    moved.unwrap();
+    assert!(!frozen.exists(), "the frozen lookup must remain missing");
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct TreeObject {
     pub device: u64,

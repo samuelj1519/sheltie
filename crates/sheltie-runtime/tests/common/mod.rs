@@ -88,6 +88,44 @@ pub fn abs(p: &Path) -> AbsPath {
     AbsPath::new(p.to_str().unwrap()).unwrap()
 }
 
+/// Retain a frozen directory for fault injection, restoring modes before the subject runs.
+pub fn retain_frozen_directory(source: &Path, retained: &Path) {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let parent = source.parent().unwrap();
+    assert_eq!(retained.parent(), Some(parent));
+    assert!(!retained.exists());
+    let source_metadata = std::fs::symlink_metadata(source).unwrap();
+    assert!(source_metadata.is_dir());
+    let source_permissions = source_metadata.permissions();
+    let parent_permissions = std::fs::metadata(parent).unwrap().permissions();
+    let source_mode = source_permissions.mode();
+    let parent_mode = parent_permissions.mode();
+
+    // Older macOS requires owner write on the directory itself, not only its parent.
+    let moved = (|| {
+        std::fs::set_permissions(parent, std::fs::Permissions::from_mode(parent_mode | 0o200))?;
+        std::fs::set_permissions(source, std::fs::Permissions::from_mode(source_mode | 0o200))?;
+        std::fs::rename(source, retained)
+    })();
+    let source_location = if moved.is_ok() { retained } else { source };
+    let restored_source = std::fs::set_permissions(source_location, source_permissions);
+    let restored_parent = std::fs::set_permissions(parent, parent_permissions);
+    restored_source.unwrap();
+    restored_parent.unwrap();
+    moved.unwrap();
+
+    assert_eq!(
+        std::fs::metadata(retained).unwrap().permissions().mode(),
+        source_mode
+    );
+    assert_eq!(
+        std::fs::metadata(parent).unwrap().permissions().mode(),
+        parent_mode
+    );
+    assert!(!source.exists());
+}
+
 /// Fresh temporary management root; return TempDir to keep it alive.
 pub fn temp_home() -> (OwnedTempDir, Home) {
     let dir = OwnedTempDir::new();

@@ -719,13 +719,13 @@ fn replacement_complete_payloads_are_decoded_before_frozen_workbook_io() {
             )
             .unwrap();
         let frozen = home.work_dir(&work).join_segment("workbook");
-        std::fs::rename(
-            frozen.as_path(),
+        retain_frozen_directory(
+            frozen.as_path().as_std_path(),
             home.work_dir(&work)
                 .join_segment("retained-workbook")
-                .as_path(),
-        )
-        .unwrap();
+                .as_path()
+                .as_std_path(),
+        );
         let before = store_rows(&connection);
         let error = service.status_read(&work).unwrap_err();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt);

@@ -396,7 +396,10 @@ fn all_read_payloads_reject_unknown_fields_before_frozen_workbook_io() {
             .unwrap();
         let frozen = home.work_dir(&work).join_segment("workbook");
         let retained = home.work_dir(&work).join_segment("retained-workbook");
-        std::fs::rename(frozen.as_path(), retained.as_path()).unwrap();
+        retain_frozen_directory(
+            frozen.as_path().as_std_path(),
+            retained.as_path().as_std_path(),
+        );
         let before = store_rows(&connection);
         for error in [
             service.status_read(&work).unwrap_err(),
